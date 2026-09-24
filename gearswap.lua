@@ -177,6 +177,20 @@ windower.register_event('addon command',function (...)
         else
             msg.addon_msg(123,'Equip command cannot be completed. That set does not exist.')
         end
+    elseif cmd == 'test' or cmd == 't' then
+        if gearswap_disabled then return end
+        if not splitup[1] then
+            msg.addon_msg(123,'Test command cannot be completed. No set was passed.')
+        else
+            local key_list = parse_set_to_keys(splitup)
+            local set = get_set_from_keys(key_list)
+            if set then
+                refresh_globals()
+                equip_sets('equip_command',nil,set_combine(sets.naked,set))
+            else
+                msg.addon_msg(123,'Test command cannot be completed. That set does not exist.')
+            end
+        end
     elseif cmd == 'export' then
         export_set(splitup)
     elseif cmd == 'validate' then
@@ -221,6 +235,7 @@ windower.register_event('addon command',function (...)
         print('GearSwap: Valid commands are:')
         print(' c <string>      : passes the string to the user\'s self_command function.')
         print(' equip <string>  : attempts to equip the set indicated by the string.')
+        print(' test <string>   : unequips everything, then equips the set indicated by the string. (alias: t)')
         print(' debugmode       : toggles debugmode on or off.')
         print(' demomode        : toggles demomode on or off.')
         print(' showswaps       : toggles whether gearswap displays equipment changes in the chat log.')
