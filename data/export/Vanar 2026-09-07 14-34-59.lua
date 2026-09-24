@@ -1,0 +1,17 @@
+sets.exported = {
+    main="Tizona",
+    sub="Thibron",
+    ammo="Ginsen",
+    head="Hashishin Kavuk +3",
+    body="Hashishin Mintan +3",
+    hands="Hashi. Bazu. +3",
+    legs={ name="Carmine Cuisses +1", augments={'Accuracy+20','Attack+12','"Dual Wield"+6',}},
+    feet="Nyame Sollerets",
+    neck="Asperity Necklace",
+    waist="Sailfi Belt +1",
+    left_ear="Brutal Earring",
+    right_ear={ name="Hashi. Earring +1", augments={'System: 1 ID: 1676 Val: 0','Accuracy+12','Mag. Acc.+12','"Dbl.Atk."+4',}},
+    left_ring="Rajas Ring",
+    right_ring="Lehko's Ring",
+    back={ name="Rosmerta's Cape", augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Dbl.Atk."+10','Phys. dmg. taken-10%',}},
+}
