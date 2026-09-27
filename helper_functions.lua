@@ -433,6 +433,134 @@ end
 
 
 -----------------------------------------------------------------------------------
+--Name: test_command(splitup)
+--Desc: Handles "gs test". "test set <set>" unequips everything, then equips the set.
+--      "test [precast|midcast] <action>" unequips everything but the weapons, then runs the
+--      user file's precast (and, for magic, midcast unless precast alone was asked for) with
+--      that spell, ability or weapon skill as if it had been used, without using it.
+--Args:
+---- splitup - The command's words after "test".
+-----------------------------------------------------------------------------------
+--Returns:
+---- none
+-----------------------------------------------------------------------------------
+function test_command(splitup)
+    local stage = splitup[1] and splitup[1]:lower()
+    if stage == 'set' then
+        table.remove(splitup,1)
+        if not splitup[1] then
+            msg.addon_msg(123,'Test command cannot be completed. No set was passed.')
+            return
+        end
+        local set = get_set_from_keys(parse_set_to_keys(splitup))
+        if not set then
+            msg.addon_msg(123,'Test command cannot be completed. That set does not exist.')
+            return
+        end
+        refresh_globals()
+        equip_sets('equip_command',nil,set_combine(sets.naked,set))
+        hold_test_gear()
+        return
+    end
+
+    if stage == 'precast' or stage == 'midcast' then
+        table.remove(splitup,1)
+    else
+        stage = nil
+    end
+    local name = table.concat(splitup,' '):gsub('"',''):lower()
+    if name == '' then
+        msg.addon_msg(123,'Usage: gs test set <set>  or  gs test [precast|midcast] <spell, ability or weapon skill>')
+        return
+    end
+
+    refresh_globals()
+    local spell = test_action(name)
+    if not spell then
+        msg.addon_msg(123,'Test command cannot be completed. No spell, ability or weapon skill called "'..name..'".')
+        return
+    end
+
+    -- The weapons stay, as they would for a real action: locked while engaged, or swapped by the sets.
+    -- One equip_sets pass merges the stages, so a slot only ends up empty when no stage filled it.
+    local naked = table.reassign({},sets.naked)
+    naked.main, naked.sub, naked.range = nil, nil, nil
+    equip_sets(function()
+        equip(naked)
+        user_pcall('precast',spell)
+        if stage ~= 'precast' and spell.action_type == 'Magic' then
+            user_pcall('midcast',spell)
+        end
+    end)
+    hold_test_gear()
+end
+
+
+-----------------------------------------------------------------------------------
+--Name: hold_test_gear()
+--Desc: Disables the user file for 30 seconds, as "gs disable" does, so the test gear stays on.
+--      A manual "gs enable" or "gs disable" in the meantime takes over from the timer.
+--Args:
+---- none
+-----------------------------------------------------------------------------------
+--Returns:
+---- none
+-----------------------------------------------------------------------------------
+function hold_test_gear()
+    test_hold = test_hold + 1
+    gearswap_disabled = true
+    print('GearSwap: User file disabled for 30 seconds while the test gear is on.')
+    windower.send_command('@wait 30;lua i '.._addon.name..' test_enable '..test_hold)
+end
+
+
+-----------------------------------------------------------------------------------
+--Name: test_enable(hold)
+--Desc: Ends a gs test hold: enables the user file again and puts its status gear back on.
+--Args:
+---- hold - The test_hold count when the hold began; an older count is a stale timer.
+-----------------------------------------------------------------------------------
+--Returns:
+---- none
+-----------------------------------------------------------------------------------
+function test_enable(hold)
+    if tonumber(hold) ~= test_hold or not gearswap_disabled then return end
+    gearswap_disabled = false
+    print('GearSwap: User file enabled')
+    refresh_globals()
+    equip_sets('status_change',nil,player.status,player.status)
+end
+
+
+-----------------------------------------------------------------------------------
+--Name: test_action(name)
+--Desc: Builds the spell table the user file would get for the named spell, ability or
+--      weapon skill, targeting the current target (or the player), flagged as a test.
+--Args:
+---- name - The action's name in the client language, lower-cased.
+-----------------------------------------------------------------------------------
+--Returns:
+---- The spell table, or nil when nothing has that name.
+-----------------------------------------------------------------------------------
+function test_action(name)
+    local resources = {['/ma']=res.spells,['/ws']=res.weapon_skills,['/ja']=res.job_abilities}
+    for _,prefix in ipairs({'/ma','/ws','/ja'}) do
+        local id = validabils[language][prefix][name]
+        if id then
+            local r_line = copy_entry(resources[prefix][id])
+            r_line.name = r_line[language]
+            local spell = spell_complete(r_line)
+            spell.target = target_complete(windower.ffxi.get_mob_by_target('t') or windower.ffxi.get_mob_by_target('me'))
+            spell.target.raw = spell.target.type == 'SELF' and '<me>' or '<t>'
+            spell.action_type = action_type_map[prefix]
+            spell.test = true
+            return spell
+        end
+    end
+end
+
+
+-----------------------------------------------------------------------------------
 --Name: initialize_arrow_offset(mob_table)
 --Desc: Returns the current target arrow offset.
 --Args:

@@ -46,6 +46,11 @@ function get_sets()
 	-- or gs c toggle <Mode> for on/off modes. Mode names and values ignore case; the commands don't.
 	-- gs c update puts your idle/engaged gear back on. The mode line along the bottom of the screen
 	-- can be dragged anywhere (it starts back there on each load); gs c hud hides or shows it.
+	-- gs test [precast|midcast] <spell, ability or weapon skill> strips all but your weapons and wears
+	-- what that action would (midcast follows precast, so slots no set fills stay empty); it skips the
+	-- can't-act checks, job_filter_precast and the weapon skill buffs. gs test set <path> wears a set
+	-- over the naked one. Either way this file is disabled for 30 seconds so the gear stays on, then
+	-- your idle or engaged gear comes back.
 	-- Weapon skills follow OffenseMode: sets.precast.WS["Savage Blade"].Acc
 	-- state.CastingMode:options("Normal", "Resistant")
 	-- state.OffenseMode:options("Normal", "Acc")
@@ -137,7 +142,7 @@ end
 function job_get_spell_map(spell, defaultMap) end
 
 -- Return true to cancel the action before any gear changes, e.g. to use a job ability first and
--- re-cast the spell afterwards. Runs after Core's own can't-act check.
+-- re-cast the spell afterwards. Runs after Core's own can't-act check; not for gs test actions.
 function job_filter_precast(spell, spellMap) end
 
 function job_post_precast(spell, spellMap) end

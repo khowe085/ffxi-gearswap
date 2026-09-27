@@ -132,6 +132,7 @@ require 'triggers'
 
 initialize_packet_parsing()
 gearswap_disabled = false
+test_hold = 0 -- Counts gs test holds and manual enable/disable toggles, so a stale hold timer does nothing.
 
 windower.register_event('load',function()
     windower.debug('load')
@@ -177,6 +178,9 @@ windower.register_event('addon command',function (...)
         else
             msg.addon_msg(123,'Equip command cannot be completed. That set does not exist.')
         end
+    elseif cmd == 'test' or cmd == 't' then
+        if gearswap_disabled then return end
+        test_command(splitup)
     elseif cmd == 'export' or cmd == 'x' then
         export_set(splitup)
     elseif cmd == 'validate' then
@@ -221,6 +225,8 @@ windower.register_event('addon command',function (...)
         print('GearSwap: Valid commands are:')
         print(' c <string>      : passes the string to the user\'s self_command function.')
         print(' equip <string>  : attempts to equip the set indicated by the string.')
+        print(' test set <string> : unequips everything, then equips the set indicated by the string, and disables the user file for 30 seconds. (alias: t)')
+        print(' test [precast|midcast] <action> : unequips all but your weapons, then wears what your file picks for that spell, ability or weapon skill as if it were used, and disables the user file for 30 seconds.')
         print(' debugmode       : toggles debugmode on or off.')
         print(' demomode        : toggles demomode on or off.')
         print(' showswaps       : toggles whether gearswap displays equipment changes in the chat log.')
@@ -275,6 +281,7 @@ function disenable(tab,funct,functname,pol)
     elseif gearswap_disabled ~= pol and not tab[2] then
         print('GearSwap: User file '..functname..'d')
         gearswap_disabled = pol
+        test_hold = test_hold + 1
     end
 end
 

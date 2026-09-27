@@ -1027,19 +1027,21 @@ local function equip_auto_th(spell)
 end
 
 function precast(spell)
-	if cannot_act(spell) then
-		cancel_spell()
-		return
-	end
-
 	local spellMap = get_spell_map(spell)
-	if job_filter_precast and job_filter_precast(spell, spellMap) then
-		cancel_spell()
-		return
-	end
-
-	if spell.type == "WeaponSkill" and buff_before_ws(spell) then
-		return
+	-- gs test hands in an action flagged test: it gets the set selection and the job hooks but skips
+	-- the checks and buffs meant for a real use, since nothing is used.
+	if not spell.test then
+		if cannot_act(spell) then
+			cancel_spell()
+			return
+		end
+		if job_filter_precast and job_filter_precast(spell, spellMap) then
+			cancel_spell()
+			return
+		end
+		if spell.type == "WeaponSkill" and buff_before_ws(spell) then
+			return
+		end
 	end
 
 	-- The lock can be stale here: nothing has locked yet if this file was (re)loaded mid-fight, and

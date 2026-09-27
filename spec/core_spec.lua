@@ -2085,6 +2085,39 @@ describe("Core", function()
 		end)
 	end)
 
+	describe("a gs test action", function()
+		it("wears its gear past the can't-act check, since nothing is used", function()
+			gs.env.player.tp = 0
+			sets.precast.WS["Savage Blade"] = { head = "Savage Blade Head" }
+			local action = weapon_skill("Savage Blade")
+			action.test = true
+
+			gs.env.precast(action)
+
+			assert.is_false(gs.cancelled)
+			assert.are.same({ head = "Savage Blade Head" }, gs:worn())
+		end)
+
+		it("skips job_filter_precast and the weapon skill buffs", function()
+			gs.env.player.main_job = "WAR"
+			gs.ability_recasts = { [1] = 0 }
+			local filtered = false
+			gs.env.job_filter_precast = function()
+				filtered = true
+				return true
+			end
+			sets.precast.WS["Savage Blade"] = { head = "Savage Blade Head" }
+			local action = weapon_skill("Savage Blade")
+			action.test = true
+
+			gs.env.precast(action)
+
+			assert.is_false(filtered)
+			assert.are.same({}, gs.commands)
+			assert.are.same({ head = "Savage Blade Head" }, gs:worn())
+		end)
+	end)
+
 	describe("job change", function()
 		it("calls job_post_job_change on the first tick after loading, and again when the sub job changes", function()
 			local calls = 0

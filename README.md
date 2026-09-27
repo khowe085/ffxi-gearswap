@@ -12,6 +12,9 @@ Commands (<> indicates a field. You do not actually have to use <>s):
 * gs c <string> : Passes the <string> to the self_command() user function.
 * gs equip <string> : Attempts to interpret the <string> as an index of the sets table and equip that set. Will ignore "sets" if the string starts with it.
 ** gs equip naked : This equips the default set "naked," which is just a bunch of empty slots. If you remake sets (sets={}) in your get_sets(), this will not work.
+* gs test set <string> : (or t set <string>) Equips the naked set, then the set indicated by the <string>, so slots the set leaves out end up empty.
+* gs test [precast|midcast] <action> : Equips the naked set except for your weapons, then runs your file's precast for the named spell, ability or weapon skill (and midcast for a spell, unless "precast" is given) with the action flagged test = true, without using it. Your file can read spell.test to skip checks meant for a real use.
+** Both forms then disable the user file for 30 seconds (as gs disable does) so the test gear stays on; after that it is enabled again and your status gear goes back on. gs enable or gs disable in the meantime cancels the timer.
 * gs debugmode : Activates GearSwap's Debug Mode, which prints out why specific gear equipping attempts failed, shows you when you're entering events, and enables the eval command.
 ** gs eval <string> : This command evaluates the <string> as Lua code in the global gearswap environment (not the user environment, which is in the user_env table). It is only available when debugmode is on.
 * gs showswaps : Shows when your gear successfully changes and what it changes to.
