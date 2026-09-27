@@ -57,6 +57,8 @@ describe("Template", function()
 			"job_customize_melee_set",
 			"job_self_command",
 			"job_file_unload",
+			"job_post_job_change",
+			"job_filter_precast",
 		}) do
 			assert.are.equal("function", type(gs.env[hook]), hook)
 		end

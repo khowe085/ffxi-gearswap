@@ -1032,6 +1032,12 @@ function precast(spell)
 		return
 	end
 
+	local spellMap = get_spell_map(spell)
+	if job_filter_precast and job_filter_precast(spell, spellMap) then
+		cancel_spell()
+		return
+	end
+
 	if spell.type == "WeaponSkill" and buff_before_ws(spell) then
 		return
 	end
@@ -1044,7 +1050,6 @@ function precast(spell)
 		unlock_weapons()
 	end
 
-	local spellMap = get_spell_map(spell)
 	equip(get_precast_set(spell, spellMap))
 	-- Abilities resolve as they're used, so their TH gear goes on here; spells get it at midcast.
 	if spell.action_type ~= "Magic" and spell.action_type ~= "Ranged Attack" then
@@ -1316,7 +1321,34 @@ local function can_cast_buff(buff)
 		and gearswap.check_spell(windower.ffxi.get_spells(), spell)
 end
 
--- Sel's check_buff: casts the first buff in the selected list that isn't up, one per tick.
+-- Blue magic the game refuses without Unbridled Learning (or Wisdom) up, from Sel's BLU file.
+local unbridled_spells = set_of({
+	"Absolute Terror",
+	"Blistering Roar",
+	"Bloodrake",
+	"Carcharian Verve",
+	"Cesspool",
+	"Crashing Thunder",
+	"Cruel Joke",
+	"Droning Whirlwind",
+	"Gates of Hades",
+	"Harden Shell",
+	"Mighty Guard",
+	"Polar Roar",
+	"Pyric Bulwark",
+	"Tearing Gust",
+	"Thunderbolt",
+	"Tourbillion",
+	"Uproot",
+})
+local unbridled_learning_recast = 81
+
+local function unbridled_up()
+	return buffactive["unbridled learning"] or buffactive["unbridled wisdom"]
+end
+
+-- Sel's check_buff: casts the first buff in the selected list that isn't up, one per tick. A buff
+-- that needs Unbridled Learning gets the ability first, once it's ready; the spell follows next tick.
 local function check_buff()
 	sync_autobuff()
 	local list = buff_spell_lists and buff_spell_lists[state.AutoBuffMode.value]
@@ -1326,8 +1358,13 @@ local function check_buff()
 	for _, buff in ipairs(list) do
 		local complete = buff.Name and buff.Buff and buff.SpellID
 		if complete and not buffactive[buff.Buff:lower()] and buff_wanted(buff) and can_cast_buff(buff) then
-			send_command('input /ma "' .. buff.Name .. '" <me>')
-			return
+			if not unbridled_spells[buff.Name] or unbridled_up() then
+				send_command('input /ma "' .. buff.Name .. '" <me>')
+				return
+			elseif not recast_running(windower.ffxi.get_ability_recasts(), unbridled_learning_recast) then
+				send_command('input /ja "Unbridled Learning" <me>')
+				return
+			end
 		end
 	end
 end
@@ -1460,7 +1497,20 @@ end
 
 update_hud()
 
+-- GearSwap reloads the job file on a main job change and calls sub_job_change on a sub job change;
+-- the hook runs after both. For the load, the first tick comes once the whole file has run.
+local function job_changed()
+	if job_post_job_change then
+		job_post_job_change()
+	end
+end
+
+function sub_job_change()
+	job_changed()
+end
+
 local tick_time = 0
+local load_reported = false
 
 -- Sel's tick: a prerender check twice a second. Raw events don't refresh GearSwap's globals.
 local function tick()
@@ -1470,6 +1520,10 @@ local function tick()
 	end
 	tick_time = os.clock() + 0.5
 	gearswap.refresh_globals(false)
+	if not load_reported then
+		load_reported = true
+		job_changed()
+	end
 	update_combat()
 	update_hud()
 	if moving or os.clock() < auto_action_time or buffactive.invisible or cities[world.area] then

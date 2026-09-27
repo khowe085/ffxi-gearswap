@@ -3,8 +3,8 @@
 -- Actions that can't happen right now (another action still resolving, a WS under 1000 TP, a
 -- running recast, Silence, Amnesia, Sleep...) are cancelled silently before any gear changes.
 -- Core.lua defines precast, midcast, aftercast, pet_midcast, pet_aftercast, status_change,
--- self_command and file_unload; don't define those here, since yours would replace Core's. Use the
--- job hooks at the bottom instead.
+-- sub_job_change, self_command and file_unload; don't define those here, since yours would replace
+-- Core's. Use the job hooks at the bottom instead.
 include("Core.lua")
 
 -- Named pieces the sets below refer to as gear.*. Uncomment each piece you own and fill in its
@@ -136,6 +136,10 @@ end
 -- Return a spell map name to use instead of defaultMap, or nil to keep it.
 function job_get_spell_map(spell, defaultMap) end
 
+-- Return true to cancel the action before any gear changes, e.g. to use a job ability first and
+-- re-cast the spell afterwards. Runs after Core's own can't-act check.
+function job_filter_precast(spell, spellMap) end
+
 function job_post_precast(spell, spellMap) end
 
 -- Not called for weapon skills or job abilities, which have no midcast.
@@ -157,6 +161,10 @@ end
 -- Gets any gs c command Core doesn't handle itself (cycle, set, toggle, update, hud); return true
 -- for the ones you handle.
 function job_self_command(command) end
+
+-- Runs once this file has loaded (GearSwap reloads it on a main job change) and after a sub job
+-- change, e.g. to pick a macro book or lockstyle.
+function job_post_job_change() end
 
 -- Runs when this file unloads (job change, //gs reload), e.g. to unbind keys bound in get_sets().
 function job_file_unload() end

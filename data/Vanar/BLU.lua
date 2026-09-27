@@ -2,7 +2,7 @@
 -- best owned piece for that set's job (per bg-wiki) stands in, with Mytha's piece noted beside it.
 -- init_gear() defines every set on the gear table; get_sets() sets the modes and hands them to
 -- Core.lua, which defines precast, midcast, aftercast, pet_midcast, pet_aftercast, status_change,
--- self_command and file_unload. The job hooks at the bottom add BLU's own behavior.
+-- sub_job_change, self_command and file_unload. The job hooks at the bottom add BLU's own behavior.
 include("Core.lua")
 
 local function init_gear()
@@ -29,7 +29,7 @@ local function init_gear()
 	gear.empy_ear = "Hashi. Earring +1"
 
 	-- Ambuscade capes
-	gear.da_cape = {name = "Rosmerta's Cape", augments = { "DEX+20", "Accuracy+20 Attack+20", "Accuracy+10", '"Dbl.Atk."+10', "Phys. dmg. taken-10%" } }
+	gear.da_cape = {name = "Rosmerta's Cape", augments = { "DEX+20", "Accuracy+20 Attack+20", "Accuracy+10", '"Dbl.Atk."+10', "Damage taken-5%" } }
 	gear.crit_cape = { name = "Rosmerta's Cape", augments = { "DEX+20", "Accuracy+20 Attack+20", "Crit.hit rate+9" } }
 	gear.wsd_cape = {name = "Rosmerta's Cape", augments = { "STR+20", "Accuracy+20 Attack+20", "STR+10", "Weapon skill damage +10%" } }
 	gear.nuke_cape = {name = "Rosmerta's Cape",	augments = { "INT+20", "Mag. Acc+20 /Mag. Dmg.+20", "Mag. Acc.+10", '"Mag.Atk.Bns."+10' } }
@@ -99,7 +99,7 @@ local function init_gear()
 		-- hands: Mytha's Herculean Gloves with a Waltz augment; nothing owned fits
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
 		-- ring2: Mytha's Valseur's Ring; nothing owned fits
-		back = "Solemnity Cape", -- Mytha: Moonlight Cape
+		back = gear.da_cape, -- Mytha: Moonlight Cape
 		waist = "Chaac Belt",
 		legs = gear.empy_legs, -- Mytha: Dashing Subligar
 		-- feet: Mytha's Herculean Boots with a Waltz augment; nothing owned fits
@@ -171,8 +171,8 @@ local function init_gear()
 		ear2 = gear.empy_ear, -- Mytha: Cessance Earring
 		body = gear.adhemar_body,
 		hands = "Jhakri Cuffs +2",
-		ring1 = "Epona's Ring",
-		ring2 = "Apate Ring",
+		ring1 = "Karieyh Ring", -- Mytha: Epona's Ring
+		ring2 = "Epaminondas's Ring", -- Mytha: Apate Ring
 		back = gear.da_cape,
 		waist = "Fotia Belt",
 		legs = gear.relic_legs,
@@ -187,7 +187,7 @@ local function init_gear()
 		ear2 = gear.empy_ear, -- Mytha: Mache Earring +1
 		body = gear.af_body,
 		hands = gear.af_hands,
-		ring1 = "Epona's Ring",
+		ring1 = "Karieyh Ring", -- Mytha: Epona's Ring
 		ring2 = "Lehko's Ring", -- Mytha: Ilabrat Ring
 		back = gear.da_cape,
 		waist = "Fotia Belt",
@@ -226,7 +226,7 @@ local function init_gear()
 		head = "Jhakri Coronal +2",
 		ear1 = "Alabaster Earring", -- Mytha: Telos Earring
 		ear2 = gear.empy_ear, -- Mytha: Regal Earring
-		ring1 = "Epona's Ring", -- Mytha: Rufescent Ring
+		ring1 = "Karieyh Ring", -- Mytha: Rufescent Ring
 		legs = "Jhakri Slops +2",
 		feet = "Jhakri Pigaches +2",
 	})
@@ -711,7 +711,7 @@ local function init_gear()
 		neck = "Loricate Torque",
 		ear1 = "Etiolation Earring",
 		ear2 = "Alabaster Earring", -- Mytha: Ethereal Earring
-		body = "Jhakri Robe +2",
+		body = gear.empy_body, -- Mytha: Jhakri Robe +2; Mintan +3 has more refresh and DT
 		hands = gear.empy_hands, -- Mytha: Herculean Gloves with a Refresh augment
 		feet = "Nyame Sollerets", -- Mytha: Herculean Boots with a Refresh augment
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
@@ -727,7 +727,7 @@ local function init_gear()
 		neck = "Loricate Torque",
 		ear1 = "Etiolation Earring",
 		ear2 = "Alabaster Earring", -- Mytha: Ethereal Earring
-		body = "Jhakri Robe +2",
+		body = gear.empy_body, -- Mytha: Jhakri Robe +2; Mintan +3 has more refresh and DT
 		hands = gear.empy_hands, -- Mytha: Herculean Gloves with a Refresh augment
 		feet = "Nyame Sollerets", -- Mytha: Herculean Boots with a Refresh augment
 		ring1 = "Stikini Ring", -- Mytha: Stikini Ring +1
@@ -743,10 +743,10 @@ local function init_gear()
 		neck = "Loricate Torque",
 		ear1 = "Etiolation Earring",
 		ear2 = "Alabaster Earring", -- Mytha: Ethereal Earring
-		body = "Jhakri Robe +2",
+		body = gear.empy_body, -- Mytha: Jhakri Robe +2; Mintan +3 has more refresh and DT
 		hands = gear.empy_hands, -- Mytha: Nyame Gauntlets; Bazu. +3 has more DT
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
-		ring2 = "Dark Ring",
+		-- ring2: Mytha's Dark Ring, dropped; damage taken is already capped
 		back = gear.da_cape, -- Mytha: Moonlight Cape
 		waist = "Flume Belt",
 		legs = gear.empy_legs, -- Mytha: Nyame Flanchard; Tayt +3 has more DT
@@ -766,7 +766,7 @@ local function init_gear()
 		ear2 = gear.empy_ear, -- Mytha: Cessance Earring
 		body = gear.adhemar_body,
 		hands = gear.adhemar_hands, -- Mytha: Adhemar Wrist. +1
-		ring1 = "Epona's Ring",
+		ring1 = "Rajas Ring", -- Mytha: Epona's Ring
 		ring2 = "Lehko's Ring", -- Mytha: Petrov Ring
 		back = gear.da_cape,
 		waist = "Sailfi Belt +1", -- Mytha: Windbuffet Belt +1
@@ -782,7 +782,7 @@ local function init_gear()
 		ear2 = gear.empy_ear, -- Mytha: Cessance Earring
 		body = gear.empy_body, -- Mytha: Malignance Tabard
 		hands = gear.empy_hands, -- Mytha: Adhemar Wrist. +1
-		ring1 = "Epona's Ring",
+		ring1 = "Rajas Ring", -- Mytha: Epona's Ring
 		ring2 = "Lehko's Ring", -- Mytha: Petrov Ring
 		back = gear.da_cape,
 		waist = "Sailfi Belt +1", -- Mytha: Windbuffet Belt +1
@@ -889,14 +889,80 @@ function get_sets()
 	sets.TreasureHunter = gear.treasure_hunter
 	sets.buff = gear.buff
 	sets.Learning = gear.learning
+end
 
-	-- Macro book 2, page by sub job; lockstyle 25.
+-- Job hooks
+
+-- Macro book 2, page by sub job; lockstyle 25.
+function job_post_job_change()
 	local macroPages = { WAR = 2, NIN = 3, DNC = 4, RDM = 3 }
 	send_command("@input /macro book 2;wait 1.1;input /macro set " .. (macroPages[player.sub_job] or 1))
 	send_command("wait 5;input /lockstyleset 25")
 end
 
--- Job hooks
+-- Spells the game refuses without Unbridled Learning (Sel's list), and the ones worth a Diffusion.
+local unbridled_spells = {
+	["Absolute Terror"] = true,
+	["Blistering Roar"] = true,
+	["Bloodrake"] = true,
+	["Carcharian Verve"] = true,
+	["Cesspool"] = true,
+	["Crashing Thunder"] = true,
+	["Cruel Joke"] = true,
+	["Droning Whirlwind"] = true,
+	["Gates of Hades"] = true,
+	["Harden Shell"] = true,
+	["Mighty Guard"] = true,
+	["Polar Roar"] = true,
+	["Pyric Bulwark"] = true,
+	["Tearing Gust"] = true,
+	["Thunderbolt"] = true,
+	["Tourbillion"] = true,
+	["Uproot"] = true,
+}
+local diffusion_spells = { ["Mighty Guard"] = true }
+local unbridled_learning_recast, diffusion_recast = 81, 184
+
+local function ability_ready(recastId)
+	return windower.ffxi.get_ability_recasts()[recastId] == 0
+end
+
+local function send_after(delay, command)
+	send_command(delay > 0 and ("wait " .. delay .. ";" .. command) or command)
+end
+
+-- Uses Unbridled Learning, then Diffusion, ahead of a spell that wants them and re-casts the spell
+-- after. Each step waits 1.1s for the last to resolve, as Core's weapon skill buffs do. Reads the
+-- live buff and recast tables, so nothing goes stale across a job change.
+function job_filter_precast(spell)
+	if spell.skill ~= "Blue Magic" then
+		return false
+	end
+	local needsUnbridled = unbridled_spells[spell.english]
+		and not (buffactive["unbridled learning"] or buffactive["unbridled wisdom"])
+	if needsUnbridled and not ability_ready(unbridled_learning_recast) then
+		add_to_chat(123, spell.english .. " needs Unbridled Learning, which isn't ready")
+		return true
+	end
+	local wantsDiffusion = diffusion_spells[spell.english]
+		and not buffactive.diffusion
+		and ability_ready(diffusion_recast)
+	if not needsUnbridled and not wantsDiffusion then
+		return false
+	end
+
+	local delay = 0
+	if needsUnbridled then
+		send_command('input /ja "Unbridled Learning" <me>')
+		delay = 1.1
+	end
+	if wantsDiffusion then
+		send_after(delay, 'input /ja "Diffusion" <me>')
+		delay = delay + 1.1
+	end
+	send_after(delay, 'input /ma "' .. spell.english .. '" ' .. spell.target.raw)
+	return true
+end
 
 local affinity_buffs = { "Burst Affinity", "Chain Affinity", "Convergence", "Diffusion", "Efflux" }
 

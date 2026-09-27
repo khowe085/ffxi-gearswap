@@ -1648,6 +1648,36 @@ describe("Core", function()
 			assert.are.same({ 'input /ma "Stoneskin" <me>' }, gs.commands)
 		end)
 
+		it("uses Unbridled Learning first for a spell that needs it, once the ability is ready", function()
+			gs.env.buff_spell_lists = {
+				Unbridled = { { Name = "Mighty Guard", Buff = "Mighty Guard", SpellID = 750, When = "Always" } },
+			}
+			gs.spell_resources[750] = { id = 750, en = "Mighty Guard", english = "Mighty Guard", recast_id = 750 }
+			gs.env.self_command("set AutoBuffMode Unbridled")
+			local cast = {}
+			local function next_cast()
+				gs.commands = {}
+				tick()
+				cast[#cast + 1] = gs.commands[1] or "nothing"
+			end
+
+			gs.ability_recasts = { [81] = 30 }
+			next_cast()
+			gs.ability_recasts = { [81] = 0 }
+			next_cast()
+			gs.env.buffactive = { ["unbridled learning"] = 1 }
+			next_cast()
+			gs.env.buffactive = { ["unbridled wisdom"] = 1 }
+			next_cast()
+
+			assert.are.same({
+				"nothing",
+				'input /ja "Unbridled Learning" <me>',
+				'input /ma "Mighty Guard" <me>',
+				'input /ma "Mighty Guard" <me>',
+			}, cast)
+		end)
+
 		it("skips buffs you don't have the MP for", function()
 			gs.spell_resources[894].mp_cost = 60
 			gs.env.self_command("set AutoBuffMode Melee")
@@ -2023,6 +2053,60 @@ describe("Core", function()
 				"Auto WS Buff    Weapons: None    Offense: Normal / Normal    Casting: Resistant",
 				hud_words()
 			)
+		end)
+	end)
+
+	describe("job_filter_precast", function()
+		it("cancels the action before any gear changes when the hook returns true", function()
+			gs.env.job_filter_precast = function(spell)
+				return spell.english == "Mighty Guard"
+			end
+			sets.precast.FC = { head = "FC Head" }
+
+			gs.env.precast(magic("Mighty Guard", "Blue Magic", "BlueMagic"))
+
+			assert.is_true(gs.cancelled)
+			assert.are.same({}, gs:worn())
+		end)
+
+		it("lets everything else through, handing the hook the spell map", function()
+			local seenMap
+			gs.env.job_filter_precast = function(_, spellMap)
+				seenMap = spellMap
+				return false
+			end
+			sets.precast.FC = { head = "FC Head" }
+
+			gs.env.precast(frazzle_ii)
+
+			assert.are.equal("Frazzle", seenMap)
+			assert.is_false(gs.cancelled)
+			assert.are.same({ head = "FC Head" }, gs:worn())
+		end)
+	end)
+
+	describe("job change", function()
+		it("calls job_post_job_change on the first tick after loading, and again when the sub job changes", function()
+			local calls = 0
+			gs.env.job_post_job_change = function()
+				calls = calls + 1
+			end
+
+			gs:fire("prerender")
+			gs.clock = 1
+			gs:fire("prerender")
+			local afterLoad = calls
+			gs.env.sub_job_change("WAR", "NIN")
+
+			assert.are.equal(1, afterLoad)
+			assert.are.equal(2, calls)
+		end)
+
+		it("loads and changes sub job without a job_post_job_change hook", function()
+			assert.has_no.errors(function()
+				gs:fire("prerender")
+				gs.env.sub_job_change("WAR", "NIN")
+			end)
 		end)
 	end)
 
