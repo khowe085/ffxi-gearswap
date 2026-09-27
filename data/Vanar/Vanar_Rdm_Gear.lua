@@ -30,9 +30,9 @@ function character_user_job_setup()
 	
 	-- gear.int_enfeebling_jse_back = {name="Sucellos's Cape",augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','Haste+10',}}
 	gear.mnd_enfeebling_jse_back = {name="Sucellos's Cape",augments={'MND+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', 'Haste+10'}}
-	gear.str_wsd_jse_back = {name="Sucellos's Cape",augments={'STR+20','Accuracy+20 Attack+20','STR+10','Weapon skill damage +10%','Phys. dmg. taken-10%',}}
+	gear.str_wsd_jse_back = {name="Sucellos's Cape",augments={'STR+20','Accuracy+20 Attack+20','STR+10','Weapon skill damage +10%','Damage taken-5%',}}
 	gear.nuke_jse_back = { name="Sucellos's Cape", augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Mag.Atk.Bns."+10',}}
-	gear.da_jse_back = {name="Sucellos's Cape",augments =  {'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Dbl.Atk."+10','Phys. dmg. taken-10%',}}
+	gear.da_jse_back = {name="Sucellos's Cape",augments =  {'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Dbl.Atk."+10','Damage taken-5%',}}
 	gear.skill_jse_back = {name="Ghostfyre Cape", augments={'Enfb.mag. skill +8','Enha.mag. skill +5','Mag. Acc.+8','Enh. Mag. eff. dur. +20'}}
 	gear.CarmineCuisses = {name="Carmine Cuisses +1", augments={'Accuracy+20','Attack+12','"Dual Wield"+6',}}
 	gear.recast_hands = { name = "Telchine Gloves", augments = { 'Haste +3' } }
