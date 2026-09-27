@@ -71,7 +71,7 @@ function export_set(options)
     end
 
     local filename = filename
-    local clipboard = contains_any('copy', 'clipboard')
+    local clipboard = contains_any('copy', 'clipboard', 'c')
     local use_job_in_filename = contains_any('mainjob')
     local use_subjob_in_filename = contains_any('mainsubjob')
     if check_exclusive(filename, clipboard, use_job_in_filename, use_subjob_in_filename) then

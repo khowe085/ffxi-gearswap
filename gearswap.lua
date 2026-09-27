@@ -177,7 +177,7 @@ windower.register_event('addon command',function (...)
         else
             msg.addon_msg(123,'Equip command cannot be completed. That set does not exist.')
         end
-    elseif cmd == 'export' then
+    elseif cmd == 'export' or cmd == 'x' then
         export_set(splitup)
     elseif cmd == 'validate' then
         if user_env and user_env.sets then
@@ -226,7 +226,7 @@ windower.register_event('addon command',function (...)
         print(' showswaps       : toggles whether gearswap displays equipment changes in the chat log.')
         print(' load <string>   : attempts to load the user file indicated by the string.')
         print(' reload          : reloads the current user file.')
-        print(' export <opts>   : Exports your item collections based on the passed options.')
+        print(' export|x <opts> : Exports your item collections based on the passed options.')
         print(' disable <slot>  : Disables equip commands targeting a specified slot.')
         print(' validate <opts> : Checks your current inventory against your item collections (or vice versa).')
         print('  Please see the gearswap/README.md file for more details.')
