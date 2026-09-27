@@ -83,6 +83,7 @@ function character_user_job_setup()
 		head="Telchine Cap",
 		hands=gear.af_hands,
 		body=gear.relic_body,
+		legs="Telchine Braconi",
 		feet = gear.empy_feet,
 		ear2=gear.empy_ear,
 		waist="Embla Sash",
@@ -174,7 +175,7 @@ function init_gear_sets()
 	sets.weapons.DualBow = {}
 	sets.weapons.BowMacc = {}
 	sets.weapons.DualMaxentius = {main="Maxentius",sub="Thibron",range=empty}
-	sets.weapons.DualMaxentiusAcc = {main="Maxentius",sub="Almace",range=empty}
+	sets.weapons.DualMaxentiusAcc = {main="Maxentius",sub="Bunzi's Rod",range=empty}
 	
 	--Temporary Weapon Sets for Dynamis RP
 	--sets.weapons.DualCroceaSavageBlade = {main="Crocea Mors",sub="Thibron"}
