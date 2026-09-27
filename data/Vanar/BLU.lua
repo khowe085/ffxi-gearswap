@@ -115,7 +115,7 @@ local function init_gear()
 		ear1 = "Alabaster Earring", -- Mytha: Telos Earring
 		ear2 = gear.empy_ear, -- Mytha: Regal Earring
 		body = gear.af_body,
-		hands = gear.empy_hands, -- Mytha: Assim. Bazu. +3; your +1 has no accuracy
+		hands = gear.af_hands,
 		ring1 = "Murky Ring", -- Mytha: Ramuh Ring +1
 		ring2 = "Lehko's Ring", -- Mytha: Ramuh Ring +1
 		back = gear.da_cape,
@@ -133,7 +133,7 @@ local function init_gear()
 		body = gear.empy_body, -- Mytha: Malignance Tabard
 		hands = gear.empy_hands, -- Mytha: Malignance Gloves
 		ring1 = "Stikini Ring", -- Mytha: Stikini Ring +1
-		ring2 = "Murky Ring", -- Mytha: Stikini Ring +1
+		ring2 = "Stikini Ring", -- Mytha: Stikini Ring +1
 		back = gear.skill_cape,
 		waist = "Eschan Stone", -- Mytha: Olseni Belt
 		legs = gear.empy_legs, -- Mytha: Malignance Tights
@@ -186,7 +186,7 @@ local function init_gear()
 		ear1 = "Alabaster Earring", -- Mytha: Telos Earring
 		ear2 = gear.empy_ear, -- Mytha: Mache Earring +1
 		body = gear.af_body,
-		hands = gear.empy_hands, -- Mytha: Assim. Bazu. +3; your +1 has no accuracy
+		hands = gear.af_hands,
 		ring1 = "Epona's Ring",
 		ring2 = "Lehko's Ring", -- Mytha: Ilabrat Ring
 		back = gear.da_cape,
@@ -202,7 +202,7 @@ local function init_gear()
 		ear1 = "Alabaster Earring", -- Mytha: Odr Earring
 		ear2 = gear.empy_ear, -- Mytha: Mache Earring +1
 		body = gear.af_body,
-		hands = gear.empy_hands, -- Mytha: Assim. Bazu. +3; your +1 has no accuracy
+		hands = gear.af_hands,
 		ring1 = "Murky Ring", -- Mytha: Ramuh Ring +1
 		ring2 = "Lehko's Ring", -- Mytha: Ramuh Ring +1
 		back = gear.da_cape,
@@ -498,7 +498,7 @@ local function init_gear()
 		neck = "Mirage Stole +2",
 		hands = "Jhakri Cuffs +2",
 		ring1 = "Stikini Ring", -- Mytha: Stikini Ring +1
-		ring2 = "Murky Ring", -- Mytha: Stikini Ring +1
+		ring2 = "Stikini Ring", -- Mytha: Stikini Ring +1
 		waist = "Eschan Stone", -- Mytha: Yamabuki-no-Obi
 		feet = "Jhakri Pigaches +2",
 	})
@@ -520,7 +520,7 @@ local function init_gear()
 		head = gear.af_head,
 		body = gear.empy_body, -- Mytha: Amalric Doublet +1
 		hands = gear.empy_hands, -- Mytha: Malignance Gloves
-		ring2 = "Murky Ring", -- Mytha: Stikini Ring +1
+		ring2 = "Stikini Ring", -- Mytha: Stikini Ring +1
 		waist = "Eschan Stone", -- Mytha: Acuity Belt +1
 		legs = gear.af_legs,
 		feet = gear.empy_feet, -- Mytha: Malignance Boots
@@ -606,7 +606,7 @@ local function init_gear()
 		ring2 = "Stikini Ring", -- Mytha: Menelaus's Ring
 		back = "Solemnity Cape", -- Mytha: Moonlight Cape
 		waist = "Rumination Sash", -- Mytha: Luminary Sash
-		legs = "Nyame Flanchard",
+		legs = gear.empy_legs, -- Mytha: Nyame Flanchard; Tayt +3 has more DT
 		-- feet: Mytha's Medium's Sabots; nothing owned fits
 	}
 
@@ -670,7 +670,7 @@ local function init_gear()
 
 	gear.blue.SkillBasedBuff = set_combine(gear.blue_magic_skill, {
 		-- hands: Mytha's Rawhide Gloves; nothing owned fits
-		ring2 = "Murky Ring", -- Mytha: Stikini Ring +1
+		ring2 = "Stikini Ring", -- Mytha: Stikini Ring +1
 		waist = "Witful Belt",
 	})
 
@@ -712,7 +712,7 @@ local function init_gear()
 		ear1 = "Etiolation Earring",
 		ear2 = "Alabaster Earring", -- Mytha: Ethereal Earring
 		body = "Jhakri Robe +2",
-		hands = "Nyame Gauntlets", -- Mytha: Herculean Gloves with a Refresh augment
+		hands = gear.empy_hands, -- Mytha: Herculean Gloves with a Refresh augment
 		feet = "Nyame Sollerets", -- Mytha: Herculean Boots with a Refresh augment
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
 		-- ring2: Mytha's Sheltered Ring; nothing owned fits
@@ -728,10 +728,10 @@ local function init_gear()
 		ear1 = "Etiolation Earring",
 		ear2 = "Alabaster Earring", -- Mytha: Ethereal Earring
 		body = "Jhakri Robe +2",
-		hands = "Nyame Gauntlets", -- Mytha: Herculean Gloves with a Refresh augment
+		hands = gear.empy_hands, -- Mytha: Herculean Gloves with a Refresh augment
 		feet = "Nyame Sollerets", -- Mytha: Herculean Boots with a Refresh augment
-		ring1 = "Murky Ring", -- Mytha: Stikini Ring +1
-		ring2 = "Ayanmo Ring", -- Mytha: Stikini Ring +1
+		ring1 = "Stikini Ring", -- Mytha: Stikini Ring +1
+		ring2 = "Stikini Ring", -- Mytha: Stikini Ring +1
 		back = gear.da_cape, -- Mytha: Umbra Cape
 		waist = "Flume Belt",
 		legs = gear.empy_legs, -- Mytha: Lengo Pants
@@ -744,12 +744,12 @@ local function init_gear()
 		ear1 = "Etiolation Earring",
 		ear2 = "Alabaster Earring", -- Mytha: Ethereal Earring
 		body = "Jhakri Robe +2",
-		hands = "Nyame Gauntlets",
+		hands = gear.empy_hands, -- Mytha: Nyame Gauntlets; Bazu. +3 has more DT
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
 		ring2 = "Dark Ring",
 		back = gear.da_cape, -- Mytha: Moonlight Cape
 		waist = "Flume Belt",
-		legs = "Nyame Flanchard",
+		legs = gear.empy_legs, -- Mytha: Nyame Flanchard; Tayt +3 has more DT
 		feet = "Nyame Sollerets",
 	}
 
@@ -797,7 +797,7 @@ local function init_gear()
 		ear1 = "Alabaster Earring", -- Mytha: Telos Earring
 		ear2 = gear.empy_ear, -- Mytha: Mache Earring +1
 		body = gear.af_body,
-		hands = gear.empy_hands, -- Mytha: Assim. Bazu. +3; your +1 has no accuracy
+		hands = gear.af_hands,
 		ring1 = "Murky Ring", -- Mytha: Ramuh Ring +1
 		ring2 = "Lehko's Ring", -- Mytha: Ramuh Ring +1
 		back = gear.da_cape,
