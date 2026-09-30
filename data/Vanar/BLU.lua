@@ -150,11 +150,11 @@ local function init_gear()
 		ear2 = "Loquac. Earring",
 		body = gear.relic_body,
 		hands = "Pinga Mittens", -- Mytha: Leyline Gloves
-		ring1 = "Naji's Loop", -- Mytha: Kishar Ring
+		ring1 = "Lehko's Ring", -- Mytha: Kishar Ring
 		ring2 = "Prolix Ring", -- Mytha: Lebeche Ring
 		back = "Swith Cape", -- Mytha: Perimede Cape
 		waist = "Witful Belt",
-		legs = "Aya. Cosciales +2", -- Mytha: Psycloth Lappas
+		legs = "Enif Cosciales", -- Mytha: Psycloth Lappas
 		feet = "Chelona Boots", -- Mytha: Carmine Greaves +1
 	}
 
@@ -353,18 +353,19 @@ local function init_gear()
 
 	-- Midcast Sets
 
+	-- Lehko's Ring caps gear haste, so Enif's Fast Cast outweighs Ayanmo's extra haste for recast.
 	gear.fastrecast = {
 		-- ammo: Mytha's Hasty Pinion +1; you're at the haste cap
-		head = gear.empy_head, -- Mytha: Carmine Mask +1
+		head = gear.amalric_head, -- Mytha: Carmine Mask +1
 		ear1 = "Etiolation Earring", -- Mytha: Enchntr. Earring +1
 		ear2 = "Loquac. Earring",
 		body = gear.relic_body,
 		hands = "Pinga Mittens", -- Mytha: Leyline Gloves
-		ring1 = "Naji's Loop", -- Mytha: Kishar Ring
+		ring1 = "Lehko's Ring", -- Mytha: Kishar Ring
 		ring2 = "Prolix Ring",
 		back = "Swith Cape",
 		waist = "Witful Belt",
-		legs = "Aya. Cosciales +2", -- Mytha: Psycloth Lappas
+		legs = "Enif Cosciales", -- Mytha: Psycloth Lappas
 		feet = "Chelona Boots", -- Mytha: Carmine Greaves +1
 	}
 
@@ -490,7 +491,7 @@ local function init_gear()
 		ring2 = "Prolix Ring",
 		back = "Swith Cape",
 		waist = "Witful Belt",
-		legs = "Aya. Cosciales +2", -- Mytha: Psycloth Lappas
+		legs = "Enif Cosciales", -- Mytha: Psycloth Lappas
 		feet = "Chelona Boots", -- Mytha: Carmine Greaves +1
 	}
 
@@ -620,7 +621,7 @@ local function init_gear()
 		ring2 = "Murky Ring", -- Mytha: Dark Ring
 		back = "Solemnity Cape", -- Mytha: Aurist's Cape +1
 		waist = "Witful Belt",
-		legs = "Aya. Cosciales +2", -- Mytha: Lengo Pants
+		legs = "Enif Cosciales", -- Mytha: Lengo Pants
 		feet = "Chelona Boots", -- Mytha: Carmine Greaves +1
 	}
 
