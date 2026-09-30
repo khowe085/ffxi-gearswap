@@ -31,7 +31,7 @@ local function init_gear()
 
 	-- Ambuscade capes
 	gear.da_cape = {name = "Rosmerta's Cape", augments = { "DEX+20", "Accuracy+20 Attack+20", "Accuracy+10", '"Dbl.Atk."+10', "Damage taken-5%" } }
-	gear.crit_cape = { name = "Rosmerta's Cape", augments = { "DEX+20", "Accuracy+20 Attack+20", "Crit.hit rate+9" } }
+	gear.crit_cape = { name = "Rosmerta's Cape", augments = { "DEX+20", "Accuracy+20 Attack+20", 'DEX+5', "Crit.hit rate+10" } }
 	gear.wsd_cape = {name = "Rosmerta's Cape", augments = { "STR+20", "Accuracy+20 Attack+20", "STR+10", "Weapon skill damage +10%" } }
 	gear.nuke_cape = {name = "Rosmerta's Cape",	augments = { "INT+20", "Mag. Acc+20 /Mag. Dmg.+20", "Mag. Acc.+10", '"Mag.Atk.Bns."+10' } }
 	gear.skill_cape = { name = "Cornflower Cape", augments = { "MP+29", "DEX+1", "Accuracy+3", "Blue Magic skill +10" } }
