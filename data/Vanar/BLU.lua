@@ -640,14 +640,16 @@ local function init_gear()
 	-- Sets to return to when not performing an action.
 
 	gear.resting = {
+		-- The one set with a weapon, as in your old file; the Weapons set goes back on when you stand up.
+		main = "Chatoyant Staff",
 		ammo = "Honed Tathlum", -- Mytha: Falcon Eye
 		head = "Rawhide Mask",
 		neck = "Sibyl Scarf",
-		ear1 = "Etiolation Earring",
-		ear2 = "Alabaster Earring", -- Mytha: Ethereal Earring
+		ear1 = "Alabaster Earring", -- Mytha: Etiolation Earring
+		ear2 = gear.empy_ear, -- Mytha: Ethereal Earring
 		body = gear.empy_body, -- Mytha: Jhakri Robe +2; Mintan +3 has more refresh and DT
 		hands = gear.empy_hands, -- Mytha: Herculean Gloves with a Refresh augment
-		feet = "Nyame Sollerets", -- Mytha: Herculean Boots with a Refresh augment
+		feet = "Chelona Boots", -- Mytha: Herculean Boots with a Refresh augment
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
 		-- ring2: Mytha's Sheltered Ring; nothing owned fits
 		back = gear.da_cape, -- Mytha: Bleating Mantle
