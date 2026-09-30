@@ -92,7 +92,7 @@ local function init_gear()
 	gear.waltz = {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = gear.empy_head, -- Mytha: Carmine Mask +1
-		neck = "Loricate Torque", -- Mytha: Unmoving Collar +1
+		-- neck: Mytha's Unmoving Collar +1; nothing owned fits
 		ear1 = "Etiolation Earring", -- Mytha: Enchntr. Earring +1
 		-- ear2: Mytha's Handler's Earring +1; nothing owned fits
 		body = "Gleti's Cuirass", -- Mytha: Herculean Vest with a Waltz augment; Gleti's has Waltz potency +10%
@@ -466,7 +466,7 @@ local function init_gear()
 	gear.blue.Magical.SIRD = {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = "Jhakri Coronal +2",
-		neck = "Loricate Torque",
+		neck = "Sibyl Scarf",
 		ear1 = "Novio Earring", -- Mytha: Regal Earring
 		ear2 = "Friomisi Earring",
 		body = gear.empy_body, -- Mytha: Amalric Doublet +1
@@ -531,7 +531,7 @@ local function init_gear()
 	gear.cure = {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = "Nyame Helm",
-		neck = "Loricate Torque",
+		-- neck: Mytha's Loricate Torque, dropped as filler
 		ear1 = "Alabaster Earring", -- Mytha: Regal Earring
 		ear2 = "Mendi. Earring",
 		body = gear.empy_body, -- Mytha: Vrikodara Jupon
@@ -589,7 +589,7 @@ local function init_gear()
 	gear.blue.Healing = {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = "Nyame Helm",
-		neck = "Loricate Torque",
+		-- neck: Mytha's Loricate Torque, dropped as filler
 		ear1 = "Mendi. Earring", -- Mytha: Tuisto Earring
 		ear2 = "Alabaster Earring", -- Mytha: Odnowa Earring +1
 		body = gear.empy_body, -- Mytha: Vrikodara Jupon
@@ -642,7 +642,7 @@ local function init_gear()
 	gear.resting = {
 		ammo = "Honed Tathlum", -- Mytha: Falcon Eye
 		head = "Rawhide Mask",
-		neck = "Loricate Torque",
+		neck = "Sibyl Scarf",
 		ear1 = "Etiolation Earring",
 		ear2 = "Alabaster Earring", -- Mytha: Ethereal Earring
 		body = gear.empy_body, -- Mytha: Jhakri Robe +2; Mintan +3 has more refresh and DT
@@ -672,15 +672,8 @@ local function init_gear()
 		feet = "Nyame Sollerets",
 	}
 
-	-- The idle set with DT in the three slots where it has none.
-	gear.idle.PDT = set_combine(gear.idle, {
-		head = "Nyame Helm",
-		neck = "Loricate Torque",
-		legs = gear.empy_legs,
-	})
-
-	-- Mytha's DTHippo added Hippo. Socks +1 to the PDT set; Carmine Cuisses +1 keep the movement speed.
-	gear.idle.DTHippo = set_combine(gear.idle.PDT, { legs = gear.carmine_legs })
+	-- No PDT or DTHippo sets: the idle set is already at the -50% damage taken cap and wears Carmine
+	-- Cuisses +1, so those IdleModes fall back to it.
 
 	-- Engaged sets
 
@@ -737,7 +730,7 @@ local function init_gear()
 	gear.engaged.DT = {
 		ammo = "Coiste Bodhar", -- Mytha: Aurgelmir Orb +1
 		head = "Nyame Helm", -- Mytha: Malignance Chapeau
-		neck = "Loricate Torque",
+		neck = "Mirage Stole +2",
 		ear1 = "Suppanomimi",
 		ear2 = "Brutal Earring",
 		body = gear.empy_body, -- Mytha: Malignance Tabard

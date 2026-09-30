@@ -208,7 +208,7 @@ local function init_gear()
 		sub = "Ammurapi Shield", -- Mytha: Sacro Bulwark
 		-- ammo: Mytha's Impatiens; quick magic unwanted
 		head = gear.af_head, -- Mytha: Atrophy Chapeau +3
-		neck = "Loricate Torque", -- Mytha: Loricate Torque +1
+		-- neck: Mytha's Loricate Torque +1, dropped as filler
 		ear1 = "Estq. Earring", -- Mytha: Malignance Earring
 		ear2 = gear.empy_ear,
 		body = gear.relic_body, -- Mytha: Viti. Tabard +3
@@ -322,7 +322,7 @@ local function init_gear()
 		sub = "Ammurapi Shield", -- Mytha: Sacro Bulwark
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = gear.af_head, -- Mytha: Atrophy Chapeau +3
-		neck = "Loricate Torque", -- Mytha: Loricate Torque +1
+		-- neck: Mytha's Loricate Torque +1, dropped as filler
 		ear1 = "Alabaster Earring", -- Mytha: Malignance Earring
 		ear2 = gear.empy_ear,
 		body = gear.relic_body, -- Mytha: Viti. Tabard +3
@@ -360,7 +360,7 @@ local function init_gear()
 	gear.cure.DT = set_combine(gear.cure, {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = gear.empy_head,
-		neck = "Loricate Torque", -- Mytha: Loricate Torque +1
+		-- neck: Mytha's Loricate Torque +1; Nodens Gorget from the Cure set
 		ear1 = "Alabaster Earring", -- Mytha: Halasz Earring
 		ear2 = "Mendi. Earring",
 		hands = "Bunzi's Gloves", -- Mytha: Chironic Gloves with an Aspir augment
@@ -536,7 +536,7 @@ local function init_gear()
 
 	gear.elemental.DT = set_combine(gear.elemental, {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
-		neck = "Loricate Torque", -- Mytha: Loricate Torque +1
+		-- neck: Mytha's Loricate Torque +1; Sibyl Scarf from the Elemental set
 		waist = "Rumination Sash", -- Mytha: Emphatikos Rope
 		legs = "Bunzi's Pants",
 	})
@@ -619,7 +619,7 @@ local function init_gear()
 		range = empty,
 		-- ammo: Mytha's Impatiens; quick magic unwanted
 		head = gear.relic_head, -- Mytha: Viti. Chapeau +3
-		neck = "Loricate Torque", -- Mytha: Loricate Torque +1
+		neck = "Sibyl Scarf", -- Mytha: Loricate Torque +1
 		ear1 = "Alabaster Earring", -- Mytha: Etiolation Earring
 		ear2 = gear.empy_ear, -- Mytha: Ethereal Earring
 		body = gear.empy_body,
@@ -655,7 +655,7 @@ local function init_gear()
 	gear.idle.PDT = set_combine(gear.idle, {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = gear.empy_head, -- Mytha: Nyame Helm
-		neck = "Loricate Torque", -- Mytha: Loricate Torque +1
+		-- neck: Mytha's Loricate Torque +1; Sibyl Scarf from the idle set
 		body = gear.empy_body, -- Mytha: Nyame Mail
 		hands = gear.empy_hands, -- Mytha: Nyame Gauntlets
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
@@ -671,7 +671,7 @@ local function init_gear()
 	gear.idle.MDT = set_combine(gear.idle, {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = gear.empy_head, -- Mytha: Bunzi's Hat
-		neck = "Loricate Torque", -- Mytha: Warder's Charm +1
+		-- neck: Mytha's Warder's Charm +1; Sibyl Scarf from the idle set
 		ear2 = gear.empy_ear, -- Mytha: Sanare Earring
 		body = gear.empy_body, -- Mytha: Bunzi's Robe
 		hands = "Bunzi's Gloves",
@@ -715,7 +715,7 @@ local function init_gear()
 	})
 
 	gear.engaged.DT = set_combine(gear.engaged, {
-		neck = "Loricate Torque", -- Mytha: Null Loop
+		-- neck: Mytha's Null Loop; Sanctity Necklace from the engaged set
 		body = gear.empy_body, -- Mytha: Malignance Tabard
 		hands = gear.empy_hands, -- Mytha: Malignance Gloves
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
