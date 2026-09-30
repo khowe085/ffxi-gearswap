@@ -655,37 +655,29 @@ local function init_gear()
 		legs = gear.empy_legs, -- Mytha: Lengo Pants
 	}
 
+	-- Your own idle set from Vanar_Blu_Gear.lua on the old branch.
 	gear.idle = {
-		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
+		ammo = "Pemphredo Tathlum",
 		head = "Rawhide Mask",
-		neck = "Loricate Torque",
-		ear1 = "Etiolation Earring",
-		ear2 = "Alabaster Earring", -- Mytha: Ethereal Earring
-		body = gear.empy_body, -- Mytha: Jhakri Robe +2; Mintan +3 has more refresh and DT
-		hands = gear.empy_hands, -- Mytha: Herculean Gloves with a Refresh augment
-		feet = "Nyame Sollerets", -- Mytha: Herculean Boots with a Refresh augment
-		ring1 = "Stikini Ring", -- Mytha: Stikini Ring +1
-		ring2 = "Stikini Ring", -- Mytha: Stikini Ring +1
-		back = gear.da_cape, -- Mytha: Umbra Cape
+		neck = "Sibyl Scarf",
+		ear1 = "Alabaster Earring",
+		ear2 = gear.empy_ear,
+		body = gear.empy_body,
+		hands = gear.empy_hands,
+		ring1 = "Murky Ring",
+		ring2 = "Lehko's Ring",
+		back = gear.da_cape,
 		waist = "Flume Belt",
-		legs = gear.empy_legs, -- Mytha: Lengo Pants
-	}
-
-	gear.idle.PDT = {
-		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
-		head = "Nyame Helm",
-		neck = "Loricate Torque",
-		ear1 = "Etiolation Earring",
-		ear2 = "Alabaster Earring", -- Mytha: Ethereal Earring
-		body = gear.empy_body, -- Mytha: Jhakri Robe +2; Mintan +3 has more refresh and DT
-		hands = gear.empy_hands, -- Mytha: Nyame Gauntlets; Bazu. +3 has more DT
-		ring1 = "Murky Ring", -- Mytha: Defending Ring
-		-- ring2: Mytha's Dark Ring, dropped; damage taken is already capped
-		back = gear.da_cape, -- Mytha: Moonlight Cape
-		waist = "Flume Belt",
-		legs = gear.empy_legs, -- Mytha: Nyame Flanchard; Tayt +3 has more DT
+		legs = gear.carmine_legs,
 		feet = "Nyame Sollerets",
 	}
+
+	-- The idle set with DT in the three slots where it has none.
+	gear.idle.PDT = set_combine(gear.idle, {
+		head = "Nyame Helm",
+		neck = "Loricate Torque",
+		legs = gear.empy_legs,
+	})
 
 	-- Mytha's DTHippo added Hippo. Socks +1 to the PDT set; Carmine Cuisses +1 keep the movement speed.
 	gear.idle.DTHippo = set_combine(gear.idle.PDT, { legs = gear.carmine_legs })
