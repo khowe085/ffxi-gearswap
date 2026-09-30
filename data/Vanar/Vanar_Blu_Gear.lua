@@ -1,3 +1,39 @@
+buff_spell_lists = {
+	Auto = { --Options for When are: Always, Engaged, Idle, OutOfCombat, Combat
+		{ Name = 'Erratic Flutter', Buff = 'Haste',    SpellID = 710, When = 'Always' },
+		--{ Name = 'Battery Charge', Buff = 'Refresh',   SpellID = 662, When = 'Idle' },
+		--{ Name = 'Refresh',       Buff = 'Refresh',    SpellID = 109, When = 'Idle' },
+		{ Name = 'Nat. Meditation', Buff = 'Attack Boost', SpellID = 700, When = 'Engaged' },
+		{ Name = 'Mighty Guard',  Buff = 'Mighty Guard', SpellID = 750, When = 'Combat' },
+	},
+
+	Default = {
+		{ Name = 'Erratic Flutter', Buff = 'Haste',    SpellID = 710, Reapply = false },
+		{ Name = 'Battery Charge', Buff = 'Refresh',   SpellID = 662, Reapply = false },
+		{ Name = 'Refresh',       Buff = 'Refresh',    SpellID = 109, Reapply = false },
+		{ Name = 'Phalanx',       Buff = 'Phalanx',    SpellID = 106, Reapply = false },
+		{ Name = 'Barrier Tusk',  Buff = 'Phalanx',    SpellID = 685, Reapply = false },
+		{ Name = 'Stoneskin',     Buff = 'Stoneskin',  SpellID = 54, Reapply = false },
+		{ Name = 'Occultation',   Buff = 'Blink',      SpellID = 679, Reapply = false },
+		{ Name = 'Blink',         Buff = 'Blink',      SpellID = 53, Reapply = false },
+		{ Name = 'Mighty Guard',  Buff = 'Mighty Guard', SpellID = 750, Reapply = false },
+		{ Name = 'Nat. Meditation', Buff = 'Attack Boost', SpellID = 700, Reapply = false },
+	},
+
+	Cleave = {
+		{ Name = 'Erratic Flutter', Buff = 'Haste',         SpellID = 710, Reapply = false },
+		{ Name = 'Battery Charge', Buff = 'Refresh',        SpellID = 662, Reapply = false },
+		{ Name = 'Refresh',        Buff = 'Refresh',        SpellID = 109, Reapply = false },
+		{ Name = 'Phalanx',        Buff = 'Phalanx',        SpellID = 106, Reapply = false },
+		{ Name = 'Barrier Tusk',   Buff = 'Phalanx',        SpellID = 685, Reapply = false },
+		{ Name = 'Stoneskin',      Buff = 'Stoneskin',      SpellID = 54, Reapply = false },
+		{ Name = 'Occultation',    Buff = 'Blink',          SpellID = 679, Reapply = false },
+		{ Name = 'Blink',          Buff = 'Blink',          SpellID = 53, Reapply = false },
+		{ Name = 'Carcharian Verve', Buff = 'Aquaveil',     SpellID = 745, Reapply = false },
+		{ Name = 'Memento Mori',   Buff = 'Magic Atk. Boost', SpellID = 538, Reapply = false },
+	},
+}
+
 function character_user_job_setup()
 	-- Options: Override default values
     state.OffenseMode:options('Fodder','Normal','Acc','FullAcc')
@@ -46,7 +82,7 @@ function character_user_job_setup()
 	gear.nuke_jse_back = { name = "Rosmerta's Cape", augments = { 'INT+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', '"Mag.Atk.Bns."+10', } }
 
 	-- AF
-	gear.af_hands = "Assim. Bazu. +1"
+	gear.af_hands = "Assim. Bazu. +3"
 	gear.af_body = "Assim. Jubbah +4"
 	gear.af_legs = "Assim. Shalwar +1"
 	gear.af_feet = "Assim. Charuqs +2"
