@@ -436,8 +436,9 @@ end
 --Name: test_command(splitup)
 --Desc: Handles "gs test". "test set <set>" unequips everything, then equips the set.
 --      "test [precast|midcast] <action>" unequips everything but the weapons, then runs the
---      user file's precast (and, for magic, midcast unless precast alone was asked for) with
---      that spell, ability or weapon skill as if it had been used, without using it.
+--      user file's precast and midcast for that spell, ability or weapon skill as GearSwap
+--      does for a real use (one equip pass each), without using it. With "precast" the hold
+--      starts before midcast. A test during another test's hold re-enables the user file first.
 --Args:
 ---- splitup - The command's words after "test".
 -----------------------------------------------------------------------------------
@@ -457,6 +458,7 @@ function test_command(splitup)
             msg.addon_msg(123,'Test command cannot be completed. That set does not exist.')
             return
         end
+        release_test_hold()
         refresh_globals()
         equip_sets('equip_command',nil,set_combine(sets.naked,set))
         hold_test_gear()
@@ -481,18 +483,53 @@ function test_command(splitup)
         return
     end
 
+    release_test_hold()
     -- The weapons stay, as they would for a real action: locked while engaged, or swapped by the sets.
-    -- One equip_sets pass merges the stages, so a slot only ends up empty when no stage filled it.
     local naked = table.reassign({},sets.naked)
     naked.main, naked.sub, naked.range = nil, nil, nil
-    equip_sets(function()
-        equip(naked)
-        user_pcall('precast',spell)
-        if stage ~= 'precast' and spell.action_type == 'Magic' then
-            user_pcall('midcast',spell)
-        end
-    end)
+    equip_sets('equip_command',nil,naked)
+    test_event('precast',spell)
+    if stage ~= 'precast' then
+        test_event('midcast',spell)
+    end
     hold_test_gear()
+end
+
+
+-----------------------------------------------------------------------------------
+--Name: test_event(event,spell)
+--Desc: Runs the user file's precast or midcast in its own equip pass, as equip_sets does for a
+--      real action, but without a command registry entry, so no action packet can go out.
+--Args:
+---- event - 'precast' or 'midcast'
+---- spell - The test action from test_action
+-----------------------------------------------------------------------------------
+--Returns:
+---- none
+-----------------------------------------------------------------------------------
+function test_event(event,spell)
+    equip_sets(function()
+        _global.current_event = event
+        user_pcall(event,spell)
+    end)
+end
+
+
+-----------------------------------------------------------------------------------
+--Name: release_test_hold()
+--Desc: Ends the current gs test hold, if any, so the next test runs with the user file enabled.
+--      Its timer is left to lapse: the next hold_test_gear makes it stale.
+--Args:
+---- none
+-----------------------------------------------------------------------------------
+--Returns:
+---- none
+-----------------------------------------------------------------------------------
+function release_test_hold()
+    if test_holding then
+        test_holding = false
+        gearswap_disabled = false
+    end
 end
 
 
@@ -508,6 +545,7 @@ end
 -----------------------------------------------------------------------------------
 function hold_test_gear()
     test_hold = test_hold + 1
+    test_holding = true
     gearswap_disabled = true
     print('GearSwap: User file disabled for 30 seconds while the test gear is on.')
     windower.send_command('@wait 30;lua i '.._addon.name..' test_enable '..test_hold)
@@ -524,7 +562,8 @@ end
 ---- none
 -----------------------------------------------------------------------------------
 function test_enable(hold)
-    if tonumber(hold) ~= test_hold or not gearswap_disabled then return end
+    if tonumber(hold) ~= test_hold or not test_holding then return end
+    test_holding = false
     gearswap_disabled = false
     print('GearSwap: User file enabled')
     refresh_globals()
