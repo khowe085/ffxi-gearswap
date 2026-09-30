@@ -1,5 +1,6 @@
 -- Vanar's BLU, from Mytha_Blu_Gear.lua on the old branch. Where Mytha's piece isn't owned, the
 -- best owned piece for that set's job (per bg-wiki) stands in, with Mytha's piece noted beside it.
+-- Murky Ring and Alabaster Earring are placed for their fully augmented Accuracy+15 / Magic Accuracy+15.
 -- init_gear() defines every set on the gear table; get_sets() sets the modes and hands them to
 -- Core.lua, which defines precast, midcast, aftercast, pet_midcast, pet_aftercast, status_change,
 -- sub_job_change, self_command and file_unload. The job hooks at the bottom add BLU's own behavior.
@@ -9,7 +10,7 @@ local function init_gear()
 	-- Artifact
 	gear.af_head = "Assim. Keffiyeh +1"
 	gear.af_body = "Assim. Jubbah +4"
-	gear.af_hands = "Assim. Bazu. +1"
+	gear.af_hands = "Assim. Bazu. +3"
 	gear.af_legs = "Assim. Shalwar +1"
 	gear.af_feet = "Assim. Charuqs +2"
 
@@ -36,7 +37,6 @@ local function init_gear()
 	gear.skill_cape = { name = "Cornflower Cape", augments = { "MP+29", "DEX+1", "Accuracy+3", "Blue Magic skill +10" } }
 
 	-- Augmented pieces
-	gear.herculean_ta_feet = { name = "Herculean Boots", augments = { "Accuracy+21 Attack+21", '"Triple Atk."+2', "Attack+10" } }
 	gear.adhemar_head = { name = "Adhemar Bonnet", augments = { "STR+10", "DEX+10", "Attack+15" } }
 	gear.adhemar_body = { name = "Adhemar Jacket", augments = { "STR+10", "DEX+10", "Attack+15" } }
 	gear.adhemar_hands = { name = "Adhemar Wristbands", augments = { "STR+10", "DEX+10", "Attack+15" } }
@@ -92,7 +92,7 @@ local function init_gear()
 	gear.waltz = {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = gear.empy_head, -- Mytha: Carmine Mask +1
-		neck = "Elite Royal Collar", -- Mytha: Unmoving Collar +1
+		neck = "Loricate Torque", -- Mytha: Unmoving Collar +1
 		ear1 = "Etiolation Earring", -- Mytha: Enchntr. Earring +1
 		-- ear2: Mytha's Handler's Earring +1; nothing owned fits
 		body = "Gleti's Cuirass", -- Mytha: Herculean Vest with a Waltz augment; Gleti's has Waltz potency +10%
@@ -152,9 +152,9 @@ local function init_gear()
 		hands = "Pinga Mittens", -- Mytha: Leyline Gloves
 		ring1 = "Naji's Loop", -- Mytha: Kishar Ring
 		ring2 = "Prolix Ring", -- Mytha: Lebeche Ring
-		back = "Perimede Cape",
+		back = "Swith Cape", -- Mytha: Perimede Cape
 		waist = "Witful Belt",
-		legs = "Enif Cosciales", -- Mytha: Psycloth Lappas
+		legs = "Aya. Cosciales +2", -- Mytha: Psycloth Lappas
 		feet = "Chelona Boots", -- Mytha: Carmine Greaves +1
 	}
 
@@ -176,7 +176,7 @@ local function init_gear()
 		back = gear.da_cape,
 		waist = "Fotia Belt",
 		legs = gear.relic_legs,
-		feet = gear.herculean_ta_feet,
+		feet = "Nyame Sollerets", -- Mytha: Herculean Boots with a Triple Attack augment
 	}
 
 	gear.ws.Acc = {
@@ -192,7 +192,7 @@ local function init_gear()
 		back = gear.da_cape,
 		waist = "Fotia Belt",
 		legs = gear.carmine_legs,
-		feet = gear.herculean_ta_feet,
+		feet = "Nyame Sollerets", -- Mytha: Herculean Boots with a Triple Attack augment
 	}
 
 	gear.ws.FullAcc = {
@@ -245,7 +245,7 @@ local function init_gear()
 		hands = gear.adhemar_hands,
 		ring2 = "Lehko's Ring", -- Mytha: Begrudging Ring
 		back = gear.crit_cape,
-		feet = "Aya. Gambieras +2", -- Mytha: Thereoid Greaves
+		feet = "Nyame Sollerets", -- Mytha: Thereoid Greaves
 	})
 	gear.ws["Chant du Cygne"].Acc = set_combine(gear.ws.Acc, {
 		ear1 = "Moonshade Earring",
@@ -364,7 +364,7 @@ local function init_gear()
 		ring2 = "Prolix Ring",
 		back = "Swith Cape",
 		waist = "Witful Belt",
-		legs = "Enif Cosciales", -- Mytha: Psycloth Lappas
+		legs = "Aya. Cosciales +2", -- Mytha: Psycloth Lappas
 		feet = "Chelona Boots", -- Mytha: Carmine Greaves +1
 	}
 
@@ -490,7 +490,7 @@ local function init_gear()
 		ring2 = "Prolix Ring",
 		back = "Swith Cape",
 		waist = "Witful Belt",
-		legs = "Enif Cosciales", -- Mytha: Psycloth Lappas
+		legs = "Aya. Cosciales +2", -- Mytha: Psycloth Lappas
 		feet = "Chelona Boots", -- Mytha: Carmine Greaves +1
 	}
 
@@ -528,72 +528,6 @@ local function init_gear()
 
 	gear.blue.Magical.FullMacc = gear.blue.MagicAccuracy
 
-	gear.enfeebling = {
-		ammo = "Pemphredo Tathlum",
-		head = "Jhakri Coronal +2",
-		neck = "Mirage Stole +2",
-		ear1 = "Alabaster Earring", -- Mytha: Digni. Earring
-		ear2 = gear.empy_ear, -- Mytha: Regal Earring
-		body = "Jhakri Robe +2",
-		hands = gear.empy_hands, -- Mytha: Regal Cuffs
-		ring1 = "Murky Ring", -- Mytha: Metamor. Ring +1
-		ring2 = "Stikini Ring", -- Mytha: Stikini Ring +1
-		back = gear.nuke_cape,
-		waist = "Eschan Stone", -- Mytha: Acuity Belt +1
-		legs = gear.empy_legs, -- Mytha: Psycloth Lappas
-		feet = gear.empy_feet, -- Mytha: Skaoi Boots
-	}
-
-	gear.divine = {
-		ammo = "Pemphredo Tathlum",
-		head = "Jhakri Coronal +2",
-		neck = "Mirage Stole +2", -- Mytha: Incanter's Torque
-		ear1 = "Alabaster Earring", -- Mytha: Digni. Earring
-		ear2 = gear.empy_ear, -- Mytha: Regal Earring
-		body = gear.empy_body, -- Mytha: Amalric Doublet +1
-		hands = "Jhakri Cuffs +2",
-		ring1 = "Murky Ring", -- Mytha: Metamor. Ring +1
-		ring2 = "Stikini Ring", -- Mytha: Stikini Ring +1
-		back = gear.nuke_cape,
-		waist = "Eschan Stone", -- Mytha: Luminary Sash
-		legs = gear.relic_legs,
-		feet = gear.empy_feet, -- Mytha: Amalric Nails +1
-	}
-
-	gear.elemental = {
-		ammo = "Pemphredo Tathlum", -- Mytha: Ghastly Tathlum +1
-		head = "Jhakri Coronal +2",
-		neck = "Sibyl Scarf", -- Mytha: Baetyl Pendant
-		ear1 = "Novio Earring", -- Mytha: Regal Earring
-		ear2 = "Friomisi Earring",
-		body = gear.empy_body, -- Mytha: Amalric Doublet +1
-		hands = gear.empy_hands, -- Mytha: Amalric Gages +1
-		ring1 = "Acumen Ring", -- Mytha: Shiva Ring +1
-		ring2 = "Jhakri Ring", -- Mytha: Shiva Ring +1
-		back = gear.nuke_cape,
-		waist = "Eschan Stone", -- Mytha: Hachirin-no-Obi (gear.ElementalObi), on matching weather or day
-		legs = gear.relic_legs,
-		feet = gear.empy_feet, -- Mytha: Amalric Nails +1
-	}
-
-	gear.elemental.Resistant = {
-		ammo = "Pemphredo Tathlum",
-		head = "Jhakri Coronal +2",
-		neck = "Mirage Stole +2",
-		ear1 = "Friomisi Earring",
-		ear2 = gear.empy_ear, -- Mytha: Regal Earring
-		body = gear.empy_body, -- Mytha: Amalric Doublet +1
-		hands = "Jhakri Cuffs +2",
-		ring1 = "Stikini Ring", -- Mytha: Shiva Ring +1
-		ring2 = "Murky Ring", -- Mytha: Shiva Ring +1
-		back = gear.nuke_cape,
-		waist = "Eschan Stone", -- Mytha: Yamabuki-no-Obi
-		legs = gear.relic_legs,
-		feet = "Jhakri Pigaches +2",
-	}
-
-	gear.helix = gear.elemental
-
 	gear.cure = {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = "Nyame Helm",
@@ -623,7 +557,7 @@ local function init_gear()
 
 	gear.blue.Breath = set_combine(gear.blue_magic_skill, {
 		hands = gear.relic_hands,
-		ring1 = "K'ayres Ring", -- Mytha: Kunaji Ring
+		-- ring1: Mytha's Kunaji Ring; Stikini Ring from the skill set
 		ring2 = "Murky Ring", -- Mytha: Meridian Ring
 	})
 
@@ -683,10 +617,10 @@ local function init_gear()
 		body = gear.af_body,
 		hands = gear.empy_hands,
 		ring1 = "Naji's Loop", -- Mytha: Kishar Ring
-		ring2 = "Dark Ring",
+		ring2 = "Murky Ring", -- Mytha: Dark Ring
 		back = "Solemnity Cape", -- Mytha: Aurist's Cape +1
 		waist = "Witful Belt",
-		legs = "Enif Cosciales", -- Mytha: Lengo Pants
+		legs = "Aya. Cosciales +2", -- Mytha: Lengo Pants
 		feet = "Chelona Boots", -- Mytha: Carmine Greaves +1
 	}
 
@@ -771,7 +705,7 @@ local function init_gear()
 		back = gear.da_cape,
 		waist = "Sailfi Belt +1", -- Mytha: Windbuffet Belt +1
 		legs = gear.empy_legs,
-		feet = gear.herculean_ta_feet,
+		feet = "Nyame Sollerets", -- Mytha: Herculean Boots with a Triple Attack augment
 	}
 
 	gear.engaged.Acc = {
@@ -876,10 +810,6 @@ function get_sets()
 	sets.AccMaxTP = gear.acc_max_tp
 	sets.midcast.FastRecast = gear.fastrecast
 	sets.midcast["Blue Magic"] = gear.blue
-	sets.midcast["Enfeebling Magic"] = gear.enfeebling
-	sets.midcast["Divine Magic"] = gear.divine
-	sets.midcast["Elemental Magic"] = gear.elemental
-	sets.midcast.Helix = gear.helix
 	sets.midcast.Cure = gear.cure
 	sets.midcast.Cursna = gear.cursna
 	sets.resting = gear.resting

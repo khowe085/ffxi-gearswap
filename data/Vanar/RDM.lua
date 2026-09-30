@@ -1,5 +1,6 @@
 -- Vanar's RDM, from Mytha_Rdm_Gear.lua on the old branch. Where Mytha's piece isn't owned, the
 -- best owned piece for that set's job (per bg-wiki) stands in, with Mytha's piece noted beside it.
+-- Murky Ring and Alabaster Earring are placed for their fully augmented Accuracy+15 / Magic Accuracy+15.
 -- init_gear() defines every set on the gear table; get_sets() sets the modes and hands them to
 -- Core.lua, which defines precast, midcast, aftercast, pet_midcast, pet_aftercast, status_change,
 -- sub_job_change, self_command and file_unload. The job hooks at the bottom add RDM's own behavior.
@@ -39,17 +40,16 @@ local function init_gear()
 
 	-- Augmented pieces
 	gear.amalric_head = { name = "Amalric Coif +1", augments = { "INT+11", "Elem. magic skill +17", "Dark magic skill +17" } }
-	gear.merlinic_drain_head = { name = "Merlinic Hood", augments = { "Mag. Acc.+24", '"Drain" and "Aspir" potency +7', '"Mag.Atk.Bns."+7' } }
-	gear.merlinic_nuke_feet = { name = "Merlinic Crackows", augments = { 'Mag. Acc.+20 "Mag.Atk.Bns."+20', "Enmity-2", "CHR+9", "Mag. Acc.+15", '"Mag.Atk.Bns."+10' } }
-	gear.chironic_nuke_hands = { name = "Chironic Gloves", augments = { 'Mag. Acc.+20 "Mag.Atk.Bns."+20', '"Conserve MP"+1', "CHR+7", '"Mag.Atk.Bns."+9' } }
 	gear.chironic_macc_legs = { name = "Chironic Hose", augments = { "Mag. Acc.+28", "MND+12" } }
-	gear.telchine_duration_head = { name = "Telchine Cap", augments = { "Enh. Mag. eff. dur. +9" } }
-	gear.vanya_head = { name = "Vanya Hood", augments = { "MP+50", '"Fast Cast"+10', "Haste+2%" } }
+	gear.telchine_duration_head = { name = "Telchine Cap", augments = { "Enh. Mag. eff. dur. +10" } }
+	gear.telchine_duration_legs = { name = "Telchine Braconi", augments = { "Enh. Mag. eff. dur. +10" } }
+	gear.telchine_regen_body = { name = "Telchine Chas.", augments = { '"Regen" potency+3' } }
+	gear.telchine_regen_hands = { name = "Telchine Gloves", augments = { '"Regen" potency+3' } }
+	gear.telchine_regen_feet = { name = "Telchine Pigaches", augments = { '"Regen" potency+3' } }
 	gear.vanya_hands = { name = "Vanya Cuffs", augments = { "Healing magic skill +20", '"Cure" spellcasting time -7%', "Magic dmg. taken -3" } }
 	gear.vanya_feet = { name = "Vanya Clogs", augments = { '"Cure" potency +5%', '"Cure" spellcasting time -15%', '"Conserve MP"+6' } }
 	gear.carmine_legs = { name = "Carmine Cuisses +1", augments = { "Accuracy+20", "Attack+12", '"Dual Wield"+6' } }
 	gear.colada_refresh = { name = "Colada", augments = { '"Refresh"+2', "Mag. Acc.+11", '"Mag.Atk.Bns."+12', "DMG:+1" } }
-	gear.dark_ring = { name = "Dark Ring", augments = { "Phys. dmg. taken -3%", "Spell interruption rate down -3%" } }
 
 	-- Your skill pieces for each school, layered under the sets that lean on skill.
 
@@ -71,8 +71,7 @@ local function init_gear()
 		feet = gear.empy_feet,
 	}
 
-	-- Every Telchine piece carries an Enhancing duration augment; the +4 and +3 pieces beat them in
-	-- body, hands and feet.
+	-- The duration-augmented Telchine Gloves lose to Atro. Gloves +4 here.
 	gear.enhancing_duration = {
 		sub = "Ammurapi Shield",
 		head = gear.telchine_duration_head,
@@ -82,7 +81,7 @@ local function init_gear()
 		hands = gear.af_hands,
 		back = gear.skill_cape,
 		waist = "Embla Sash",
-		legs = "Telchine Braconi",
+		legs = gear.telchine_duration_legs,
 		feet = gear.empy_feet,
 	}
 
@@ -166,12 +165,12 @@ local function init_gear()
 		ammo = "Ginsen", -- Mytha: Hasty Pinion +1
 		head = gear.empy_head, -- Mytha: Malignance Chapeau
 		neck = "Subtlety Spec.", -- Mytha: Null Loop
-		ear1 = "Steelflash Earring", -- Mytha: Zennaroi Earring
+		ear1 = "Alabaster Earring", -- Mytha: Zennaroi Earring
 		ear2 = gear.empy_ear, -- Mytha: Crepuscular Earring
 		body = gear.empy_body, -- Mytha: Malignance Tabard
 		hands = gear.empy_hands, -- Mytha: Malignance Gloves
-		ring1 = "Ayanmo Ring", -- Mytha: Cacoethic Ring +1
-		ring2 = "Fortified Ring", -- Mytha: Chirich Ring +1
+		ring1 = "Murky Ring", -- Mytha: Cacoethic Ring +1
+		ring2 = "Lehko's Ring", -- Mytha: Chirich Ring +1
 		back = gear.da_cape, -- Mytha: Null Shawl
 		waist = "Eschan Stone", -- Mytha: Null Belt
 		legs = gear.empy_legs, -- Mytha: Malignance Tights
@@ -183,7 +182,7 @@ local function init_gear()
 		ammo = "Pemphredo Tathlum", -- Mytha: Regal Gem
 		head = gear.empy_head,
 		neck = gear.relic_neck, -- Mytha: Null Loop
-		ear1 = "Snotra Earring", -- Mytha: Malignance Earring
+		ear1 = "Alabaster Earring", -- Mytha: Malignance Earring
 		ear2 = gear.empy_ear, -- Mytha: Crepuscular Earring
 		body = gear.empy_body, -- Mytha: Malignance Tabard
 		hands = gear.empy_hands,
@@ -216,7 +215,7 @@ local function init_gear()
 		hands = gear.empy_hands, -- Mytha: Nyame Gauntlets; Ganth. +3 have more DT
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
 		ring2 = "Prolix Ring", -- Mytha: Lebeche Ring
-		back = "Perimede Cape",
+		back = "Swith Cape", -- Mytha: Perimede Cape
 		waist = "Witful Belt",
 		legs = "Nyame Flanchard",
 		feet = "Chelona Boots", -- Mytha: Nyame Sollerets; keeps Fast Cast capped without the FC hands
@@ -265,7 +264,7 @@ local function init_gear()
 		head = "Nyame Helm",
 		ear1 = "Brutal Earring",
 		ear2 = gear.empy_ear, -- Mytha: Sherida Earring
-		body = "Ayanmo Corazza +2", -- Mytha: Malignance Tabard
+		-- body: Mytha's Malignance Tabard; Nyame Mail from the base set
 		hands = "Aya. Manopolas +2", -- Mytha: Malignance Gloves
 		ring1 = "Epaminondas's Ring",
 		ring2 = "Lehko's Ring", -- Mytha: Cornelia's Ring
@@ -274,7 +273,7 @@ local function init_gear()
 	gear.ws["Evisceration"] = gear.ws["Chant du Cygne"]
 
 	gear.ws["Savage Blade"] = set_combine(gear.ws, {
-		neck = "Rep. Plat. Medal",
+		-- neck: Mytha's Rep. Plat. Medal; Fotia Gorget from the base set
 		waist = "Sailfi Belt +1",
 	})
 
@@ -313,7 +312,7 @@ local function init_gear()
 
 	-- Swap these in for Moonshade Earring when TP is already capped (job_post_precast).
 	gear.max_tp = { ear1 = "Brutal Earring", ear2 = gear.empy_ear }
-	gear.acc_max_tp = { ear1 = "Steelflash Earring", ear2 = gear.empy_ear } -- Mytha: Telos Earring
+	gear.acc_max_tp = { ear1 = "Alabaster Earring", ear2 = gear.empy_ear } -- Mytha: Telos Earring
 	gear.magical_max_tp = { ear1 = "Friomisi Earring", ear2 = "Novio Earring" }
 
 	-- Midcast Sets
@@ -324,7 +323,7 @@ local function init_gear()
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = gear.af_head, -- Mytha: Atrophy Chapeau +3
 		neck = "Loricate Torque", -- Mytha: Loricate Torque +1
-		ear1 = "Snotra Earring", -- Mytha: Malignance Earring
+		ear1 = "Alabaster Earring", -- Mytha: Malignance Earring
 		ear2 = gear.empy_ear,
 		body = gear.relic_body, -- Mytha: Viti. Tabard +3
 		hands = "Bunzi's Gloves",
@@ -333,7 +332,7 @@ local function init_gear()
 		back = gear.mnd_cape,
 		waist = "Rumination Sash", -- Mytha: Emphatikos Rope
 		legs = "Bunzi's Pants",
-		feet = "Bunzi's Sabots",
+		feet = "Nyame Sollerets", -- Mytha: Bunzi's Sabots
 	}
 
 	-- Healing Magic --
@@ -344,11 +343,11 @@ local function init_gear()
 		sub = "Ammurapi Shield",
 		range = empty,
 		ammo = "Hydrocera", -- Mytha: Regal Gem
-		head = gear.vanya_head,
+		head = gear.empy_head, -- Mytha: Vanya Hood
 		neck = "Nodens Gorget", -- Mytha: Incanter's Torque
 		ear1 = "Mendi. Earring", -- Mytha: Meili Earring
 		ear2 = gear.empy_ear, -- Mytha: Mendi. Earring
-		body = "Bunzi's Robe",
+		body = gear.empy_body, -- Mytha: Bunzi's Robe
 		hands = "Telchine Gloves", -- Mytha: Gende. Gages +1
 		ring1 = "Stikini Ring", -- Mytha: Sirona's Ring
 		ring2 = "Naji's Loop", -- Mytha: Menelaus's Ring
@@ -362,24 +361,22 @@ local function init_gear()
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
 		head = gear.empy_head,
 		neck = "Loricate Torque", -- Mytha: Loricate Torque +1
-		ear1 = "Halasz Earring",
+		ear1 = "Alabaster Earring", -- Mytha: Halasz Earring
 		ear2 = "Mendi. Earring",
-		hands = gear.chironic_nuke_hands,
+		hands = "Bunzi's Gloves", -- Mytha: Chironic Gloves with an Aspir augment
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
-		ring2 = gear.dark_ring, -- Mytha: Freke Ring
+		ring2 = "Stikini Ring", -- Mytha: Freke Ring
 		waist = "Rumination Sash", -- Mytha: Emphatikos Rope
 		legs = "Bunzi's Pants",
-		feet = "Bunzi's Sabots",
+		feet = "Nyame Sollerets", -- Mytha: Bunzi's Sabots
 	})
 
-	-- Mytha's Light-weather and Light-day cures also swapped to Chatoyant Staff and Hachirin-no-Obi;
-	-- Twilight Cape is the only one of those you own.
-	gear.light_cure = set_combine(gear.cure, { back = "Twilight Cape" })
-	gear.light_cure.DT = gear.cure.DT
+	-- Mytha's Light-weather and Light-day cures swapped to Chatoyant Staff, Twilight Cape and
+	-- Hachirin-no-Obi; Cure potency is capped without them.
 
 	gear.cursna = set_combine(gear.healing_skill, {
 		-- ammo: Mytha's Hasty Pinion +1; you're at the haste cap
-		head = gear.vanya_head,
+		-- head: Mytha's Vanya Hood; nothing owned adds to Cursna
 		-- neck: Mytha's Debilis Medallion; nothing owned fits
 		ear1 = "Mendi. Earring", -- Mytha: Meili Earring
 		ear2 = gear.empy_ear,
@@ -410,7 +407,7 @@ local function init_gear()
 	-- set with Phalanx augments, not owned).
 	gear.enhancing.BoostStat = { hands = gear.relic_hands }
 	gear.enhancing.Stoneskin = { neck = "Nodens Gorget", waist = "Siegel Sash" }
-	gear.enhancing.Regen = { body = "Telchine Chas." } -- Mytha: Bolelabunga; the Chasuble adds Regen duration
+	gear.enhancing.Regen = { body = gear.telchine_regen_body, hands = gear.telchine_regen_hands, feet = gear.telchine_regen_feet } -- Mytha: Bolelabunga
 	-- Protect and Shell (Sheltered Ring): nothing owned fits
 
 	-- Enfeebling Magic --
@@ -551,7 +548,8 @@ local function init_gear()
 		ammo = empty,
 		head = gear.af_head, -- Mytha: Leth. Chappel +3
 		neck = "Aesir Torque", -- Mytha: Sibyl Scarf
-		ear2 = gear.empy_ear, -- Mytha: Malignance Earring
+		ear1 = "Alabaster Earring", -- Mytha: Malignance Earring
+		ear2 = gear.empy_ear, -- Mytha: Friomisi Earring
 		waist = "Obstin. Sash", -- Mytha: Acuity Belt +1
 	})
 
@@ -581,7 +579,7 @@ local function init_gear()
 		ammo = "Pemphredo Tathlum", -- Mytha: Regal Gem
 		head = gear.empy_head,
 		neck = gear.relic_neck, -- Mytha: Null Loop
-		ear1 = "Snotra Earring", -- Mytha: Malignance Earring
+		ear1 = "Alabaster Earring", -- Mytha: Malignance Earring
 		ear2 = gear.empy_ear, -- Mytha: Snotra Earring
 		body = gear.empy_body,
 		hands = gear.empy_hands,
@@ -593,14 +591,11 @@ local function init_gear()
 		feet = gear.empy_feet,
 	})
 
+	-- Mytha's Pixie Hairpin +1, Chironic Aspir pieces and Evanescence Ring aren't owned; the Lethargy
+	-- pieces carry the magic accuracy.
 	gear.dark.Drain = set_combine(gear.dark, {
-		head = gear.merlinic_drain_head, -- Mytha: Pixie Hairpin +1
-		-- hands: Mytha's Chironic Gloves with an Aspir augment; Ganth. +3 have more magic accuracy
-		-- ring1: Mytha's Evanescence Ring; nothing owned fits
 		back = gear.nuke_cape,
 		waist = "Fucho-no-Obi",
-		-- legs: Mytha's Chironic Hose with an Aspir augment; Fuseau +3 have more magic accuracy
-		feet = gear.merlinic_nuke_feet, -- Mytha: Leth. Houseaux +3; Crackows add Drain and Aspir potency
 	})
 
 	gear.dark.Aspir = gear.dark.Drain
@@ -625,12 +620,12 @@ local function init_gear()
 		-- ammo: Mytha's Impatiens; quick magic unwanted
 		head = gear.relic_head, -- Mytha: Viti. Chapeau +3
 		neck = "Loricate Torque", -- Mytha: Loricate Torque +1
-		ear1 = "Etiolation Earring",
+		ear1 = "Alabaster Earring", -- Mytha: Etiolation Earring
 		ear2 = gear.empy_ear, -- Mytha: Ethereal Earring
 		body = gear.empy_body,
 		hands = gear.empy_hands, -- Mytha: Merlinic Dastanas with a Refresh augment
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
-		ring2 = "Ayanmo Ring", -- Mytha: Sheltered Ring
+		ring2 = "Stikini Ring", -- Mytha: Sheltered Ring
 		back = gear.da_cape, -- Mytha: Null Shawl
 		waist = "Fucho-no-Obi", -- Mytha: Null Belt
 		legs = "Bunzi's Pants", -- Mytha: Merlinic Shalwar with a Refresh augment
@@ -643,7 +638,7 @@ local function init_gear()
 		-- ammo: Mytha's Homiliary; nothing owned fits
 		head = gear.relic_head, -- Mytha: Viti. Chapeau +3
 		neck = "Sibyl Scarf",
-		ear1 = "Etiolation Earring",
+		ear1 = "Alabaster Earring", -- Mytha: Etiolation Earring
 		ear2 = gear.empy_ear, -- Mytha: Ethereal Earring
 		body = gear.empy_body,
 		hands = gear.empy_hands, -- Mytha: Chironic Gloves with a Refresh augment
@@ -664,9 +659,9 @@ local function init_gear()
 		body = gear.empy_body, -- Mytha: Nyame Mail
 		hands = gear.empy_hands, -- Mytha: Nyame Gauntlets
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
-		ring2 = "Fortified Ring", -- Mytha: Shadow Ring
-		back = "Shadow Mantle",
-		waist = "Plat. Mog. Belt",
+		-- ring2: Mytha's Shadow Ring; Stikini Ring from the idle set
+		back = gear.da_cape, -- Mytha: Shadow Mantle
+		waist = "Flume Belt", -- Mytha: Plat. Mog. Belt
 		legs = "Nyame Flanchard",
 		feet = "Nyame Sollerets",
 	})
@@ -675,17 +670,17 @@ local function init_gear()
 	-- owned.
 	gear.idle.MDT = set_combine(gear.idle, {
 		-- ammo: Mytha's Staunch Tathlum +1; nothing owned fits
-		head = "Bunzi's Hat",
+		head = gear.empy_head, -- Mytha: Bunzi's Hat
 		neck = "Loricate Torque", -- Mytha: Warder's Charm +1
 		ear2 = gear.empy_ear, -- Mytha: Sanare Earring
-		body = "Bunzi's Robe",
+		body = gear.empy_body, -- Mytha: Bunzi's Robe
 		hands = "Bunzi's Gloves",
 		ring1 = "Murky Ring", -- Mytha: Defending Ring
-		ring2 = "Fortified Ring", -- Mytha: Shadow Ring
+		-- ring2: Mytha's Shadow Ring; Stikini Ring from the idle set
 		back = "Solemnity Cape", -- Mytha: Engulfer Cape +1
-		waist = "Plat. Mog. Belt", -- Mytha: Null Belt
+		waist = "Flume Belt", -- Mytha: Null Belt
 		legs = "Bunzi's Pants",
-		feet = "Bunzi's Sabots",
+		feet = "Nyame Sollerets", -- Mytha: Bunzi's Sabots
 	})
 
 	-- Engaged sets
@@ -693,7 +688,7 @@ local function init_gear()
 	gear.engaged = {
 		ammo = "Coiste Bodhar",
 		head = "Nyame Helm", -- Mytha: Malignance Chapeau
-		neck = "Asperity Necklace", -- Mytha: Anu Torque
+		neck = "Sanctity Necklace", -- Mytha: Anu Torque
 		ear1 = "Brutal Earring", -- Mytha: Sherida Earring
 		ear2 = gear.empy_ear, -- Mytha: Dedition Earring
 		body = "Nyame Mail", -- Mytha: Malignance Tabard
@@ -709,11 +704,11 @@ local function init_gear()
 	gear.engaged.Acc = set_combine(gear.engaged, {
 		head = gear.empy_head, -- Mytha: Malignance Chapeau
 		neck = "Subtlety Spec.", -- Mytha: Null Loop
-		ear1 = "Steelflash Earring", -- Mytha: Crep. Earring
+		ear1 = "Alabaster Earring", -- Mytha: Crep. Earring
 		ear2 = gear.empy_ear, -- Mytha: Telos Earring
 		body = gear.empy_body, -- Mytha: Malignance Tabard
 		hands = gear.empy_hands, -- Mytha: Malignance Gloves
-		ring1 = "Ayanmo Ring", -- Mytha: Chirich Ring +1
+		ring1 = "Murky Ring", -- Mytha: Chirich Ring +1
 		waist = "Kentarch Belt +1", -- Mytha: Null Belt
 		legs = gear.empy_legs, -- Mytha: Malignance Tights
 		feet = gear.empy_feet, -- Mytha: Malignance Boots
@@ -728,9 +723,8 @@ local function init_gear()
 
 	gear.engaged.Acc.DT = set_combine(gear.engaged.DT, {
 		neck = "Subtlety Spec.", -- Mytha: Null Loop
-		ear1 = "Steelflash Earring", -- Mytha: Crep. Earring
+		ear1 = "Alabaster Earring", -- Mytha: Crep. Earring
 		ear2 = gear.empy_ear, -- Mytha: Telos Earring
-		ring2 = "Ayanmo Ring", -- Mytha: Chirich Ring +1
 		waist = "Kentarch Belt +1", -- Mytha: Null Belt
 	})
 
@@ -794,8 +788,6 @@ function get_sets()
 	sets.MagicalMaxTP = gear.magical_max_tp
 	sets.midcast.FastRecast = gear.fastrecast
 	sets.midcast.Cure = gear.cure
-	sets.midcast.LightWeatherCure = gear.light_cure
-	sets.midcast.LightDayCure = gear.light_cure
 	sets.midcast.Cursna = gear.cursna
 	sets.midcast["Enhancing Magic"] = gear.enhancing
 	sets.midcast["Enfeebling Magic"] = gear.enfeebling
