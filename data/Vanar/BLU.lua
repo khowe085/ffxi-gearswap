@@ -136,8 +136,8 @@ AutoWS_List = {
 -- Auto buff lists. gs c AutoBuff cycles OFF and Auto, starts OFF and has no key of its own. While Auto is
 -- on, the engine casts the first buff below that you are missing, on yourself. When is Always, Engaged,
 -- Idle, Combat or OutOfCombat. The engine checks that a spell is learned, not that a blue magic spell is
--- set, so Erratic Flutter and Nat. Meditation must be in the spell set. Mighty Guard needs Unbridled
--- Learning, which pretarget_custom uses first.
+-- set, so Erratic Flutter and Nat. Meditation must be in the spell set. Mighty Guard goes through the
+-- Unbridled Learning and Diffusion handling in pretarget_custom.
 AutoBuff_List = {
 	Auto = {
 		{ Name = 'Erratic Flutter', Buff = 'Haste', When = 'Always' },
@@ -148,8 +148,21 @@ AutoBuff_List = {
 	},
 }
 
--- Blue magic that needs Unbridled Learning or Unbridled Wisdom up before it can be cast.
-Unbridled_Spells = S { 'Mighty Guard' }
+-- Blue magic that needs Unbridled Learning or Unbridled Wisdom up before it can be cast: the 18 spells
+-- that take no set points.
+Unbridled_Spells = S { 'Absolute Terror', 'Bilgestorm', 'Blistering Roar', 'Bloodrake', 'Carcharian Verve',
+	'Cesspool', 'Crashing Thunder', 'Cruel Joke', 'Droning Whirlwind', 'Gates of Hades', 'Harden Shell',
+	'Mighty Guard', 'Polar Roar', 'Pyric Bulwark', 'Tearing Gust', 'Thunderbolt', 'Tourbillion', 'Uproot' }
+
+-- Blue magic that uses Diffusion first, when it is ready and not already up, so the buff reaches the party.
+Diffusion_Spells = S { 'Mighty Guard' }
+
+-- Physical blue magic that uses Chain Affinity and Efflux first, when they are ready and not already up.
+Chain_Affinity_Spells = S { 'Sinker Drill' }
+
+-- The last time pretarget_custom said Unbridled Learning was not ready, so a cast AutoBuff retries every
+-- 3 seconds prints it once every 30 seconds at most.
+local unbridled_abort_said = nil
 
 -- Naming JobMode shows it in chat and on the status box.
 UI_Name = 'Mode'
@@ -605,16 +618,44 @@ end
 
 -- Called before each action, after the engine's own checks. Cancel the action here with cancel_spell(). Nothing it returns is used.
 function pretarget_custom(spell,action)
-	-- An unbridled spell cast without Unbridled Learning or Unbridled Wisdom up is dropped. When Unbridled
-	-- Learning is ready (ability recast 81), it goes up first and the spell is sent again 1.1 seconds later,
-	-- as the engine's AutoWSBuff does for a weaponskill.
-	if spell.type == 'BlueMagic' and Unbridled_Spells:contains(spell.english)
-		and not buffactive['Unbridled Learning'] and not buffactive['Unbridled Wisdom'] then
+	-- Automatic Unbridled Learning, Diffusion, Chain Affinity and Efflux, as in the old file. A spell from the
+	-- lists above that needs one of them is dropped, the abilities go up 1.1 seconds apart, and the spell
+	-- is sent again 1.1 seconds after them. Nothing is used while the spell itself is still recasting. An
+	-- unbridled spell is dropped with a message when Unbridled Learning (ability recast 81) is not ready,
+	-- and a Chain Affinity spell when Chain Affinity (181) is not. Diffusion (184) and Efflux (185) are used
+	-- only when ready.
+	if spell.type ~= 'BlueMagic' then return end
+	local recasts = windower.ffxi.get_ability_recasts()
+	local unbridled = Unbridled_Spells:contains(spell.english)
+		and not buffactive['Unbridled Learning'] and not buffactive['Unbridled Wisdom']
+	local diffusion = Diffusion_Spells:contains(spell.english) and not buffactive['Diffusion']
+		and recasts[184] == 0
+	local chain = Chain_Affinity_Spells:contains(spell.english)
+	local chain_affinity = chain and not buffactive['Chain Affinity']
+	local efflux = chain and not buffactive['Efflux'] and recasts[185] == 0
+	if not (unbridled or diffusion or chain_affinity or efflux) then return end
+	if ((windower.ffxi.get_spell_recasts()[spell.recast_id] or 0) / 60) > 1 then return end
+	if unbridled and recasts[81] ~= 0 then
 		cancel_spell()
-		if windower.ffxi.get_ability_recasts()[81] == 0 then
-			windower.send_command('input /ja "Unbridled Learning" <me>; wait 1.1; input /ma "' .. spell.english .. '" <me>')
+		if not unbridled_abort_said or os.clock() - unbridled_abort_said > 30 then
+			unbridled_abort_said = os.clock()
+			add_to_chat(123, 'Abort: Unbridled Learning not active.')
 		end
+		return
 	end
+	if chain_affinity and recasts[181] ~= 0 then
+		cancel_spell()
+		add_to_chat(123, 'Abort: Chain Affinity not ready.')
+		return
+	end
+	cancel_spell()
+	local steps = {}
+	if unbridled then steps[#steps + 1] = 'input /ja "Unbridled Learning" <me>' end
+	if diffusion then steps[#steps + 1] = 'input /ja "Diffusion" <me>' end
+	if chain_affinity then steps[#steps + 1] = 'input /ja "Chain Affinity" <me>' end
+	if efflux then steps[#steps + 1] = 'input /ja "Efflux" <me>' end
+	steps[#steps + 1] = 'input /ma "' .. spell.english .. '" ' .. (spell.target.raw or '<me>')
+	windower.send_command(table.concat(steps, '; wait 1.1; '))
 end
 -- Gear returned here merges over the engine's precast set for the action.
 function precast_custom(spell)
