@@ -37,7 +37,8 @@ gear.telchineHandsRegen = hp_gear("Telchine Gloves", 52, {
 gear.telchineFeetRegen = hp_gear("Telchine Pigaches", 13, {
 	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3
 gear.pukulatmujPlusOne = rank_gear("Pukulatmuj +1", 100)  -- Enhancing skill 11, Stoneskin casting time -11%
-gear.secespita = rank_gear("Secespita", 100)              -- Enhancing skill 10
+gear.forfendPlusOne = hp_gear("Forfend +1", 22, {
+	augments = { 'Path: A', } })                                                                                    -- Enhancing skill 10, Acc 15, Macc 15 (Path A at max rank)
 gear.enhancingTorque = hp_gear("Enhancing Torque", 0)      -- Enhancing skill 7
 gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
 	augments = { 'Path: A', } })                                                                                    -- Enhancing skill 9
@@ -64,7 +65,7 @@ Food = "Crepe B. Helene"
 -- The offense modes this job cycles through. Each mode needs a sets.OffenseMode.<Mode> and a
 -- sets.Idle.<Mode> below. state.OffenseMode:set picks the mode selected at load.
 state.OffenseMode:options('TP', 'ACC', 'DT')
-state.OffenseMode:set('DT')
+state.OffenseMode:set('TP')
 
 -- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
 jobsetup(LockStylePallet, MacroBook, MacroSet)
@@ -75,8 +76,7 @@ state.WeaponMode:set('Savage Blade')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (Alt+F9) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
--- Savage Blade fires at 1000 with Thibron's TP Bonus, and at 1750 when a subjob without Dual Wield
--- puts Ammurapi Shield in Thibron's place.
+-- Savage Blade offers 1000 and 1750, since its Maxentius offhand carries no TP Bonus.
 AutoWS_List = {
 	['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
 	['Savage Blade Acc'] = { { 'Savage Blade', 1000 } },
@@ -84,6 +84,7 @@ AutoWS_List = {
 	['Black Halo Acc'] = { { 'Black Halo', 1000 } },
 	['Aeolian Edge'] = { { 'Aeolian Edge', 1000 } },
 }
+state.AutoWS:set('OFF')
 
 -- Auto buff lists, as on BLU. gs c AutoBuff cycles OFF and Auto, starts OFF and has no key of its own.
 -- While Auto is on, the engine casts the first buff below that you are missing, on yourself. Temper II
@@ -104,19 +105,19 @@ function get_sets()
 	--		sets.Weapons
 	-- ===================================================================================================================
 
-	-- Weapon sets, one per weapon mode above, each named for the weaponskill it is built for. The offhands
-	-- follow bg-wiki's All Jobs Gear Sets/Red Mage: Thibron's TP Bonus +1000 where damage rises with TP,
-	-- Bunzi's Rod's magic attack for Sanguine Blade, and Gleti's Knife and Almace for the critical-hit
-	-- weaponskills. The Acc modes put Almace in Thibron's place, for more accuracy. The weapon mode also owns
-	-- the range slot. The melee modes clear it. The Magic mode wears Ullr, Macc 40, with a bare ammo slot,
-	-- because any ammo that is not an arrow strips the bow and resets TP. That is why no idle, precast or
-	-- midcast set below names ammo: only the engaged and weaponskill sets do, and the Magic mode's bare ammo
-	-- slot wins over the engaged set's.
+	-- Weapon sets, one per weapon mode above, each named for the weaponskill it is built for. Savage Blade
+	-- and Aeolian Edge dual wield Maxentius in the offhand (Macc 40, MAB 21). Black Halo, where Maxentius is
+	-- the main hand, keeps Thibron's TP Bonus +1000. Sanguine Blade takes Bunzi's Rod for its magic attack,
+	-- the critical-hit weaponskills take Gleti's Knife and Almace, and the Acc modes take Almace, for more
+	-- accuracy. The weapon mode also owns the range slot. The melee modes clear it. The Magic mode wears
+	-- Ullr, Macc 40, with a bare ammo slot, because any ammo that is not an arrow strips the bow and resets
+	-- TP. That is why no idle, precast or midcast set below names ammo: only the engaged and weaponskill sets
+	-- do, and the Magic mode's bare ammo slot wins over the engaged set's.
 	sets.Weapons = {}
 
 	sets.Weapons['Savage Blade'] = {	-- also Seraph Blade and Red Lotus Blade
 		main = gear.naegling,
-		sub = gear.thibron,
+		sub = gear.maxentius,
 		range = empty,
 	}
 
@@ -158,7 +159,7 @@ function get_sets()
 
 	sets.Weapons['Aeolian Edge'] = {
 		main = gear.tauret,
-		sub = gear.thibron,
+		sub = gear.maxentius,
 		range = empty,
 	}
 
@@ -348,12 +349,11 @@ function get_sets()
 	-- Temper, Temper II and the first-tier en-spells keep gaining from enhancing skill past 500, so they
 	-- wear every skill piece, weapons included. A first-tier en-spell's damage is set by the skill worn
 	-- at the cast. A second-tier en-spell reads the skill worn on each attack round (bg-wiki,
-	-- Category:Enspell), so the engine leaves the second tier on the duration set. Secespita needs the
-	-- Dual Wield trait from a NIN or DNC subjob, and midcast_custom puts Ammurapi Shield in its place
-	-- without it.
+	-- Category:Enspell), so the engine leaves the second tier on the duration set. Forfend +1 is a shield,
+	-- so the set needs no Dual Wield.
 	sets.Midcast.Enhancing.Skill = set_combine(sets.Midcast.Enhancing, {
 		main = gear.pukulatmujPlusOne,			-- Enhancing skill 11
-		sub = gear.secespita,					-- Enhancing skill 10
+		sub = gear.forfendPlusOne,				-- Enhancing skill 10 (Path A)
 		body = gear.vitiationBodyPlusFour,		-- Enhancing skill 24
 		hands = gear.vitiationHandsPlusFour,	-- Enhancing skill 25
 		legs = gear.atrophyLegsPlusFour,		-- Enhancing skill 22
@@ -365,7 +365,7 @@ function get_sets()
 		left_ring = gear.stikini1,				-- Enhancing skill 5
 		right_ring = gear.stikini2,				-- Enhancing skill 5
 		back = gear.fiFolletPlusOne,			-- Enhancing skill 9
-	})	-- Enhancing skill 629 with Dual Wield. Temper II's triple attack is (skill - 300) / 10, 32% here, up to 40% at 700.
+	})	-- Enhancing skill 629. Temper II's triple attack is (skill - 300) / 10, 32% here, up to 40% at 700.
 
 	-- Gain spells. Their potency from skill caps at 500, and Vitiation Gloves +4 add to it.
 	sets.Midcast.Enhancing.Gain = set_combine(sets.Midcast.Enhancing, {
@@ -624,17 +624,7 @@ end
 -- midcast set, which is empty for abilities, weaponskills and items.
 function midcast_custom(spell)
 	local equipSet = {}
-	-- sets.Midcast.Enhancing.Skill's Secespita needs the Dual Wield trait (id 18) to go in the sub slot.
-	if spell.skill == 'Enhancing Magic' and Enhancing_Skill:contains(spell.name) then
-		local abilities = windower.ffxi.get_abilities()
-		local dual_wield = false
-		for _, trait in ipairs(abilities and abilities.job_traits or {}) do
-			if trait == 18 then dual_wield = true end
-		end
-		if not dual_wield then
-			equipSet = { sub = gear.ammurapi }
-		end
-	end
+
 	return equipSet
 end
 

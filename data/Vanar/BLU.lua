@@ -24,7 +24,6 @@ gear.rosmertaMAB = hp_gear("Rosmerta's Cape", 0, {
 gear.telchineGlovesDuration = hp_gear("Telchine Gloves", 52, {
 	augments = { 'Haste+3', 'Enh. Mag. eff. dur. +10', } })                                                 -- Enhancing duration 10, Cure 10
 gear.cornflower = mp_gear("Cornflower Cape", 29)  -- Macc 15, MAB 15, Blue magic skill 15
-gear.iris = rank_gear("Iris", 100)                -- Blue magic skill 30, Macc 15, MAB 29, Blue magic casting time -7%
 gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0) -- Acc 14, DA 3
 gear.njordr = hp_gear("Njordr Earring", 0)        -- Blue magic skill 10
 gear.honedTathlum = hp_gear("Honed Tathlum", 0)   -- Acc 15
@@ -69,7 +68,7 @@ Lockstyle_List = {1,2,6,12}
 state.OffenseMode:options('TP','ACC','DT')
 
 -- The offense mode the file starts in.
-state.OffenseMode:set('DT')
+state.OffenseMode:set('TP')
 
 -- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
 jobsetup (LockStylePallet,MacroBook,MacroSet)
@@ -132,6 +131,7 @@ AutoWS_List = {
 	['Tizona Acc'] = { { 'Expiacion', 1000 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
 	['Almace'] = { { 'Chant du Cygne', 1000 } },
 }
+state.AutoWS:set('OFF')
 
 -- Auto buff lists. gs c AutoBuff cycles OFF and Auto, starts OFF and has no key of its own. While Auto is
 -- on, the engine casts the first buff below that you are missing, on yourself. When is Always, Engaged,
@@ -211,9 +211,9 @@ function get_sets()
 		sub = gear.thibron,
 	}
 
-	sets.Weapons['Magic'] = {		-- Nukes and AoE: Macc 55, MAB 64, Blue magic skill 30
+	sets.Weapons['Magic'] = {		-- Nukes and AoE: Macc 80, MAB 56
 		main = gear.bunzi,
-		sub = gear.iris,
+		sub = gear.maxentius,
 	}
 
 	-- Worn whenever you are not engaged. It is also the floor under every action, so a slot an action's sets leave unnamed keeps its idle piece.
@@ -262,7 +262,7 @@ function get_sets()
 		left_ear = gear.brutal,						-- DA 5
 		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, DA 4, Sword skill 11
 		left_ring = gear.lehkoHabhokaRing,			-- STP 10, Crit 10
-		right_ring = gear.eponas,					-- DA 3, TA 3
+		right_ring = gear.rajas,					-- STP 5, Subtle Blow 5
 		back = gear.rosmertaDA,						-- Acc 30, Att 20, DA 10, DT 5
 	}	-- Acc 391, Att 330, DT 40
 
@@ -505,12 +505,13 @@ function get_sets()
 	-- It follows bg-wiki's simulated Savage Blade and Expiacion sets (All Jobs Gear Sets/Blue Mage). Jhakri
 	-- Cuffs +2 stand in for its Path B Nyame Gauntlets (WSD 11, DA 5), since Vanar's have no path, Hashi.
 	-- Earring +1 for Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at rank 20.
+	-- The legs are Luhlaza Shalwar +4 in place of its Nyame Flanchard.
 	sets.WS = {
 		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
 		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61, Sword skill 30
 		body = gear.nyameBody,						-- WSD 13, DA 7, Acc 40, Att 65
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, Acc 43, Att 43
-		legs = gear.nyameLegs,						-- WSD 12, DA 6, Acc 40, Att 65
+		legs = gear.luhlazaLegsPlusFour,			-- WSD 12, Acc 50, STR 46
 		feet = gear.nyameFeet,						-- WSD 11, DA 5, Acc 53, Att 65
 		neck = gear.mirageStolePlusTwo,				-- STR 25, DEX 25 (Path A), Acc 25
 		waist = gear.sailfi,
@@ -575,7 +576,7 @@ function get_sets()
 		left_ear = gear.moonshade,					-- TP Bonus 250
 		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, Sword skill 11
 		left_ring = gear.lehkoHabhokaRing,			-- Crit 10
-		right_ring = gear.eponas,					-- DA 3, TA 3
+		right_ring = gear.rajas,					-- STP 5, Subtle Blow 5
 		back = gear.rosmertaCrit,					-- Crit 9, Acc 20, Att 20
 	}
 
@@ -592,7 +593,7 @@ function get_sets()
 		left_ear = gear.moonshade,
 		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, Sword skill 11
 		left_ring = gear.lehkoHabhokaRing,
-		right_ring = gear.eponas,
+		right_ring = gear.rajas,
 		back = gear.rosmertaDA,						-- Acc 30, DA 10
 	}
 

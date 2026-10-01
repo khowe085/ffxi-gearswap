@@ -1,21 +1,20 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **121 pieces** (87 for BLU, 90 for RDM, 56 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **120 pieces** (86 for BLU, 90 for RDM, 56 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
 
 
-## Weapons (13)
+## Weapons (12)
 
 | Item | Copy | Jobs |
 |---|---|---|
 | Almace |  | BLU, RDM |
 | Ammurapi Shield |  | RDM |
 | Bunzi's Rod |  | BLU, RDM |
+| Forfend +1 |  | RDM |
 | Gleti's Knife |  | RDM |
-| Iris |  | BLU |
 | Maxentius |  | BLU, RDM |
 | Naegling |  | BLU, RDM |
 | Pukulatmuj +1 |  | BLU, RDM |
-| Secespita |  | RDM |
 | Tauret |  | RDM |
 | Thibron |  | BLU, RDM |
 | Tizona |  | BLU |
@@ -110,12 +109,12 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 |---|---|---|
 | Ayanmo Ring |  | BLU, RDM |
 | Epaminondas's Ring |  | BLU, RDM |
-| Epona's Ring |  | BLU |
 | Jhakri Ring |  | BLU, RDM |
 | Karieyh Ring |  | BLU, RDM |
 | Lehko's Ring |  | BLU, RDM |
 | Murky Ring |  | BLU, RDM |
 | Prolix Ring |  | BLU, RDM |
+| Rajas Ring |  | BLU |
 | Stikini Ring | one of two identical copies | BLU, RDM |
 | Stikini Ring | one of two identical copies | BLU, RDM |
 | Strendu Ring |  | BLU, RDM |
