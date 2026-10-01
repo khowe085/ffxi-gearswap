@@ -1,4 +1,4 @@
 [submodule "data/common"]
 	path = data/common
 	url = https://github.com/khowe085/rahvin-gearswap
-	branch = master
+	branch = dev
