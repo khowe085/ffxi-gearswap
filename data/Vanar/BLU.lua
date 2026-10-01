@@ -389,15 +389,15 @@ function get_sets()
 
 	-- Weaponskill base, the weapon skill damage set. Savage Blade, Expiacion and Black Halo wear it as it is.
 	-- It follows bg-wiki's simulated Savage Blade and Expiacion sets (All Jobs Gear Sets/Blue Mage). Jhakri
-	-- Cuffs +2 stands in for its Path B Nyame Gauntlets, since Vanar's have no path, Hashi. Earring +1 for
-	-- Hoxne Earring and Karieyh Ring for Beithir Ring.
+	-- Cuffs +2 stand in for its Path B Nyame Gauntlets (WSD 11, DA 5), since Vanar's have no path, Hashi.
+	-- Earring +1 for Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at rank 20.
 	sets.WS = {
 		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
 		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61
-		body = gear.nyameBody,						-- WSD and Double Attack (Path B), Acc 40, Att 30
+		body = gear.nyameBody,						-- WSD 13, DA 7, Acc 40, Att 65
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, Acc 43, Att 43
-		legs = gear.nyameLegs,						-- WSD (Path B), Acc 40, Att 30
-		feet = gear.nyameFeet,						-- WSD (Path B), Acc 40, Att 30
+		legs = gear.nyameLegs,						-- WSD 12, DA 6, Acc 40, Att 65
+		feet = gear.nyameFeet,						-- WSD 11, DA 5, Acc 53, Att 65
 		neck = gear.mirageStolePlusTwo,				-- STR 25, DEX 25 (Path A), Acc 25
 		waist = gear.sailfi,
 		left_ear = gear.moonshade,					-- TP Bonus 250
@@ -408,9 +408,9 @@ function get_sets()
 	}
 
 	-- Merged in ACC mode after the set named for the weaponskill, so its slots win. A weaponskill with an ACC set of its own skips it.
+	-- The feet stay: Nyame Sollerets (Path B) already have Acc 53, and Hashishin Basmak +3 would trade WSD 11 for 7 more.
 	sets.WS.ACC = {
 		hands = gear.hashishinHandsPlusThree,		-- Acc 62
-		feet = gear.hashishinFeetPlusThree,			-- Acc 60
 		waist = gear.kentarchPlusOne,				-- Acc 14
 	}
 
@@ -418,7 +418,7 @@ function get_sets()
 	sets.WS.MAB = {
 		ammo = gear.pemphredoTathlum,				-- Macc 8, MAB 4
 		head = gear.hashishinHeadPlusThree,			-- WSD 12, MAB 51
-		body = gear.nyameBody,						-- WSD (Path B), MAB 30
+		body = gear.nyameBody,						-- WSD 13 (Path B), MAB 30
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, MAB 40
 		legs = gear.luhlazaLegsPlusFour,			-- WSD 12, MAB 60
 		feet = gear.hashishinFeetPlusThree,			-- MAB 55
@@ -437,6 +437,13 @@ function get_sets()
 	sets.WS['Seraph Blade'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
 	sets.WS['Red Lotus Blade'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
 	sets.WS['Flash Nova'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
+
+	-- In ACC mode these magical weaponskills raise magic accuracy instead of taking sets.WS.ACC, whose
+	-- Kentarch Belt +1 would replace Eschan Stone's Macc and MAB. Hashishin Bazubands +3 trade Jhakri
+	-- Cuffs +2's WSD 7 for Macc 19 and MAB 17 more.
+	for _, ws in ipairs({ 'Sanguine Blade', 'Seraph Blade', 'Red Lotus Blade', 'Flash Nova' }) do
+		sets.WS[ws].ACC = set_combine(sets.WS[ws], { hands = gear.hashishinHandsPlusThree })
+	end
 
 	-- Chant du Cygne: DEX and critical hit rate, which rises with TP. It follows bg-wiki's set, with Lehko's
 	-- Ring for Begrudging Ring and Hashi. Earring +1 for Hoxne Earring.

@@ -413,13 +413,13 @@ function get_sets()
 
 	-- Worn on every weaponskill: the weapon skill damage set. Savage Blade, Black Halo and Death
 	-- Blossom wear it as it is. It is bg-wiki's Savage Blade set (All Jobs Gear Sets/Red Mage) with Leth.
-	-- Earring +1 for Hoxne Earring and Karieyh Ring for Sroda Ring.
+	-- Earring +1 for Hoxne Earring and Karieyh Ring for Sroda Ring. Nyame values are Path B at rank 20.
 	sets.WS = {
 		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
 		head = gear.vitiationChapeauPlusFour,		-- WSD 9, Acc 42, Att 72
-		body = gear.nyameBody,						-- WSD and Double Attack (Path B), Acc 40, Att 30, DT 9
+		body = gear.nyameBody,						-- WSD 13, DA 7, Acc 40, Att 65, DT 9
 		hands = gear.atrophyHandsPlusFour,			-- WSD 9, Acc 63, Att 35
-		legs = gear.nyameLegs,						-- WSD (Path B), Acc 40, Att 30, DT 8
+		legs = gear.nyameLegs,						-- WSD 12, DA 6, Acc 40, Att 65, DT 8
 		feet = gear.lethargyFeetPlusThree,			-- WSD 12, Acc 60, Att 60
 		neck = gear.republicanPlatinumMedal,		-- Att 30
 		waist = gear.sailfi,
@@ -441,7 +441,7 @@ function get_sets()
 	sets.WS.MAB = {
 		ammo = gear.pemphredoTathlum,				-- Macc 8, MAB 4
 		head = gear.lethargyHeadPlusThree,			-- MAB 56, MDmg 31
-		body = gear.nyameBody,						-- WSD (Path B), MAB 30
+		body = gear.nyameBody,						-- WSD 13 (Path B), MAB 30
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, MAB 40
 		legs = gear.lethargyLegsPlusThree,			-- MAB 58, MDmg 33
 		feet = gear.lethargyFeetPlusThree,			-- WSD 12, MAB 50, MDmg 30
@@ -477,6 +477,13 @@ function get_sets()
 	sets.WS["Seraph Blade"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
 	sets.WS["Red Lotus Blade"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
 	sets.WS["Aeolian Edge"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
+
+	-- In ACC mode these magical weaponskills raise magic accuracy instead of taking sets.WS.ACC, whose
+	-- Kentarch Belt +1 would replace Eschan Stone's Macc and MAB. Lethargy Gantherots +3 trade Jhakri
+	-- Cuffs +2's WSD 7 for Macc 19 and MAB 12 more.
+	for _, ws in ipairs({ "Sanguine Blade", "Seraph Blade", "Red Lotus Blade", "Aeolian Edge" }) do
+		sets.WS[ws].ACC = set_combine(sets.WS[ws], { hands = gear.lethargyHandsPlusThree })
+	end
 
 	sets.WS["Chant du Cygne"] = set_combine(sets.WS.Crit, {})
 	sets.WS["Evisceration"] = set_combine(sets.WS.Crit, {})
