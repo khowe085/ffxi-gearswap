@@ -119,7 +119,7 @@ BlueACC = S { '1000 Needles', 'Absolute Terror', 'Auroral Drape', 'Awful Eye',
     'Sound Blast', 'Venom Shell', 'Voracious Trunk', 'Yawn' }
 
 -- Weapon modes. Each name needs a matching sets.Weapons entry.
-state.WeaponMode:options('Naegling','Tizona','Almace','Black Halo','Magic')
+state.WeaponMode:options('Naegling','Naegling Acc','Tizona','Tizona Acc','Almace','Black Halo','Magic')
 state.WeaponMode:set('Naegling')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (Alt+F9) cycles OFF and the
@@ -127,7 +127,9 @@ state.WeaponMode:set('Naegling')
 -- 'AM2' and 'AM3' build that Aftermath level first, then fire at 1000 while it lasts.
 AutoWS_List = {
 	['Naegling'] = { { 'Savage Blade', 1000 } },
+	['Naegling Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
 	['Tizona'] = { { 'Expiacion', 1000 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
+	['Tizona Acc'] = { { 'Expiacion', 1000 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
 	['Almace'] = { { 'Chant du Cygne', 1000 } },
 }
 
@@ -140,7 +142,8 @@ state.JobMode:set('Melee')
 
 function get_sets()
 
-	-- Weapon sets, one per weapon mode. Thibron's TP Bonus +1000 backs every weapon skill mode.
+	-- Weapon sets, one per weapon mode. Thibron's TP Bonus +1000 backs every weapon skill mode, and the Acc
+	-- modes trade it for Almace in the offhand, for more accuracy.
 	sets.Weapons = {}
 
 	sets.Weapons['Naegling'] = {	-- Savage Blade
@@ -148,9 +151,19 @@ function get_sets()
 		sub = gear.thibron,
 	}
 
+	sets.Weapons['Naegling Acc'] = {	-- Savage Blade
+		main = gear.naegling,
+		sub = gear.almace,
+	}
+
 	sets.Weapons['Tizona'] = {		-- Expiacion
 		main = gear.tizona,
 		sub = gear.thibron,
+	}
+
+	sets.Weapons['Tizona Acc'] = {	-- Expiacion
+		main = gear.tizona,
+		sub = gear.almace,
 	}
 
 	sets.Weapons['Almace'] = {		-- Chant du Cygne

@@ -70,7 +70,7 @@ state.OffenseMode:set('DT')
 jobsetup(LockStylePallet, MacroBook, MacroSet)
 
 -- Weapon modes. Each one needs a sets.Weapons['<Mode>'] of the same name below.
-state.WeaponMode:options('Savage Blade', 'Sanguine Blade', 'Black Halo', 'Chant du Cygne', 'Evisceration', 'Aeolian Edge', 'Magic')
+state.WeaponMode:options('Savage Blade', 'Savage Blade Acc', 'Sanguine Blade', 'Black Halo', 'Black Halo Acc', 'Chant du Cygne', 'Evisceration', 'Aeolian Edge', 'Magic')
 state.WeaponMode:set('Savage Blade')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (Alt+F9) cycles OFF and the
@@ -79,7 +79,9 @@ state.WeaponMode:set('Savage Blade')
 -- puts Ammurapi Shield in Thibron's place.
 AutoWS_List = {
 	['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
+	['Savage Blade Acc'] = { { 'Savage Blade', 1000 } },
 	['Black Halo'] = { { 'Black Halo', 1000 } },
+	['Black Halo Acc'] = { { 'Black Halo', 1000 } },
 	['Aeolian Edge'] = { { 'Aeolian Edge', 1000 } },
 }
 
@@ -91,16 +93,22 @@ function get_sets()
 	-- Weapon sets, one per weapon mode above, each named for the weaponskill it is built for. The offhands
 	-- follow bg-wiki's All Jobs Gear Sets/Red Mage: Thibron's TP Bonus +1000 where damage rises with TP,
 	-- Bunzi's Rod's magic attack for Sanguine Blade, and Gleti's Knife and Almace for the critical-hit
-	-- weaponskills. The weapon mode also owns the range slot. The melee modes clear it. The Magic mode wears
-	-- Ullr, Macc 40, with a bare ammo slot, because any ammo that is not an arrow strips the bow
-	-- and resets TP. That is why no idle, precast or midcast set below names ammo: only the
-	-- engaged and weaponskill sets do, and the Magic mode's bare ammo slot wins over the engaged
-	-- set's.
+	-- weaponskills. The Acc modes put Almace in Thibron's place, for more accuracy. The weapon mode also owns
+	-- the range slot. The melee modes clear it. The Magic mode wears Ullr, Macc 40, with a bare ammo slot,
+	-- because any ammo that is not an arrow strips the bow and resets TP. That is why no idle, precast or
+	-- midcast set below names ammo: only the engaged and weaponskill sets do, and the Magic mode's bare ammo
+	-- slot wins over the engaged set's.
 	sets.Weapons = {}
 
 	sets.Weapons['Savage Blade'] = {	-- also Seraph Blade and Red Lotus Blade
 		main = gear.naegling,
 		sub = gear.thibron,
+		range = empty,
+	}
+
+	sets.Weapons['Savage Blade Acc'] = {
+		main = gear.naegling,
+		sub = gear.almace,
 		range = empty,
 	}
 
@@ -113,6 +121,12 @@ function get_sets()
 	sets.Weapons['Black Halo'] = {
 		main = gear.maxentius,
 		sub = gear.thibron,
+		range = empty,
+	}
+
+	sets.Weapons['Black Halo Acc'] = {
+		main = gear.maxentius,
+		sub = gear.almace,
 		range = empty,
 	}
 
