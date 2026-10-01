@@ -139,7 +139,7 @@ AutoWS_List = {
 }
 state.AutoWS:set('OFF')
 
--- Auto buff lists. gs c AutoBuff cycles OFF and Auto, starts OFF and has no key of its own. While Auto is
+-- Auto buff lists. gs c AutoBuff (F11) cycles OFF and Auto, and starts OFF. While Auto is
 -- on, the engine casts the first buff below that you are missing, on yourself. When is Always, Engaged,
 -- Idle, Combat or OutOfCombat. The engine checks that a spell is learned, not that a blue magic spell is
 -- set, so Erratic Flutter and Nat. Meditation must be in the spell set. Mighty Guard goes through the
@@ -611,7 +611,7 @@ function get_sets()
 		back = gear.rosmertaDA,						-- Acc 30, DA 10
 	}
 
-	-- Treasure Hunter gear, worn on an action or melee swing against a monster not yet tagged, and throughout a fight in Full Time mode. It is never worn in None mode, where every job but Thief starts.
+	-- Treasure Hunter gear, worn on an action or melee swing against a monster not yet tagged, and throughout a fight in Full Time mode. TH Mode starts in Tag, Alt+F11 cycles it, and None turns it off.
 	sets.TreasureHunter = {
 		ammo = gear.perfectEgg,		-- TH 1
 		head = gear.whiteRarabCap,	-- TH 1

@@ -92,7 +92,7 @@ state.AutoWS:set('OFF')
 -- not engaged.
 Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic' }
 
--- Auto buff lists, as on BLU. gs c AutoBuff cycles OFF and Auto, starts OFF and has no key of its own.
+-- Auto buff lists, as on BLU. gs c AutoBuff (F11) cycles OFF and Auto, and starts OFF.
 -- While Auto is on, the engine casts the first buff below that you are missing, on yourself. Temper II
 -- and Gain-STR only help in melee, so they wait until you engage. Each cast wears its midcast set, and
 -- those swap weapons, which costs TP while engaged unless the weapon lock (F10) is on.
@@ -265,7 +265,8 @@ function get_sets()
 	})	-- DT 50
 
 	-- Treasure Hunter gear. While TH Mode is Tag or Full Time, it is worn for an action aimed at an
-	-- untagged monster and while engaged on one.
+	-- untagged monster and while engaged on one. TH Mode starts in Tag, Alt+F11 cycles it, and None
+	-- turns it off.
 	sets.TreasureHunter = {
 		head = gear.whiteRarabCap,	-- TH 1
 		body = gear.volteJupon,		-- TH 2
