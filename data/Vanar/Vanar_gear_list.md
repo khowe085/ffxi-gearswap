@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **110 pieces** (78 for BLU, 77 for RDM, 45 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **109 pieces** (77 for BLU, 77 for RDM, 45 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
 
 
 ## Weapons (10)
@@ -18,13 +18,12 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Tizona |  | BLU |
 | Ullr |  | RDM |
 
-## Ammo (6)
+## Ammo (5)
 
 | Item | Copy | Jobs |
 |---|---|---|
 | Coiste Bodhar |  | BLU, RDM |
 | Honed Tathlum |  | BLU |
-| Impatiens |  | BLU |
 | Oshasha's Treatise |  | BLU, RDM |
 | Pemphredo Tathlum |  | BLU, RDM |
 | Per. Lucky Egg |  | BLU |

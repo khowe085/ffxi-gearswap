@@ -147,7 +147,7 @@ function get_sets()
 
 	-- Worn whenever you are not engaged. It is also the floor under every action, so a slot an action's sets leave unnamed keeps its idle piece.
 	sets.Idle = {
-		ammo = gear.impatiens,
+		ammo = gear.pemphredoTathlum,			-- Macc 8, MAB 4, Conserve MP 4
 		head = gear.nyameHead,					-- DT 7
 		body = gear.hashishinBodyPlusThree,		-- DT 13, Refresh 4
 		hands = gear.hashishinHandsPlusThree,	-- DT 10
@@ -205,10 +205,11 @@ function get_sets()
 		right_ring = gear.murky,					-- DT 10
 	})	-- DT 50
 
-	-- Fast cast, worn at the start of every spell.
+	-- Fast cast, worn at the start of every spell. A Quick Magic proc finishes the spell before the midcast
+	-- swap, so the spell lands in this set. Witful Belt is the only Quick Magic piece left, kept because it
+	-- is the only waist with Fast Cast that BLU can wear.
 	sets.Precast = {}
 	sets.Precast.FastCast = {
-		ammo = gear.impatiens,				-- Quick Magic 2
 		head = gear.amalricCoifPlusOne,		-- FC 11
 		body = gear.luhlazaBodyPlusOne,		-- FC 7
 		hands = gear.pingaHands,			-- FC 5
@@ -217,7 +218,7 @@ function get_sets()
 		left_ear = gear.loquacious,			-- FC 2
 		right_ear = gear.etiolation,		-- FC 1
 		left_ring = gear.prolix,			-- FC 2
-	}	-- FC 37 and Quick Magic 5. Neck, feet and back keep the idle set's DT pieces.
+	}	-- FC 37. Ammo, neck, feet and back keep the idle set's pieces.
 
 	-- Merged over the fast-cast set for blue magic.
 	sets.Precast.BlueMagic = set_combine(sets.Precast.FastCast, {
@@ -366,7 +367,6 @@ function get_sets()
 
 	-- White Wind heals floor(MaxHP/7)*2, raised by cure potency, so this is max HP plus cure potency.
 	sets.Midcast["White Wind"] = {
-		ammo = gear.impatiens,
 		head = gear.nyameHead,					-- HP 91
 		body = gear.nyameBody,					-- HP 136
 		hands = gear.telchineGlovesDuration,	-- Cure 10
