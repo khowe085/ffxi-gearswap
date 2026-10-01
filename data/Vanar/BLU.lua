@@ -163,6 +163,10 @@ Chain_Affinity_Spells = S { 'Sinker Drill' }
 -- The last time pretarget_custom said Unbridled Learning was not ready, so a cast AutoBuff retries every
 -- 3 seconds prints it once every 30 seconds at most.
 local unbridled_abort_said = nil
+-- The spell pretarget_custom sends again after its abilities, set as that send goes out, so that send
+-- alone passes untouched, and the os.clock() time until which other blue magic presses are dropped while
+-- the abilities go up.
+local blu_refire, blu_lock_until = nil, 0
 
 -- Naming JobMode shows it in chat and on the status box.
 UI_Name = 'Mode'
@@ -620,11 +624,24 @@ end
 function pretarget_custom(spell,action)
 	-- Automatic Unbridled Learning, Diffusion, Chain Affinity and Efflux, as in the old file. A spell from the
 	-- lists above that needs one of them is dropped, the abilities go up 1.1 seconds apart, and the spell
-	-- is sent again 1.1 seconds after them. Nothing is used while the spell itself is still recasting. An
-	-- unbridled spell is dropped with a message when Unbridled Learning (ability recast 81) is not ready,
-	-- and a Chain Affinity spell when Chain Affinity (181) is not. Diffusion (184) and Efflux (185) are used
-	-- only when ready.
+	-- is sent again 1.1 seconds after them. That second send always passes, whether or not the abilities
+	-- landed, so the hook never loops, and other blue magic pressed meanwhile is dropped. Nothing starts
+	-- while the engine is busy, since its busy gate would refuse the first ability, or while the spell
+	-- itself is recasting. An unbridled spell is dropped with a message when Unbridled Learning (ability
+	-- recast 81) is not ready, and a Chain Affinity spell when Chain Affinity (181) is not. Diffusion (184)
+	-- and Efflux (185) are used only when ready. Every check reads the live buffs and recasts, never a
+	-- cached flag, so nothing can stick until a reload.
 	if spell.type ~= 'BlueMagic' then return end
+	local now = os.clock()
+	if now >= blu_lock_until then blu_refire = nil end
+	if blu_refire == spell.english then
+		blu_refire, blu_lock_until = nil, 0
+		return
+	end
+	if now < blu_lock_until then
+		cancel_spell()
+		return
+	end
 	local recasts = windower.ffxi.get_ability_recasts()
 	local unbridled = Unbridled_Spells:contains(spell.english)
 		and not buffactive['Unbridled Learning'] and not buffactive['Unbridled Wisdom']
@@ -637,8 +654,8 @@ function pretarget_custom(spell,action)
 	if ((windower.ffxi.get_spell_recasts()[spell.recast_id] or 0) / 60) > 1 then return end
 	if unbridled and recasts[81] ~= 0 then
 		cancel_spell()
-		if not unbridled_abort_said or os.clock() - unbridled_abort_said > 30 then
-			unbridled_abort_said = os.clock()
+		if not unbridled_abort_said or now - unbridled_abort_said > 30 then
+			unbridled_abort_said = now
 			add_to_chat(123, 'Abort: Unbridled Learning not active.')
 		end
 		return
@@ -649,13 +666,23 @@ function pretarget_custom(spell,action)
 		return
 	end
 	cancel_spell()
-	local steps = {}
-	if unbridled then steps[#steps + 1] = 'input /ja "Unbridled Learning" <me>' end
-	if diffusion then steps[#steps + 1] = 'input /ja "Diffusion" <me>' end
-	if chain_affinity then steps[#steps + 1] = 'input /ja "Chain Affinity" <me>' end
-	if efflux then steps[#steps + 1] = 'input /ja "Efflux" <me>' end
-	steps[#steps + 1] = 'input /ma "' .. spell.english .. '" ' .. (spell.target.raw or '<me>')
-	windower.send_command(table.concat(steps, '; wait 1.1; '))
+	if is_Busy then return end
+	local abilities = {}
+	if unbridled then abilities[#abilities + 1] = 'Unbridled Learning' end
+	if diffusion then abilities[#abilities + 1] = 'Diffusion' end
+	if chain_affinity then abilities[#abilities + 1] = 'Chain Affinity' end
+	if efflux then abilities[#abilities + 1] = 'Efflux' end
+	local delay = 0
+	for _, ability in ipairs(abilities) do
+		coroutine.schedule(function() windower.send_command('input /ja "' .. ability .. '" <me>') end, delay)
+		delay = delay + 1.1
+	end
+	local name, target = spell.english, spell.target.raw or '<me>'
+	blu_lock_until = now + delay + 1
+	coroutine.schedule(function()
+		blu_refire = name
+		windower.send_command('input /ma "' .. name .. '" ' .. target)
+	end, delay)
 end
 -- Gear returned here merges over the engine's precast set for the action.
 function precast_custom(spell)
