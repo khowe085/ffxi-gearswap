@@ -169,6 +169,8 @@ function get_sets()
 	-- ===================================================================================================================
 
 	-- The engaged base, merged first in every offense mode. The mode's own set goes over it.
+	-- Gear haste is 30% in every mode (32% with Gleti's Knife), past the 26% cap, so no piece here is
+	-- picked for haste.
 	sets.OffenseMode = {
 		ammo = gear.coiste,							-- DA 3, STP 3
 		head = gear.lethargyHeadPlusThree,			-- Acc 61, Att 61, DT 10

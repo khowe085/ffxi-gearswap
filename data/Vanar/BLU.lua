@@ -180,6 +180,7 @@ function get_sets()
 	Elemental_Bonus_Ring_Slot = "right_ring"
 
 	-- Engaged sets. sets.OffenseMode is worn in every offense mode, and the current mode's set merges over it.
+	-- Gear haste is 33% in every mode, past the 26% cap, so no piece here is picked for haste.
 	sets.OffenseMode = {
 		ammo = gear.coiste,							-- DA 3, STP 3
 		head = gear.hashishinHeadPlusThree,			-- Acc 61, Att 61, Sword skill 30
