@@ -1,24 +1,26 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **120 pieces** (86 for BLU, 90 for RDM, 56 worn by both). The set columns name each set whose definition lists the piece, and each job-file function, such as `midcast_custom()`, that equips it. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **122 pieces** (86 for BLU, 92 for RDM, 56 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
-## Weapons (12)
+## Weapons (14)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
-| Almace |  | `Weapons['Naegling Acc']`, `Weapons['Tizona Acc']`, `Weapons['Almace']` | `Weapons['Savage Blade Acc']`, `Weapons['Black Halo Acc']`, `Weapons['Chant du Cygne']`, `Weapons['Evisceration']` |
-| Ammurapi Shield |  |  | `Weapons['Magic']`, `Weapons.Shield`, `Midcast.Enhancing` |
-| Bunzi's Rod |  | `Weapons['Magic']` | `Weapons['Sanguine Blade']`, `Weapons['Magic']` |
+| Almace |  | `Weapons['Naegling Acc']`, `Weapons['Tizona Acc']`, `Weapons['Almace']` | `Weapons['Savage Blade Acc']`, `Weapons['Chant du Cygne']` |
+| Ammurapi Shield |  |  | `Weapons.Casting`, `Weapons.Shield`, `Midcast.Enhancing` |
+| Archduke's Shield |  |  | `Weapons.Idle` |
+| Bunzi's Rod |  | `Weapons['Magic']` | `Weapons['Sanguine Blade']`, `Weapons['Black Halo Acc']`, `Weapons.Casting` |
+| Colada | "Refresh"+2, Mag. Acc.+11, "Mag.Atk.Bns."+12, DMG:+1 |  | `Weapons.Idle` |
 | Forfend +1 |  |  | `Midcast.Enhancing.Skill` |
-| Gleti's Knife |  |  | `Weapons['Chant du Cygne']` |
-| Maxentius |  | `Weapons['Black Halo']`, `Weapons['Magic']` | `Weapons['Savage Blade']`, `Weapons['Black Halo']`, `Weapons['Black Halo Acc']`, `Weapons['Aeolian Edge']` |
+| Gleti's Knife |  |  | `Weapons['Chant du Cygne']`, `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` |
+| Maxentius |  | `Weapons['Black Halo']`, `Weapons['Magic']` | `Weapons['Black Halo']`, `Weapons['Black Halo Acc']` |
 | Naegling |  | `Weapons['Naegling']`, `Weapons['Naegling Acc']` | `Weapons['Savage Blade']`, `Weapons['Savage Blade Acc']`, `Weapons['Sanguine Blade']` |
 | Pukulatmuj +1 |  | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` |
 | Tauret |  |  | `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` |
-| Thibron |  | `Weapons['Naegling']`, `Weapons['Tizona']`, `Weapons['Almace']`, `Weapons['Black Halo']` | `Weapons['Black Halo']` |
+| Thibron |  | `Weapons['Naegling']`, `Weapons['Tizona']`, `Weapons['Almace']`, `Weapons['Black Halo']` | `Weapons['Savage Blade']`, `Weapons['Black Halo']` |
 | Tizona |  | `Weapons['Tizona']`, `Weapons['Tizona Acc']` |  |
-| Ullr |  |  | `Weapons['Magic']`, `midcast_custom()` |
+| Ullr |  |  | `Weapons.Casting` |
 
 ## Ammo (4)
 

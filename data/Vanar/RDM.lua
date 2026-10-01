@@ -44,6 +44,9 @@ gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
 	augments = { 'Path: A', } })                                                                                    -- Enhancing skill 9
 gear.chelonaBoots = mp_gear("Chelona Boots", 35)           -- Fast Cast 4
 gear.swithCape = hp_gear("Swith Cape", -20)                -- Fast Cast 3
+gear.coladaRefresh = rank_gear("Colada", 100, {
+	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } })                              -- Refresh 2
+gear.archdukesShield = hp_gear("Archduke's Shield", 0)    -- Refresh 1, INT 20, MND 20, Magic evasion 20
 
 -- The lockstyle set, macro book and macro set that jobsetup applies at load.
 LockStylePallet = "6"
@@ -71,12 +74,11 @@ state.OffenseMode:set('TP')
 jobsetup(LockStylePallet, MacroBook, MacroSet)
 
 -- Weapon modes. Each one needs a sets.Weapons['<Mode>'] of the same name below.
-state.WeaponMode:options('Savage Blade', 'Savage Blade Acc', 'Sanguine Blade', 'Black Halo', 'Black Halo Acc', 'Chant du Cygne', 'Evisceration', 'Aeolian Edge', 'Magic')
+state.WeaponMode:options('Savage Blade', 'Savage Blade Acc', 'Sanguine Blade', 'Black Halo', 'Black Halo Acc', 'Chant du Cygne', 'Evisceration', 'Aeolian Edge')
 state.WeaponMode:set('Savage Blade')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (Alt+F9) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
--- Savage Blade offers 1000 and 1750, since its Maxentius offhand carries no TP Bonus.
 AutoWS_List = {
 	['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
 	['Savage Blade Acc'] = { { 'Savage Blade', 1000 } },
@@ -86,8 +88,9 @@ AutoWS_List = {
 }
 state.AutoWS:set('OFF')
 
--- The magic skills midcast_custom wears Ullr for when you are not engaged: the ones that have to land.
-Ullr_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic' }
+-- The magic skills that have to land. midcast_custom casts them in sets.Weapons.Casting when you are
+-- not engaged.
+Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic' }
 
 -- Auto buff lists, as on BLU. gs c AutoBuff cycles OFF and Auto, starts OFF and has no key of its own.
 -- While Auto is on, the engine casts the first buff below that you are missing, on yourself. Temper II
@@ -108,19 +111,17 @@ function get_sets()
 	--		sets.Weapons
 	-- ===================================================================================================================
 
-	-- Weapon sets, one per weapon mode above, each named for the weaponskill it is built for. Savage Blade
-	-- and Aeolian Edge dual wield Maxentius in the offhand (Macc 40, MAB 21). Black Halo, where Maxentius is
-	-- the main hand, keeps Thibron's TP Bonus +1000. Sanguine Blade takes Bunzi's Rod for its magic attack,
-	-- the critical-hit weaponskills take Gleti's Knife and Almace, and the Acc modes take Almace, for more
-	-- accuracy. The weapon mode also owns the range slot. The melee modes clear it. The Magic mode wears
-	-- Ullr, Macc 40, with a bare ammo slot, because any ammo that is not an arrow strips the bow and resets
-	-- TP. That is why no idle, precast or midcast set below names ammo: only the engaged and weaponskill sets
-	-- do, and the Magic mode's bare ammo slot wins over the engaged set's.
+	-- Weapon sets, one per weapon mode above, each named for the weaponskill it is built for. They are worn
+	-- only while engaged. Out of combat choose_set_custom swaps in sets.Weapons.Idle for its refresh, which
+	-- costs whatever TP is left when you disengage. Savage Blade and Black Halo dual wield Thibron for its TP
+	-- Bonus +1000. Sanguine Blade takes Bunzi's Rod for its magic attack, and Black Halo Acc for its accuracy.
+	-- Chant du Cygne and the two dagger modes take Gleti's Knife, and Savage Blade Acc takes Almace. Every
+	-- mode clears the range slot. Ullr only goes on for the casts midcast_custom names.
 	sets.Weapons = {}
 
 	sets.Weapons['Savage Blade'] = {	-- also Seraph Blade and Red Lotus Blade
 		main = gear.naegling,
-		sub = gear.maxentius,
+		sub = gear.thibron,			-- TP Bonus +1000
 		range = empty,
 	}
 
@@ -132,45 +133,52 @@ function get_sets()
 
 	sets.Weapons['Sanguine Blade'] = {
 		main = gear.naegling,
-		sub = gear.bunzi,
+		sub = gear.bunzi,			-- MAB 35, Macc 40
 		range = empty,
 	}
 
 	sets.Weapons['Black Halo'] = {
 		main = gear.maxentius,
-		sub = gear.thibron,
+		sub = gear.thibron,			-- TP Bonus +1000
 		range = empty,
 	}
 
 	sets.Weapons['Black Halo Acc'] = {
 		main = gear.maxentius,
-		sub = gear.almace,
+		sub = gear.bunzi,			-- Acc 40
 		range = empty,
 	}
 
 	sets.Weapons['Chant du Cygne'] = {
 		main = gear.almace,
-		sub = gear.gleti,
+		sub = gear.gleti,			-- Acc 40, Att 30, TA 6, Crit 5
 		range = empty,
 	}
 
 	sets.Weapons['Evisceration'] = {
 		main = gear.tauret,
-		sub = gear.almace,
+		sub = gear.gleti,			-- Acc 40, Att 30, TA 6, Crit 5
 		range = empty,
 	}
 
 	sets.Weapons['Aeolian Edge'] = {
 		main = gear.tauret,
-		sub = gear.maxentius,
+		sub = gear.gleti,			-- DEX 15, Macc 40
 		range = empty,
 	}
 
-	sets.Weapons['Magic'] = {		-- Enfeebling and nuking: Macc 118, MAB 73, Cure 30, Enhancing duration 10
-		main = gear.bunzi,
-		sub = gear.ammurapi,
-		range = gear.ullr,
-		ammo = empty,
+	-- Worn whenever you are not engaged, in every weapon mode. choose_set_custom puts it on.
+	sets.Weapons.Idle = {
+		main = gear.coladaRefresh,		-- Refresh 2
+		sub = gear.archdukesShield,		-- Refresh 1
+	}
+
+	-- Worn for the casts that have to land while you are not engaged. midcast_custom puts it on.
+	sets.Weapons.Casting = {
+		main = gear.bunzi,				-- Macc 40, MAB 35
+		sub = gear.ammurapi,			-- Macc 38, MAB 38
+		range = gear.ullr,				-- Macc 40
+		ammo = empty,					-- any ammo that is not an arrow strips the bow
 	}
 
 	-- Worn in the offhand whenever the main is one-handed and no dual-wield trait is active.
@@ -197,7 +205,7 @@ function get_sets()
 		left_ring = gear.murky,					-- DT 10
 		right_ring = gear.ayanmoRing,			-- DT 3
 		back = gear.sucellosDA,					-- DT 5
-	}	-- DT 51, Refresh 7. Damage taken caps at 50%, so the slots past the cap carry Refresh, Regen and magic evasion instead.
+	}	-- DT 51, Refresh 7, and 10 with sets.Weapons.Idle. Damage taken caps at 50%, so the slots past the cap carry Refresh, Regen and magic evasion instead.
 	sets.Idle.TP = set_combine(sets.Idle, {})
 	sets.Idle.ACC = set_combine(sets.Idle, {})
 	sets.Idle.DT = set_combine(sets.Idle, {})
@@ -257,7 +265,7 @@ function get_sets()
 	})	-- DT 50
 
 	-- Treasure Hunter gear. While TH Mode is Tag or Full Time, it is worn for an action aimed at an
-	-- untagged monster and while engaged on one. It names no ammo, so Ullr stays on in Magic mode.
+	-- untagged monster and while engaged on one.
 	sets.TreasureHunter = {
 		head = gear.whiteRarabCap,	-- TH 1
 		body = gear.volteJupon,		-- TH 2
@@ -307,7 +315,7 @@ function get_sets()
 	-- Utsusemi from a NIN subjob keeps the idle set's DT.
 	sets.Midcast.Utsusemi = set_combine(sets.Idle, {})
 
-	-- Cure spells. The Magic weapon mode's Bunzi's Rod adds Cure 30 on top.
+	-- Cure spells.
 	sets.Midcast.Cure = set_combine(sets.Midcast, {
 		body = gear.bunziBody,					-- Cure 15
 		hands = gear.telchineGlovesDuration,	-- Cure 10
@@ -416,7 +424,7 @@ function get_sets()
 	})
 
 	-- Enfeebling magic. The engine adds .MACC, .Potency or .Duration from its own spell lists.
-	-- Four Atrophy +4 pieces add the set's Macc +45, and the Magic weapon mode adds Macc 118.
+	-- Four Atrophy +4 pieces add the set's Macc +45. Cast while not engaged, sets.Weapons.Casting adds Macc 118.
 	sets.Midcast.Enfeebling = set_combine(sets.Midcast, {
 		head = gear.atrophyHeadPlusFour,			-- Macc 64
 		body = gear.atrophyBodyPlusFour,			-- Macc 65, Enfeebling skill 22
@@ -627,12 +635,11 @@ end
 -- midcast set, which is empty for abilities, weaponskills and items.
 function midcast_custom(spell)
 	local equipSet = {}
-	-- Ullr's Macc +40 for magic that has to land, cast while not engaged, in any weapon mode. Engaged casts
-	-- skip it, since the weapon lock does not hold the range slot and a new ranged weapon resets TP. The ammo
-	-- goes bare with it, because ammo that is not an arrow strips the bow, and the idle set's weapon mode
-	-- takes it back off after the cast.
-	if player.status ~= 'Engaged' and Ullr_Skills:contains(spell.skill) then
-		equipSet = { range = gear.ullr, ammo = empty }
+	-- The casting weapons for magic that has to land, cast while not engaged. Engaged casts keep the
+	-- weapon mode's weapons, since new weapons reset TP. After the cast, the weapon mode takes the range
+	-- slot back off and choose_set_custom puts the idle weapons back on.
+	if player.status ~= 'Engaged' and Casting_Skills:contains(spell.skill) then
+		equipSet = sets.Weapons.Casting
 	end
 	return equipSet
 end
@@ -657,7 +664,10 @@ end
 -- over that set.
 function choose_set_custom()
 	local equipSet = {}
-
+	-- The refresh weapons whenever you are not engaged. The engine builds the idle set on the same test.
+	if player.status ~= 'Engaged' then
+		equipSet = sets.Weapons.Idle
+	end
 	return equipSet
 end
 
