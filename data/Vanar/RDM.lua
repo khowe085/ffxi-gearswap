@@ -57,42 +57,56 @@ state.OffenseMode:set('DT')
 jobsetup(LockStylePallet, MacroBook, MacroSet)
 
 -- Weapon modes. Each one needs a sets.Weapons['<Mode>'] of the same name below.
-state.WeaponMode:options('Naegling', 'Black Halo', 'Tauret', 'Almace', 'Magic')
-state.WeaponMode:set('Naegling')
+state.WeaponMode:options('Savage Blade', 'Sanguine Blade', 'Black Halo', 'Chant du Cygne', 'Evisceration', 'Aeolian Edge', 'Magic')
+state.WeaponMode:set('Savage Blade')
 
 function get_sets()
 	-- ===================================================================================================================
 	--		sets.Weapons
 	-- ===================================================================================================================
 
-	-- Weapon sets, one per weapon mode above. Thibron's TP Bonus +1000 backs every melee mode.
-	-- The weapon mode also owns the range slot. The melee modes clear it. The Magic mode wears
+	-- Weapon sets, one per weapon mode above, each named for the weaponskill it is built for. The offhands
+	-- follow bg-wiki's All Jobs Gear Sets/Red Mage: Thibron's TP Bonus +1000 where damage rises with TP,
+	-- Bunzi's Rod's magic attack for Sanguine Blade, and Gleti's Knife and Almace for the critical-hit
+	-- weaponskills. The weapon mode also owns the range slot. The melee modes clear it. The Magic mode wears
 	-- Ullr, Macc 40, with a bare ammo slot, because any ammo that is not an arrow strips the bow
 	-- and resets TP. That is why no idle, precast or midcast set below names ammo: only the
 	-- engaged and weaponskill sets do, and the Magic mode's bare ammo slot wins over the engaged
 	-- set's.
 	sets.Weapons = {}
 
-	sets.Weapons['Naegling'] = {	-- Savage Blade, Sanguine Blade, Seraph Blade
+	sets.Weapons['Savage Blade'] = {	-- also Seraph Blade and Red Lotus Blade
 		main = gear.naegling,
 		sub = gear.thibron,
 		range = empty,
 	}
 
-	sets.Weapons['Black Halo'] = {	-- Black Halo
+	sets.Weapons['Sanguine Blade'] = {
+		main = gear.naegling,
+		sub = gear.bunzi,
+		range = empty,
+	}
+
+	sets.Weapons['Black Halo'] = {
 		main = gear.maxentius,
 		sub = gear.thibron,
 		range = empty,
 	}
 
-	sets.Weapons['Tauret'] = {		-- Evisceration, Aeolian Edge
-		main = gear.tauret,
-		sub = gear.thibron,
+	sets.Weapons['Chant du Cygne'] = {
+		main = gear.almace,
+		sub = gear.gleti,
 		range = empty,
 	}
 
-	sets.Weapons['Almace'] = {		-- Chant du Cygne
-		main = gear.almace,
+	sets.Weapons['Evisceration'] = {
+		main = gear.tauret,
+		sub = gear.almace,
+		range = empty,
+	}
+
+	sets.Weapons['Aeolian Edge'] = {
+		main = gear.tauret,
 		sub = gear.thibron,
 		range = empty,
 	}
@@ -119,16 +133,16 @@ function get_sets()
 		head = gear.vitiationChapeauPlusFour,	-- Refresh 3
 		body = gear.lethargyBodyPlusThree,		-- Refresh 4, DT 14
 		hands = gear.lethargyHandsPlusThree,	-- DT 11
-		legs = gear.lethargyLegsPlusThree,
-		feet = gear.nyameFeet,					-- DT 7
+		legs = gear.lethargyLegsPlusThree,		-- Magic evasion 162
+		feet = gear.vitiationFeetPlusFour,		-- Magic evasion 167
 		neck = gear.sanctity,					-- Regen 2
 		waist = gear.platinumMoogleBelt,		-- DT 3, HP 10%
-		left_ear = gear.alabaster,				-- DT 5
-		right_ear = gear.etiolation,			-- MDT 3
+		left_ear = gear.alabaster,				-- DT 5, HP 100
+		right_ear = gear.etiolation,			-- HP 50, MP 50
 		left_ring = gear.murky,					-- DT 10
 		right_ring = gear.ayanmoRing,			-- DT 3
 		back = gear.sucellosDA,					-- DT 5
-	}	-- DT 58, Refresh 7
+	}	-- DT 51, Refresh 7. Damage taken caps at 50%, so the slots past the cap carry Refresh, Regen and magic evasion instead.
 	sets.Idle.TP = set_combine(sets.Idle, {})
 	sets.Idle.ACC = set_combine(sets.Idle, {})
 	sets.Idle.DT = set_combine(sets.Idle, {})
@@ -232,17 +246,20 @@ function get_sets()
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
 
 	-- Enhancing magic, built for duration. Every enhancing spell starts from this set, and the
-	-- sets below go over it.
+	-- sets below go over it. bg-wiki's Community Red Mage Guide gives the duration formula: augmented
+	-- durations (Telchine, Dls. Torque +1 Path A, Ghostfyre Cape) multiply apart from the durations an
+	-- item lists natively, so Ghostfyre's augmented 20% beats a Sucellos's Cape's native 20%.
 	sets.Midcast.Enhancing = set_combine(sets.Midcast, {
-		head = gear.telchineCapBEnhDur,			-- 10%
+		head = gear.telchineCapBEnhDur,			-- augment 10%
 		body = gear.vitiationBodyPlusFour,		-- 15%
 		hands = gear.atrophyHandsPlusFour,		-- 20%
-		legs = gear.telchineBraconiBEnhDur,		-- 10%
+		legs = gear.telchineBraconiBEnhDur,		-- augment 10%
 		feet = gear.lethargyFeetPlusThree,		-- 40%
+		neck = gear.duelistTorquePlusOne,		-- augment 20% (Path A)
 		waist = gear.embla,						-- 10%
 		right_ear = gear.lethargyEarringPlusOne,	-- 8%
-		back = gear.sucellosDA,					-- 20% (every Sucellos's Cape), DT 5
-	})	-- 133%, and Ammurapi Shield adds 10% in the Magic weapon mode
+		back = gear.ghostfyre,					-- augment 20%
+	})	-- native 93% x augments 60%, about 3.1 times base duration. Ammurapi Shield adds 10% native in the Magic weapon mode.
 
 	-- Enhancing spells cast on someone else, and self-casts under Accession. Four Lethargy pieces
 	-- lengthen them while Composure is up.
@@ -316,14 +333,26 @@ function get_sets()
 	-- Enfeebles that only need to land, such as Dispel, Frazzle and Poison.
 	sets.Midcast.Enfeebling.MACC = set_combine(sets.Midcast.Enfeebling, {})
 
-	-- Potency-based enfeebles, such as Paralyze, Slow, Addle, Distract, Blind and Gravity.
+	-- Potency-based enfeebles, such as Paralyze, Slow, Addle, Distract, Blind and Gravity. This is bg-wiki's
+	-- MND potency set (Community Red Mage Guide) from what Vanar owns. Three Lethargy pieces also lengthen
+	-- these spells by 20% while Composure is up.
 	sets.Midcast.Enfeebling.Potency = set_combine(sets.Midcast.Enfeebling, {
-		body = gear.lethargyBodyPlusThree,			-- Enfeebling effect +18
+		head = gear.vitiationChapeauPlusFour,		-- Macc 42, Enfeebling skill 27, merit Macc +15
+		body = gear.lethargyBodyPlusThree,			-- Enfeebling effect +18, Macc 64
+		hands = gear.lethargyHandsPlusThree,		-- Enfeebling skill 29, Saboteur +14, Macc 62
+		legs = gear.lethargyLegsPlusThree,			-- Macc 63
 	})
 
-	-- Duration-based enfeebles, such as Sleep, Dia, Bio, Silence, Bind, Break and Inundation.
+	-- Duration-based enfeebles, such as Sleep, Dia, Bio, Silence, Bind, Break and Inundation. bg-wiki's
+	-- duration set (Finans Gearset Guides/Red Mage) is built on Lethargy, which lengthens enfeebling magic
+	-- while Composure is up: 35% for four pieces, 50% for five. Its hands are Regal Cuffs, which Vanar does
+	-- not own, so the Lethargy Gantherots make the fifth piece.
 	sets.Midcast.Enfeebling.Duration = set_combine(sets.Midcast.Enfeebling, {
-		head = gear.vitiationChapeauPlusFour,		-- Enfeebling duration merit augment, Enfeebling skill 27
+		head = gear.lethargyHeadPlusThree,			-- Macc 61
+		body = gear.lethargyBodyPlusThree,			-- Macc 64
+		hands = gear.lethargyHandsPlusThree,		-- Macc 62, Enfeebling skill 29
+		legs = gear.lethargyLegsPlusThree,			-- Macc 63
+		feet = gear.lethargyFeetPlusThree,			-- Macc 60
 		waist = gear.obstinateSash,					-- Enfeebling duration 5%
 	})
 
@@ -383,11 +412,12 @@ function get_sets()
 	-- ===================================================================================================================
 
 	-- Worn on every weaponskill: the weapon skill damage set. Savage Blade, Black Halo and Death
-	-- Blossom wear it as it is.
+	-- Blossom wear it as it is. It is bg-wiki's Savage Blade set (All Jobs Gear Sets/Red Mage) with Leth.
+	-- Earring +1 for Hoxne Earring and Karieyh Ring for Sroda Ring.
 	sets.WS = {
-		ammo = gear.oshashaTreatise,				-- WSD 3, Acc 5, Att 5
+		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
 		head = gear.vitiationChapeauPlusFour,		-- WSD 9, Acc 42, Att 72
-		body = gear.nyameBody,						-- WSD (Path B), Acc 40, Att 30, DT 9
+		body = gear.nyameBody,						-- WSD and Double Attack (Path B), Acc 40, Att 30, DT 9
 		hands = gear.atrophyHandsPlusFour,			-- WSD 9, Acc 63, Att 35
 		legs = gear.nyameLegs,						-- WSD (Path B), Acc 40, Att 30, DT 8
 		feet = gear.lethargyFeetPlusThree,			-- WSD 12, Acc 60, Att 60
@@ -425,7 +455,7 @@ function get_sets()
 	}
 
 	sets.WS.Crit = {
-		ammo = gear.oshashaTreatise,				-- Acc 5, Att 5
+		ammo = gear.coiste,							-- Att 15, DEX 10, DA 3 (Path A)
 		head = gear.lethargyHeadPlusThree,			-- Acc 61, Att 61
 		body = gear.lethargyBodyPlusThree,			-- Acc 64, Att 64
 		hands = gear.lethargyHandsPlusThree,		-- Acc 62, Att 62

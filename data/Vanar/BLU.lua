@@ -148,19 +148,19 @@ function get_sets()
 	-- Worn whenever you are not engaged. It is also the floor under every action, so a slot an action's sets leave unnamed keeps its idle piece.
 	sets.Idle = {
 		ammo = gear.pemphredoTathlum,			-- Macc 8, MAB 4, Conserve MP 4
-		head = gear.nyameHead,					-- DT 7
+		head = gear.hashishinHeadPlusThree,		-- Magic evasion 125
 		body = gear.hashishinBodyPlusThree,		-- DT 13, Refresh 4
 		hands = gear.hashishinHandsPlusThree,	-- DT 10
 		legs = gear.hashishinLegsPlusThree,		-- DT 12
-		feet = gear.nyameFeet,					-- DT 7
+		feet = gear.hashishinFeetPlusThree,		-- Magic evasion 157
 		neck = gear.sanctity,					-- Regen 2
 		waist = gear.platinumMoogleBelt,		-- DT 3, HP 10%
-		left_ear = gear.alabaster,				-- DT 5
-		right_ear = gear.etiolation,			-- MDT 3
-		left_ring = gear.murky,					-- DT 10
+		left_ear = gear.alabaster,				-- DT 5, HP 100
+		right_ear = gear.etiolation,			-- HP 50, MP 50
+		left_ring = gear.karieyh,				-- Regain 5
 		right_ring = gear.ayanmoRing,			-- DT 3
 		back = gear.rosmertaDA,					-- DT 5
-	}	-- DT 75, past the 50 cap so a slot an action leaves unnamed still keeps you capped
+	}	-- DT 51. Damage taken caps at 50%, so the slots past the cap carry Regen, Regain, Refresh and HP instead.
 	-- Idle sets for each offense mode, merged over the idle set.
 	sets.Idle.TP = set_combine(sets.Idle, {})
 	sets.Idle.ACC = set_combine(sets.Idle, {})
@@ -273,7 +273,7 @@ function get_sets()
 	-- Physical spells: accuracy and attack. Kavuk +3 adds Chain Affinity and Tayt +3 adds Efflux TP Bonus,
 	-- and all five Hashishin +3 pieces together occasionally augment blue magic.
 	sets.Midcast.BlueMagic.Physical = {
-		ammo = gear.oshashaTreatise,				-- Acc 5, Att 5
+		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10 (Path A)
 		head = gear.hashishinHeadPlusThree,			-- Acc 61, Att 61
 		body = gear.hashishinBodyPlusThree,			-- Acc 64, Att 64
 		hands = gear.hashishinHandsPlusThree,		-- Acc 62, Att 62
@@ -376,8 +376,6 @@ function get_sets()
 		waist = gear.platinumMoogleBelt,		-- HP 10%
 		left_ear = gear.alabaster,				-- HP 100
 		right_ear = gear.etiolation,			-- HP 50
-		left_ring = gear.murky,
-		right_ring = gear.ayanmoRing,
 		back = gear.solemnityCape,				-- Cure 7
 	}
 
@@ -390,14 +388,17 @@ function get_sets()
 	})
 
 	-- Weaponskill base, the weapon skill damage set. Savage Blade, Expiacion and Black Halo wear it as it is.
+	-- It follows bg-wiki's simulated Savage Blade and Expiacion sets (All Jobs Gear Sets/Blue Mage). Jhakri
+	-- Cuffs +2 stands in for its Path B Nyame Gauntlets, since Vanar's have no path, Hashi. Earring +1 for
+	-- Hoxne Earring and Karieyh Ring for Beithir Ring.
 	sets.WS = {
-		ammo = gear.oshashaTreatise,				-- WSD 3, Acc 5, Att 5
+		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
 		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61
-		body = gear.assimilatorBodyPlusFour,		-- WSD 12, Acc 60
+		body = gear.nyameBody,						-- WSD and Double Attack (Path B), Acc 40, Att 30
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, Acc 43, Att 43
-		legs = gear.luhlazaLegsPlusFour,			-- WSD 12, Acc 50
+		legs = gear.nyameLegs,						-- WSD (Path B), Acc 40, Att 30
 		feet = gear.nyameFeet,						-- WSD (Path B), Acc 40, Att 30
-		neck = gear.mirageStolePlusTwo,				-- Acc 25
+		neck = gear.mirageStolePlusTwo,				-- STR 25, DEX 25 (Path A), Acc 25
 		waist = gear.sailfi,
 		left_ear = gear.moonshade,					-- TP Bonus 250
 		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12
@@ -437,15 +438,16 @@ function get_sets()
 	sets.WS['Red Lotus Blade'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
 	sets.WS['Flash Nova'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
 
-	-- Chant du Cygne: critical hit rate, which rises with TP.
+	-- Chant du Cygne: DEX and critical hit rate, which rises with TP. It follows bg-wiki's set, with Lehko's
+	-- Ring for Begrudging Ring and Hashi. Earring +1 for Hoxne Earring.
 	sets.WS['Chant du Cygne'] = {
 		ammo = gear.coiste,
-		head = gear.gletiHead,						-- Crit 5, Acc 40, Att 40
+		head = gear.adhemarHeadPathB,				-- Crit damage 5, TA 3, Att 41
 		body = gear.gletiBody,						-- Crit 8, Acc 40, Att 40
 		hands = gear.gletiHands,					-- Crit 6, Acc 40, Att 40
 		legs = gear.gletiLegs,						-- Crit 7, Acc 40, Att 40
-		feet = gear.ayanmoFeetPlusTwo,				-- Crit 6, Acc 42
-		neck = gear.fotiaNeck,
+		feet = gear.gletiFeet,						-- Crit 4, Acc 40, Att 40
+		neck = gear.mirageStolePlusTwo,				-- DEX 25, Crit 5 (Path A), Acc 25
 		waist = gear.fotiaWaist,
 		left_ear = gear.moonshade,					-- TP Bonus 250
 		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12

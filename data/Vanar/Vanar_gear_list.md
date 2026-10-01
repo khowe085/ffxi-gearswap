@@ -1,15 +1,16 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **109 pieces** (77 for BLU, 77 for RDM, 45 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **110 pieces** (76 for BLU, 76 for RDM, 42 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
 
 
-## Weapons (10)
+## Weapons (11)
 
 | Item | Copy | Jobs |
 |---|---|---|
 | Almace |  | BLU, RDM |
 | Ammurapi Shield |  | RDM |
 | Bunzi's Rod |  | BLU, RDM |
+| Gleti's Knife |  | RDM |
 | Iris |  | BLU |
 | Maxentius |  | BLU, RDM |
 | Naegling |  | BLU, RDM |
@@ -18,13 +19,12 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Tizona |  | BLU |
 | Ullr |  | RDM |
 
-## Ammo (5)
+## Ammo (4)
 
 | Item | Copy | Jobs |
 |---|---|---|
 | Coiste Bodhar |  | BLU, RDM |
 | Honed Tathlum |  | BLU |
-| Oshasha's Treatise |  | BLU, RDM |
 | Pemphredo Tathlum |  | BLU, RDM |
 | Per. Lucky Egg |  | BLU |
 
@@ -32,9 +32,9 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 
 | Item | Copy | Jobs |
 |---|---|---|
+| Adhemar Bonnet |  | BLU |
 | Amalric Coif +1 |  | BLU, RDM |
 | Atro. Chapeau +4 |  | RDM |
-| Gleti's Mask |  | BLU |
 | Hashishin Kavuk +3 |  | BLU |
 | Leth. Chappel +3 |  | RDM |
 | Nyame Helm |  | BLU |
@@ -160,14 +160,15 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Nyame Flanchard |  | BLU, RDM |
 | Telchine Braconi |  | BLU, RDM |
 
-## Feet (7)
+## Feet (8)
 
 | Item | Copy | Jobs |
 |---|---|---|
-| Aya. Gambieras +2 |  | BLU, RDM |
+| Aya. Gambieras +2 |  | RDM |
+| Gleti's Boots |  | BLU |
 | Hashi. Basmak +3 |  | BLU |
 | Leth. Houseaux +3 |  | RDM |
 | Luhlaza Charuqs +1 |  | BLU |
-| Nyame Sollerets |  | BLU, RDM |
+| Nyame Sollerets |  | BLU |
 | Vanya Clogs |  | RDM |
 | Viti. Boots +4 |  | RDM |
