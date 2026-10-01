@@ -1,9 +1,9 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **109 pieces** (75 for BLU, 76 for RDM, 42 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **119 pieces** (85 for BLU, 86 for RDM, 52 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
 
 
-## Weapons (11)
+## Weapons (13)
 
 | Item | Copy | Jobs |
 |---|---|---|
@@ -14,6 +14,8 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Iris |  | BLU |
 | Maxentius |  | BLU, RDM |
 | Naegling |  | BLU, RDM |
+| Pukulatmuj +1 |  | BLU, RDM |
+| Secespita |  | RDM |
 | Tauret |  | RDM |
 | Thibron |  | BLU, RDM |
 | Tizona |  | BLU |
@@ -41,11 +43,12 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Viti. Chapeau +4 |  | RDM |
 | Wh. Rarab Cap +1 |  | BLU, RDM |
 
-## Neck (7)
+## Neck (8)
 
 | Item | Copy | Jobs |
 |---|---|---|
 | Dls. Torque +1 |  | RDM |
+| Enhancing Torque |  | BLU, RDM |
 | Fotia Gorget |  | BLU, RDM |
 | Mirage Stole +2 |  | BLU |
 | Mizu. Kubikazari |  | RDM |
@@ -53,23 +56,24 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Rep. Plat. Medal |  | RDM |
 | Sanctity Necklace |  | BLU, RDM |
 
-## Earrings (11)
+## Earrings (12)
 
 | Item | Copy | Jobs |
 |---|---|---|
 | Alabaster Earring |  | BLU, RDM |
+| Andoaa Earring |  | BLU, RDM |
 | Brutal Earring |  | BLU, RDM |
 | Etiolation Earring |  | BLU, RDM |
 | Friomisi Earring |  | BLU, RDM |
 | Hashi. Earring +1 |  | BLU |
 | Leth. Earring +1 |  | RDM |
 | Loquac. Earring |  | BLU |
-| Mimir Earring |  | RDM |
+| Mimir Earring |  | BLU, RDM |
 | Moonshade Earring |  | BLU, RDM |
 | Njordr Earring |  | BLU |
 | Snotra Earring |  | RDM |
 
-## Body (10)
+## Body (11)
 
 | Item | Copy | Jobs |
 |---|---|---|
@@ -81,10 +85,11 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Lethargy Sayon +3 |  | RDM |
 | Luhlaza Jubbah +1 |  | BLU |
 | Nyame Mail |  | BLU, RDM |
+| Telchine Chas. |  | BLU, RDM |
 | Viti. Tabard +4 |  | RDM |
 | Volte Jupon |  | BLU, RDM |
 
-## Hands (9)
+## Hands (10)
 
 | Item | Copy | Jobs |
 |---|---|---|
@@ -95,6 +100,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Leth. Ganth. +3 |  | RDM |
 | Luh. Bazubands +1 |  | BLU |
 | Pinga Mittens |  | BLU |
+| Telchine Gloves | "Regen" potency+3 | BLU, RDM |
 | Telchine Gloves | Haste+3, Enh. Mag. eff. dur. +10 | BLU, RDM |
 | Viti. Gloves +4 |  | RDM |
 
@@ -109,16 +115,17 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Karieyh Ring |  | BLU, RDM |
 | Lehko's Ring |  | BLU, RDM |
 | Murky Ring |  | BLU, RDM |
-| Prolix Ring |  | BLU |
+| Prolix Ring |  | BLU, RDM |
 | Stikini Ring | one of two identical copies | BLU, RDM |
 | Stikini Ring | one of two identical copies | BLU, RDM |
 | Strendu Ring |  | BLU, RDM |
 
-## Back (11)
+## Back (12)
 
 | Item | Copy | Jobs |
 |---|---|---|
 | Cornflower Cape |  | BLU |
+| Fi Follet Cape +1 |  | BLU, RDM |
 | Ghostfyre Cape |  | RDM |
 | Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, "Dbl.Atk."+10, Damage taken-5% | BLU |
 | Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, Crit.hit rate+9 | BLU |
@@ -130,7 +137,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Sucellos's Cape | MND+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, Haste+10 | RDM |
 | Sucellos's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10%, Damage taken-5% | RDM |
 
-## Waist (10)
+## Waist (11)
 
 | Item | Copy | Jobs |
 |---|---|---|
@@ -140,18 +147,20 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Fotia Belt |  | BLU, RDM |
 | Kentarch Belt +1 |  | BLU, RDM |
 | Obstin. Sash |  | RDM |
+| Olympus Sash |  | BLU, RDM |
 | Plat. Mog. Belt |  | BLU, RDM |
 | Sailfi Belt +1 |  | BLU, RDM |
 | Siegel Sash |  | BLU, RDM |
 | Witful Belt |  | BLU |
 
-## Legs (9)
+## Legs (10)
 
 | Item | Copy | Jobs |
 |---|---|---|
 | Atro. Tights +4 |  | RDM |
 | Aya. Cosciales +2 |  | BLU, RDM |
 | Carmine Cuisses +1 |  | BLU, RDM |
+| Doyen Pants |  | BLU |
 | Gleti's Breeches |  | BLU |
 | Hashishin Tayt +3 |  | BLU |
 | Leth. Fuseau +3 |  | RDM |
@@ -159,7 +168,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Nyame Flanchard |  | BLU, RDM |
 | Telchine Braconi |  | BLU, RDM |
 
-## Feet (8)
+## Feet (9)
 
 | Item | Copy | Jobs |
 |---|---|---|
@@ -169,5 +178,6 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Leth. Houseaux +3 |  | RDM |
 | Luhlaza Charuqs +1 |  | BLU |
 | Nyame Sollerets |  | BLU |
+| Telchine Pigaches |  | BLU, RDM |
 | Vanya Clogs |  | RDM |
 | Viti. Boots +4 |  | RDM |

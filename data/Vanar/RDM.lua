@@ -30,6 +30,17 @@ gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0)    -- Treasure Hunter 1
 -- for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
 gear.stikini1 = hp_gear("Stikini Ring", 0)             -- Macc 8, all magic skills 5
 gear.stikini2 = hp_gear("Stikini Ring", 0)
+gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
+	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3, Regen duration +12s, Enhancing skill 12
+gear.telchineHandsRegen = hp_gear("Telchine Gloves", 52, {
+	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3
+gear.telchineFeetRegen = hp_gear("Telchine Pigaches", 13, {
+	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3
+gear.pukulatmujPlusOne = rank_gear("Pukulatmuj +1", 100)  -- Enhancing skill 11, Stoneskin casting time -11%
+gear.secespita = rank_gear("Secespita", 100)              -- Enhancing skill 10
+gear.enhancingTorque = hp_gear("Enhancing Torque", 0)      -- Enhancing skill 7
+gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
+	augments = { 'Path: A', } })                                                                                    -- Enhancing skill 9
 
 -- The lockstyle set, macro book and macro set that jobsetup applies at load.
 LockStylePallet = "6"
@@ -247,70 +258,102 @@ function get_sets()
 	})	-- Cure 54 (cap 50)
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
 
-	-- Enhancing magic, built for duration. Every enhancing spell starts from this set, and the
-	-- sets below go over it. bg-wiki's Community Red Mage Guide gives the duration formula: augmented
-	-- durations (Telchine, Dls. Torque +1 Path A, Ghostfyre Cape) multiply apart from the durations an
-	-- item lists natively, so Ghostfyre's augmented 20% beats a Sucellos's Cape's native 20%.
+	-- Enhancing magic. Most enhancing spells stop gaining from skill at 500 (bg-wiki, Category:Enhancing
+	-- Magic), and this set already gives 520: 456 at job mastery, plus Vitiation Tabard +4, Lethargy
+	-- Houseaux +3 and Ghostfyre Cape. So it is built for duration first and recast second. Durations an
+	-- item lists natively add together, augmented durations (Telchine, Dls. Torque +1 Path A, Ghostfyre
+	-- Cape) add together, and the two totals multiply, so Ghostfyre's augmented 20% beats a Sucellos's
+	-- Cape's native 20%. Recast falls with gear haste, which caps at 26%, and with half of fast cast, so
+	-- 2 fast cast count as 1 haste. Every enhancing spell starts from this set.
 	sets.Midcast.Enhancing = set_combine(sets.Midcast, {
-		head = gear.telchineCapBEnhDur,			-- augment 10%
-		body = gear.vitiationBodyPlusFour,		-- 15%
-		hands = gear.atrophyHandsPlusFour,		-- 20%
-		legs = gear.telchineBraconiBEnhDur,		-- augment 10%
-		feet = gear.lethargyFeetPlusThree,		-- 40%
+		sub = gear.ammurapi,					-- 10%
+		head = gear.telchineCapBEnhDur,			-- augment 10%, Haste 6
+		body = gear.vitiationBodyPlusFour,		-- 15%, Fast Cast 15, Haste 3
+		hands = gear.atrophyHandsPlusFour,		-- 20%, Haste 3
+		legs = gear.telchineBraconiBEnhDur,		-- augment 10%, Haste 5
+		feet = gear.lethargyFeetPlusThree,		-- 40%, Haste 3
 		neck = gear.duelistTorquePlusOne,		-- augment 20% (Path A)
-		waist = gear.embla,						-- 10%
-		right_ear = gear.lethargyEarringPlusOne,	-- 8%
+		waist = gear.embla,						-- 10%, Fast Cast 5
+		left_ear = gear.alabaster,				-- Haste 5
+		right_ear = gear.lethargyEarringPlusOne,	-- 8%, Fast Cast 8
+		right_ring = gear.prolix,				-- Fast Cast 2
 		back = gear.ghostfyre,					-- augment 20%
-	})	-- native 93% x augments 60%, about 3.1 times base duration. Ammurapi Shield adds 10% native in the Magic weapon mode.
+	})	-- native 103% x augments 60%, 3.25 times base duration. Gear haste 25%, gear fast cast 30%.
 
-	-- Enhancing spells cast on someone else, and self-casts under Accession. Four Lethargy pieces
-	-- lengthen them while Composure is up.
+	-- Enhancing spells cast on someone else, and self-casts under Accession. The Lethargy set bonus
+	-- lengthens them while Composure is up, 35% for four pieces and 50% for five, and it multiplies apart
+	-- from the native and augmented totals. Four pieces with Atrophy Gloves +4 (3.55 times base) edge out
+	-- five (3.53 times), since the fifth would replace the gloves' native 20%.
 	sets.Midcast.Enhancing.Others = set_combine(sets.Midcast.Enhancing, {
 		head = gear.lethargyHeadPlusThree,
 		body = gear.lethargyBodyPlusThree,
 		legs = gear.lethargyLegsPlusThree,
 	})
 
-	-- Spells that scale with enhancing skill: Temper, Temper II, the first-tier en-spells and the
-	-- Boost-stat spells.
+	-- Temper, Temper II and the first-tier en-spells keep gaining from enhancing skill past 500, so they
+	-- wear every skill piece, weapons included. A first-tier en-spell's damage is set by the skill worn
+	-- at the cast. A second-tier en-spell reads the skill worn on each attack round (bg-wiki,
+	-- Category:Enspell), so the engine leaves the second tier on the duration set. Secespita needs the
+	-- Dual Wield trait from a NIN or DNC subjob, and midcast_custom puts Ammurapi Shield in its place
+	-- without it.
 	sets.Midcast.Enhancing.Skill = set_combine(sets.Midcast.Enhancing, {
+		main = gear.pukulatmujPlusOne,			-- Enhancing skill 11
+		sub = gear.secespita,					-- Enhancing skill 10
 		body = gear.vitiationBodyPlusFour,		-- Enhancing skill 24
 		hands = gear.vitiationHandsPlusFour,	-- Enhancing skill 25
 		legs = gear.atrophyLegsPlusFour,		-- Enhancing skill 22
 		feet = gear.lethargyFeetPlusThree,		-- Enhancing skill 35
+		neck = gear.enhancingTorque,			-- Enhancing skill 7
+		waist = gear.olympus,					-- Enhancing skill 5
 		left_ear = gear.mimir,					-- Enhancing skill 10
+		right_ear = gear.andoaaEarring,			-- Enhancing skill 5
 		left_ring = gear.stikini1,				-- Enhancing skill 5
 		right_ring = gear.stikini2,				-- Enhancing skill 5
-		back = gear.ghostfyre,					-- Enhancing skill 5, duration 20
-	})
+		back = gear.fiFolletPlusOne,			-- Enhancing skill 9
+	})	-- Enhancing skill 629 with Dual Wield. Temper II's triple attack is (skill - 300) / 10, 32% here, up to 40% at 700.
 
-	-- Gain spells.
+	-- Gain spells. Their potency from skill caps at 500, and Vitiation Gloves +4 add to it.
 	sets.Midcast.Enhancing.Gain = set_combine(sets.Midcast.Enhancing, {
 		hands = gear.vitiationHandsPlusFour,	-- Gain effect +30
 	})
 
-	-- Bar-spells.
+	-- Bar-spells. Their potency caps at 500 skill, which the duration set already gives.
 	sets.Midcast.Enhancing.Elemental = set_combine(sets.Midcast.Enhancing, {})
 	sets.Midcast.Enhancing.Status = set_combine(sets.Midcast.Enhancing, {})
 
-	-- Regen, Refresh and Phalanx go over sets.Midcast.Enhancing.
-	sets.Midcast.Regen = set_combine(sets.Midcast.Enhancing, {})
+	-- Regen and Refresh put potency first, then duration, then recast. These sets and the Phalanx set
+	-- name only the slots they change, so a cast on someone else keeps the Others set's Lethargy pieces
+	-- in the rest.
+	sets.Midcast.Regen = {
+		body = gear.telchineBodyRegen,			-- Regen potency 3, Regen duration +12s
+		hands = gear.telchineHandsRegen,		-- Regen potency 3
+		feet = gear.telchineFeetRegen,			-- Regen potency 3
+	}
 
-	sets.Midcast.Refresh = set_combine(sets.Midcast.Enhancing, {
+	sets.Midcast.Refresh = {
 		head = gear.amalricCoifPlusOne,			-- Refresh potency +2
 		body = gear.atrophyBodyPlusFour,		-- Refresh potency +2
 		legs = gear.lethargyLegsPlusThree,		-- Refresh potency +4
-	})
+	}
 
-	sets.Midcast.Phalanx = set_combine(sets.Midcast.Enhancing.Skill, {})
+	-- Phalanx stops gaining at 500 skill. On someone else the Others set's Lethargy Sayon +3 takes the
+	-- Vitiation Tabard's 24 skill away, leaving 496, so the Stikini Rings bring it to 506.
+	sets.Midcast.Phalanx = {
+		left_ring = gear.stikini1,				-- Enhancing skill 5
+		right_ring = gear.stikini2,				-- Enhancing skill 5
+	}
 
 	-- Sets named for one spell. Such a set takes the place of the spell's family set, which is why
 	-- these start from the family set with set_combine.
+	-- Stoneskin absorbs enhancing skill + 3 x MND - 190, up to 350, so this set's 520 skill caps it at MND
+	-- 7. Stoneskin+ gear goes past that cap, up to 475. Its casting time is already at the 80% cap: Fast
+	-- Cast V and the job-point gift give 32%, and sets.Precast.FastCast 50%.
 	sets.Midcast["Stoneskin"] = set_combine(sets.Midcast.Enhancing, {
 		neck = gear.nodens,		-- Stoneskin +30
-		waist = gear.siegel,	-- Stoneskin+
-	})
+		waist = gear.siegel,	-- Stoneskin +20
+	})	-- 400
 
+	-- At 501 skill or more Aquaveil blocks three interruptions.
 	sets.Midcast["Aquaveil"] = set_combine(sets.Midcast.Enhancing, {
 		head = gear.amalricCoifPlusOne,	-- Aquaveil +2
 	})
@@ -527,7 +570,17 @@ end
 -- midcast set, which is empty for abilities, weaponskills and items.
 function midcast_custom(spell)
 	local equipSet = {}
-
+	-- sets.Midcast.Enhancing.Skill's Secespita needs the Dual Wield trait (id 18) to go in the sub slot.
+	if spell.skill == 'Enhancing Magic' and Enhancing_Skill:contains(spell.name) then
+		local abilities = windower.ffxi.get_abilities()
+		local dual_wield = false
+		for _, trait in ipairs(abilities and abilities.job_traits or {}) do
+			if trait == 18 then dual_wield = true end
+		end
+		if not dual_wield then
+			equipSet = { sub = gear.ammurapi }
+		end
+	end
 	return equipSet
 end
 

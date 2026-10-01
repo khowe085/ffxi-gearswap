@@ -35,6 +35,16 @@ gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0) -- Treasure Hunter 1
 -- for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
 gear.stikini1 = hp_gear("Stikini Ring", 0)        -- Macc 8, all magic skills 5
 gear.stikini2 = hp_gear("Stikini Ring", 0)
+gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
+	augments = { '"Regen" potency+3', } })                                                                  -- Regen potency 3, Regen duration +12s, Enhancing skill 12
+gear.telchineHandsRegen = hp_gear("Telchine Gloves", 52, {
+	augments = { '"Regen" potency+3', } })                                                                  -- Regen potency 3
+gear.telchineFeetRegen = hp_gear("Telchine Pigaches", 13, {
+	augments = { '"Regen" potency+3', } })                                                                  -- Regen potency 3
+gear.pukulatmujPlusOne = rank_gear("Pukulatmuj +1", 100) -- Enhancing skill 11, Stoneskin casting time -11%
+gear.enhancingTorque = hp_gear("Enhancing Torque", 0)     -- Enhancing skill 7
+gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
+	augments = { 'Path: A', } })                                                                            -- Enhancing skill 9
 
 -- The in-game lockstyle set, macro book and macro set this file applies on load.
 LockStylePallet = "11"
@@ -228,6 +238,19 @@ function get_sets()
 		body = gear.hashishinBodyPlusThree,	-- Blue magic casting time -16
 	})
 
+	-- Merged over the fast-cast set for every enhancing spell. Fast cast, casting time cuts and the Fast
+	-- Cast trait add up to an 80% cap. The trait is 5 to 25% from set blue magic such as Erratic Flutter,
+	-- or 15% from a RDM subjob, whichever is higher.
+	sets.Precast.Enhancing = {
+		waist = gear.siegel,				-- Enhancing magic casting time -8
+	}	-- 42% from gear
+
+	-- Stoneskin from a WHM or RDM subjob, over sets.Precast.Enhancing.
+	sets.Precast["Stoneskin"] = {
+		main = gear.pukulatmujPlusOne,		-- Stoneskin casting time -11
+		legs = gear.doyenLegs,				-- Stoneskin casting time -10
+	}	-- 57% from gear, so any Fast Cast trait of 23% or more reaches the cap
+
 	-- Job abilities. sets.JA is worn for every job ability, and the set named for the ability merges over it.
 	sets.JA = set_combine(sets.Idle, {})
 	sets.JA["Azure Lore"] = {
@@ -256,19 +279,44 @@ function get_sets()
 	})
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
 
-	-- Enhancing magic, built for duration. Raise, Reraise and the -na spells take it too.
+	-- Enhancing magic from a subjob, built for duration first and recast second. Raise, Reraise and the
+	-- -na spells take it too.
 	sets.Midcast.Enhancing = set_combine(sets.Midcast, {
 		head = gear.telchineCapBEnhDur,			-- Enhancing duration 10
 		hands = gear.telchineGlovesDuration,	-- Enhancing duration 10
 		legs = gear.telchineBraconiBEnhDur,		-- Enhancing duration 10
+		left_ring = gear.prolix,				-- Fast Cast 2
 	})
 	sets.Midcast.Enhancing.Others = set_combine(sets.Midcast.Enhancing, {})
-	sets.Midcast.Enhancing.Skill = set_combine(sets.Midcast.Enhancing, {})
+
+	-- A subjob's enhancing skill is far below the 500 where most enhancing spells stop gaining, so
+	-- skill still raises potency here. The first-tier en-spells from a RDM subjob set their damage by
+	-- the skill worn at the cast, and Phalanx's damage cut rises with skill too.
+	sets.Midcast.Enhancing.Skill = set_combine(sets.Midcast.Enhancing, {
+		main = gear.pukulatmujPlusOne,			-- Enhancing skill 11
+		body = gear.telchineBodyRegen,			-- Enhancing skill 12
+		legs = gear.carmineLegsPlusOnePathD,	-- Enhancing skill 18
+		neck = gear.enhancingTorque,			-- Enhancing skill 7
+		waist = gear.olympus,					-- Enhancing skill 5
+		left_ear = gear.mimir,					-- Enhancing skill 10
+		right_ear = gear.andoaaEarring,			-- Enhancing skill 5
+		left_ring = gear.stikini1,				-- Enhancing skill 5
+		right_ring = gear.stikini2,				-- Enhancing skill 5
+		back = gear.fiFolletPlusOne,			-- Enhancing skill 9
+	})	-- Enhancing skill +87
 	sets.Midcast.Enhancing.Elemental = set_combine(sets.Midcast.Enhancing, {})
 	sets.Midcast.Enhancing.Status = set_combine(sets.Midcast.Enhancing, {})
-	sets.Midcast.Refresh = set_combine(sets.Midcast.Enhancing, {})
-	sets.Midcast.Regen = set_combine(sets.Midcast.Enhancing, {})
-	sets.Midcast.Phalanx = set_combine(sets.Midcast.Enhancing, {})
+	sets.Midcast.Phalanx = set_combine(sets.Midcast.Enhancing.Skill, {})
+
+	-- Regen and Refresh put potency first, then duration, then recast.
+	sets.Midcast.Regen = {
+		body = gear.telchineBodyRegen,			-- Regen potency 3, Regen duration +12s
+		hands = gear.telchineHandsRegen,		-- Regen potency 3
+		feet = gear.telchineFeetRegen,			-- Regen potency 3
+	}
+	sets.Midcast.Refresh = {
+		head = gear.amalricCoifPlusOne,			-- Refresh potency +2
+	}
 
 	-- Blue magic. Each spell takes the one subfamily set its list above names, unless it has a set of its own. The engine never wears sets.Midcast.BlueMagic itself.
 	sets.Midcast.BlueMagic = {}
@@ -382,8 +430,10 @@ function get_sets()
 		back = gear.solemnityCape,				-- Cure 7
 	}
 
+	-- Stoneskin absorbs enhancing skill + 3 x MND - 190, up to 350, which Blue Mage's MND reaches even at
+	-- a subjob's skill. Stoneskin+ gear goes past that cap.
 	sets.Midcast["Stoneskin"] = set_combine(sets.Midcast.Enhancing, {
-		waist = gear.siegel,
+		waist = gear.siegel,					-- Stoneskin +20
 	})
 
 	sets.Midcast["Aquaveil"] = set_combine(sets.Midcast.Enhancing, {
