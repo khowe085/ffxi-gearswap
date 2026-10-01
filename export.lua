@@ -83,7 +83,7 @@ function export_set(options)
 
     local buildmsg = 'Exporting '
     if all_items then
-        buildmsg = buildmsg .. 'all your items'
+        buildmsg = buildmsg .. 'all your items, grouped by bag'
     elseif wearable then
         buildmsg = buildmsg .. 'all your items in inventory and wardrobes'
     elseif targinv then
@@ -129,9 +129,15 @@ function export_set(options)
     msg.addon_msg(123, buildmsg)
 
     local item_list = T{}
+    -- For "all", each bag's items also stay together so the export can show where each item is.
+    local bag_lists
     if all_items then
+        bag_lists = {}
         for i = 0, #res.bags do
-            item_list:extend(get_item_list(items[res.bags[i].english:gsub(' ', ''):lower()]))
+            local bag_name = res.bags[i].english:gsub(' ', ''):lower()
+            local bag_items = get_item_list(items[bag_name])
+            bag_lists[#bag_lists+1] = {name = bag_name, items = bag_items}
+            item_list:extend(bag_items)
         end
     elseif wearable then
         for _, v in pairs(equippable_item_bags) do
@@ -265,6 +271,23 @@ function export_set(options)
         end
 
         output = output .. '|List = y\n|Background = \n}}\n|Equipment Set Notes =\n}'
+
+    elseif bag_lists then
+        -- One table per bag, named as in Windower (inventory, safe2, wardrobe3...); a bag with
+        -- nothing to export is left out.
+        for _, bag in ipairs(bag_lists) do
+            local lines = ''
+            for _, v in ipairs(bag.items) do
+                if v.augments then
+                    lines = lines .. '        %s={ name="%s", augments={%s}},':format(v.slot, v.name, v.augments) .. newline
+                elseif not onlyaugmented then
+                    lines = lines .. '        %s="%s",':format(v.slot, v.name) .. newline
+                end
+            end
+            if lines ~= '' then
+                output = output .. '    %s = {':format(bag.name) .. newline .. lines .. '    },' .. newline
+            end
+        end
 
     else
         for i,v in ipairs(item_list) do
