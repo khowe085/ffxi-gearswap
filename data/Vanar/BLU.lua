@@ -133,6 +133,24 @@ AutoWS_List = {
 	['Almace'] = { { 'Chant du Cygne', 1000 } },
 }
 
+-- Auto buff lists. gs c AutoBuff cycles OFF and Auto, starts OFF and has no key of its own. While Auto is
+-- on, the engine casts the first buff below that you are missing, on yourself. When is Always, Engaged,
+-- Idle, Combat or OutOfCombat. The engine checks that a spell is learned, not that a blue magic spell is
+-- set, so Erratic Flutter and Nat. Meditation must be in the spell set. Mighty Guard needs Unbridled
+-- Learning, which pretarget_custom uses first.
+AutoBuff_List = {
+	Auto = {
+		{ Name = 'Erratic Flutter', Buff = 'Haste', When = 'Always' },
+		--{ Name = 'Battery Charge', Buff = 'Refresh', When = 'Idle' },
+		--{ Name = 'Refresh', Buff = 'Refresh', When = 'Idle' },
+		{ Name = 'Nat. Meditation', Buff = 'Attack Boost', When = 'Engaged' },
+		{ Name = 'Mighty Guard', Buff = 'Mighty Guard', When = 'Combat' },
+	},
+}
+
+-- Blue magic that needs Unbridled Learning or Unbridled Wisdom up before it can be cast.
+Unbridled_Spells = S { 'Mighty Guard' }
+
 -- Naming JobMode shows it in chat and on the status box.
 UI_Name = 'Mode'
 
@@ -587,7 +605,16 @@ end
 
 -- Called before each action, after the engine's own checks. Cancel the action here with cancel_spell(). Nothing it returns is used.
 function pretarget_custom(spell,action)
-
+	-- An unbridled spell cast without Unbridled Learning or Unbridled Wisdom up is dropped. When Unbridled
+	-- Learning is ready (ability recast 81), it goes up first and the spell is sent again 1.1 seconds later,
+	-- as the engine's AutoWSBuff does for a weaponskill.
+	if spell.type == 'BlueMagic' and Unbridled_Spells:contains(spell.english)
+		and not buffactive['Unbridled Learning'] and not buffactive['Unbridled Wisdom'] then
+		cancel_spell()
+		if windower.ffxi.get_ability_recasts()[81] == 0 then
+			windower.send_command('input /ja "Unbridled Learning" <me>; wait 1.1; input /ma "' .. spell.english .. '" <me>')
+		end
+	end
 end
 -- Gear returned here merges over the engine's precast set for the action.
 function precast_custom(spell)

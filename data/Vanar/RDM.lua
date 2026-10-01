@@ -85,6 +85,20 @@ AutoWS_List = {
 	['Aeolian Edge'] = { { 'Aeolian Edge', 1000 } },
 }
 
+-- Auto buff lists, as on BLU. gs c AutoBuff cycles OFF and Auto, starts OFF and has no key of its own.
+-- While Auto is on, the engine casts the first buff below that you are missing, on yourself. Temper II
+-- and Gain-STR only help in melee, so they wait until you engage. Each cast wears its midcast set, and
+-- those swap weapons, which costs TP while engaged unless the weapon lock (F10) is on.
+AutoBuff_List = {
+	Auto = {
+		{ Name = 'Temper II', Buff = 'Multi Strikes', When = 'Engaged' },
+		{ Name = 'Gain-STR', Buff = 'STR Boost', When = 'Engaged' },
+		{ Name = 'Refresh III', Buff = 'Refresh', When = 'Always' },
+		{ Name = 'Haste II', Buff = 'Haste', When = 'Always' },
+		{ Name = 'Phalanx', Buff = 'Phalanx', When = 'Always' },
+	},
+}
+
 function get_sets()
 	-- ===================================================================================================================
 	--		sets.Weapons
