@@ -96,6 +96,10 @@ state.AutoWS:set('OFF')
 -- not engaged.
 Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic' }
 
+-- The spells named like a family set below: sets.Midcast.Phalanx, sets.Midcast.Refresh and
+-- sets.Midcast.Regen. midcast_custom puts the enhancing set back under them.
+Family_Set_Spells = S { 'Phalanx', 'Refresh', 'Regen' }
+
 -- Auto buff lists, as on BLU. gs c AutoBuff (F12) cycles OFF and Auto, and starts OFF.
 -- While Auto is on, the engine casts the first buff below that you are missing, on yourself. Temper II
 -- and Gain-STR only help in melee, so they wait until you engage. Each cast wears its midcast set, and
@@ -394,7 +398,8 @@ function get_sets()
 
 	-- Regen and Refresh put potency first, then duration, then recast. These sets and the Phalanx set
 	-- name only the slots they change, so a cast on someone else keeps the Others set's Lethargy pieces
-	-- in the rest.
+	-- in the rest. The spells called Phalanx, Refresh and Regen would wear these sets alone, so
+	-- midcast_custom puts the enhancing set back under them.
 	sets.Midcast.Regen = {
 		body = gear.telchineBodyRegen,			-- Regen potency 3, Regen duration +12s
 		hands = gear.telchineHandsRegen,		-- Regen potency 3
@@ -640,6 +645,16 @@ end
 -- midcast set, which is empty for abilities, weaponskills and items.
 function midcast_custom(spell)
 	local equipSet = {}
+	-- sets.Midcast.Phalanx, .Refresh and .Regen hold only the slots they change, for the engine to merge
+	-- over the enhancing set, and over the Others set for a cast on someone else. But the engine wears a
+	-- set named for the exact spell in place of the whole enhancing set, so the spells called Phalanx,
+	-- Refresh and Regen would get those few slots over idle gear and lose every duration piece. This puts
+	-- the enhancing set, and the Others set for a cast on someone else, back under them, as the engine
+	-- does for the rest of each family.
+	if Family_Set_Spells:contains(spell.english) then
+		local others = spell.target.type ~= 'SELF' or buffactive['Accession']
+		equipSet = set_combine(sets.Midcast.Enhancing, others and sets.Midcast.Enhancing.Others or {}, sets.Midcast[spell.english])
+	end
 	-- The casting weapons for magic that has to land, cast while not engaged. Engaged casts keep the
 	-- weapon mode's weapons, since new weapons reset TP. After the cast, the weapon mode takes the range
 	-- slot back off and choose_set_custom puts the idle weapons back on.

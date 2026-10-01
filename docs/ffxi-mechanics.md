@@ -174,6 +174,7 @@ Duration = (base + 6s × RDM Group 2 merit + 3s × relic hands merit augment + R
 - Leth. Earring +1 and Hashi. Earring +1: their item text says their bonuses only work in the right ear.
 - `//gs export` shows a path augment ("Path: A") but not its rank.
 - When you own more than one copy of an item, name each copy by its augments, exactly as `//gs export` printed them.
+- Rahvin engine: a set named for the exact spell, `sets.Midcast['<spell>']`, replaces the whole enhancing set for that spell. `sets.Midcast.Phalanx`, `.Refresh` and `.Regen` are also the family sets the engine merges over the enhancing set, and over the Others set off self, for every spell of that family. So the spells called Phalanx, Refresh and Regen wear that table alone. If those sets only list the slots they change, the first-tier spells lose all their duration gear; if they are full copies of the enhancing set, casts on others lose the Others set's Lethargy pieces. Keeping them short and putting the enhancing set back for those three spells in `midcast_custom` avoids both.
 - Two identical copies with no augments, such as two Stikini Rings, are safest swapped as a pair. Otherwise GearSwap can try to move the copy already worn in the other slot. Pinning each to its bag, for example `{ bag = "wardrobe" }`, also fixes it.
 
 ## Player rules for these jobs

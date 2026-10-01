@@ -127,6 +127,10 @@ BlueACC = S { '1000 Needles', 'Absolute Terror', 'Auroral Drape', 'Awful Eye',
 -- engaged. It does the same for the blue magic in BlueNuke, BlueACC, BlueTank, BlueBreath and BlueHealing.
 Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic', 'Healing Magic' }
 
+-- The subjob spells named like a family set that holds only the slots it changes: sets.Midcast.Refresh
+-- and sets.Midcast.Regen. midcast_custom puts the enhancing set back under them.
+Family_Set_Spells = S { 'Refresh', 'Regen' }
+
 -- Weapon modes. Each name needs a matching sets.Weapons entry.
 state.WeaponMode:options('Naegling','Naegling Acc','Tizona','Tizona Acc','Almace','Black Halo')
 state.WeaponMode:set('Naegling')
@@ -387,7 +391,9 @@ function get_sets()
 	sets.Midcast.Enhancing.Status = set_combine(sets.Midcast.Enhancing, {})
 	sets.Midcast.Phalanx = set_combine(sets.Midcast.Enhancing.Skill, {})
 
-	-- Regen and Refresh put potency first, then duration, then recast.
+	-- Regen and Refresh put potency first, then duration, then recast. These sets name only the slots they
+	-- change, for the engine to merge over the enhancing set. The spells called Regen and Refresh would
+	-- wear them alone, so midcast_custom puts the enhancing set back under them.
 	sets.Midcast.Regen = {
 		body = gear.telchineBodyRegen,			-- Regen potency 3, Regen duration +12s
 		hands = gear.telchineHandsRegen,		-- Regen potency 3
@@ -712,6 +718,16 @@ end
 -- Gear returned here merges over the engine's midcast set for the action.
 function midcast_custom(spell)
 	local equipSet = {}
+	-- sets.Midcast.Refresh and .Regen hold only the slots they change, for the engine to merge over the
+	-- enhancing set, and over the Others set for a cast on someone else. But the engine wears a set named
+	-- for the exact spell in place of the whole enhancing set, so the spells called Refresh and Regen
+	-- would get those few slots over idle gear and lose every duration piece. This puts the enhancing set,
+	-- and the Others set for a cast on someone else, back under them, as the engine does for the rest of
+	-- each family.
+	if Family_Set_Spells:contains(spell.english) then
+		local others = spell.target.type ~= 'SELF' or buffactive['Accession']
+		equipSet = set_combine(sets.Midcast.Enhancing, others and sets.Midcast.Enhancing.Others or {}, sets.Midcast[spell.english])
+	end
 	-- The casting weapons for magic that has to land or heals, cast while not engaged. Engaged casts keep
 	-- the weapon mode's weapons, since new weapons reset TP. After the cast, choose_set_custom puts the
 	-- idle weapons back on.
