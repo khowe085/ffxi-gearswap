@@ -265,7 +265,7 @@ local function init_gear()
 		ear1 = "Brutal Earring",
 		ear2 = gear.empy_ear, -- Mytha: Sherida Earring
 		-- body: Mytha's Malignance Tabard; Nyame Mail from the base set
-		hands = "Aya. Manopolas +2", -- Mytha: Malignance Gloves
+		-- hands: Mytha's Malignance Gloves; Atro. Gloves +4 from the base set
 		ring1 = "Epaminondas's Ring",
 		ring2 = "Lehko's Ring", -- Mytha: Cornelia's Ring
 	})
@@ -729,14 +729,13 @@ local function init_gear()
 	})
 
 	-- Worn instead of the engaged set while the Weapons option is EnspellOnly (job_customize_melee_set).
-	-- Mytha's Umuthi Hat, Sroda Tathlum and Orpheus's Sash aren't owned.
+	-- Mytha's Umuthi Hat, Sroda Tathlum and Orpheus's Sash aren't owned, and nothing owned adds enspell
+	-- damage in the hands, so they come from the engaged sets.
 	gear.engaged.EnspellOnly = set_combine(gear.engaged, {
-		hands = "Aya. Manopolas +2",
 		back = gear.skill_cape,
 	})
 
 	gear.engaged.EnspellOnly.Acc = set_combine(gear.engaged.Acc, {
-		hands = "Aya. Manopolas +2",
 		back = gear.skill_cape,
 	})
 end
