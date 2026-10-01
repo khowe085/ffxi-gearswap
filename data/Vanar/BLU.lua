@@ -45,6 +45,8 @@ gear.pukulatmujPlusOne = rank_gear("Pukulatmuj +1", 100) -- Enhancing skill 11, 
 gear.enhancingTorque = hp_gear("Enhancing Torque", 0)     -- Enhancing skill 7
 gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
 	augments = { 'Path: A', } })                                                                            -- Enhancing skill 9
+gear.chelonaBoots = mp_gear("Chelona Boots", 35)         -- Fast Cast 4
+gear.swithCape = hp_gear("Swith Cape", -20)              -- Fast Cast 3
 
 -- The in-game lockstyle set, macro book and macro set this file applies on load.
 LockStylePallet = "11"
@@ -231,7 +233,9 @@ function get_sets()
 		left_ear = gear.loquacious,			-- FC 2
 		right_ear = gear.etiolation,		-- FC 1
 		left_ring = gear.prolix,			-- FC 2
-	}	-- FC 37. Ammo, neck, feet and back keep the idle set's pieces.
+		back = gear.swithCape,				-- FC 3
+		feet = gear.chelonaBoots,			-- FC 4
+	}	-- FC 44. Ammo and neck keep the idle set's pieces.
 
 	-- Merged over the fast-cast set for blue magic.
 	sets.Precast.BlueMagic = set_combine(sets.Precast.FastCast, {
@@ -243,13 +247,13 @@ function get_sets()
 	-- or 15% from a RDM subjob, whichever is higher.
 	sets.Precast.Enhancing = {
 		waist = gear.siegel,				-- Enhancing magic casting time -8
-	}	-- 42% from gear
+	}	-- 49% from gear
 
 	-- Stoneskin from a WHM or RDM subjob, over sets.Precast.Enhancing.
 	sets.Precast["Stoneskin"] = {
 		main = gear.pukulatmujPlusOne,		-- Stoneskin casting time -11
 		legs = gear.doyenLegs,				-- Stoneskin casting time -10
-	}	-- 57% from gear, so any Fast Cast trait of 23% or more reaches the cap
+	}	-- 64% from gear, so any Fast Cast trait of 16% or more reaches the cap
 
 	-- Job abilities. sets.JA is worn for every job ability, and the set named for the ability merges over it.
 	sets.JA = set_combine(sets.Idle, {})

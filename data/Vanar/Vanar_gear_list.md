@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **119 pieces** (85 for BLU, 86 for RDM, 52 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **121 pieces** (87 for BLU, 90 for RDM, 56 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
 
 
 ## Weapons (13)
@@ -67,7 +67,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Friomisi Earring |  | BLU, RDM |
 | Hashi. Earring +1 |  | BLU |
 | Leth. Earring +1 |  | RDM |
-| Loquac. Earring |  | BLU |
+| Loquac. Earring |  | BLU, RDM |
 | Mimir Earring |  | BLU, RDM |
 | Moonshade Earring |  | BLU, RDM |
 | Njordr Earring |  | BLU |
@@ -120,7 +120,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Stikini Ring | one of two identical copies | BLU, RDM |
 | Strendu Ring |  | BLU, RDM |
 
-## Back (12)
+## Back (13)
 
 | Item | Copy | Jobs |
 |---|---|---|
@@ -136,6 +136,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Sucellos's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 | RDM |
 | Sucellos's Cape | MND+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, Haste+10 | RDM |
 | Sucellos's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10%, Damage taken-5% | RDM |
+| Swith Cape |  | BLU, RDM |
 
 ## Waist (11)
 
@@ -160,7 +161,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Atro. Tights +4 |  | RDM |
 | Aya. Cosciales +2 |  | BLU, RDM |
 | Carmine Cuisses +1 |  | BLU, RDM |
-| Doyen Pants |  | BLU |
+| Doyen Pants |  | BLU, RDM |
 | Gleti's Breeches |  | BLU |
 | Hashishin Tayt +3 |  | BLU |
 | Leth. Fuseau +3 |  | RDM |
@@ -168,11 +169,12 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Nyame Flanchard |  | BLU, RDM |
 | Telchine Braconi |  | BLU, RDM |
 
-## Feet (9)
+## Feet (10)
 
 | Item | Copy | Jobs |
 |---|---|---|
 | Aya. Gambieras +2 |  | RDM |
+| Chelona Boots |  | BLU, RDM |
 | Gleti's Boots |  | BLU |
 | Hashi. Basmak +3 |  | BLU |
 | Leth. Houseaux +3 |  | RDM |

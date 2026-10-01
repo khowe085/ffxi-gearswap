@@ -41,6 +41,8 @@ gear.secespita = rank_gear("Secespita", 100)              -- Enhancing skill 10
 gear.enhancingTorque = hp_gear("Enhancing Torque", 0)      -- Enhancing skill 7
 gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
 	augments = { 'Path: A', } })                                                                                    -- Enhancing skill 9
+gear.chelonaBoots = mp_gear("Chelona Boots", 35)           -- Fast Cast 4
+gear.swithCape = hp_gear("Swith Cape", -20)                -- Fast Cast 3
 
 -- The lockstyle set, macro book and macro set that jobsetup applies at load.
 LockStylePallet = "6"
@@ -237,6 +239,21 @@ function get_sets()
 		right_ear = gear.lethargyEarringPlusOne,	-- FC 8
 	}	-- FC 50. The other slots keep the idle set's DT pieces.
 
+	-- Stoneskin, over the fast-cast set. Doyen Pants and Siegel Sash take the place of Ayanmo
+	-- Cosciales +2 and Embla Sash, and the free slots win that 11 fast cast back, so fast cast stays
+	-- at 82% with the Stoneskin cuts on top. bg-wiki counts those cuts inside the same 80% cap, so
+	-- under that reading the set changes nothing, and if they go past it the cast is faster. Recast
+	-- is set by the midcast set, so nothing here costs any.
+	sets.Precast["Stoneskin"] = {
+		main = gear.pukulatmujPlusOne,			-- Stoneskin casting time -11
+		legs = gear.doyenLegs,					-- Stoneskin casting time -10
+		waist = gear.siegel,					-- Enhancing magic casting time -8
+		feet = gear.chelonaBoots,				-- FC 4
+		back = gear.swithCape,					-- FC 3
+		left_ear = gear.loquacious,				-- FC 2
+		left_ring = gear.prolix,				-- FC 2
+	}	-- FC 82%, and Stoneskin casting time -29%
+
 	-- ===================================================================================================================
 	--		sets.Midcast
 	-- ===================================================================================================================
@@ -346,8 +363,7 @@ function get_sets()
 	-- Sets named for one spell. Such a set takes the place of the spell's family set, which is why
 	-- these start from the family set with set_combine.
 	-- Stoneskin absorbs enhancing skill + 3 x MND - 190, up to 350, so this set's 520 skill caps it at MND
-	-- 7. Stoneskin+ gear goes past that cap, up to 475. Its casting time is already at the 80% cap: Fast
-	-- Cast V and the job-point gift give 32%, and sets.Precast.FastCast 50%.
+	-- 7. Stoneskin+ gear goes past that cap, up to 475. Siegel Sash only has to be worn during the cast.
 	sets.Midcast["Stoneskin"] = set_combine(sets.Midcast.Enhancing, {
 		neck = gear.nodens,		-- Stoneskin +30
 		waist = gear.siegel,	-- Stoneskin +20
