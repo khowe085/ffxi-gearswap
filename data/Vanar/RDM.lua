@@ -86,6 +86,9 @@ AutoWS_List = {
 }
 state.AutoWS:set('OFF')
 
+-- The magic skills midcast_custom wears Ullr for when you are not engaged: the ones that have to land.
+Ullr_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic' }
+
 -- Auto buff lists, as on BLU. gs c AutoBuff cycles OFF and Auto, starts OFF and has no key of its own.
 -- While Auto is on, the engine casts the first buff below that you are missing, on yourself. Temper II
 -- and Gain-STR only help in melee, so they wait until you engage. Each cast wears its midcast set, and
@@ -624,7 +627,13 @@ end
 -- midcast set, which is empty for abilities, weaponskills and items.
 function midcast_custom(spell)
 	local equipSet = {}
-
+	-- Ullr's Macc +40 for magic that has to land, cast while not engaged, in any weapon mode. Engaged casts
+	-- skip it, since the weapon lock does not hold the range slot and a new ranged weapon resets TP. The ammo
+	-- goes bare with it, because ammo that is not an arrow strips the bow, and the idle set's weapon mode
+	-- takes it back off after the cast.
+	if player.status ~= 'Engaged' and Ullr_Skills:contains(spell.skill) then
+		equipSet = { range = gear.ullr, ammo = empty }
+	end
 	return equipSet
 end
 

@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **120 pieces** (86 for BLU, 90 for RDM, 56 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **120 pieces** (86 for BLU, 90 for RDM, 56 worn by both). The set columns name each set whose definition lists the piece, and each job-file function, such as `midcast_custom()`, that equips it. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (12)
@@ -18,7 +18,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Tauret |  |  | `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` |
 | Thibron |  | `Weapons['Naegling']`, `Weapons['Tizona']`, `Weapons['Almace']`, `Weapons['Black Halo']` | `Weapons['Black Halo']` |
 | Tizona |  | `Weapons['Tizona']`, `Weapons['Tizona Acc']` |  |
-| Ullr |  |  | `Weapons['Magic']` |
+| Ullr |  |  | `Weapons['Magic']`, `midcast_custom()` |
 
 ## Ammo (4)
 
