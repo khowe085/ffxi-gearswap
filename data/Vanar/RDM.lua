@@ -81,7 +81,7 @@ jobsetup(LockStylePallet, MacroBook, MacroSet)
 state.WeaponMode:options('Savage Blade', 'Savage Blade Acc', 'Sanguine Blade', 'Black Halo', 'Black Halo Acc', 'Chant du Cygne', 'Evisceration', 'Aeolian Edge')
 state.WeaponMode:set('Savage Blade')
 
--- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (Alt+F9) cycles OFF and the
+-- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (F11) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
 AutoWS_List = {
 	['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
@@ -96,10 +96,10 @@ state.AutoWS:set('OFF')
 -- not engaged.
 Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic' }
 
--- Auto buff lists, as on BLU. gs c AutoBuff (F11) cycles OFF and Auto, and starts OFF.
+-- Auto buff lists, as on BLU. gs c AutoBuff (F12) cycles OFF and Auto, and starts OFF.
 -- While Auto is on, the engine casts the first buff below that you are missing, on yourself. Temper II
 -- and Gain-STR only help in melee, so they wait until you engage. Each cast wears its midcast set, and
--- those swap weapons, which costs TP while engaged unless the weapon lock (F10) is on.
+-- those swap weapons, which costs TP while engaged unless the weapon lock (Alt+F9) is on.
 AutoBuff_List = {
 	Auto = {
 		{ Name = 'Temper II', Buff = 'Multi Strikes', When = 'Engaged' },

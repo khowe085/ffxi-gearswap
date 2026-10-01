@@ -131,7 +131,7 @@ Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divin
 state.WeaponMode:options('Naegling','Naegling Acc','Tizona','Tizona Acc','Almace','Black Halo')
 state.WeaponMode:set('Naegling')
 
--- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (Alt+F9) cycles OFF and the
+-- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (F11) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
 -- 'AM2' and 'AM3' build that Aftermath level first, then fire at 1000 while it lasts.
 AutoWS_List = {
@@ -143,7 +143,7 @@ AutoWS_List = {
 }
 state.AutoWS:set('OFF')
 
--- Auto buff lists. gs c AutoBuff (F11) cycles OFF and Auto, and starts OFF. While Auto is
+-- Auto buff lists. gs c AutoBuff (F12) cycles OFF and Auto, and starts OFF. While Auto is
 -- on, the engine casts the first buff below that you are missing, on yourself. When is Always, Engaged,
 -- Idle, Combat or OutOfCombat. The engine checks that a spell is learned, not that a blue magic spell is
 -- set, so Erratic Flutter and Nat. Meditation must be in the spell set. Mighty Guard goes through the
