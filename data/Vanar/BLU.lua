@@ -1,0 +1,575 @@
+-- Vanar's Blue Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/BLU.lua).
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar_2026-09-27_18-24-29.lua.
+-- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
+-- damage taken. Hashi. Earring +1 is always in the right ear, the only ear its sword and blue magic
+-- skill bonuses work in.
+-- data/Vanar/Vanar_gear_list.md lists every piece this file and RDM.lua use.
+
+-- Load and initialize the include file.
+include('RahvinGS/GearSets-Include')
+include('RahvinGS/Rahvin-Engine')
+
+-- Vanar's own copies. Library entries cover everything else. Augments are written exactly as
+-- //gs export printed them, so each entry matches only that copy.
+gear.rosmertaDA = hp_gear("Rosmerta's Cape", 0, {
+	augments = { 'DEX+20', 'Accuracy+20 Attack+20', 'Accuracy+10', '"Dbl.Atk."+10', 'Damage taken-5%', } })   -- Acc 30, Att 20, DA 10, DT 5
+gear.rosmertaWSD = hp_gear("Rosmerta's Cape", 0, {
+	augments = { 'STR+20', 'Accuracy+20 Attack+20', 'STR+10', 'Weapon skill damage +10%', } })               -- Acc 20, Att 20, WSD 10
+gear.rosmertaCrit = hp_gear("Rosmerta's Cape", 0, {
+	augments = { 'DEX+20', 'Accuracy+20 Attack+20', 'Crit.hit rate+9', } })                                 -- Acc 20, Att 20, Crit 9
+gear.rosmertaMAB = hp_gear("Rosmerta's Cape", 0, {
+	augments = { 'INT+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', '"Mag.Atk.Bns."+10', } })           -- Macc 30, MAB 10, MDmg 20
+gear.telchineGlovesDuration = hp_gear("Telchine Gloves", 52, {
+	augments = { 'Haste+3', 'Enh. Mag. eff. dur. +10', } })                                                 -- Enhancing duration 10, Cure 10
+gear.cornflower = mp_gear("Cornflower Cape", 29)  -- Macc 15, MAB 15, Blue magic skill 15
+gear.iris = rank_gear("Iris", 100)                -- Blue magic skill 30, Macc 15, MAB 29, Blue magic casting time -7%
+gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0) -- Acc 14, DA 3
+gear.njordr = hp_gear("Njordr Earring", 0)        -- Blue magic skill 10
+gear.honedTathlum = hp_gear("Honed Tathlum", 0)   -- Acc 15
+gear.strendu = hp_gear("Strendu Ring", 0)         -- Macc 2, MAB 4
+gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0) -- Treasure Hunter 1
+-- Two copies of one ring. They are only ever worn as a pair, which keeps GearSwap from pulling
+-- the same copy into both slots. If one ever fails to equip, pin each to the bag it lives in,
+-- for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
+gear.stikini1 = hp_gear("Stikini Ring", 0)        -- Macc 8, all magic skills 5
+gear.stikini2 = hp_gear("Stikini Ring", 0)
+
+-- The in-game lockstyle set, macro book and macro set this file applies on load.
+LockStylePallet = "11"
+MacroBook = "8"
+MacroSet = "1"
+
+-- The food "gs c food" uses.
+Food = "Grape Daifuku"
+
+-- Use a Remedy for paralysis or silence, and a Holy Water for doom, automatically.
+AutoItem = false
+
+-- Pick a random lockstyle from Lockstyle_List on each load, in place of LockStylePallet.
+Random_Lockstyle = false
+
+-- The lockstyle sets the random pick chooses from.
+Lockstyle_List = {1,2,6,12}
+
+-- Offense modes. Each one offered needs a sets.OffenseMode.<Mode> and a sets.Idle.<Mode> below.
+state.OffenseMode:options('TP','ACC','DT')
+
+-- The offense mode the file starts in.
+state.OffenseMode:set('DT')
+
+-- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
+jobsetup (LockStylePallet,MacroBook,MacroSet)
+
+-- Blue magic lists. Each blue spell takes the midcast set of the list that names it. The lists follow what a spell's damage or
+-- effect scales with, since those do not share gear. The engine declares the same lists, and these copies replace them, so edit a list here to move a spell.
+BluePhysical = S { 'Amorphic Spikes', 'Asuran Claws', 'Barbed Crescent', 'Battle Dance',
+    'Benthic Typhoon', 'Bilgestorm', 'Bloodrake', 'Bludgeon', 'Body Slam', 'Cannonball',
+    'Claw Cyclone', 'Death Scissors', 'Delta Thrust', 'Dimensional Death', 'Disseverment',
+    'Empty Thrash', 'Feather Storm', 'Final Sting', 'Foot Kick', 'Frenetic Rip', 'Frypan',
+    'Glutinous Dart', 'Goblin Rush', 'Grand Slam', 'Head Butt', 'Heavy Strike', 'Helldive',
+    'Hydro Shot', 'Hysteric Barrage', 'Jet Stream', 'Mandibular Bite', 'Paralyzing Triad',
+    'Pinecone Bomb', 'Power Attack', 'Quad. Continuum', 'Quadrastrike', 'Queasyshroom',
+    'Ram Charge', 'Saurian Slide', 'Screwdriver', 'Seedspray', 'Sickle Slash', 'Sinker Drill',
+    'Smite of Rage', 'Spinal Cleave', 'Spiral Spin', 'Sprout Smack', 'Sub-zero Smash',
+    'Sudden Lunge', 'Sweeping Gouge', 'Tail Slap', 'Terror Touch', 'Thrashing Assault',
+    'Tourbillion', 'Uppercut', 'Vanity Dive', 'Vertical Cleave', 'Whirl of Rage', 'Wild Oats' }
+BlueBreath = S { 'Bad Breath', 'Flying Hip Press', 'Frost Breath', 'Heat Breath',
+    'Hecatomb Wave', 'Magnetite Cloud', 'Poison Breath', 'Radiant Breath', 'Self-Destruct',
+    'Thunder Breath', 'Vapor Spray', 'Wind Breath' }
+BlueNuke = S { 'Acrid Stream', 'Anvil Lightning', 'Blastbomb', 'Blazing Bound',
+    'Blinding Fulgor', 'Blitzstrahl', 'Bomb Toss', 'Cesspool', 'Charged Whisker',
+    'Crashing Thunder', 'Cursed Sphere', 'Dark Orb', 'Death Ray', 'Diffusion Ray',
+    'Droning Whirlwind', 'Embalming Earth', 'Entomb', 'Evryone. Grudge', 'Eyes On Me',
+    'Firespit', 'Foul Waters', 'Gates of Hades', 'Ice Break', 'Leafstorm', 'Maelstrom',
+    'Magic Hammer', 'Mind Blast', 'Molting Plumage', 'Mysterious Light', 'Nectarous Deluge',
+    'Palling Salvo', 'Polar Roar', 'Rail Cannon', 'Regurgitation', 'Rending Deluge',
+    'Retinal Glare', 'Scouring Spate', 'Searing Tempest', 'Silent Storm', 'Spectral Floe',
+    'Subduction', 'Tearing Gust', 'Tem. Upheaval', 'Temporal Shift', 'Tenebral Crush',
+    'Thermal Pulse', 'Thunderbolt', 'Uproot', 'Water Bomb' }
+BlueSkill = S { 'Atra. Libations', 'Barrier Tusk', 'Diamondhide', 'Magic Barrier',
+    'Metallic Body', 'Occultation', 'Plasma Charge', 'Pyric Bulwark', 'Reactor Cool' }
+BlueBuff = S { 'Amplification', 'Animating Wail', 'Battery Charge', 'Carcharian Verve',
+    'Cocoon', 'Erratic Flutter', 'Exuviation', 'Fantod', 'Feather Barrier', 'Harden Shell',
+    'Memento Mori', 'Mighty Guard', 'Nat. Meditation', 'O. Counterstance', 'Refueling',
+    'Regeneration', 'Saline Coat', 'Triumphant Roar', 'Warm-Up', 'Winds of Promy.',
+    'Zephyr Mantle' }
+BlueHealing = S { 'Healing Breeze', 'Magic Fruit', 'Plenilune Embrace', 'Pollen', 'Restoral',
+    'Wild Carrot' }
+BlueTank = S { 'Actinic Burst', 'Blank Gaze', 'Demoralizing Roar', 'Frightful Roar',
+    'Geist Wall', 'Jettatura', 'Sheep Song', 'Soporific', 'Stinking Gas' }
+BlueACC = S { '1000 Needles', 'Absolute Terror', 'Auroral Drape', 'Awful Eye',
+    'Blistering Roar', 'Blood Drain', 'Blood Saber', 'Chaotic Eye', 'Cimicine Discharge',
+    'Cold Wave', 'Corrosive Ooze', 'Cruel Joke', 'Digest', 'Dream Flower', 'Enervation',
+    'Feather Tickle', 'Filamented Hold', 'Infrasonics', 'Light of Penance', 'Lowing',
+    'MP Drainkiss', 'Mortal Ray', 'Osmosis', 'Reaving Wind', 'Sandspin', 'Sandspray',
+    'Sound Blast', 'Venom Shell', 'Voracious Trunk', 'Yawn' }
+
+-- Weapon modes. Each name needs a matching sets.Weapons entry.
+state.WeaponMode:options('Naegling','Tizona','Almace','Black Halo','Magic')
+state.WeaponMode:set('Naegling')
+
+-- Naming JobMode shows it in chat and on the status box.
+UI_Name = 'Mode'
+
+-- Job mode. self_command_custom below loads the matching blue magic spell set and macro set when you cycle it.
+state.JobMode:options('AoE','Melee')
+state.JobMode:set('Melee')
+
+function get_sets()
+
+	-- Weapon sets, one per weapon mode. Thibron's TP Bonus +1000 backs every weapon skill mode.
+	sets.Weapons = {}
+
+	sets.Weapons['Naegling'] = {	-- Savage Blade
+		main = gear.naegling,
+		sub = gear.thibron,
+	}
+
+	sets.Weapons['Tizona'] = {		-- Expiacion
+		main = gear.tizona,
+		sub = gear.thibron,
+	}
+
+	sets.Weapons['Almace'] = {		-- Chant du Cygne
+		main = gear.almace,
+		sub = gear.thibron,
+	}
+
+	sets.Weapons['Black Halo'] = {	-- Black Halo
+		main = gear.maxentius,
+		sub = gear.thibron,
+	}
+
+	sets.Weapons['Magic'] = {		-- Nukes and AoE: Macc 55, MAB 64, Blue magic skill 30
+		main = gear.bunzi,
+		sub = gear.iris,
+	}
+
+	-- Worn whenever you are not engaged. It is also the floor under every action, so a slot an action's sets leave unnamed keeps its idle piece.
+	sets.Idle = {
+		ammo = gear.impatiens,
+		head = gear.nyameHead,					-- DT 7
+		body = gear.hashishinBodyPlusThree,		-- DT 13, Refresh 4
+		hands = gear.hashishinHandsPlusThree,	-- DT 10
+		legs = gear.hashishinLegsPlusThree,		-- DT 12
+		feet = gear.nyameFeet,					-- DT 7
+		neck = gear.sanctity,					-- Regen 2
+		waist = gear.platinumMoogleBelt,		-- DT 3, HP 10%
+		left_ear = gear.alabaster,				-- DT 5
+		right_ear = gear.etiolation,			-- MDT 3
+		left_ring = gear.murky,					-- DT 10
+		right_ring = gear.ayanmoRing,			-- DT 3
+		back = gear.rosmertaDA,					-- DT 5
+	}	-- DT 75, past the 50 cap so a slot an action leaves unnamed still keeps you capped
+	-- Idle sets for each offense mode, merged over the idle set.
+	sets.Idle.TP = set_combine(sets.Idle, {})
+	sets.Idle.ACC = set_combine(sets.Idle, {})
+	sets.Idle.DT = set_combine(sets.Idle, {})
+
+	-- Worn over the idle set while a Phantom Roll on you stands at 11, for a ring such as Roller's Ring.
+	sets.Idle.XIRoll = {}
+
+	-- Merged over the idle set while you are moving and not engaged.
+	sets.Movement = {
+		legs = gear.carmineLegsPlusOnePathD,	-- Movement speed 18%
+	}
+
+	-- The ring slot Zodiac Ring goes in when an elemental spell matches the day: "right_ring" or "left_ring".
+	Elemental_Bonus_Ring_Slot = "right_ring"
+
+	-- Engaged sets. sets.OffenseMode is worn in every offense mode, and the current mode's set merges over it.
+	sets.OffenseMode = {
+		ammo = gear.coiste,							-- DA 3, STP 3
+		head = gear.hashishinHeadPlusThree,			-- Acc 61, Att 61
+		body = gear.hashishinBodyPlusThree,			-- Acc 64, Att 64, DT 13
+		hands = gear.hashishinHandsPlusThree,		-- Acc 62, Att 62, DT 10
+		legs = gear.hashishinLegsPlusThree,			-- Acc 63, Att 63, DT 12
+		feet = gear.hashishinFeetPlusThree,			-- Acc 60, Att 60
+		neck = gear.mirageStolePlusTwo,				-- Acc 25
+		waist = gear.kentarchPlusOne,				-- Acc 14, DA 3
+		left_ear = gear.brutal,						-- DA 5
+		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, DA 4
+		left_ring = gear.lehkoHabhokaRing,			-- STP 10, Crit 10
+		right_ring = gear.eponas,					-- DA 3, TA 3
+		back = gear.rosmertaDA,						-- Acc 30, Att 20, DA 10, DT 5
+	}	-- Acc 391, Att 330, DT 40
+
+	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {})
+
+	sets.OffenseMode.ACC = set_combine(sets.OffenseMode, {
+		ammo = gear.honedTathlum,					-- Acc 15
+		right_ring = gear.ayanmoRing,				-- Acc 6, DT 3
+	})	-- Acc 412, DT 43
+
+	sets.OffenseMode.DT = set_combine(sets.OffenseMode, {
+		right_ring = gear.murky,					-- DT 10
+	})	-- DT 50
+
+	-- Fast cast, worn at the start of every spell.
+	sets.Precast = {}
+	sets.Precast.FastCast = {
+		ammo = gear.impatiens,				-- Quick Magic 2
+		head = gear.amalricCoifPlusOne,		-- FC 11
+		body = gear.luhlazaBodyPlusOne,		-- FC 7
+		hands = gear.pingaHands,			-- FC 5
+		legs = gear.ayanmoLegsPlusTwo,		-- FC 6
+		waist = gear.witful,				-- FC 3, Quick Magic 3
+		left_ear = gear.loquacious,			-- FC 2
+		right_ear = gear.etiolation,		-- FC 1
+		left_ring = gear.prolix,			-- FC 2
+	}	-- FC 37 and Quick Magic 5. Neck, feet and back keep the idle set's DT pieces.
+
+	-- Merged over the fast-cast set for blue magic.
+	sets.Precast.BlueMagic = set_combine(sets.Precast.FastCast, {
+		body = gear.hashishinBodyPlusThree,	-- Blue magic casting time -16
+	})
+
+	-- Job abilities. sets.JA is worn for every job ability, and the set named for the ability merges over it.
+	sets.JA = set_combine(sets.Idle, {})
+	sets.JA["Azure Lore"] = {
+		hands = gear.luhlazaHandsPlusOne,	-- Enhances Azure Lore
+	}
+
+	-- Dancer abilities from the subjob. Each family set is worn for its abilities, and a child named for the ability merges over it.
+	sets.Flourish = set_combine(sets.Idle.DT, {})
+	sets.Jig = set_combine(sets.Idle.DT, {})
+	sets.Step = set_combine(sets.OffenseMode.ACC, {})
+	sets.Samba = set_combine(sets.Idle.DT, {})
+	sets.Waltz = set_combine(sets.OffenseMode.DT, {
+		body = gear.gletiBody,				-- Waltz potency 10
+	})
+
+	--The base for every cast. sets.Idle is merged underneath it on every midcast, so a slot this set does not name keeps its idle piece.
+	sets.Midcast = set_combine(sets.Idle, {})
+
+	-- Utsusemi from a NIN subjob keeps the idle set's DT.
+	sets.Midcast.Utsusemi = set_combine(sets.Idle, {})
+
+	-- Cure spells from a WHM or RDM subjob.
+	sets.Midcast.Cure = set_combine(sets.Midcast, {
+		hands = gear.telchineGlovesDuration,	-- Cure 10
+		back = gear.solemnityCape,				-- Cure 7, DT 4
+	})
+	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
+
+	-- Enhancing magic, built for duration. Raise, Reraise and the -na spells take it too.
+	sets.Midcast.Enhancing = set_combine(sets.Midcast, {
+		head = gear.telchineCapBEnhDur,			-- Enhancing duration 10
+		hands = gear.telchineGlovesDuration,	-- Enhancing duration 10
+		legs = gear.telchineBraconiBEnhDur,		-- Enhancing duration 10
+	})
+	sets.Midcast.Enhancing.Others = set_combine(sets.Midcast.Enhancing, {})
+	sets.Midcast.Enhancing.Skill = set_combine(sets.Midcast.Enhancing, {})
+	sets.Midcast.Enhancing.Elemental = set_combine(sets.Midcast.Enhancing, {})
+	sets.Midcast.Enhancing.Status = set_combine(sets.Midcast.Enhancing, {})
+	sets.Midcast.Refresh = set_combine(sets.Midcast.Enhancing, {})
+	sets.Midcast.Regen = set_combine(sets.Midcast.Enhancing, {})
+	sets.Midcast.Phalanx = set_combine(sets.Midcast.Enhancing, {})
+
+	-- Blue magic. Each spell takes the one subfamily set its list above names, unless it has a set of its own. The engine never wears sets.Midcast.BlueMagic itself.
+	sets.Midcast.BlueMagic = {}
+
+	-- Physical spells: accuracy and attack. Kavuk +3 adds Chain Affinity and Tayt +3 adds Efflux TP Bonus,
+	-- and all five Hashishin +3 pieces together occasionally augment blue magic.
+	sets.Midcast.BlueMagic.Physical = {
+		ammo = gear.oshashaTreatise,				-- Acc 5, Att 5
+		head = gear.hashishinHeadPlusThree,			-- Acc 61, Att 61
+		body = gear.hashishinBodyPlusThree,			-- Acc 64, Att 64
+		hands = gear.hashishinHandsPlusThree,		-- Acc 62, Att 62
+		legs = gear.hashishinLegsPlusThree,			-- Acc 63, Att 63
+		feet = gear.hashishinFeetPlusThree,			-- Acc 60, Att 60
+		neck = gear.mirageStolePlusTwo,				-- Acc 25
+		waist = gear.eschan,						-- Acc 15, Att 15
+		left_ear = gear.moonshade,					-- Att 4, TP Bonus 250 for Efflux
+		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12
+		left_ring = gear.jhakriRing,				-- Acc 6, Att 6
+		right_ring = gear.ayanmoRing,				-- Acc 6
+		back = gear.rosmertaWSD,					-- Acc 20, Att 20, STR 30
+	}
+
+	-- Magical spells: magic accuracy, magic attack and blue magic skill. Basmak +3 adds Burst Affinity.
+	sets.Midcast.BlueMagic.Nuke = {
+		ammo = gear.pemphredoTathlum,				-- Macc 8, MAB 4
+		head = gear.hashishinHeadPlusThree,			-- Macc 61, MAB 51
+		body = gear.hashishinBodyPlusThree,			-- Macc 64, MAB 54
+		hands = gear.hashishinHandsPlusThree,		-- Macc 62, MAB 57
+		legs = gear.hashishinLegsPlusThree,			-- Macc 63, MAB 53, Blue magic skill 33
+		feet = gear.hashishinFeetPlusThree,			-- Macc 60, MAB 55, Magic burst damage 15
+		neck = gear.mirageStolePlusTwo,				-- Macc 25, Blue magic skill 20
+		waist = gear.eschan,						-- Macc 7, MAB 7
+		left_ear = gear.friomisi,					-- MAB 10
+		right_ear = gear.hashishinEarringPlusOne,	-- Macc 12, Blue magic skill 11
+		left_ring = gear.jhakriRing,				-- Macc 6, MAB 3
+		right_ring = gear.strendu,					-- Macc 2, MAB 4
+		back = gear.rosmertaMAB,					-- Macc 30, MAB 10, MDmg 20
+	}
+
+	-- Debuffs that only need to land: magic accuracy and blue magic skill.
+	sets.Midcast.BlueMagic.ACC = {
+		ammo = gear.pemphredoTathlum,				-- Macc 8
+		head = gear.hashishinHeadPlusThree,			-- Macc 61
+		body = gear.assimilatorBodyPlusFour,		-- Macc 60, Blue magic skill 25
+		hands = gear.hashishinHandsPlusThree,		-- Macc 62
+		legs = gear.hashishinLegsPlusThree,			-- Macc 63, Blue magic skill 33
+		feet = gear.hashishinFeetPlusThree,			-- Macc 60
+		neck = gear.mirageStolePlusTwo,				-- Macc 25, Blue magic skill 20
+		waist = gear.eschan,						-- Macc 7
+		left_ear = gear.njordr,						-- Blue magic skill 10
+		right_ear = gear.hashishinEarringPlusOne,	-- Macc 12, Blue magic skill 11
+		left_ring = gear.stikini1,					-- Macc 8, skill 5
+		right_ring = gear.stikini2,					-- Macc 8, skill 5
+		back = gear.rosmertaMAB,					-- Macc 30
+	}
+
+	-- Spells whose potency scales with blue magic skill, such as Occultation, Magic Barrier and Barrier Tusk.
+	sets.Midcast.BlueMagic.Skill = set_combine(sets.Midcast, {
+		body = gear.assimilatorBodyPlusFour,		-- Blue magic skill 25
+		legs = gear.hashishinLegsPlusThree,			-- Blue magic skill 33
+		feet = gear.luhlazaFeetPlusOne,				-- Blue magic skill 8
+		neck = gear.mirageStolePlusTwo,				-- Blue magic skill 20
+		left_ear = gear.njordr,						-- Blue magic skill 10
+		right_ear = gear.hashishinEarringPlusOne,	-- Blue magic skill 11
+		left_ring = gear.stikini1,					-- Blue magic skill 5
+		right_ring = gear.stikini2,					-- Blue magic skill 5
+		back = gear.cornflower,						-- Blue magic skill 15
+	})
+
+	-- Breath spells scale with your HP, and Bad Breath and Magnetite Cloud still need to land.
+	sets.Midcast.BlueMagic.Breath = set_combine(sets.Midcast.BlueMagic.ACC, {
+		head = gear.nyameHead,						-- HP 91, Macc 40
+		body = gear.nyameBody,						-- HP 136, Macc 40
+		legs = gear.nyameLegs,						-- HP 114, Macc 40
+		feet = gear.nyameFeet,						-- HP 68, Macc 40
+		left_ear = gear.alabaster,					-- HP 100
+	})
+
+	-- Fixed-potency buffs keep the idle set's DT. Enmity spells such as Jettatura and Geist Wall need to land.
+	sets.Midcast.BlueMagic.Buff = set_combine(sets.Midcast, {})
+	sets.Midcast.BlueMagic.Enmity = set_combine(sets.Midcast.BlueMagic.ACC, {})
+	sets.Midcast.BlueMagic.Healing = set_combine(sets.Midcast.BlueMagic.Skill, {
+		hands = gear.telchineGlovesDuration,		-- Cure 10
+		back = gear.solemnityCape,					-- Cure 7
+	})
+
+	-- Magic from a subjob: nukes take the blue nuke set, and enfeebles, dark and divine magic the accuracy set.
+	sets.Midcast.Nuke = set_combine(sets.Midcast.BlueMagic.Nuke, {})
+	sets.Midcast.Burst = set_combine(sets.Midcast.BlueMagic.Nuke, {})
+	sets.Midcast.Enfeebling = set_combine(sets.Midcast.BlueMagic.ACC, {})
+	sets.Midcast.Enfeebling.MACC = set_combine(sets.Midcast.Enfeebling, {})
+	sets.Midcast.Enfeebling.Potency = set_combine(sets.Midcast.Enfeebling, {})
+	sets.Midcast.Enfeebling.Duration = set_combine(sets.Midcast.Enfeebling, {})
+	sets.Midcast.Aspir = set_combine(sets.Midcast.BlueMagic.ACC, {})
+	sets.Midcast.Drain = set_combine(sets.Midcast.BlueMagic.ACC, {})
+	sets.Midcast.Divine = set_combine(sets.Midcast.BlueMagic.ACC, {})
+
+	-- Sets named for one spell. Each replaces the family set for that spell.
+
+	-- White Wind heals floor(MaxHP/7)*2, raised by cure potency, so this is max HP plus cure potency.
+	sets.Midcast["White Wind"] = {
+		ammo = gear.impatiens,
+		head = gear.nyameHead,					-- HP 91
+		body = gear.nyameBody,					-- HP 136
+		hands = gear.telchineGlovesDuration,	-- Cure 10
+		legs = gear.nyameLegs,					-- HP 114
+		feet = gear.nyameFeet,					-- HP 68
+		neck = gear.sanctity,					-- HP 35
+		waist = gear.platinumMoogleBelt,		-- HP 10%
+		left_ear = gear.alabaster,				-- HP 100
+		right_ear = gear.etiolation,			-- HP 50
+		left_ring = gear.murky,
+		right_ring = gear.ayanmoRing,
+		back = gear.solemnityCape,				-- Cure 7
+	}
+
+	sets.Midcast["Stoneskin"] = set_combine(sets.Midcast.Enhancing, {
+		waist = gear.siegel,
+	})
+
+	sets.Midcast["Aquaveil"] = set_combine(sets.Midcast.Enhancing, {
+		head = gear.amalricCoifPlusOne,			-- Aquaveil +2
+	})
+
+	-- Weaponskill base, the weapon skill damage set. Savage Blade, Expiacion and Black Halo wear it as it is.
+	sets.WS = {
+		ammo = gear.oshashaTreatise,				-- WSD 3, Acc 5, Att 5
+		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61
+		body = gear.assimilatorBodyPlusFour,		-- WSD 12, Acc 60
+		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, Acc 43, Att 43
+		legs = gear.luhlazaLegsPlusFour,			-- WSD 12, Acc 50
+		feet = gear.nyameFeet,						-- WSD (Path B), Acc 40, Att 30
+		neck = gear.mirageStolePlusTwo,				-- Acc 25
+		waist = gear.sailfi,
+		left_ear = gear.moonshade,					-- TP Bonus 250
+		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12
+		left_ring = gear.epimanondas,				-- WSD 5
+		right_ring = gear.karieyh,					-- WSD 3, WS Acc 5
+		back = gear.rosmertaWSD,					-- WSD 10, Acc 20, Att 20
+	}
+
+	-- Merged in ACC mode after the set named for the weaponskill, so its slots win. A weaponskill with an ACC set of its own skips it.
+	sets.WS.ACC = {
+		hands = gear.hashishinHandsPlusThree,		-- Acc 62
+		feet = gear.hashishinFeetPlusThree,			-- Acc 60
+		waist = gear.kentarchPlusOne,				-- Acc 14
+	}
+
+	-- MAB is not an offense mode. It is the shared table for the magical weaponskills below.
+	sets.WS.MAB = {
+		ammo = gear.pemphredoTathlum,				-- Macc 8, MAB 4
+		head = gear.hashishinHeadPlusThree,			-- WSD 12, MAB 51
+		body = gear.nyameBody,						-- WSD (Path B), MAB 30
+		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, MAB 40
+		legs = gear.luhlazaLegsPlusFour,			-- WSD 12, MAB 60
+		feet = gear.hashishinFeetPlusThree,			-- MAB 55
+		neck = gear.sanctity,						-- Macc 10, MAB 10
+		waist = gear.eschan,						-- Macc 7, MAB 7
+		left_ear = gear.friomisi,					-- MAB 10
+		right_ear = gear.hashishinEarringPlusOne,	-- Macc 12
+		left_ring = gear.epimanondas,				-- WSD 5
+		right_ring = gear.jhakriRing,				-- Macc 6, MAB 3
+		back = gear.rosmertaMAB,					-- Macc 30, MAB 10, MDmg 20
+	}
+
+	sets.WS['Sanguine Blade'] = set_combine(sets.WS.MAB, {})
+
+	-- These magical weaponskills gain damage with TP, so the TP Bonus earring goes back in.
+	sets.WS['Seraph Blade'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
+	sets.WS['Red Lotus Blade'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
+	sets.WS['Flash Nova'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
+
+	-- Chant du Cygne: critical hit rate, which rises with TP.
+	sets.WS['Chant du Cygne'] = {
+		ammo = gear.coiste,
+		head = gear.gletiHead,						-- Crit 5, Acc 40, Att 40
+		body = gear.gletiBody,						-- Crit 8, Acc 40, Att 40
+		hands = gear.gletiHands,					-- Crit 6, Acc 40, Att 40
+		legs = gear.gletiLegs,						-- Crit 7, Acc 40, Att 40
+		feet = gear.ayanmoFeetPlusTwo,				-- Crit 6, Acc 42
+		neck = gear.fotiaNeck,
+		waist = gear.fotiaWaist,
+		left_ear = gear.moonshade,					-- TP Bonus 250
+		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12
+		left_ring = gear.lehkoHabhokaRing,			-- Crit 10
+		right_ring = gear.eponas,					-- DA 3, TA 3
+		back = gear.rosmertaCrit,					-- Crit 9, Acc 20, Att 20
+	}
+
+	-- Requiescat: five MND hits, so accuracy and multi-attack over weapon skill damage.
+	sets.WS['Requiescat'] = {
+		ammo = gear.coiste,
+		head = gear.hashishinHeadPlusThree,			-- Acc 61
+		body = gear.hashishinBodyPlusThree,			-- Acc 64
+		hands = gear.hashishinHandsPlusThree,		-- Acc 62
+		legs = gear.hashishinLegsPlusThree,			-- Acc 63
+		feet = gear.hashishinFeetPlusThree,			-- Acc 60
+		neck = gear.fotiaNeck,
+		waist = gear.fotiaWaist,
+		left_ear = gear.moonshade,
+		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12
+		left_ring = gear.lehkoHabhokaRing,
+		right_ring = gear.eponas,
+		back = gear.rosmertaDA,						-- Acc 30, DA 10
+	}
+
+	-- Treasure Hunter gear, worn on an action or melee swing against a monster not yet tagged, and throughout a fight in Full Time mode. It is never worn in None mode, where every job but Thief starts.
+	sets.TreasureHunter = {
+		ammo = gear.perfectEgg,		-- TH 1
+		head = gear.whiteRarabCap,	-- TH 1
+		body = gear.volteJupon,		-- TH 2
+		waist = gear.chaac,			-- TH 1
+	}
+
+	-- Merged over the blue magic set while Diffusion is up. A spell with a set of its own above does not take it.
+	sets.Diffusion = {
+		feet = gear.luhlazaFeetPlusOne,	-- Enhances Diffusion
+	}
+
+end
+
+-------------------------------------------------------------------------------------------------------------------
+-- DO NOT EDIT BELOW THIS LINE UNLESS YOU NEED TO MAKE JOB SPECIFIC RULES
+-------------------------------------------------------------------------------------------------------------------
+
+-- Called when the player's subjob changes.
+function sub_job_change_custom(new, old)
+	-- A common use is switching the macro book or set.
+end
+
+-- Called before each action, after the engine's own checks. Cancel the action here with cancel_spell(). Nothing it returns is used.
+function pretarget_custom(spell,action)
+
+end
+-- Gear returned here merges over the engine's precast set for the action.
+function precast_custom(spell)
+	local equipSet = {}
+
+	return equipSet
+end
+-- Gear returned here merges over the engine's midcast set for the action.
+function midcast_custom(spell)
+	local equipSet = {}
+
+	return equipSet
+end
+-- Gear returned here merges over the idle or engaged set worn when an action ends.
+function aftercast_custom(spell)
+	local equipSet = {}
+
+	return equipSet
+end
+-- Called when a buff is gained or lost, except while an action is in flight. Gear returned here merges over the idle or engaged set.
+function buff_change_custom(name,gain)
+	local equipSet = {}
+
+	return equipSet
+end
+-- Gear returned here merges over every idle and engaged build: after each action, on a buff, status or mode change, and when you start or stop moving.
+function choose_set_custom()
+	local equipSet = {}
+
+	return equipSet
+end
+-- Called when your status changes, such as engaging, disengaging or resting. Gear returned here merges over the idle or engaged set that follows.
+function status_change_custom(new,old)
+	local equipSet = {}
+
+	return equipSet
+end
+-- Called for a "gs c" command the engine does not handle itself, and for the weapon mode, job mode and job mode 2 commands, which call it before the gear rebuild. The command arrives in lowercase.
+-- Here, a job mode change, by key, by gs c jobmode or by gs c jobmode AoE, loads the matching AzureSets spell set, magic for AoE and tp for Melee, and switches the macro set to match.
+-- Testing the first word keeps jobmode2 and other commands that merely contain jobmode from triggering it.
+function self_command_custom(command)
+	if command:match('^(%S+)') == 'jobmode' then
+		if state.JobMode.value == 'AoE' then
+			send_command('input //aset spellset magic;input /macro book '..MacroBook..';wait .1; input /macro set 2')
+		else
+			send_command('input //aset spellset tp;input /macro book '..MacroBook..';wait .1; input /macro set 1')
+		end
+	end
+end
+
+-- Called when the job file unloads, after the engine has released its keys and held slots.
+function user_file_unload()
+
+end
+
+-- Called when a pet is summoned or lost. Gear returned here merges over the idle or engaged set.
+function pet_change_custom(pet,gain)
+	local equipSet = {}
+
+	return equipSet
+end
+
+-- Called when a pet's action ends. Gear returned here merges over the idle or engaged set.
+function pet_aftercast_custom(spell)
+	local equipSet = {}
+
+	return equipSet
+end
+
+-- Called while a pet's action is in flight. Gear returned here merges over sets.Pet_Midcast and the set named for the action.
+function pet_midcast_custom(spell)
+	local equipSet = {}
+
+	return equipSet
+end
