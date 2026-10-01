@@ -73,6 +73,16 @@ jobsetup(LockStylePallet, MacroBook, MacroSet)
 state.WeaponMode:options('Savage Blade', 'Sanguine Blade', 'Black Halo', 'Chant du Cygne', 'Evisceration', 'Aeolian Edge', 'Magic')
 state.WeaponMode:set('Savage Blade')
 
+-- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (Alt+F9) cycles OFF and the
+-- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
+-- Savage Blade fires at 1000 with Thibron's TP Bonus, and at 1750 when a subjob without Dual Wield
+-- puts Ammurapi Shield in Thibron's place.
+AutoWS_List = {
+	['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
+	['Black Halo'] = { { 'Black Halo', 1000 } },
+	['Aeolian Edge'] = { { 'Aeolian Edge', 1000 } },
+}
+
 function get_sets()
 	-- ===================================================================================================================
 	--		sets.Weapons

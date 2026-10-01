@@ -122,6 +122,15 @@ BlueACC = S { '1000 Needles', 'Absolute Terror', 'Auroral Drape', 'Awful Eye',
 state.WeaponMode:options('Naegling','Tizona','Almace','Black Halo','Magic')
 state.WeaponMode:set('Naegling')
 
+-- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (Alt+F9) cycles OFF and the
+-- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
+-- 'AM2' and 'AM3' build that Aftermath level first, then fire at 1000 while it lasts.
+AutoWS_List = {
+	['Naegling'] = { { 'Savage Blade', 1000 } },
+	['Tizona'] = { { 'Expiacion', 1000 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
+	['Almace'] = { { 'Chant du Cygne', 1000 } },
+}
+
 -- Naming JobMode shows it in chat and on the status box.
 UI_Name = 'Mode'
 
