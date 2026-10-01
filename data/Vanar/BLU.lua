@@ -72,6 +72,10 @@ state.OffenseMode:options('TP','ACC','DT')
 -- The offense mode the file starts in.
 state.OffenseMode:set('TP')
 
+-- The spells that wear sets.TreasureHunter against an untagged monster. A spell off this list keeps its own
+-- midcast set and does not count as tagging. Delete the line to let every spell tag.
+TH_Spells = S { 'Glutinous Dart' }
+
 -- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
 jobsetup (LockStylePallet,MacroBook,MacroSet)
 
@@ -611,7 +615,7 @@ function get_sets()
 		back = gear.rosmertaDA,						-- Acc 30, DA 10
 	}
 
-	-- Treasure Hunter gear, worn on an action or melee swing against a monster not yet tagged, and throughout a fight in Full Time mode. TH Mode starts in Tag, Alt+F11 cycles it, and None turns it off.
+	-- Treasure Hunter gear, worn on an action or melee swing against a monster not yet tagged, and throughout a fight in Full Time mode. Spells only wear it when TH_Spells lists them. TH Mode starts in Tag, Alt+F11 cycles it, and None turns it off.
 	sets.TreasureHunter = {
 		ammo = gear.perfectEgg,		-- TH 1
 		head = gear.whiteRarabCap,	-- TH 1
