@@ -2118,6 +2118,30 @@ describe("Core", function()
 		end)
 	end)
 
+	describe("gs org", function()
+		-- GearSwap offers an unknown gs command to each registered handler until one claims it.
+		local function command(...)
+			for _, handler in ipairs(gs.unhandled_commands) do
+				if handler(...) then
+					return true
+				end
+			end
+			return false
+		end
+
+		it("hands gs org to the Organizer library, as Sel's files did", function()
+			assert.is_true(command("org"))
+			assert.are.same(
+				{ "Organizer Library: The organizer addon is not installed. Activate it in the launcher." },
+				gs.chat
+			)
+		end)
+
+		it("leaves other unknown commands alone", function()
+			assert.is_false(command("foo"))
+		end)
+	end)
+
 	describe("job change", function()
 		it("calls job_post_job_change on the first tick after loading, and again when the sub job changes", function()
 			local calls = 0

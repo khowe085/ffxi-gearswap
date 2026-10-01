@@ -123,6 +123,8 @@ function gearswap_env.new()
 		spell_recasts = {},
 		disabled = {},
 		blocked = {},
+		unhandled_commands = {},
+		dirs = {},
 	}, gearswap_env)
 	current = gs
 
@@ -186,6 +188,13 @@ function gearswap_env.new()
 		register_event = function(name, handler)
 			gs.events[name] = gs.events[name] or {}
 			table.insert(gs.events[name], handler)
+		end,
+		windower_path = "Windower/",
+		dir_exists = function(path)
+			return gs.dirs[path] == true
+		end,
+		add_to_chat = function(_, text)
+			gs.chat[#gs.chat + 1] = text
 		end,
 	}
 	env.windower.raw_register_event = env.windower.register_event
@@ -273,6 +282,22 @@ function gearswap_env.new()
 	end
 	env.send_command = function(command)
 		gs.commands[#gs.commands + 1] = command
+	end
+	-- GearSwap hands a gs command it doesn't know to each of these until one returns true.
+	env.register_unhandled_command = function(handler)
+		gs.unhandled_commands[#gs.unhandled_commands + 1] = handler
+	end
+	-- Windower's set constructor, as far as the libraries here use it.
+	env.S = function(list)
+		local members = {}
+		for _, value in ipairs(list) do
+			members[value] = true
+		end
+		return {
+			contains = function(_, value)
+				return members[value] == true
+			end,
+		}
 	end
 	env.add_to_chat = function(_, text)
 		gs.chat[#gs.chat + 1] = text

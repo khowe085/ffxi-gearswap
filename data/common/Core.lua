@@ -2,6 +2,8 @@
 -- Selindrile's Sel-Include.lua. Job files include it before defining their sets: see data/Template.lua.
 
 include("Modes.lua")
+-- gs org, as in Sel-Include: the Organizer addon gathers every piece in sets (plus organizer_items).
+include("organizer-lib.lua")
 
 state = {
 	CastingMode = M({ ["description"] = "Casting Mode", "Normal" }),

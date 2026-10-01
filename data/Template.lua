@@ -99,6 +99,10 @@ function get_sets()
 	-- 	},
 	-- }
 
+	-- gs org (the Organizer library, as in Sel's files) has the Organizer addon move every piece in
+	-- your sets into your inventory and wardrobes. Anything else to bring along goes in organizer_items:
+	-- organizer_items = { echos = "Echo Drops", food = "Grape Daifuku" }
+
 	-- Auto TH (on by default; gs c cycle AutoTHMode picks the action, then Off): the selected spell or
 	-- ability gets sets.TreasureHunter on top, at precast for abilities and midcast for spells.
 	-- autoth_list = { "Provoke", "Dia II" }
