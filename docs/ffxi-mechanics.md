@@ -110,6 +110,7 @@ Accuracy from combat skill (bg-wiki, as pasted by the player):
   - Temper II's triple attack % is floor((skill − 300) ÷ 10). The Temper II page lists 40% at 700 skill.
 - Stoneskin depends on skill and MND; see Potency.
 - RDM enhancing skill without gear is 404 at level 99, 420 with the job point skill category and 456 at job mastery. The job point gifts add +5, +8 and +10 at 80, 405 and 980 job points spent.
+- **(player)** A RDM 99 at Master Level 24 has 480 enhancing skill without gear, 24 more than bg-wiki's job mastery figure.
 - Skill on gear shows as "Enhancing magic skill +X" or "All magic skills +X". Weapons and shields carry it too: Pukulatmuj +1 +11, Forfend +1 Path A +10 at max rank, Secespita +10 and Gada +18.
 - A subjob's enhancing skill is far below 500, so on another job, skill still raises potency.
 - Potency is set when the spell lands, so skill gear goes in the midcast set.

@@ -335,12 +335,12 @@ function get_sets()
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
 
 	-- Enhancing magic. Most enhancing spells stop gaining from skill at 500 (bg-wiki, Category:Enhancing
-	-- Magic), and this set already gives 520: 456 at job mastery, plus Vitiation Tabard +4, Lethargy
-	-- Houseaux +3 and Ghostfyre Cape. So it is built for duration first and recast second. Durations an
-	-- item lists natively add together, augmented durations (Telchine, Dls. Torque +1 Path A, Ghostfyre
-	-- Cape) add together, and the two totals multiply, so Ghostfyre's augmented 20% beats a Sucellos's
-	-- Cape's native 20%. Recast falls with gear haste, which caps at 26%, and with half of fast cast, so
-	-- 2 fast cast count as 1 haste. Every enhancing spell starts from this set.
+	-- Magic), and this set already gives 544: 480 without gear at RDM 99 and Master Level 24, plus
+	-- Vitiation Tabard +4, Lethargy Houseaux +3 and Ghostfyre Cape. So it is built for duration first and
+	-- recast second. Durations an item lists natively add together, augmented durations (Telchine, Dls.
+	-- Torque +1 Path A, Ghostfyre Cape) add together, and the two totals multiply, so Ghostfyre's augmented
+	-- 20% beats a Sucellos's Cape's native 20%. Recast falls with gear haste, which caps at 26%, and with
+	-- half of fast cast, so 2 fast cast count as 1 haste. Every enhancing spell starts from this set.
 	sets.Midcast.Enhancing = set_combine(sets.Midcast, {
 		sub = gear.ammurapi,					-- 10%
 		head = gear.telchineCapBEnhDur,			-- augment 10%, Haste 6
@@ -385,7 +385,7 @@ function get_sets()
 		left_ring = gear.stikini1,				-- Enhancing skill 5
 		right_ring = gear.stikini2,				-- Enhancing skill 5
 		back = gear.fiFolletPlusOne,			-- Enhancing skill 9
-	})	-- Enhancing skill 629. Temper II's triple attack is (skill - 300) / 10, 32% here, up to 40% at 700.
+	})	-- Enhancing skill 653. Temper II's triple attack is (skill - 300) / 10, 35% here, up to 40% at 700.
 
 	-- Gain spells. Their potency from skill caps at 500, and Vitiation Gloves +4 add to it.
 	sets.Midcast.Enhancing.Gain = set_combine(sets.Midcast.Enhancing, {
@@ -412,17 +412,18 @@ function get_sets()
 		legs = gear.lethargyLegsPlusThree,		-- Refresh potency +4
 	}
 
-	-- Phalanx stops gaining at 500 skill. On someone else the Others set's Lethargy Sayon +3 takes the
-	-- Vitiation Tabard's 24 skill away, leaving 496, so the Stikini Rings bring it to 506.
+	-- Phalanx stops gaining at 500 skill. The enhancing set gives 544, and 520 on someone else, where the
+	-- Others set's Lethargy Sayon +3 takes the Vitiation Tabard's 24 skill away, so Phalanx needs nothing
+	-- of its own. The engine warns on every cast when the set it reaches for is empty, so this names the
+	-- ring the enhancing set already wears.
 	sets.Midcast.Phalanx = {
-		left_ring = gear.stikini1,				-- Enhancing skill 5
-		right_ring = gear.stikini2,				-- Enhancing skill 5
+		right_ring = gear.prolix,				-- Fast Cast 2
 	}
 
 	-- Sets named for one spell. Such a set takes the place of the spell's family set, which is why
 	-- these start from the family set with set_combine.
-	-- Stoneskin absorbs enhancing skill + 3 x MND - 190, up to 350, so this set's 520 skill caps it at MND
-	-- 7. Stoneskin+ gear goes past that cap, up to 475. Siegel Sash only has to be worn during the cast.
+	-- Stoneskin absorbs enhancing skill + 3 x MND - 190, up to 350, so this set's 544 skill caps it on its
+	-- own. Stoneskin+ gear goes past that cap, up to 475. Siegel Sash only has to be worn during the cast.
 	sets.Midcast["Stoneskin"] = set_combine(sets.Midcast.Enhancing, {
 		neck = gear.nodens,		-- Stoneskin +30
 		waist = gear.siegel,	-- Stoneskin +20
