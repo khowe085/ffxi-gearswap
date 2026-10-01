@@ -2,7 +2,9 @@
 -- Every piece named here comes from Vanar's //gs export, data/export/Vanar_2026-09-27_18-24-29.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Hashi. Earring +1 is always in the right ear, the only ear its sword and blue magic
--- skill bonuses work in.
+-- skill bonuses work in. At Master Level 25 sword skill is past 600, where each point adds 0.9 accuracy
+-- and 1 attack, so Hashishin Kavuk +3's Sword skill 30 is worth about Acc 27 and Att 30, and Hashi.
+-- Earring +1's Sword skill 11 about Acc 10 and Att 11.
 -- data/Vanar/Vanar_gear_list.md lists every piece this file and RDM.lua use.
 
 -- Load and initialize the include file.
@@ -180,7 +182,7 @@ function get_sets()
 	-- Engaged sets. sets.OffenseMode is worn in every offense mode, and the current mode's set merges over it.
 	sets.OffenseMode = {
 		ammo = gear.coiste,							-- DA 3, STP 3
-		head = gear.hashishinHeadPlusThree,			-- Acc 61, Att 61
+		head = gear.hashishinHeadPlusThree,			-- Acc 61, Att 61, Sword skill 30
 		body = gear.hashishinBodyPlusThree,			-- Acc 64, Att 64, DT 13
 		hands = gear.hashishinHandsPlusThree,		-- Acc 62, Att 62, DT 10
 		legs = gear.hashishinLegsPlusThree,			-- Acc 63, Att 63, DT 12
@@ -188,7 +190,7 @@ function get_sets()
 		neck = gear.mirageStolePlusTwo,				-- Acc 25
 		waist = gear.kentarchPlusOne,				-- Acc 14, DA 3
 		left_ear = gear.brutal,						-- DA 5
-		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, DA 4
+		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, DA 4, Sword skill 11
 		left_ring = gear.lehkoHabhokaRing,			-- STP 10, Crit 10
 		right_ring = gear.eponas,					-- DA 3, TA 3
 		back = gear.rosmertaDA,						-- Acc 30, Att 20, DA 10, DT 5
@@ -393,7 +395,7 @@ function get_sets()
 	-- Earring +1 for Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at rank 20.
 	sets.WS = {
 		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
-		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61
+		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61, Sword skill 30
 		body = gear.nyameBody,						-- WSD 13, DA 7, Acc 40, Att 65
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, Acc 43, Att 43
 		legs = gear.nyameLegs,						-- WSD 12, DA 6, Acc 40, Att 65
@@ -401,7 +403,7 @@ function get_sets()
 		neck = gear.mirageStolePlusTwo,				-- STR 25, DEX 25 (Path A), Acc 25
 		waist = gear.sailfi,
 		left_ear = gear.moonshade,					-- TP Bonus 250
-		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12
+		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, Sword skill 11
 		left_ring = gear.epimanondas,				-- WSD 5
 		right_ring = gear.karieyh,					-- WSD 3, WS Acc 5
 		back = gear.rosmertaWSD,					-- WSD 10, Acc 20, Att 20
@@ -446,10 +448,12 @@ function get_sets()
 	end
 
 	-- Chant du Cygne: DEX and critical hit rate, which rises with TP. It follows bg-wiki's set, with Lehko's
-	-- Ring for Begrudging Ring and Hashi. Earring +1 for Hoxne Earring.
+	-- Ring for Begrudging Ring and Hashi. Earring +1 for Hoxne Earring. The head is Hashishin Kavuk +3, not
+	-- Adhemar Bonnet: with its sword skill it adds about Acc 88, Att 91 and WSD 12 (first hit), where the
+	-- Bonnet adds Att 41, TA 3 and Crit damage 5.
 	sets.WS['Chant du Cygne'] = {
 		ammo = gear.coiste,
-		head = gear.adhemarHeadPathB,				-- Crit damage 5, TA 3, Att 41
+		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61, Sword skill 30
 		body = gear.gletiBody,						-- Crit 8, Acc 40, Att 40
 		hands = gear.gletiHands,					-- Crit 6, Acc 40, Att 40
 		legs = gear.gletiLegs,						-- Crit 7, Acc 40, Att 40
@@ -457,7 +461,7 @@ function get_sets()
 		neck = gear.mirageStolePlusTwo,				-- DEX 25, Crit 5 (Path A), Acc 25
 		waist = gear.fotiaWaist,
 		left_ear = gear.moonshade,					-- TP Bonus 250
-		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12
+		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, Sword skill 11
 		left_ring = gear.lehkoHabhokaRing,			-- Crit 10
 		right_ring = gear.eponas,					-- DA 3, TA 3
 		back = gear.rosmertaCrit,					-- Crit 9, Acc 20, Att 20
@@ -466,7 +470,7 @@ function get_sets()
 	-- Requiescat: five MND hits, so accuracy and multi-attack over weapon skill damage.
 	sets.WS['Requiescat'] = {
 		ammo = gear.coiste,
-		head = gear.hashishinHeadPlusThree,			-- Acc 61
+		head = gear.hashishinHeadPlusThree,			-- Acc 61, Sword skill 30
 		body = gear.hashishinBodyPlusThree,			-- Acc 64
 		hands = gear.hashishinHandsPlusThree,		-- Acc 62
 		legs = gear.hashishinLegsPlusThree,			-- Acc 63
@@ -474,7 +478,7 @@ function get_sets()
 		neck = gear.fotiaNeck,
 		waist = gear.fotiaWaist,
 		left_ear = gear.moonshade,
-		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12
+		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, Sword skill 11
 		left_ring = gear.lehkoHabhokaRing,
 		right_ring = gear.eponas,
 		back = gear.rosmertaDA,						-- Acc 30, DA 10

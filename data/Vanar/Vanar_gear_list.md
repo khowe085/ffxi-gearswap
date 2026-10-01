@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **110 pieces** (76 for BLU, 76 for RDM, 42 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **109 pieces** (75 for BLU, 76 for RDM, 42 worn by both). Where Vanar owns more than one copy, the augments say which copy to carry.
 
 
 ## Weapons (11)
@@ -28,11 +28,10 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Pemphredo Tathlum |  | BLU, RDM |
 | Per. Lucky Egg |  | BLU |
 
-## Head (9)
+## Head (8)
 
 | Item | Copy | Jobs |
 |---|---|---|
-| Adhemar Bonnet |  | BLU |
 | Amalric Coif +1 |  | BLU, RDM |
 | Atro. Chapeau +4 |  | RDM |
 | Hashishin Kavuk +3 |  | BLU |
