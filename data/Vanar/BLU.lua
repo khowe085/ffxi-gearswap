@@ -46,6 +46,8 @@ gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
 	augments = { 'Path: A', } })                                                                            -- Enhancing skill 9
 gear.chelonaBoots = mp_gear("Chelona Boots", 35)         -- Fast Cast 4
 gear.swithCape = hp_gear("Swith Cape", -20)              -- Fast Cast 3
+gear.coladaRefresh = rank_gear("Colada", 100, {
+	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } })                        -- Refresh 2
 
 -- The in-game lockstyle set, macro book and macro set this file applies on load.
 LockStylePallet = "11"
@@ -117,8 +119,12 @@ BlueACC = S { '1000 Needles', 'Absolute Terror', 'Auroral Drape', 'Awful Eye',
     'MP Drainkiss', 'Mortal Ray', 'Osmosis', 'Reaving Wind', 'Sandspin', 'Sandspray',
     'Sound Blast', 'Venom Shell', 'Voracious Trunk', 'Yawn' }
 
+-- The magic skills from a subjob that midcast_custom casts in sets.Weapons.Casting when you are not
+-- engaged. It does the same for the blue magic in BlueNuke, BlueACC, BlueTank, BlueBreath and BlueHealing.
+Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic', 'Healing Magic' }
+
 -- Weapon modes. Each name needs a matching sets.Weapons entry.
-state.WeaponMode:options('Naegling','Naegling Acc','Tizona','Tizona Acc','Almace','Black Halo','Magic')
+state.WeaponMode:options('Naegling','Naegling Acc','Tizona','Tizona Acc','Almace','Black Halo')
 state.WeaponMode:set('Naegling')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (Alt+F9) cycles OFF and the
@@ -178,7 +184,8 @@ state.JobMode:set('Melee')
 function get_sets()
 
 	-- Weapon sets, one per weapon mode. Thibron's TP Bonus +1000 backs every weapon skill mode, and the Acc
-	-- modes trade it for Almace in the offhand, for more accuracy.
+	-- modes trade it for Almace in the offhand, for more accuracy. They are worn only while engaged. Out of
+	-- combat choose_set_custom swaps in sets.Weapons.Idle, which costs whatever TP is left when you disengage.
 	sets.Weapons = {}
 
 	sets.Weapons['Naegling'] = {	-- Savage Blade
@@ -211,9 +218,16 @@ function get_sets()
 		sub = gear.thibron,
 	}
 
-	sets.Weapons['Magic'] = {		-- Nukes and AoE: Macc 80, MAB 56
-		main = gear.bunzi,
-		sub = gear.maxentius,
+	-- Worn whenever you are not engaged, in every weapon mode. choose_set_custom puts it on. Archduke's
+	-- Shield is not a BLU item, so the offhand stays the weapon mode's.
+	sets.Weapons.Idle = {
+		main = gear.coladaRefresh,		-- Refresh 2
+	}
+
+	-- Worn for the casts midcast_custom names while you are not engaged.
+	sets.Weapons.Casting = {
+		main = gear.bunzi,				-- Macc 40, MAB 35, Cure 30
+		sub = gear.maxentius,			-- Macc 40, MAB 21
 	}
 
 	-- Worn whenever you are not engaged. It is also the floor under every action, so a slot an action's sets leave unnamed keeps its idle piece.
@@ -231,7 +245,7 @@ function get_sets()
 		left_ring = gear.karieyh,				-- Regain 5
 		right_ring = gear.ayanmoRing,			-- DT 3
 		back = gear.rosmertaDA,					-- DT 5
-	}	-- DT 51. Damage taken caps at 50%, so the slots past the cap carry Regen, Regain, Refresh and HP instead.
+	}	-- DT 51, Refresh 4, and 6 with sets.Weapons.Idle. Damage taken caps at 50%, so the slots past the cap carry Regen, Regain, Refresh and HP instead.
 	-- Idle sets for each offense mode, merged over the idle set.
 	sets.Idle.TP = set_combine(sets.Idle, {})
 	sets.Idle.ACC = set_combine(sets.Idle, {})
@@ -333,7 +347,7 @@ function get_sets()
 	-- Utsusemi from a NIN subjob keeps the idle set's DT.
 	sets.Midcast.Utsusemi = set_combine(sets.Idle, {})
 
-	-- Cure spells from a WHM or RDM subjob.
+	-- Cure spells from a WHM or RDM subjob. Cast while not engaged, sets.Weapons.Casting adds Cure 30.
 	sets.Midcast.Cure = set_combine(sets.Midcast, {
 		hands = gear.telchineGlovesDuration,	-- Cure 10
 		back = gear.solemnityCape,				-- Cure 7, DT 4
@@ -462,7 +476,7 @@ function get_sets()
 	sets.Midcast.BlueMagic.Healing = set_combine(sets.Midcast.BlueMagic.Skill, {
 		hands = gear.telchineGlovesDuration,		-- Cure 10
 		back = gear.solemnityCape,					-- Cure 7
-	})
+	})	-- Cure 17, and 47 with sets.Weapons.Casting (cap 50)
 
 	-- Magic from a subjob: nukes take the blue nuke set, and enfeebles, dark and divine magic the accuracy set.
 	sets.Midcast.Nuke = set_combine(sets.Midcast.BlueMagic.Nuke, {})
@@ -694,7 +708,16 @@ end
 -- Gear returned here merges over the engine's midcast set for the action.
 function midcast_custom(spell)
 	local equipSet = {}
-
+	-- The casting weapons for magic that has to land or heals, cast while not engaged. Engaged casts keep
+	-- the weapon mode's weapons, since new weapons reset TP. After the cast, choose_set_custom puts the
+	-- idle weapons back on.
+	if player.status ~= 'Engaged' then
+		local name = spell.english
+		if Casting_Skills:contains(spell.skill) or BlueNuke:contains(name) or BlueACC:contains(name)
+			or BlueTank:contains(name) or BlueBreath:contains(name) or BlueHealing:contains(name) then
+			equipSet = sets.Weapons.Casting
+		end
+	end
 	return equipSet
 end
 -- Gear returned here merges over the idle or engaged set worn when an action ends.
@@ -712,7 +735,10 @@ end
 -- Gear returned here merges over every idle and engaged build: after each action, on a buff, status or mode change, and when you start or stop moving.
 function choose_set_custom()
 	local equipSet = {}
-
+	-- The refresh weapon whenever you are not engaged. The engine builds the idle set on the same test.
+	if player.status ~= 'Engaged' then
+		equipSet = sets.Weapons.Idle
+	end
 	return equipSet
 end
 -- Called when your status changes, such as engaging, disengaging or resting. Gear returned here merges over the idle or engaged set that follows.
