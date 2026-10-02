@@ -90,7 +90,8 @@ BlueACC = S { '1000 Needles', 'Absolute Terror', 'Auroral Drape', 'Awful Eye',
     'Sound Blast', 'Venom Shell', 'Voracious Trunk', 'Yawn' }
 
 -- The magic skills from a subjob that midcast_custom casts in sets.Weapons.Casting when you are not
--- engaged. It does the same for the blue magic in BlueNuke, BlueACC, BlueTank, BlueBreath and BlueHealing.
+-- engaged and the weapon lock is Unlocked. It does the same for the blue magic in BlueNuke, BlueACC,
+-- BlueTank, BlueBreath and BlueHealing.
 Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic', 'Healing Magic' }
 
 -- The subjob spells named like a family set that holds only the slots it changes: sets.Midcast.Refresh
@@ -100,6 +101,9 @@ Family_Set_Spells = S { 'Refresh', 'Regen' }
 -- Weapon modes. Each name needs a matching sets.Weapons entry.
 state.WeaponMode:options('Tizona','Tizona Acc','Black Halo','Black Halo Acc','Naegling','Naegling Acc','Almace')
 state.WeaponMode:set('Tizona')
+-- Weapon lock at load. 'Locked' always holds the weapon mode's weapons, 'Unlocked' holds them only while engaged.
+-- While Locked, sets.Weapons.Idle and sets.Weapons.Casting never go on. Alt+F9 toggles it.
+state.WeaponLock:set('Locked')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (F11) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
@@ -200,9 +204,9 @@ state.JobMode:set('Melee')
 function get_sets()
 
 	-- Weapon sets, one per weapon mode. Thibron's TP Bonus +1000 backs every weapon skill mode, and the Acc
-	-- modes trade it for a more accurate offhand: Almace, or Bunzi's Rod for Black Halo. They are worn only
-	-- while engaged. Out of combat choose_set_custom swaps in sets.Weapons.Idle, which costs whatever TP is
-	-- left when you disengage.
+	-- modes trade it for a more accurate offhand: Almace, or Bunzi's Rod for Black Halo. With the weapon lock
+	-- Locked, as this file loads, they are worn at all times. Unlocked, they are worn while engaged, and out of
+	-- combat choose_set_custom swaps in sets.Weapons.Idle, which costs whatever TP is left when you disengage.
 	sets.Weapons = {}
 
 	sets.Weapons['Tizona'] = {		-- Expiacion
