@@ -213,14 +213,14 @@ function get_sets()
 		hands = gear.lethargyHandsPlusThree,	-- DT 11
 		legs = gear.lethargyLegsPlusThree,		-- Magic evasion 162
 		feet = gear.vitiationFeetPlusFour,		-- Magic evasion 167
-		neck = gear.sanctity,					-- Regen 2
+		neck = gear.sibylScarf,					-- Refresh 1 for a citizen of Windurst
 		waist = gear.platinumMoogleBelt,		-- DT 3, HP 10%
 		left_ear = gear.alabaster,				-- DT 5, HP 100
 		right_ear = gear.etiolation,			-- HP 50, MP 50
 		left_ring = gear.murky,					-- DT 10
 		right_ring = gear.ayanmoRing,			-- DT 3
 		back = gear.sucellosDA,					-- DT 5
-	}	-- DT 51, Refresh 7, and 10 with sets.Weapons.Idle. Damage taken caps at 50%, so the slots past the cap carry Refresh, Regen and magic evasion instead.
+	}	-- DT 51, Refresh 8, and 11 with sets.Weapons.Idle. Damage taken caps at 50%, so the slots past the cap carry Refresh and magic evasion instead.
 	sets.Idle.TP = set_combine(sets.Idle, {})
 	sets.Idle.ACC = set_combine(sets.Idle, {})
 	sets.Idle.DT = set_combine(sets.Idle, {})

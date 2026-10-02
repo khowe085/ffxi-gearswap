@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **127 pieces** (90 for BLU, 95 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **128 pieces** (90 for BLU, 96 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (14)
@@ -45,7 +45,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Viti. Chapeau +4 |  |  | `Idle`, `Midcast.Enfeebling.Potency`, `WS` |
 | Wh. Rarab Cap +1 |  | `TreasureHunter` | `TreasureHunter` |
 
-## Neck (9)
+## Neck (10)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
@@ -57,7 +57,8 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Mizu. Kubikazari |  |  | `Midcast.Burst` |
 | Nodens Gorget |  |  | `Midcast['Stoneskin']` |
 | Rep. Plat. Medal |  |  | `WS` |
-| Sanctity Necklace |  | `Idle`, `Midcast['White Wind']`, `WS.MAB` | `Idle`, `OffenseMode`, `Midcast.Nuke`, `WS.ACC`, `WS.MAB` |
+| Sanctity Necklace |  | `Idle`, `Midcast['White Wind']`, `WS.MAB` | `OffenseMode`, `Midcast.Nuke`, `WS.ACC`, `WS.MAB` |
+| Sibyl Scarf |  |  | `Idle` |
 
 ## Earrings (13)
 
