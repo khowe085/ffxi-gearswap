@@ -123,7 +123,7 @@ AutoBuff_List = {
 		--{ Name = 'Refresh', Buff = 'Refresh', When = 'Idle' },
 		{ Name = 'Nat. Meditation', Buff = 'Attack Boost', When = 'Engaged' },
 		{ Name = 'Mighty Guard', Buff = 'Mighty Guard', When = 'Combat' },
-		{ Name = 'Cocoon', Buff = 'Defense Boost', When = 'Combat' },
+		{ Name = 'Cocoon', Buff = 'Defense Boost', When = 'Engaged' },
 	},
 }
 
