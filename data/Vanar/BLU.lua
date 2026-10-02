@@ -304,7 +304,10 @@ function get_sets()
 		back = gear.rosmertaDA,						-- Acc 30, Att 20, DA 10, DT 5
 	}	-- Acc 371, Att 325, DT 47
 
-	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {})
+	-- Sailfi Belt +1 trades Kentarch Belt +1's Acc 14 for multi-attack and Attack. ACC and DT keep Kentarch.
+	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {
+		waist = gear.sailfi,						-- TA 2, DA 5, STR 15 (Path A), Att 10-15 (Unity)
+	})	-- Acc 357, Att 335-340, DT 47
 
 	sets.OffenseMode.ACC = set_combine(sets.OffenseMode, {
 		ammo = gear.honedTathlum,					-- Acc 15

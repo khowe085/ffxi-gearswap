@@ -160,7 +160,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Obstin. Sash |  |  | `Midcast.Enfeebling.Duration` |
 | Olympus Sash |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |
 | Plat. Mog. Belt |  | `Idle`, `Midcast['White Wind']` | `Idle` |
-| Sailfi Belt +1 |  | `WS` | `WS` |
+| Sailfi Belt +1 |  | `OffenseMode.TP`, `WS` | `OffenseMode.TP`, `WS` |
 | Siegel Sash |  | `Precast.Enhancing`, `Midcast['Stoneskin']` | `Precast['Stoneskin']`, `Midcast['Stoneskin']` |
 | Witful Belt |  | `Precast.FastCast` |  |
 

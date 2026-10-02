@@ -273,9 +273,11 @@ function get_sets()
 		back = gear.sucellosDA,						-- Acc 30, Att 20, DA 10, DT 5
 	}	-- Acc 375, Att 340, DT 40
 
+	-- Sailfi Belt +1 trades Kentarch Belt +1's Acc 14 for multi-attack and Attack. ACC and DT keep Kentarch.
 	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {
 		neck = gear.asperity,						-- Att 8, STP 3, DA 2
-	})	-- Acc 365, Att 338, DT 40
+		waist = gear.sailfi,						-- TA 2, DA 5, STR 15 (Path A), Att 10-15 (Unity)
+	})	-- Acc 351, Att 348-353, DT 40
 
 	-- Four Atrophy +4 pieces add the set's Acc +45.
 	sets.OffenseMode.ACC = set_combine(sets.OffenseMode, {
