@@ -253,9 +253,9 @@ function get_sets()
 		left_ear = gear.brutal,						-- DA 5
 		right_ear = gear.lethargyEarringPlusOne,	-- Acc 11, DA 3
 		left_ring = gear.lehkoHabhokaRing,			-- STP 10, Crit 10
-		right_ring = gear.ayanmoRing,				-- Acc 6, DT 3
+		right_ring = gear.rajas,					-- STP 5, Subtle Blow 5
 		back = gear.sucellosDA,						-- Acc 30, Att 20, DA 10, DT 5
-	}	-- Acc 381, Att 340, DT 43
+	}	-- Acc 375, Att 340, DT 40
 
 	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {})
 
@@ -265,7 +265,7 @@ function get_sets()
 		body = gear.atrophyBodyPlusFour,			-- Acc 65
 		hands = gear.atrophyHandsPlusFour,			-- Acc 63, Att 35
 		legs = gear.atrophyLegsPlusFour,			-- Acc 59
-	})	-- Acc 427, DT 8
+	})	-- Acc 421, DT 5
 
 	sets.OffenseMode.DT = set_combine(sets.OffenseMode, {
 		right_ring = gear.murky,					-- DT 10
