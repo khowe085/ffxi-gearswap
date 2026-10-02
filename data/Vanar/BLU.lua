@@ -34,9 +34,10 @@ state.OffenseMode:options('TP','ACC','DT')
 -- The offense mode the file starts in.
 state.OffenseMode:set('TP')
 
--- The spells that wear sets.TreasureHunter against an untagged monster. A spell off this list keeps its own
--- midcast set and does not count as tagging. Delete the line to let every spell tag.
-TH_Spells = S { 'Glutinous Dart' }
+-- The spells, job abilities and weaponskills that wear sets.TreasureHunter against an untagged monster. In Tag mode
+-- nothing else wears it, melee included, and an action off the list does not count as tagging. Delete the line to
+-- let every action tag.
+TH_Whitelist = S { 'Glutinous Dart' }
 
 -- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
 jobsetup (LockStylePallet,MacroBook,MacroSet)
@@ -111,8 +112,9 @@ state.AutoWS:set('OFF')
 
 -- Auto buff lists. gs c AutoBuff (F12) cycles OFF and Auto, and starts OFF. While Auto is
 -- on, the engine casts the first buff below that you are missing, on yourself. When is Always, Engaged,
--- Idle, Combat or OutOfCombat. The engine checks that a spell is learned, not that a blue magic spell is
--- set, so Erratic Flutter and Nat. Meditation must be in the spell set. Mighty Guard goes through the
+-- Idle, Combat or OutOfCombat. Engaged means weapons drawn; Combat means in battle (battle music on),
+-- engaged or not. The engine checks that a spell is learned, not that a blue magic spell is set, so
+-- Erratic Flutter, Nat. Meditation and Cocoon must be in the spell set. Mighty Guard goes through the
 -- Unbridled Learning and Diffusion handling in pretarget_custom.
 AutoBuff_List = {
 	Auto = {
@@ -121,6 +123,7 @@ AutoBuff_List = {
 		--{ Name = 'Refresh', Buff = 'Refresh', When = 'Idle' },
 		{ Name = 'Nat. Meditation', Buff = 'Attack Boost', When = 'Engaged' },
 		{ Name = 'Mighty Guard', Buff = 'Mighty Guard', When = 'Combat' },
+		{ Name = 'Cocoon', Buff = 'Defense Boost', When = 'Engaged' },
 	},
 }
 
@@ -647,7 +650,7 @@ function get_sets()
 		back = gear.rosmertaDA,						-- Acc 30, DA 10
 	}
 
-	-- Treasure Hunter gear, worn on an action or melee swing against a monster not yet tagged, and throughout a fight in Full Time mode. Spells only wear it when TH_Spells lists them. TH Mode starts in Tag, Alt+F11 cycles it, and None turns it off.
+	-- Treasure Hunter gear. In Tag mode it is worn only for an action TH_Whitelist lists, aimed at a monster not yet tagged, never just for being engaged. Full Time also wears it whenever engaged. TH Mode starts in Tag, Alt+F11 cycles it, and None turns it off.
 	sets.TreasureHunter = {
 		ammo = gear.perfectEgg,		-- TH 1
 		head = gear.whiteRarabCap,	-- TH 1

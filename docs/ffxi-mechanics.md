@@ -180,7 +180,7 @@ Duration = (base + 6s × RDM Group 2 merit + 3s × relic hands merit augment + R
 
 - A monster's Treasure Hunter level comes from the TH you have when you act on it. Melee rounds, ranged attacks, weapon skills, job abilities and spells all count, misses included: anything that puts you on its enmity list.
 - On a main job other than Thief, TH from gear and traits caps at 4.
-- Rahvin engine, Tag mode: TH gear goes on as soon as you engage a monster the engine hasn't recorded as tagged, before the first swing, because GearSwap gets no event before an auto-attack. The first melee round marks the monster tagged, and the engaged set rebuilds without TH. Weapon skills, job abilities and ranged attacks against an untagged monster wear TH at precast. A spell wears it at midcast only if it is on the job file's `TH_Spells` list, and a spell off the list doesn't mark the monster tagged. A monster tagged by a listed spell before you engage gets no TH gear when you engage. The engine forgets a tag when the monster dies, when you zone, and after three minutes without an action on it.
+- Rahvin engine, Tag mode with a `TH_Whitelist` in the job file: only an action on the list (a spell, job ability or weapon skill by name, or `Ranged` for ranged attacks) wears TH gear against an untagged monster, and only such an action marks it tagged. Engaging doesn't put TH on, and melee swings don't tag. Listed weapon skills, job abilities and ranged attacks wear it at precast, listed spells at midcast. Without a whitelist, Tag mode puts TH on as soon as you engage an untagged monster, because GearSwap gets no event before an auto-attack, and the first melee round tags it. Full Time keeps TH on while engaged either way. The engine forgets a tag when the monster dies, when you zone, and after three minutes without an action on it.
 
 ## Gear and GearSwap
 
@@ -189,6 +189,7 @@ Duration = (base + 6s × RDM Group 2 merit + 3s × relic hands merit augment + R
 - Odyssey gear such as Nyame raises its path augments with rank, up to rank 30. FFXIclopedia lists only rank 30, and bg-wiki's simulated sets assume it. Path B at rank 30: Attack +35, plus weapon skill damage and Double Attack of +13% and +7% on the Mail, +12% and +6% on the Flanchard, and +11% and +5% on the Helm, Gauntlets and Sollerets. At rank 20 (bg-wiki, through search extracts): Attack +25, with +10% and +2% on the Mail, and +8% and +2% on the Flanchard and Gauntlets. Each piece's fourth Path B line (STR, VIT or accuracy) didn't show at rank 20.
 - When you own more than one copy of an item, name each copy by its augments, exactly as `//gs export` printed them.
 - Rahvin engine: a set named for the exact spell, `sets.Midcast['<spell>']`, replaces the whole enhancing set for that spell. `sets.Midcast.Phalanx`, `.Refresh` and `.Regen` are also the family sets the engine merges over the enhancing set, and over the Others set off self, for every spell of that family. So the spells called Phalanx, Refresh and Regen wear that table alone. If those sets only list the slots they change, the first-tier spells lose all their duration gear; if they are full copies of the enhancing set, casts on others lose the Others set's Lethargy pieces. Keeping them short and putting the enhancing set back for those three spells in `midcast_custom` avoids both.
+- Rahvin AutoBuff `When`: `Engaged` and `Idle` follow your status (weapons drawn or not). `Combat` and `OutOfCombat` follow Windower's `in_combat` flag, which is on whenever battle music plays, so it is on while you fight a monster without engaging it, for example while nuking it.
 - Two identical copies with no augments, such as two Stikini Rings, are safest swapped as a pair. Otherwise GearSwap can try to move the copy already worn in the other slot. Pinning each to its bag, for example `{ bag = "wardrobe" }`, also fixes it.
 
 ## Player rules for these jobs
@@ -236,6 +237,8 @@ bg-wiki, read through search extracts:
 [Nyame Mail](https://www.bg-wiki.com/ffxi/Nyame_Mail),
 [Nyame Flanchard](https://www.bg-wiki.com/ffxi/Nyame_Flanchard),
 [Nyame Gauntlets](https://www.bg-wiki.com/ffxi/Nyame_Gauntlets).
+
+Windower: [Scoreboard pull request 1264](https://github.com/Windower/Lua/pull/1264), on `in_combat`, through a search extract.
 
 Forums, through search extracts: [Treasure hunter (FFXIAH)](https://www.ffxiah.com/forum/topic/26401/treasure-hunter), [TH Procing (Square Enix)](https://forum.square-enix.com/ffxi/threads/27974).
 
