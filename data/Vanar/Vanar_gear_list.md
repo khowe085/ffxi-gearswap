@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **125 pieces** (89 for BLU, 93 for RDM, 57 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **126 pieces** (89 for BLU, 94 for RDM, 57 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (14)
@@ -22,11 +22,12 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Tizona |  | `Weapons['Tizona']`, `Weapons['Tizona Acc']` |  |
 | Ullr |  |  | `Weapons.Casting` |
 
-## Ammo (4)
+## Ammo (5)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
 | Coiste Bodhar |  | `OffenseMode`, `Midcast.BlueMagic.Physical`, `WS`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `OffenseMode`, `WS`, `WS.Crit` |
+| Hasty Pinion |  |  | `Midcast.Enhancing` |
 | Honed Tathlum |  | `OffenseMode.ACC` |  |
 | Pemphredo Tathlum |  | `Idle`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` | `WS.MAB` |
 | Per. Lucky Egg |  | `TreasureHunter` |  |

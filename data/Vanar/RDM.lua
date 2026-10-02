@@ -113,6 +113,7 @@ gear.coladaRefresh = rank_gear("Colada", 100, {
 gear.archdukesShield = hp_gear("Archduke's Shield", 0)                           -- Refresh 1, INT 20, MND 20, Magic evasion 20
 gear.pahtliCape = mp_gear("Pahtli Cape", 50)                                     -- Cure spellcasting time -8
 gear.asperity = hp_gear("Asperity Necklace", 0)                                  -- Att 8, STP 3, DA 2
+gear.hastyPinion = hp_gear("Hasty Pinion", 0)                                    -- Haste 1, Store TP -5
 
 function get_sets()
 	-- ===================================================================================================================
@@ -356,6 +357,7 @@ function get_sets()
 	-- half of fast cast, so 2 fast cast count as 1 haste. Every enhancing spell starts from this set.
 	sets.Midcast.Enhancing = set_combine(sets.Midcast, {
 		sub = gear.ammurapi,					-- 10%
+		ammo = gear.hastyPinion,				-- Haste 1
 		head = gear.telchineCapBEnhDur,			-- augment 10%, Haste 6
 		body = gear.vitiationBodyPlusFour,		-- 15%, Fast Cast 15, Haste 3
 		hands = gear.atrophyHandsPlusFour,		-- 20%, Haste 3
@@ -367,7 +369,7 @@ function get_sets()
 		right_ear = gear.lethargyEarringPlusOne,	-- 8%, Fast Cast 8
 		right_ring = gear.prolix,				-- Fast Cast 2
 		back = gear.ghostfyre,					-- augment 20%
-	})	-- native 103% x augments 60%, 3.25 times base duration. Gear haste 25%, gear fast cast 30%.
+	})	-- native 103% x augments 60%, 3.25 times base duration. Gear haste 26% (the cap), gear fast cast 30%.
 
 	-- Enhancing spells cast on someone else, and self-casts under Accession. The Lethargy set bonus
 	-- lengthens them while Composure is up, 35% for four pieces and 50% for five, and it multiplies apart
