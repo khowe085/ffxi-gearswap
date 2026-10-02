@@ -226,6 +226,10 @@ function get_sets()
 		sub = gear.ammurapi,
 	}
 
+	-- Worn over the idle set while you are asleep, for gear that wakes you. Empty, and declared so the engine
+	-- finds it: a job file that replaces sets.Weapons drops the engine's empty one until the first action.
+	sets.Weapons.Sleep = {}
+
 	-- ===================================================================================================================
 	--		sets.Idle
 	-- ===================================================================================================================

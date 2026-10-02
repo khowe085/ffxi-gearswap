@@ -246,6 +246,15 @@ function get_sets()
 		sub = gear.thibron,
 	}
 
+	-- Worn in the offhand whenever the main is one-handed and no dual-wield trait is active, as right after a job
+	-- change, before the blue magic that gives Dual Wield is set. No shield is in this file's gear, so it is empty
+	-- and the offhand stays bare. It is declared anyway: the engine reads it on every idle and engaged build, and
+	-- without it says "sets.Weapons.Shield not found" until the first action after a load.
+	sets.Weapons.Shield = {}
+
+	-- Worn over the idle set while you are asleep, for gear that wakes you. Empty, and declared for the same reason.
+	sets.Weapons.Sleep = {}
+
 	-- Worn whenever you are not engaged, in every weapon mode, while the weapon lock is Unlocked. choose_set_custom
 	-- puts it on. Archduke's Shield is not a BLU item, so the offhand stays the weapon mode's.
 	sets.Weapons.Idle = {
