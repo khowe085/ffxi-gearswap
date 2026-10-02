@@ -239,13 +239,13 @@ function get_sets()
 		legs = gear.lethargyLegsPlusThree,		-- Magic evasion 162
 		feet = gear.vitiationFeetPlusFour,		-- Magic evasion 167
 		neck = gear.sibylScarf,					-- Refresh 1 for a citizen of Windurst
-		waist = gear.platinumMoogleBelt,		-- DT 3, HP 10%
+		waist = gear.flumeBelt,					-- PDT 4, and 2% of damage taken comes back as MP
 		left_ear = gear.alabaster,				-- DT 5, HP 100
-		right_ear = gear.etiolation,			-- HP 50, MP 50
+		right_ear = gear.etiolation,			-- HP 50, MP 50, MDT 3
 		left_ring = gear.murky,					-- DT 10
 		right_ring = gear.ayanmoRing,			-- DT 3
 		back = gear.sucellosDA,					-- DT 5
-	}	-- DT 51, Refresh 8, and 11 with sets.Weapons.Idle. Damage taken caps at 50%, so the slots past the cap carry Refresh and magic evasion instead.
+	}	-- DT 48, PDT 4 and MDT 3: physical 52 and magic 51, each capped at 50. Refresh 8, and 11 with sets.Weapons.Idle. Damage taken caps at 50%, so the slots past the cap carry Refresh and magic evasion instead.
 	sets.Idle.TP = set_combine(sets.Idle, {})
 	sets.Idle.ACC = set_combine(sets.Idle, {})
 	sets.Idle.DT = set_combine(sets.Idle, {})
@@ -264,7 +264,7 @@ function get_sets()
 	}
 
 	-- Worn over the idle set while Fucho-no-Obi's latent Refresh +1 works, a little below 50% MP; see
-	-- choose_set_custom, which puts it on. It takes Platinum Moogle Belt's DT 3, so idle DT is 48 meanwhile.
+	-- choose_set_custom, which puts it on. It takes Flume Belt's PDT 4, so idle physical DT is 48 meanwhile.
 	sets.LowMP = {
 		waist = gear.fucho,						-- Refresh 1 (latent)
 	}

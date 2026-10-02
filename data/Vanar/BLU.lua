@@ -267,13 +267,13 @@ function get_sets()
 		legs = gear.hashishinLegsPlusThree,		-- DT 12
 		feet = gear.hashishinFeetPlusThree,		-- Magic evasion 157
 		neck = gear.sibylScarf,					-- Refresh 1 for a citizen of Windurst
-		waist = gear.platinumMoogleBelt,		-- DT 3, HP 10%
+		waist = gear.flumeBelt,					-- PDT 4, and 2% of damage taken comes back as MP
 		left_ear = gear.alabaster,				-- DT 5, HP 100
-		right_ear = gear.etiolation,			-- HP 50, MP 50
+		right_ear = gear.etiolation,			-- HP 50, MP 50, MDT 3
 		left_ring = gear.karieyh,				-- Regain 5
 		right_ring = gear.murky,				-- DT 10
 		back = gear.rosmertaDA,					-- DT 5
-	}	-- DT 58 (cap 50), Refresh 6, and 8 with sets.Weapons.Idle.
+	}	-- DT 55, PDT 4 and MDT 3: physical 59 and magic 58, each capped at 50. Refresh 6, and 8 with sets.Weapons.Idle.
 	-- Idle sets for each offense mode, merged over the idle set.
 	sets.Idle.TP = set_combine(sets.Idle, {})
 	sets.Idle.ACC = set_combine(sets.Idle, {})
@@ -287,7 +287,7 @@ function get_sets()
 		legs = gear.carmineLegsPlusOnePathD,	-- Movement speed 18%
 	}
 
-	-- Merged over the idle set while Fucho-no-Obi's latent Refresh +1 works, a little below 50% MP; choose_set_custom puts it on. It takes Platinum Moogle Belt's DT 3, so idle DT is 55 meanwhile.
+	-- Merged over the idle set while Fucho-no-Obi's latent Refresh +1 works, a little below 50% MP; choose_set_custom puts it on. It takes Flume Belt's PDT 4, so idle physical DT is 55 meanwhile.
 	sets.LowMP = {
 		waist = gear.fucho,					-- Refresh 1 (latent)
 	}
@@ -561,7 +561,7 @@ function get_sets()
 		legs = gear.nyameLegs,					-- HP 114
 		feet = gear.nyameFeet,					-- HP 68
 		neck = gear.sanctity,					-- HP 35
-		waist = gear.platinumMoogleBelt,		-- HP 10%
+		waist = gear.flumeBelt,					-- No HP. Plat. Mog. Belt's HP+10% here was worth about 10% more healing
 		left_ear = gear.alabaster,				-- HP 100
 		right_ear = gear.etiolation,			-- HP 50
 		back = gear.solemnityCape,				-- Cure 7

@@ -36,7 +36,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
-| Amalric Coif +1 |  | `Precast.FastCast`, `Midcast.Refresh`, `Midcast['Aquaveil']`, `Midcast['Battery Charge']` | `Midcast.Refresh`, `Midcast['Aquaveil']` |
+| Amalric Coif +1 |  | `Precast.FastCast`, `Midcast.Refresh`, `Midcast['Battery Charge']`, `Midcast['Aquaveil']` | `Midcast.Refresh`, `Midcast['Aquaveil']` |
 | Atro. Chapeau +4 |  |  | `OffenseMode.ACC`, `Precast.FastCast`, `Midcast.Enfeebling` |
 | Hashishin Kavuk +3 |  | `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS`, `WS.MAB`, `WS['Chant du Cygne']`, `WS['Requiescat']` |  |
 | Leth. Chappel +3 |  |  | `OffenseMode`, `Midcast.Enhancing.Others`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS.MAB`, `WS.Crit` |
@@ -145,7 +145,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Sucellos's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10%, Damage taken-5% |  | `WS` |
 | Sucellos's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, "Dbl.Atk."+10, Damage taken-5% |  | `Idle`, `OffenseMode`, `WS.Crit` |
 | Sucellos's Cape | MND+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, Haste+10 |  | `Midcast.Enfeebling` |
-| Sucellos's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 |  | `Midcast.Dark`, `Midcast.Nuke`, `WS.MAB` |
+| Sucellos's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 |  | `Midcast.Dark`, `Midcast.Nuke`, `WS.MAB`, `midcast_custom()` |
 | Swith Cape |  | `Precast.FastCast` | `Precast['Stoneskin']` |
 
 ## Waist (13)
@@ -154,13 +154,13 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 |---|---|---|---|
 | Chaac Belt |  | `TreasureHunter` | `TreasureHunter` |
 | Embla Sash |  |  | `Idle.Sublimation`, `Precast.FastCast`, `Midcast.Enhancing` |
-| Eschan Stone |  | `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` | `Midcast.Dark`, `Midcast.Divine`, `Midcast.Nuke`, `WS.MAB` |
+| Eschan Stone |  | `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` | `Midcast.Dark`, `Midcast.Divine`, `Midcast.Nuke`, `WS.MAB`, `midcast_custom()` |
+| Flume Belt |  | `Idle`, `Midcast['White Wind']` | `Idle` |
 | Fotia Belt |  | `WS['Chant du Cygne']`, `WS['Requiescat']` | `WS.Crit` |
 | Fucho-no-Obi |  | `LowMP` | `LowMP` |
 | Kentarch Belt +1 |  | `OffenseMode`, `WS.ACC` | `OffenseMode`, `WS.ACC` |
 | Obstin. Sash |  |  | `Midcast.Enfeebling.Duration` |
 | Olympus Sash |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |
-| Plat. Mog. Belt |  | `Idle`, `Midcast['White Wind']` | `Idle` |
 | Rumination Sash |  |  | `Midcast.Enfeebling` |
 | Sailfi Belt +1 |  | `OffenseMode.TP`, `WS` | `OffenseMode.TP`, `WS` |
 | Siegel Sash |  | `Precast.Enhancing`, `Midcast['Stoneskin']` | `Precast['Stoneskin']`, `Midcast['Stoneskin']` |
