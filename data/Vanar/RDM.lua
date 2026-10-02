@@ -9,46 +9,8 @@
 include('RahvinGS/GearSets-Include')
 include('RahvinGS/Rahvin-Engine')
 
--- Vanar's own copies. Library entries cover everything else. Augments are written exactly as
--- //gs export printed them, so each entry matches only that copy.
-gear.sucellosDA = hp_gear("Sucellos's Cape", 0, {
-	augments = { 'DEX+20', 'Accuracy+20 Attack+20', 'Accuracy+10', '"Dbl.Atk."+10', 'Damage taken-5%', } })           -- Acc 30, Att 20, DA 10, DT 5
-gear.sucellosWSD = hp_gear("Sucellos's Cape", 0, {
-	augments = { 'STR+20', 'Accuracy+20 Attack+20', 'STR+10', 'Weapon skill damage +10%', 'Damage taken-5%', } })   -- Acc 20, Att 20, WSD 10, DT 5
-gear.sucellosMND = hp_gear("Sucellos's Cape", 0, {
-	augments = { 'MND+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', 'Haste+10', } })                            -- Macc 30, MND 20
-gear.sucellosINT = hp_gear("Sucellos's Cape", 0, {
-	augments = { 'INT+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', '"Mag.Atk.Bns."+10', } })                   -- Macc 30, MAB 10, MDmg 20
-gear.ghostfyre = hp_gear("Ghostfyre Cape", 0)          -- Enhancing duration 20, Enhancing skill 5, Enfeebling skill 8, Macc 8
-gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0)  -- Acc 14, DA 3
-gear.strendu = hp_gear("Strendu Ring", 0)              -- Macc 2, MAB 4
-gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0)    -- Treasure Hunter 1
--- Two copies of one ring. They are only ever worn as a pair, which keeps GearSwap from pulling
--- the same copy into both slots. If one ever fails to equip, pin each to the bag it lives in,
--- for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
-gear.stikini1 = hp_gear("Stikini Ring", 0)             -- Macc 8, all magic skills 5
-gear.stikini2 = hp_gear("Stikini Ring", 0)
-gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
-	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3, Regen duration +12s, Enhancing skill 12
-gear.telchineHandsRegen = hp_gear("Telchine Gloves", 52, {
-	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3, Cure 10
-gear.telchineFeetRegen = hp_gear("Telchine Pigaches", 13, {
-	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3
-gear.pukulatmujPlusOne = rank_gear("Pukulatmuj +1", 100)  -- Enhancing skill 11, Stoneskin casting time -11%
-gear.forfendPlusOne = hp_gear("Forfend +1", 22, {
-	augments = { 'Path: A', } })                                                                                    -- Enhancing skill 10, Acc 15, Macc 15 (Path A at max rank)
-gear.enhancingTorque = hp_gear("Enhancing Torque", 0)      -- Enhancing skill 7
-gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
-	augments = { 'Path: A', } })                                                                                    -- Enhancing skill 9
-gear.chelonaBoots = mp_gear("Chelona Boots", 35)           -- Fast Cast 4
-gear.swithCape = hp_gear("Swith Cape", -20)                -- Fast Cast 3
-gear.coladaRefresh = rank_gear("Colada", 100, {
-	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } })                              -- Refresh 2
-gear.archdukesShield = hp_gear("Archduke's Shield", 0)    -- Refresh 1, INT 20, MND 20, Magic evasion 20
-gear.pahtliCape = mp_gear("Pahtli Cape", 50)              -- Cure spellcasting time -8
-
 -- The lockstyle set, macro book and macro set that jobsetup applies at load.
-LockStylePallet = "6"
+LockStylePallet = "1"
 MacroBook = "3"
 MacroSet = "1"
 
@@ -112,6 +74,44 @@ AutoBuff_List = {
 		{ Name = 'Phalanx', Buff = 'Phalanx', When = 'Always' },
 	},
 }
+
+-- Vanar's own copies. Library entries cover everything else. Augments are written exactly as
+-- //gs export printed them, so each entry matches only that copy.
+gear.sucellosDA = hp_gear("Sucellos's Cape", 0, {
+	augments = { 'DEX+20', 'Accuracy+20 Attack+20', 'Accuracy+10', '"Dbl.Atk."+10', 'Damage taken-5%', } })    -- Acc 30, Att 20, DA 10, DT 5
+gear.sucellosWSD = hp_gear("Sucellos's Cape", 0, {
+	augments = { 'STR+20', 'Accuracy+20 Attack+20', 'STR+10', 'Weapon skill damage +10%', 'Damage taken-5%', } }) -- Acc 20, Att 20, WSD 10, DT 5
+gear.sucellosMND = hp_gear("Sucellos's Cape", 0, {
+	augments = { 'MND+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', 'Haste+10', } })                       -- Macc 30, MND 20
+gear.sucellosINT = hp_gear("Sucellos's Cape", 0, {
+	augments = { 'INT+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', '"Mag.Atk.Bns."+10', } })              -- Macc 30, MAB 10, MDmg 20
+gear.ghostfyre = hp_gear("Ghostfyre Cape", 0)                                                                  -- Enhancing duration 20, Enhancing skill 5, Enfeebling skill 8, Macc 8
+gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0)                                                          -- Acc 14, DA 3
+gear.strendu = hp_gear("Strendu Ring", 0)                                                                      -- Macc 2, MAB 4
+gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0)                                                            -- Treasure Hunter 1
+-- Two copies of one ring. They are only ever worn as a pair, which keeps GearSwap from pulling
+-- the same copy into both slots. If one ever fails to equip, pin each to the bag it lives in,
+-- for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
+gear.stikini1 = hp_gear("Stikini Ring", 0) -- Macc 8, all magic skills 5
+gear.stikini2 = hp_gear("Stikini Ring", 0)
+gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
+	augments = { '"Regen" potency+3', } })                                       -- Regen potency 3, Regen duration +12s, Enhancing skill 12
+gear.telchineHandsRegen = hp_gear("Telchine Gloves", 52, {
+	augments = { '"Regen" potency+3', } })                                       -- Regen potency 3, Cure 10
+gear.telchineFeetRegen = hp_gear("Telchine Pigaches", 13, {
+	augments = { '"Regen" potency+3', } })                                       -- Regen potency 3
+gear.pukulatmujPlusOne = rank_gear("Pukulatmuj +1", 100)                         -- Enhancing skill 11, Stoneskin casting time -11%
+gear.forfendPlusOne = hp_gear("Forfend +1", 22, {
+	augments = { 'Path: A', } })                                                 -- Enhancing skill 10, Acc 15, Macc 15 (Path A at max rank)
+gear.enhancingTorque = hp_gear("Enhancing Torque", 0)                            -- Enhancing skill 7
+gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
+	augments = { 'Path: A', } })                                                 -- Enhancing skill 9
+gear.chelonaBoots = mp_gear("Chelona Boots", 35)                                 -- Fast Cast 4
+gear.swithCape = hp_gear("Swith Cape", -20)                                      -- Fast Cast 3
+gear.coladaRefresh = rank_gear("Colada", 100, {
+	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } }) -- Refresh 2
+gear.archdukesShield = hp_gear("Archduke's Shield", 0)                           -- Refresh 1, INT 20, MND 20, Magic evasion 20
+gear.pahtliCape = mp_gear("Pahtli Cape", 50)                                     -- Cure spellcasting time -8
 
 function get_sets()
 	-- ===================================================================================================================
