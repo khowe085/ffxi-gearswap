@@ -171,7 +171,7 @@ Duration = (base + 6s × RDM Group 2 merit + 3s × relic hands merit augment + R
 ## Weapon skills
 
 - Weapon skill damage (WSD) on gear only applies to the first hit. It adds together with job point gifts and Gyudon, and applies to the whole of a magical weapon skill. Belts and gorgets are the exception.
-- Elemental gorgets and belts, Fotia included, list "Weapon skill damage +10%", but it is really +25/256 fTP added to every hit (bg-wiki, Fotia Gorget). That is about +10% on a hit with fTP 1, as on every hit of Chant du Cygne, Evisceration or Requiescat, and under 1% on a high-fTP first hit such as Savage Blade's (4 to 13.75). Fotia's latent works with any weapon skill and also gives weapon skill accuracy +10.
+- Elemental gorgets and belts, Fotia included, list "Weapon skill damage +10%", but it is really +25/256 fTP (bg-wiki, Fotia Gorget and Expiacion). A weapon skill whose fTP carries to every hit, such as Chant du Cygne, Evisceration or Requiescat, gets it on every hit, about +10% each. Any other weapon skill gets it on the first hit only, so it adds about 1% to a high-fTP first hit such as Savage Blade's (4 to 13.75) or Expiacion's (3.8 to 12.2) and nothing to the later hits. Fotia's latent works with any weapon skill and also gives weapon skill accuracy +10.
 - Bonuses that apply to every hit and multiply: Dragoon's WSD trait, Overwhelm, Building Flourish, and bonuses for one named weapon skill, such as "Savage Blade damage +X%".
 - Chant du Cygne's critical hit rate rises with TP: +15, +25 and +40% at 1000, 2000 and 3000 TP.
 - The Hashishin set bonus occasionally triples a blue magic spell's weapon skill coefficient, or quadruples it with Chain Affinity or Burst Affinity.
@@ -223,7 +223,8 @@ bg-wiki, read through search extracts:
 [Dual Wield](https://www.bg-wiki.com/ffxi/Dual_Wield),
 [Weapon Skill Damage](https://www.bg-wiki.com/bg/Weapon_Skill_Damage),
 [Chant du Cygne](https://bg-wiki.com/bg/Chant_du_Cygne),
-[Fotia Gorget](https://www.bg-wiki.com/ffxi/Fotia_Gorget).
+[Fotia Gorget](https://www.bg-wiki.com/ffxi/Fotia_Gorget),
+[Expiacion](https://www.bg-wiki.com/ffxi/Expiacion).
 
 FFXIclopedia, read directly:
 [Fast Cast](https://ffxiclopedia.fandom.com/wiki/Fast_Cast),
