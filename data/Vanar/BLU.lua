@@ -554,11 +554,12 @@ function get_sets()
 	-- It follows bg-wiki's simulated Savage Blade and Expiacion sets (All Jobs Gear Sets/Blue Mage). Jhakri
 	-- Cuffs +2 stand in for its Path B Nyame Gauntlets (WSD 11, DA 5), since Vanar's have no path, Hashi.
 	-- Earring +1 for Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at rank 20.
-	-- The legs are Luhlaza Shalwar +4 in place of its Nyame Flanchard.
+	-- The legs are Luhlaza Shalwar +4 in place of its Nyame Flanchard, and the body Assimilator's Jubbah +4
+	-- in place of its Nyame Mail, for 20 more accuracy and 25 more DEX at the cost of WSD 1, Att 65 and DA 7.
 	sets.WS = {
 		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
 		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61, Sword skill 30
-		body = gear.nyameBody,						-- WSD 13, DA 7, Acc 40, Att 65
+		body = gear.assimilatorBodyPlusFour,		-- WSD 12, Acc 60, DEX 49, STR 39
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, Acc 43, Att 43
 		legs = gear.luhlazaLegsPlusFour,			-- WSD 12, Acc 50, STR 46
 		feet = gear.nyameFeet,						-- WSD 11, DA 5, Acc 53, Att 65

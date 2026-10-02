@@ -83,14 +83,14 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
-| Assim. Jubbah +4 |  | `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill` |  |
+| Assim. Jubbah +4 |  | `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill`, `WS` |  |
 | Atrophy Tabard +4 |  |  | `OffenseMode.ACC`, `Midcast.Refresh`, `Midcast.Enfeebling` |
 | Bunzi's Robe |  |  | `Midcast.Cure`, `Midcast.Burst` |
 | Gleti's Cuirass |  | `Waltz`, `WS['Chant du Cygne']` |  |
 | Hashishin Mintan +3 |  | `Idle`, `OffenseMode`, `Precast.BlueMagic`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `WS['Requiescat']` |  |
 | Lethargy Sayon +3 |  |  | `Idle`, `OffenseMode`, `Midcast.Enhancing.Others`, `Midcast.Enfeebling.Potency`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS.Crit` |
 | Luhlaza Jubbah +1 |  | `Precast.FastCast` |  |
-| Nyame Mail |  | `Midcast.BlueMagic.Breath`, `Midcast['White Wind']`, `WS`, `WS.MAB` | `WS`, `WS.MAB` |
+| Nyame Mail |  | `Midcast.BlueMagic.Breath`, `Midcast['White Wind']`, `WS.MAB` | `WS`, `WS.MAB` |
 | Telchine Chas. |  | `Midcast.Enhancing.Skill`, `Midcast.Regen` | `Midcast.Regen` |
 | Viti. Tabard +4 |  |  | `Precast.FastCast`, `Midcast.Enhancing`, `Midcast.Enhancing.Skill`, `JA['Chainspell']` |
 | Volte Jupon |  | `TreasureHunter` | `TreasureHunter` |
