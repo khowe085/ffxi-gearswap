@@ -19,8 +19,6 @@ gear.sucellosMND = hp_gear("Sucellos's Cape", 0, {
 	augments = { 'MND+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', 'Haste+10', } })                            -- Macc 30, MND 20
 gear.sucellosINT = hp_gear("Sucellos's Cape", 0, {
 	augments = { 'INT+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', '"Mag.Atk.Bns."+10', } })                   -- Macc 30, MAB 10, MDmg 20
-gear.telchineGlovesDuration = hp_gear("Telchine Gloves", 52, {
-	augments = { 'Haste+3', 'Enh. Mag. eff. dur. +10', } })                                                         -- Enhancing duration 10, Cure 10
 gear.ghostfyre = hp_gear("Ghostfyre Cape", 0)          -- Enhancing duration 20, Enhancing skill 5, Enfeebling skill 8, Macc 8
 gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0)  -- Acc 14, DA 3
 gear.strendu = hp_gear("Strendu Ring", 0)              -- Macc 2, MAB 4
@@ -33,7 +31,7 @@ gear.stikini2 = hp_gear("Stikini Ring", 0)
 gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
 	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3, Regen duration +12s, Enhancing skill 12
 gear.telchineHandsRegen = hp_gear("Telchine Gloves", 52, {
-	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3
+	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3, Cure 10
 gear.telchineFeetRegen = hp_gear("Telchine Pigaches", 13, {
 	augments = { '"Regen" potency+3', } })                                                                          -- Regen potency 3
 gear.pukulatmujPlusOne = rank_gear("Pukulatmuj +1", 100)  -- Enhancing skill 11, Stoneskin casting time -11%
@@ -327,7 +325,7 @@ function get_sets()
 	-- Cure spells.
 	sets.Midcast.Cure = set_combine(sets.Midcast, {
 		body = gear.bunziBody,					-- Cure 15
-		hands = gear.telchineGlovesDuration,	-- Cure 10
+		hands = gear.telchineHandsRegen,		-- Cure 10
 		legs = gear.atrophyLegsPlusFour,		-- Cure 12
 		feet = gear.vanyaFeetPathD,				-- Cure 10
 		back = gear.solemnityCape,				-- Cure 7, DT 4
