@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **127 pieces** (89 for BLU, 95 for RDM, 57 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **127 pieces** (90 for BLU, 95 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (14)
@@ -119,7 +119,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Karieyh Ring |  | `Idle`, `WS` | `WS` |
 | Lehko's Ring |  | `OffenseMode`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `OffenseMode`, `WS.Crit` |
 | Murky Ring |  | `OffenseMode.DT` | `Idle`, `OffenseMode.DT` |
-| Naji's Loop |  |  | `Midcast.Cure` |
+| Naji's Loop |  | `Midcast.Cure` | `Midcast.Cure` |
 | Prolix Ring |  | `Precast.FastCast`, `Midcast.Enhancing` | `Precast['Stoneskin']`, `Midcast.Enhancing`, `Midcast.Phalanx` |
 | Rajas Ring |  | `OffenseMode`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `OffenseMode` |
 | Stikini Ring | one of two identical copies | `Midcast.Enhancing.Skill`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill` | `Midcast.Enhancing.Skill`, `Midcast.Enfeebling` |

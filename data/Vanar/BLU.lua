@@ -368,8 +368,9 @@ function get_sets()
 	-- Cure spells from a WHM or RDM subjob. Cast while not engaged, sets.Weapons.Casting adds Cure 30.
 	sets.Midcast.Cure = set_combine(sets.Midcast, {
 		hands = gear.telchineGlovesDuration,	-- Cure 10
+		right_ring = gear.najiLoop,				-- Cure potency II 1, Cure 1
 		back = gear.solemnityCape,				-- Cure 7, DT 4
-	})
+	})	-- Cure 18, and 48 with sets.Weapons.Casting (cap 50), plus Cure potency II 1
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
 
 	-- Enhancing magic from a subjob, built for duration first and recast second. Raise, Reraise and the
