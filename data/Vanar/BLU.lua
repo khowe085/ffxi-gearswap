@@ -43,7 +43,23 @@ state.OffenseMode:set('TP')
 TH_Whitelist = S { 'Glutinous Dart' }
 
 -- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
-jobsetup (LockStylePallet,MacroBook,MacroSet)
+-- jobsetup ends its chain of game commands with /echo Change Complete, about five seconds after load, before the
+-- blue magic spell set loads. So the echo is cut from the chain here, and load_azure_set sends it after
+-- //aset spellset, once AzureSets has said it is setting the spells. jobsetup sends the chain through
+-- windower.send_command, which is swapped for this one call. GearSwap keeps that table from one job file to the
+-- next, so the original goes back even if jobsetup raises.
+local change_complete_held = false
+do
+	local send = windower.send_command
+	windower.send_command = function(command)
+		local chain, cut = command:gsub('input /echo Change Complete;', '')
+		if cut > 0 then change_complete_held = true end
+		send(chain)
+	end
+	local ok, err = pcall(jobsetup, LockStylePallet, MacroBook, MacroSet)
+	windower.send_command = send
+	if not ok then error(err, 0) end
+end
 
 -- Blue magic lists. Each blue spell takes the midcast set of the list that names it. The lists follow what a spell's damage or
 -- effect scales with, since those do not share gear. The engine declares the same lists, and these copies replace them, so edit a list here to move a spell.
@@ -247,12 +263,15 @@ function get_sets()
 	}
 
 	-- Worn in the offhand whenever the main is one-handed and no dual-wield trait is active, as right after a job
-	-- change, before the blue magic that gives Dual Wield is set. No shield is in this file's gear, so it is empty
-	-- and the offhand stays bare. It is declared anyway: the engine reads it on every idle and engaged build, and
-	-- without it says "sets.Weapons.Shield not found" until the first action after a load.
-	sets.Weapons.Shield = {}
+	-- or subjob change, before the blue magic that gives Dual Wield is set. The game refuses a weapon in sub
+	-- without the trait, with an error in chat, and no shield is in this file's gear, so the offhand is emptied.
+	-- The engine reads the trait on a load, on a subjob change and every 30 seconds. While a spell set loads,
+	-- watch_dual_wield also rereads it, so the swords go on as soon as the trait is back. The engine reads this set
+	-- on every idle and engaged build, and without it says "sets.Weapons.Shield not found".
+	sets.Weapons.Shield = { sub = empty }
 
-	-- Worn over the idle set while you are asleep, for gear that wakes you. Empty, and declared for the same reason.
+	-- Worn over the idle set while you are asleep, for gear that wakes you. Empty, and declared so the engine finds
+	-- it, as above.
 	sets.Weapons.Sleep = {}
 
 	-- Worn whenever you are not engaged, in every weapon mode, while the weapon lock is Unlocked. choose_set_custom
@@ -706,6 +725,13 @@ end
 -- DO NOT EDIT BELOW THIS LINE UNLESS YOU NEED TO MAKE JOB SPECIFIC RULES
 -------------------------------------------------------------------------------------------------------------------
 
+-- Whether the job traits include Dual Wield (trait 18) now, from the subjob or from set blue magic. It reads the
+-- game, not the engine's copy, which the engine refreshes only on a load, a subjob change and every 30 seconds.
+local function has_dual_wield()
+	local abilities = windower.ffxi.get_abilities()
+	return abilities ~= nil and abilities.job_traits ~= nil and table.contains(abilities.job_traits, 18)
+end
+
 -- Called when the player's subjob changes.
 -- Here, it reloads the AzureSets spell set for the new subjob and the current job mode.
 -- It waits for the game to finish the change, because a main job change also fires this while this file is still loaded.
@@ -798,12 +824,15 @@ function midcast_custom(spell)
 	end
 	-- The casting weapons for magic that has to land or heals, cast while not engaged. Engaged casts keep
 	-- the weapon mode's weapons, since new weapons reset TP. After the cast, choose_set_custom puts the
-	-- idle weapons back on.
+	-- idle weapons back on. Without Dual Wield the game refuses Maxentius in sub, so the offhand stays empty.
 	if player.status ~= 'Engaged' then
 		local name = spell.english
 		if Casting_Skills:contains(spell.skill) or BlueNuke:contains(name) or BlueACC:contains(name)
 			or BlueTank:contains(name) or BlueBreath:contains(name) or BlueHealing:contains(name) then
 			equipSet = sets.Weapons.Casting
+			if not has_dual_wield() then
+				equipSet = set_combine(equipSet, { sub = empty })
+			end
 		end
 	end
 	return equipSet
@@ -878,12 +907,37 @@ local function azure_set_names()
 	return names
 end
 
+-- Sends the Change Complete echo cut from jobsetup's chain, once per load. The wait lets AzureSets' own line, that it
+-- is setting the spell set or that the set is already set, come first.
+local function change_complete()
+	if not change_complete_held then return end
+	change_complete_held = false
+	send_command('wait 1;input /echo Change Complete')
+end
+
+-- Watches Dual Wield each second for a minute after //aset spellset, while AzureSets sets the spells one at a time.
+-- Set blue magic grants or removes the trait, and the engine would otherwise not reread it for up to 30 seconds, nor
+-- change gear when it did. Each change seen here updates the engine's copy and rebuilds the gear, which puts the
+-- swords on or empties the offhand. The first check does the same, since the trait may have changed since the
+-- engine last read it. During an action the rebuild is left to the one the action ends with.
+local function watch_dual_wield(request, had, checks)
+	if request ~= azure_request or checks > 60 then return end
+	local has = has_dual_wield()
+	if has ~= had then
+		dual_wield_check()
+		if not is_Busy then equip_set_command() end
+	end
+	coroutine.schedule(function() watch_dual_wield(request, has, checks + 1) end, 1)
+end
+
 -- Loads the AzureSets spell set for the subjob and job mode: {sub}_mage in AoE mode, {sub}_melee in Melee mode.
 -- A missing {sub}_mage falls back to {sub}_melee. For a subjob other than NIN, a missing {sub}_melee falls back to war_melee,
 -- whose blue magic gives Dual Wield from traits. nin_melee has no Dual Wield spells, since NIN brings the trait itself. With
 -- no subjob it loads war_melee. Each miss is warned in chat.
 -- It reads the job from the game, not GearSwap's player table, and does nothing unless the main job is BLU.
 -- After a job change the game sends the blue magic spell list late, and AzureSets errors without it, so it retries each second for up to ten tries.
+-- After a load's //aset command, or its last warning when it loads nothing, it sends the Change Complete echo held from
+-- jobsetup. After the command it also starts watch_dual_wield.
 function load_azure_set(request, tries)
 	if request ~= azure_request then return end
 	local current = windower.ffxi.get_player()
@@ -895,6 +949,7 @@ function load_azure_set(request, tries)
 			coroutine.schedule(function() load_azure_set(request, tries) end, 1)
 		else
 			warn('Blue magic spell list not loaded, AzureSets spell set skipped')
+			change_complete()
 		end
 		return
 	end
@@ -914,15 +969,21 @@ function load_azure_set(request, tries)
 			if names[name] then chosen = name break end
 			warn('AzureSets spell set ' .. name .. ' is missing')
 		end
-		if not chosen then return end
+		if not chosen then
+			change_complete()
+			return
+		end
 	end
 
 	send_command('input //aset spellset ' .. chosen)
+	change_complete()
+	watch_dual_wield(request, nil, 0)
 end
 
 -- Called when the job file unloads, after the engine has released its keys and held slots.
+-- Here, it retires any spell set load or Dual Wield watch still scheduled, so none runs after this file is gone.
 function user_file_unload()
-
+	azure_request = azure_request + 1
 end
 
 -- Called when a pet is summoned or lost. Gear returned here merges over the idle or engaged set.
