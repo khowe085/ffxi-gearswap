@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **129 pieces** (92 for BLU, 96 for RDM, 59 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **130 pieces** (93 for BLU, 97 for RDM, 60 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (14)
@@ -106,8 +106,8 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Leth. Ganth. +3 |  |  | `Idle`, `OffenseMode`, `Midcast.Enfeebling.Potency`, `Midcast.Enfeebling.Duration`, `Midcast.Enfeebling.Saboteur`, `Midcast.Nuke`, `WS.Crit`, `WS[each magical WS].ACC` |
 | Luh. Bazubands +1 |  | `JA['Azure Lore']` |  |
 | Pinga Mittens |  | `Precast.FastCast` |  |
-| Telchine Gloves | Haste+3, Enh. Mag. eff. dur. +10 | `Midcast.Cure`, `Midcast.Enhancing`, `Midcast.BlueMagic.Healing`, `Midcast['White Wind']` |  |
 | Telchine Gloves | "Regen" potency+3 | `Midcast.Regen` | `Midcast.Cure`, `Midcast.Regen` |
+| Telchine Gloves | Haste+3, Enh. Mag. eff. dur. +10 | `Midcast.Cure`, `Midcast.Enhancing`, `Midcast.BlueMagic.Healing`, `Midcast['White Wind']` |  |
 | Vanya Cuffs |  |  | `Precast.Cure` |
 | Viti. Gloves +4 |  |  | `Midcast.Enhancing.Skill`, `Midcast.Enhancing.Gain` |
 
@@ -136,18 +136,18 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Fi Follet Cape +1 |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |
 | Ghostfyre Cape |  |  | `Midcast.Enhancing` |
 | Pahtli Cape |  | `Precast.Cure` | `Precast.Cure` |
+| Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, DEX+10, Crit.hit rate+10 | `WS['Chant du Cygne']` |  |
 | Rosmerta's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 | `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` |  |
 | Rosmerta's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10% | `Midcast.BlueMagic.Physical`, `WS` |  |
 | Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, "Dbl.Atk."+10, Damage taken-5% | `Idle`, `OffenseMode`, `WS['Requiescat']` |  |
-| Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, DEX+10, Crit.hit rate+10 | `WS['Chant du Cygne']` |  |
 | Solemnity Cape |  | `Midcast.Cure`, `Midcast.BlueMagic.Healing`, `Midcast['White Wind']` | `Midcast.Cure` |
 | Sucellos's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10%, Damage taken-5% |  | `WS` |
+| Sucellos's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, "Dbl.Atk."+10, Damage taken-5% |  | `Idle`, `OffenseMode`, `WS.Crit` |
 | Sucellos's Cape | MND+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, Haste+10 |  | `Midcast.Enfeebling` |
 | Sucellos's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 |  | `Midcast.Nuke`, `WS.MAB` |
-| Sucellos's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, "Dbl.Atk."+10, Damage taken-5% |  | `Idle`, `OffenseMode`, `WS.Crit` |
 | Swith Cape |  | `Precast.FastCast` | `Precast['Stoneskin']` |
 
-## Waist (11)
+## Waist (12)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
@@ -155,6 +155,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Embla Sash |  |  | `Idle.Sublimation`, `Precast.FastCast`, `Midcast.Enhancing` |
 | Eschan Stone |  | `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` | `Midcast.Enfeebling`, `Midcast.Nuke`, `WS.MAB` |
 | Fotia Belt |  | `WS['Chant du Cygne']`, `WS['Requiescat']` | `WS.Crit` |
+| Fucho-no-Obi |  | `LowMP` | `LowMP` |
 | Kentarch Belt +1 |  | `OffenseMode`, `WS.ACC` | `OffenseMode`, `WS.ACC` |
 | Obstin. Sash |  |  | `Midcast.Enfeebling.Duration` |
 | Olympus Sash |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |

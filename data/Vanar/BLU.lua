@@ -1,5 +1,5 @@
 -- Vanar's Blue Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/BLU.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-01 20-15-33.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-01 22-41-03.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Hashi. Earring +1 is always in the right ear, the only ear its sword and blue magic
 -- skill bonuses work in. At Master Level 25 sword skill is past 600, where each point adds 0.9 accuracy
@@ -49,6 +49,7 @@ gear.swithCape = hp_gear("Swith Cape", -20)              -- Fast Cast 3
 gear.coladaRefresh = rank_gear("Colada", 100, {
 	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } })                        -- Refresh 2
 gear.pahtliCape = mp_gear("Pahtli Cape", 50)             -- Cure spellcasting time -8
+gear.fucho = mp_gear("Fucho-no-Obi", 30)                 -- Refresh 1 while MP is at 50% or below (latent)
 
 -- The in-game lockstyle set, macro book and macro set this file applies on load.
 LockStylePallet = "11"
@@ -266,6 +267,11 @@ function get_sets()
 	-- Merged over the idle set while you are moving and not engaged.
 	sets.Movement = {
 		legs = gear.carmineLegsPlusOnePathD,	-- Movement speed 18%
+	}
+
+	-- Merged over the idle set while MP is at 50% or below, where Fucho-no-Obi's latent Refresh +1 works. choose_set_custom puts it on. It takes Platinum Moogle Belt's DT 3, so idle DT is 55 meanwhile.
+	sets.LowMP = {
+		waist = gear.fucho,					-- Refresh 1 (latent)
 	}
 
 	-- The ring slot Zodiac Ring goes in when an elemental spell matches the day: "right_ring" or "left_ring".
@@ -767,8 +773,12 @@ end
 function choose_set_custom()
 	local equipSet = {}
 	-- The refresh weapon whenever you are not engaged. The engine builds the idle set on the same test.
+	-- Fucho-no-Obi joins it while MP is at 50% or below, its latent condition, checked on every rebuild.
 	if player.status ~= 'Engaged' then
 		equipSet = sets.Weapons.Idle
+		if player.mpp <= 50 then
+			equipSet = set_combine(equipSet, sets.LowMP)
+		end
 	end
 	return equipSet
 end

@@ -1,5 +1,5 @@
 -- Vanar's Red Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/RDM.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-01 20-15-33.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-01 22-41-03.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Leth. Earring +1 is always in the right ear, the only ear its Fast Cast and
 -- enhancing duration work in.
@@ -114,6 +114,7 @@ gear.archdukesShield = hp_gear("Archduke's Shield", 0)                          
 gear.pahtliCape = mp_gear("Pahtli Cape", 50)                                     -- Cure spellcasting time -8
 gear.asperity = hp_gear("Asperity Necklace", 0)                                  -- Att 8, STP 3, DA 2
 gear.hastyPinion = hp_gear("Hasty Pinion", 0)                                    -- Haste 1, Store TP -5
+gear.fucho = mp_gear("Fucho-no-Obi", 30)                                         -- Refresh 1 while MP is at 50% or below (latent)
 
 function get_sets()
 	-- ===================================================================================================================
@@ -236,6 +237,12 @@ function get_sets()
 	-- Worn over the idle set while moving and not engaged.
 	sets.Movement = {
 		legs = gear.carmineLegsPlusOnePathD,	-- Movement speed 18%
+	}
+
+	-- Worn over the idle set while MP is at 50% or below, where Fucho-no-Obi's latent Refresh +1 works.
+	-- choose_set_custom puts it on. It takes Platinum Moogle Belt's DT 3, so idle DT is 48 meanwhile.
+	sets.LowMP = {
+		waist = gear.fucho,						-- Refresh 1 (latent)
 	}
 
 	-- The ring slot Zodiac Ring goes in when a spell's element matches the day: "right_ring" or
@@ -718,8 +725,14 @@ end
 function choose_set_custom()
 	local equipSet = {}
 	-- The refresh weapons whenever you are not engaged. The engine builds the idle set on the same test.
+	-- Fucho-no-Obi joins them while MP is at 50% or below, its latent condition, unless Sublimation is
+	-- charging (buff 187), when the Sublimation set's Embla Sash is worth more. Both are checked on every
+	-- rebuild: after each action, on a buff or status change, and when you start or stop moving.
 	if player.status ~= 'Engaged' then
 		equipSet = sets.Weapons.Idle
+		if player.mpp <= 50 and not buffactive[187] then
+			equipSet = set_combine(equipSet, sets.LowMP)
+		end
 	end
 	return equipSet
 end
