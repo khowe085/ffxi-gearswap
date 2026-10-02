@@ -160,15 +160,17 @@ windower.register_event('addon command',function (...)
 
     local cmd = table.remove(splitup,1):lower()
 
-    -- Short words. e and x are equip and export. d and t send the line on as typed, as
-    -- gs c disable and gs c test, so every handler of this event sees the long command.
+    -- Short words. e and x are equip and export. d, n and t send the line on as typed, as
+    -- gs c disable, gs c naked and gs c test, so every handler of this event sees the long
+    -- command.
+    local resend = ({d = 'disable', n = 'naked', t = 'test'})[cmd]
     if cmd == 'e' then
         cmd = 'equip'
     elseif cmd == 'x' then
         cmd = 'export'
-    elseif cmd == 'd' or cmd == 't' then
+    elseif resend then
         local line = {...}
-        line[1] = cmd == 'd' and 'disable' or 'test'
+        line[1] = resend
         windower.send_command('gs c '..table.concat(line,' '))
         return
     end
@@ -244,7 +246,7 @@ windower.register_event('addon command',function (...)
         print(' c <string>      : passes the string to the user\'s self_command function.')
         print(' equip <string>  : attempts to equip the set indicated by the string. naked toggles c naked.')
         print(' e / x           : short for equip / export.')
-        print(' d / t <string>  : short for c disable / c test.')
+        print(' d / n / t <string> : short for c disable / c naked / c test.')
         print(' debugmode       : toggles debugmode on or off.')
         print(' demomode        : toggles demomode on or off.')
         print(' showswaps       : toggles whether gearswap displays equipment changes in the chat log.')
