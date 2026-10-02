@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **125 pieces** (89 for BLU, 94 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **125 pieces** (89 for BLU, 93 for RDM, 57 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (14)
@@ -178,7 +178,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
-| Chelona Boots |  | `Precast.FastCast` | `Precast['Stoneskin']` |
+| Chelona Boots |  | `Precast.FastCast` |  |
 | Gleti's Boots |  | `WS['Chant du Cygne']` |  |
 | Hashi. Basmak +3 |  | `Idle`, `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB`, `WS['Requiescat']` |  |
 | Leth. Houseaux +3 |  |  | `OffenseMode`, `Midcast.Enhancing`, `Midcast.Enhancing.Skill`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS`, `WS.MAB`, `WS.Crit`, `WS['Requiescat']` |

@@ -300,18 +300,17 @@ function get_sets()
 	}	-- FC 44, 82% with the trait. The other slots keep the idle set's DT pieces.
 
 	-- Stoneskin, over the fast-cast set. Doyen Pants fill the legs and Siegel Sash takes Embla Sash's
-	-- place, and the free slots add 11 fast cast, so fast cast is 88% with the Stoneskin cuts on top. bg-wiki counts those cuts inside the same 80% cap, so
-	-- under that reading the set changes nothing, and if they go past it the cast is faster. Recast
-	-- is set by the midcast set, so nothing here costs any.
+	-- place, and the free slots add 7 fast cast, so fast cast is 84% with the Stoneskin cuts on top.
+	-- bg-wiki counts those cuts inside the same 80% cap, so under that reading the set changes nothing, and
+	-- if they go past it the cast is faster. Recast is set by the midcast set, so nothing here costs any.
 	sets.Precast["Stoneskin"] = {
 		main = gear.pukulatmujPlusOne,			-- Stoneskin casting time -11
 		legs = gear.doyenLegs,					-- Stoneskin casting time -10
 		waist = gear.siegel,					-- Enhancing magic casting time -8
-		feet = gear.chelonaBoots,				-- FC 4
 		back = gear.swithCape,					-- FC 3
 		left_ear = gear.loquacious,				-- FC 2
 		left_ring = gear.prolix,				-- FC 2
-	}	-- FC 88%, and Stoneskin casting time -29%
+	}	-- FC 84%, and Stoneskin casting time -29%
 
 	-- Cure spells, over the fast-cast set. The Cure casting time pieces take the slots the fast-cast set
 	-- leaves open, Doyen Pants among them, so fast cast stays at 82% with the Cure cuts on top. As with
