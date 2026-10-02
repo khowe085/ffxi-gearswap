@@ -184,7 +184,7 @@ function get_sets()
 
 	-- Worn for the casts that have to land while you are not engaged. midcast_custom puts it on.
 	sets.Weapons.Casting = {
-		main = gear.bunzi,				-- Macc 40, MAB 35
+		main = gear.bunzi,				-- Macc 40, MAB 35, Magic Accuracy skill 255
 		sub = gear.ammurapi,			-- Macc 38, MAB 38
 		range = gear.ullr,				-- Macc 40
 		ammo = empty,					-- any ammo that is not an arrow strips the bow
@@ -192,7 +192,7 @@ function get_sets()
 
 	-- The same, with Maxentius in the offhand when a subjob gives Dual Wield. midcast_custom picks it.
 	sets.Weapons.CastingDualWield = set_combine(sets.Weapons.Casting, {
-		sub = gear.maxentius,			-- Macc 40, MAB 21, INT 15, MND 15
+		sub = gear.maxentius,			-- Macc 40, MAB 21, INT 15, MND 15. Its Magic Accuracy skill only counts in the main hand.
 	})
 
 	-- Worn in the offhand whenever the main is one-handed and no dual-wield trait is active.

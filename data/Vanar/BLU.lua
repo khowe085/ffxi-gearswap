@@ -235,8 +235,8 @@ function get_sets()
 
 	-- Worn for the casts midcast_custom names while you are not engaged.
 	sets.Weapons.Casting = {
-		main = gear.bunzi,				-- Macc 40, MAB 35, Cure 30
-		sub = gear.maxentius,			-- Macc 40, MAB 21
+		main = gear.bunzi,				-- Macc 40, MAB 35, Cure 30, Magic Accuracy skill 255
+		sub = gear.maxentius,			-- Macc 40, MAB 21. Its Magic Accuracy skill only counts in the main hand.
 	}
 
 	-- Worn whenever you are not engaged. It is also the floor under every action, so a slot an action's sets leave unnamed keeps its idle piece.

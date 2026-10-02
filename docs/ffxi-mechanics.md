@@ -92,6 +92,11 @@ Accuracy from combat skill (bg-wiki, as pasted by the player):
 - **(player)** At Master Level 25, BLU and RDM sword skill is past 600. Each point of sword skill on gear is then worth about 0.9 accuracy and 1 attack, so Sword skill +30 is about Acc +27 and Att +30.
 - A combat skill only helps attacks with that weapon type. Sword skill gear does nothing while a club is in hand.
 
+### Magic accuracy skill on weapons
+
+- Item level weapons list "Magic Accuracy skill +X", for example +255 on Bunzi's Rod and +250 on Maxentius and Naegling. It adds to magic accuracy one for one **(player, bg-wiki)**.
+- Only the main hand's Magic Accuracy skill counts. An offhand weapon's does nothing, so when dual wielding only its plain "Magic Accuracy +X" helps (bg-wiki, Magic Accuracy Skill and Dual Wield).
+
 ### Accuracy from set bonuses and abilities
 
 - Atrophy +2, +3 and +4 pieces, and the Regal accessories, give Accuracy, Ranged Accuracy and Magic Accuracy +15, +30, +45 and +60 for 2, 3, 4 and 5 pieces worn.
@@ -213,6 +218,8 @@ bg-wiki, read through search extracts:
 [Stoneskin](https://www.bg-wiki.com/ffxi/Stoneskin),
 [Red Mage](https://www.bg-wiki.com/ffxi/Red_Mage),
 [Blue Mage Job Traits](https://www.bg-wiki.com/ffxi/Blue_Mage_Job_Traits),
+[Magic Accuracy Skill](https://www.bg-wiki.com/ffxi/Magic_Accuracy_Skill),
+[Dual Wield](https://www.bg-wiki.com/ffxi/Dual_Wield),
 [Weapon Skill Damage](https://www.bg-wiki.com/bg/Weapon_Skill_Damage),
 [Chant du Cygne](https://bg-wiki.com/bg/Chant_du_Cygne).
 
