@@ -11,48 +11,8 @@
 include('RahvinGS/GearSets-Include')
 include('RahvinGS/Rahvin-Engine')
 
--- Vanar's own copies. Library entries cover everything else. Augments are written exactly as
--- //gs export printed them, so each entry matches only that copy.
-gear.rosmertaDA = hp_gear("Rosmerta's Cape", 0, {
-	augments = { 'DEX+20', 'Accuracy+20 Attack+20', 'Accuracy+10', '"Dbl.Atk."+10', 'Damage taken-5%', } })   -- Acc 30, Att 20, DA 10, DT 5
-gear.rosmertaWSD = hp_gear("Rosmerta's Cape", 0, {
-	augments = { 'STR+20', 'Accuracy+20 Attack+20', 'STR+10', 'Weapon skill damage +10%', } })               -- Acc 20, Att 20, WSD 10
-gear.rosmertaCrit = hp_gear("Rosmerta's Cape", 0, {
-	augments = { 'DEX+20', 'Accuracy+20 Attack+20', 'DEX+10', 'Crit.hit rate+10', } })                      -- Acc 20, Att 20, DEX 30, Crit 10
-gear.rosmertaMAB = hp_gear("Rosmerta's Cape", 0, {
-	augments = { 'INT+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', '"Mag.Atk.Bns."+10', } })           -- Macc 30, MAB 10, MDmg 20
-gear.telchineGlovesDuration = hp_gear("Telchine Gloves", 52, {
-	augments = { 'Haste+3', 'Enh. Mag. eff. dur. +10', } })                                                 -- Enhancing duration 10, Cure 10
-gear.cornflower = mp_gear("Cornflower Cape", 29)  -- Macc 15, MAB 15, Blue magic skill 15
-gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0) -- Acc 14, DA 3
-gear.njordr = hp_gear("Njordr Earring", 0)        -- Blue magic skill 10
-gear.honedTathlum = hp_gear("Honed Tathlum", 0)   -- Acc 15
-gear.strendu = hp_gear("Strendu Ring", 0)         -- Macc 2, MAB 4
-gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0) -- Treasure Hunter 1
--- Two copies of one ring. They are only ever worn as a pair, which keeps GearSwap from pulling
--- the same copy into both slots. If one ever fails to equip, pin each to the bag it lives in,
--- for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
-gear.stikini1 = hp_gear("Stikini Ring", 0)        -- Macc 8, all magic skills 5
-gear.stikini2 = hp_gear("Stikini Ring", 0)
-gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
-	augments = { '"Regen" potency+3', } })                                                                  -- Regen potency 3, Regen duration +12s, Enhancing skill 12
-gear.telchineHandsRegen = hp_gear("Telchine Gloves", 52, {
-	augments = { '"Regen" potency+3', } })                                                                  -- Regen potency 3
-gear.telchineFeetRegen = hp_gear("Telchine Pigaches", 13, {
-	augments = { '"Regen" potency+3', } })                                                                  -- Regen potency 3
-gear.pukulatmujPlusOne = rank_gear("Pukulatmuj +1", 100) -- Enhancing skill 11, Stoneskin casting time -11%
-gear.enhancingTorque = hp_gear("Enhancing Torque", 0)     -- Enhancing skill 7
-gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
-	augments = { 'Path: A', } })                                                                            -- Enhancing skill 9
-gear.chelonaBoots = mp_gear("Chelona Boots", 35)         -- Fast Cast 4
-gear.swithCape = hp_gear("Swith Cape", -20)              -- Fast Cast 3
-gear.coladaRefresh = rank_gear("Colada", 100, {
-	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } })                        -- Refresh 2
-gear.pahtliCape = mp_gear("Pahtli Cape", 50)             -- Cure spellcasting time -8
-gear.fucho = mp_gear("Fucho-no-Obi", 30)                 -- Refresh 1 while MP is at 50% or below (latent)
-
 -- The in-game lockstyle set, macro book and macro set this file applies on load.
-LockStylePallet = "11"
+LockStylePallet = "2"
 MacroBook = "8"
 MacroSet = "1"
 
@@ -183,6 +143,46 @@ local unbridled_abort_said = nil
 -- alone passes untouched, and the os.clock() time until which other blue magic presses are dropped while
 -- the abilities go up.
 local blu_refire, blu_lock_until = nil, 0
+
+-- Vanar's own copies. Library entries cover everything else. Augments are written exactly as
+-- //gs export printed them, so each entry matches only that copy.
+gear.rosmertaDA = hp_gear("Rosmerta's Cape", 0, {
+	augments = { 'DEX+20', 'Accuracy+20 Attack+20', 'Accuracy+10', '"Dbl.Atk."+10', 'Damage taken-5%', } }) -- Acc 30, Att 20, DA 10, DT 5
+gear.rosmertaWSD = hp_gear("Rosmerta's Cape", 0, {
+	augments = { 'STR+20', 'Accuracy+20 Attack+20', 'STR+10', 'Weapon skill damage +10%', } })           -- Acc 20, Att 20, WSD 10
+gear.rosmertaCrit = hp_gear("Rosmerta's Cape", 0, {
+	augments = { 'DEX+20', 'Accuracy+20 Attack+20', 'DEX+10', 'Crit.hit rate+10', } })                   -- Acc 20, Att 20, DEX 30, Crit 10
+gear.rosmertaMAB = hp_gear("Rosmerta's Cape", 0, {
+	augments = { 'INT+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', '"Mag.Atk.Bns."+10', } })        -- Macc 30, MAB 10, MDmg 20
+gear.telchineGlovesDuration = hp_gear("Telchine Gloves", 52, {
+	augments = { 'Haste+3', 'Enh. Mag. eff. dur. +10', } })                                              -- Enhancing duration 10, Cure 10
+gear.cornflower = mp_gear("Cornflower Cape", 29)                                                         -- Macc 15, MAB 15, Blue magic skill 15
+gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0)                                                    -- Acc 14, DA 3
+gear.njordr = hp_gear("Njordr Earring", 0)                                                               -- Blue magic skill 10
+gear.honedTathlum = hp_gear("Honed Tathlum", 0)                                                          -- Acc 15
+gear.strendu = hp_gear("Strendu Ring", 0)                                                                -- Macc 2, MAB 4
+gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0)                                                      -- Treasure Hunter 1
+-- Two copies of one ring. They are only ever worn as a pair, which keeps GearSwap from pulling
+-- the same copy into both slots. If one ever fails to equip, pin each to the bag it lives in,
+-- for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
+gear.stikini1 = hp_gear("Stikini Ring", 0) -- Macc 8, all magic skills 5
+gear.stikini2 = hp_gear("Stikini Ring", 0)
+gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
+	augments = { '"Regen" potency+3', } })                                       -- Regen potency 3, Regen duration +12s, Enhancing skill 12
+gear.telchineHandsRegen = hp_gear("Telchine Gloves", 52, {
+	augments = { '"Regen" potency+3', } })                                       -- Regen potency 3
+gear.telchineFeetRegen = hp_gear("Telchine Pigaches", 13, {
+	augments = { '"Regen" potency+3', } })                                       -- Regen potency 3
+gear.pukulatmujPlusOne = rank_gear("Pukulatmuj +1", 100)                         -- Enhancing skill 11, Stoneskin casting time -11%
+gear.enhancingTorque = hp_gear("Enhancing Torque", 0)                            -- Enhancing skill 7
+gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
+	augments = { 'Path: A', } })                                                 -- Enhancing skill 9
+gear.chelonaBoots = mp_gear("Chelona Boots", 35)                                 -- Fast Cast 4
+gear.swithCape = hp_gear("Swith Cape", -20)                                      -- Fast Cast 3
+gear.coladaRefresh = rank_gear("Colada", 100, {
+	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } }) -- Refresh 2
+gear.pahtliCape = mp_gear("Pahtli Cape", 50)                                     -- Cure spellcasting time -8
+gear.fucho = mp_gear("Fucho-no-Obi", 30)                                         -- Refresh 1 while MP is at 50% or below (latent)
 
 -- Naming JobMode shows it in chat and on the status box.
 UI_Name = 'Mode'
