@@ -15,10 +15,10 @@ How the game handles fast cast, casting time, recast, skill, accuracy and the ot
 | Source | Fast Cast |
 |---|---|
 | RDM trait, Fast Cast I to V (levels 15, 35, 55, 76, 89) | 10, 15, 20, 25, 30% |
-| RDM job point gift "Fast Cast Effect" (500 job points spent) | casting time −2%, recast −1% |
+| RDM job point tiers, Fast Cast VI to IX (IX at 2000 job points spent) | 2% more each, up to 38% |
 | BLU trait from set blue magic, tiers 0 to IV | 5, 10, 15, 20, 25% |
 
-- A RDM with the gift starts at 32% before gear.
+- A mastered RDM has Fast Cast IX, 38% before gear, so 42% from gear reaches the cap.
 - BLU has no Fast Cast of its own. It gets the trait from set blue magic: Erratic Flutter on its own, or two of Bad Breath, Sub-zero Smash, Auroral Drape and Wind Breath. Setting more of them raises the tier. The tier changes with the spell set, so check the job traits list in game.
 - Some item text only says `Enhances "Fast Cast" effect`, with no number. FFXIclopedia has the values: Chelona Boots 4%, Swith Cape 3%, Estoqueur's Earring 2% and Augur's Gaiters 2%. A scan of item descriptions misses these pieces.
 
@@ -26,7 +26,7 @@ How the game handles fast cast, casting time, recast, skill, accuracy and the ot
 
 Separate stats shorten the casting time of one spell or one school of magic:
 
-- "Cure spellcasting time −X%" and "Healing magic casting time −X%"
+- "Cure spellcasting time −X%" and "Healing magic casting time −X%". Cure spellcasting time on gear Vanar owns: Doyen Pants −15%, Vanya Clogs (Path D) −15%, Pahtli Cape −8%, Serenity (augmented) −8%, Vanya Cuffs (Path B) −7% and Mendi. Earring −5%. The engine wears `sets.Precast.Cure` for every spell named Cure, Cura or Curaga, over the fast-cast set.
 - "Song spellcasting time −X%"
 - "Enhancing magic casting time −X%", for example Siegel Sash −8%
 - "Stoneskin casting time −X%", for example Pukulatmuj −10%, Pukulatmuj +1 −11% and Doyen Pants −10%

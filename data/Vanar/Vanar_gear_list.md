@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **122 pieces** (87 for BLU, 91 for RDM, 56 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **125 pieces** (89 for BLU, 94 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (14)
@@ -57,7 +57,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Rep. Plat. Medal |  |  | `WS` |
 | Sanctity Necklace |  | `Idle`, `Midcast['White Wind']`, `WS.MAB` | `Idle`, `OffenseMode`, `Midcast.Nuke`, `WS.ACC`, `WS.MAB` |
 
-## Earrings (12)
+## Earrings (13)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
@@ -69,6 +69,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Hashi. Earring +1 |  | `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill`, `WS`, `WS.MAB`, `WS['Chant du Cygne']`, `WS['Requiescat']` |  |
 | Leth. Earring +1 |  |  | `OffenseMode`, `Precast.FastCast`, `Midcast.Enhancing`, `Midcast.Enfeebling`, `Midcast.Nuke`, `WS`, `WS.MAB`, `WS.Crit` |
 | Loquac. Earring |  | `Precast.FastCast` | `Precast['Stoneskin']` |
+| Mendi. Earring |  | `Precast.Cure` | `Precast.Cure` |
 | Mimir Earring |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |
 | Moonshade Earring |  | `Midcast.BlueMagic.Physical`, `WS`, `WS['Seraph Blade']`, `WS['Red Lotus Blade']`, `WS['Flash Nova']`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `WS`, `WS.Crit`, `WS['Seraph Blade']`, `WS['Red Lotus Blade']`, `WS['Aeolian Edge']` |
 | Njordr Earring |  | `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill` |  |
@@ -90,7 +91,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Viti. Tabard +4 |  |  | `Precast.FastCast`, `Midcast.Enhancing`, `Midcast.Enhancing.Skill`, `JA['Chainspell']` |
 | Volte Jupon |  | `TreasureHunter` | `TreasureHunter` |
 
-## Hands (10)
+## Hands (11)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
@@ -103,6 +104,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Pinga Mittens |  | `Precast.FastCast` |  |
 | Telchine Gloves | Haste+3, Enh. Mag. eff. dur. +10 | `Midcast.Cure`, `Midcast.Enhancing`, `Midcast.BlueMagic.Healing`, `Midcast['White Wind']` |  |
 | Telchine Gloves | "Regen" potency+3 | `Midcast.Regen` | `Midcast.Cure`, `Midcast.Regen` |
+| Vanya Cuffs |  |  | `Precast.Cure` |
 | Viti. Gloves +4 |  |  | `Midcast.Enhancing.Skill`, `Midcast.Enhancing.Gain` |
 
 ## Rings (11)
@@ -121,13 +123,14 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Stikini Ring | one of two identical copies | `Midcast.Enhancing.Skill`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill` | `Midcast.Enhancing.Skill`, `Midcast.Enfeebling` |
 | Strendu Ring |  | `Midcast.BlueMagic.Nuke` | `Midcast.Nuke` |
 
-## Back (13)
+## Back (14)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
 | Cornflower Cape |  | `Midcast.BlueMagic.Skill` |  |
 | Fi Follet Cape +1 |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |
 | Ghostfyre Cape |  |  | `Midcast.Enhancing` |
+| Pahtli Cape |  | `Precast.Cure` | `Precast.Cure` |
 | Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, Crit.hit rate+9 | `WS['Chant du Cygne']` |  |
 | Rosmerta's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 | `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` |  |
 | Rosmerta's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10% | `Midcast.BlueMagic.Physical`, `WS` |  |
@@ -162,7 +165,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Atro. Tights +4 |  |  | `OffenseMode.ACC`, `Midcast.Cure`, `Midcast.Enhancing.Skill`, `Midcast.Enfeebling` |
 | Aya. Cosciales +2 |  | `Precast.FastCast` | `Precast.FastCast` |
 | Carmine Cuisses +1 |  | `Movement`, `Midcast.Enhancing.Skill` | `Movement` |
-| Doyen Pants |  | `Precast['Stoneskin']` | `Precast['Stoneskin']` |
+| Doyen Pants |  | `Precast['Stoneskin']`, `Precast.Cure` | `Precast['Stoneskin']`, `Precast.Cure` |
 | Gleti's Breeches |  | `WS['Chant du Cygne']` |  |
 | Hashishin Tayt +3 |  | `Idle`, `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill`, `WS['Requiescat']` |  |
 | Leth. Fuseau +3 |  |  | `Idle`, `OffenseMode`, `Midcast.Enhancing.Others`, `Midcast.Refresh`, `Midcast.Enfeebling.Potency`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS.MAB`, `WS.Crit` |
@@ -182,5 +185,5 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Luhlaza Charuqs +1 |  | `Midcast.BlueMagic.Skill`, `Diffusion` |  |
 | Nyame Sollerets |  | `Midcast.BlueMagic.Breath`, `Midcast['White Wind']`, `WS` |  |
 | Telchine Pigaches |  | `Midcast.Regen` | `Midcast.Regen` |
-| Vanya Clogs |  |  | `Midcast.Cure` |
+| Vanya Clogs |  |  | `Precast.Cure`, `Midcast.Cure` |
 | Viti. Boots +4 |  |  | `Idle`, `Midcast.Enfeebling` |

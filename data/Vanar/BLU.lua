@@ -48,6 +48,7 @@ gear.chelonaBoots = mp_gear("Chelona Boots", 35)         -- Fast Cast 4
 gear.swithCape = hp_gear("Swith Cape", -20)              -- Fast Cast 3
 gear.coladaRefresh = rank_gear("Colada", 100, {
 	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } })                        -- Refresh 2
+gear.pahtliCape = mp_gear("Pahtli Cape", 50)             -- Cure spellcasting time -8
 
 -- The in-game lockstyle set, macro book and macro set this file applies on load.
 LockStylePallet = "11"
@@ -333,6 +334,15 @@ function get_sets()
 		main = gear.pukulatmujPlusOne,		-- Stoneskin casting time -11
 		legs = gear.doyenLegs,				-- Stoneskin casting time -10
 	}	-- 64% from gear, so any Fast Cast trait of 16% or more reaches the cap
+
+	-- Cure spells from a WHM or RDM subjob, over the fast-cast set. Each Cure casting time piece cuts more
+	-- than the fast cast it replaces: Doyen Pants for Ayanmo Cosciales +2, Mendi. Earring for Etiolation
+	-- Earring and Pahtli Cape for Swith Cape. Recast is set by the midcast set, so nothing here costs any.
+	sets.Precast.Cure = {
+		legs = gear.doyenLegs,				-- Cure spellcasting time -15
+		right_ear = gear.mendicantEarring,	-- Cure spellcasting time -5
+		back = gear.pahtliCape,				-- Cure spellcasting time -8
+	}	-- 62% from gear (fast cast 34, Cure spellcasting time -28), so any Fast Cast trait of 18% or more reaches the cap
 
 	-- Job abilities. sets.JA is worn for every job ability, and the set named for the ability merges over it.
 	sets.JA = set_combine(sets.Idle, {})

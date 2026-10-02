@@ -45,6 +45,7 @@ gear.swithCape = hp_gear("Swith Cape", -20)                -- Fast Cast 3
 gear.coladaRefresh = rank_gear("Colada", 100, {
 	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } })                              -- Refresh 2
 gear.archdukesShield = hp_gear("Archduke's Shield", 0)    -- Refresh 1, INT 20, MND 20, Magic evasion 20
+gear.pahtliCape = mp_gear("Pahtli Cape", 50)              -- Cure spellcasting time -8
 
 -- The lockstyle set, macro book and macro set that jobsetup applies at load.
 LockStylePallet = "6"
@@ -298,7 +299,7 @@ function get_sets()
 
 	-- Stoneskin, over the fast-cast set. Doyen Pants and Siegel Sash take the place of Ayanmo
 	-- Cosciales +2 and Embla Sash, and the free slots win that 11 fast cast back, so fast cast stays
-	-- at 82% with the Stoneskin cuts on top. bg-wiki counts those cuts inside the same 80% cap, so
+	-- at 88% with the Stoneskin cuts on top. bg-wiki counts those cuts inside the same 80% cap, so
 	-- under that reading the set changes nothing, and if they go past it the cast is faster. Recast
 	-- is set by the midcast set, so nothing here costs any.
 	sets.Precast["Stoneskin"] = {
@@ -309,7 +310,22 @@ function get_sets()
 		back = gear.swithCape,					-- FC 3
 		left_ear = gear.loquacious,				-- FC 2
 		left_ring = gear.prolix,				-- FC 2
-	}	-- FC 82%, and Stoneskin casting time -29%
+	}	-- FC 88%, and Stoneskin casting time -29%
+
+	-- Cure spells, over the fast-cast set. The Cure casting time pieces take the slots the fast-cast set
+	-- leaves open, and Doyen Pants take Ayanmo Cosciales +2's place, so fast cast stays at 82% with the
+	-- Cure cuts on top. As with Stoneskin, bg-wiki counts those cuts inside the 80% cap, so under that
+	-- reading the set changes nothing, and if they go past it the cast is faster. Recast is set by the
+	-- midcast set, so nothing here costs any. Serenity (Cure casting time -8) is left out: it is a
+	-- two-handed staff, so it would take the shield off, and the TP too while engaged without the
+	-- weapon lock.
+	sets.Precast.Cure = {
+		hands = gear.vanyaHandsPathB,			-- Cure spellcasting time -7
+		legs = gear.doyenLegs,					-- Cure spellcasting time -15
+		feet = gear.vanyaFeetPathD,				-- Cure spellcasting time -15
+		left_ear = gear.mendicantEarring,		-- Cure spellcasting time -5
+		back = gear.pahtliCape,					-- Cure spellcasting time -8
+	}	-- FC 82%, and Cure spellcasting time -50%
 
 	-- ===================================================================================================================
 	--		sets.Midcast
