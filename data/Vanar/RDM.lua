@@ -9,6 +9,9 @@
 include('RahvinGS/GearSets-Include')
 include('RahvinGS/Rahvin-Engine')
 
+-- Vanar's settings for every job, such as Windower aliases.
+include('Vanar-Globals')
+
 -- The lockstyle set, macro book and macro set that jobsetup applies at load.
 LockStylePallet = "1"
 MacroBook = "3"
