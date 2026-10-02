@@ -14,7 +14,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Colada | "Refresh"+2, Mag. Acc.+11, "Mag.Atk.Bns."+12, DMG:+1 | `Weapons.Idle` | `Weapons.Idle` |
 | Forfend +1 |  |  | `Midcast.Enhancing.Skill` |
 | Gleti's Knife |  |  | `Weapons['Chant du Cygne']`, `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` |
-| Maxentius |  | `Weapons['Black Halo']`, `Weapons.Casting` | `Weapons['Black Halo']`, `Weapons['Black Halo Acc']` |
+| Maxentius |  | `Weapons['Black Halo']`, `Weapons.Casting` | `Weapons['Black Halo']`, `Weapons['Black Halo Acc']`, `Weapons.CastingDualWield` |
 | Naegling |  | `Weapons['Naegling']`, `Weapons['Naegling Acc']` | `Weapons['Savage Blade']`, `Weapons['Savage Blade Acc']`, `Weapons['Sanguine Blade']` |
 | Pukulatmuj +1 |  | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` |
 | Tauret |  |  | `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` |

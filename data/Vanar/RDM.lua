@@ -190,6 +190,11 @@ function get_sets()
 		ammo = empty,					-- any ammo that is not an arrow strips the bow
 	}
 
+	-- The same, with Maxentius in the offhand when a subjob gives Dual Wield. midcast_custom picks it.
+	sets.Weapons.CastingDualWield = set_combine(sets.Weapons.Casting, {
+		sub = gear.maxentius,			-- Macc 40, MAB 21, INT 15, MND 15
+	})
+
 	-- Worn in the offhand whenever the main is one-handed and no dual-wield trait is active.
 	sets.Weapons.Shield = {
 		sub = gear.ammurapi,
@@ -657,6 +662,13 @@ function precast_custom(spell)
 	return equipSet
 end
 
+-- Whether you have Dual Wield, job trait 18, which RDM only gets from a subjob such as NIN or DNC.
+-- The engine reads it the same way.
+local function can_dual_wield()
+	local abilities = windower.ffxi.get_abilities()
+	return abilities ~= nil and abilities.job_traits ~= nil and table.contains(abilities.job_traits, 18)
+end
+
 -- Called while each action is in flight. The table it returns is merged over the engine's
 -- midcast set, which is empty for abilities, weaponskills and items.
 function midcast_custom(spell)
@@ -671,11 +683,12 @@ function midcast_custom(spell)
 		local others = spell.target.type ~= 'SELF' or buffactive['Accession']
 		equipSet = set_combine(sets.Midcast.Enhancing, others and sets.Midcast.Enhancing.Others or {}, sets.Midcast[spell.english])
 	end
-	-- The casting weapons for magic that has to land, cast while not engaged. Engaged casts keep the
-	-- weapon mode's weapons, since new weapons reset TP. After the cast, the weapon mode takes the range
-	-- slot back off and choose_set_custom puts the idle weapons back on.
+	-- The casting weapons for magic that has to land, cast while not engaged: Maxentius in the offhand
+	-- with Dual Wield, Ammurapi Shield without. Engaged casts keep the weapon mode's weapons, since new
+	-- weapons reset TP. After the cast, the weapon mode takes the range slot back off and
+	-- choose_set_custom puts the idle weapons back on.
 	if player.status ~= 'Engaged' and Casting_Skills:contains(spell.skill) then
-		equipSet = sets.Weapons.Casting
+		equipSet = can_dual_wield() and sets.Weapons.CastingDualWield or sets.Weapons.Casting
 	end
 	return equipSet
 end
