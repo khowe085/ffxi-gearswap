@@ -19,7 +19,7 @@ Abbreviation: gs
 Commands (<> indicates a field. You do not actually have to use <>s):
 * gs c <string> : Passes the <string> to the self_command() user function.
 * gs equip <string> : Attempts to interpret the <string> as an index of the sets table and equip that set. Will ignore "sets" if the string starts with it.
-** gs equip naked : Runs gs c naked on and gs c enable all, which turn on the user file's naked hold and free every slot, in place of equipping the "naked" set.
+** gs equip naked : Runs gs c naked, which toggles the user file's naked hold, in place of equipping the "naked" set.
 * gs debugmode : Activates GearSwap's Debug Mode, which prints out why specific gear equipping attempts failed, shows you when you're entering events, and enables the eval command.
 ** gs eval <string> : This command evaluates the <string> as Lua code in the global gearswap environment (not the user environment, which is in the user_env table). It is only available when debugmode is on.
 * gs showswaps : Shows when your gear successfully changes and what it changes to.

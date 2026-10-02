@@ -183,10 +183,10 @@ windower.register_event('addon command',function (...)
         end
     elseif cmd == 'equip' then
         if gearswap_disabled then return end
-        -- equip naked, in any case, turns on the user file's naked hold and frees every
-        -- slot its disable hold has, in place of equipping sets.naked.
+        -- equip naked, in any case, toggles the user file's naked hold with gs c naked, in
+        -- place of equipping sets.naked.
         if #splitup == 1 and splitup[1]:lower() == 'naked' then
-            windower.send_command('gs c naked on; gs c enable all')
+            windower.send_command('gs c naked')
             return
         end
         local key_list = parse_set_to_keys(splitup)
@@ -242,7 +242,7 @@ windower.register_event('addon command',function (...)
     elseif strip(cmd) == 'help' then
         print('GearSwap: Valid commands are:')
         print(' c <string>      : passes the string to the user\'s self_command function.')
-        print(' equip <string>  : attempts to equip the set indicated by the string. naked runs c naked on and c enable all.')
+        print(' equip <string>  : attempts to equip the set indicated by the string. naked toggles c naked.')
         print(' e / x           : short for equip / export.')
         print(' d / t <string>  : short for c disable / c test.')
         print(' debugmode       : toggles debugmode on or off.')
