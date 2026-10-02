@@ -292,7 +292,7 @@ function get_sets()
 		body = gear.hashishinBodyPlusThree,			-- Acc 64, Att 64, DT 13
 		hands = gear.hashishinHandsPlusThree,		-- Acc 62, Att 62, DT 10
 		legs = gear.hashishinLegsPlusThree,			-- Acc 63, Att 63, DT 12
-		feet = gear.nyameFeet,						-- Acc 53, Att 65, DA 5, DT 7 (Path B)
+		feet = gear.nyameFeet,						-- Acc 40, Att 55, DA 2, DT 7 (Path B)
 		neck = gear.mirageStolePlusTwo,				-- Acc 25
 		waist = gear.kentarchPlusOne,				-- Acc 14, DA 3
 		left_ear = gear.brutal,						-- DA 5
@@ -300,7 +300,7 @@ function get_sets()
 		left_ring = gear.lehkoHabhokaRing,			-- STP 10, Crit 10
 		right_ring = gear.rajas,					-- STP 5, Subtle Blow 5
 		back = gear.rosmertaDA,						-- Acc 30, Att 20, DA 10, DT 5
-	}	-- Acc 384, Att 335, DT 47
+	}	-- Acc 371, Att 325, DT 47
 
 	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {})
 
@@ -552,17 +552,18 @@ function get_sets()
 
 	-- Weaponskill base, the weapon skill damage set. Savage Blade, Expiacion and Black Halo wear it as it is.
 	-- It follows bg-wiki's simulated Savage Blade and Expiacion sets (All Jobs Gear Sets/Blue Mage). Jhakri
-	-- Cuffs +2 stand in for its Path B Nyame Gauntlets (WSD 11, DA 5), since Vanar's have no path, Hashi.
-	-- Earring +1 for Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at rank 20.
+	-- Cuffs +2 stand in for its Path B Nyame Gauntlets, since Vanar's have no path, Hashi. Earring +1 for
+	-- Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at rank 20.
 	-- The legs are Luhlaza Shalwar +4 in place of its Nyame Flanchard, and the body Assimilator's Jubbah +4
-	-- in place of its Nyame Mail, for 20 more accuracy and 25 more DEX at the cost of WSD 1, Att 65 and DA 7.
+	-- in place of its Nyame Mail, for 2 more WSD, 20 more accuracy and 25 more DEX at the cost of Att 55
+	-- and DA 2.
 	sets.WS = {
 		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
 		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61, Sword skill 30
 		body = gear.assimilatorBodyPlusFour,		-- WSD 12, Acc 60, DEX 49, STR 39
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, Acc 43, Att 43
 		legs = gear.luhlazaLegsPlusFour,			-- WSD 12, Acc 50, STR 46
-		feet = gear.nyameFeet,						-- WSD 11, DA 5, Acc 53, Att 65
+		feet = gear.nyameFeet,						-- WSD 8, DA 2, Acc 40, Att 55
 		neck = gear.mirageStolePlusTwo,				-- STR 25, DEX 25 (Path A), Acc 25
 		waist = gear.sailfi,
 		left_ear = gear.moonshade,					-- TP Bonus 250
@@ -573,7 +574,7 @@ function get_sets()
 	}
 
 	-- Merged in ACC mode after the set named for the weaponskill, so its slots win. A weaponskill with an ACC set of its own skips it.
-	-- The feet stay: Nyame Sollerets (Path B) already have Acc 53, and Hashishin Basmak +3 would trade WSD 11 for 7 more.
+	-- The feet stay Nyame Sollerets (WSD 8, Acc 40). Hashishin Basmak +3 would trade their WSD 8 for 20 more accuracy.
 	sets.WS.ACC = {
 		hands = gear.hashishinHandsPlusThree,		-- Acc 62
 		waist = gear.kentarchPlusOne,				-- Acc 14
@@ -583,7 +584,7 @@ function get_sets()
 	sets.WS.MAB = {
 		ammo = gear.pemphredoTathlum,				-- Macc 8, MAB 4
 		head = gear.hashishinHeadPlusThree,			-- WSD 12, MAB 51
-		body = gear.nyameBody,						-- WSD 13 (Path B), MAB 30
+		body = gear.nyameBody,						-- WSD 10 (Path B), MAB 30
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, MAB 40
 		legs = gear.luhlazaLegsPlusFour,			-- WSD 12, MAB 60
 		feet = gear.hashishinFeetPlusThree,			-- MAB 55

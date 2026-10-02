@@ -567,9 +567,9 @@ function get_sets()
 	sets.WS = {
 		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
 		head = gear.vitiationChapeauPlusFour,		-- WSD 9, Acc 42, Att 72
-		body = gear.nyameBody,						-- WSD 13, DA 7, Acc 40, Att 65, DT 9
+		body = gear.nyameBody,						-- WSD 10, DA 2, Acc 40, Att 55, DT 9
 		hands = gear.atrophyHandsPlusFour,			-- WSD 9, Acc 63, Att 35
-		legs = gear.nyameLegs,						-- WSD 12, DA 6, Acc 40, Att 65, DT 8
+		legs = gear.nyameLegs,						-- WSD 8, DA 2, Acc 40, Att 55, DT 8
 		feet = gear.lethargyFeetPlusThree,			-- WSD 12, Acc 60, Att 60
 		neck = gear.republicanPlatinumMedal,		-- Att 30
 		waist = gear.sailfi,
@@ -591,7 +591,7 @@ function get_sets()
 	sets.WS.MAB = {
 		ammo = gear.pemphredoTathlum,				-- Macc 8, MAB 4
 		head = gear.lethargyHeadPlusThree,			-- MAB 56, MDmg 31
-		body = gear.nyameBody,						-- WSD 13 (Path B), MAB 30
+		body = gear.nyameBody,						-- WSD 10 (Path B), MAB 30
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, MAB 40
 		legs = gear.lethargyLegsPlusThree,			-- MAB 58, MDmg 33
 		feet = gear.lethargyFeetPlusThree,			-- WSD 12, MAB 50, MDmg 30

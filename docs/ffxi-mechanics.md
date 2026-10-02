@@ -176,10 +176,17 @@ Duration = (base + 6s × RDM Group 2 merit + 3s × relic hands merit augment + R
 - Chant du Cygne's critical hit rate rises with TP: +15, +25 and +40% at 1000, 2000 and 3000 TP.
 - The Hashishin set bonus occasionally triples a blue magic spell's weapon skill coefficient, or quadruples it with Chain Affinity or Burst Affinity.
 
+## Treasure Hunter
+
+- A monster's Treasure Hunter level comes from the TH you have when you act on it. Melee rounds, ranged attacks, weapon skills, job abilities and spells all count, misses included: anything that puts you on its enmity list.
+- On a main job other than Thief, TH from gear and traits caps at 4.
+- Rahvin engine, Tag mode: TH gear goes on as soon as you engage a monster the engine hasn't recorded as tagged, before the first swing, because GearSwap gets no event before an auto-attack. The first melee round marks the monster tagged, and the engaged set rebuilds without TH. Weapon skills, job abilities and ranged attacks against an untagged monster wear TH at precast. A spell wears it at midcast only if it is on the job file's `TH_Spells` list, and a spell off the list doesn't mark the monster tagged. A monster tagged by a listed spell before you engage gets no TH gear when you engage. The engine forgets a tag when the monster dies, when you zone, and after three minutes without an action on it.
+
 ## Gear and GearSwap
 
 - Leth. Earring +1 and Hashi. Earring +1: their item text says their bonuses only work in the right ear.
 - `//gs export` shows a path augment ("Path: A") but not its rank.
+- Odyssey gear such as Nyame raises its path augments with rank, up to rank 30. FFXIclopedia lists only rank 30, and bg-wiki's simulated sets assume it. Path B at rank 30: Attack +35, plus weapon skill damage and Double Attack of +13% and +7% on the Mail, +12% and +6% on the Flanchard, and +11% and +5% on the Helm, Gauntlets and Sollerets. At rank 20 (bg-wiki, through search extracts): Attack +25, with +10% and +2% on the Mail, and +8% and +2% on the Flanchard and Gauntlets. Each piece's fourth Path B line (STR, VIT or accuracy) didn't show at rank 20.
 - When you own more than one copy of an item, name each copy by its augments, exactly as `//gs export` printed them.
 - Rahvin engine: a set named for the exact spell, `sets.Midcast['<spell>']`, replaces the whole enhancing set for that spell. `sets.Midcast.Phalanx`, `.Refresh` and `.Regen` are also the family sets the engine merges over the enhancing set, and over the Others set off self, for every spell of that family. So the spells called Phalanx, Refresh and Regen wear that table alone. If those sets only list the slots they change, the first-tier spells lose all their duration gear; if they are full copies of the enhancing set, casts on others lose the Others set's Lethargy pieces. Keeping them short and putting the enhancing set back for those three spells in `midcast_custom` avoids both.
 - Two identical copies with no augments, such as two Stikini Rings, are safest swapped as a pair. Otherwise GearSwap can try to move the copy already worn in the other slot. Pinning each to its bag, for example `{ bag = "wardrobe" }`, also fixes it.
@@ -224,12 +231,23 @@ bg-wiki, read through search extracts:
 [Weapon Skill Damage](https://www.bg-wiki.com/bg/Weapon_Skill_Damage),
 [Chant du Cygne](https://bg-wiki.com/bg/Chant_du_Cygne),
 [Fotia Gorget](https://www.bg-wiki.com/ffxi/Fotia_Gorget),
-[Expiacion](https://www.bg-wiki.com/ffxi/Expiacion).
+[Expiacion](https://www.bg-wiki.com/ffxi/Expiacion),
+[Treasure Hunter](https://www.bg-wiki.com/ffxi/Treasure_Hunter),
+[Nyame Mail](https://www.bg-wiki.com/ffxi/Nyame_Mail),
+[Nyame Flanchard](https://www.bg-wiki.com/ffxi/Nyame_Flanchard),
+[Nyame Gauntlets](https://www.bg-wiki.com/ffxi/Nyame_Gauntlets).
+
+Forums, through search extracts: [Treasure hunter (FFXIAH)](https://www.ffxiah.com/forum/topic/26401/treasure-hunter), [TH Procing (Square Enix)](https://forum.square-enix.com/ffxi/threads/27974).
 
 FFXIclopedia, read directly:
 [Fast Cast](https://ffxiclopedia.fandom.com/wiki/Fast_Cast),
 [Cast Time](https://ffxiclopedia.fandom.com/wiki/Cast_Time),
 [Siegel Sash](https://ffxiclopedia.fandom.com/wiki/Siegel_Sash),
-[Doyen Pants](https://ffxiclopedia.fandom.com/wiki/Doyen_Pants).
+[Doyen Pants](https://ffxiclopedia.fandom.com/wiki/Doyen_Pants),
+[Nyame Helm](https://ffxiclopedia.fandom.com/wiki/Nyame_Helm),
+[Nyame Mail](https://ffxiclopedia.fandom.com/wiki/Nyame_Mail),
+[Nyame Gauntlets](https://ffxiclopedia.fandom.com/wiki/Nyame_Gauntlets),
+[Nyame Flanchard](https://ffxiclopedia.fandom.com/wiki/Nyame_Flanchard),
+[Nyame Sollerets](https://ffxiclopedia.fandom.com/wiki/Nyame_Sollerets).
 
 **Reading the wikis from an automated session.** bg-wiki answers automated requests with a bot check, and the Wayback Machine and archive.ph connections drop. FFXIclopedia's MediaWiki API works: `https://ffxiclopedia.fandom.com/api.php?action=parse&page=<Page_Name>&prop=wikitext&format=json`.
