@@ -31,9 +31,10 @@ Food = "Crepe B. Helene"
 state.OffenseMode:options('TP', 'ACC', 'DT')
 state.OffenseMode:set('TP')
 
--- The spells that wear sets.TreasureHunter against an untagged monster. A spell off this list keeps its own
--- midcast set and does not count as tagging. Delete the line to let every spell tag.
-TH_Spells = S { 'Dia', 'Dia II', 'Dia III', 'Stonega' }
+-- The spells, job abilities and weaponskills that wear sets.TreasureHunter against an untagged monster. In Tag mode
+-- nothing else wears it, melee included, and an action off the list does not count as tagging. Delete the line to
+-- let every action tag.
+TH_Whitelist = S { 'Dia', 'Dia II', 'Dia III', 'Stonega' }
 
 -- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
 jobsetup(LockStylePallet, MacroBook, MacroSet)
@@ -288,8 +289,8 @@ function get_sets()
 		right_ring = gear.murky,					-- DT 10
 	})	-- DT 50
 
-	-- Treasure Hunter gear. While TH Mode is Tag or Full Time, it is worn for an action aimed at an
-	-- untagged monster and while engaged on one. Spells only wear it when TH_Spells lists them. TH Mode
+	-- Treasure Hunter gear. In Tag mode it is worn only for an action TH_Whitelist lists, aimed at an
+	-- untagged monster, never just for being engaged. Full Time also wears it whenever engaged. TH Mode
 	-- starts in Tag, Alt+F11 cycles it, and None turns it off.
 	sets.TreasureHunter = {
 		head = gear.whiteRarabCap,	-- TH 1
