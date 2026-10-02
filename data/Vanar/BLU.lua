@@ -94,8 +94,8 @@ Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divin
 Family_Set_Spells = S { 'Refresh', 'Regen' }
 
 -- Weapon modes. Each name needs a matching sets.Weapons entry.
-state.WeaponMode:options('Naegling','Naegling Acc','Tizona','Tizona Acc','Almace','Black Halo')
-state.WeaponMode:set('Naegling')
+state.WeaponMode:options('Tizona','Tizona Acc','Black Halo','Black Halo Acc','Naegling','Naegling Acc','Almace')
+state.WeaponMode:set('Tizona')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (F11) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
@@ -194,19 +194,10 @@ state.JobMode:set('Melee')
 function get_sets()
 
 	-- Weapon sets, one per weapon mode. Thibron's TP Bonus +1000 backs every weapon skill mode, and the Acc
-	-- modes trade it for Almace in the offhand, for more accuracy. They are worn only while engaged. Out of
-	-- combat choose_set_custom swaps in sets.Weapons.Idle, which costs whatever TP is left when you disengage.
+	-- modes trade it for a more accurate offhand: Almace, or Bunzi's Rod for Black Halo. They are worn only
+	-- while engaged. Out of combat choose_set_custom swaps in sets.Weapons.Idle, which costs whatever TP is
+	-- left when you disengage.
 	sets.Weapons = {}
-
-	sets.Weapons['Naegling'] = {	-- Savage Blade
-		main = gear.naegling,
-		sub = gear.thibron,
-	}
-
-	sets.Weapons['Naegling Acc'] = {	-- Savage Blade
-		main = gear.naegling,
-		sub = gear.almace,
-	}
 
 	sets.Weapons['Tizona'] = {		-- Expiacion
 		main = gear.tizona,
@@ -218,13 +209,29 @@ function get_sets()
 		sub = gear.almace,
 	}
 
-	sets.Weapons['Almace'] = {		-- Chant du Cygne
-		main = gear.almace,
+	sets.Weapons['Black Halo'] = {	-- Black Halo
+		main = gear.maxentius,
 		sub = gear.thibron,
 	}
 
-	sets.Weapons['Black Halo'] = {	-- Black Halo
+	-- The offhand needs Dual Wield from set blue magic, as every offhand weapon here does.
+	sets.Weapons['Black Halo Acc'] = {	-- Black Halo
 		main = gear.maxentius,
+		sub = gear.bunzi,			-- Acc 40
+	}
+
+	sets.Weapons['Naegling'] = {	-- Savage Blade
+		main = gear.naegling,
+		sub = gear.thibron,
+	}
+
+	sets.Weapons['Naegling Acc'] = {	-- Savage Blade
+		main = gear.naegling,
+		sub = gear.almace,
+	}
+
+	sets.Weapons['Almace'] = {		-- Chant du Cygne
+		main = gear.almace,
 		sub = gear.thibron,
 	}
 
