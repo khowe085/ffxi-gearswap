@@ -190,7 +190,8 @@ function get_sets()
 		ammo = empty,					-- any ammo that is not an arrow strips the bow
 	}
 
-	-- The same, with Maxentius in the offhand when a subjob gives Dual Wield. midcast_custom picks it.
+	-- The same, with Maxentius in the offhand when a subjob gives Dual Wield, for magic that has to land.
+	-- Nukes keep Ammurapi Shield for its magic attack. midcast_custom picks between the two.
 	sets.Weapons.CastingDualWield = set_combine(sets.Weapons.Casting, {
 		sub = gear.maxentius,			-- Macc 40, MAB 21, INT 15, MND 15. Its Magic Accuracy skill only counts in the main hand.
 	})
@@ -683,12 +684,14 @@ function midcast_custom(spell)
 		local others = spell.target.type ~= 'SELF' or buffactive['Accession']
 		equipSet = set_combine(sets.Midcast.Enhancing, others and sets.Midcast.Enhancing.Others or {}, sets.Midcast[spell.english])
 	end
-	-- The casting weapons for magic that has to land, cast while not engaged: Maxentius in the offhand
-	-- with Dual Wield, Ammurapi Shield without. Engaged casts keep the weapon mode's weapons, since new
-	-- weapons reset TP. After the cast, the weapon mode takes the range slot back off and
-	-- choose_set_custom puts the idle weapons back on.
+	-- The casting weapons for magic that has to land, cast while not engaged. The offhand is Maxentius
+	-- with Dual Wield, and Ammurapi Shield without it and for nukes, which want its magic attack. The
+	-- engine's Elemental_Enfeeble list keeps Burn, Frost and the other elemental debuffs off the nukes.
+	-- Engaged casts keep the weapon mode's weapons, since new weapons reset TP. After the cast, the
+	-- weapon mode takes the range slot back off and choose_set_custom puts the idle weapons back on.
 	if player.status ~= 'Engaged' and Casting_Skills:contains(spell.skill) then
-		equipSet = can_dual_wield() and sets.Weapons.CastingDualWield or sets.Weapons.Casting
+		local nuke = spell.skill == 'Elemental Magic' and not Elemental_Enfeeble:contains(spell.english)
+		equipSet = (can_dual_wield() and not nuke) and sets.Weapons.CastingDualWield or sets.Weapons.Casting
 	end
 	return equipSet
 end
