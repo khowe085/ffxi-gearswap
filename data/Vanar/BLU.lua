@@ -1,5 +1,5 @@
 -- Vanar's Blue Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/BLU.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar_2026-09-27_18-24-29.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-01 20-15-33.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Hashi. Earring +1 is always in the right ear, the only ear its sword and blue magic
 -- skill bonuses work in. At Master Level 25 sword skill is past 600, where each point adds 0.9 accuracy
@@ -18,7 +18,7 @@ gear.rosmertaDA = hp_gear("Rosmerta's Cape", 0, {
 gear.rosmertaWSD = hp_gear("Rosmerta's Cape", 0, {
 	augments = { 'STR+20', 'Accuracy+20 Attack+20', 'STR+10', 'Weapon skill damage +10%', } })               -- Acc 20, Att 20, WSD 10
 gear.rosmertaCrit = hp_gear("Rosmerta's Cape", 0, {
-	augments = { 'DEX+20', 'Accuracy+20 Attack+20', 'Crit.hit rate+9', } })                                 -- Acc 20, Att 20, Crit 9
+	augments = { 'DEX+20', 'Accuracy+20 Attack+20', 'DEX+10', 'Crit.hit rate+10', } })                      -- Acc 20, Att 20, DEX 30, Crit 10
 gear.rosmertaMAB = hp_gear("Rosmerta's Cape", 0, {
 	augments = { 'INT+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', '"Mag.Atk.Bns."+10', } })           -- Macc 30, MAB 10, MDmg 20
 gear.telchineGlovesDuration = hp_gear("Telchine Gloves", 52, {
@@ -308,14 +308,14 @@ function get_sets()
 		head = gear.amalricCoifPlusOne,		-- FC 11
 		body = gear.luhlazaBodyPlusOne,		-- FC 7
 		hands = gear.pingaHands,			-- FC 5
-		legs = gear.ayanmoLegsPlusTwo,		-- FC 6
+		legs = gear.enifLegs,				-- FC 8
 		waist = gear.witful,				-- FC 3, Quick Magic 3
 		left_ear = gear.loquacious,			-- FC 2
 		right_ear = gear.etiolation,		-- FC 1
 		left_ring = gear.prolix,			-- FC 2
 		back = gear.swithCape,				-- FC 3
 		feet = gear.chelonaBoots,			-- FC 4
-	}	-- FC 44. Ammo and neck keep the idle set's pieces.
+	}	-- FC 46. Ammo and neck keep the idle set's pieces.
 
 	-- Merged over the fast-cast set for blue magic.
 	sets.Precast.BlueMagic = set_combine(sets.Precast.FastCast, {
@@ -327,7 +327,7 @@ function get_sets()
 	-- or 15% from a RDM subjob, whichever is higher.
 	sets.Precast.Enhancing = {
 		waist = gear.siegel,				-- Enhancing magic casting time -8
-	}	-- 49% from gear
+	}	-- 51% from gear
 
 	-- Stoneskin from a WHM or RDM subjob, over sets.Precast.Enhancing.
 	sets.Precast["Stoneskin"] = {
@@ -336,7 +336,7 @@ function get_sets()
 	}	-- 64% from gear, so any Fast Cast trait of 16% or more reaches the cap
 
 	-- Cure spells from a WHM or RDM subjob, over the fast-cast set. Each Cure casting time piece cuts more
-	-- than the fast cast it replaces: Doyen Pants for Ayanmo Cosciales +2, Mendi. Earring for Etiolation
+	-- than the fast cast it replaces: Doyen Pants for Enif Cosciales, Mendi. Earring for Etiolation
 	-- Earring and Pahtli Cape for Swith Cape. Recast is set by the midcast set, so nothing here costs any.
 	sets.Precast.Cure = {
 		legs = gear.doyenLegs,				-- Cure spellcasting time -15
@@ -611,7 +611,7 @@ function get_sets()
 		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, Sword skill 11
 		left_ring = gear.lehkoHabhokaRing,			-- Crit 10
 		right_ring = gear.rajas,					-- STP 5, Subtle Blow 5
-		back = gear.rosmertaCrit,					-- Crit 9, Acc 20, Att 20
+		back = gear.rosmertaCrit,					-- Crit 10, DEX 30, Acc 20, Att 20
 	}
 
 	-- Requiescat: five MND hits, so accuracy and multi-attack over weapon skill damage.

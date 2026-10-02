@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-09-27: **125 pieces** (89 for BLU, 94 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **124 pieces** (89 for BLU, 92 for RDM, 57 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (14)
@@ -40,7 +40,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Hashishin Kavuk +3 |  | `Idle`, `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS`, `WS.MAB`, `WS['Chant du Cygne']`, `WS['Requiescat']` |  |
 | Leth. Chappel +3 |  |  | `OffenseMode`, `Midcast.Enhancing.Others`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS.MAB`, `WS.Crit` |
 | Nyame Helm |  | `Midcast.BlueMagic.Breath`, `Midcast['White Wind']` |  |
-| Telchine Cap | Enh. Mag. eff. dur. +10 | `Midcast.Enhancing` | `Midcast.Enhancing` |
+| Telchine Cap |  | `Midcast.Enhancing` | `Midcast.Enhancing` |
 | Viti. Chapeau +4 |  |  | `Idle`, `Midcast.Enfeebling.Potency`, `WS` |
 | Wh. Rarab Cap +1 |  | `TreasureHunter` | `TreasureHunter` |
 
@@ -131,10 +131,10 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Fi Follet Cape +1 |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |
 | Ghostfyre Cape |  |  | `Midcast.Enhancing` |
 | Pahtli Cape |  | `Precast.Cure` | `Precast.Cure` |
-| Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, Crit.hit rate+9 | `WS['Chant du Cygne']` |  |
 | Rosmerta's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 | `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` |  |
 | Rosmerta's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10% | `Midcast.BlueMagic.Physical`, `WS` |  |
 | Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, "Dbl.Atk."+10, Damage taken-5% | `Idle`, `OffenseMode`, `WS['Requiescat']` |  |
+| Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, DEX+10, Crit.hit rate+10 | `WS['Chant du Cygne']` |  |
 | Solemnity Cape |  | `Midcast.Cure`, `Midcast.BlueMagic.Healing`, `Midcast['White Wind']` | `Midcast.Cure` |
 | Sucellos's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10%, Damage taken-5% |  | `WS` |
 | Sucellos's Cape | MND+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, Haste+10 |  | `Midcast.Enfeebling` |
@@ -163,9 +163,9 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
 | Atro. Tights +4 |  |  | `OffenseMode.ACC`, `Midcast.Cure`, `Midcast.Enhancing.Skill`, `Midcast.Enfeebling` |
-| Aya. Cosciales +2 |  | `Precast.FastCast` | `Precast.FastCast` |
 | Carmine Cuisses +1 |  | `Movement`, `Midcast.Enhancing.Skill` | `Movement` |
 | Doyen Pants |  | `Precast['Stoneskin']`, `Precast.Cure` | `Precast['Stoneskin']`, `Precast.Cure` |
+| Enif Cosciales |  | `Precast.FastCast` |  |
 | Gleti's Breeches |  | `WS['Chant du Cygne']` |  |
 | Hashishin Tayt +3 |  | `Idle`, `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill`, `WS['Requiescat']` |  |
 | Leth. Fuseau +3 |  |  | `Idle`, `OffenseMode`, `Midcast.Enhancing.Others`, `Midcast.Refresh`, `Midcast.Enfeebling.Potency`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS.MAB`, `WS.Crit` |
@@ -173,15 +173,14 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-0
 | Nyame Flanchard |  | `Midcast.BlueMagic.Breath`, `Midcast['White Wind']` | `WS` |
 | Telchine Braconi |  | `Midcast.Enhancing` | `Midcast.Enhancing` |
 
-## Feet (10)
+## Feet (9)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
-| Aya. Gambieras +2 |  |  | `WS.Crit` |
 | Chelona Boots |  | `Precast.FastCast` | `Precast['Stoneskin']` |
 | Gleti's Boots |  | `WS['Chant du Cygne']` |  |
 | Hashi. Basmak +3 |  | `Idle`, `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB`, `WS['Requiescat']` |  |
-| Leth. Houseaux +3 |  |  | `OffenseMode`, `Midcast.Enhancing`, `Midcast.Enhancing.Skill`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS`, `WS.MAB`, `WS['Requiescat']` |
+| Leth. Houseaux +3 |  |  | `OffenseMode`, `Midcast.Enhancing`, `Midcast.Enhancing.Skill`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS`, `WS.MAB`, `WS.Crit`, `WS['Requiescat']` |
 | Luhlaza Charuqs +1 |  | `Midcast.BlueMagic.Skill`, `Diffusion` |  |
 | Nyame Sollerets |  | `Midcast.BlueMagic.Breath`, `Midcast['White Wind']`, `WS` |  |
 | Telchine Pigaches |  | `Midcast.Regen` | `Midcast.Regen` |

@@ -1,5 +1,5 @@
 -- Vanar's Red Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/RDM.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar_2026-09-27_18-24-29.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-01 20-15-33.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Leth. Earring +1 is always in the right ear, the only ear its Fast Cast and
 -- enhancing duration work in.
@@ -292,14 +292,12 @@ function get_sets()
 	sets.Precast.FastCast = {
 		head = gear.atrophyHeadPlusFour,		-- FC 16
 		body = gear.vitiationBodyPlusFour,		-- FC 15
-		legs = gear.ayanmoLegsPlusTwo,			-- FC 6
 		waist = gear.embla,						-- FC 5
 		right_ear = gear.lethargyEarringPlusOne,	-- FC 8
-	}	-- FC 50. The other slots keep the idle set's DT pieces.
+	}	-- FC 44, 82% with the trait. The other slots keep the idle set's DT pieces.
 
-	-- Stoneskin, over the fast-cast set. Doyen Pants and Siegel Sash take the place of Ayanmo
-	-- Cosciales +2 and Embla Sash, and the free slots win that 11 fast cast back, so fast cast stays
-	-- at 88% with the Stoneskin cuts on top. bg-wiki counts those cuts inside the same 80% cap, so
+	-- Stoneskin, over the fast-cast set. Doyen Pants fill the legs and Siegel Sash takes Embla Sash's
+	-- place, and the free slots add 11 fast cast, so fast cast is 88% with the Stoneskin cuts on top. bg-wiki counts those cuts inside the same 80% cap, so
 	-- under that reading the set changes nothing, and if they go past it the cast is faster. Recast
 	-- is set by the midcast set, so nothing here costs any.
 	sets.Precast["Stoneskin"] = {
@@ -313,12 +311,11 @@ function get_sets()
 	}	-- FC 88%, and Stoneskin casting time -29%
 
 	-- Cure spells, over the fast-cast set. The Cure casting time pieces take the slots the fast-cast set
-	-- leaves open, and Doyen Pants take Ayanmo Cosciales +2's place, so fast cast stays at 82% with the
-	-- Cure cuts on top. As with Stoneskin, bg-wiki counts those cuts inside the 80% cap, so under that
-	-- reading the set changes nothing, and if they go past it the cast is faster. Recast is set by the
-	-- midcast set, so nothing here costs any. Serenity (Cure casting time -8) is left out: it is a
-	-- two-handed staff, so it would take the shield off, and the TP too while engaged without the
-	-- weapon lock.
+	-- leaves open, Doyen Pants among them, so fast cast stays at 82% with the Cure cuts on top. As with
+	-- Stoneskin, bg-wiki counts those cuts inside the 80% cap, so under that reading the set changes
+	-- nothing, and if they go past it the cast is faster. Recast is set by the midcast set, so nothing here
+	-- costs any. Serenity (Cure casting time -8) is left out: it is a two-handed staff, so it would take
+	-- the shield off, and the TP too while engaged without the weapon lock.
 	sets.Precast.Cure = {
 		hands = gear.vanyaHandsPathB,			-- Cure spellcasting time -7
 		legs = gear.doyenLegs,					-- Cure spellcasting time -15
@@ -595,7 +592,7 @@ function get_sets()
 		body = gear.lethargyBodyPlusThree,			-- Acc 64, Att 64
 		hands = gear.lethargyHandsPlusThree,		-- Acc 62, Att 62
 		legs = gear.lethargyLegsPlusThree,			-- Acc 63, Att 63
-		feet = gear.ayanmoFeetPlusTwo,				-- Crit 6, Acc 42
+		feet = gear.lethargyFeetPlusThree,			-- Acc 60, Att 60, DEX 30, WSD 12
 		neck = gear.fotiaNeck,
 		waist = gear.fotiaWaist,
 		left_ear = gear.moonshade,					-- TP Bonus 250
