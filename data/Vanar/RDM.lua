@@ -9,6 +9,9 @@
 include('RahvinGS/GearSets-Include')
 include('RahvinGS/Rahvin-Engine')
 
+-- Vanar's settings for every job, such as Windower aliases.
+include('Vanar-Globals')
+
 -- The lockstyle set, macro book and macro set that jobsetup applies at load.
 LockStylePallet = "1"
 MacroBook = "3"
@@ -31,9 +34,9 @@ Food = "Crepe B. Helene"
 state.OffenseMode:options('TP', 'ACC', 'DT')
 state.OffenseMode:set('TP')
 
--- The spells, job abilities and weaponskills that wear sets.TreasureHunter against an untagged monster. In Tag mode
--- nothing else wears it, melee included, and an action off the list does not count as tagging. Delete the line to
--- let every action tag.
+-- The spells, job abilities and weaponskills that wear sets.TreasureHunter against an untagged monster, along with
+-- every ranged attack. In Tag mode nothing else wears it, melee included, and an action off the list does not count
+-- as tagging. Delete the line to let every action tag.
 TH_Whitelist = S { 'Dia', 'Dia II', 'Dia III', 'Stonega' }
 
 -- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
@@ -42,6 +45,8 @@ jobsetup(LockStylePallet, MacroBook, MacroSet)
 -- Weapon modes. Each one needs a sets.Weapons['<Mode>'] of the same name below.
 state.WeaponMode:options('Savage Blade', 'Savage Blade Acc', 'Sanguine Blade', 'Black Halo', 'Black Halo Acc', 'Chant du Cygne', 'Evisceration', 'Aeolian Edge')
 state.WeaponMode:set('Savage Blade')
+-- Weapon lock at load. 'Locked' always holds the weapon mode's weapons, 'Unlocked' holds them only while engaged.
+state.WeaponLock:set('Unlocked')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (F11) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
@@ -64,8 +69,8 @@ Family_Set_Spells = S { 'Phalanx', 'Refresh', 'Regen' }
 
 -- Auto buff lists, as on BLU. gs c AutoBuff (F12) cycles OFF and Auto, and starts OFF.
 -- While Auto is on, the engine casts the first buff below that you are missing, on yourself. Temper II
--- and Gain-STR only help in melee, so they wait until you engage. Each cast wears its midcast set, and
--- those swap weapons, which costs TP while engaged unless the weapon lock (Alt+F9) is on.
+-- and Gain-STR only help in melee, so they wait until you engage. Each cast wears its midcast set, but
+-- the weapon lock holds the weapons while engaged, so those casts keep your TP and skip their weapons.
 AutoBuff_List = {
 	Auto = {
 		{ Name = 'Temper II', Buff = 'Multi Strikes', When = 'Engaged' },
@@ -123,11 +128,12 @@ function get_sets()
 	-- ===================================================================================================================
 
 	-- Weapon sets, one per weapon mode above, each named for the weaponskill it is built for. They are worn
-	-- only while engaged. Out of combat choose_set_custom swaps in sets.Weapons.Idle for its refresh, which
-	-- costs whatever TP is left when you disengage. Savage Blade and Black Halo dual wield Thibron for its TP
-	-- Bonus +1000. Sanguine Blade takes Bunzi's Rod for its magic attack, and Black Halo Acc for its accuracy.
-	-- Chant du Cygne and the two dagger modes take Gleti's Knife, and Savage Blade Acc takes Almace. Every
-	-- mode clears the range slot. Ullr only goes on for the casts midcast_custom names.
+	-- only while engaged, under the Unlocked weapon lock this file loads with. Out of combat
+	-- choose_set_custom swaps in sets.Weapons.Idle for its refresh, which costs whatever TP is left when you
+	-- disengage. Savage Blade and Black Halo dual wield Thibron for its TP Bonus +1000. Sanguine Blade takes
+	-- Bunzi's Rod for its magic attack, and Black Halo Acc for its accuracy. Chant du Cygne and the two
+	-- dagger modes take Gleti's Knife, and Savage Blade Acc takes Almace. Every mode clears the range slot.
+	-- Ullr only goes on for the casts midcast_custom names.
 	sets.Weapons = {}
 
 	sets.Weapons['Savage Blade'] = {	-- also Seraph Blade and Red Lotus Blade
@@ -334,7 +340,7 @@ function get_sets()
 	-- Stoneskin, bg-wiki counts those cuts inside the 80% cap, so under that reading the set changes
 	-- nothing, and if they go past it the cast is faster. Recast is set by the midcast set, so nothing here
 	-- costs any. Serenity (Cure casting time -8) is left out: it is a two-handed staff, so it would take
-	-- the shield off, and the TP too while engaged without the weapon lock.
+	-- the shield off.
 	sets.Precast.Cure = {
 		hands = gear.vanyaHandsPathB,			-- Cure spellcasting time -7
 		legs = gear.doyenLegs,					-- Cure spellcasting time -15

@@ -1,7 +1,7 @@
 ## This repository
 
 * `data/common/` is a git submodule of [khowe085/rahvin-gearswap](https://github.com/khowe085/rahvin-gearswap), a fork of Rahvin GearSwap 2.1. GearSwap searches `data/common/` for includes, so a job file's `include('RahvinGS/Rahvin-Engine')` finds the engine at `data/common/RahvinGS/`. Clone with `git clone --recurse-submodules`, or run `git submodule update --init` in an existing clone. It tracks the fork's `dev` branch, and `git submodule update --remote data/common` moves it to that branch's latest commit.
-* `data/Vanar/` holds Vanar's BLU and RDM job files and `Vanar_gear_list.md`, the gear they use. They are checked against the latest export, `data/export/Vanar 2026-10-01 22-41-03.lua`.
+* `data/Vanar/` holds Vanar's BLU and RDM job files, `Vanar-Globals.lua` with settings both load (the `mappy` alias), and `Vanar_gear_list.md`, the gear they use. They are checked against the latest export, `data/export/Vanar 2026-10-01 22-41-03.lua`.
 * `docs/ffxi-mechanics.md` explains the game mechanics the gear sets rely on: fast cast, casting time, recast, skill and accuracy.
 
 ---
@@ -19,7 +19,7 @@ Abbreviation: gs
 Commands (<> indicates a field. You do not actually have to use <>s):
 * gs c <string> : Passes the <string> to the self_command() user function.
 * gs equip <string> : Attempts to interpret the <string> as an index of the sets table and equip that set. Will ignore "sets" if the string starts with it.
-** gs equip naked : This equips the default set "naked," which is just a bunch of empty slots. If you remake sets (sets={}) in your get_sets(), this will not work.
+** gs equip naked : Runs gs c naked on and gs c enable all, which turn on the user file's naked hold and free every slot, in place of equipping the "naked" set.
 * gs debugmode : Activates GearSwap's Debug Mode, which prints out why specific gear equipping attempts failed, shows you when you're entering events, and enables the eval command.
 ** gs eval <string> : This command evaluates the <string> as Lua code in the global gearswap environment (not the user environment, which is in the user_env table). It is only available when debugmode is on.
 * gs showswaps : Shows when your gear successfully changes and what it changes to.
@@ -40,6 +40,8 @@ Commands (<> indicates a field. You do not actually have to use <>s):
 * gs enable <slot> : Enables equip commands targeting a specified slot. "All" will allow all equip commands. Providing no slot argument will enable user GearSwap file execution, if it was disabled.
 * gs disable <slot> : Disables equip commands targeting a given slot. "All" will prevent all equip commands. Providing no second argument will disable user GearSwap file execution, although registered events will still run.
 * gs validate <sets|inv> <filter> : This command checks to see whether the equipment in the sets table also exists in your inventory (default), or (by passing "inv") whether the equipment in your inventory exists in your sets table. <filter> is an optional list of words that restricts the output to only those items that contain text from one of the filter's words.
+* gs stash <jobs> [unused] : Reads the file GearSwap would load for each job listed, such as `gs stash BLU RDM`, and moves the gear their sets use out of wardrobe and wardrobe2, into the first of case, sack, safe, safe2, storage and locker with room. With "unused", it moves everything else out of the two wardrobes instead. Equipped pieces stay. It stops with a message when every stash bag in reach is full.
+* gs pull <jobs> : Reads the same files and moves the gear their sets use into wardrobe, then wardrobe2, from every other bag in reach, taking only the copies the wardrobes lack. The inventory, satchel, sack, case and wardrobes 3 to 8 are in reach anywhere; safe, safe2, storage and locker are in reach in the Mog House, and all but storage at a Nomad or Pilgrim Moogle. It stops with a message when both wardrobes are full.
 
 Purpose: To assist in the micromanaging of equipment!
 

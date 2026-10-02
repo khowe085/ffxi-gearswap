@@ -127,6 +127,7 @@ require 'user_functions'
 require 'refresh'
 require 'export'
 require 'validate'
+require 'wardrobe'
 require 'flow'
 require 'triggers'
 
@@ -159,6 +160,19 @@ windower.register_event('addon command',function (...)
 
     local cmd = table.remove(splitup,1):lower()
 
+    -- Short words. e and x are equip and export. d and t send the line on as typed, as
+    -- gs c disable and gs c test, so every handler of this event sees the long command.
+    if cmd == 'e' then
+        cmd = 'equip'
+    elseif cmd == 'x' then
+        cmd = 'export'
+    elseif cmd == 'd' or cmd == 't' then
+        local line = {...}
+        line[1] = cmd == 'd' and 'disable' or 'test'
+        windower.send_command('gs c '..table.concat(line,' '))
+        return
+    end
+
     if cmd == 'c' then
         if gearswap_disabled then return end
         if splitup[1] then
@@ -169,6 +183,12 @@ windower.register_event('addon command',function (...)
         end
     elseif cmd == 'equip' then
         if gearswap_disabled then return end
+        -- equip naked, in any case, turns on the user file's naked hold and frees every
+        -- slot its disable hold has, in place of equipping sets.naked.
+        if #splitup == 1 and splitup[1]:lower() == 'naked' then
+            windower.send_command('gs c naked on; gs c enable all')
+            return
+        end
         local key_list = parse_set_to_keys(splitup)
         local set = get_set_from_keys(key_list)
         if set then
@@ -186,6 +206,8 @@ windower.register_event('addon command',function (...)
         else
             msg.addon_msg(123,'There is nothing to validate because there is no file loaded.')
         end
+    elseif cmd == 'stash' or cmd == 'pull' then
+        move_job_gear(cmd, splitup)
     elseif cmd == 'l' or cmd == 'load' then
         if splitup[1] then
             local f_name = table.concat(splitup,' ')
@@ -220,7 +242,9 @@ windower.register_event('addon command',function (...)
     elseif strip(cmd) == 'help' then
         print('GearSwap: Valid commands are:')
         print(' c <string>      : passes the string to the user\'s self_command function.')
-        print(' equip <string>  : attempts to equip the set indicated by the string.')
+        print(' equip <string>  : attempts to equip the set indicated by the string. naked runs c naked on and c enable all.')
+        print(' e / x           : short for equip / export.')
+        print(' d / t <string>  : short for c disable / c test.')
         print(' debugmode       : toggles debugmode on or off.')
         print(' demomode        : toggles demomode on or off.')
         print(' showswaps       : toggles whether gearswap displays equipment changes in the chat log.')
@@ -229,6 +253,8 @@ windower.register_event('addon command',function (...)
         print(' export <opts>   : Exports your item collections based on the passed options.')
         print(' disable <slot>  : Disables equip commands targeting a specified slot.')
         print(' validate <opts> : Checks your current inventory against your item collections (or vice versa).')
+        print(' stash <jobs> [unused] : moves the gear in those jobs\' files out of wardrobe and wardrobe2 (unused: everything else).')
+        print(' pull <jobs>     : moves the gear in those jobs\' files into wardrobe and wardrobe2 from the other bags in reach.')
         print('  Please see the gearswap/README.md file for more details.')
     elseif _settings.debug_mode and strip(cmd) == 'eval' then
         assert(loadstring(table.concat(splitup,' ')))()

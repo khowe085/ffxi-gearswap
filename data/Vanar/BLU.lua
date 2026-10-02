@@ -11,6 +11,9 @@
 include('RahvinGS/GearSets-Include')
 include('RahvinGS/Rahvin-Engine')
 
+-- Vanar's settings for every job, such as Windower aliases.
+include('Vanar-Globals')
+
 -- The in-game lockstyle set, macro book and macro set this file applies on load.
 LockStylePallet = "2"
 MacroBook = "8"
@@ -34,9 +37,9 @@ state.OffenseMode:options('TP','ACC','DT')
 -- The offense mode the file starts in.
 state.OffenseMode:set('TP')
 
--- The spells, job abilities and weaponskills that wear sets.TreasureHunter against an untagged monster. In Tag mode
--- nothing else wears it, melee included, and an action off the list does not count as tagging. Delete the line to
--- let every action tag.
+-- The spells, job abilities and weaponskills that wear sets.TreasureHunter against an untagged monster, along with
+-- every ranged attack. In Tag mode nothing else wears it, melee included, and an action off the list does not count
+-- as tagging. Delete the line to let every action tag.
 TH_Whitelist = S { 'Glutinous Dart' }
 
 -- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
@@ -87,7 +90,8 @@ BlueACC = S { '1000 Needles', 'Absolute Terror', 'Auroral Drape', 'Awful Eye',
     'Sound Blast', 'Venom Shell', 'Voracious Trunk', 'Yawn' }
 
 -- The magic skills from a subjob that midcast_custom casts in sets.Weapons.Casting when you are not
--- engaged. It does the same for the blue magic in BlueNuke, BlueACC, BlueTank, BlueBreath and BlueHealing.
+-- engaged and the weapon lock is Unlocked. It does the same for the blue magic in BlueNuke, BlueACC,
+-- BlueTank, BlueBreath and BlueHealing.
 Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic', 'Healing Magic' }
 
 -- The subjob spells named like a family set that holds only the slots it changes: sets.Midcast.Refresh
@@ -97,6 +101,9 @@ Family_Set_Spells = S { 'Refresh', 'Regen' }
 -- Weapon modes. Each name needs a matching sets.Weapons entry.
 state.WeaponMode:options('Tizona','Tizona Acc','Black Halo','Black Halo Acc','Naegling','Naegling Acc','Almace')
 state.WeaponMode:set('Tizona')
+-- Weapon lock at load. 'Locked' always holds the weapon mode's weapons, 'Unlocked' holds them only while engaged.
+-- While Locked, sets.Weapons.Idle and sets.Weapons.Casting never go on. Alt+F9 toggles it.
+state.WeaponLock:set('Locked')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (F11) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
@@ -191,15 +198,16 @@ gear.fucho = mp_gear("Fucho-no-Obi", 30)                                        
 UI_Name = 'Mode'
 
 -- Job mode. self_command_custom below loads the matching blue magic spell set and macro set when you cycle it.
+-- AoE loads {sub}_mage and Melee loads {sub}_melee. Save these in AzureSets with //aset save <name>.
 state.JobMode:options('AoE','Melee')
 state.JobMode:set('Melee')
 
 function get_sets()
 
 	-- Weapon sets, one per weapon mode. Thibron's TP Bonus +1000 backs every weapon skill mode, and the Acc
-	-- modes trade it for a more accurate offhand: Almace, or Bunzi's Rod for Black Halo. They are worn only
-	-- while engaged. Out of combat choose_set_custom swaps in sets.Weapons.Idle, which costs whatever TP is
-	-- left when you disengage.
+	-- modes trade it for a more accurate offhand: Almace, or Bunzi's Rod for Black Halo. With the weapon lock
+	-- Locked, as this file loads, they are worn at all times. Unlocked, they are worn while engaged, and out of
+	-- combat choose_set_custom swaps in sets.Weapons.Idle, which costs whatever TP is left when you disengage.
 	sets.Weapons = {}
 
 	sets.Weapons['Tizona'] = {		-- Expiacion
@@ -673,8 +681,9 @@ end
 -------------------------------------------------------------------------------------------------------------------
 
 -- Called when the player's subjob changes.
+-- Here, it reloads the AzureSets spell set for the new subjob and the current job mode.
 function sub_job_change_custom(new, old)
-	-- A common use is switching the macro book or set.
+	load_azure_set(new)
 end
 
 -- Called before each action, after the engine's own checks. Cancel the action here with cancel_spell(). Nothing it returns is used.
@@ -804,16 +813,52 @@ function status_change_custom(new,old)
 	return equipSet
 end
 -- Called for a "gs c" command the engine does not handle itself, and for the weapon mode, job mode and job mode 2 commands, which call it before the gear rebuild. The command arrives in lowercase.
--- Here, a job mode change, by key, by gs c jobmode or by gs c jobmode AoE, loads the matching AzureSets spell set, magic for AoE and tp for Melee, and switches the macro set to match.
+-- Here, a job mode change, by key, by gs c jobmode or by gs c jobmode AoE, loads the matching AzureSets spell set and switches the macro set to match.
 -- Testing the first word keeps jobmode2 and other commands that merely contain jobmode from triggering it.
 function self_command_custom(command)
 	if command:match('^(%S+)') == 'jobmode' then
-		if state.JobMode.value == 'AoE' then
-			send_command('input //aset spellset magic;input /macro book '..MacroBook..';wait .1; input /macro set 2')
-		else
-			send_command('input //aset spellset tp;input /macro book '..MacroBook..';wait .1; input /macro set 1')
-		end
+		load_azure_set()
 	end
+end
+
+-- The AzureSets save file, read to learn which spell sets exist.
+local azure_settings_path = windower.windower_path .. 'addons/AzureSets/data/settings.xml'
+
+-- Returns a lookup of the spell set names saved in AzureSets, or nil when the file cannot be read.
+local function azure_set_names()
+	local file = io.open(azure_settings_path, 'r')
+	if not file then return nil end
+	local text = file:read('*a'):lower()
+	file:close()
+	local names = {}
+	for name in text:gmatch('<([%w_]+)%s*/?>') do names[name] = true end
+	return names
+end
+
+-- Loads the AzureSets spell set for the subjob and job mode: {sub}_mage in AoE mode, {sub}_melee in Melee mode.
+-- A missing {sub}_mage falls back to {sub}_melee, and a missing {sub}_melee falls back to nin_melee. Each miss is warned in chat.
+function load_azure_set(sub)
+	sub = (sub or player.sub_job or 'nin'):lower()
+	local candidates = {}
+	if state.JobMode.value == 'AoE' then candidates[#candidates+1] = sub .. '_mage' end
+	candidates[#candidates+1] = sub .. '_melee'
+	if sub ~= 'nin' then candidates[#candidates+1] = 'nin_melee' end
+
+	local names = azure_set_names()
+	local chosen
+	if not names then
+		warn('AzureSets settings not found at ' .. azure_settings_path .. ', loading ' .. candidates[1] .. ' unchecked')
+		chosen = candidates[1]
+	else
+		for _, name in ipairs(candidates) do
+			if names[name] then chosen = name break end
+			warn('AzureSets spell set ' .. name .. ' is missing')
+		end
+		if not chosen then return end
+	end
+
+	local macro_set = state.JobMode.value == 'AoE' and 2 or 1
+	send_command('input //aset spellset ' .. chosen .. ';input /macro book ' .. MacroBook .. ';wait .1; input /macro set ' .. macro_set)
 end
 
 -- Called when the job file unloads, after the engine has released its keys and held slots.
