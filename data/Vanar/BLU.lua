@@ -879,7 +879,9 @@ local function azure_set_names()
 end
 
 -- Loads the AzureSets spell set for the subjob and job mode: {sub}_mage in AoE mode, {sub}_melee in Melee mode.
--- A missing {sub}_mage falls back to {sub}_melee, and a missing {sub}_melee falls back to nin_melee. Each miss is warned in chat.
+-- A missing {sub}_mage falls back to {sub}_melee. For a subjob other than NIN, a missing {sub}_melee falls back to war_melee,
+-- whose blue magic gives Dual Wield from traits. nin_melee has no Dual Wield spells, since NIN brings the trait itself. With
+-- no subjob it loads war_melee. Each miss is warned in chat.
 -- It reads the job from the game, not GearSwap's player table, and does nothing unless the main job is BLU.
 -- After a job change the game sends the blue magic spell list late, and AzureSets errors without it, so it retries each second for up to ten tries.
 function load_azure_set(request, tries)
@@ -896,11 +898,11 @@ function load_azure_set(request, tries)
 		end
 		return
 	end
-	local sub = (current.sub_job or 'nin'):lower()
+	local sub = (current.sub_job or 'war'):lower()
 	local candidates = {}
 	if state.JobMode.value == 'AoE' then candidates[#candidates+1] = sub .. '_mage' end
 	candidates[#candidates+1] = sub .. '_melee'
-	if sub ~= 'nin' then candidates[#candidates+1] = 'nin_melee' end
+	if sub ~= 'nin' and sub ~= 'war' then candidates[#candidates+1] = 'war_melee' end
 
 	local names = azure_set_names()
 	local chosen
