@@ -192,7 +192,7 @@ gear.swithCape = hp_gear("Swith Cape", -20)                                     
 gear.coladaRefresh = rank_gear("Colada", 100, {
 	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } }) -- Refresh 2
 gear.pahtliCape = mp_gear("Pahtli Cape", 50)                                     -- Cure spellcasting time -8
-gear.fucho = mp_gear("Fucho-no-Obi", 30)                                         -- Refresh 1 while MP is at 50% or below (latent)
+gear.fucho = mp_gear("Fucho-no-Obi", 30)                                         -- Refresh 1 while MP is below half of max MP without ear, ring and back MP (latent)
 
 -- Naming JobMode shows it in chat and on the status box.
 UI_Name = 'Mode'
@@ -246,16 +246,16 @@ function get_sets()
 		sub = gear.thibron,
 	}
 
-	-- Worn whenever you are not engaged, in every weapon mode. choose_set_custom puts it on. Archduke's
-	-- Shield is not a BLU item, so the offhand stays the weapon mode's.
+	-- Worn whenever you are not engaged, in every weapon mode, while the weapon lock is Unlocked. choose_set_custom
+	-- puts it on. Archduke's Shield is not a BLU item, so the offhand stays the weapon mode's.
 	sets.Weapons.Idle = {
 		main = gear.coladaRefresh, -- Refresh 2
 	}
 
-	-- Worn for the casts midcast_custom names while you are not engaged.
+	-- Worn for the casts midcast_custom names while you are not engaged and the weapon lock is Unlocked.
 	sets.Weapons.Casting = {
 		main = gear.bunzi,				-- Macc 40, MAB 35, Cure 30, Magic Accuracy skill 255
-		sub = gear.maxentius,			-- Macc 40, MAB 21. Its Magic Accuracy skill only counts in the main hand.
+		sub = gear.maxentius,			-- Macc 40, MAB 21. Its Magic Accuracy skill and its magic burst bonus (+4% per skillchain step) only count in the main hand.
 	}
 
 	-- Worn whenever you are not engaged. It is also the floor under every action, so a slot an action's sets leave unnamed keeps its idle piece.
@@ -287,7 +287,7 @@ function get_sets()
 		legs = gear.carmineLegsPlusOnePathD,	-- Movement speed 18%
 	}
 
-	-- Merged over the idle set while MP is at 50% or below, where Fucho-no-Obi's latent Refresh +1 works. choose_set_custom puts it on. It takes Platinum Moogle Belt's DT 3, so idle DT is 55 meanwhile.
+	-- Merged over the idle set while Fucho-no-Obi's latent Refresh +1 works, a little below 50% MP; choose_set_custom puts it on. It takes Platinum Moogle Belt's DT 3, so idle DT is 55 meanwhile.
 	sets.LowMP = {
 		waist = gear.fucho,					-- Refresh 1 (latent)
 	}
@@ -377,6 +377,12 @@ function get_sets()
 	sets.JA["Azure Lore"] = {
 		hands = gear.luhlazaHandsPlusOne,	-- Enhances Azure Lore
 	}
+	-- Chain Affinity's TP Bonus gains +50 per Enchainment merit from this body, +250 at Vanar's 5. bg-wiki
+	-- doesn't say whether that is read when the ability is used or when the spell goes off. Sinker Drill
+	-- keeps Hashishin Mintan +3's accuracy and attack, so only the ability wears it.
+	sets.JA["Chain Affinity"] = {
+		body = gear.luhlazaBodyPlusOne,		-- Enhances Enchainment
+	}
 
 	-- Dancer abilities from the subjob. Each family set is worn for its abilities, and a child named for the ability merges over it.
 	sets.Flourish = set_combine(sets.Idle.DT, {})
@@ -456,7 +462,7 @@ function get_sets()
 		feet = gear.hashishinFeetPlusThree,			-- Acc 60, Att 60
 		neck = gear.mirageStolePlusTwo,				-- Acc 25
 		waist = gear.eschan,						-- Acc 15, Att 15
-		left_ear = gear.moonshade,					-- Att 4, TP Bonus 250 for Efflux
+		left_ear = gear.moonshade,					-- Att 4. TP Bonus 250 only under Chain Affinity, where bg-wiki's pages disagree; Efflux uses no TP
 		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12
 		left_ring = gear.jhakriRing,				-- Acc 6, Att 6
 		right_ring = gear.ayanmoRing,				-- Acc 6
@@ -499,6 +505,7 @@ function get_sets()
 
 	-- Spells whose potency scales with blue magic skill, such as Occultation, Magic Barrier and Barrier Tusk.
 	sets.Midcast.BlueMagic.Skill = set_combine(sets.Midcast, {
+		head = gear.luhlazaHeadPlusOne,				-- Blue magic skill 13
 		body = gear.assimilatorBodyPlusFour,		-- Blue magic skill 25
 		legs = gear.hashishinLegsPlusThree,			-- Blue magic skill 33
 		feet = gear.luhlazaFeetPlusOne,				-- Blue magic skill 8
@@ -510,13 +517,11 @@ function get_sets()
 		back = gear.cornflower,						-- Blue magic skill 15
 	})
 
-	-- Breath spells scale with your HP, and Bad Breath and Magnetite Cloud still need to land.
+	-- Breath spells scale with current HP, which HP gear put on at midcast raises only as a maximum, not as HP
+	-- you have (inferred from bg-wiki's breath formulas). So they keep the accuracy set, which Bad Breath and
+	-- Magnetite Cloud need to land, and trade Kavuk +3's Macc 61 for breath damage.
 	sets.Midcast.BlueMagic.Breath = set_combine(sets.Midcast.BlueMagic.ACC, {
-		head = gear.nyameHead,						-- HP 91, Macc 40
-		body = gear.nyameBody,						-- HP 136, Macc 40
-		legs = gear.nyameLegs,						-- HP 114, Macc 40
-		feet = gear.nyameFeet,						-- HP 68, Macc 40
-		left_ear = gear.alabaster,					-- HP 100
+		head = gear.luhlazaHeadPlusOne,				-- Breath damage dealt +20%, Blue magic skill 13
 	})
 
 	-- Fixed-potency buffs keep the idle set's DT. Enmity spells such as Jettatura and Geist Wall need to land.
@@ -528,17 +533,25 @@ function get_sets()
 	})	-- Cure 17, and 47 with sets.Weapons.Casting (cap 50)
 
 	-- Magic from a subjob: nukes take the blue nuke set, and enfeebles, dark and divine magic the accuracy set.
+	-- Njordr Earring's blue magic skill does nothing for those, so their left ear takes Alabaster Earring.
 	sets.Midcast.Nuke = set_combine(sets.Midcast.BlueMagic.Nuke, {})
 	sets.Midcast.Burst = set_combine(sets.Midcast.BlueMagic.Nuke, {})
-	sets.Midcast.Enfeebling = set_combine(sets.Midcast.BlueMagic.ACC, {})
+	sets.Midcast.Enfeebling = set_combine(sets.Midcast.BlueMagic.ACC, {
+		left_ear = gear.alabaster,					-- Macc up to 15 (Path A, by rank), DT 5
+	})
 	sets.Midcast.Enfeebling.MACC = set_combine(sets.Midcast.Enfeebling, {})
 	sets.Midcast.Enfeebling.Potency = set_combine(sets.Midcast.Enfeebling, {})
 	sets.Midcast.Enfeebling.Duration = set_combine(sets.Midcast.Enfeebling, {})
-	sets.Midcast.Aspir = set_combine(sets.Midcast.BlueMagic.ACC, {})
-	sets.Midcast.Drain = set_combine(sets.Midcast.BlueMagic.ACC, {})
-	sets.Midcast.Divine = set_combine(sets.Midcast.BlueMagic.ACC, {})
+	sets.Midcast.Aspir = set_combine(sets.Midcast.Enfeebling, {})
+	sets.Midcast.Drain = set_combine(sets.Midcast.Enfeebling, {})
+	sets.Midcast.Divine = set_combine(sets.Midcast.Enfeebling, {})
 
 	-- Sets named for one spell. Each replaces the family set for that spell.
+
+	-- Battery Charge is a refresh spell you cast, so Refresh potency gear raises it (bg-wiki, Amalric Coif +1).
+	sets.Midcast["Battery Charge"] = set_combine(sets.Midcast.BlueMagic.Buff, {
+		head = gear.amalricCoifPlusOne,			-- Refresh potency +2
+	})
 
 	-- White Wind heals floor(MaxHP/7)*2, raised by cure potency, so this is max HP plus cure potency.
 	sets.Midcast["White Wind"] = {
@@ -568,9 +581,9 @@ function get_sets()
 	-- It follows bg-wiki's simulated Savage Blade and Expiacion sets (All Jobs Gear Sets/Blue Mage). Jhakri
 	-- Cuffs +2 stand in for its Path B Nyame Gauntlets, since Vanar's have no path, Hashi. Earring +1 for
 	-- Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at rank 20.
-	-- The legs are Luhlaza Shalwar +4 in place of its Nyame Flanchard, and the body Assimilator's Jubbah +4
-	-- in place of its Nyame Mail, for 2 more WSD, 20 more accuracy and 25 more DEX at the cost of Att 55
-	-- and DA 2.
+	-- The legs are Luhlaza Shalwar +4 in place of its Nyame Flanchard, for 3 more WSD and 10 more accuracy
+	-- at the cost of Att 55 and DA 3, and the body Assimilator's Jubbah +4 in place of its Nyame Mail, for
+	-- 2 more WSD, 20 more accuracy and 25 more DEX at the cost of Att 55 and DA 3.
 	sets.WS = {
 		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
 		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61, Sword skill 30
@@ -670,10 +683,13 @@ function get_sets()
 		waist = gear.chaac,			-- TH 1
 	}
 
-	-- Merged over the blue magic set while Diffusion is up. A spell with a set of its own above does not take it.
+	-- Merged over the blue magic set while Diffusion is up. A spell with a set of its own above does not take it,
+	-- so a blue buff with its own set names it as that set's Diffusion child, which the engine merges while the
+	-- buff is up.
 	sets.Diffusion = {
 		feet = gear.luhlazaFeetPlusOne,	-- Enhances Diffusion
 	}
+	sets.Midcast["Battery Charge"].Diffusion = sets.Diffusion
 
 end
 
@@ -683,8 +699,9 @@ end
 
 -- Called when the player's subjob changes.
 -- Here, it reloads the AzureSets spell set for the new subjob and the current job mode.
+-- It waits for the game to finish the change, because a main job change also fires this while this file is still loaded.
 function sub_job_change_custom(new, old)
-	load_azure_set(new)
+	queue_azure_set(5)
 end
 
 -- Called before each action, after the engine's own checks. Cancel the action here with cancel_spell(). Nothing it returns is used.
@@ -798,10 +815,12 @@ end
 function choose_set_custom()
 	local equipSet = {}
 	-- The refresh weapon whenever you are not engaged. The engine builds the idle set on the same test.
-	-- Fucho-no-Obi joins it while MP is at 50% or below, its latent condition, checked on every rebuild.
+	-- Fucho-no-Obi joins it once its latent is on, checked on every rebuild. The latent needs MP below half
+	-- of a maximum that leaves out ear, ring and back MP (bg-wiki, Fucho-no-Obi). The idle set's Etiolation
+	-- Earring and Murky Ring carry 80 of it, so the test starts a few points below 50%.
 	if player.status ~= 'Engaged' then
 		equipSet = sets.Weapons.Idle
-		if player.mpp <= 50 then
+		if player.mp < (player.max_mp - 80) / 2 then
 			equipSet = set_combine(equipSet, sets.LowMP)
 		end
 	end
@@ -814,16 +833,30 @@ function status_change_custom(new,old)
 	return equipSet
 end
 -- Called for a "gs c" command the engine does not handle itself, and for the weapon mode, job mode and job mode 2 commands, which call it before the gear rebuild. The command arrives in lowercase.
--- Here, a job mode change, by key, by gs c jobmode or by gs c jobmode AoE, loads the matching AzureSets spell set and switches the macro set to match.
+-- Here, a job mode change, by key, by gs c jobmode or by gs c jobmode AoE, switches the macro set to match: 2 for AoE, 1 for Melee.
+-- It then loads the matching AzureSets spell set. The macro set changes even when no spell set is found.
 -- Testing the first word keeps jobmode2 and other commands that merely contain jobmode from triggering it.
 function self_command_custom(command)
 	if command:match('^(%S+)') == 'jobmode' then
-		load_azure_set()
+		local macro_set = state.JobMode.value == 'AoE' and 2 or 1
+		send_command('input /macro book ' .. MacroBook .. ';wait .1; input /macro set ' .. macro_set)
+		queue_azure_set(0)
 	end
 end
 
 -- The AzureSets save file, read to learn which spell sets exist.
 local azure_settings_path = windower.windower_path .. 'addons/AzureSets/data/settings.xml'
+
+-- Each queued load takes a new request number, and a scheduled load or retry for an older number does nothing.
+-- Changing main job to BLU loads this file and may also change the subjob, and this keeps that to one //aset command.
+local azure_request = 0
+
+-- Schedules load_azure_set after delay seconds, replacing any load still waiting.
+function queue_azure_set(delay)
+	azure_request = azure_request + 1
+	local request = azure_request
+	coroutine.schedule(function() load_azure_set(request) end, delay)
+end
 
 -- Returns a lookup of the spell set names saved in AzureSets, or nil when the file cannot be read.
 local function azure_set_names()
@@ -838,8 +871,23 @@ end
 
 -- Loads the AzureSets spell set for the subjob and job mode: {sub}_mage in AoE mode, {sub}_melee in Melee mode.
 -- A missing {sub}_mage falls back to {sub}_melee, and a missing {sub}_melee falls back to nin_melee. Each miss is warned in chat.
-function load_azure_set(sub)
-	sub = (sub or player.sub_job or 'nin'):lower()
+-- It reads the job from the game, not GearSwap's player table, and does nothing unless the main job is BLU.
+-- After a job change the game sends the blue magic spell list late, and AzureSets errors without it, so it retries each second for up to ten tries.
+function load_azure_set(request, tries)
+	if request ~= azure_request then return end
+	local current = windower.ffxi.get_player()
+	if not current or current.main_job ~= 'BLU' then return end
+	local job_data = windower.ffxi.get_mjob_data()
+	if not job_data or not job_data.spells then
+		tries = (tries or 0) + 1
+		if tries < 10 then
+			coroutine.schedule(function() load_azure_set(request, tries) end, 1)
+		else
+			warn('Blue magic spell list not loaded, AzureSets spell set skipped')
+		end
+		return
+	end
+	local sub = (current.sub_job or 'nin'):lower()
 	local candidates = {}
 	if state.JobMode.value == 'AoE' then candidates[#candidates+1] = sub .. '_mage' end
 	candidates[#candidates+1] = sub .. '_melee'
@@ -858,8 +906,7 @@ function load_azure_set(sub)
 		if not chosen then return end
 	end
 
-	local macro_set = state.JobMode.value == 'AoE' and 2 or 1
-	send_command('input //aset spellset ' .. chosen .. ';input /macro book ' .. MacroBook .. ';wait .1; input /macro set ' .. macro_set)
+	send_command('input //aset spellset ' .. chosen)
 end
 
 -- Called when the job file unloads, after the engine has released its keys and held slots.
@@ -887,3 +934,6 @@ function pet_midcast_custom(spell)
 
 	return equipSet
 end
+
+-- Loads the spell set when this file loads, which covers changing main job to BLU. It waits as a subjob change does.
+queue_azure_set(5)
