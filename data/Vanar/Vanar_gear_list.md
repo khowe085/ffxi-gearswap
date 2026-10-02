@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **128 pieces** (90 for BLU, 96 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **129 pieces** (92 for BLU, 96 for RDM, 59 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (14)
@@ -32,15 +32,16 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Pemphredo Tathlum |  | `Idle`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` | `WS.MAB` |
 | Per. Lucky Egg |  | `TreasureHunter` |  |
 
-## Head (8)
+## Head (9)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
 | Amalric Coif +1 |  | `Precast.FastCast`, `Midcast.Refresh`, `Midcast['Aquaveil']` | `Midcast.Refresh`, `Midcast['Aquaveil']` |
 | Atro. Chapeau +4 |  |  | `OffenseMode.ACC`, `Precast.FastCast`, `Midcast.Enfeebling` |
-| Hashishin Kavuk +3 |  | `Idle`, `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS`, `WS.MAB`, `WS['Chant du Cygne']`, `WS['Requiescat']` |  |
+| Hashishin Kavuk +3 |  | `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS`, `WS.MAB`, `WS['Chant du Cygne']`, `WS['Requiescat']` |  |
 | Leth. Chappel +3 |  |  | `OffenseMode`, `Midcast.Enhancing.Others`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS.MAB`, `WS.Crit` |
 | Nyame Helm |  | `Midcast.BlueMagic.Breath`, `Midcast['White Wind']` |  |
+| Rawhide Mask |  | `Idle` |  |
 | Telchine Cap |  | `Midcast.Enhancing` | `Midcast.Enhancing` |
 | Viti. Chapeau +4 |  |  | `Idle`, `Midcast.Enfeebling.Potency`, `WS` |
 | Wh. Rarab Cap +1 |  | `TreasureHunter` | `TreasureHunter` |
@@ -57,8 +58,8 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Mizu. Kubikazari |  |  | `Midcast.Burst` |
 | Nodens Gorget |  |  | `Midcast['Stoneskin']` |
 | Rep. Plat. Medal |  |  | `WS` |
-| Sanctity Necklace |  | `Idle`, `Midcast['White Wind']`, `WS.MAB` | `OffenseMode`, `Midcast.Nuke`, `WS.ACC`, `WS.MAB` |
-| Sibyl Scarf |  |  | `Idle` |
+| Sanctity Necklace |  | `Midcast['White Wind']`, `WS.MAB` | `OffenseMode`, `Midcast.Nuke`, `WS.ACC`, `WS.MAB` |
+| Sibyl Scarf |  | `Idle` | `Idle` |
 
 ## Earrings (13)
 
@@ -114,12 +115,12 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
-| Ayanmo Ring |  | `Idle`, `OffenseMode.ACC`, `Midcast.BlueMagic.Physical` | `Idle`, `WS.Crit` |
+| Ayanmo Ring |  | `OffenseMode.ACC`, `Midcast.BlueMagic.Physical` | `Idle`, `WS.Crit` |
 | Epaminondas's Ring |  | `WS`, `WS.MAB` | `WS`, `WS.MAB` |
 | Jhakri Ring |  | `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `WS.MAB` | `Midcast.Nuke`, `WS.MAB` |
 | Karieyh Ring |  | `Idle`, `WS` | `WS` |
 | Lehko's Ring |  | `OffenseMode`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `OffenseMode`, `WS.Crit` |
-| Murky Ring |  | `OffenseMode.DT` | `Idle`, `OffenseMode.DT` |
+| Murky Ring |  | `Idle`, `OffenseMode.DT` | `Idle`, `OffenseMode.DT` |
 | Naji's Loop |  | `Midcast.Cure` | `Midcast.Cure` |
 | Prolix Ring |  | `Precast.FastCast`, `Midcast.Enhancing` | `Precast['Stoneskin']`, `Midcast.Enhancing`, `Midcast.Phalanx` |
 | Rajas Ring |  | `OffenseMode`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `OffenseMode` |

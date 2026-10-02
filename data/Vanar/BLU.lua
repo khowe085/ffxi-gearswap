@@ -242,19 +242,19 @@ function get_sets()
 	-- Worn whenever you are not engaged. It is also the floor under every action, so a slot an action's sets leave unnamed keeps its idle piece.
 	sets.Idle = {
 		ammo = gear.pemphredoTathlum,			-- Macc 8, MAB 4, Conserve MP 4
-		head = gear.hashishinHeadPlusThree,		-- Magic evasion 125
+		head = gear.rawhideHeadPathB,			-- Refresh 1, HP 86
 		body = gear.hashishinBodyPlusThree,		-- DT 13, Refresh 4
 		hands = gear.hashishinHandsPlusThree,	-- DT 10
 		legs = gear.hashishinLegsPlusThree,		-- DT 12
 		feet = gear.hashishinFeetPlusThree,		-- Magic evasion 157
-		neck = gear.sanctity,					-- Regen 2
+		neck = gear.sibylScarf,					-- Refresh 1 for a citizen of Windurst
 		waist = gear.platinumMoogleBelt,		-- DT 3, HP 10%
 		left_ear = gear.alabaster,				-- DT 5, HP 100
 		right_ear = gear.etiolation,			-- HP 50, MP 50
 		left_ring = gear.karieyh,				-- Regain 5
-		right_ring = gear.ayanmoRing,			-- DT 3
+		right_ring = gear.murky,				-- DT 10
 		back = gear.rosmertaDA,					-- DT 5
-	}	-- DT 51, Refresh 4, and 6 with sets.Weapons.Idle. Damage taken caps at 50%, so the slots past the cap carry Regen, Regain, Refresh and HP instead.
+	}	-- DT 58 (cap 50), Refresh 6, and 8 with sets.Weapons.Idle.
 	-- Idle sets for each offense mode, merged over the idle set.
 	sets.Idle.TP = set_combine(sets.Idle, {})
 	sets.Idle.ACC = set_combine(sets.Idle, {})
