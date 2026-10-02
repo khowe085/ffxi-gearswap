@@ -198,11 +198,26 @@ local function new_sandbox(job_id)
         job = main_job..'/'..tostring(player.sub_job)}, {__index = player})
 
     -- The sandbox's copies of texts and config run where GearSwap's own copies run, among GearSwap's globals, but
-    -- with the sandbox's windower, coroutine and _libs. Their require gives them the sandbox's copies of each
-    -- other and GearSwap's copies of the rest.
+    -- with the sandbox's windower, coroutine, _libs and _meta. Their require gives them the sandbox's copies of
+    -- each other and GearSwap's copies of the rest.
+    --
+    -- _meta holds the libraries' metatables, one per kind of object, each shared by every object of that kind.
+    -- texts sets _meta.Text's __index and __newindex to itself as it loads, so on GearSwap's _meta the live text
+    -- boxes would answer to the sandbox's copy, which has no record of them, and the next teardown would fail in
+    -- texts.destroy. The copies get a _meta of their own, filled with copies of GearSwap's entries.
+    local own_meta = {}
+    for kind, mt in pairs(_meta) do
+        if type(mt) == 'table' then
+            local copy = {}
+            for k, v in pairs(mt) do copy[k] = v end
+            own_meta[kind] = setmetatable(copy, getmetatable(mt))
+        else
+            own_meta[kind] = mt
+        end
+    end
     local own_copies = {}
-    local lib_env = setmetatable({windower = env.windower, coroutine = env.coroutine, _libs = env._libs},
-        {__index = _G})
+    local lib_env = setmetatable({windower = env.windower, coroutine = env.coroutine, _libs = env._libs,
+        _meta = own_meta}, {__index = _G})
     lib_env._G = lib_env
     local function own_copy(name)
         if own_copies[name] == nil then
