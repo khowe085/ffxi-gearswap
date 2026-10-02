@@ -1,7 +1,7 @@
 ## This repository
 
 * `data/common/` is a git submodule of [khowe085/rahvin-gearswap](https://github.com/khowe085/rahvin-gearswap), a fork of Rahvin GearSwap 2.1. GearSwap searches `data/common/` for includes, so a job file's `include('RahvinGS/Rahvin-Engine')` finds the engine at `data/common/RahvinGS/`. Clone with `git clone --recurse-submodules`, or run `git submodule update --init` in an existing clone. It tracks the fork's `dev` branch, and `git submodule update --remote data/common` moves it to that branch's latest commit.
-* `data/Vanar/` holds Vanar's BLU and RDM job files, `Vanar-Globals.lua` with settings both load (the `mappy` alias and the `gs e`, `gs x`, `gs d` and `gs t` short words), and `Vanar_gear_list.md`, the gear they use. They are checked against the latest export, `data/export/Vanar 2026-10-01 22-41-03.lua`.
+* `data/Vanar/` holds Vanar's BLU and RDM job files, `Vanar-Globals.lua` with settings both load (the `mappy` alias), and `Vanar_gear_list.md`, the gear they use. They are checked against the latest export, `data/export/Vanar 2026-10-01 22-41-03.lua`.
 * `docs/ffxi-mechanics.md` explains the game mechanics the gear sets rely on: fast cast, casting time, recast, skill and accuracy.
 
 ---

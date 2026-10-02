@@ -159,6 +159,19 @@ windower.register_event('addon command',function (...)
 
     local cmd = table.remove(splitup,1):lower()
 
+    -- Short words. e and x are equip and export. d and t send the line on as typed, as
+    -- gs c disable and gs c test, so every handler of this event sees the long command.
+    if cmd == 'e' then
+        cmd = 'equip'
+    elseif cmd == 'x' then
+        cmd = 'export'
+    elseif cmd == 'd' or cmd == 't' then
+        local line = {...}
+        line[1] = cmd == 'd' and 'disable' or 'test'
+        windower.send_command('gs c '..table.concat(line,' '))
+        return
+    end
+
     if cmd == 'c' then
         if gearswap_disabled then return end
         if splitup[1] then
@@ -169,6 +182,12 @@ windower.register_event('addon command',function (...)
         end
     elseif cmd == 'equip' then
         if gearswap_disabled then return end
+        -- equip naked, in any case, turns on the user file's naked hold and frees every
+        -- slot its disable hold has, in place of equipping sets.naked.
+        if #splitup == 1 and splitup[1]:lower() == 'naked' then
+            windower.send_command('gs c naked on; gs c enable all')
+            return
+        end
         local key_list = parse_set_to_keys(splitup)
         local set = get_set_from_keys(key_list)
         if set then
@@ -220,7 +239,9 @@ windower.register_event('addon command',function (...)
     elseif strip(cmd) == 'help' then
         print('GearSwap: Valid commands are:')
         print(' c <string>      : passes the string to the user\'s self_command function.')
-        print(' equip <string>  : attempts to equip the set indicated by the string.')
+        print(' equip <string>  : attempts to equip the set indicated by the string. naked runs c naked on and c enable all.')
+        print(' e / x           : short for equip / export.')
+        print(' d / t <string>  : short for c disable / c test.')
         print(' debugmode       : toggles debugmode on or off.')
         print(' demomode        : toggles demomode on or off.')
         print(' showswaps       : toggles whether gearswap displays equipment changes in the chat log.')
