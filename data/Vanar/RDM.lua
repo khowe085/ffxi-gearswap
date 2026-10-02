@@ -350,8 +350,9 @@ function get_sets()
 		hands = gear.telchineHandsRegen,		-- Cure 10
 		legs = gear.atrophyLegsPlusFour,		-- Cure 12
 		feet = gear.vanyaFeetPathD,				-- Cure 10
+		right_ring = gear.najiLoop,				-- Cure potency II 1, Cure 1
 		back = gear.solemnityCape,				-- Cure 7, DT 4
-	})	-- Cure 54 (cap 50)
+	})	-- Cure 55 (cap 50), and Cure potency II 1, which counts past that cap
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
 
 	-- Enhancing magic. Most enhancing spells stop gaining from skill at 500 (bg-wiki, Category:Enhancing
