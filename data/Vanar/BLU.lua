@@ -292,7 +292,7 @@ function get_sets()
 		body = gear.hashishinBodyPlusThree,			-- Acc 64, Att 64, DT 13
 		hands = gear.hashishinHandsPlusThree,		-- Acc 62, Att 62, DT 10
 		legs = gear.hashishinLegsPlusThree,			-- Acc 63, Att 63, DT 12
-		feet = gear.hashishinFeetPlusThree,			-- Acc 60, Att 60
+		feet = gear.nyameFeet,						-- Acc 53, Att 65, DA 5, DT 7 (Path B)
 		neck = gear.mirageStolePlusTwo,				-- Acc 25
 		waist = gear.kentarchPlusOne,				-- Acc 14, DA 3
 		left_ear = gear.brutal,						-- DA 5
@@ -300,18 +300,19 @@ function get_sets()
 		left_ring = gear.lehkoHabhokaRing,			-- STP 10, Crit 10
 		right_ring = gear.rajas,					-- STP 5, Subtle Blow 5
 		back = gear.rosmertaDA,						-- Acc 30, Att 20, DA 10, DT 5
-	}	-- Acc 391, Att 330, DT 40
+	}	-- Acc 384, Att 335, DT 47
 
 	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {})
 
 	sets.OffenseMode.ACC = set_combine(sets.OffenseMode, {
 		ammo = gear.honedTathlum,					-- Acc 15
+		feet = gear.hashishinFeetPlusThree,			-- Acc 60, Att 60
 		right_ring = gear.ayanmoRing,				-- Acc 6, DT 3
 	})	-- Acc 412, DT 43
 
 	sets.OffenseMode.DT = set_combine(sets.OffenseMode, {
 		right_ring = gear.murky,					-- DT 10
-	})	-- DT 50
+	})	-- DT 57 (cap 50)
 
 	-- Fast cast, worn at the start of every spell. A Quick Magic proc finishes the spell before the midcast
 	-- swap, so the spell lands in this set. Witful Belt is the only Quick Magic piece left, kept because it

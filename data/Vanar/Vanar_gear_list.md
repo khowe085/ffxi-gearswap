@@ -185,10 +185,10 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 |---|---|---|---|
 | Chelona Boots |  | `Precast.FastCast` |  |
 | Gleti's Boots |  | `WS['Chant du Cygne']` |  |
-| Hashi. Basmak +3 |  | `Idle`, `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB`, `WS['Requiescat']` |  |
+| Hashi. Basmak +3 |  | `Idle`, `OffenseMode.ACC`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB`, `WS['Requiescat']` |  |
 | Leth. Houseaux +3 |  |  | `OffenseMode`, `Midcast.Enhancing`, `Midcast.Enhancing.Skill`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS`, `WS.MAB`, `WS.Crit`, `WS['Requiescat']` |
 | Luhlaza Charuqs +1 |  | `Midcast.BlueMagic.Skill`, `Diffusion` |  |
-| Nyame Sollerets |  | `Midcast.BlueMagic.Breath`, `Midcast['White Wind']`, `WS` |  |
+| Nyame Sollerets |  | `OffenseMode`, `Midcast.BlueMagic.Breath`, `Midcast['White Wind']`, `WS` |  |
 | Telchine Pigaches |  | `Midcast.Regen` | `Midcast.Regen` |
 | Vanya Clogs |  |  | `Precast.Cure`, `Midcast.Cure` |
 | Viti. Boots +4 |  |  | `Idle`, `Midcast.Enfeebling` |
