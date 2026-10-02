@@ -127,6 +127,7 @@ require 'user_functions'
 require 'refresh'
 require 'export'
 require 'validate'
+require 'wardrobe'
 require 'flow'
 require 'triggers'
 
@@ -205,6 +206,8 @@ windower.register_event('addon command',function (...)
         else
             msg.addon_msg(123,'There is nothing to validate because there is no file loaded.')
         end
+    elseif cmd == 'stash' or cmd == 'pull' then
+        move_job_gear(cmd, splitup)
     elseif cmd == 'l' or cmd == 'load' then
         if splitup[1] then
             local f_name = table.concat(splitup,' ')
@@ -250,6 +253,8 @@ windower.register_event('addon command',function (...)
         print(' export <opts>   : Exports your item collections based on the passed options.')
         print(' disable <slot>  : Disables equip commands targeting a specified slot.')
         print(' validate <opts> : Checks your current inventory against your item collections (or vice versa).')
+        print(' stash <jobs> [unused] : moves the gear in those jobs\' files out of wardrobe and wardrobe2 (unused: everything else).')
+        print(' pull <jobs>     : moves the gear in those jobs\' files into wardrobe and wardrobe2 from the other bags in reach.')
         print('  Please see the gearswap/README.md file for more details.')
     elseif _settings.debug_mode and strip(cmd) == 'eval' then
         assert(loadstring(table.concat(splitup,' ')))()

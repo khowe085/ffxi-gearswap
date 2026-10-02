@@ -193,6 +193,7 @@ Duration = (base + 6s × RDM Group 2 merit + 3s × relic hands merit augment + R
 - This repo is the GearSwap addon itself, so changes to GearSwap's own `//gs` commands go in `gearswap.lua` at the root, not in the engine or a job file. Its `addon command` handler maps `e` and `x` to `equip` and `export`, sends `d` and `t` on as `gs c disable` and `gs c test`, and turns `equip naked`, in any case, into `gs c naked on; gs c enable all`.
 - Rahvin AutoBuff `When`: `Engaged` and `Idle` follow your status (weapons drawn or not). `Combat` and `OutOfCombat` follow Windower's `in_combat` flag, which is on whenever battle music plays, so it is on while you fight a monster without engaging it, for example while nuking it.
 - Two identical copies with no augments, such as two Stikini Rings, are safest swapped as a pair. Otherwise GearSwap can try to move the copy already worn in the other slot. Pinning each to its bag, for example `{ bag = "wardrobe" }`, also fixes it.
+- Moving items between bags: the client sends outgoing packet 0x029 (count, from bag, to bag, from slot, and slot 0x52, which lets the server pick the first empty one). One of the two bags must be the inventory, so a move between two other bags takes two hops and a free inventory slot. Wardrobes hold only weapons and armor, and equipped or bazaar items don't move. Safe, Safe 2, Storage and Locker are reachable only in the Mog House, or, all but Storage, at a Nomad or Pilgrim Moogle within six yalms once you have talked to it. Windower's organizer addon talks to the moogle for you and hides the menu that opens. `gs stash` and `gs pull` (`wardrobe.lua` at the root) move gear the same way.
 
 ## Player rules for these jobs
 
@@ -241,6 +242,8 @@ bg-wiki, read through search extracts:
 [Nyame Gauntlets](https://www.bg-wiki.com/ffxi/Nyame_Gauntlets).
 
 Windower: [Scoreboard pull request 1264](https://github.com/Windower/Lua/pull/1264), on `in_combat`, through a search extract.
+
+Windower, read directly: [organizer addon](https://github.com/Windower/Lua/tree/live/addons/organizer) (`items.lua` and `organizer.lua`), on moving items between bags.
 
 Forums, through search extracts: [Treasure hunter (FFXIAH)](https://www.ffxiah.com/forum/topic/26401/treasure-hunter), [TH Procing (Square Enix)](https://forum.square-enix.com/ffxi/threads/27974).
 
