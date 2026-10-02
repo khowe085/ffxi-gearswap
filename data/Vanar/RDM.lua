@@ -112,6 +112,7 @@ gear.coladaRefresh = rank_gear("Colada", 100, {
 	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } }) -- Refresh 2
 gear.archdukesShield = hp_gear("Archduke's Shield", 0)                           -- Refresh 1, INT 20, MND 20, Magic evasion 20
 gear.pahtliCape = mp_gear("Pahtli Cape", 50)                                     -- Cure spellcasting time -8
+gear.asperity = hp_gear("Asperity Necklace", 0)                                  -- Att 8, STP 3, DA 2
 
 function get_sets()
 	-- ===================================================================================================================
@@ -257,7 +258,9 @@ function get_sets()
 		back = gear.sucellosDA,						-- Acc 30, Att 20, DA 10, DT 5
 	}	-- Acc 375, Att 340, DT 40
 
-	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {})
+	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {
+		neck = gear.asperity,						-- Att 8, STP 3, DA 2
+	})	-- Acc 365, Att 338, DT 40
 
 	-- Four Atrophy +4 pieces add the set's Acc +45.
 	sets.OffenseMode.ACC = set_combine(sets.OffenseMode, {

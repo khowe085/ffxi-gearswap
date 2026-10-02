@@ -1,6 +1,6 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **124 pieces** (89 for BLU, 93 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-01: **125 pieces** (89 for BLU, 94 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (14)
@@ -44,10 +44,11 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Viti. Chapeau +4 |  |  | `Idle`, `Midcast.Enfeebling.Potency`, `WS` |
 | Wh. Rarab Cap +1 |  | `TreasureHunter` | `TreasureHunter` |
 
-## Neck (8)
+## Neck (9)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
+| Asperity Necklace |  |  | `OffenseMode.TP` |
 | Dls. Torque +1 |  |  | `Midcast.Enhancing`, `Midcast.Enfeebling` |
 | Enhancing Torque |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |
 | Fotia Gorget |  | `WS['Requiescat']` | `WS.Crit` |
