@@ -238,7 +238,6 @@ function get_sets()
 	-- Worn whenever you are not engaged, in every weapon mode. choose_set_custom puts it on. Archduke's
 	-- Shield is not a BLU item, so the offhand stays the weapon mode's.
 	sets.Weapons.Idle = {
-		main = gear.coladaRefresh,		-- Refresh 2
 	}
 
 	-- Worn for the casts midcast_custom names while you are not engaged.
