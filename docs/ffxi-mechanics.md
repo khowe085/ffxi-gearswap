@@ -320,6 +320,7 @@ A weapon in the sub slot needs the Dual Wield trait (bg-wiki, Dual Wield):
 
 - Tier VI: the Dual Wield page now gives 40%, from the Japanese wiki. It said about 37% for years, and Blue Mage Job Traits still says 37%.
 - RDM has no Dual Wield of its own. It needs /NIN (DW III, 25%, from NIN 45) or /DNC (DW II, 15%, from DNC 40). On any other support job the sub slot holds a shield or nothing.
+- Thief has Dual Wield of its own, from level 83, and tier III (25%) from 98, so a level 99 Thief dual wields on any support job (FFXIclopedia, Thief, through a search extract).
 - Support job level = 49 + floor(Master Level ÷ 5): 53 at Master Level 20 to 24, 54 at 25 to 29. DW IV needs NIN 65 and DW III needs DNC 60, so Master Level doesn't raise either tier (bg-wiki, Master Levels). Vanar's RDM and BLU are Master Level 25 (Combat skill), so their support jobs are level 54.
 - BLU gets Dual Wield from set blue magic: up to DW IV from the spells alone, V and VI with the job point gifts (bg-wiki, Blue Mage Job Traits). It doesn't stack with the support job's Dual Wield; the higher tier applies. BLU/NIN already has DW III, so blue magic Dual Wield only matters at DW IV or higher. The tier changes with the spell set, so check the job traits list in game. The spells and their trait points are under Traits from set spells.
 
@@ -2459,6 +2460,7 @@ ST = WSC from the spell's stat modifiers, doubled by Burst Affinity
 - Desperate Flourish and Violent Flourish have to hit. Violent Flourish's stun is then resisted on the user's magic accuracy (bg-wiki, Violent Flourish).
 - HP cured by a Waltz = (1 + Waltz potency + Waltz potency received) × (M × (user's CHR + target's VIT) + B + 2 × Waltz job point tiers), floored at each step. M is the tier's slope and B its base. M is halved when Dancer is the subjob. Waltz potency from gear caps at 50%, and Waltz potency received at 30% (bg-wiki, Waltz).
 - Of the gear Vanar owns that RDM can wear, only Gleti's Knife names a dancer ability: Waltz potency +10%. Jig and Samba durations change only with Dancer gear.
+- Thief can also wear Gleti's Cuirass, which has Waltz potency +10% too.
 
 ## Gear and GearSwap
 
@@ -3536,6 +3538,8 @@ FFXIclopedia, read directly:
 Windower, read directly: [organizer addon](https://github.com/Windower/Lua/tree/live/addons/organizer) (`items.lua` and `organizer.lua`), on moving items between bags.
 
 Forums, through search extracts: [Treasure hunter (FFXIAH)](https://www.ffxiah.com/forum/topic/26401/treasure-hunter), [TH Procing (Square Enix)](https://forum.square-enix.com/ffxi/threads/27974).
+
+Thief's Dual Wield, through search extracts: [Thief (FFXIclopedia)](https://ffxiclopedia.fandom.com/wiki/Thief), [Dual Wield (bg-wiki)](https://www.bg-wiki.com/ffxi/Dual_Wield).
 
 Windower: [Scoreboard pull request 1264](https://github.com/Windower/Lua/pull/1264), on `in_combat`, through a search extract.
 

@@ -1,5 +1,5 @@
--- Vanar's settings for every job. BLU.lua and RDM.lua include this file right after the engine, so
--- anything here runs each time either job file loads. GearSwap finds it in data/Vanar/.
+-- Vanar's settings for every job. BLU.lua, RDM.lua and THF.lua include this file right after the engine, so
+-- anything here runs each time one of those job files loads. GearSwap finds it in data/Vanar/.
 
 -- Windower aliases. Type //mappy, or mappy in the console, to launch Mappy. -runonce skips the launch
 -- when Mappy is already running.

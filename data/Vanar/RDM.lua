@@ -3,7 +3,7 @@
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Leth. Earring +1 is always in the right ear, the only ear its Fast Cast and
 -- enhancing duration work in.
--- data/Vanar/Vanar_gear_list.md lists every piece this file and BLU.lua use.
+-- data/Vanar/Vanar_gear_list.md lists every piece this file, BLU.lua and THF.lua use.
 
 -- Load and initialize the include file.
 include('RahvinGS/GearSets-Include')

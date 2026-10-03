@@ -5,7 +5,7 @@
 -- skill bonuses work in. At Master Level 25 sword skill is past 600, where each point adds 0.9 accuracy
 -- and 1 attack, so Hashishin Kavuk +3's Sword skill 30 is worth about Acc 27 and Att 30, and Hashi.
 -- Earring +1's Sword skill 11 about Acc 10 and Att 11.
--- data/Vanar/Vanar_gear_list.md lists every piece this file and RDM.lua use.
+-- data/Vanar/Vanar_gear_list.md lists every piece this file, RDM.lua and THF.lua use.
 
 -- Load and initialize the include file.
 include('RahvinGS/GearSets-Include')
