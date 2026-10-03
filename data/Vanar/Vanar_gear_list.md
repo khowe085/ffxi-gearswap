@@ -7,7 +7,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
-| Almace |  | `Weapons['Tizona Acc']`, `Weapons['Naegling Acc']`, `Weapons['Almace']` | `Weapons['Chant du Cygne']` |
+| Almace |  | `Weapons['Tizona Acc']`, `Weapons['Savage Blade Acc']`, `Weapons['Chant du Cygne']`, `Weapons['Chant du Cygne Acc']` | `Weapons['Chant du Cygne']` |
 | Ammurapi Shield |  |  | `Weapons.Casting`, `Weapons.Shield`, `Midcast.Enhancing` |
 | Archduke's Shield |  |  | `Weapons.Idle` |
 | Bunzi's Rod |  | `Weapons['Black Halo Acc']`, `Weapons.Casting` | `Weapons['Sanguine Blade']`, `Weapons.Casting` |
@@ -15,10 +15,10 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Forfend +1 |  |  | `Midcast.Enhancing.Skill` |
 | Gleti's Knife |  |  | `Weapons['Savage Blade Acc']`, `Weapons['Black Halo Acc']`, `Weapons['Chant du Cygne']`, `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` |
 | Maxentius |  | `Weapons['Black Halo']`, `Weapons['Black Halo Acc']`, `Weapons.Casting` | `Weapons['Black Halo']`, `Weapons['Black Halo Acc']`, `Weapons.CastingDualWield` |
-| Naegling |  | `Weapons['Naegling']`, `Weapons['Naegling Acc']` | `Weapons['Savage Blade']`, `Weapons['Savage Blade Acc']`, `Weapons['Sanguine Blade']` |
+| Naegling |  | `Weapons['Savage Blade']`, `Weapons['Savage Blade Acc']`, `Weapons['Chant du Cygne Acc']` | `Weapons['Savage Blade']`, `Weapons['Savage Blade Acc']`, `Weapons['Sanguine Blade']` |
 | Pukulatmuj +1 |  | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` |
 | Tauret |  |  | `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` |
-| Thibron |  | `Weapons['Tizona']`, `Weapons['Black Halo']`, `Weapons['Naegling']`, `Weapons['Almace']` | `Weapons['Savage Blade']`, `Weapons['Black Halo']` |
+| Thibron |  | `Weapons['Tizona']`, `Weapons['Black Halo']`, `Weapons['Savage Blade']`, `Weapons['Chant du Cygne']` | `Weapons['Savage Blade']`, `Weapons['Black Halo']` |
 | Tizona |  | `Weapons['Tizona']`, `Weapons['Tizona Acc']` |  |
 | Ullr |  |  | `Weapons.Casting` |
 

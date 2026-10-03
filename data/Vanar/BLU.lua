@@ -137,7 +137,7 @@ for _, spell in ipairs({ 'Bio', 'Bio II', 'Bio III' }) do
 end
 
 -- Weapon modes. Each name needs a matching sets.Weapons entry.
-state.WeaponMode:options('Tizona','Tizona Acc','Black Halo','Black Halo Acc','Naegling','Naegling Acc','Almace')
+state.WeaponMode:options('Tizona','Tizona Acc','Black Halo','Black Halo Acc','Savage Blade','Savage Blade Acc','Chant du Cygne','Chant du Cygne Acc')
 state.WeaponMode:set('Tizona')
 -- Weapon lock at load. 'Locked' always holds the weapon mode's weapons, 'Unlocked' holds them only while engaged.
 -- While Locked, sets.Weapons.Idle and sets.Weapons.Casting never go on. Alt+F9 toggles it.
@@ -145,13 +145,17 @@ state.WeaponLock:set('Locked')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (F11) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
--- 'AM2' and 'AM3' build that Aftermath level first, then fire at 1000 while it lasts.
+-- The modes with Thibron's TP Bonus +1000 in the offhand offer 1000 and 1750, since 1750 already counts as
+-- 2750. The others add 2750. 'AM2' and 'AM3' build that Aftermath level first, then fire at 1000 while it lasts.
 AutoWS_List = {
-	['Naegling'] = { { 'Savage Blade', 1000 } },
-	['Naegling Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
-	['Tizona'] = { { 'Expiacion', 1000 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
-	['Tizona Acc'] = { { 'Expiacion', 1000 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
-	['Almace'] = { { 'Chant du Cygne', 1000 } },
+	['Tizona'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
+	['Tizona Acc'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 2750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
+	['Black Halo'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 } },
+	['Black Halo Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
+	['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
+	['Savage Blade Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+	['Chant du Cygne'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 } },
+	['Chant du Cygne Acc'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 } },
 }
 state.AutoWS:set('OFF')
 
@@ -237,7 +241,8 @@ gear.fucho = mp_gear("Fucho-no-Obi", 30)                                        
 function get_sets()
 
 	-- Weapon sets, one per weapon mode. Thibron's TP Bonus +1000 backs every weapon skill mode, and the Acc
-	-- modes trade it for a more accurate offhand: Almace, or Bunzi's Rod for Black Halo. With the weapon lock
+	-- modes trade it for a more accurate offhand: Almace, Naegling when Almace is the main, or Bunzi's Rod for
+	-- Black Halo. With the weapon lock
 	-- Locked, as this file loads, they are worn at all times. Unlocked, they are worn while engaged, and while not
 	-- engaged choose_set_custom swaps in sets.Weapons.Idle, which costs whatever TP is left when you disengage.
 	sets.Weapons = {}
@@ -263,19 +268,24 @@ function get_sets()
 		sub = gear.bunzi,			-- Acc 40
 	}
 
-	sets.Weapons['Naegling'] = {	-- Savage Blade
+	sets.Weapons['Savage Blade'] = {
 		main = gear.naegling,
 		sub = gear.thibron,
 	}
 
-	sets.Weapons['Naegling Acc'] = {	-- Savage Blade
+	sets.Weapons['Savage Blade Acc'] = {
 		main = gear.naegling,
 		sub = gear.almace,
 	}
 
-	sets.Weapons['Almace'] = {		-- Chant du Cygne
+	sets.Weapons['Chant du Cygne'] = {
 		main = gear.almace,
 		sub = gear.thibron,
+	}
+
+	sets.Weapons['Chant du Cygne Acc'] = {
+		main = gear.almace,
+		sub = gear.naegling,
 	}
 
 	-- Worn in the offhand whenever the main is one-handed and no dual-wield trait is active, as right after a job
