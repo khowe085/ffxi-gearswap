@@ -111,10 +111,10 @@ gear.sucellosINT = hp_gear("Sucellos's Cape", 0, {
 gear.ghostfyre = hp_gear("Ghostfyre Cape", 0)                                                                  -- Enhancing duration 20, Enhancing skill 5, Enfeebling skill 8, Macc 8
 gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0)                                                          -- Acc 14, DA 3
 gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0)                                                            -- Treasure Hunter 1
--- Two copies of one ring, worn as a pair or one at a time. A set that wears one copy should not follow
--- a set wearing both, or GearSwap can pull the same copy into both slots. If one ever fails to equip,
--- pin each to the bag it lives in, for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and
--- { bag = "wardrobe2" }.
+-- Two copies of one ring, worn as a pair or one at a time. A set wearing both should not directly follow
+-- a set wearing one: GearSwap's copy matching (equip_processing.lua, unpack_equip_list) can then pick the
+-- copy already worn for the other slot. If one ever fails to equip, pin each to the bag it lives in, for
+-- example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
 gear.stikini1 = hp_gear("Stikini Ring", 0) -- Macc 8, all magic skills 5
 gear.stikini2 = hp_gear("Stikini Ring", 0)
 gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
@@ -128,12 +128,10 @@ gear.forfendPlusOne = hp_gear("Forfend +1", 22, {
 	augments = { 'Path: A', } })                                                 -- Enhancing skill 10, Acc 15, Macc 15 (Path A at max rank)
 gear.enhancingTorque = hp_gear("Enhancing Torque", 0)                            -- Enhancing skill 7
 gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
-	augments = { 'Path: A', } })                                                 -- Enhancing skill 9
-gear.swithCape = hp_gear("Swith Cape", -20)                                      -- Fast Cast 3
+	augments = { 'Path: A', } })                                                 -- Enhancing skill 9; rank 11: Fast Cast 8, SIRD -3
 gear.coladaRefresh = rank_gear("Colada", 100, {
 	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } }) -- Refresh 2
 gear.archdukesShield = hp_gear("Archduke's Shield", 0)                           -- Refresh 1, INT 20, MND 20, Magic evasion 20
-gear.pahtliCape = mp_gear("Pahtli Cape", 50)                                     -- Cure spellcasting time -8
 gear.asperity = hp_gear("Asperity Necklace", 0)                                  -- Att 8, STP 3, DA 2
 gear.hastyPinion = hp_gear("Hasty Pinion", 0)                                    -- Haste 1, Store TP -5
 gear.fucho = mp_gear("Fucho-no-Obi", 30)                                         -- Refresh 1 while MP is below half of max MP without ear, ring and back MP (latent)
@@ -349,17 +347,17 @@ function get_sets()
 	}	-- FC 44, 82% with the trait. The other slots keep the idle set's DT pieces.
 
 	-- Stoneskin, over the fast-cast set. Doyen Pants fill the legs and Siegel Sash takes Embla Sash's
-	-- place, and the free slots add 7 fast cast, so fast cast is 84% with the Stoneskin cuts on top.
+	-- place, and the free slots add 12 fast cast, so fast cast is 89% with the Stoneskin cuts on top.
 	-- bg-wiki counts those cuts inside the same 80% cap, so under that reading the set changes nothing, and
 	-- if they go past it the cast is faster. Recast is set by the midcast set, so nothing here costs any.
 	sets.Precast["Stoneskin"] = {
 		main = gear.pukulatmujPlusOne,			-- Stoneskin casting time -11
 		legs = gear.doyenLegs,					-- Stoneskin casting time -10
 		waist = gear.siegel,					-- Enhancing magic casting time -8
-		back = gear.swithCape,					-- FC 3
+		back = gear.fiFolletPlusOne,			-- FC 8 (rank 11)
 		left_ear = gear.loquacious,				-- FC 2
 		left_ring = gear.prolix,				-- FC 2
-	}	-- FC 84%, and Stoneskin casting time -29%
+	}	-- FC 89% (cap 80), and Stoneskin casting time -29%
 
 	-- Cure spells, over the fast-cast set. The Cure casting time pieces take the slots the fast-cast set
 	-- leaves open, Doyen Pants among them, so fast cast stays at 82% with the Cure cuts on top. As with
@@ -368,12 +366,10 @@ function get_sets()
 	-- costs any. Serenity (Cure casting time -8) is left out: it is a two-handed staff, so out of combat it
 	-- would take the shield off. While engaged the weapon lock keeps the weapons.
 	sets.Precast.Cure = {
-		hands = gear.vanyaHandsPathB,			-- Cure spellcasting time -7
 		legs = gear.doyenLegs,					-- Cure spellcasting time -15
 		feet = gear.vanyaFeetPathD,				-- Cure spellcasting time -15
 		left_ear = gear.mendicantEarring,		-- Cure spellcasting time -5
-		back = gear.pahtliCape,					-- Cure spellcasting time -8
-	}	-- FC 82%, and Cure spellcasting time -50%
+	}	-- FC 82%, and Cure spellcasting time -35%
 
 	-- ===================================================================================================================
 	--		sets.Midcast
@@ -388,14 +384,15 @@ function get_sets()
 
 	-- Cure spells.
 	sets.Midcast.Cure = set_combine(sets.Midcast, {
-		body = gear.bunziBody,					-- Cure 15
-		hands = gear.vanyaHandsPathB,			-- Healing magic skill 20
+		body = gear.vitiationBodyPlusFour,		-- Healing magic skill 24
+		hands = gear.telchineHandsRegen,		-- Cure 10
 		legs = gear.atrophyLegsPlusFour,		-- Cure 12
 		feet = gear.vanyaFeetPathD,				-- Cure 10
 		right_ring = gear.najiLoop,				-- Cure potency II 1, Cure 1
 		neck = gear.nodens,						-- Cure 5
+		right_ear = gear.mendicantEarring,		-- Cure 5
 		back = gear.solemnityCape,				-- Cure 7, DT 4
-	})	-- Cure 50 (the cap), Cure potency II 1, which counts past that cap, and Healing magic skill 20
+	})	-- Cure 50 (the cap), Cure potency II 1, which counts past that cap, and Healing magic skill 24
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
 
 	-- Enhancing magic. Most enhancing spells stop gaining from skill at 500 (bg-wiki, Category:Enhancing
@@ -500,8 +497,8 @@ function get_sets()
 		head = gear.amalricCoifPlusOne,	-- Aquaveil +2
 	})
 
-	-- Enfeebling magic. The engine adds .MACC, .Potency or .Duration from its enfeebling lists, two of which
-	-- are changed at the top of this file. INT_Cape_Spells swap this set's MND cape for the INT cape in
+	-- Enfeebling magic. The engine adds .MACC, .Potency or .Duration from its enfeebling lists, one of which
+	-- (Enfeeble_Duration) is changed at the top of this file. INT_Cape_Spells swap this set's MND cape for the INT cape in
 	-- midcast_custom.
 	-- Four Atrophy +4 pieces add the set's Macc +45. Cast while the weapons are free, sets.Weapons.Casting adds Macc 118
 	-- but empties the ammo for Ullr, which drops Pemphredo Tathlum's 8: net +110.

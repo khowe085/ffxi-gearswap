@@ -212,10 +212,10 @@ gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0)                           
 gear.njordr = hp_gear("Njordr Earring", 0)                                                               -- Blue magic skill 10
 gear.honedTathlum = hp_gear("Honed Tathlum", 0)                                                          -- Acc 15
 gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0)                                                      -- Treasure Hunter 1
--- Two copies of one ring, worn as a pair or one at a time. A set that wears one copy should not follow
--- a set wearing both, or GearSwap can pull the same copy into both slots. If one ever fails to equip,
--- pin each to the bag it lives in, for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and
--- { bag = "wardrobe2" }.
+-- Two copies of one ring, worn as a pair or one at a time. A set wearing both should not directly follow
+-- a set wearing one: GearSwap's copy matching (equip_processing.lua, unpack_equip_list) can then pick the
+-- copy already worn for the other slot. If one ever fails to equip, pin each to the bag it lives in, for
+-- example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
 gear.stikini1 = hp_gear("Stikini Ring", 0) -- Macc 8, all magic skills 5
 gear.stikini2 = hp_gear("Stikini Ring", 0)
 gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
@@ -227,12 +227,11 @@ gear.telchineFeetRegen = hp_gear("Telchine Pigaches", 13, {
 gear.pukulatmujPlusOne = rank_gear("Pukulatmuj +1", 100)                         -- Enhancing skill 11, Stoneskin casting time -11%
 gear.enhancingTorque = hp_gear("Enhancing Torque", 0)                            -- Enhancing skill 7
 gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
-	augments = { 'Path: A', } })                                                 -- Enhancing skill 9
+	augments = { 'Path: A', } })                                                 -- Enhancing skill 9; rank 11: Fast Cast 8, SIRD -3
 gear.chelonaBoots = mp_gear("Chelona Boots", 35)                                 -- Fast Cast 4
 gear.maviTathlum = hp_gear("Mavi Tathlum", 0)                                    -- Blue magic skill 5, breath damage +5%
 gear.coladaRefresh = rank_gear("Colada", 100, {
 	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } }) -- Refresh 2
-gear.pahtliCape = mp_gear("Pahtli Cape", 50)                                     -- Cure spellcasting time -8
 gear.fucho = mp_gear("Fucho-no-Obi", 30)                                         -- Refresh 1 while MP is below half of max MP without ear, ring and back MP (latent)
 
 function get_sets()
@@ -392,9 +391,9 @@ function get_sets()
 		right_ear = gear.etiolation,		-- FC 1
 		left_ring = gear.prolix,			-- FC 2
 		right_ring = gear.najiLoop,			-- FC 1
-		back = gear.fiFolletPlusOne,		-- FC 1 to 10 by rank (Path A)
+		back = gear.fiFolletPlusOne,		-- FC 8 (rank 11)
 		feet = gear.chelonaBoots,			-- FC 4
-	}	-- FC 44 plus Fi Follet Cape +1's, 54 at its rank 15. Ammo and neck keep the idle set's pieces.
+	}	-- FC 52. Ammo and neck keep the idle set's pieces.
 
 	-- Merged over the fast-cast set for blue magic.
 	sets.Precast.BlueMagic = set_combine(sets.Precast.FastCast, {
@@ -406,22 +405,21 @@ function get_sets()
 	-- or 15% from a RDM subjob, whichever is higher.
 	sets.Precast.Enhancing = {
 		waist = gear.siegel,				-- Enhancing magic casting time -8
-	}	-- 49% from gear plus Fi Follet Cape +1's fast cast
+	}	-- 57% from gear
 
 	-- Stoneskin from a WHM or RDM subjob, over sets.Precast.Enhancing.
 	sets.Precast["Stoneskin"] = {
 		main = gear.pukulatmujPlusOne,		-- Stoneskin casting time -11
 		legs = gear.doyenLegs,				-- Stoneskin casting time -10
-	}	-- 62% from gear plus Fi Follet Cape +1's fast cast (1 or more), so any Fast Cast trait of 17% or more reaches the cap
+	}	-- 70% from gear, so any Fast Cast trait of 10% or more reaches the cap
 
 	-- Cure spells from a WHM or RDM subjob, over the fast-cast set. Each Cure casting time piece cuts more
-	-- than the fast cast it replaces: Doyen Pants for Enif Cosciales, Mendi. Earring for Etiolation
-	-- Earring and Pahtli Cape for Fi Follet Cape +1, a gain while the cape is below rank 11. Recast is set by the midcast set, so nothing here costs any.
+	-- than the fast cast it replaces: Doyen Pants for Enif Cosciales and Mendi. Earring for Etiolation
+	-- Earring. Recast is set by the midcast set, so nothing here costs any.
 	sets.Precast.Cure = {
 		legs = gear.doyenLegs,				-- Cure spellcasting time -15
 		right_ear = gear.mendicantEarring,	-- Cure spellcasting time -5
-		back = gear.pahtliCape,				-- Cure spellcasting time -8
-	}	-- 63% from gear (fast cast 35, Cure spellcasting time -28), so any Fast Cast trait of 17% or more reaches the cap
+	}	-- 63% from gear (fast cast 43, Cure spellcasting time -20), so any Fast Cast trait of 17% or more reaches the cap
 
 	-- Job abilities. sets.JA is worn for every job ability, and the set named for the ability merges over it.
 	sets.JA = set_combine(sets.Idle, {})
@@ -452,8 +450,29 @@ function get_sets()
 	--The base for every cast. sets.Idle is merged underneath it on every midcast, so a slot this set does not name keeps its idle piece.
 	sets.Midcast = set_combine(sets.Idle, {})
 
-	-- Utsusemi from a NIN subjob keeps the idle set's DT.
-	sets.Midcast.Utsusemi = set_combine(sets.Idle, {})
+	-- Fast Recast, for spells no potency gear helps: the fixed-potency blue buffs and Utsusemi. Battery Charge
+	-- takes it too, with Refresh potency from Amalric Coif +1, which the set already wears for its haste and FC.
+	-- Recast is base x (1 - haste) x (1 - floor(Fast Cast / 2) / 100), so the set reaches the gear haste cap
+	-- (256/1024) and then takes all the Fast Cast it can. It drops idle DT for the cast.
+	sets.Midcast.FastRecast = set_combine(sets.Midcast, {
+		head = gear.amalricCoifPlusOne,			-- Haste 6, FC 11
+		body = gear.luhlazaBodyPlusOne,			-- Haste 4, FC 7
+		hands = gear.hashishinHandsPlusThree,	-- Haste 3, Blue magic recast -16%
+		legs = gear.enifLegs,					-- Haste 5, FC 8
+		feet = gear.chelonaBoots,				-- FC 4
+		waist = gear.witful,					-- Haste 3, FC 3
+		left_ear = gear.loquacious,				-- FC 2
+		right_ear = gear.etiolation,			-- FC 1
+		left_ring = gear.prolix,				-- FC 2
+		right_ring = gear.lehkoHabhokaRing,		-- Haste 10
+		back = gear.fiFolletPlusOne,			-- FC 8 (rank 11)
+	})	-- Haste 31, past the cap, FC 46 and Blue magic recast -16%: with a Fast Cast trait of 15 to 25 the recast is
+	-- 44 to 41% of base, against 58 to 55% in the idle set. Ammo and neck keep the idle set's pieces.
+
+	-- Utsusemi from a NIN subjob. Blue magic recast does nothing for ninjutsu, so Pinga Mittens' FC 5 takes the hands.
+	sets.Midcast.Utsusemi = set_combine(sets.Midcast.FastRecast, {
+		hands = gear.pingaHands,				-- FC 5
+	})
 
 	-- Cure spells from a WHM or RDM subjob. Cast while not engaged, sets.Weapons.Casting adds Cure 30.
 	sets.Midcast.Cure = set_combine(sets.Midcast, {
@@ -585,8 +604,9 @@ function get_sets()
 		head = gear.luhlazaHeadPlusOne,				-- Breath damage dealt +20%, Blue magic skill 13
 	})
 
-	-- Fixed-potency buffs keep the idle set's DT. Enmity spells such as Jettatura and Geist Wall need to land.
-	sets.Midcast.BlueMagic.Buff = set_combine(sets.Midcast, {})
+	-- Fixed-potency buffs gain nothing from potency gear, so they take the Fast Recast set. Enmity spells such as
+	-- Jettatura and Geist Wall need to land.
+	sets.Midcast.BlueMagic.Buff = set_combine(sets.Midcast.FastRecast, {})
 	sets.Midcast.BlueMagic.Enmity = set_combine(sets.Midcast.BlueMagic.ACC, {})
 	-- Healing blue magic heals by the multi-target cure formula, 3 x MND + VIT with Cure potency on top, and blue
 	-- magic skill does nothing for it. Restoral is the exception and has its own set below.
@@ -767,10 +787,12 @@ function get_sets()
 	}
 
 	-- In ACC mode these keep their own set instead of taking sets.WS.ACC, whose Kentarch Belt +1 would replace
-	-- Fotia Belt. Its latent already gives every hit of these weapon skills Accuracy +10 and +25/256 fTP.
-	for _, ws in ipairs({ 'Chant du Cygne', 'Requiescat' }) do
-		sets.WS[ws].ACC = set_combine(sets.WS[ws], {})
-	end
+	-- Fotia Belt. Its latent already gives every hit of these weapon skills Accuracy +10 and +25/256 fTP. Chant du
+	-- Cygne still takes sets.WS.ACC's Hashishin Bazubands +3; Requiescat already wears them.
+	sets.WS['Chant du Cygne'].ACC = set_combine(sets.WS['Chant du Cygne'], {
+		hands = gear.hashishinHandsPlusThree,		-- Acc 62
+	})
+	sets.WS['Requiescat'].ACC = set_combine(sets.WS['Requiescat'], {})
 
 	-- Treasure Hunter gear. In Tag mode it is worn only for an action TH_Whitelist lists, aimed at a monster not yet tagged, never just for being engaged. Full Time also wears it whenever engaged. TH Mode starts in Tag, Alt+F11 cycles it, and None turns it off.
 	sets.TreasureHunter = {
@@ -822,6 +844,15 @@ function pretarget_custom(spell,action)
 	if spell.type ~= 'BlueMagic' then return end
 	-- Silenced, the spell would fail after its abilities went up and onto their recasts, so none is used.
 	if buffactive['Silence'] or buffactive['Mute'] or buffactive['Omerta'] then return end
+	-- Under Amnesia or Impairment the abilities themselves fail. A Chain Affinity spell without Chain Affinity up
+	-- is still dropped, as it is when Chain Affinity isn't ready; anything else goes ahead without its abilities.
+	if buffactive['Amnesia'] or buffactive['Impairment'] then
+		if Chain_Affinity_Spells:contains(spell.english) and not buffactive['Chain Affinity'] then
+			cancel_spell()
+			add_to_chat(123, 'Abort: Chain Affinity can\'t be used.')
+		end
+		return
+	end
 	local now = os.clock()
 	if now >= blu_lock_until then blu_refire = nil end
 	if blu_refire == spell.english then

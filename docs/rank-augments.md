@@ -5,7 +5,7 @@ Augment values at every rank for each rank-augmented item in Vanar's export, `da
 - `//gs export` prints the path (`'Path: B'`) but never the rank. A copy that exports with no augments at all hasn't been ranked: it has only the base stats in its help text.
 - Ranks are cumulative: the row for a rank is the item's whole augment at that rank, not an increase over the rank before it. A blank cell means that augment line hasn't unlocked yet.
 - A path is fixed once chosen. Changing it means discarding the item and starting over (bg-wiki, Nyame Mail).
-- Vanar's ranks **(player, 2026-10-02)**: the Nyame Helm, Mail, Flanchard and Sollerets are Path B at rank 20. The Nyame Gauntlets and every Bunzi's and Gleti's piece are rank 0. The other path items' ranks aren't recorded, because they change often **(player, 2026-10-02)**. When a set decision turns on one, ask the player.
+- Vanar's ranks **(player, 2026-10-02)**: the Nyame Helm, Mail, Flanchard and Sollerets are Path B at rank 20. The Nyame Gauntlets and every Bunzi's and Gleti's piece are rank 0. Fi Follet Cape +1 is rank 11. The other path items' ranks aren't recorded, because they change often **(player, 2026-10-02)**. When a set decision turns on one, ask the player.
 
 ## Vanar's copies
 
@@ -36,7 +36,7 @@ Augment values at every rank for each rank-augmented item in Vanar's export, `da
 | [Coiste Bodhar](#coiste-bodhar) | ammo | A | 30 | A | unknown |  |
 | [Alabaster Earring](#alabaster-earring) | ear | A | 30 | A | unknown |  |
 | [Murky Ring](#murky-ring) | ring | A | 30 | A | unknown |  |
-| [Fi Follet Cape +1](#fi-follet-cape-1) | back | A | 15 | A | unknown |  |
+| [Fi Follet Cape +1](#fi-follet-cape-1) | back | A | 15 | A | 11 | "Fast Cast" +8%, Spell Interruption Rate -3% |
 | [Kentarch Belt +1](#kentarch-belt-1) | waist | A | 15 | none | 0 | none (base stats only) |
 | [Obstin. Sash](#obstin-sash) | waist | A | 30 | none | 0 | none (base stats only) |
 | [Sailfi Belt +1](#sailfi-belt-1) | waist | A | 15 | A | unknown |  |
@@ -1436,7 +1436,7 @@ Murky Ring, ring. Ranks 1 to 30. Vanar's copy: `'Path: A'`, rank unknown. Source
 
 ### Fi Follet Cape +1
 
-Fi Follet Cape +1, back. Ranks 1 to 15. Vanar's copy: `'Path: A'`, rank unknown. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Fi_Follet_Cape_%2B1).
+Fi Follet Cape +1, back. Ranks 1 to 15. Vanar's copy: `'Path: A'`, rank 11. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Fi_Follet_Cape_%2B1).
 
 | Rank | Augment 1 | Augment 2 |
 |---|---|---|
@@ -1450,7 +1450,7 @@ Fi Follet Cape +1, back. Ranks 1 to 15. Vanar's copy: `'Path: A'`, rank unknown.
 | 8 | "Fast Cast" +6% | Spell Interruption Rate -2% |
 | 9 | "Fast Cast" +7% | Spell Interruption Rate -2% |
 | 10 | "Fast Cast" +7% | Spell Interruption Rate -3% |
-| 11 | "Fast Cast" +8% | Spell Interruption Rate -3% |
+| **11** | "Fast Cast" +8% | Spell Interruption Rate -3% |
 | 12 | "Fast Cast" +8% | Spell Interruption Rate -4% |
 | 13 | "Fast Cast" +9% | Spell Interruption Rate -4% |
 | 14 | "Fast Cast" +9% | Spell Interruption Rate -5% |

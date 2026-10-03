@@ -1341,7 +1341,7 @@ No notes beyond the help text: Abyssal Mask, Arthro's Cap, Cait Sith Cap, Carbie
 
 - Its `"Stoneskin"+30` is read when the spell lands. It can take Stoneskin past its 350 cap, up to 475. ([bg-wiki](https://www.bg-wiki.com/ffxi/Stoneskin))
 - Its Cure potency +5% counts toward the 50% Cure potency cap, not the separate 30% Cure potency II cap. ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Cure_Spell))
-- RDM's Cure set already reaches 55% without it, so it adds nothing there.
+- RDM's Cure set lands on the 50% cap with it, from 45% without.
 
 ### Quanpur Necklace
 
@@ -2124,6 +2124,7 @@ No notes beyond the help text: Akitu Shirt, Alliance Shirt, Chocobo Suit, Esthet
 
 - Its augments are Nolan Path B at full rank (rank 15). ([bg-wiki](https://www.bg-wiki.com/ffxi/Nolan))
 - In the Cure precast set, only its Cure spellcasting time -7% matters.
+- Neither of Vanar's jobs wears it since 2026-10-02 (player): RDM's fast cast already reaches 82% before any Cure piece, and RDM's Cure set takes Viti. Tabard +4's Healing magic skill +24 instead.
 - Its Healing magic skill +20 raises the amount cured (cure power comes from MND, VIT and healing skill), but only if worn at midcast. ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Cure_Spell))
 
 ### Viti. Gloves +4
@@ -2380,7 +2381,7 @@ No notes beyond the help text: Councilor's Cuffs.
 
 - Vanar's two unaugmented copies are both in the same bag (wardrobe) in both 2026-10-01 exports.
 - If one fails to equip, pinning them with `{ bag = "wardrobe" }` and `{ bag = "wardrobe2" }` only works after one copy is moved to wardrobe 2.
-- Until then, swap them as a pair. ([export](../data/export/Vanar%202026-10-01%2022-41-03.lua))
+- Until then, swap them as a pair. A set may wear one copy, but a set wearing both should not directly follow a set wearing one: GearSwap's copy matching can then pick the copy already worn for the other slot. ([export](../data/export/Vanar%202026-10-01%2022-41-03.lua))
 
 ### Tavnazian Ring
 
@@ -2443,11 +2444,11 @@ No notes beyond the help text: Acumen Ring, Apate Ring, Corneus Ring, Enlivened 
 - At max rank (15), Path A adds Fast Cast +10% and Spell interruption rate -5%.
 - Fast Cast rises 1% per rank up to rank 5, then 1% every second rank.
 - Spell interruption starts at -1% at rank 6 and reaches -5% at rank 14.
-- //gs export doesn't show the rank, and Vanar's rank isn't recorded, since ranks change often; ask the player when a set decision turns on it. [rank-augments.md](rank-augments.md#fi-follet-cape-1) has every rank. ([bg-wiki](https://www.bg-wiki.com/ffxi/Fi_Follet_Cape_%2B1))
+- //gs export doesn't show the rank. **(player, 2026-10-02)** Vanar's copy is rank 11: Fast Cast 8%, Spell interruption rate -3%. [rank-augments.md](rank-augments.md#fi-follet-cape-1) has every rank. ([bg-wiki](https://www.bg-wiki.com/ffxi/Fi_Follet_Cape_%2B1))
 - Worn only at midcast, its Path A Fast Cast just shortens recast, by half its value rounded down. Casting time was already set at precast. ([bg-wiki](https://www.bg-wiki.com/ffxi/Spell_Recast))
 - In precast, its Fast Cast beats Swith Cape's 3% from rank 4 up and ties at rank 3.
-- That matters on BLU, whose fast-cast set stays under the 80% cap: Fast Cast 46 from gear plus at most 25% from BLU's trait.
-- RDM's Stoneskin precast set reaches 84% with Swith Cape and 81% without it, so the back changes nothing there. ([bg-wiki](https://www.bg-wiki.com/ffxi/Swith_Cape))
+- That matters on BLU, whose fast-cast set stays under the 80% cap: Fast Cast 52 from gear with this cape, plus at most 25% from BLU's trait.
+- RDM's Stoneskin precast set reaches 89% with it and 81% without a back piece, so the cape changes nothing there; it replaced Swith Cape, which leaves both jobs' sets. ([bg-wiki](https://www.bg-wiki.com/ffxi/Swith_Cape))
 - `Unity Ranking: MND+1～5` changes each week with the ranking of Vanar's Unity. A higher rank gives more MND. Don't count on +5. ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Unity_Concord))
 
 ### Ghostfyre Cape
@@ -2515,6 +2516,7 @@ No notes beyond the help text: Acumen Ring, Apate Ring, Corneus Ring, Enlivened 
 *Pahtli Cape.*
 
 - Cure spellcasting time -8% cuts casting time, so it goes in `sets.Precast.Cure`. The engine wears that set for Cure, Cura and Curaga.
+- Neither of Vanar's jobs wears it since 2026-10-02 (player): RDM's fast cast already reaches 82% before any Cure piece, and on BLU it only ties Fi Follet Cape +1's Fast Cast 8.
 - bg-wiki's Cure page counts it with Fast Cast and Healing magic casting time under one 80% hard cap. The player holds that such cuts go past it ([ffxi-mechanics.md](ffxi-mechanics.md#does-anything-break-the-80-cap-disputed)). ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Cure_Spell))
 
 ### Perimede Cape
@@ -2613,7 +2615,7 @@ No notes beyond the help text: Acumen Ring, Apate Ring, Corneus Ring, Enlivened 
 *Swith Cape.*
 
 - Its unnumbered `Enhances "Fast Cast" effect` is 3% Fast Cast.
-- Fi Follet Cape +1 (Path A) gives more from rank 4 up, reaching +10% at rank 15. Its rank isn't recorded, so ask the player before keeping Swith Cape in precast. ([bg-wiki](https://www.bg-wiki.com/ffxi/Swith_Cape))
+- Fi Follet Cape +1 (Path A) gives more from rank 4 up, reaching +10% at rank 15. Vanar's is rank 11 (Fast Cast 8%), so neither job wears Swith Cape. ([bg-wiki](https://www.bg-wiki.com/ffxi/Swith_Cape))
 
 ### Tengu Shawl
 
