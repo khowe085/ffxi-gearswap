@@ -1,19 +1,19 @@
 # Vanar: BLU and RDM gear list
 
-Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-02: **129 pieces** (93 for BLU, 94 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-10-03: **128 pieces** (92 for BLU, 94 for RDM, 58 worn by both). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 
 ## Weapons (14)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
-| Almace |  | `Weapons['Tizona Acc']`, `Weapons['Naegling Acc']`, `Weapons['Almace']` | `Weapons['Savage Blade Acc']`, `Weapons['Chant du Cygne']` |
+| Almace |  | `Weapons['Tizona Acc']`, `Weapons['Naegling Acc']`, `Weapons['Almace']` | `Weapons['Chant du Cygne']` |
 | Ammurapi Shield |  |  | `Weapons.Casting`, `Weapons.Shield`, `Midcast.Enhancing` |
 | Archduke's Shield |  |  | `Weapons.Idle` |
 | Bunzi's Rod |  | `Weapons['Black Halo Acc']`, `Weapons.Casting` | `Weapons['Sanguine Blade']`, `Weapons.Casting` |
 | Colada | "Refresh"+2, Mag. Acc.+11, "Mag.Atk.Bns."+12, DMG:+1 | `Weapons.Idle` | `Weapons.Idle` |
 | Forfend +1 |  |  | `Midcast.Enhancing.Skill` |
-| Gleti's Knife |  |  | `Weapons['Black Halo Acc']`, `Weapons['Chant du Cygne']`, `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` |
+| Gleti's Knife |  |  | `Weapons['Savage Blade Acc']`, `Weapons['Black Halo Acc']`, `Weapons['Chant du Cygne']`, `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` |
 | Maxentius |  | `Weapons['Black Halo']`, `Weapons['Black Halo Acc']`, `Weapons.Casting` | `Weapons['Black Halo']`, `Weapons['Black Halo Acc']`, `Weapons.CastingDualWield` |
 | Naegling |  | `Weapons['Naegling']`, `Weapons['Naegling Acc']` | `Weapons['Savage Blade']`, `Weapons['Savage Blade Acc']`, `Weapons['Sanguine Blade']` |
 | Pukulatmuj +1 |  | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` |
@@ -22,7 +22,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Tizona |  | `Weapons['Tizona']`, `Weapons['Tizona Acc']` |  |
 | Ullr |  |  | `Weapons.Casting` |
 
-## Ammo (6)
+## Ammo (5)
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
@@ -31,7 +31,6 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 | Honed Tathlum |  | `OffenseMode.ACC` |  |
 | Mavi Tathlum |  | `Midcast.BlueMagic.Skill`, `Midcast.BlueMagic.Breath` |  |
 | Pemphredo Tathlum |  | `Idle`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` | `Midcast.Enfeebling`, `Midcast.Nuke`, `WS.MAB` |
-| Per. Lucky Egg |  | `TreasureHunter` |  |
 
 ## Head (10)
 
