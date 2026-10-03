@@ -43,7 +43,7 @@ TH_Whitelist = S { 'Dia', 'Dia II', 'Dia III', 'Stonega' }
 jobsetup(LockStylePallet, MacroBook, MacroSet)
 
 -- Weapon modes. Each one needs a sets.Weapons['<Mode>'] of the same name below.
-state.WeaponMode:options('Savage Blade', 'Savage Blade Acc', 'Sanguine Blade', 'Black Halo', 'Black Halo Acc', 'Chant du Cygne', 'Evisceration', 'Aeolian Edge')
+state.WeaponMode:options('Savage Blade', 'Savage Blade Acc', 'Sanguine Blade', 'Black Halo', 'Black Halo Acc', 'Black Halo Max Acc', 'Chant du Cygne', 'Evisceration', 'Aeolian Edge')
 state.WeaponMode:set('Savage Blade')
 -- Weapon lock at load. 'Unlocked' holds the weapon mode's weapons only while engaged, so out of combat the idle,
 -- casting and skill sets can change the main and sub. 'Locked' would hold them everywhere, and is the engine's
@@ -61,6 +61,7 @@ AutoWS_List = {
 	['Sanguine Blade'] = { { 'Sanguine Blade', 1000 } },
 	['Black Halo'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 } },
 	['Black Halo Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
+	['Black Halo Max Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
 	['Chant du Cygne'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 } },
 	['Evisceration'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
 	['Aeolian Edge'] = { { 'Aeolian Edge', 1000 }, { 'Aeolian Edge', 1750 }, { 'Aeolian Edge', 2750 } },
@@ -151,8 +152,8 @@ function get_sets()
 	-- only while engaged, under the Unlocked weapon lock this file loads with. Out of combat
 	-- choose_set_custom swaps in sets.Weapons.Idle for its refresh, which costs whatever TP is left when you
 	-- disengage. Savage Blade and Black Halo dual wield Thibron for its TP Bonus +1000. Sanguine Blade takes
-	-- Bunzi's Rod for its magic attack. Black Halo Acc, Chant du Cygne and the two dagger modes take Gleti's
-	-- Knife, and Savage Blade Acc takes Almace. Every mode clears the range slot.
+	-- Bunzi's Rod for its magic attack, and Black Halo Acc for its accuracy. Savage Blade Acc, Black Halo Max
+	-- Acc, Chant du Cygne and the two dagger modes take Gleti's Knife. Every mode clears the range slot.
 	-- Ullr only goes on for the casts midcast_custom names.
 	sets.Weapons = {}
 
@@ -181,6 +182,12 @@ function get_sets()
 	}
 
 	sets.Weapons['Black Halo Acc'] = {
+		main = gear.maxentius,
+		sub = gear.bunzi,			-- Acc 40, MND 15
+		range = empty,
+	}
+
+	sets.Weapons['Black Halo Max Acc'] = {
 		main = gear.maxentius,
 		sub = gear.gleti,			-- Acc 40, DEX 15, and a more accurate offhand than Bunzi's Rod
 		range = empty,
