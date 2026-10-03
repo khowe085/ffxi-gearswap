@@ -145,8 +145,9 @@ state.WeaponLock:set('Locked')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (F11) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
--- The modes with Thibron's TP Bonus +1000 in the offhand offer 1000 and 1750, since 1750 already counts as
--- 2750. The others add 2750. 'AM2' and 'AM3' build that Aftermath level first, then fire at 1000 while it lasts.
+-- Moonshade Earring's TP Bonus +250, which the weapon skill sets wear, turns 1750 into 2000 and 2750 into
+-- 3000, the cap. With Thibron's TP Bonus +1000 in the offhand, 1750 already reaches the cap, so those modes
+-- stop at 1750. 'AM2' and 'AM3' build that Aftermath level first, then fire at 1000 while it lasts.
 AutoWS_List = {
 	['Tizona'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
 	['Tizona Acc'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 2750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },

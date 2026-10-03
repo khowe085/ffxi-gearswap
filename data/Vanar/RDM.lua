@@ -52,6 +52,9 @@ state.WeaponLock:set('Unlocked')
 
 -- Auto weaponskill choices, keyed by the weapon modes above. gs c AutoWS (F11) cycles OFF and the
 -- current weapon mode's choices. It starts OFF and goes back to OFF when the weapon mode changes.
+-- Moonshade Earring's TP Bonus +250, which the weapon skill sets wear, turns 1750 into 2000 and 2750 into
+-- 3000, the cap. With Thibron's TP Bonus +1000 in the offhand, 1750 already reaches the cap, so those modes
+-- stop at 1750.
 AutoWS_List = {
 	['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
 	['Savage Blade Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
