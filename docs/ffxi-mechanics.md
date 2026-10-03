@@ -2453,6 +2453,13 @@ ST = WSC from the spell's stat modifiers, doubled by Burst Affinity
 - On a main job other than Thief, TH from gear and traits caps at 4.
 - Rahvin engine, Tag mode with a `TH_Whitelist` in the job file: only an action on the list (a spell, job ability or weapon skill by name) or a ranged attack wears TH gear against an untagged monster, and only such an action marks it tagged. Ranged attacks always qualify, whether or not `Ranged` is on the list (engine f58021c; th.lua, builders.lua). Engaging doesn't put TH on, and melee swings don't tag. Listed weapon skills, job abilities and every ranged attack wear it at precast, listed spells at midcast. Without a whitelist, Tag mode puts TH on as soon as you engage an untagged monster, because GearSwap gets no event before an auto-attack, and the first melee round tags it. Full Time keeps TH on while engaged either way. The engine forgets a tag when the monster dies, when you zone, and after three minutes without an action on it.
 
+## Dancer abilities from a DNC subjob
+
+- A Step lands on melee hit rate, capped at 95%, with its own Accuracy +10. Step accuracy gear, the Step accuracy merits and Presto are Dancer's (bg-wiki, Step).
+- Desperate Flourish and Violent Flourish have to hit. Violent Flourish's stun is then resisted on the user's magic accuracy (bg-wiki, Violent Flourish).
+- HP cured by a Waltz = (1 + Waltz potency + Waltz potency received) × (M × (user's CHR + target's VIT) + B + 2 × Waltz job point tiers), floored at each step. M is the tier's slope and B its base. M is halved when Dancer is the subjob. Waltz potency from gear caps at 50%, and Waltz potency received at 30% (bg-wiki, Waltz).
+- Of the gear Vanar owns that RDM can wear, only Gleti's Knife names a dancer ability: Waltz potency +10%. Jig and Samba durations change only with Dancer gear.
+
 ## Gear and GearSwap
 
 - Leth. Earring +1 and Hashi. Earring +1: their item text says their bonuses only work in the right ear.

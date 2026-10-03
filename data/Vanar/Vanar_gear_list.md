@@ -115,9 +115,9 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 
 | Item | Copy | BLU sets | RDM sets |
 |---|---|---|---|
-| Ayanmo Ring |  | `OffenseMode.ACC`, `Midcast.BlueMagic.Physical` | `Idle` |
+| Ayanmo Ring |  | `OffenseMode.ACC`, `Midcast.BlueMagic.Physical` | `Idle`, `Step` |
 | Epaminondas's Ring |  | `WS`, `WS.MAB` | `WS`, `WS.MAB` |
-| Jhakri Ring |  | `Midcast.BlueMagic.Physical`, `WS.MAB` | `Midcast.Burst`, `WS.MAB`, `WS.Crit` |
+| Jhakri Ring |  | `Midcast.BlueMagic.Physical`, `WS.MAB` | `Midcast.Burst`, `Step`, `WS.MAB`, `WS.Crit` |
 | Karieyh Ring |  | `Idle`, `WS` | `WS` |
 | Lehko's Ring |  | `OffenseMode`, `Midcast.FastRecast`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `OffenseMode`, `WS.Crit` |
 | Murky Ring |  | `Idle`, `OffenseMode.DT` | `Idle`, `OffenseMode.DT` |
@@ -150,7 +150,7 @@ Every piece `BLU.lua` and `RDM.lua` name, taken from the `//gs export` of 2026-1
 |---|---|---|---|
 | Chaac Belt |  | `TreasureHunter` | `TreasureHunter` |
 | Embla Sash |  |  | `Idle.Sublimation`, `Precast.FastCast`, `Midcast.Enhancing` |
-| Eschan Stone |  | `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.Dark`, `WS.MAB`, `midcast_custom()` | `Midcast.Dark`, `Midcast.Divine`, `Midcast.Nuke`, `WS.ACC`, `WS.MAB`, `midcast_custom()` |
+| Eschan Stone |  | `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.Dark`, `WS.MAB`, `midcast_custom()` | `Midcast.Dark`, `Midcast.Divine`, `Midcast.Nuke`, `Step`, `WS.ACC`, `WS.MAB`, `midcast_custom()` |
 | Flume Belt |  | `Idle`, `Midcast['White Wind']` | `Idle` |
 | Fotia Belt |  | `WS['Seraph Blade']`, `WS['Red Lotus Blade']`, `WS['Flash Nova']`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `WS.Crit`, `WS['Seraph Blade']`, `WS['Red Lotus Blade']`, `WS['Aeolian Edge']` |
 | Fucho-no-Obi |  | `LowMP` | `LowMP` |

@@ -623,12 +623,31 @@ function get_sets()
 	sets.JA["Chainspell"] = { body = gear.vitiationBodyPlusFour }
 
 	-- Dancer abilities, for a DNC subjob. Each family set is worn for its abilities, with a set
-	-- named for one ability over it.
-	sets.Flourish = set_combine(sets.Idle.DT, {})
-	sets.Jig = set_combine(sets.Idle.DT, {})
-	sets.Step = set_combine(sets.OffenseMode.ACC, {})
-	sets.Samba = set_combine(sets.Idle.DT, {})
+	-- named for one ability over it. None of them swaps weapons, since new weapons reset TP.
+
+	-- Steps land on melee hit rate, with Accuracy +10 of their own (bg-wiki, Step). This is the ACC engaged
+	-- set with the three carried pieces that add accuracy over it.
+	sets.Step = set_combine(sets.OffenseMode.ACC, {
+		waist = gear.eschan,						-- Acc 15, Macc 7, over Kentarch Belt +1's Acc 14
+		left_ring = gear.ayanmoRing,				-- Acc 6, Macc 6
+		right_ring = gear.jhakriRing,				-- Acc 6, Macc 6
+	})	-- Acc 438, Macc 400
+
+	-- Desperate and Violent Flourish also have to hit, and Violent Flourish's stun is resisted on magic
+	-- accuracy (bg-wiki, Violent Flourish), which the Atrophy +4 pieces and their set bonus carry as well.
+	-- No gear changes Animated, Reverse or Building Flourish from a subjob.
+	sets.Flourish = set_combine(sets.Step, {})
+
+	-- A Waltz heals (your CHR + the target's VIT) x a slope, halved for a subjob, plus a base, times Waltz
+	-- potency (bg-wiki, Waltz). No armor RDM can wear has Waltz potency; Gleti's Knife has +10%, but weapons
+	-- stay. The carried armor with the most CHR and VIT adds 28 over this set, about 10 HP on Curing Waltz III,
+	-- so the set keeps its DT.
 	sets.Waltz = set_combine(sets.OffenseMode.DT, {})
+
+	-- Jig and Samba effects come from the ability alone. Only Dancer gear changes them (their duration), so
+	-- these keep the idle DT set.
+	sets.Jig = set_combine(sets.Idle.DT, {})
+	sets.Samba = set_combine(sets.Idle.DT, {})
 
 	-- ===================================================================================================================
 	--		sets.WS
