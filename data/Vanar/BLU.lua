@@ -42,24 +42,30 @@ state.OffenseMode:set('TP')
 -- as tagging. Delete the line to let every action tag.
 TH_Whitelist = S { 'Glutinous Dart' }
 
--- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
--- jobsetup ends its chain of game commands with /echo Change Complete, about five seconds after load, before the
--- blue magic spell set loads. So the echo is cut from the chain here, and load_azure_set sends it after
--- //aset spellset, once AzureSets has said it is setting the spells. jobsetup sends the chain through
--- windower.send_command, which is swapped for this one call. GearSwap keeps that table from one job file to the
--- next, so the original goes back even if jobsetup raises.
-local change_complete_held = false
+-- The engine sends /echo Change Complete with the lockstyle, about five seconds after a load or a subjob change,
+-- which can be before the blue magic spell set starts loading. This file holds the echo back until the spell set
+-- load has sent its //aset command (release_echo, below), so AzureSets' line that it is setting the spells comes
+-- first. The engine runs in this file's environment, so replacing windower here with a copy whose send_command
+-- takes the echo out reaches the engine's sends too. GearSwap's own windower table is untouched, and the next job
+-- file gets a fresh environment.
+local echo_held = false
+local release_echo
 do
 	local send = windower.send_command
-	windower.send_command = function(command)
-		local chain, cut = command:gsub('input /echo Change Complete;', '')
-		if cut > 0 then change_complete_held = true end
-		send(chain)
-	end
-	local ok, err = pcall(jobsetup, LockStylePallet, MacroBook, MacroSet)
-	windower.send_command = send
-	if not ok then error(err, 0) end
+	windower = setmetatable({
+		send_command = function(command)
+			local rest, cut = command:gsub('input /echo Change Complete;?', '')
+			send(rest)
+			if cut > 0 then
+				echo_held = true
+				if release_echo then release_echo() end
+			end
+		end,
+	}, { __index = windower })
 end
+
+-- Apply the macro book, macro set and lockstyle, bind the mode keys, and print the key list.
+jobsetup(LockStylePallet, MacroBook, MacroSet)
 
 -- Blue magic lists. Each blue spell takes the midcast set of the list that names it. The lists follow what a spell's damage or
 -- effect scales with, since those do not share gear. The engine declares the same lists, and these copies replace them, so edit a list here to move a spell.
@@ -889,9 +895,14 @@ local azure_settings_path = windower.windower_path .. 'addons/AzureSets/data/set
 -- Changing main job to BLU loads this file and may also change the subjob, and this keeps that to one //aset command.
 local azure_request = 0
 
+-- True from a load being queued until it sends its //aset command or gives up. The engine's Change Complete echo
+-- waits for it.
+local azure_pending = false
+
 -- Schedules load_azure_set after delay seconds, replacing any load still waiting.
 function queue_azure_set(delay)
 	azure_request = azure_request + 1
+	azure_pending = true
 	local request = azure_request
 	coroutine.schedule(function() load_azure_set(request) end, delay)
 end
@@ -907,12 +918,19 @@ local function azure_set_names()
 	return names
 end
 
--- Sends the Change Complete echo cut from jobsetup's chain, once per load. The wait lets AzureSets' own line, that it
--- is setting the spell set or that the set is already set, come first.
-local function change_complete()
-	if not change_complete_held then return end
-	change_complete_held = false
+-- Sends the engine's held Change Complete echo once no spell set load is waiting. The wait lets AzureSets' own line,
+-- that it is setting the spell set or that the set is already set, come first. Declared at the top of the file, where
+-- the copy of windower that holds the echo calls it.
+function release_echo()
+	if not echo_held or azure_pending then return end
+	echo_held = false
 	send_command('wait 1;input /echo Change Complete')
+end
+
+-- Ends the queued load, sent or given up, and lets the echo go.
+local function azure_done()
+	azure_pending = false
+	release_echo()
 end
 
 -- Watches Dual Wield each second for a minute after //aset spellset, while AzureSets sets the spells one at a time.
@@ -936,20 +954,21 @@ end
 -- no subjob it loads war_melee. Each miss is warned in chat.
 -- It reads the job from the game, not GearSwap's player table, and does nothing unless the main job is BLU.
 -- After a job change the game sends the blue magic spell list late, and AzureSets errors without it, so it retries each second for up to ten tries.
--- After a load's //aset command, or its last warning when it loads nothing, it sends the Change Complete echo held from
--- jobsetup. After the command it also starts watch_dual_wield.
+-- It retries the same way while the game has no player to read.
+-- After a load's //aset command, or its last warning when it loads nothing, it lets the engine's Change Complete echo go.
+-- After the command it also starts watch_dual_wield.
 function load_azure_set(request, tries)
 	if request ~= azure_request then return end
 	local current = windower.ffxi.get_player()
-	if not current or current.main_job ~= 'BLU' then return end
-	local job_data = windower.ffxi.get_mjob_data()
+	if current and current.main_job ~= 'BLU' then return end
+	local job_data = current and windower.ffxi.get_mjob_data()
 	if not job_data or not job_data.spells then
 		tries = (tries or 0) + 1
 		if tries < 10 then
 			coroutine.schedule(function() load_azure_set(request, tries) end, 1)
 		else
 			warn('Blue magic spell list not loaded, AzureSets spell set skipped')
-			change_complete()
+			azure_done()
 		end
 		return
 	end
@@ -970,13 +989,13 @@ function load_azure_set(request, tries)
 			warn('AzureSets spell set ' .. name .. ' is missing')
 		end
 		if not chosen then
-			change_complete()
+			azure_done()
 			return
 		end
 	end
 
 	send_command('input //aset spellset ' .. chosen)
-	change_complete()
+	azure_done()
 	watch_dual_wield(request, nil, 0)
 end
 
