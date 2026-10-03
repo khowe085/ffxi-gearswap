@@ -1533,7 +1533,7 @@ No notes beyond the help text: Asperity Necklace, Chivalrous Chain, Houyi's Gorg
 *Lethargy Earring +1. RDM only.*
 
 - Its augments are right-ear only too: bg-wiki lists them under "Right Ear" on the item page and in the Sortie +1 earring table. In the left ear this copy gives nothing.
-- This copy has the lowest roll: Accuracy and Magic Accuracy +11 (range 11-15) and Double Attack +3% (range 3-5%). bg-wiki says the two augment slots rise together (bg-wiki: [Leth. Earring +1](https://www.bg-wiki.com/ffxi/Leth._Earring_%2B1), [Sortie rewards](https://www.bg-wiki.com/ffxi/Category:Sortie_Rewards)).
+- This copy has the top roll: Accuracy and Magic Accuracy +15 (range 11-15) and Double Attack +5% (range 3-5%), in the export of 2026-10-03. bg-wiki says the two augment slots rise together (bg-wiki: [Leth. Earring +1](https://www.bg-wiki.com/ffxi/Leth._Earring_%2B1), [Sortie rewards](https://www.bg-wiki.com/ffxi/Category:Sortie_Rewards)).
 - Fast Cast 8% shortens casting time from the precast set.
 - Worn in a midcast set it also cuts recast by 4%.
 - Its Enhancing magic duration +8% is listed (not augmented) duration, read when the spell lands. It adds to the other listed duration % in the same multiplier (bg-wiki: [Lethargy Armor Set](https://www.bg-wiki.com/ffxi/Lethargy_Armor_Set), [Spell Recast](https://www.bg-wiki.com/ffxi/Spell_Recast)).
@@ -1546,7 +1546,7 @@ No notes beyond the help text: Asperity Necklace, Chivalrous Chain, Houyi's Gorg
 - Its set bonus, Magic Accuracy+12, only applies while Psystorm Earring, which Vanar owns, is in the other ear.
 - Neither wiki says whether +12 is the pair's total or each earring's. bg-wiki's Double Attack table counts the matching Steelflash/Bladeborn pair's 7% once, so assume +12 in total for the pair, plus this earring's MND+4 and Psystorm's INT+4 (bg-wiki: [Lifestorm Earring](https://www.bg-wiki.com/ffxi/Lifestorm_Earring), [Double Attack](https://www.bg-wiki.com/ffxi/Double_Attack); [FFXIclopedia](https://ffxiclopedia.fandom.com/wiki/Lifestorm_Earring)).
 - The pair takes both ears.
-- On RDM, Leth. Earring +1 (right ear; Vanar's copy Magic Accuracy+11) plus Snotra Earring (Magic Accuracy+10, MND+8) gives Magic Accuracy+21 against the pair's +12.
+- On RDM, Leth. Earring +1 (right ear; Vanar's copy Magic Accuracy+15) plus Snotra Earring (Magic Accuracy+10, MND+8) gives Magic Accuracy+25 against the pair's +12.
 - On BLU, Vanar's Hashi. Earring +1 (right ear; Magic Accuracy+12, Blue magic skill+11) matches the pair's +12 by itself (if +12 is the pair's total). It leaves the left ear free, for example for Choleric Earring (Magic Accuracy+2) or, for blue magic, Njordr Earring (Blue magic skill+10).
 - The pair only adds INT+4 and MND+4 over those (bg-wiki: [Snotra Earring](https://www.bg-wiki.com/ffxi/Snotra_Earring), [Hashi. Earring +1](https://www.bg-wiki.com/ffxi/Hashi._Earring_%2B1), [Choleric Earring](https://www.bg-wiki.com/ffxi/Choleric_Earring)).
 - Set bonus: Lifestorm and Psystorm, see [Lifestorm and Psystorm set](#lifestorm-and-psystorm-set).
@@ -1624,7 +1624,7 @@ No notes beyond the help text: Asperity Necklace, Chivalrous Chain, Houyi's Gorg
 
 - Its set bonus, Magic Accuracy+12, only applies while Lifestorm Earring, which Vanar owns, is in the other ear.
 - Assume +12 in total for the pair. Neither wiki says, but bg-wiki counts the Steelflash/Bladeborn pair's bonus once.
-- The pair takes both ears. On RDM, Leth. Earring +1 plus Snotra Earring (Magic Accuracy+21 together) beats it.
+- The pair takes both ears. On RDM, Leth. Earring +1 plus Snotra Earring (Magic Accuracy+25 together) beats it.
 - On BLU, Hashi. Earring +1 alone (right ear, Magic Accuracy+12, Blue magic skill+11) matches its Magic Accuracy and frees the left ear (bg-wiki: [Psystorm Earring](https://www.bg-wiki.com/ffxi/Psystorm_Earring), [Double Attack](https://www.bg-wiki.com/ffxi/Double_Attack), [Hashi. Earring +1](https://www.bg-wiki.com/ffxi/Hashi._Earring_%2B1)).
 - Set bonus: Lifestorm and Psystorm, see [Lifestorm and Psystorm set](#lifestorm-and-psystorm-set).
 
@@ -1674,7 +1674,7 @@ No notes beyond the help text: Asperity Necklace, Chivalrous Chain, Houyi's Gorg
 *Steelflash Earring.*
 
 - Its set bonus, Double Attack+7%, only applies while Bladeborn Earring (which Vanar owns: Attack+8, Store TP+1) is in the other ear. bg-wiki's Double Attack table counts the 7% once for the pair (bg-wiki: [Steelflash Earring](https://www.bg-wiki.com/ffxi/Steelflash_Earring), [Double Attack](https://www.bg-wiki.com/ffxi/Double_Attack)).
-- The pair takes both ears, so it can't be worn with the right-ear-only Leth. Earring +1 (RDM: Acc+11, DA+3%) or Hashi. Earring +1 (BLU: Acc+12, DA+4%, Sword skill+11) (bg-wiki: [Bladeborn Earring](https://www.bg-wiki.com/ffxi/Bladeborn_Earring), [Leth. Earring +1](https://www.bg-wiki.com/ffxi/Leth._Earring_%2B1), [Hashi. Earring +1](https://www.bg-wiki.com/ffxi/Hashi._Earring_%2B1)).
+- The pair takes both ears, so it can't be worn with the right-ear-only Leth. Earring +1 (RDM: Acc+15, DA+5%) or Hashi. Earring +1 (BLU: Acc+12, DA+4%, Sword skill+11) (bg-wiki: [Bladeborn Earring](https://www.bg-wiki.com/ffxi/Bladeborn_Earring), [Leth. Earring +1](https://www.bg-wiki.com/ffxi/Leth._Earring_%2B1), [Hashi. Earring +1](https://www.bg-wiki.com/ffxi/Hashi._Earring_%2B1)).
 - Set bonus: Bladeborn and Steelflash, see [Bladeborn and Steelflash set](#bladeborn-and-steelflash-set).
 
 ### Suppanomimi

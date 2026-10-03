@@ -1,5 +1,5 @@
 -- Vanar's Red Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/RDM.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-02 19-38-37.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-03 00-46-48.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Leth. Earring +1 is always in the right ear, the only ear its Fast Cast and
 -- enhancing duration work in.
@@ -158,7 +158,7 @@ function get_sets()
 
 	sets.Weapons['Savage Blade Acc'] = {
 		main = gear.naegling,
-		sub = gear.gleti,
+		sub = gear.gleti,			-- Acc 40, Att 30, TA 6
 		range = empty,
 	}
 
@@ -297,17 +297,17 @@ function get_sets()
 		neck = gear.sanctity,						-- Acc 10, Att 10
 		waist = gear.kentarchPlusOne,				-- Acc 14, DA 3
 		left_ear = gear.brutal,						-- DA 5
-		right_ear = gear.lethargyEarringPlusOne,	-- Acc 11, DA 3
+		right_ear = gear.lethargyEarringPlusOne,	-- Acc 15, DA 5
 		left_ring = gear.lehkoHabhokaRing,			-- STP 10, Crit 10
 		right_ring = gear.rajas,					-- STP 5, Subtle Blow 5
 		back = gear.sucellosDA,						-- Acc 30, Att 20, DA 10, DT 5
-	}	-- Acc 375, Att 340, DT 40
+	}	-- Acc 379, Att 340, DT 40
 
 	-- Sailfi Belt +1 trades Kentarch Belt +1's Acc 14 for multi-attack and Attack. ACC and DT keep Kentarch.
 	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {
 		neck = gear.asperity,						-- Att 8, STP 3, DA 2
 		waist = gear.sailfi,						-- TA 2, DA 5, STR 15 (Path A), Att 10-15 (Unity)
-	})	-- Acc 351, Att 348-353, DT 40
+	})	-- Acc 355, Att 348-353, DT 40
 
 	-- Four Atrophy +4 pieces add the set's Acc +45.
 	sets.OffenseMode.ACC = set_combine(sets.OffenseMode, {
@@ -315,7 +315,7 @@ function get_sets()
 		body = gear.atrophyBodyPlusFour,			-- Acc 65
 		hands = gear.atrophyHandsPlusFour,			-- Acc 63, Att 35
 		legs = gear.atrophyLegsPlusFour,			-- Acc 59
-	})	-- Acc 421, DT 5
+	})	-- Acc 425, DT 5
 
 	sets.OffenseMode.DT = set_combine(sets.OffenseMode, {
 		right_ring = gear.murky,					-- DT 10
@@ -329,6 +329,16 @@ function get_sets()
 		body = gear.volteJupon,		-- TH 2
 		waist = gear.chaac,			-- TH 1
 	}
+
+	-- Worn when you use a Holy Water or Hallowed Water. "Holy Water" potency gear raises its chance to remove Doom,
+	-- such as Nicander's Necklace, Purity Ring and Blenmot's Ring. Empty for now.
+	sets.Holy_Water = {}
+
+	-- Put on when Doom lands and held until it wears off. With SpellReceived ON, it is worn instead when another of
+	-- your characters casts Cursna on you. Potency of "Cursna" received raises the chance that Cursna removes Doom,
+	-- such as Nicander's Necklace, Gishdubar Sash, Purity Ring, Eshmun's Ring and Saida Ring. Its slots stay held
+	-- while Doom lasts, so sets.Holy_Water can only change the others. Empty for now.
+	sets.Cursna_Received = {}
 
 	-- ===================================================================================================================
 	--		sets.Precast
@@ -394,6 +404,10 @@ function get_sets()
 		back = gear.solemnityCape,				-- Cure 7, DT 4
 	})	-- Cure 50 (the cap), Cure potency II 1, which counts past that cap, and Healing magic skill 24
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
+
+	-- Cursna from a WHM subjob, worn over sets.Midcast.Enhancing. "Cursna"+ and Healing magic skill raise its chance
+	-- to remove Doom. Empty for now.
+	sets.Midcast.Cursna = {}
 
 	-- Enhancing magic. Most enhancing spells stop gaining from skill at 500 (bg-wiki, Category:Enhancing
 	-- Magic), and this set already gives 545: 481 without gear at RDM 99 and Master Level 25, plus
@@ -512,11 +526,11 @@ function get_sets()
 		neck = gear.duelistTorquePlusOne,			-- Macc 25, effect +7
 		waist = gear.ruminationSash,				-- Macc 3, Enfeebling skill 7, MND 4
 		left_ear = gear.snotra,						-- Macc 10, duration 10%
-		right_ear = gear.lethargyEarringPlusOne,	-- Macc 11
+		right_ear = gear.lethargyEarringPlusOne,	-- Macc 15
 		left_ring = gear.stikini1,					-- Macc 8, Enfeebling skill 5
 		right_ring = gear.stikini2,					-- Macc 8, Enfeebling skill 5
 		back = gear.sucellosMND,					-- Macc 30, MND 20, effect +10
-	})	-- Macc 447 with the set bonus, plus Enfeebling skill 56, which adds to magic accuracy one for one.
+	})	-- Macc 451 with the set bonus, plus Enfeebling skill 56, which adds to magic accuracy one for one.
 
 	-- Enfeebles that only need to land, such as Dispel, Frazzle and Poison. Enfeebling skill counts one for one as magic
 	-- accuracy here, so Vitiation Chapeau +4 and Lethargy Gantherots +3 beat the Atrophy head and hands even
@@ -581,7 +595,7 @@ function get_sets()
 		neck = gear.sanctity,						-- MAB 10, Macc 10
 		waist = gear.eschan,						-- MAB 7, Macc 7
 		left_ear = gear.snotra,						-- Macc 10
-		right_ear = gear.lethargyEarringPlusOne,	-- Macc 11
+		right_ear = gear.lethargyEarringPlusOne,	-- Macc 15
 		left_ring = gear.stikini1,					-- Macc 8, all magic skills 5
 		right_ring = gear.stikini2,					-- Macc 8, all magic skills 5
 		back = gear.sucellosINT,					-- MAB 10, Macc 30, MDmg 20
@@ -630,7 +644,7 @@ function get_sets()
 		neck = gear.republicanPlatinumMedal,		-- Att 30
 		waist = gear.sailfi,
 		left_ear = gear.moonshade,					-- TP Bonus 250
-		right_ear = gear.lethargyEarringPlusOne,	-- Acc 11
+		right_ear = gear.lethargyEarringPlusOne,	-- Acc 15
 		left_ring = gear.epimanondas,				-- WSD 5
 		right_ring = gear.karieyh,					-- WSD 3, WS Acc 5
 		back = gear.sucellosWSD,					-- WSD 10, Acc 20, Att 20, DT 5
@@ -655,7 +669,7 @@ function get_sets()
 		neck = gear.sanctity,						-- Macc 10, MAB 10
 		waist = gear.eschan,						-- Macc 7, MAB 7
 		left_ear = gear.friomisi,					-- MAB 10
-		right_ear = gear.lethargyEarringPlusOne,	-- Macc 11
+		right_ear = gear.lethargyEarringPlusOne,	-- Macc 15
 		left_ring = gear.epimanondas,				-- WSD 5
 		right_ring = gear.jhakriRing,				-- Macc 6, MAB 3
 		back = gear.sucellosINT,					-- Macc 30, MAB 10, MDmg 20
@@ -671,7 +685,7 @@ function get_sets()
 		neck = gear.fotiaNeck,
 		waist = gear.fotiaWaist,
 		left_ear = gear.moonshade,					-- TP Bonus 250
-		right_ear = gear.lethargyEarringPlusOne,	-- Acc 11
+		right_ear = gear.lethargyEarringPlusOne,	-- Acc 15
 		left_ring = gear.lehkoHabhokaRing,			-- Crit 10
 		right_ring = gear.jhakriRing,				-- Acc 6, Att 6
 		back = gear.sucellosDA,						-- Acc 30, Att 20

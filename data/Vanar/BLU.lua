@@ -1,5 +1,5 @@
 -- Vanar's Blue Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/BLU.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-02 19-38-37.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-03 00-46-48.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Hashi. Earring +1 is always in the right ear, the only ear its sword and blue magic
 -- skill bonuses work in. At Master Level 25 sword skill is past 600, where each point adds 0.9 accuracy
@@ -483,6 +483,10 @@ function get_sets()
 	})	-- Cure 23, and 53 with sets.Weapons.Casting (cap 50), plus Cure potency II 1
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
 
+	-- Cursna from a WHM subjob, worn over sets.Midcast.Enhancing. "Cursna"+ and Healing magic skill raise its chance
+	-- to remove Doom. Empty for now.
+	sets.Midcast.Cursna = {}
+
 	-- Enhancing magic from a subjob, built for duration first and recast second. Raise, Reraise and the
 	-- -na spells take it too.
 	sets.Midcast.Enhancing = set_combine(sets.Midcast, {
@@ -800,6 +804,16 @@ function get_sets()
 		body = gear.volteJupon,		-- TH 2
 		waist = gear.chaac,			-- TH 1
 	}
+
+	-- Worn when you use a Holy Water or Hallowed Water. "Holy Water" potency gear raises its chance to remove Doom,
+	-- such as Nicander's Necklace, Purity Ring and Blenmot's Ring. Empty for now.
+	sets.Holy_Water = {}
+
+	-- Put on when Doom lands and held until it wears off. With SpellReceived ON, it is worn instead when another of
+	-- your characters casts Cursna on you. Potency of "Cursna" received raises the chance that Cursna removes Doom,
+	-- such as Nicander's Necklace, Gishdubar Sash, Purity Ring, Eshmun's Ring and Saida Ring. Its slots stay held
+	-- while Doom lasts, so sets.Holy_Water can only change the others. Empty for now.
+	sets.Cursna_Received = {}
 
 	-- Merged over the blue magic set while Diffusion is up. A spell with a set of its own above does not take it,
 	-- so a blue buff with its own set names it as that set's Diffusion child, which the engine merges while the
