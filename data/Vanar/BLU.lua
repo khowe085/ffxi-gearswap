@@ -186,7 +186,7 @@ Unbridled_Spells = S { 'Absolute Terror', 'Bilgestorm', 'Blistering Roar', 'Bloo
 	'Mighty Guard', 'Polar Roar', 'Pyric Bulwark', 'Tearing Gust', 'Thunderbolt', 'Tourbillion', 'Uproot' }
 
 -- Blue magic that uses Diffusion first, when it is ready and not already up, so the buff reaches the party.
-Diffusion_Spells = S { 'Mighty Guard' }
+Diffusion_Spells = S { 'Mighty Guard', 'Harden Shell' }
 
 -- Physical blue magic that needs Chain Affinity up or ready (the spell is dropped otherwise), and that also uses
 -- Efflux first when it is ready and not already up.
