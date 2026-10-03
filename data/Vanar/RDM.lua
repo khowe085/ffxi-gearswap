@@ -56,8 +56,8 @@ AutoWS_List = {
 	['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
 	['Savage Blade Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
 	['Black Halo'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 } },
-	['Black Halo Acc'] = { { 'Black Halo', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
-	['Aeolian Edge'] = { { 'Aeolian Edge', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+	['Black Halo Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
+	['Aeolian Edge'] = { { 'Aeolian Edge', 1000 }, { 'Aeolian Edge', 1750 }, { 'Aeolian Edge', 2750 } },
 }
 state.AutoWS:set('OFF')
 
