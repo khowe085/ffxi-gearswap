@@ -796,7 +796,6 @@ function get_sets()
 
 	-- Treasure Hunter gear. In Tag mode it is worn only for an action TH_Whitelist lists, aimed at a monster not yet tagged, never just for being engaged. Full Time also wears it whenever engaged. TH Mode starts in Tag, Alt+F11 cycles it, and None turns it off.
 	sets.TreasureHunter = {
-		ammo = gear.perfectEgg,		-- TH 1
 		head = gear.whiteRarabCap,	-- TH 1
 		body = gear.volteJupon,		-- TH 2
 		waist = gear.chaac,			-- TH 1
