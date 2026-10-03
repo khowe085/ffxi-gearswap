@@ -1,5 +1,5 @@
 -- Vanar's Red Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/RDM.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-01 22-41-03.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-02 19-38-37.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Leth. Earring +1 is always in the right ear, the only ear its Fast Cast and
 -- enhancing duration work in.
@@ -62,35 +62,35 @@ AutoWS_List = {
 state.AutoWS:set('OFF')
 
 -- The magic skills that have to land. midcast_custom casts them in sets.Weapons.Casting when you are
--- not engaged.
+-- not engaged and the weapon lock is Unlocked.
 Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divine Magic' }
 
 -- The spells named like a family set below: sets.Midcast.Phalanx, sets.Midcast.Refresh and
 -- sets.Midcast.Regen. midcast_custom puts the enhancing set back under them.
 Family_Set_Spells = S { 'Phalanx', 'Refresh', 'Regen' }
 
--- Enfeebles and dark magic whose magic accuracy comes from INT (bg-wiki, Magic Accuracy). The enfeebling
--- tier sets put the MND cape back on, and Bio takes the duration tier, so midcast_custom swaps the INT
--- cape in last, for these and for the engine's Elemental_Enfeeble list (Burn, Frost and the rest).
--- Frazzle and Distract are black magic but take MND, so they stay off the list.
+-- Enfeebles whose magic accuracy comes from INT (bg-wiki, Magic Accuracy). The enfeebling tier sets put the
+-- MND cape back on, so midcast_custom swaps the INT cape in last, for these and for the engine's
+-- Elemental_Enfeeble list (Burn, Frost and the rest). Frazzle and Distract are black magic but take MND, so
+-- they stay off the list. Dark magic wears the INT cape in sets.Midcast.Dark.
 INT_Cape_Spells = S { 'Blind', 'Blind II', 'Sleep', 'Sleep II', 'Sleepga', 'Bind', 'Break', 'Gravity', 'Gravity II',
-	'Dispel', 'Poison', 'Poison II', 'Poisonga', 'Bio', 'Bio II', 'Bio III' }
+	'Dispel', 'Poison', 'Poison II', 'Poisonga' }
 
--- Poison, Poison II and Poisonga move from the engine's accuracy tier to its potency tier (interface.lua): their
--- damage over time rises with enfeebling skill and Lethargy Sayon +3's effect +18, worth more than the
--- accuracy set's 19 extra magic accuracy. The lists are changed in place so later engine edits still apply.
-for _, spell in ipairs({ 'Poison', 'Poison II', 'Poisonga' }) do
-	Enfeeble_Acc:remove(spell)
-	Enfeeble_Potency:add(spell)
+-- Bio, Bio II and Bio III leave the engine's enfeebling duration tier (interface.lua), which only adds
+-- enfeebling-magic pieces, and stay on sets.Midcast.Dark. The list is changed in place so later engine edits
+-- still apply.
+for _, spell in ipairs({ 'Bio', 'Bio II', 'Bio III' }) do
+	Enfeeble_Duration:remove(spell)
 end
 
 -- Auto buff lists, as on BLU. gs c AutoBuff (F12) cycles OFF and Auto, and starts OFF.
--- While Auto is on, the engine casts the first buff below that you are missing, on yourself. Temper II
--- and Gain-STR only help in melee, so they wait until you engage. Each cast wears its midcast set. While
--- engaged the weapon lock holds main and sub whatever its value, so those casts don't swap weapons or cost TP.
+-- While Auto is on, the engine casts the first buff below that you are missing, on yourself. Gain-STR only
+-- helps in melee, so it waits until you engage. Temper II is cast while not engaged, so its set's skill
+-- weapons go on; it isn't recast mid-fight while engaged. Each cast wears its midcast set. While engaged the
+-- weapon lock holds main and sub whatever its value, so those casts don't swap weapons or cost TP.
 AutoBuff_List = {
 	Auto = {
-		{ Name = 'Temper II', Buff = 'Multi Strikes', When = 'Engaged' },
+		{ Name = 'Temper II', Buff = 'Multi Strikes', When = 'Idle' },
 		{ Name = 'Gain-STR', Buff = 'STR Boost', When = 'Engaged' },
 		{ Name = 'Refresh III', Buff = 'Refresh', When = 'Always' },
 		{ Name = 'Haste II', Buff = 'Haste', When = 'Always' },
@@ -110,11 +110,11 @@ gear.sucellosINT = hp_gear("Sucellos's Cape", 0, {
 	augments = { 'INT+20', 'Mag. Acc+20 /Mag. Dmg.+20', 'Mag. Acc.+10', '"Mag.Atk.Bns."+10', } })              -- Macc 30, MAB 10, MDmg 20
 gear.ghostfyre = hp_gear("Ghostfyre Cape", 0)                                                                  -- Enhancing duration 20, Enhancing skill 5, Enfeebling skill 8, Macc 8
 gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0)                                                          -- Acc 14, DA 3
-gear.strendu = hp_gear("Strendu Ring", 0)                                                                      -- Macc 2, MAB 4
 gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0)                                                            -- Treasure Hunter 1
--- Two copies of one ring. They are only ever worn as a pair, which keeps GearSwap from pulling
--- the same copy into both slots. If one ever fails to equip, pin each to the bag it lives in,
--- for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
+-- Two copies of one ring, worn as a pair or one at a time. A set that wears one copy should not follow
+-- a set wearing both, or GearSwap can pull the same copy into both slots. If one ever fails to equip,
+-- pin each to the bag it lives in, for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and
+-- { bag = "wardrobe2" }.
 gear.stikini1 = hp_gear("Stikini Ring", 0) -- Macc 8, all magic skills 5
 gear.stikini2 = hp_gear("Stikini Ring", 0)
 gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
@@ -129,7 +129,6 @@ gear.forfendPlusOne = hp_gear("Forfend +1", 22, {
 gear.enhancingTorque = hp_gear("Enhancing Torque", 0)                            -- Enhancing skill 7
 gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
 	augments = { 'Path: A', } })                                                 -- Enhancing skill 9
-gear.chelonaBoots = mp_gear("Chelona Boots", 35)                                 -- Fast Cast 4
 gear.swithCape = hp_gear("Swith Cape", -20)                                      -- Fast Cast 3
 gear.coladaRefresh = rank_gear("Colada", 100, {
 	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } }) -- Refresh 2
@@ -148,8 +147,8 @@ function get_sets()
 	-- only while engaged, under the Unlocked weapon lock this file loads with. Out of combat
 	-- choose_set_custom swaps in sets.Weapons.Idle for its refresh, which costs whatever TP is left when you
 	-- disengage. Savage Blade and Black Halo dual wield Thibron for its TP Bonus +1000. Sanguine Blade takes
-	-- Bunzi's Rod for its magic attack, and Black Halo Acc for its accuracy. Chant du Cygne and the two
-	-- dagger modes take Gleti's Knife, and Savage Blade Acc takes Almace. Every mode clears the range slot.
+	-- Bunzi's Rod for its magic attack. Black Halo Acc, Chant du Cygne and the two dagger modes take Gleti's
+	-- Knife, and Savage Blade Acc takes Almace. Every mode clears the range slot.
 	-- Ullr only goes on for the casts midcast_custom names.
 	sets.Weapons = {}
 
@@ -179,7 +178,7 @@ function get_sets()
 
 	sets.Weapons['Black Halo Acc'] = {
 		main = gear.maxentius,
-		sub = gear.bunzi,			-- Acc 40
+		sub = gear.gleti,			-- Acc 40, DEX 15, and a more accurate offhand than Bunzi's Rod
 		range = empty,
 	}
 
@@ -201,13 +200,15 @@ function get_sets()
 		range = empty,
 	}
 
-	-- Worn whenever you are not engaged, in every weapon mode. choose_set_custom puts it on.
+	-- Worn whenever you are not engaged and the weapon lock is Unlocked, in every weapon mode.
+	-- choose_set_custom puts it on.
 	sets.Weapons.Idle = {
 		main = gear.coladaRefresh,		-- Refresh 2
 		sub = gear.archdukesShield,		-- Refresh 1
 	}
 
-	-- Worn for the casts that have to land while you are not engaged. midcast_custom puts it on.
+	-- Worn for the casts that have to land while you are not engaged and the weapon lock is Unlocked.
+	-- midcast_custom puts it on.
 	sets.Weapons.Casting = {
 		main = gear.bunzi,				-- Macc 40, MAB 35, Magic Accuracy skill 255
 		sub = gear.ammurapi,			-- Macc 38, MAB 38
@@ -254,6 +255,10 @@ function get_sets()
 	sets.Idle.ACC = set_combine(sets.Idle, {})
 	sets.Idle.DT = set_combine(sets.Idle, {})
 
+	-- Worn while resting. Declared so the engine finds it: replacing sets.Idle drops the engine's own until the
+	-- first action.
+	sets.Idle.Resting = set_combine(sets.Idle, {})
+
 	-- Worn over the idle set while a Phantom Roll on you stands at 11, for a ring such as Roller's Ring.
 	sets.Idle.XIRoll = {}
 
@@ -282,8 +287,8 @@ function get_sets()
 	-- ===================================================================================================================
 
 	-- The engaged base, merged first in every offense mode. The mode's own set goes over it.
-	-- Gear haste is 30% in every mode (32% with Gleti's Knife), past the 26% cap, so no piece here is
-	-- picked for haste.
+	-- Gear haste is 30% in ACC and DT and 39% in TP (Sailfi Belt +1 adds 9), 2% more with Gleti's Knife, all
+	-- past the 26% cap, so no piece here is picked for haste.
 	sets.OffenseMode = {
 		ammo = gear.coiste,							-- DA 3, STP 3
 		head = gear.lethargyHeadPlusThree,			-- Acc 61, Att 61, DT 10
@@ -384,12 +389,13 @@ function get_sets()
 	-- Cure spells.
 	sets.Midcast.Cure = set_combine(sets.Midcast, {
 		body = gear.bunziBody,					-- Cure 15
-		hands = gear.telchineHandsRegen,		-- Cure 10
+		hands = gear.vanyaHandsPathB,			-- Healing magic skill 20
 		legs = gear.atrophyLegsPlusFour,		-- Cure 12
 		feet = gear.vanyaFeetPathD,				-- Cure 10
 		right_ring = gear.najiLoop,				-- Cure potency II 1, Cure 1
+		neck = gear.nodens,						-- Cure 5
 		back = gear.solemnityCape,				-- Cure 7, DT 4
-	})	-- Cure 55 (cap 50), and Cure potency II 1, which counts past that cap
+	})	-- Cure 50 (the cap), Cure potency II 1, which counts past that cap, and Healing magic skill 20
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
 
 	-- Enhancing magic. Most enhancing spells stop gaining from skill at 500 (bg-wiki, Category:Enhancing
@@ -451,7 +457,8 @@ function get_sets()
 		hands = gear.vitiationHandsPlusFour,	-- Gain effect +30
 	})
 
-	-- Bar-spells. Their potency caps at 500 skill, which the duration set already gives.
+	-- Elemental bar-spells cap at 500 skill, which the duration set already gives. Bar-status spells ignore
+	-- skill. Both take the duration set.
 	sets.Midcast.Enhancing.Elemental = set_combine(sets.Midcast.Enhancing, {})
 	sets.Midcast.Enhancing.Status = set_combine(sets.Midcast.Enhancing, {})
 
@@ -473,7 +480,7 @@ function get_sets()
 
 	-- Phalanx stops gaining at 500 skill. The enhancing set gives 545, and 521 on someone else, where the
 	-- Others set's Lethargy Sayon +3 takes the Vitiation Tabard's 24 skill away, so Phalanx needs nothing
-	-- of its own. The engine warns on every cast when the set it reaches for is empty, so this names the
+	-- of its own. The engine warns (at most once a minute) when the set it reaches for is empty, so this names the
 	-- ring the enhancing set already wears.
 	sets.Midcast.Phalanx = {
 		right_ring = gear.prolix,				-- Fast Cast 2
@@ -496,8 +503,10 @@ function get_sets()
 	-- Enfeebling magic. The engine adds .MACC, .Potency or .Duration from its enfeebling lists, two of which
 	-- are changed at the top of this file. INT_Cape_Spells swap this set's MND cape for the INT cape in
 	-- midcast_custom.
-	-- Four Atrophy +4 pieces add the set's Macc +45. Cast while not engaged, sets.Weapons.Casting adds Macc 118.
+	-- Four Atrophy +4 pieces add the set's Macc +45. Cast while the weapons are free, sets.Weapons.Casting adds Macc 118
+	-- but empties the ammo for Ullr, which drops Pemphredo Tathlum's 8: net +110.
 	sets.Midcast.Enfeebling = set_combine(sets.Midcast, {
+		ammo = gear.pemphredoTathlum,				-- Macc 8, on casts that keep the ammo slot (engaged or Locked)
 		head = gear.atrophyHeadPlusFour,			-- Macc 64
 		body = gear.atrophyBodyPlusFour,			-- Macc 65, Enfeebling skill 22
 		hands = gear.atrophyHandsPlusFour,			-- Macc 63
@@ -510,14 +519,20 @@ function get_sets()
 		left_ring = gear.stikini1,					-- Macc 8, Enfeebling skill 5
 		right_ring = gear.stikini2,					-- Macc 8, Enfeebling skill 5
 		back = gear.sucellosMND,					-- Macc 30, MND 20, effect +10
-	})	-- Macc 439 with the set bonus, plus Enfeebling skill 56, which adds to magic accuracy one for one.
+	})	-- Macc 447 with the set bonus, plus Enfeebling skill 56, which adds to magic accuracy one for one.
 
-	-- Enfeebles that only need to land, such as Dispel and Frazzle.
-	sets.Midcast.Enfeebling.MACC = set_combine(sets.Midcast.Enfeebling, {})
+	-- Enfeebles that only need to land, such as Dispel, Frazzle and Poison. Enfeebling skill counts one for one as magic
+	-- accuracy here, so Vitiation Chapeau +4 and Lethargy Gantherots +3 beat the Atrophy head and hands even
+	-- though the Atrophy bonus drops from +45 to +15: 18 more in all.
+	sets.Midcast.Enfeebling.MACC = set_combine(sets.Midcast.Enfeebling, {
+		head = gear.vitiationChapeauPlusFour,		-- Macc 42, Enfeebling skill 27, merit Macc +15 (5 merits)
+		hands = gear.lethargyHandsPlusThree,		-- Macc 62, Enfeebling skill 29
+	})
 
-	-- Potency-based enfeebles, such as Paralyze, Slow, Addle, Distract, Blind, Gravity and Poison. This is
-	-- bg-wiki's MND potency set (Community Red Mage Guide) from what Vanar owns. Three Lethargy pieces also
-	-- lengthen these spells by 20% while Composure is up.
+	-- Potency-based enfeebles, such as Paralyze, Slow, Addle, Distract, Blind and Gravity. It is
+	-- adapted from bg-wiki's MND potency set (Community Red Mage Guide): Leth. Fuseau +3 in place of Chironic
+	-- Hose for a third Lethargy piece, which lengthens these spells by 20% while Composure is up, and Rumination
+	-- Sash in place of Obstin. Sash for its enfeebling skill.
 	sets.Midcast.Enfeebling.Potency = set_combine(sets.Midcast.Enfeebling, {
 		head = gear.vitiationChapeauPlusFour,		-- Macc 42, Enfeebling skill 27, merit Macc +15 (5 merits)
 		body = gear.lethargyBodyPlusThree,			-- Enfeebling effect +18, Macc 64
@@ -525,7 +540,7 @@ function get_sets()
 		legs = gear.lethargyLegsPlusThree,			-- Macc 63
 	})
 
-	-- Duration-based enfeebles, such as Sleep, Dia, Bio, Silence, Bind, Break and Inundation. bg-wiki's
+	-- Duration-based enfeebles, such as Sleep, Dia, Silence, Bind, Break and Inundation. bg-wiki's
 	-- duration set (Finans Gearset Guides/Red Mage) is built on Lethargy, which lengthens enfeebling magic
 	-- while Composure is up: 35% for four pieces, 50% for five. Its hands are Regal Cuffs, which Vanar does
 	-- not own, so the Lethargy Gantherots make the fifth piece.
@@ -546,8 +561,8 @@ function get_sets()
 
 	-- Dark magic. Bio and the Aspir and Drain spells take the enfeebling accuracy set, with the INT cape,
 	-- since dark magic takes magic accuracy from INT. Rumination Sash's enfeebling skill does nothing for
-	-- dark or divine magic, so Eschan Stone's Macc 7 beats its Macc 3 there. Bio goes on to the duration
-	-- tier, which puts the MND cape back, so midcast_custom adds the INT cape for it.
+	-- dark or divine magic, so Eschan Stone's Macc 7 beats its Macc 3 there. Bio is off the enfeebling
+	-- duration tier (top of this file), so it wears this set as it is.
 	sets.Midcast.Dark = set_combine(sets.Midcast.Enfeebling, {
 		waist = gear.eschan,						-- Macc 7
 		back = gear.sucellosINT,					-- Macc 30, INT 20
@@ -560,6 +575,7 @@ function get_sets()
 
 	-- Elemental nukes. A magic burst uses sets.Midcast.Burst instead.
 	sets.Midcast.Nuke = set_combine(sets.Midcast, {
+		ammo = gear.pemphredoTathlum,				-- Macc 8, MAB 4, on casts that keep the ammo slot (engaged or Locked)
 		head = gear.lethargyHeadPlusThree,			-- MAB 56, Macc 61, MDmg 31
 		body = gear.lethargyBodyPlusThree,			-- MAB 54, Macc 64, MDmg 34
 		hands = gear.lethargyHandsPlusThree,		-- MAB 52, Macc 62, MDmg 32
@@ -567,19 +583,22 @@ function get_sets()
 		feet = gear.lethargyFeetPlusThree,			-- MAB 50, Macc 60, MDmg 30
 		neck = gear.sanctity,						-- MAB 10, Macc 10
 		waist = gear.eschan,						-- MAB 7, Macc 7
-		left_ear = gear.friomisi,					-- MAB 10
+		left_ear = gear.snotra,						-- Macc 10
 		right_ear = gear.lethargyEarringPlusOne,	-- Macc 11
-		left_ring = gear.jhakriRing,				-- MAB 3, Macc 6
-		right_ring = gear.strendu,					-- MAB 4, Macc 2
+		left_ring = gear.stikini1,					-- Macc 8, all magic skills 5
+		right_ring = gear.stikini2,					-- Macc 8, all magic skills 5
 		back = gear.sucellosINT,					-- MAB 10, Macc 30, MDmg 20
 	})
 
-	-- Magic bursts, in place of sets.Midcast.Nuke. A nuke bursts when it lands on the skillchain's
-	-- target within 8 seconds and its element matches the skillchain.
+	-- Magic bursts, in place of sets.Midcast.Nuke. The engine wears this set when the cast starts within 8
+	-- seconds of a skillchain on the same target whose elements include the spell's. The game's own burst
+	-- window is 10 seconds from the closing weapon skill, measured when the spell lands.
 	sets.Midcast.Burst = set_combine(sets.Midcast.Nuke, {
-		body = gear.bunziBody,						-- Magic burst damage 10
+		body = gear.eaBody,							-- Magic burst damage 8, Magic burst damage II 8
 		neck = gear.mizukageNoKubikazari,			-- Magic burst damage 10
-	})	-- Magic burst damage 37 with the Fuseau and the Jhakri Ring (cap 40)
+		left_ring = gear.jhakriRing,				-- Magic burst damage 2
+	})	-- Magic burst damage 35 with the Fuseau (cap 40), plus Magic burst damage II 8 past the cap. Bunzi's Rod
+	-- adds 10 when worn (45, capped at 40).
 
 	-- ===================================================================================================================
 	--		sets.JA
@@ -620,11 +639,12 @@ function get_sets()
 		back = gear.sucellosWSD,					-- WSD 10, Acc 20, Att 20, DT 5
 	}
 
-	-- Worn on weaponskills in ACC mode, over the set named for the weaponskill. List only the
-	-- pieces the mode changes, since every slot named here overrides the weaponskill's own set.
+	-- Worn over sets.WS in ACC mode on weaponskills with no set of their own: Savage Blade, Black Halo and
+	-- Death Blossom. Every named set below carries its own ACC set instead. List only the pieces the mode
+	-- changes, since every slot named here overrides sets.WS.
 	sets.WS.ACC = {
 		neck = gear.sanctity,						-- Acc 10
-		waist = gear.kentarchPlusOne,				-- Acc 14
+		waist = gear.eschan,						-- Acc 15, Att 15
 	}
 
 	-- MAB and Crit are not offense modes here. They are shared sets for the weaponskills below.
@@ -663,13 +683,15 @@ function get_sets()
 	-- Sets named for each weaponskill.
 	sets.WS["Sanguine Blade"] = set_combine(sets.WS.MAB, {})
 
-	-- These magical weaponskills gain damage with TP, so the TP Bonus earring goes back in.
-	sets.WS["Seraph Blade"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
-	sets.WS["Red Lotus Blade"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
-	sets.WS["Aeolian Edge"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
+	-- These magical weaponskills gain damage with TP, so the TP Bonus earring goes back in. They have
+	-- skillchain properties, so Fotia Belt's latent works on them: +25/256 fTP and Macc 10, over Eschan Stone's
+	-- Macc 7 and MAB 7. Sanguine Blade has no property.
+	sets.WS["Seraph Blade"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade, waist = gear.fotiaWaist })
+	sets.WS["Red Lotus Blade"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade, waist = gear.fotiaWaist })
+	sets.WS["Aeolian Edge"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade, waist = gear.fotiaWaist })
 
 	-- In ACC mode these magical weaponskills raise magic accuracy instead of taking sets.WS.ACC, whose
-	-- Kentarch Belt +1 would replace Eschan Stone's Macc and MAB. Lethargy Gantherots +3 trade Jhakri
+	-- waist would replace theirs. Lethargy Gantherots +3 trade Jhakri
 	-- Cuffs +2's WSD 7 for Macc 19 and MAB 12 more.
 	for _, ws in ipairs({ "Sanguine Blade", "Seraph Blade", "Red Lotus Blade", "Aeolian Edge" }) do
 		sets.WS[ws].ACC = set_combine(sets.WS[ws], { hands = gear.lethargyHandsPlusThree })
@@ -684,9 +706,9 @@ function get_sets()
 	-- wears that set as it is.
 	sets.WS["Requiescat"] = set_combine(sets.WS.Crit, {})
 
-	-- In ACC mode these keep their own set instead of taking sets.WS.ACC. Its Sanctity Necklace and Kentarch
-	-- Belt +1 would replace Fotia Gorget and Fotia Belt, whose latents already give every hit of these weapon
-	-- skills Accuracy +10 each and +25/256 fTP. The swap would trade that fTP for 4 more accuracy.
+	-- In ACC mode these keep their own set instead of taking sets.WS.ACC. Its Sanctity Necklace and Eschan
+	-- Stone would replace Fotia Gorget and Fotia Belt, whose latents already give every hit of these weapon
+	-- skills Accuracy +10 each and +25/256 fTP. The swap would trade that fTP for 5 more accuracy and Att 15.
 	for _, ws in ipairs({ "Chant du Cygne", "Evisceration", "Vorpal Blade", "Requiescat" }) do
 		sets.WS[ws].ACC = set_combine(sets.WS[ws], {})
 	end
@@ -725,6 +747,12 @@ local function can_dual_wield()
 	return abilities ~= nil and abilities.job_traits ~= nil and table.contains(abilities.job_traits, 18)
 end
 
+-- Whether this file may change main and sub: only while not engaged with the weapon lock Unlocked. Engaged,
+-- new weapons reset TP, and Locked holds the main, where a new sub alone would make a mixed pair.
+local function weapons_free()
+	return player.status ~= 'Engaged' and state.WeaponLock.value == 'Unlocked'
+end
+
 -- Called while each action is in flight. The table it returns is merged over the engine's
 -- midcast set, which is empty for abilities, weaponskills and items.
 function midcast_custom(spell)
@@ -738,21 +766,27 @@ function midcast_custom(spell)
 	if Family_Set_Spells:contains(spell.english) then
 		local others = spell.target.type ~= 'SELF' or buffactive['Accession']
 		equipSet = set_combine(sets.Midcast.Enhancing, others and sets.Midcast.Enhancing.Others or {}, sets.Midcast[spell.english])
+		-- The enhancing set names Ammurapi Shield, which would reach the sub slot past the weapon lock.
+		if not weapons_free() then
+			equipSet.main, equipSet.sub, equipSet.range = nil, nil, nil
+		end
 	end
 	-- The casting weapons for magic that has to land, cast while not engaged. The offhand is Maxentius
 	-- with Dual Wield, and Ammurapi Shield without it and for nukes, which want its magic attack. The
 	-- engine's Elemental_Enfeeble list keeps Burn, Frost and the other elemental debuffs off the nukes.
-	-- Engaged casts keep the weapon mode's weapons, since new weapons reset TP. After the cast, the
-	-- weapon mode takes the range slot back off and choose_set_custom puts the idle weapons back on.
-	if player.status ~= 'Engaged' and Casting_Skills:contains(spell.skill) then
+	-- Engaged or Locked casts keep the weapon mode's weapons (weapons_free). After the cast, the weapon
+	-- mode takes the range slot back off and choose_set_custom puts the idle weapons back on.
+	if weapons_free() and Casting_Skills:contains(spell.skill) then
 		local nuke = spell.skill == 'Elemental Magic' and not Elemental_Enfeeble:contains(spell.english)
 		equipSet = (can_dual_wield() and not nuke) and sets.Weapons.CastingDualWield or sets.Weapons.Casting
 	end
 	if INT_Cape_Spells:contains(spell.english) then
 		equipSet = set_combine(equipSet, { back = gear.sucellosINT })
 	elseif Elemental_Enfeeble:contains(spell.english) then
-		-- Elemental magic: Rumination Sash's enfeebling skill does nothing for it, so Eschan Stone goes back on.
-		equipSet = set_combine(equipSet, { waist = gear.eschan, back = gear.sucellosINT })
+		-- Elemental magic: enfeebling skill does nothing for it, so the MACC tier's Rumination Sash, Vitiation
+		-- head and Lethargy hands give way to Eschan Stone and the Atrophy head and hands (four-piece bonus).
+		equipSet = set_combine(equipSet, { head = gear.atrophyHeadPlusFour, hands = gear.atrophyHandsPlusFour,
+			waist = gear.eschan, back = gear.sucellosINT })
 	end
 	return equipSet
 end
@@ -777,14 +811,16 @@ end
 -- over that set.
 function choose_set_custom()
 	local equipSet = {}
-	-- The refresh weapons whenever you are not engaged. The engine builds the idle set on the same test.
-	-- Fucho-no-Obi joins them once its latent is on, unless Sublimation is charging (buff 187), when the
+	-- The refresh weapons whenever the weapons are free (weapons_free). The engine builds the idle set when
+	-- you are not engaged. Fucho-no-Obi joins them once its latent is on, unless Sublimation is charging (buff 187), when the
 	-- Sublimation set's Embla Sash is worth more. Both are checked on every rebuild: after each action, on a
 	-- buff or status change, and when you start or stop moving. The latent needs MP below half of a maximum
 	-- that leaves out ear, ring and back MP (bg-wiki, Fucho-no-Obi). The idle set's Etiolation Earring and
 	-- Murky Ring carry 80 of it, so the test starts a few points below 50%.
 	if player.status ~= 'Engaged' then
-		equipSet = sets.Weapons.Idle
+		if weapons_free() then
+			equipSet = sets.Weapons.Idle
+		end
 		if player.mp < (player.max_mp - 80) / 2 and not buffactive[187] then
 			equipSet = set_combine(equipSet, sets.LowMP)
 		end

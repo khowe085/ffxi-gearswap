@@ -1,7 +1,7 @@
 ## This repository
 
 * `data/common/` is a git submodule of [khowe085/rahvin-gearswap](https://github.com/khowe085/rahvin-gearswap), a fork of Rahvin GearSwap 2.1. GearSwap searches `data/common/` for includes, so a job file's `include('RahvinGS/Rahvin-Engine')` finds the engine at `data/common/RahvinGS/`. Clone with `git clone --recurse-submodules`, or run `git submodule update --init` in an existing clone. It tracks the fork's `dev` branch, and `git submodule update --remote data/common` moves it to that branch's latest commit.
-* `data/Vanar/` holds Vanar's BLU and RDM job files, `Vanar-Globals.lua` with settings both load (the `mappy` alias and the Plat. Mog. Belt's equip priority), and `Vanar_gear_list.md`, the gear they use. They are checked against the latest export, `data/export/Vanar 2026-10-01 22-41-03.lua`.
+* `data/Vanar/` holds Vanar's BLU and RDM job files, `Vanar-Globals.lua` with settings both load (the `mappy` alias), and `Vanar_gear_list.md`, the gear they use. They are checked against the latest export, `data/export/Vanar 2026-10-02 19-38-37.lua`.
 * `docs/ffxi-mechanics.md` explains the game mechanics the gear sets rely on: casting time, recast, haste, accuracy and attack, magic accuracy, enhancing and enfeebling magic, magic damage, Cure, blue magic and weapon skills.
 * `docs/gear-notes.md` records, for the gear in the latest export, what the item text and the export don't show: hidden values, set bonuses, conditions and slot or hand restrictions.
 * `docs/rank-augments.md` gives the augment values at every rank for the export's path-augmented gear (Nyame, Bunzi's, Gleti's and the other "Path:" items), taken from bg-wiki's rank tables.

@@ -1,5 +1,5 @@
 -- Vanar's Blue Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/BLU.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-01 22-41-03.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-02 19-38-37.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Hashi. Earring +1 is always in the right ear, the only ear its sword and blue magic
 -- skill bonuses work in. At Master Level 25 sword skill is past 600, where each point adds 0.9 accuracy
@@ -41,6 +41,15 @@ state.OffenseMode:set('TP')
 -- every ranged attack. In Tag mode nothing else wears it, melee included, and an action off the list does not count
 -- as tagging. Delete the line to let every action tag.
 TH_Whitelist = S { 'Glutinous Dart' }
+
+-- Naming JobMode shows it in chat and on the status box. It and the job mode come before jobsetup, whose key list
+-- reads UI_Name as it prints.
+UI_Name = 'Mode'
+
+-- Job mode. self_command_custom below loads the matching blue magic spell set and macro set when you cycle it.
+-- AoE loads {sub}_mage and Melee loads {sub}_melee. Save these in AzureSets with //aset save <name>.
+state.JobMode:options('AoE','Melee')
+state.JobMode:set('Melee')
 
 -- The engine sends /echo Change Complete with the lockstyle, about five seconds after a load or a subjob change,
 -- which can be before the blue magic spell set starts loading. This file holds the echo back until the spell set
@@ -91,17 +100,17 @@ BlueNuke = S { 'Acrid Stream', 'Anvil Lightning', 'Blastbomb', 'Blazing Bound',
     'Magic Hammer', 'Mind Blast', 'Molting Plumage', 'Mysterious Light', 'Nectarous Deluge',
     'Palling Salvo', 'Polar Roar', 'Rail Cannon', 'Regurgitation', 'Rending Deluge',
     'Retinal Glare', 'Scouring Spate', 'Searing Tempest', 'Silent Storm', 'Spectral Floe',
-    'Subduction', 'Tearing Gust', 'Tem. Upheaval', 'Temporal Shift', 'Tenebral Crush',
+    'Subduction', 'Tearing Gust', 'Tem. Upheaval', 'Tenebral Crush',
     'Thermal Pulse', 'Thunderbolt', 'Uproot', 'Water Bomb' }
-BlueSkill = S { 'Atra. Libations', 'Barrier Tusk', 'Diamondhide', 'Magic Barrier',
+BlueSkill = S { 'Atra. Libations', 'Diamondhide', 'Magic Barrier',
     'Metallic Body', 'Occultation', 'Plasma Charge', 'Pyric Bulwark', 'Reactor Cool' }
-BlueBuff = S { 'Amplification', 'Animating Wail', 'Battery Charge', 'Carcharian Verve',
-    'Cocoon', 'Erratic Flutter', 'Exuviation', 'Fantod', 'Feather Barrier', 'Harden Shell',
+BlueBuff = S { 'Amplification', 'Animating Wail', 'Barrier Tusk', 'Battery Charge', 'Carcharian Verve',
+    'Cocoon', 'Erratic Flutter', 'Fantod', 'Feather Barrier', 'Harden Shell',
     'Memento Mori', 'Mighty Guard', 'Nat. Meditation', 'O. Counterstance', 'Refueling',
     'Regeneration', 'Saline Coat', 'Triumphant Roar', 'Warm-Up', 'Winds of Promy.',
     'Zephyr Mantle' }
-BlueHealing = S { 'Healing Breeze', 'Magic Fruit', 'Plenilune Embrace', 'Pollen', 'Restoral',
-    'Wild Carrot' }
+BlueHealing = S { 'Exuviation', 'Healing Breeze', 'Magic Fruit', 'Plenilune Embrace', 'Pollen', 'Restoral',
+    'White Wind', 'Wild Carrot' }
 BlueTank = S { 'Actinic Burst', 'Blank Gaze', 'Demoralizing Roar', 'Frightful Roar',
     'Geist Wall', 'Jettatura', 'Sheep Song', 'Soporific', 'Stinking Gas' }
 BlueACC = S { '1000 Needles', 'Absolute Terror', 'Auroral Drape', 'Awful Eye',
@@ -109,7 +118,7 @@ BlueACC = S { '1000 Needles', 'Absolute Terror', 'Auroral Drape', 'Awful Eye',
     'Cold Wave', 'Corrosive Ooze', 'Cruel Joke', 'Digest', 'Dream Flower', 'Enervation',
     'Feather Tickle', 'Filamented Hold', 'Infrasonics', 'Light of Penance', 'Lowing',
     'MP Drainkiss', 'Mortal Ray', 'Osmosis', 'Reaving Wind', 'Sandspin', 'Sandspray',
-    'Sound Blast', 'Venom Shell', 'Voracious Trunk', 'Yawn' }
+    'Sound Blast', 'Temporal Shift', 'Venom Shell', 'Voracious Trunk', 'Yawn' }
 
 -- The magic skills from a subjob that midcast_custom casts in sets.Weapons.Casting when you are not
 -- engaged and the weapon lock is Unlocked. It does the same for the blue magic in BlueNuke, BlueACC,
@@ -119,6 +128,13 @@ Casting_Skills = S { 'Enfeebling Magic', 'Elemental Magic', 'Dark Magic', 'Divin
 -- The subjob spells named like a family set that holds only the slots it changes: sets.Midcast.Refresh
 -- and sets.Midcast.Regen. midcast_custom puts the enhancing set back under them.
 Family_Set_Spells = S { 'Refresh', 'Regen' }
+
+-- Bio, Bio II and Bio III from a subjob leave the engine's enfeebling duration tier (interface.lua), which only
+-- adds enfeebling-magic pieces, and stay on sets.Midcast.Dark. The list is changed in place so later engine
+-- edits still apply.
+for _, spell in ipairs({ 'Bio', 'Bio II', 'Bio III' }) do
+	Enfeeble_Duration:remove(spell)
+end
 
 -- Weapon modes. Each name needs a matching sets.Weapons entry.
 state.WeaponMode:options('Tizona','Tizona Acc','Black Halo','Black Halo Acc','Naegling','Naegling Acc','Almace')
@@ -151,8 +167,10 @@ AutoBuff_List = {
 		--{ Name = 'Battery Charge', Buff = 'Refresh', When = 'Idle' },
 		--{ Name = 'Refresh', Buff = 'Refresh', When = 'Idle' },
 		{ Name = 'Nat. Meditation', Buff = 'Attack Boost', When = 'Engaged' },
-		{ Name = 'Mighty Guard', Buff = 'Mighty Guard', When = 'Combat' },
 		{ Name = 'Cocoon', Buff = 'Defense Boost', When = 'Engaged' },
+		-- Last: while Unbridled Learning is on recast, pretarget_custom aborts it, and an entry below it would
+		-- never be reached.
+		{ Name = 'Mighty Guard', Buff = 'Mighty Guard', When = 'Combat' },
 	},
 }
 
@@ -165,7 +183,8 @@ Unbridled_Spells = S { 'Absolute Terror', 'Bilgestorm', 'Blistering Roar', 'Bloo
 -- Blue magic that uses Diffusion first, when it is ready and not already up, so the buff reaches the party.
 Diffusion_Spells = S { 'Mighty Guard' }
 
--- Physical blue magic that uses Chain Affinity and Efflux first, when they are ready and not already up.
+-- Physical blue magic that needs Chain Affinity up or ready (the spell is dropped otherwise), and that also uses
+-- Efflux first when it is ready and not already up.
 Chain_Affinity_Spells = S { 'Sinker Drill' }
 
 -- The last time pretarget_custom said Unbridled Learning was not ready, so a cast AutoBuff retries every
@@ -192,11 +211,11 @@ gear.cornflower = mp_gear("Cornflower Cape", 29)                                
 gear.kentarchPlusOne = hp_gear("Kentarch Belt +1", 0)                                                    -- Acc 14, DA 3
 gear.njordr = hp_gear("Njordr Earring", 0)                                                               -- Blue magic skill 10
 gear.honedTathlum = hp_gear("Honed Tathlum", 0)                                                          -- Acc 15
-gear.strendu = hp_gear("Strendu Ring", 0)                                                                -- Macc 2, MAB 4
 gear.whiteRarabCap = hp_gear("Wh. Rarab Cap +1", 0)                                                      -- Treasure Hunter 1
--- Two copies of one ring. They are only ever worn as a pair, which keeps GearSwap from pulling
--- the same copy into both slots. If one ever fails to equip, pin each to the bag it lives in,
--- for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and { bag = "wardrobe2" }.
+-- Two copies of one ring, worn as a pair or one at a time. A set that wears one copy should not follow
+-- a set wearing both, or GearSwap can pull the same copy into both slots. If one ever fails to equip,
+-- pin each to the bag it lives in, for example hp_gear("Stikini Ring", 0, { bag = "wardrobe" }) and
+-- { bag = "wardrobe2" }.
 gear.stikini1 = hp_gear("Stikini Ring", 0) -- Macc 8, all magic skills 5
 gear.stikini2 = hp_gear("Stikini Ring", 0)
 gear.telchineBodyRegen = hp_gear("Telchine Chas.", 54, {
@@ -210,26 +229,18 @@ gear.enhancingTorque = hp_gear("Enhancing Torque", 0)                           
 gear.fiFolletPlusOne = mp_gear("Fi Follet Cape +1", 45, {
 	augments = { 'Path: A', } })                                                 -- Enhancing skill 9
 gear.chelonaBoots = mp_gear("Chelona Boots", 35)                                 -- Fast Cast 4
-gear.swithCape = hp_gear("Swith Cape", -20)                                      -- Fast Cast 3
+gear.maviTathlum = hp_gear("Mavi Tathlum", 0)                                    -- Blue magic skill 5, breath damage +5%
 gear.coladaRefresh = rank_gear("Colada", 100, {
 	augments = { '"Refresh"+2', 'Mag. Acc.+11', '"Mag.Atk.Bns."+12', 'DMG:+1', } }) -- Refresh 2
 gear.pahtliCape = mp_gear("Pahtli Cape", 50)                                     -- Cure spellcasting time -8
 gear.fucho = mp_gear("Fucho-no-Obi", 30)                                         -- Refresh 1 while MP is below half of max MP without ear, ring and back MP (latent)
 
--- Naming JobMode shows it in chat and on the status box.
-UI_Name = 'Mode'
-
--- Job mode. self_command_custom below loads the matching blue magic spell set and macro set when you cycle it.
--- AoE loads {sub}_mage and Melee loads {sub}_melee. Save these in AzureSets with //aset save <name>.
-state.JobMode:options('AoE','Melee')
-state.JobMode:set('Melee')
-
 function get_sets()
 
 	-- Weapon sets, one per weapon mode. Thibron's TP Bonus +1000 backs every weapon skill mode, and the Acc
 	-- modes trade it for a more accurate offhand: Almace, or Bunzi's Rod for Black Halo. With the weapon lock
-	-- Locked, as this file loads, they are worn at all times. Unlocked, they are worn while engaged, and out of
-	-- combat choose_set_custom swaps in sets.Weapons.Idle, which costs whatever TP is left when you disengage.
+	-- Locked, as this file loads, they are worn at all times. Unlocked, they are worn while engaged, and while not
+	-- engaged choose_set_custom swaps in sets.Weapons.Idle, which costs whatever TP is left when you disengage.
 	sets.Weapons = {}
 
 	sets.Weapons['Tizona'] = {		-- Expiacion
@@ -313,6 +324,10 @@ function get_sets()
 	sets.Idle.ACC = set_combine(sets.Idle, {})
 	sets.Idle.DT = set_combine(sets.Idle, {})
 
+	-- Worn while resting. Declared so the engine finds it: replacing sets.Idle drops the engine's own until the
+	-- first action.
+	sets.Idle.Resting = set_combine(sets.Idle, {})
+
 	-- Worn over the idle set while a Phantom Roll on you stands at 11, for a ring such as Roller's Ring.
 	sets.Idle.XIRoll = {}
 
@@ -330,7 +345,8 @@ function get_sets()
 	Elemental_Bonus_Ring_Slot = "right_ring"
 
 	-- Engaged sets. sets.OffenseMode is worn in every offense mode, and the current mode's set merges over it.
-	-- Gear haste is 33% in every mode, past the 26% cap, so no piece here is picked for haste.
+	-- Gear haste is 33% in ACC and DT and 42% in TP (Sailfi Belt +1 adds 9), past the 26% cap either way, so no
+	-- piece here is picked for haste.
 	sets.OffenseMode = {
 		ammo = gear.coiste,							-- DA 3, STP 3
 		head = gear.hashishinHeadPlusThree,			-- Acc 61, Att 61, Sword skill 30
@@ -375,9 +391,10 @@ function get_sets()
 		left_ear = gear.loquacious,			-- FC 2
 		right_ear = gear.etiolation,		-- FC 1
 		left_ring = gear.prolix,			-- FC 2
-		back = gear.swithCape,				-- FC 3
+		right_ring = gear.najiLoop,			-- FC 1
+		back = gear.fiFolletPlusOne,		-- FC 1 to 10 by rank (Path A)
 		feet = gear.chelonaBoots,			-- FC 4
-	}	-- FC 46. Ammo and neck keep the idle set's pieces.
+	}	-- FC 44 plus Fi Follet Cape +1's, 54 at its rank 15. Ammo and neck keep the idle set's pieces.
 
 	-- Merged over the fast-cast set for blue magic.
 	sets.Precast.BlueMagic = set_combine(sets.Precast.FastCast, {
@@ -389,22 +406,22 @@ function get_sets()
 	-- or 15% from a RDM subjob, whichever is higher.
 	sets.Precast.Enhancing = {
 		waist = gear.siegel,				-- Enhancing magic casting time -8
-	}	-- 51% from gear
+	}	-- 49% from gear plus Fi Follet Cape +1's fast cast
 
 	-- Stoneskin from a WHM or RDM subjob, over sets.Precast.Enhancing.
 	sets.Precast["Stoneskin"] = {
 		main = gear.pukulatmujPlusOne,		-- Stoneskin casting time -11
 		legs = gear.doyenLegs,				-- Stoneskin casting time -10
-	}	-- 64% from gear, so any Fast Cast trait of 16% or more reaches the cap
+	}	-- 62% from gear plus Fi Follet Cape +1's fast cast (1 or more), so any Fast Cast trait of 17% or more reaches the cap
 
 	-- Cure spells from a WHM or RDM subjob, over the fast-cast set. Each Cure casting time piece cuts more
 	-- than the fast cast it replaces: Doyen Pants for Enif Cosciales, Mendi. Earring for Etiolation
-	-- Earring and Pahtli Cape for Swith Cape. Recast is set by the midcast set, so nothing here costs any.
+	-- Earring and Pahtli Cape for Fi Follet Cape +1, a gain while the cape is below rank 11. Recast is set by the midcast set, so nothing here costs any.
 	sets.Precast.Cure = {
 		legs = gear.doyenLegs,				-- Cure spellcasting time -15
 		right_ear = gear.mendicantEarring,	-- Cure spellcasting time -5
 		back = gear.pahtliCape,				-- Cure spellcasting time -8
-	}	-- 62% from gear (fast cast 34, Cure spellcasting time -28), so any Fast Cast trait of 18% or more reaches the cap
+	}	-- 63% from gear (fast cast 35, Cure spellcasting time -28), so any Fast Cast trait of 17% or more reaches the cap
 
 	-- Job abilities. sets.JA is worn for every job ability, and the set named for the ability merges over it.
 	sets.JA = set_combine(sets.Idle, {})
@@ -416,6 +433,11 @@ function get_sets()
 	-- keeps Hashishin Mintan +3's accuracy and attack, so only the ability wears it.
 	sets.JA["Chain Affinity"] = {
 		body = gear.luhlazaBodyPlusOne,		-- Enhances Enchainment
+	}
+	-- When Luhlaza Charuqs +1's Diffusion augment is read is disputed, so the ability wears them as well as the
+	-- diffused spell (sets.Diffusion).
+	sets.JA["Diffusion"] = {
+		feet = gear.luhlazaFeetPlusOne,		-- Enhances Diffusion
 	}
 
 	-- Dancer abilities from the subjob. Each family set is worn for its abilities, and a child named for the ability merges over it.
@@ -436,9 +458,10 @@ function get_sets()
 	-- Cure spells from a WHM or RDM subjob. Cast while not engaged, sets.Weapons.Casting adds Cure 30.
 	sets.Midcast.Cure = set_combine(sets.Midcast, {
 		hands = gear.telchineGlovesDuration,	-- Cure 10
+		right_ear = gear.mendicantEarring,		-- Cure 5
 		right_ring = gear.najiLoop,				-- Cure potency II 1, Cure 1
 		back = gear.solemnityCape,				-- Cure 7, DT 4
-	})	-- Cure 18, and 48 with sets.Weapons.Casting (cap 50), plus Cure potency II 1
+	})	-- Cure 23, and 53 with sets.Weapons.Casting (cap 50), plus Cure potency II 1
 	sets.Midcast.Curaga = set_combine(sets.Midcast.Cure, {})
 
 	-- Enhancing magic from a subjob, built for duration first and recast second. Raise, Reraise and the
@@ -466,7 +489,8 @@ function get_sets()
 		right_ring = gear.stikini2,				-- Enhancing skill 5
 		back = gear.fiFolletPlusOne,			-- Enhancing skill 9
 	})	-- Enhancing skill +87
-	sets.Midcast.Enhancing.Elemental = set_combine(sets.Midcast.Enhancing, {})
+	-- Elemental barspells rise with enhancing skill up to 500, far above a subjob's, so they take the skill set.
+	sets.Midcast.Enhancing.Elemental = set_combine(sets.Midcast.Enhancing.Skill, {})
 	sets.Midcast.Enhancing.Status = set_combine(sets.Midcast.Enhancing, {})
 	sets.Midcast.Phalanx = set_combine(sets.Midcast.Enhancing.Skill, {})
 
@@ -515,8 +539,8 @@ function get_sets()
 		waist = gear.eschan,						-- Macc 7, MAB 7
 		left_ear = gear.friomisi,					-- MAB 10
 		right_ear = gear.hashishinEarringPlusOne,	-- Macc 12, Blue magic skill 11
-		left_ring = gear.jhakriRing,				-- Macc 6, MAB 3
-		right_ring = gear.strendu,					-- Macc 2, MAB 4
+		left_ring = gear.stikini1,					-- Macc 8, all magic skills 5
+		right_ring = gear.stikini2,					-- Macc 8, all magic skills 5
 		back = gear.rosmertaMAB,					-- Macc 30, MAB 10, MDmg 20
 	}
 
@@ -537,8 +561,10 @@ function get_sets()
 		back = gear.rosmertaMAB,					-- Macc 30
 	}
 
-	-- Spells whose potency scales with blue magic skill, such as Occultation, Magic Barrier and Barrier Tusk.
+	-- Spells whose potency scales with blue magic skill, such as Occultation, Magic Barrier, Diamondhide and
+	-- Metallic Body.
 	sets.Midcast.BlueMagic.Skill = set_combine(sets.Midcast, {
+		ammo = gear.maviTathlum,					-- Blue magic skill 5
 		head = gear.luhlazaHeadPlusOne,				-- Blue magic skill 13
 		body = gear.assimilatorBodyPlusFour,		-- Blue magic skill 25
 		legs = gear.hashishinLegsPlusThree,			-- Blue magic skill 33
@@ -555,30 +581,47 @@ function get_sets()
 	-- you have (inferred from bg-wiki's breath formulas). So they keep the accuracy set, which Bad Breath and
 	-- Magnetite Cloud need to land, and trade Kavuk +3's Macc 61 for breath damage.
 	sets.Midcast.BlueMagic.Breath = set_combine(sets.Midcast.BlueMagic.ACC, {
+		ammo = gear.maviTathlum,					-- Breath damage +5%, Blue magic skill 5
 		head = gear.luhlazaHeadPlusOne,				-- Breath damage dealt +20%, Blue magic skill 13
 	})
 
 	-- Fixed-potency buffs keep the idle set's DT. Enmity spells such as Jettatura and Geist Wall need to land.
 	sets.Midcast.BlueMagic.Buff = set_combine(sets.Midcast, {})
 	sets.Midcast.BlueMagic.Enmity = set_combine(sets.Midcast.BlueMagic.ACC, {})
-	sets.Midcast.BlueMagic.Healing = set_combine(sets.Midcast.BlueMagic.Skill, {
-		hands = gear.telchineGlovesDuration,		-- Cure 10
+	-- Healing blue magic heals by the multi-target cure formula, 3 x MND + VIT with Cure potency on top, and blue
+	-- magic skill does nothing for it. Restoral is the exception and has its own set below.
+	sets.Midcast.BlueMagic.Healing = set_combine(sets.Midcast, {
+		head = gear.hashishinHeadPlusThree,			-- MND 35, VIT 28
+		body = gear.hashishinBodyPlusThree,			-- MND 45, VIT 30
+		hands = gear.telchineGlovesDuration,		-- Cure 10, MND 33, VIT 23
+		legs = gear.hashishinLegsPlusThree,			-- MND 43, VIT 20
+		feet = gear.hashishinFeetPlusThree,			-- MND 32, VIT 22
+		right_ear = gear.mendicantEarring,			-- Cure 5
+		left_ring = gear.najiLoop,					-- Cure 1, Cure potency II 1
+		right_ring = gear.stikini1,					-- MND 5
 		back = gear.solemnityCape,					-- Cure 7
-	})	-- Cure 17, and 47 with sets.Weapons.Casting (cap 50)
+	})	-- Cure 23, and 53 with sets.Weapons.Casting (cap 50), plus Cure potency II 1
 
 	-- Magic from a subjob: nukes take the blue nuke set, and enfeebles, dark and divine magic the accuracy set.
-	-- Njordr Earring's blue magic skill does nothing for those, so their left ear takes Alabaster Earring.
+	-- Blue magic skill does nothing for those, so Njordr Earring gives way to Alabaster Earring and Assim. Jubbah +4
+	-- to Hashishin Mintan +3. Enfeebles also take Rumination Sash's enfeebling skill; dark and divine magic keep
+	-- Eschan Stone.
 	sets.Midcast.Nuke = set_combine(sets.Midcast.BlueMagic.Nuke, {})
 	sets.Midcast.Burst = set_combine(sets.Midcast.BlueMagic.Nuke, {})
 	sets.Midcast.Enfeebling = set_combine(sets.Midcast.BlueMagic.ACC, {
+		body = gear.hashishinBodyPlusThree,			-- Macc 64, INT 45, MND 45
+		waist = gear.ruminationSash,				-- Macc 3, Enfeebling skill 7, MND 4
 		left_ear = gear.alabaster,					-- Macc up to 15 (Path A, by rank), DT 5
 	})
 	sets.Midcast.Enfeebling.MACC = set_combine(sets.Midcast.Enfeebling, {})
 	sets.Midcast.Enfeebling.Potency = set_combine(sets.Midcast.Enfeebling, {})
 	sets.Midcast.Enfeebling.Duration = set_combine(sets.Midcast.Enfeebling, {})
-	sets.Midcast.Aspir = set_combine(sets.Midcast.Enfeebling, {})
-	sets.Midcast.Drain = set_combine(sets.Midcast.Enfeebling, {})
-	sets.Midcast.Divine = set_combine(sets.Midcast.Enfeebling, {})
+	sets.Midcast.Dark = set_combine(sets.Midcast.Enfeebling, {
+		waist = gear.eschan,						-- Macc 7
+	})
+	sets.Midcast.Aspir = set_combine(sets.Midcast.Dark, {})
+	sets.Midcast.Drain = set_combine(sets.Midcast.Dark, {})
+	sets.Midcast.Divine = set_combine(sets.Midcast.Dark, {})
 
 	-- Sets named for one spell. Each replaces the family set for that spell.
 
@@ -586,6 +629,15 @@ function get_sets()
 	sets.Midcast["Battery Charge"] = set_combine(sets.Midcast.BlueMagic.Buff, {
 		head = gear.amalricCoifPlusOne,			-- Refresh potency +2
 	})
+
+	-- Restoral heals more with Blue Magic skill (2 skill for 1 HP), unlike the other blue heals, so it takes the
+	-- skill set with Cure pieces in four of its slots. It stays on BlueHealing for the casting weapons.
+	sets.Midcast["Restoral"] = set_combine(sets.Midcast.BlueMagic.Skill, {
+		hands = gear.telchineGlovesDuration,	-- Cure 10
+		left_ear = gear.mendicantEarring,		-- Cure 5
+		left_ring = gear.najiLoop,				-- Cure 1, Cure potency II 1
+		back = gear.solemnityCape,				-- Cure 7
+	})	-- Cure 23, and 53 with sets.Weapons.Casting (cap 50), plus Cure potency II 1
 
 	-- White Wind heals floor(MaxHP/7)*2, raised by cure potency, so this is max HP plus cure potency.
 	sets.Midcast["White Wind"] = {
@@ -597,9 +649,12 @@ function get_sets()
 		neck = gear.sanctity,					-- HP 35
 		waist = gear.flumeBelt,					-- No HP. Plat. Mog. Belt's HP+10% here was worth about 10% more healing
 		left_ear = gear.alabaster,				-- HP 100
-		right_ear = gear.etiolation,			-- HP 50
+		right_ear = gear.mendicantEarring,		-- Cure 5: about 2% more healing than Etiolation Earring's HP 50, but
+												-- about 0.5% less with the casting weapons on, past the Cure cap
+		left_ring = gear.najiLoop,				-- Cure 1, Cure potency II 1
 		back = gear.solemnityCape,				-- Cure 7
-	}
+	}	-- Cure 23, and 53 with sets.Weapons.Casting (cap 50), plus Cure potency II 1. White Wind is on BlueHealing so
+	-- midcast_custom gives it the casting weapons.
 
 	-- Stoneskin absorbs enhancing skill + 3 x MND - 190, up to 350, which Blue Mage's MND reaches even at
 	-- a subjob's skill. Stoneskin+ gear goes past that cap.
@@ -660,13 +715,15 @@ function get_sets()
 
 	sets.WS['Sanguine Blade'] = set_combine(sets.WS.MAB, {})
 
-	-- These magical weaponskills gain damage with TP, so the TP Bonus earring goes back in.
-	sets.WS['Seraph Blade'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
-	sets.WS['Red Lotus Blade'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
-	sets.WS['Flash Nova'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade })
+	-- Seraph Blade and Red Lotus Blade gain damage with TP, so the TP Bonus earring goes back in. Flash Nova's
+	-- damage doesn't change with TP. All three have skillchain properties, so Fotia Belt's latent works on them:
+	-- +25/256 fTP and Macc 10, over Eschan Stone's Macc 7 and MAB 7. Sanguine Blade has no property.
+	sets.WS['Seraph Blade'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade, waist = gear.fotiaWaist })
+	sets.WS['Red Lotus Blade'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade, waist = gear.fotiaWaist })
+	sets.WS['Flash Nova'] = set_combine(sets.WS.MAB, { waist = gear.fotiaWaist })
 
 	-- In ACC mode these magical weaponskills raise magic accuracy instead of taking sets.WS.ACC, whose
-	-- Kentarch Belt +1 would replace Eschan Stone's Macc and MAB. Hashishin Bazubands +3 trade Jhakri
+	-- Kentarch Belt +1 would replace their waist. Hashishin Bazubands +3 trade Jhakri
 	-- Cuffs +2's WSD 7 for Macc 19 and MAB 17 more.
 	for _, ws in ipairs({ 'Sanguine Blade', 'Seraph Blade', 'Red Lotus Blade', 'Flash Nova' }) do
 		sets.WS[ws].ACC = set_combine(sets.WS[ws], { hands = gear.hashishinHandsPlusThree })
@@ -708,6 +765,12 @@ function get_sets()
 		right_ring = gear.rajas,
 		back = gear.rosmertaDA,						-- Acc 30, DA 10
 	}
+
+	-- In ACC mode these keep their own set instead of taking sets.WS.ACC, whose Kentarch Belt +1 would replace
+	-- Fotia Belt. Its latent already gives every hit of these weapon skills Accuracy +10 and +25/256 fTP.
+	for _, ws in ipairs({ 'Chant du Cygne', 'Requiescat' }) do
+		sets.WS[ws].ACC = set_combine(sets.WS[ws], {})
+	end
 
 	-- Treasure Hunter gear. In Tag mode it is worn only for an action TH_Whitelist lists, aimed at a monster not yet tagged, never just for being engaged. Full Time also wears it whenever engaged. TH Mode starts in Tag, Alt+F11 cycles it, and None turns it off.
 	sets.TreasureHunter = {
@@ -757,6 +820,8 @@ function pretarget_custom(spell,action)
 	-- and Efflux (185) are used only when ready. Every check reads the live buffs and recasts, never a
 	-- cached flag, so nothing can stick until a reload.
 	if spell.type ~= 'BlueMagic' then return end
+	-- Silenced, the spell would fail after its abilities went up and onto their recasts, so none is used.
+	if buffactive['Silence'] or buffactive['Mute'] or buffactive['Omerta'] then return end
 	local now = os.clock()
 	if now >= blu_lock_until then blu_refire = nil end
 	if blu_refire == spell.english then
@@ -828,10 +893,11 @@ function midcast_custom(spell)
 		local others = spell.target.type ~= 'SELF' or buffactive['Accession']
 		equipSet = set_combine(sets.Midcast.Enhancing, others and sets.Midcast.Enhancing.Others or {}, sets.Midcast[spell.english])
 	end
-	-- The casting weapons for magic that has to land or heals, cast while not engaged. Engaged casts keep
-	-- the weapon mode's weapons, since new weapons reset TP. After the cast, choose_set_custom puts the
-	-- idle weapons back on. Without Dual Wield the game refuses Maxentius in sub, so the offhand stays empty.
-	if player.status ~= 'Engaged' then
+	-- The casting weapons for magic that has to land or heals, cast while not engaged with the weapon lock
+	-- Unlocked. Engaged casts keep the weapon mode's weapons, since new weapons reset TP, and Locked holds the
+	-- main, where a new sub alone would make a mixed pair. After the cast, choose_set_custom puts the idle
+	-- weapons back on. Without Dual Wield the game refuses Maxentius in sub, so the offhand stays empty.
+	if player.status ~= 'Engaged' and state.WeaponLock.value == 'Unlocked' then
 		local name = spell.english
 		if Casting_Skills:contains(spell.skill) or BlueNuke:contains(name) or BlueACC:contains(name)
 			or BlueTank:contains(name) or BlueBreath:contains(name) or BlueHealing:contains(name) then
@@ -840,6 +906,11 @@ function midcast_custom(spell)
 				equipSet = set_combine(equipSet, { sub = empty })
 			end
 		end
+	end
+	-- Elemental debuffs from a subjob (Burn, Frost and the rest) take the enfeebling accuracy set, but enfeebling
+	-- skill does nothing for elemental magic, so Eschan Stone goes back on over Rumination Sash.
+	if Elemental_Enfeeble:contains(spell.english) then
+		equipSet = set_combine(equipSet, { waist = gear.eschan })
 	end
 	return equipSet
 end
