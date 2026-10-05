@@ -1,86 +1,50 @@
 # Rank augments
 
-Augment values at every rank for each rank-augmented item in Vanar's export, `data/export/Vanar 2026-10-01 22-41-03.lua`. The Odyssey pieces (Nyame, Bunzi's, Gleti's and the other Sheol rewards) rank up to 30. Most other path items here rank up to 15 or 30. Every value comes from the item's own bg-wiki page, from the per-rank table under its augments (the `Augment Rank Table` template), read on 2026-10-02 and copied by script, not by hand. Items Oboro ranks up (JSE necks, Ultimate Weapons, Unity weapons) come last, at maximum rank only, because bg-wiki has no per-rank table for them.
+Augment values at every rank for each rank-augmented item in the exports under `data/export/`. The Odyssey pieces (Nyame, Bunzi's, Gleti's and the other Sheol rewards) rank up to 30. Most other path items here rank up to 15 or 30. Every value comes from the item's own bg-wiki page, from the per-rank table under its augments (the `Augment Rank Table` template), read on 2026-10-04 and copied by script, not by hand. Items Oboro ranks up (JSE necks, Ultimate Weapons, Unity weapons) come last, at maximum rank only, because bg-wiki has no per-rank table for them. A character's own path and rank for each item are in that character's folder, in `data/<Character>/<Character>_rank_augments.md`.
 
 - `//gs export` prints the path (`'Path: B'`) but never the rank. A copy that exports with no augments at all hasn't been ranked: it has only the base stats in its help text.
 - Ranks are cumulative: the row for a rank is the item's whole augment at that rank, not an increase over the rank before it. A blank cell means that augment line hasn't unlocked yet.
 - A path is fixed once chosen. Changing it means discarding the item and starting over (bg-wiki, Nyame Mail).
-- Vanar's ranks **(player, 2026-10-02)**: the Nyame Helm, Mail, Flanchard and Sollerets are Path B at rank 20. The Nyame Gauntlets and every Bunzi's and Gleti's piece are rank 0. Fi Follet Cape +1 is rank 11. The other path items' ranks aren't recorded, because they change often **(player, 2026-10-02)**. When a set decision turns on one, ask the player.
 
-## Vanar's copies
+## Items
 
-| Item | Slot | Paths | Max rank | Vanar's path | Vanar's rank | Augments at Vanar's rank |
-|---|---|---|---|---|---|---|
-| [Nyame Helm](#nyame-helm) | head | A, B, C, D | 30 | B | 20 | Attack+25 Rng. Atk.+25, Weapon skill damage +8%, "Double Attack"+2% |
-| [Nyame Mail](#nyame-mail) | body | A, B, C, D | 30 | B | 20 | Attack+25 Rng. Atk.+25, Weapon skill damage +10%, "Double Attack"+3% |
-| [Nyame Gauntlets](#nyame-gauntlets) | hands | A, B, C, D | 30 | none | 0 | none (base stats only) |
-| [Nyame Flanchard](#nyame-flanchard) | legs | A, B, C, D | 30 | B | 20 | Attack+25 Rng. Atk.+25, Weapon skill damage +9%, "Double Attack"+3% |
-| [Nyame Sollerets](#nyame-sollerets) | feet | A, B, C, D | 30 | B | 20 | Attack+25 Rng. Atk.+25, Weapon skill damage +8%, "Double Attack"+2% |
-| [Bunzi's Rod](#bunzis-rod) | main | A | 30 | none | 0 | none (base stats only) |
-| [Bunzi's Hat](#bunzis-hat) | head | A | 30 | none | 0 | none (base stats only) |
-| [Bunzi's Robe](#bunzis-robe) | body | A | 30 | none | 0 | none (base stats only) |
-| [Bunzi's Gloves](#bunzis-gloves) | hands | A | 30 | none | 0 | none (base stats only) |
-| [Bunzi's Pants](#bunzis-pants) | legs | A | 30 | none | 0 | none (base stats only) |
-| [Bunzi's Sabots](#bunzis-sabots) | feet | A | 30 | none | 0 | none (base stats only) |
-| [Gleti's Knife](#gletis-knife) | main | A | 30 | none | 0 | none (base stats only) |
-| [Gleti's Mask](#gletis-mask) | head | A | 30 | none | 0 | none (base stats only) |
-| [Gleti's Cuirass](#gletis-cuirass) | body | A | 30 | none | 0 | none (base stats only) |
-| [Gleti's Gauntlets](#gletis-gauntlets) | hands | A | 30 | none | 0 | none (base stats only) |
-| [Gleti's Breeches](#gletis-breeches) | legs | A | 30 | none | 0 | none (base stats only) |
-| [Gleti's Boots](#gletis-boots) | feet | A | 30 | none | 0 | none (base stats only) |
-| [Demers. Degen +1](#demers-degen-1) | main | A | 15 | none | 0 | none (base stats only) |
-| [Kustawi +1](#kustawi-1) | main | A | 15 | none | 0 | none (base stats only) |
-| [Marin Staff +1](#marin-staff-1) | main | A | 15 | none | 0 | none (base stats only) |
-| [Tanmogayi +1](#tanmogayi-1) | main | A | 15 | none | 0 | none (base stats only) |
-| [Forfend +1](#forfend-1) | sub | A | 15 | A | unknown |  |
-| [Coiste Bodhar](#coiste-bodhar) | ammo | A | 30 | A | unknown |  |
-| [Alabaster Earring](#alabaster-earring) | ear | A | 30 | A | unknown |  |
-| [Murky Ring](#murky-ring) | ring | A | 30 | A | unknown |  |
-| [Fi Follet Cape +1](#fi-follet-cape-1) | back | A | 15 | A | 11 | "Fast Cast" +8%, Spell Interruption Rate -3% |
-| [Kentarch Belt +1](#kentarch-belt-1) | waist | A | 15 | none | 0 | none (base stats only) |
-| [Obstin. Sash](#obstin-sash) | waist | A | 30 | none | 0 | none (base stats only) |
-| [Sailfi Belt +1](#sailfi-belt-1) | waist | A | 15 | A | unknown |  |
+| Item | Slot | Paths | Max rank |
+|---|---|---|---|
+| [Nyame Helm](#nyame-helm) | head | A, B, C, D | 30 |
+| [Nyame Mail](#nyame-mail) | body | A, B, C, D | 30 |
+| [Nyame Gauntlets](#nyame-gauntlets) | hands | A, B, C, D | 30 |
+| [Nyame Flanchard](#nyame-flanchard) | legs | A, B, C, D | 30 |
+| [Nyame Sollerets](#nyame-sollerets) | feet | A, B, C, D | 30 |
+| [Bunzi's Rod](#bunzis-rod) | main | A | 30 |
+| [Bunzi's Hat](#bunzis-hat) | head | A | 30 |
+| [Bunzi's Robe](#bunzis-robe) | body | A | 30 |
+| [Bunzi's Gloves](#bunzis-gloves) | hands | A | 30 |
+| [Bunzi's Pants](#bunzis-pants) | legs | A | 30 |
+| [Bunzi's Sabots](#bunzis-sabots) | feet | A | 30 |
+| [Gleti's Knife](#gletis-knife) | main | A | 30 |
+| [Gleti's Mask](#gletis-mask) | head | A | 30 |
+| [Gleti's Cuirass](#gletis-cuirass) | body | A | 30 |
+| [Gleti's Gauntlets](#gletis-gauntlets) | hands | A | 30 |
+| [Gleti's Breeches](#gletis-breeches) | legs | A | 30 |
+| [Gleti's Boots](#gletis-boots) | feet | A | 30 |
+| [Demers. Degen +1](#demers-degen-1) | main | A | 15 |
+| [Kustawi +1](#kustawi-1) | main | A | 15 |
+| [Marin Staff +1](#marin-staff-1) | main | A | 15 |
+| [Tanmogayi +1](#tanmogayi-1) | main | A | 15 |
+| [Forfend +1](#forfend-1) | sub | A | 15 |
+| [Coiste Bodhar](#coiste-bodhar) | ammo | A | 30 |
+| [Alabaster Earring](#alabaster-earring) | ear | A | 30 |
+| [Murky Ring](#murky-ring) | ring | A | 30 |
+| [Fi Follet Cape +1](#fi-follet-cape-1) | back | A | 15 |
+| [Kentarch Belt +1](#kentarch-belt-1) | waist | A | 15 |
+| [Obstin. Sash](#obstin-sash) | waist | A | 30 |
+| [Sailfi Belt +1](#sailfi-belt-1) | waist | A | 15 |
 
 ## Nyame
 
 ### Nyame Helm
 
-Nyame Helm, head. Ranks 1 to 30. Vanar's copy: `'Path: B'`, rank 20. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Helm).
-
-Path B (Vanar's, rank 20):
-
-| Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
-|---|---|---|---|---|
-| 1 | Attack+2 Rng. Atk.+2 | Weapon skill damage +1% |  |  |
-| 2 | Attack+4 Rng. Atk.+4 | Weapon skill damage +1% |  |  |
-| 3 | Attack+6 Rng. Atk.+6 | Weapon skill damage +2% |  |  |
-| 4 | Attack+8 Rng. Atk.+8 | Weapon skill damage +2% |  |  |
-| 5 | Attack+10 Rng. Atk.+10 | Weapon skill damage +3% |  |  |
-| 6 | Attack+11 Rng. Atk.+11 | Weapon skill damage +3% |  |  |
-| 7 | Attack+12 Rng. Atk.+12 | Weapon skill damage +4% |  |  |
-| 8 | Attack+13 Rng. Atk.+13 | Weapon skill damage +4% |  |  |
-| 9 | Attack+14 Rng. Atk.+14 | Weapon skill damage +4% |  |  |
-| 10 | Attack+15 Rng. Atk.+15 | Weapon skill damage +5% |  |  |
-| 11 | Attack+16 Rng. Atk.+16 | Weapon skill damage +5% |  |  |
-| 12 | Attack+17 Rng. Atk.+17 | Weapon skill damage +5% |  |  |
-| 13 | Attack+18 Rng. Atk.+18 | Weapon skill damage +6% |  |  |
-| 14 | Attack+19 Rng. Atk.+19 | Weapon skill damage +6% |  |  |
-| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +6% |  |  |
-| 16 | Attack+21 Rng. Atk.+21 | Weapon skill damage +7% | "Double Attack"+1% |  |
-| 17 | Attack+22 Rng. Atk.+22 | Weapon skill damage +7% | "Double Attack"+1% |  |
-| 18 | Attack+23 Rng. Atk.+23 | Weapon skill damage +7% | "Double Attack"+1% |  |
-| 19 | Attack+24 Rng. Atk.+24 | Weapon skill damage +8% | "Double Attack"+2% |  |
-| **20** | Attack+25 Rng. Atk.+25 | Weapon skill damage +8% | "Double Attack"+2% |  |
-| 21 | Attack+26 Rng. Atk.+26 | Weapon skill damage +8% | "Double Attack"+2% | Accuracy+1 Rng. Acc.+1 |
-| 22 | Attack+27 Rng. Atk.+27 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+2 Rng. Acc.+2 |
-| 23 | Attack+28 Rng. Atk.+28 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+3 Rng. Acc.+3 |
-| 24 | Attack+29 Rng. Atk.+29 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+4 Rng. Acc.+4 |
-| 25 | Attack+30 Rng. Atk.+30 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+5 Rng. Acc.+5 |
-| 26 | Attack+31 Rng. Atk.+31 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+6 Rng. Acc.+6 |
-| 27 | Attack+32 Rng. Atk.+32 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+7 Rng. Acc.+7 |
-| 28 | Attack+33 Rng. Atk.+33 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+8 Rng. Acc.+8 |
-| 29 | Attack+34 Rng. Atk.+34 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+9 Rng. Acc.+9 |
-| 30 | Attack+35 Rng. Atk.+35 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+10 Rng. Acc.+10 |
+Nyame Helm, head. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Helm).
 
 Path A:
 
@@ -116,6 +80,41 @@ Path A:
 | 28 | Accuracy+28 Rng. Acc.+28 Mag. Acc.+28 | "Store TP"+12 | Physical damage limit +5% | Critical hit rate +8% |
 | 29 | Accuracy+29 Rng. Acc.+29 Mag. Acc.+29 | "Store TP"+12 | Physical damage limit +5% | Critical hit rate +9% |
 | 30 | Accuracy+30 Rng. Acc.+30 Mag. Acc.+30 | "Store TP"+13 | Physical damage limit +5% | Critical hit rate +10% |
+
+Path B:
+
+| Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
+|---|---|---|---|---|
+| 1 | Attack+2 Rng. Atk.+2 | Weapon skill damage +1% |  |  |
+| 2 | Attack+4 Rng. Atk.+4 | Weapon skill damage +1% |  |  |
+| 3 | Attack+6 Rng. Atk.+6 | Weapon skill damage +2% |  |  |
+| 4 | Attack+8 Rng. Atk.+8 | Weapon skill damage +2% |  |  |
+| 5 | Attack+10 Rng. Atk.+10 | Weapon skill damage +3% |  |  |
+| 6 | Attack+11 Rng. Atk.+11 | Weapon skill damage +3% |  |  |
+| 7 | Attack+12 Rng. Atk.+12 | Weapon skill damage +4% |  |  |
+| 8 | Attack+13 Rng. Atk.+13 | Weapon skill damage +4% |  |  |
+| 9 | Attack+14 Rng. Atk.+14 | Weapon skill damage +4% |  |  |
+| 10 | Attack+15 Rng. Atk.+15 | Weapon skill damage +5% |  |  |
+| 11 | Attack+16 Rng. Atk.+16 | Weapon skill damage +5% |  |  |
+| 12 | Attack+17 Rng. Atk.+17 | Weapon skill damage +5% |  |  |
+| 13 | Attack+18 Rng. Atk.+18 | Weapon skill damage +6% |  |  |
+| 14 | Attack+19 Rng. Atk.+19 | Weapon skill damage +6% |  |  |
+| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +6% |  |  |
+| 16 | Attack+21 Rng. Atk.+21 | Weapon skill damage +7% | "Double Attack"+1% |  |
+| 17 | Attack+22 Rng. Atk.+22 | Weapon skill damage +7% | "Double Attack"+1% |  |
+| 18 | Attack+23 Rng. Atk.+23 | Weapon skill damage +7% | "Double Attack"+1% |  |
+| 19 | Attack+24 Rng. Atk.+24 | Weapon skill damage +8% | "Double Attack"+2% |  |
+| 20 | Attack+25 Rng. Atk.+25 | Weapon skill damage +8% | "Double Attack"+2% |  |
+| 21 | Attack+26 Rng. Atk.+26 | Weapon skill damage +8% | "Double Attack"+2% | Accuracy+1 Rng. Acc.+1 |
+| 22 | Attack+27 Rng. Atk.+27 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+2 Rng. Acc.+2 |
+| 23 | Attack+28 Rng. Atk.+28 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+3 Rng. Acc.+3 |
+| 24 | Attack+29 Rng. Atk.+29 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+4 Rng. Acc.+4 |
+| 25 | Attack+30 Rng. Atk.+30 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+5 Rng. Acc.+5 |
+| 26 | Attack+31 Rng. Atk.+31 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+6 Rng. Acc.+6 |
+| 27 | Attack+32 Rng. Atk.+32 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+7 Rng. Acc.+7 |
+| 28 | Attack+33 Rng. Atk.+33 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+8 Rng. Acc.+8 |
+| 29 | Attack+34 Rng. Atk.+34 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+9 Rng. Acc.+9 |
+| 30 | Attack+35 Rng. Atk.+35 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+10 Rng. Acc.+10 |
 
 Path C:
 
@@ -189,42 +188,7 @@ Path D:
 
 ### Nyame Mail
 
-Nyame Mail, body. Ranks 1 to 30. Vanar's copy: `'Path: B'`, rank 20. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Mail).
-
-Path B (Vanar's, rank 20):
-
-| Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
-|---|---|---|---|---|
-| 1 | Attack+2 Rng. Atk.+2 | Weapon skill damage +1% |  |  |
-| 2 | Attack+4 Rng. Atk.+4 | Weapon skill damage +1% |  |  |
-| 3 | Attack+6 Rng. Atk.+6 | Weapon skill damage +2% |  |  |
-| 4 | Attack+8 Rng. Atk.+8 | Weapon skill damage +2% |  |  |
-| 5 | Attack+10 Rng. Atk.+10 | Weapon skill damage +3% |  |  |
-| 6 | Attack+11 Rng. Atk.+11 | Weapon skill damage +3% |  |  |
-| 7 | Attack+12 Rng. Atk.+12 | Weapon skill damage +4% |  |  |
-| 8 | Attack+13 Rng. Atk.+13 | Weapon skill damage +4% |  |  |
-| 9 | Attack+14 Rng. Atk.+14 | Weapon skill damage +5% |  |  |
-| 10 | Attack+15 Rng. Atk.+15 | Weapon skill damage +5% |  |  |
-| 11 | Attack+16 Rng. Atk.+16 | Weapon skill damage +6% |  |  |
-| 12 | Attack+17 Rng. Atk.+17 | Weapon skill damage +6% |  |  |
-| 13 | Attack+18 Rng. Atk.+18 | Weapon skill damage +7% |  |  |
-| 14 | Attack+19 Rng. Atk.+19 | Weapon skill damage +7% |  |  |
-| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +8% |  |  |
-| 16 | Attack+21 Rng. Atk.+21 | Weapon skill damage +8% | "Double Attack"+1% |  |
-| 17 | Attack+22 Rng. Atk.+22 | Weapon skill damage +9% | "Double Attack"+1% |  |
-| 18 | Attack+23 Rng. Atk.+23 | Weapon skill damage +9% | "Double Attack"+2% |  |
-| 19 | Attack+24 Rng. Atk.+24 | Weapon skill damage +10% | "Double Attack"+2% |  |
-| **20** | Attack+25 Rng. Atk.+25 | Weapon skill damage +10% | "Double Attack"+3% |  |
-| 21 | Attack+26 Rng. Atk.+26 | Weapon skill damage +10% | "Double Attack"+3% | STR/VIT+1 |
-| 22 | Attack+27 Rng. Atk.+27 | Weapon skill damage +11% | "Double Attack"+4% | STR/VIT+2 |
-| 23 | Attack+28 Rng. Atk.+28 | Weapon skill damage +11% | "Double Attack"+4% | STR/VIT+3 |
-| 24 | Attack+29 Rng. Atk.+29 | Weapon skill damage +11% | "Double Attack"+5% | STR/VIT+4 |
-| 25 | Attack+30 Rng. Atk.+30 | Weapon skill damage +12% | "Double Attack"+5% | STR/VIT+5 |
-| 26 | Attack+31 Rng. Atk.+31 | Weapon skill damage +12% | "Double Attack"+6% | STR/VIT+6 |
-| 27 | Attack+32 Rng. Atk.+32 | Weapon skill damage +12% | "Double Attack"+6% | STR/VIT+7 |
-| 28 | Attack+33 Rng. Atk.+33 | Weapon skill damage +13% | "Double Attack"+7% | STR/VIT+8 |
-| 29 | Attack+34 Rng. Atk.+34 | Weapon skill damage +13% | "Double Attack"+7% | STR/VIT+9 |
-| 30 | Attack+35 Rng. Atk.+35 | Weapon skill damage +13% | "Double Attack"+7% | STR/VIT+10 |
+Nyame Mail, body. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Mail).
 
 Path A:
 
@@ -260,6 +224,41 @@ Path A:
 | 28 | Accuracy+28 Rng. Acc.+28 Mag. Acc.+28 | "Store TP"+14 | Physical damage limit +7% | DEX/AGI+8 |
 | 29 | Accuracy+29 Rng. Acc.+29 Mag. Acc.+29 | "Store TP"+15 | Physical damage limit +7% | DEX/AGI+9 |
 | 30 | Accuracy+30 Rng. Acc.+30 Mag. Acc.+30 | "Store TP"+15 | Physical damage limit +7% | DEX/AGI+10 |
+
+Path B:
+
+| Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
+|---|---|---|---|---|
+| 1 | Attack+2 Rng. Atk.+2 | Weapon skill damage +1% |  |  |
+| 2 | Attack+4 Rng. Atk.+4 | Weapon skill damage +1% |  |  |
+| 3 | Attack+6 Rng. Atk.+6 | Weapon skill damage +2% |  |  |
+| 4 | Attack+8 Rng. Atk.+8 | Weapon skill damage +2% |  |  |
+| 5 | Attack+10 Rng. Atk.+10 | Weapon skill damage +3% |  |  |
+| 6 | Attack+11 Rng. Atk.+11 | Weapon skill damage +3% |  |  |
+| 7 | Attack+12 Rng. Atk.+12 | Weapon skill damage +4% |  |  |
+| 8 | Attack+13 Rng. Atk.+13 | Weapon skill damage +4% |  |  |
+| 9 | Attack+14 Rng. Atk.+14 | Weapon skill damage +5% |  |  |
+| 10 | Attack+15 Rng. Atk.+15 | Weapon skill damage +5% |  |  |
+| 11 | Attack+16 Rng. Atk.+16 | Weapon skill damage +6% |  |  |
+| 12 | Attack+17 Rng. Atk.+17 | Weapon skill damage +6% |  |  |
+| 13 | Attack+18 Rng. Atk.+18 | Weapon skill damage +7% |  |  |
+| 14 | Attack+19 Rng. Atk.+19 | Weapon skill damage +7% |  |  |
+| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +8% |  |  |
+| 16 | Attack+21 Rng. Atk.+21 | Weapon skill damage +8% | "Double Attack"+1% |  |
+| 17 | Attack+22 Rng. Atk.+22 | Weapon skill damage +9% | "Double Attack"+1% |  |
+| 18 | Attack+23 Rng. Atk.+23 | Weapon skill damage +9% | "Double Attack"+2% |  |
+| 19 | Attack+24 Rng. Atk.+24 | Weapon skill damage +10% | "Double Attack"+2% |  |
+| 20 | Attack+25 Rng. Atk.+25 | Weapon skill damage +10% | "Double Attack"+3% |  |
+| 21 | Attack+26 Rng. Atk.+26 | Weapon skill damage +10% | "Double Attack"+3% | STR/VIT+1 |
+| 22 | Attack+27 Rng. Atk.+27 | Weapon skill damage +11% | "Double Attack"+4% | STR/VIT+2 |
+| 23 | Attack+28 Rng. Atk.+28 | Weapon skill damage +11% | "Double Attack"+4% | STR/VIT+3 |
+| 24 | Attack+29 Rng. Atk.+29 | Weapon skill damage +11% | "Double Attack"+5% | STR/VIT+4 |
+| 25 | Attack+30 Rng. Atk.+30 | Weapon skill damage +12% | "Double Attack"+5% | STR/VIT+5 |
+| 26 | Attack+31 Rng. Atk.+31 | Weapon skill damage +12% | "Double Attack"+6% | STR/VIT+6 |
+| 27 | Attack+32 Rng. Atk.+32 | Weapon skill damage +12% | "Double Attack"+6% | STR/VIT+7 |
+| 28 | Attack+33 Rng. Atk.+33 | Weapon skill damage +13% | "Double Attack"+7% | STR/VIT+8 |
+| 29 | Attack+34 Rng. Atk.+34 | Weapon skill damage +13% | "Double Attack"+7% | STR/VIT+9 |
+| 30 | Attack+35 Rng. Atk.+35 | Weapon skill damage +13% | "Double Attack"+7% | STR/VIT+10 |
 
 Path C:
 
@@ -333,7 +332,7 @@ Path D:
 
 ### Nyame Gauntlets
 
-Nyame Gauntlets, hands. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Gauntlets).
+Nyame Gauntlets, hands. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Gauntlets).
 
 Path A:
 
@@ -477,42 +476,7 @@ Path D:
 
 ### Nyame Flanchard
 
-Nyame Flanchard, legs. Ranks 1 to 30. Vanar's copy: `'Path: B'`, rank 20. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Flanchard).
-
-Path B (Vanar's, rank 20):
-
-| Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
-|---|---|---|---|---|
-| 1 | Attack+2 Rng. Atk.+2 | Weapon skill damage +1% |  |  |
-| 2 | Attack+4 Rng. Atk.+4 | Weapon skill damage +1% |  |  |
-| 3 | Attack+6 Rng. Atk.+6 | Weapon skill damage +2% |  |  |
-| 4 | Attack+8 Rng. Atk.+8 | Weapon skill damage +2% |  |  |
-| 5 | Attack+10 Rng. Atk.+10 | Weapon skill damage +3% |  |  |
-| 6 | Attack+11 Rng. Atk.+11 | Weapon skill damage +3% |  |  |
-| 7 | Attack+12 Rng. Atk.+12 | Weapon skill damage +4% |  |  |
-| 8 | Attack+13 Rng. Atk.+13 | Weapon skill damage +4% |  |  |
-| 9 | Attack+14 Rng. Atk.+14 | Weapon skill damage +5% |  |  |
-| 10 | Attack+15 Rng. Atk.+15 | Weapon skill damage +5% |  |  |
-| 11 | Attack+16 Rng. Atk.+16 | Weapon skill damage +6% |  |  |
-| 12 | Attack+17 Rng. Atk.+17 | Weapon skill damage +6% |  |  |
-| 13 | Attack+18 Rng. Atk.+18 | Weapon skill damage +7% |  |  |
-| 14 | Attack+19 Rng. Atk.+19 | Weapon skill damage +7% |  |  |
-| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +7% |  |  |
-| 16 | Attack+21 Rng. Atk.+21 | Weapon skill damage +8% | "Double Attack"+1% |  |
-| 17 | Attack+22 Rng. Atk.+22 | Weapon skill damage +8% | "Double Attack"+1% |  |
-| 18 | Attack+23 Rng. Atk.+23 | Weapon skill damage +8% | "Double Attack"+2% |  |
-| 19 | Attack+24 Rng. Atk.+24 | Weapon skill damage +9% | "Double Attack"+2% |  |
-| **20** | Attack+25 Rng. Atk.+25 | Weapon skill damage +9% | "Double Attack"+3% |  |
-| 21 | Attack+26 Rng. Atk.+26 | Weapon skill damage +9% | "Double Attack"+3% | STR+2 |
-| 22 | Attack+27 Rng. Atk.+27 | Weapon skill damage +10% | "Double Attack"+4% | STR+4 |
-| 23 | Attack+28 Rng. Atk.+28 | Weapon skill damage +10% | "Double Attack"+4% | STR+6 |
-| 24 | Attack+29 Rng. Atk.+29 | Weapon skill damage +10% | "Double Attack"+4% | STR+8 |
-| 25 | Attack+30 Rng. Atk.+30 | Weapon skill damage +11% | "Double Attack"+5% | STR+10 |
-| 26 | Attack+31 Rng. Atk.+31 | Weapon skill damage +11% | "Double Attack"+5% | STR+11 |
-| 27 | Attack+32 Rng. Atk.+32 | Weapon skill damage +11% | "Double Attack"+5% | STR+12 |
-| 28 | Attack+33 Rng. Atk.+33 | Weapon skill damage +12% | "Double Attack"+6% | STR+13 |
-| 29 | Attack+34 Rng. Atk.+34 | Weapon skill damage +12% | "Double Attack"+6% | STR+14 |
-| 30 | Attack+35 Rng. Atk.+35 | Weapon skill damage +12% | "Double Attack"+6% | STR+15 |
+Nyame Flanchard, legs. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Flanchard).
 
 Path A:
 
@@ -548,6 +512,41 @@ Path A:
 | 28 | Accuracy+28 Rng. Acc.+28 Mag. Acc.+28 | "Store TP"+12 | Physical damage limit +6% | Critical hit rate +11% |
 | 29 | Accuracy+29 Rng. Acc.+29 Mag. Acc.+29 | "Store TP"+12 | Physical damage limit +6% | Critical hit rate +12% |
 | 30 | Accuracy+30 Rng. Acc.+30 Mag. Acc.+30 | "Store TP"+13 | Physical damage limit +6% | Critical hit rate +13% |
+
+Path B:
+
+| Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
+|---|---|---|---|---|
+| 1 | Attack+2 Rng. Atk.+2 | Weapon skill damage +1% |  |  |
+| 2 | Attack+4 Rng. Atk.+4 | Weapon skill damage +1% |  |  |
+| 3 | Attack+6 Rng. Atk.+6 | Weapon skill damage +2% |  |  |
+| 4 | Attack+8 Rng. Atk.+8 | Weapon skill damage +2% |  |  |
+| 5 | Attack+10 Rng. Atk.+10 | Weapon skill damage +3% |  |  |
+| 6 | Attack+11 Rng. Atk.+11 | Weapon skill damage +3% |  |  |
+| 7 | Attack+12 Rng. Atk.+12 | Weapon skill damage +4% |  |  |
+| 8 | Attack+13 Rng. Atk.+13 | Weapon skill damage +4% |  |  |
+| 9 | Attack+14 Rng. Atk.+14 | Weapon skill damage +5% |  |  |
+| 10 | Attack+15 Rng. Atk.+15 | Weapon skill damage +5% |  |  |
+| 11 | Attack+16 Rng. Atk.+16 | Weapon skill damage +6% |  |  |
+| 12 | Attack+17 Rng. Atk.+17 | Weapon skill damage +6% |  |  |
+| 13 | Attack+18 Rng. Atk.+18 | Weapon skill damage +7% |  |  |
+| 14 | Attack+19 Rng. Atk.+19 | Weapon skill damage +7% |  |  |
+| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +7% |  |  |
+| 16 | Attack+21 Rng. Atk.+21 | Weapon skill damage +8% | "Double Attack"+1% |  |
+| 17 | Attack+22 Rng. Atk.+22 | Weapon skill damage +8% | "Double Attack"+1% |  |
+| 18 | Attack+23 Rng. Atk.+23 | Weapon skill damage +8% | "Double Attack"+2% |  |
+| 19 | Attack+24 Rng. Atk.+24 | Weapon skill damage +9% | "Double Attack"+2% |  |
+| 20 | Attack+25 Rng. Atk.+25 | Weapon skill damage +9% | "Double Attack"+3% |  |
+| 21 | Attack+26 Rng. Atk.+26 | Weapon skill damage +9% | "Double Attack"+3% | STR+2 |
+| 22 | Attack+27 Rng. Atk.+27 | Weapon skill damage +10% | "Double Attack"+4% | STR+4 |
+| 23 | Attack+28 Rng. Atk.+28 | Weapon skill damage +10% | "Double Attack"+4% | STR+6 |
+| 24 | Attack+29 Rng. Atk.+29 | Weapon skill damage +10% | "Double Attack"+4% | STR+8 |
+| 25 | Attack+30 Rng. Atk.+30 | Weapon skill damage +11% | "Double Attack"+5% | STR+10 |
+| 26 | Attack+31 Rng. Atk.+31 | Weapon skill damage +11% | "Double Attack"+5% | STR+11 |
+| 27 | Attack+32 Rng. Atk.+32 | Weapon skill damage +11% | "Double Attack"+5% | STR+12 |
+| 28 | Attack+33 Rng. Atk.+33 | Weapon skill damage +12% | "Double Attack"+6% | STR+13 |
+| 29 | Attack+34 Rng. Atk.+34 | Weapon skill damage +12% | "Double Attack"+6% | STR+14 |
+| 30 | Attack+35 Rng. Atk.+35 | Weapon skill damage +12% | "Double Attack"+6% | STR+15 |
 
 Path C:
 
@@ -621,42 +620,7 @@ Path D:
 
 ### Nyame Sollerets
 
-Nyame Sollerets, feet. Ranks 1 to 30. Vanar's copy: `'Path: B'`, rank 20. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Sollerets).
-
-Path B (Vanar's, rank 20):
-
-| Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
-|---|---|---|---|---|
-| 1 | Attack+2 Rng. Atk.+2 | Weapon skill damage +1% |  |  |
-| 2 | Attack+4 Rng. Atk.+4 | Weapon skill damage +1% |  |  |
-| 3 | Attack+6 Rng. Atk.+6 | Weapon skill damage +2% |  |  |
-| 4 | Attack+8 Rng. Atk.+8 | Weapon skill damage +2% |  |  |
-| 5 | Attack+10 Rng. Atk.+10 | Weapon skill damage +3% |  |  |
-| 6 | Attack+11 Rng. Atk.+11 | Weapon skill damage +3% |  |  |
-| 7 | Attack+12 Rng. Atk.+12 | Weapon skill damage +4% |  |  |
-| 8 | Attack+13 Rng. Atk.+13 | Weapon skill damage +4% |  |  |
-| 9 | Attack+14 Rng. Atk.+14 | Weapon skill damage +4% |  |  |
-| 10 | Attack+15 Rng. Atk.+15 | Weapon skill damage +5% |  |  |
-| 11 | Attack+16 Rng. Atk.+16 | Weapon skill damage +5% |  |  |
-| 12 | Attack+17 Rng. Atk.+17 | Weapon skill damage +5% |  |  |
-| 13 | Attack+18 Rng. Atk.+18 | Weapon skill damage +6% |  |  |
-| 14 | Attack+19 Rng. Atk.+19 | Weapon skill damage +6% |  |  |
-| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +6% |  |  |
-| 16 | Attack+21 Rng. Atk.+21 | Weapon skill damage +7% | "Double Attack"+1% |  |
-| 17 | Attack+22 Rng. Atk.+22 | Weapon skill damage +7% | "Double Attack"+1% |  |
-| 18 | Attack+23 Rng. Atk.+23 | Weapon skill damage +7% | "Double Attack"+1% |  |
-| 19 | Attack+24 Rng. Atk.+24 | Weapon skill damage +8% | "Double Attack"+2% |  |
-| **20** | Attack+25 Rng. Atk.+25 | Weapon skill damage +8% | "Double Attack"+2% |  |
-| 21 | Attack+26 Rng. Atk.+26 | Weapon skill damage +8% | "Double Attack"+2% | Accuracy+2 Rng. Acc.+2 |
-| 22 | Attack+27 Rng. Atk.+27 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+4 Rng. Acc.+4 |
-| 23 | Attack+28 Rng. Atk.+28 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+6 Rng. Acc.+6 |
-| 24 | Attack+29 Rng. Atk.+29 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+7 Rng. Acc.+7 |
-| 25 | Attack+30 Rng. Atk.+30 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+8 Rng. Acc.+8 |
-| 26 | Attack+31 Rng. Atk.+31 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+9 Rng. Acc.+9 |
-| 27 | Attack+32 Rng. Atk.+32 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+10 Rng. Acc.+10 |
-| 28 | Attack+33 Rng. Atk.+33 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+11 Rng. Acc.+11 |
-| 29 | Attack+34 Rng. Atk.+34 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+12 Rng. Acc.+12 |
-| 30 | Attack+35 Rng. Atk.+35 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+13 Rng. Acc.+13 |
+Nyame Sollerets, feet. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Sollerets).
 
 Path A:
 
@@ -692,6 +656,41 @@ Path A:
 | 28 | Accuracy+28 Rng. Acc.+28 Mag. Acc.+28 | "Store TP"+12 | Physical damage limit +5% | AGI+13 |
 | 29 | Accuracy+29 Rng. Acc.+29 Mag. Acc.+29 | "Store TP"+12 | Physical damage limit +5% | AGI+14 |
 | 30 | Accuracy+30 Rng. Acc.+30 Mag. Acc.+30 | "Store TP"+13 | Physical damage limit +5% | AGI+15 |
+
+Path B:
+
+| Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
+|---|---|---|---|---|
+| 1 | Attack+2 Rng. Atk.+2 | Weapon skill damage +1% |  |  |
+| 2 | Attack+4 Rng. Atk.+4 | Weapon skill damage +1% |  |  |
+| 3 | Attack+6 Rng. Atk.+6 | Weapon skill damage +2% |  |  |
+| 4 | Attack+8 Rng. Atk.+8 | Weapon skill damage +2% |  |  |
+| 5 | Attack+10 Rng. Atk.+10 | Weapon skill damage +3% |  |  |
+| 6 | Attack+11 Rng. Atk.+11 | Weapon skill damage +3% |  |  |
+| 7 | Attack+12 Rng. Atk.+12 | Weapon skill damage +4% |  |  |
+| 8 | Attack+13 Rng. Atk.+13 | Weapon skill damage +4% |  |  |
+| 9 | Attack+14 Rng. Atk.+14 | Weapon skill damage +4% |  |  |
+| 10 | Attack+15 Rng. Atk.+15 | Weapon skill damage +5% |  |  |
+| 11 | Attack+16 Rng. Atk.+16 | Weapon skill damage +5% |  |  |
+| 12 | Attack+17 Rng. Atk.+17 | Weapon skill damage +5% |  |  |
+| 13 | Attack+18 Rng. Atk.+18 | Weapon skill damage +6% |  |  |
+| 14 | Attack+19 Rng. Atk.+19 | Weapon skill damage +6% |  |  |
+| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +6% |  |  |
+| 16 | Attack+21 Rng. Atk.+21 | Weapon skill damage +7% | "Double Attack"+1% |  |
+| 17 | Attack+22 Rng. Atk.+22 | Weapon skill damage +7% | "Double Attack"+1% |  |
+| 18 | Attack+23 Rng. Atk.+23 | Weapon skill damage +7% | "Double Attack"+1% |  |
+| 19 | Attack+24 Rng. Atk.+24 | Weapon skill damage +8% | "Double Attack"+2% |  |
+| 20 | Attack+25 Rng. Atk.+25 | Weapon skill damage +8% | "Double Attack"+2% |  |
+| 21 | Attack+26 Rng. Atk.+26 | Weapon skill damage +8% | "Double Attack"+2% | Accuracy+2 Rng. Acc.+2 |
+| 22 | Attack+27 Rng. Atk.+27 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+4 Rng. Acc.+4 |
+| 23 | Attack+28 Rng. Atk.+28 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+6 Rng. Acc.+6 |
+| 24 | Attack+29 Rng. Atk.+29 | Weapon skill damage +9% | "Double Attack"+3% | Accuracy+7 Rng. Acc.+7 |
+| 25 | Attack+30 Rng. Atk.+30 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+8 Rng. Acc.+8 |
+| 26 | Attack+31 Rng. Atk.+31 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+9 Rng. Acc.+9 |
+| 27 | Attack+32 Rng. Atk.+32 | Weapon skill damage +10% | "Double Attack"+4% | Accuracy+10 Rng. Acc.+10 |
+| 28 | Attack+33 Rng. Atk.+33 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+11 Rng. Acc.+11 |
+| 29 | Attack+34 Rng. Atk.+34 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+12 Rng. Acc.+12 |
+| 30 | Attack+35 Rng. Atk.+35 | Weapon skill damage +11% | "Double Attack"+5% | Accuracy+13 Rng. Acc.+13 |
 
 Path C:
 
@@ -767,7 +766,7 @@ Path D:
 
 ### Bunzi's Rod
 
-Bunzi's Rod, main. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Rod).
+Bunzi's Rod, main. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Rod).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -804,7 +803,7 @@ Bunzi's Rod, main. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [b
 
 ### Bunzi's Hat
 
-Bunzi's Hat, head. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Hat).
+Bunzi's Hat, head. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Hat).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -841,7 +840,7 @@ Bunzi's Hat, head. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [b
 
 ### Bunzi's Robe
 
-Bunzi's Robe, body. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Robe).
+Bunzi's Robe, body. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Robe).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -878,7 +877,7 @@ Bunzi's Robe, body. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [
 
 ### Bunzi's Gloves
 
-Bunzi's Gloves, hands. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Gloves).
+Bunzi's Gloves, hands. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Gloves).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -915,7 +914,7 @@ Bunzi's Gloves, hands. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source
 
 ### Bunzi's Pants
 
-Bunzi's Pants, legs. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Pants).
+Bunzi's Pants, legs. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Pants).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -952,7 +951,7 @@ Bunzi's Pants, legs. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: 
 
 ### Bunzi's Sabots
 
-Bunzi's Sabots, feet. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Sabots).
+Bunzi's Sabots, feet. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Bunzi%27s_Sabots).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -991,7 +990,7 @@ Bunzi's Sabots, feet. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source:
 
 ### Gleti's Knife
 
-Gleti's Knife, main. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Knife).
+Gleti's Knife, main. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Knife).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -1028,7 +1027,7 @@ Gleti's Knife, main. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: 
 
 ### Gleti's Mask
 
-Gleti's Mask, head. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Mask).
+Gleti's Mask, head. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Mask).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -1065,7 +1064,7 @@ Gleti's Mask, head. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [
 
 ### Gleti's Cuirass
 
-Gleti's Cuirass, body. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Cuirass).
+Gleti's Cuirass, body. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Cuirass).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -1102,7 +1101,7 @@ Gleti's Cuirass, body. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source
 
 ### Gleti's Gauntlets
 
-Gleti's Gauntlets, hands. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Gauntlets).
+Gleti's Gauntlets, hands. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Gauntlets).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -1139,7 +1138,7 @@ Gleti's Gauntlets, hands. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Sou
 
 ### Gleti's Breeches
 
-Gleti's Breeches, legs. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Breeches).
+Gleti's Breeches, legs. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Breeches).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -1176,7 +1175,7 @@ Gleti's Breeches, legs. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Sourc
 
 ### Gleti's Boots
 
-Gleti's Boots, feet. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Boots).
+Gleti's Boots, feet. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Gleti%27s_Boots).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 | Augment 4 |
 |---|---|---|---|---|
@@ -1215,7 +1214,7 @@ Gleti's Boots, feet. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: 
 
 ### Demers. Degen +1
 
-Demersal Degen +1, main. Ranks 1 to 15. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Demers._Degen_%2B1).
+Demersal Degen +1, main. Ranks 1 to 15. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Demers._Degen_%2B1).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 |
 |---|---|---|---|
@@ -1237,7 +1236,7 @@ Demersal Degen +1, main. Ranks 1 to 15. Vanar's copy: no augments (rank 0). Sour
 
 ### Kustawi +1
 
-Kustawi +1, main. Ranks 1 to 15. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Kustawi_%2B1).
+Kustawi +1, main. Ranks 1 to 15. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Kustawi_%2B1).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 |
 |---|---|---|---|
@@ -1259,7 +1258,7 @@ Kustawi +1, main. Ranks 1 to 15. Vanar's copy: no augments (rank 0). Source: [bg
 
 ### Marin Staff +1
 
-Marin Staff +1, main. Ranks 1 to 15. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Marin_Staff_%2B1).
+Marin Staff +1, main. Ranks 1 to 15. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Marin_Staff_%2B1).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 |
 |---|---|---|---|
@@ -1281,7 +1280,7 @@ Marin Staff +1, main. Ranks 1 to 15. Vanar's copy: no augments (rank 0). Source:
 
 ### Tanmogayi +1
 
-Tanmogayi +1, main. Ranks 1 to 15. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Tanmogayi_%2B1).
+Tanmogayi +1, main. Ranks 1 to 15. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Tanmogayi_%2B1).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 |
 |---|---|---|---|
@@ -1303,7 +1302,7 @@ Tanmogayi +1, main. Ranks 1 to 15. Vanar's copy: no augments (rank 0). Source: [
 
 ### Forfend +1
 
-Forfend +1, sub. Ranks 1 to 15. Vanar's copy: `'Path: A'`, rank unknown. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Forfend_%2B1).
+Forfend +1, sub. Ranks 1 to 15. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Forfend_%2B1).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 |
 |---|---|---|---|
@@ -1325,7 +1324,7 @@ Forfend +1, sub. Ranks 1 to 15. Vanar's copy: `'Path: A'`, rank unknown. Source:
 
 ### Coiste Bodhar
 
-Coiste Bodhar, ammo. Ranks 1 to 30. Vanar's copy: `'Path: A'`, rank unknown. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Coiste_Bodhar).
+Coiste Bodhar, ammo. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Coiste_Bodhar).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 |
 |---|---|---|---|
@@ -1362,7 +1361,7 @@ Coiste Bodhar, ammo. Ranks 1 to 30. Vanar's copy: `'Path: A'`, rank unknown. Sou
 
 ### Alabaster Earring
 
-Alabaster Earring, ear. Ranks 1 to 30. Vanar's copy: `'Path: A'`, rank unknown. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Alabaster_Earring).
+Alabaster Earring, ear. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Alabaster_Earring).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 |
 |---|---|---|---|
@@ -1399,7 +1398,7 @@ Alabaster Earring, ear. Ranks 1 to 30. Vanar's copy: `'Path: A'`, rank unknown. 
 
 ### Murky Ring
 
-Murky Ring, ring. Ranks 1 to 30. Vanar's copy: `'Path: A'`, rank unknown. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Murky_Ring).
+Murky Ring, ring. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Murky_Ring).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 |
 |---|---|---|---|
@@ -1436,7 +1435,7 @@ Murky Ring, ring. Ranks 1 to 30. Vanar's copy: `'Path: A'`, rank unknown. Source
 
 ### Fi Follet Cape +1
 
-Fi Follet Cape +1, back. Ranks 1 to 15. Vanar's copy: `'Path: A'`, rank 11. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Fi_Follet_Cape_%2B1).
+Fi Follet Cape +1, back. Ranks 1 to 15. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Fi_Follet_Cape_%2B1).
 
 | Rank | Augment 1 | Augment 2 |
 |---|---|---|
@@ -1450,7 +1449,7 @@ Fi Follet Cape +1, back. Ranks 1 to 15. Vanar's copy: `'Path: A'`, rank 11. Sour
 | 8 | "Fast Cast" +6% | Spell Interruption Rate -2% |
 | 9 | "Fast Cast" +7% | Spell Interruption Rate -2% |
 | 10 | "Fast Cast" +7% | Spell Interruption Rate -3% |
-| **11** | "Fast Cast" +8% | Spell Interruption Rate -3% |
+| 11 | "Fast Cast" +8% | Spell Interruption Rate -3% |
 | 12 | "Fast Cast" +8% | Spell Interruption Rate -4% |
 | 13 | "Fast Cast" +9% | Spell Interruption Rate -4% |
 | 14 | "Fast Cast" +9% | Spell Interruption Rate -5% |
@@ -1458,7 +1457,7 @@ Fi Follet Cape +1, back. Ranks 1 to 15. Vanar's copy: `'Path: A'`, rank 11. Sour
 
 ### Kentarch Belt +1
 
-Kentarch Belt +1, waist. Ranks 1 to 15. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Kentarch_Belt_%2B1).
+Kentarch Belt +1, waist. Ranks 1 to 15. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Kentarch_Belt_%2B1).
 
 | Rank | Augment 1 | Augment 2 |
 |---|---|---|
@@ -1480,7 +1479,7 @@ Kentarch Belt +1, waist. Ranks 1 to 15. Vanar's copy: no augments (rank 0). Sour
 
 ### Obstin. Sash
 
-Obstinate Sash, waist. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Obstin._Sash).
+Obstinate Sash, waist. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Obstin._Sash).
 
 | Rank | Augment 1 | Augment 2 | Augment 3 |
 |---|---|---|---|
@@ -1517,7 +1516,7 @@ Obstinate Sash, waist. Ranks 1 to 30. Vanar's copy: no augments (rank 0). Source
 
 ### Sailfi Belt +1
 
-Sailfi Belt +1, waist. Ranks 1 to 15. Vanar's copy: `'Path: A'`, rank unknown. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Sailfi_Belt_%2B1).
+Sailfi Belt +1, waist. Ranks 1 to 15. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Sailfi_Belt_%2B1).
 
 | Rank | Augment 1 | Augment 2 |
 |---|---|---|
@@ -1539,16 +1538,16 @@ Sailfi Belt +1, waist. Ranks 1 to 15. Vanar's copy: `'Path: A'`, rank unknown. S
 
 ## Oboro rank augments (maximum only)
 
-Oboro in Port Jeuno ranks up JSE necks, Ultimate Weapons (Relic, Mythic, Empyrean and Aeonic at Level 119 III) and Unity weapons. bg-wiki lists only each item's augments at its maximum rank, not rank by rank, so an item below its cap has less than these values by an amount the wiki doesn't give. A copy that exports with no augments is rank 0. For a copy that exports with `'Path: A'`, Vanar's rank isn't recorded, because it changes often; ask the player when a set decision turns on it.
+Oboro in Port Jeuno ranks up JSE necks, Ultimate Weapons (Relic, Mythic, Empyrean and Aeonic at Level 119 III) and Unity weapons. bg-wiki lists only each item's augments at its maximum rank, not rank by rank, so an item below its cap has less than these values by an amount the wiki doesn't give. A copy that exports with no augments is rank 0. A copy that exports with `'Path: A'` has been ranked, and its rank has to come from the player.
 
 - JSE necks: NQ necks cap at rank 15, +1 necks at rank 20 and +2 necks at rank 25 ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:JSE_Necks)).
 - Ultimate Weapons cap at rank 15, and only a Level 119 III weapon can start. The export prints `'Path: A'` on them, but Path A is the only path. The augments work in the main hand only. The weapon skill damage augment applies to every hit of that weapon skill, and it multiplies with the weapon's hidden weapon skill bonus ([bg-wiki](https://www.bg-wiki.com/ffxi/BGWiki:Ultimate_Weapon_Augments)).
 - `//gs export` prints the same name for every stage of a Relic, Mythic, Empyrean or Ergon weapon. Almace, Tizona and Mpu Gandring each share their export name with 4 to 11 item IDs, so the export doesn't show the stage. An Ultimate Weapon with `'Path: A'` must be Level 119 III, because only that stage takes the augment.
 
-| Item | Slot | Max rank | Vanar's copy | Augments at max rank |
-|---|---|---|---|---|
-| Dls. Torque +1 | neck | 20 | `'Path: A'`, rank unknown | INT and MND +12, Enhancing magic effect duration +20%, Enfeebling magic effect duration +20% ([bg-wiki](https://www.bg-wiki.com/ffxi/Dls._Torque_%2B1)) |
-| Mirage Stole +2 | neck | 25 | `'Path: A'`, rank unknown | STR and DEX +25, Store TP +7, Critical hit rate +5% ([bg-wiki](https://www.bg-wiki.com/ffxi/Mirage_Stole_%2B2)) |
-| Tizona | main | 15 | `'Path: A'` (so Level 119 III), rank unknown | Main hand: DMG +18, Expiacion damage +15%, Accuracy +30, Magic Accuracy +30. With the weapon's hidden Expiacion +30%, the total at rank 15 is +49.5%, because the two multiply ([bg-wiki](https://www.bg-wiki.com/ffxi/Tizona_(Level_119_III))) |
-| Almace | main | 15 | no augments: rank 0, stage unknown | Main hand: DMG +5, Chant du Cygne damage +10%, DEX and MND +20 ([bg-wiki](https://www.bg-wiki.com/ffxi/BGWiki:Ultimate_Weapon_Augments)) |
-| Pukulatmuj +1 | main | 15 | no augments: rank 0 | DMG +38, Accuracy and Magic Accuracy +30, Sword enhancement spell damage +150% (its own enspell damage only) ([bg-wiki](https://www.bg-wiki.com/ffxi/Pukulatmuj_%2B1)) |
+| Item | Slot | Max rank | Augments at max rank |
+|---|---|---|---|
+| Dls. Torque +1 | neck | 20 | INT and MND +12, Enhancing magic effect duration +20%, Enfeebling magic effect duration +20% ([bg-wiki](https://www.bg-wiki.com/ffxi/Dls._Torque_%2B1)) |
+| Mirage Stole +2 | neck | 25 | STR and DEX +25, Store TP +7, Critical hit rate +5% ([bg-wiki](https://www.bg-wiki.com/ffxi/Mirage_Stole_%2B2)) |
+| Tizona | main | 15 | Main hand: DMG +18, Expiacion damage +15%, Accuracy +30, Magic Accuracy +30. With the weapon's hidden Expiacion +30%, the total at rank 15 is +49.5%, because the two multiply ([bg-wiki](https://www.bg-wiki.com/ffxi/Tizona_(Level_119_III))) |
+| Almace | main | 15 | Main hand: DMG +5, Chant du Cygne damage +10%, DEX and MND +20 ([bg-wiki](https://www.bg-wiki.com/ffxi/BGWiki:Ultimate_Weapon_Augments)) |
+| Pukulatmuj +1 | main | 15 | DMG +38, Accuracy and Magic Accuracy +30, Sword enhancement spell damage +150% (its own enspell damage only) ([bg-wiki](https://www.bg-wiki.com/ffxi/Pukulatmuj_%2B1)) |

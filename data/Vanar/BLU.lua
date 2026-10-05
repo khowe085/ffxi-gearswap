@@ -1,5 +1,5 @@
 -- Vanar's Blue Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/BLU.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-03 00-46-48.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-04 20-01-43.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Hashi. Earring +1 is always in the right ear, the only ear its sword and blue magic
 -- skill bonuses work in. At Master Level 25 sword skill is past 600, where each point adds 0.9 accuracy
@@ -358,7 +358,7 @@ function get_sets()
 	-- Gear haste is 33% in ACC and DT and 42% in TP (Sailfi Belt +1 adds 9), past the 26% cap either way, so no
 	-- piece here is picked for haste.
 	sets.OffenseMode = {
-		ammo = gear.coiste,							-- DA 3, STP 3
+		ammo = gear.coiste,							-- DA 3, STP 3, Att 15, STR 5 (Path A rank 20)
 		head = gear.hashishinHeadPlusThree,			-- Acc 61, Att 61, Sword skill 30
 		body = gear.hashishinBodyPlusThree,			-- Acc 64, Att 64, DT 13
 		hands = gear.hashishinHandsPlusThree,		-- Acc 62, Att 62, DT 10
@@ -371,12 +371,12 @@ function get_sets()
 		left_ring = gear.lehkoHabhokaRing,			-- STP 10, Crit 10
 		right_ring = gear.rajas,					-- STP 5, Subtle Blow 5
 		back = gear.rosmertaDA,						-- Acc 30, Att 20, DA 10, DT 5
-	}	-- Acc 371, Att 325, DT 47
+	}	-- Acc 371, Att 340, DT 47
 
 	-- Sailfi Belt +1 trades Kentarch Belt +1's Acc 14 for multi-attack and Attack. ACC and DT keep Kentarch.
 	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {
-		waist = gear.sailfi,						-- TA 2, DA 5, STR 15 (Path A), Att 10-15 (Unity)
-	})	-- Acc 357, Att 335-340, DT 47
+		waist = gear.sailfi,						-- TA 2, DA 5, STR 14 (Path A rank 14), Att 10-15 (Unity)
+	})	-- Acc 357, Att 350-355, DT 47
 
 	sets.OffenseMode.ACC = set_combine(sets.OffenseMode, {
 		ammo = gear.honedTathlum,					-- Acc 15
@@ -546,7 +546,7 @@ function get_sets()
 	-- Physical spells: accuracy and attack. Kavuk +3 adds Chain Affinity and Tayt +3 adds Efflux TP Bonus,
 	-- and all five Hashishin +3 pieces together occasionally augment blue magic.
 	sets.Midcast.BlueMagic.Physical = {
-		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10 (Path A)
+		ammo = gear.coiste,							-- Att 15, STR 5 (Path A rank 20)
 		head = gear.hashishinHeadPlusThree,			-- Acc 61, Att 61
 		body = gear.hashishinBodyPlusThree,			-- Acc 64, Att 64
 		hands = gear.hashishinHandsPlusThree,		-- Acc 62, Att 62
@@ -646,7 +646,7 @@ function get_sets()
 	sets.Midcast.Enfeebling = set_combine(sets.Midcast.BlueMagic.ACC, {
 		body = gear.hashishinBodyPlusThree,			-- Macc 64, INT 45, MND 45
 		waist = gear.ruminationSash,				-- Macc 3, Enfeebling skill 7, MND 4
-		left_ear = gear.alabaster,					-- Macc up to 15 (Path A, by rank), DT 5
+		left_ear = gear.alabaster,					-- Macc 2 (Path A rank 2), DT 5
 	})
 	sets.Midcast.Enfeebling.MACC = set_combine(sets.Midcast.Enfeebling, {})
 	sets.Midcast.Enfeebling.Potency = set_combine(sets.Midcast.Enfeebling, {})
@@ -703,13 +703,13 @@ function get_sets()
 
 	-- Weaponskill base, the weapon skill damage set. Savage Blade, Expiacion and Black Halo wear it as it is.
 	-- It follows bg-wiki's simulated Savage Blade and Expiacion sets (All Jobs Gear Sets/Blue Mage). Jhakri
-	-- Cuffs +2 stand in for its Path B Nyame Gauntlets, since Vanar's have no path, Hashi. Earring +1 for
-	-- Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at rank 20.
-	-- The legs are Luhlaza Shalwar +4 in place of its Nyame Flanchard, for 3 more WSD and 10 more accuracy
-	-- at the cost of Att 55 and DA 3, and the body Assimilator's Jubbah +4 in place of its Nyame Mail, for
-	-- 2 more WSD, 20 more accuracy and 25 more DEX at the cost of Att 55 and DA 3.
+	-- Cuffs +2 stand in for its Path B Nyame Gauntlets, since Vanar's are only Path B rank 10, Hashi. Earring +1 for
+	-- Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at rank 20 (Sollerets, Mail).
+	-- The legs are Luhlaza Shalwar +4 in place of its Nyame Flanchard, for 6 more WSD and 10 more accuracy
+	-- at the cost of Att 46 (Vanar's Flanchard is rank 11), and the body Assimilator's Jubbah +4 in place of
+	-- its Nyame Mail, for 2 more WSD, 20 more accuracy and 25 more DEX at the cost of Att 55 and DA 3.
 	sets.WS = {
-		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
+		ammo = gear.coiste,							-- Att 15, STR 5, DA 3 (Path A rank 20)
 		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61, Sword skill 30
 		body = gear.assimilatorBodyPlusFour,		-- WSD 12, Acc 60, DEX 49, STR 39
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, Acc 43, Att 43

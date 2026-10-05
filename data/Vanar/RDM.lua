@@ -1,5 +1,5 @@
 -- Vanar's Red Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/RDM.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-03 00-46-48.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-04 20-01-43.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Leth. Earring +1 is always in the right ear, the only ear its Fast Cast and
 -- enhancing duration work in.
@@ -301,7 +301,7 @@ function get_sets()
 	-- Gear haste is 30% in ACC and DT and 39% in TP (Sailfi Belt +1 adds 9), 2% more with Gleti's Knife, all
 	-- past the 26% cap, so no piece here is picked for haste.
 	sets.OffenseMode = {
-		ammo = gear.coiste,							-- DA 3, STP 3
+		ammo = gear.coiste,							-- DA 3, STP 3, Att 15, STR 5 (Path A rank 20)
 		head = gear.lethargyHeadPlusThree,			-- Acc 61, Att 61, DT 10
 		body = gear.lethargyBodyPlusThree,			-- Acc 64, Att 64, DT 14
 		hands = gear.lethargyHandsPlusThree,		-- Acc 62, Att 62, DT 11
@@ -314,13 +314,13 @@ function get_sets()
 		left_ring = gear.lehkoHabhokaRing,			-- STP 10, Crit 10
 		right_ring = gear.rajas,					-- STP 5, Subtle Blow 5
 		back = gear.sucellosDA,						-- Acc 30, Att 20, DA 10, DT 5
-	}	-- Acc 379, Att 340, DT 40
+	}	-- Acc 379, Att 355, DT 40
 
 	-- Sailfi Belt +1 trades Kentarch Belt +1's Acc 14 for multi-attack and Attack. ACC and DT keep Kentarch.
 	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {
 		neck = gear.asperity,						-- Att 8, STP 3, DA 2
-		waist = gear.sailfi,						-- TA 2, DA 5, STR 15 (Path A), Att 10-15 (Unity)
-	})	-- Acc 355, Att 348-353, DT 40
+		waist = gear.sailfi,						-- TA 2, DA 5, STR 14 (Path A rank 14), Att 10-15 (Unity)
+	})	-- Acc 355, Att 363-368, DT 40
 
 	-- Four Atrophy +4 pieces add the set's Acc +45.
 	sets.OffenseMode.ACC = set_combine(sets.OffenseMode, {
@@ -462,7 +462,7 @@ function get_sets()
 	-- so the set needs no Dual Wield.
 	sets.Midcast.Enhancing.Skill = set_combine(sets.Midcast.Enhancing, {
 		main = gear.pukulatmujPlusOne,			-- Enhancing skill 11
-		sub = gear.forfendPlusOne,				-- Enhancing skill 10 (Path A)
+		sub = gear.forfendPlusOne,				-- Enhancing skill 10 (Path A rank 15)
 		body = gear.vitiationBodyPlusFour,		-- Enhancing skill 24
 		hands = gear.vitiationHandsPlusFour,	-- Enhancing skill 25
 		legs = gear.atrophyLegsPlusFour,		-- Enhancing skill 22
@@ -529,6 +529,8 @@ function get_sets()
 	-- midcast_custom.
 	-- Four Atrophy +4 pieces add the set's Macc +45. Cast while the weapons are free, sets.Weapons.Casting adds Macc 118
 	-- but empties the ammo for Ullr, which drops Pemphredo Tathlum's 8: net +110.
+	-- Obstin. Sash is worth 20 magic accuracy on enfeebles (Macc 15 plus skill 5) against Rumination Sash's 10
+	-- (Macc 3 plus skill 7), and lengthens them by 5%.
 	sets.Midcast.Enfeebling = set_combine(sets.Midcast, {
 		ammo = gear.pemphredoTathlum,				-- Macc 8, on casts that keep the ammo slot (engaged or Locked)
 		head = gear.atrophyHeadPlusFour,			-- Macc 64
@@ -537,13 +539,13 @@ function get_sets()
 		legs = gear.atrophyLegsPlusFour,			-- Macc 59
 		feet = gear.vitiationFeetPlusFour,			-- Macc 48, Enfeebling skill 17, effect +10
 		neck = gear.duelistTorquePlusOne,			-- Macc 25, effect +7
-		waist = gear.ruminationSash,				-- Macc 3, Enfeebling skill 7, MND 4
+		waist = gear.obstinateSash,					-- Macc 15, Enfeebling skill 5, MND 5, duration 5% (Path A rank 20)
 		left_ear = gear.snotra,						-- Macc 10, duration 10%
 		right_ear = gear.lethargyEarringPlusOne,	-- Macc 15
 		left_ring = gear.stikini1,					-- Macc 8, Enfeebling skill 5
 		right_ring = gear.stikini2,					-- Macc 8, Enfeebling skill 5
 		back = gear.sucellosMND,					-- Macc 30, MND 20, effect +10
-	})	-- Macc 451 with the set bonus, plus Enfeebling skill 56, which adds to magic accuracy one for one.
+	})	-- Macc 463 with the set bonus, plus Enfeebling skill 54, which adds to magic accuracy one for one.
 
 	-- Enfeebles that only need to land, such as Dispel, Frazzle and Poison. Enfeebling skill counts one for one as magic
 	-- accuracy here, so Vitiation Chapeau +4 and Lethargy Gantherots +3 beat the Atrophy head and hands even
@@ -555,8 +557,9 @@ function get_sets()
 
 	-- Potency-based enfeebles, such as Paralyze, Slow, Addle, Distract, Blind and Gravity. It is
 	-- adapted from bg-wiki's MND potency set (Community Red Mage Guide): Leth. Fuseau +3 in place of Chironic
-	-- Hose for a third Lethargy piece, which lengthens these spells by 20% while Composure is up, and Rumination
-	-- Sash in place of Obstin. Sash for its enfeebling skill.
+	-- Hose for a third Lethargy piece, which lengthens these spells by 20% while Composure is up. The waist is
+	-- the guide's Obstin. Sash, from the base set. It has 2 less enfeebling skill than Rumination Sash, which
+	-- costs Frazzle III one point at Vanar's 589 skill (Master Level 25) and Distract III none.
 	sets.Midcast.Enfeebling.Potency = set_combine(sets.Midcast.Enfeebling, {
 		head = gear.vitiationChapeauPlusFour,		-- Macc 42, Enfeebling skill 27, merit Macc +15 (5 merits)
 		body = gear.lethargyBodyPlusThree,			-- Enfeebling effect +18, Macc 64
@@ -574,7 +577,6 @@ function get_sets()
 		hands = gear.lethargyHandsPlusThree,		-- Macc 62, Enfeebling skill 29
 		legs = gear.lethargyLegsPlusThree,			-- Macc 63
 		feet = gear.lethargyFeetPlusThree,			-- Macc 60
-		waist = gear.obstinateSash,					-- Enfeebling duration 5%
 	})
 
 	-- Worn while Saboteur is up on every spell that merges sets.Midcast.Enfeebling. The Lethargy
@@ -584,18 +586,15 @@ function get_sets()
 	}
 
 	-- Dark magic. Bio and the Aspir and Drain spells take the enfeebling accuracy set, with the INT cape,
-	-- since dark magic takes magic accuracy from INT. Rumination Sash's enfeebling skill does nothing for
-	-- dark or divine magic, so Eschan Stone's Macc 7 beats its Macc 3 there. Bio is off the enfeebling
-	-- duration tier (top of this file), so it wears this set as it is.
+	-- since dark magic takes magic accuracy from INT. The base set's Obstin. Sash stays on for dark and divine
+	-- magic: its enfeebling skill and duration do nothing there, but its Macc 15 beats Eschan Stone's 7. Bio is
+	-- off the enfeebling duration tier (top of this file), so it wears this set as it is.
 	sets.Midcast.Dark = set_combine(sets.Midcast.Enfeebling, {
-		waist = gear.eschan,						-- Macc 7
 		back = gear.sucellosINT,					-- Macc 30, INT 20
 	})
 	sets.Midcast.Aspir = set_combine(sets.Midcast.Dark, {})
 	sets.Midcast.Drain = set_combine(sets.Midcast.Dark, {})
-	sets.Midcast.Divine = set_combine(sets.Midcast.Enfeebling, {
-		waist = gear.eschan,						-- Macc 7
-	})
+	sets.Midcast.Divine = set_combine(sets.Midcast.Enfeebling, {})
 
 	-- Elemental nukes. A magic burst uses sets.Midcast.Burst instead.
 	sets.Midcast.Nuke = set_combine(sets.Midcast, {
@@ -665,13 +664,14 @@ function get_sets()
 
 	-- Worn on every weaponskill: the weapon skill damage set. Savage Blade, Black Halo and Death
 	-- Blossom wear it as it is. It is bg-wiki's Savage Blade set (All Jobs Gear Sets/Red Mage) with Leth.
-	-- Earring +1 for Hoxne Earring and Karieyh Ring for Sroda Ring. Nyame values are Path B at rank 20.
+	-- Earring +1 for Hoxne Earring and Karieyh Ring for Sroda Ring. Nyame values are Path B: rank 20 Mail, rank 11
+	-- Flanchard. Leth. Fuseau +3 would trade the Flanchard's WSD 6 and DT 8 for 23 more accuracy and 17 more attack.
 	sets.WS = {
-		ammo = gear.coiste,							-- Att 15, STR 10, DEX 10, DA 3 (Path A)
+		ammo = gear.coiste,							-- Att 15, STR 5, DA 3 (Path A rank 20)
 		head = gear.vitiationChapeauPlusFour,		-- WSD 9, Acc 42, Att 72
 		body = gear.nyameBody,						-- WSD 10, DA 3, Acc 40, Att 55, DT 9
 		hands = gear.atrophyHandsPlusFour,			-- WSD 9, Acc 63, Att 35
-		legs = gear.nyameLegs,						-- WSD 9, DA 3, Acc 40, Att 55, DT 8
+		legs = gear.nyameLegs,						-- WSD 6, Acc 40, Att 46, DT 8 (Path B rank 11)
 		feet = gear.lethargyFeetPlusThree,			-- WSD 12, Acc 60, Att 60
 		neck = gear.republicanPlatinumMedal,		-- Att 30
 		waist = gear.sailfi,
@@ -708,7 +708,7 @@ function get_sets()
 	}
 
 	sets.WS.Crit = {
-		ammo = gear.coiste,							-- Att 15, DEX 10, DA 3 (Path A)
+		ammo = gear.coiste,							-- Att 15, STR 5, DA 3 (Path A rank 20)
 		head = gear.lethargyHeadPlusThree,			-- Acc 61, Att 61
 		body = gear.lethargyBodyPlusThree,			-- Acc 64, Att 64
 		hands = gear.lethargyHandsPlusThree,		-- Acc 62, Att 62
@@ -826,10 +826,11 @@ function midcast_custom(spell)
 	if INT_Cape_Spells:contains(spell.english) then
 		equipSet = set_combine(equipSet, { back = gear.sucellosINT })
 	elseif Elemental_Enfeeble:contains(spell.english) then
-		-- Elemental magic: enfeebling skill does nothing for it, so the MACC tier's Rumination Sash, Vitiation
-		-- head and Lethargy hands give way to Eschan Stone and the Atrophy head and hands (four-piece bonus).
+		-- Elemental magic: enfeebling skill does nothing for it, so the MACC tier's Vitiation head and Lethargy
+		-- hands give way to the Atrophy head and hands (four-piece bonus). The waist stays Obstin. Sash, whose
+		-- Macc 15 beats Eschan Stone's 7.
 		equipSet = set_combine(equipSet, { head = gear.atrophyHeadPlusFour, hands = gear.atrophyHandsPlusFour,
-			waist = gear.eschan, back = gear.sucellosINT })
+			back = gear.sucellosINT })
 	end
 	return equipSet
 end

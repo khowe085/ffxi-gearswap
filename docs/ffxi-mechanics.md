@@ -1,6 +1,6 @@
 # FFXI gearing mechanics
 
-How the game handles casting time, recast, haste, accuracy, attack, magic accuracy, enhancing and enfeebling magic, magic damage, Cure, blue magic, weapon skills and the other numbers gear sets are built around. This page records how things work, not which gear any job file uses. It was written while building Vanar's BLU and RDM files, so the examples come from those two jobs.
+How the game handles casting time, recast, haste, accuracy, attack, magic accuracy, enhancing and enfeebling magic, magic damage, Cure, blue magic, weapon skills and the other numbers gear sets are built around. This page records how things work, not which gear any job file uses. It was written while building BLU and RDM job files, so the examples come from those two jobs.
 
 **Sources.** bg-wiki is the main source. Its pages were read directly with curl, as wikitext: `https://www.bg-wiki.com/ffxi/<Title>?action=raw`, or `https://www.bg-wiki.com/api.php?action=parse&page=<Title>&prop=wikitext&format=json` when the raw URL is rate limited. FFXIclopedia was read directly through its API. Rules that came from the player are marked **(player)**. Where sources disagree, both sides are given, and where bg-wiki itself is unsure (estimates, unverified values, talk-page tests) the text says so. Links are at the end.
 
@@ -92,30 +92,13 @@ Where skill or a stat stops adding potency:
 **4. Look up the piece.**
 
 - `docs/gear-notes.md` records what an item's text and the export don't show: hidden values, set bonuses, conditions and slot or hand restrictions.
-- `docs/rank-augments.md` gives path items' augments at every rank, from bg-wiki's rank tables. `//gs export` shows the path but not the rank. **(player, 2026-10-02)** Vanar's Nyame Helm, Mail, Flanchard and Sollerets are Path B at rank 20; the Nyame Gauntlets and every Bunzi's and Gleti's piece, Bunzi's Rod and Gleti's Knife included, are rank 0, with base stats only. Other path items' ranks are unknown; ask the player.
-  - **(player, 2026-10-02)** The other ranks aren't worth listing, because they change often.
-  - So this doc doesn't record them. Ask the player when a set decision turns on one.
-  - **(player, 2026-10-02)** Fi Follet Cape +1 is rank 11: Fast Cast 8%, Spell interruption rate −3%.
-  - The unrecorded ones are the path items that export a "Path:" line: Forfend +1, Coiste Bodhar, Alabaster Earring, Murky Ring and Sailfi Belt +1, and Dls. Torque +1, Mirage Stole +2 and Tizona (Path A, so Level 119 III), whose maximum-rank augments are in rank-augments.md's "Oboro rank augments (maximum only)". Path items that export with no augments are rank 0: Demers. Degen +1, Kustawi +1, Marin Staff +1, Tanmogayi +1, Kentarch Belt +1 and Obstin. Sash (rank-augments.md, Vanar's copies), and Almace (stage unknown) and Pukulatmuj +1 (rank-augments.md, Oboro rank augments).
-- RDM's Group 2 merits (Accuracy, Magic Accuracy, Enhancing and Enfeebling Magic Duration, Immunobreak Chance, En-spell Damage) share 10 levels in all, at most 5 per category (bg-wiki, Merit Points). **(player, 2026-10-02, changed)** Vanar's RDM has Magic Accuracy 5 and Enhancing Magic Duration 5.
-  - That is all 10 levels (5 + 5), so Accuracy, Enfeebling Magic Duration, Immunobreak Chance and En-spell Damage are 0.
-  - What it gives: Magic Accuracy +25 (5 × 5; Job sources), enhancing duration +30 s (5 × 6; Enhancing duration) and enfeebling duration +0 s (0 × 6; Enfeebling duration). While worn, the relic augments add more per level: Vitiation Chapeau +4 Magic Accuracy +15 (5 × 3) and enfeebling duration +0 s (0 × 3), Vitiation Gloves enhancing duration +15 s (5 × 3).
-- **(player, 2026-10-02)** Vanar has 2100 job points on RDM and on BLU. His other merits:
-  - RDM Group 1: Ice and Earth Magic Accuracy.
-  - Magic Skills: 8 levels each in Healing, Enhancing, Enfeebling, Elemental and Dark magic.
-  - Combat Skills: 8 levels each in Dagger, Sword and Club.
-  - BLU: 5 each in Physical Potency, Magical Accuracy, Diffusion and Enchainment.
-- What those give, and where each is worked out:
-  - Skill +16 (8 × 2) in each of the eight skills; none in Divine or Blue Magic. Totals: Combat skill; Skill by magic type; Enhancing skill; Cure formula; Blue Magic skill.
-  - RDM Group 1: 10 levels in all, at most 5 a category (bg-wiki, Merit Points). The level count isn't recorded. Only if all 10 levels are in Ice and Earth (Convert Recast and the other four elements at 0) does the 5-level cap force 5 in each. This doc assumes that: +10 or +15 macc on Ice and Earth spells, as the pages disagree on +2 or +3 a level (Job sources).
-  - BLU: Physical Potency and Magical Accuracy fill Group 1 (5 + 5 = 10), Diffusion and Enchainment fill Group 2 (5 + 5 = 10). So Convergence, Assimilation and the other BLU categories are 0. Each one's effect: Job points and merits.
-- **(player, 2026-10-02)** Vanar is a citizen of Windurst.
-  - Which nation latents on his gear work, and which don't, is under Refresh.
-- Values that guides or bg-wiki quote at rank 30 overstate Vanar's Odyssey pieces (Odyssey augments at Vanar's ranks).
-- bg-wiki's simulated sets are a starting point, not an answer. They assume Odyssey gear at rank 30 and Nyame Path B at rank 25. Each weapon skill and nuke set is scored by one damage number with no DT or utility; the TP sets by time to the weapon skill under a DT limit. Put in Vanar's ranks (rank-augments.md) before copying a piece ("Simulated sets (bg-wiki All Jobs Gear Sets)").
+- `docs/rank-augments.md` gives path items' augments at every rank, from bg-wiki's rank tables. `//gs export` shows the path but not the rank, so a rank has to come from the player. The character's `data/<Character>/<Character>_rank_augments.md` gives the path and rank of each of the character's copies, with the augments at that rank. A copy that exports with no augments is rank 0, with base stats only. When a rank isn't recorded, ask the player.
+- The character's `data/<Character>/<Character>_notes.md` records what else only the player knows: the player's rules for the sets, the merits, job points, Master Levels and nation, and what the formulas here give at those values. Merits matter in many places below. RDM's Group 2 merits (Accuracy, Magic Accuracy, Enhancing and Enfeebling Magic Duration, Immunobreak Chance, En-spell Damage) share 10 levels in all, at most 5 per category (bg-wiki, Merit Points), so the levels in one category come out of another's.
+- Values that guides or bg-wiki quote at rank 30 overstate an Odyssey piece below that rank (Odyssey augments below rank 30).
+- bg-wiki's simulated sets are a starting point, not an answer. They assume Odyssey gear at rank 30 and Nyame Path B at rank 25. Each weapon skill and nuke set is scored by one damage number with no DT or utility; the TP sets by time to the weapon skill under a DT limit. Put in the character's own ranks before copying a piece ("Simulated sets (bg-wiki All Jobs Gear Sets)").
 - wsdist, the simulator behind those sets, can compare two sets, but it has known formula and item-data errors; correct them before trusting a number ("wsdist (Kastra's damage simulator)").
 
-**5. Apply the player's priorities** (Player rules for these jobs).
+**5. Apply the player's priorities.** They are in the character's notes, `data/<Character>/<Character>_notes.md`, under "Rules for these sets".
 
 ## Casting time
 
@@ -159,7 +142,7 @@ Where skill or a stat stops adding potency:
 
 - bg-wiki hedges how the gifts work ("seems to" add 8 points), and its Fast Cast page footnotes the tiers differently. The tier changes with the spell set, so check the job traits list in game.
 - A trait from set blue magic doesn't stack with the same trait from the subjob. Only the higher tier applies (bg-wiki, Blue Mage Job Traits). On BLU/RDM below Master Level 30, /RDM already gives 15%, so Fast Cast blue magic only helps at tier III (20%) or IV (25%). From Master Level 30, /RDM gives 20% and only tier IV helps.
-- Vanar's BLU is Master Level 25 (Combat skill), so its /RDM is level 54 and gives 15%. Master Levels mean job mastery, so the BLU has both gifts (Job points and merits): 16 trait points of Fast Cast spells give 20%, and all five give 25%.
+- At Master Level 25 a BLU's /RDM is level 54 and gives 15% (Combat skill). Master Levels mean job mastery, so such a BLU has both gifts (Job points and merits): 16 trait points of Fast Cast spells give 20%, and all five give 25%.
 
 ### Fast Cast the item text doesn't show
 
@@ -174,13 +157,13 @@ Some item text only says `Enhances "Fast Cast" effect`, with no number. A scan o
 | Witful Belt | 3% (also Haste 31/1024, Quick Magic 3%) | yes | yes |
 
 - The +1 values come only from bg-wiki's Fast Cast equipment table. That table is incomplete (it leaves out Atrophy Chapeau +4, Vitiation Tabard +4, Amalric Coif +1 and Leth. Earring +1) and marks some values unverified (Ebon, Ebur and Furia Talar 5%, Euxine Gloves, Tethyan Cap, Pi Ring). Read each item's own page.
-- Fi Follet Cape +1 (back, RDM and BLU) gets Fast Cast from its rank augment: +1% a rank up to 5% at rank 5, then +1% every second rank up to 10% at rank 15. From rank 6 it also adds Spell interruption rate −1 to −5%. Its base stats are MP +45, Enhancing magic skill +9 and Conserve MP +5 (bg-wiki, Fi Follet Cape +1). **(player, 2026-10-02)** Vanar's copy is Path A at rank 11: Fast Cast 8%, Spell interruption rate −3% (rank-augments.md).
+- Fi Follet Cape +1 (back, RDM and BLU) gets Fast Cast from its rank augment: +1% a rank up to 5% at rank 5, then +1% every second rank up to 10% at rank 15. From rank 6 it also adds Spell interruption rate −1 to −5%. Its base stats are MP +45, Enhancing magic skill +9 and Conserve MP +5 (bg-wiki, Fi Follet Cape +1).
 
 ### Spell-specific and school casting time
 
 Separate stats shorten the casting time of one spell or one school of magic. For casting time, each adds one for one with Fast Cast: 1% Cure spellcasting time is worth 1% Fast Cast on a Cure (bg-wiki, Category:Cure Spell). None of them shortens recast; bg-wiki says so for Song spellcasting time, Blue magic spellcasting time and Elemental Celerity. They belong in precast sets only.
 
-- "Cure spellcasting time −X%". Cure spellcasting time on gear Vanar owns: Doyen Pants −15%, Vanya Clogs (Path D) −15%, Pahtli Cape −8%, Serenity (augmented) −8%, Vanya Cuffs (Path B) −7% and Mendi. Earring −5%. Of these, Vanya Clogs, Vanya Cuffs and Serenity are RDM-only; Doyen Pants, Pahtli Cape and Mendi. Earring fit BLU too (bg-wiki, each item's page). Serenity is a staff, which needs both hands, so swapping it in resets TP. The values come from the item pages, since the Cure page's own table leaves out Doyen Pants and Mendi. Earring. Serenity's and Vanya Cuffs' values weren't checked against bg-wiki, only their jobs. The engine wears `sets.Precast.Cure` for every spell named Cure, Cura or Curaga, over the fast-cast set.
+- "Cure spellcasting time −X%". Some pieces that have it: Doyen Pants −15%, Vanya Clogs (Path D) −15%, Pahtli Cape −8%, Serenity (augmented) −8%, Vanya Cuffs (Path B) −7% and Mendi. Earring −5%. Of these, Vanya Clogs, Vanya Cuffs and Serenity are RDM-only; Doyen Pants, Pahtli Cape and Mendi. Earring fit BLU too (bg-wiki, each item's page). Serenity is a staff, which needs both hands, so swapping it in resets TP. The values come from the item pages, since the Cure page's own table leaves out Doyen Pants and Mendi. Earring. Serenity's and Vanya Cuffs' values weren't checked against bg-wiki, only their jobs. The engine wears `sets.Precast.Cure` for every spell named Cure, Cura or Curaga, over the fast-cast set.
 - "Healing magic casting time −X%" is broader: all healing magic, including Cures, Raise and the -na spells (bg-wiki, Category:Healing Magic). RDM can wear Heka's Kalasiris −15%, Iaso Bliaut −5% and Paean Bliaut −2%. Vejovis Wand +1 −4% and Vejovis Wand −3% fit RDM and BLU; they are clubs, so swapping one in resets TP. bg-wiki's three tables disagree on Heka's Kalasiris (Cure spellcasting time 15%, Healing magic casting time −15%, or Fast Cast 5%).
 - "Song spellcasting time −X%". Doyen Pants has −6%.
 - "Enhancing magic casting time −X%" covers every enhancing spell. The only piece for RDM or BLU is Siegel Sash −8%; the other gear with it is RUN-only (bg-wiki, Category:Enhancing Magic).
@@ -224,7 +207,6 @@ Light Arts and Dark Arts are different. Light Arts, a level 10 SCH ability usabl
 - Quick Magic gives a chance to cast any magic instantly with no recast: songs, ninjutsu, summoning and blue magic included. Its activation rate caps at 10% (bg-wiki, Occasionally Quickens Spellcasting).
 - Item text names it two ways: `Occ. quickens spellcasting +X%` and `"Quick Magic"+X%`. A scan for Quick Magic pieces has to search for both.
 - With GearSwap, an instant cast can go off before the midcast set is on, so the spell may land in precast gear. This is common GearSwap advice, not checked against a source. The only bg-wiki statement found, in the Community Scholar Guide, says that without add-on "tools" you likely won't get the full benefit of precast and midcast sets when Quick Magic procs, and that Quick Magic gear does best in a set that serves as both. It doesn't describe GearSwap's behavior.
-- **(player)** Avoid Quick Magic pieces such as Impatiens and Perimede Cape. Witful Belt is the exception, because nothing else replaces its Fast Cast.
 
 Quick Magic gear RDM or BLU can wear (bg-wiki, Occasionally Quickens Spellcasting):
 
@@ -321,7 +303,7 @@ A weapon in the sub slot needs the Dual Wield trait (bg-wiki, Dual Wield):
 - Tier VI: the Dual Wield page now gives 40%, from the Japanese wiki. It said about 37% for years, and Blue Mage Job Traits still says 37%.
 - RDM has no Dual Wield of its own. It needs /NIN (DW III, 25%, from NIN 45) or /DNC (DW II, 15%, from DNC 40). On any other support job the sub slot holds a shield or nothing.
 - Thief has Dual Wield of its own, from level 83, and tier III (25%) from 98, so a level 99 Thief dual wields on any support job (FFXIclopedia, Thief, through a search extract).
-- Support job level = 49 + floor(Master Level ÷ 5): 53 at Master Level 20 to 24, 54 at 25 to 29. DW IV needs NIN 65 and DW III needs DNC 60, so Master Level doesn't raise either tier (bg-wiki, Master Levels). Vanar's RDM and BLU are Master Level 25 (Combat skill), so their support jobs are level 54.
+- Support job level = 49 + floor(Master Level ÷ 5): 53 at Master Level 20 to 24, 54 at 25 to 29. DW IV needs NIN 65 and DW III needs DNC 60, so Master Level doesn't raise either tier (bg-wiki, Master Levels).
 - BLU gets Dual Wield from set blue magic: up to DW IV from the spells alone, V and VI with the job point gifts (bg-wiki, Blue Mage Job Traits). It doesn't stack with the support job's Dual Wield; the higher tier applies. BLU/NIN already has DW III, so blue magic Dual Wield only matters at DW IV or higher. The tier changes with the spell set, so check the job traits list in game. The spells and their trait points are under Traits from set spells.
 
 Dual Wield cuts the two weapons' combined delay:
@@ -394,7 +376,7 @@ TP per hit = floor(floor(base TP) × (100 + Store TP) ÷ 100)
 - Store TP also raises the TP gained from being hit. Tactical Points states this as fact; the Store TP page rests it on one observation.
 - Outside weapon skills, every hit of a multi-attack proc gives full TP. During a weapon skill most hits give a flat 10 TP, so Store TP does little in a weapon skill set (see TP from a weapon skill).
 - The Store TP trait gives +10, +15, +20, +25 and +30 at tiers I to V. RDM has none. SAM gets tiers I to III at 10, 30 and 50, so /SAM at 53 or 54 gives Store TP +20, but no Dual Wield. BLU gets it from set blue magic, so its tier changes with the spell set and job point gifts (see Blue magic).
-- Store TP on Bunzi's Hat and Gleti's Gauntlets is a rank augment. Vanar's copies are rank 0, so they have none of it (rank-augments.md has every rank).
+- Store TP on Bunzi's Hat and Gleti's Gauntlets is a rank augment. A rank 0 copy has none of it (rank-augments.md has every rank).
 
 ## Multi-attack
 
@@ -424,7 +406,7 @@ Quadruple Attack has no job trait; it comes only from gear. Pieces RDM or BLU ca
 | Balder Earring +1 | both | 1% |
 
 - Quadruple Attack procs on either hand when dual wielding, except Twilight Knife's.
-- At Vanar's ranks (rank-augments.md has every rank): the Nyame Path B pieces at rank 20 give Double Attack +2% (Helm, Sollerets) and +3% (Mail, Flanchard); the Nyame Gauntlets at rank 0 give none. Every Bunzi's and Gleti's piece is rank 0, so Bunzi's Hat has no Quadruple Attack, Gleti's Cuirass no Double Attack and Gleti's Breeches no Triple Attack. Bunzi's Gloves (RDM) keep their base Double Attack +8% at rank 0 (bg-wiki, Bunzi's Gloves).
+- Odyssey pieces get some of their multi-attack from rank. Nyame Path B's Double Attack starts at rank 16. Bunzi's Hat's Quadruple Attack, Gleti's Cuirass's Double Attack and Gleti's Breeches' Triple Attack are rank augments, so a rank 0 copy has none. Bunzi's Gloves keep their base Double Attack +8% at rank 0 (bg-wiki, Bunzi's Gloves; rank-augments.md has every rank).
 
 ## Critical hits
 
@@ -485,7 +467,7 @@ enemy TP per hit = monster TP gain × (monster Store TP − Inhibit TP) × (1 �
 | Ikenga's Hat | augment, up to 5 |
 | Gleti's Knife | augment, +1 from rank 21 to +10 at rank 30; none at rank 0 |
 
-- Vanar's Gleti's Knife and Gleti's Breeches are rank 0, so the Knife has no Subtle Blow II and the Breeches have none of their augment's Subtle Blow (rank-augments.md has every rank).
+- Gleti's Knife's Subtle Blow II and Gleti's Breeches' Subtle Blow are rank augments, so a rank 0 copy has neither (rank-augments.md has every rank).
 
 ## Damage taken
 
@@ -548,16 +530,14 @@ RDM and BLU job point gifts add no combat skill; they add flat accuracy, attack 
 
 (bg-wiki, Red Mage and Blue Mage.) Master Level 50 adds 50 (RDM sword 448, BLU sword 474). Job mastery itself adds no combat skill. On RDM a club hand starts 64 below a sword or dagger hand; on BLU, 36 below.
 
-- **(player, 2026-10-02)** Vanar's RDM and BLU are both Master Level 25.
-  - That adds 25 to every skill in the table: RDM sword and dagger 423, BLU sword 449, before merits and the weapon's own skill. Master Levels also add +1 to every base stat per level, and the support job is level 49 + floor(25 ÷ 5) = 54 (bg-wiki, Master Levels).
-  - Only a mastered job earns Master Levels, so both jobs are mastered: 2,100 job points spent. Each job has 10 categories at 210 points each, so that is every category at 20 and every gift (arithmetic, as under Job points and merits).
-- **(player, 2026-10-02)** Vanar has 2100 job points on both jobs, and 8 Combat Skills merit levels each in Dagger, Sword and Club.
-  - Each is +16 (8 × 2), on both jobs. Vanar's skill before the weapon's own skill and gear (level 99 + 25 + 16; accuracy from skill by the bands below):
+- Each Master Level adds 1 to every skill in the table: at Master Level 25, RDM sword and dagger are 423 and BLU sword 449, before merits and the weapon's own skill. Master Levels also add +1 to every base stat per level, and the support job is level 49 + floor(Master Level ÷ 5), 54 at Master Level 25 (bg-wiki, Master Levels).
+  - Only a mastered job earns Master Levels, so a job with any Master Level is mastered: 2,100 job points spent. Each job has 10 categories at 210 points each, so that is every category at 20 and every gift (arithmetic, as under Job points and merits).
+- Combat Skills merits add +2 a level, up to 8 levels (+16) a skill. Skill at Master Level 25 with 8/8 merits, before the weapon's own skill and gear (level 99 + 25 + 16; accuracy from skill by the bands below):
 
-| Vanar, Master Level 25, 8/8 merits | RDM | BLU |
+| Master Level 25, 8/8 merits | RDM | BLU |
 |---|---|---|
 | Sword | 398 + 25 + 16 = 439 (411 accuracy) | 424 + 25 + 16 = 465 (432) |
-| Dagger | 398 + 25 + 16 = 439 (411) | none: BLU has no dagger skill, so the merits do nothing there |
+| Dagger | 398 + 25 + 16 = 439 (411) | none: BLU has no dagger skill, so dagger merits do nothing there |
 | Club | 334 + 25 + 16 = 375 (357) | 388 + 25 + 16 = 429 (403) |
 
 Weapon-type skill on item-level weapons (bg-wiki, each weapon's page):
@@ -575,9 +555,9 @@ Weapon-type skill on item-level weapons (bg-wiki, each weapon's page):
 | Thibron | none (level 99, no item level) |
 
 - Each of these also has the same amount of Parrying skill.
-- These are base stats, so a rank 0 copy has them. Vanar's Bunzi's Rod and Gleti's Knife are rank 0; their rank augments add DMG; MAB (Rod) or Attack (Knife); Accuracy and Magic Accuracy from rank 16; Enmity − (Rod) or Subtle Blow II (Knife) from rank 21; never skill (rank-augments.md).
+- These are base stats, so a rank 0 copy has them. The rank augments of Bunzi's Rod and Gleti's Knife add DMG; MAB (Rod) or Attack (Knife); Accuracy and Magic Accuracy from rank 16; Enmity − (Rod) or Subtle Blow II (Knife) from rank 21; never skill (rank-augments.md).
 - Only Level 119 III ultimate weapons take Oboro's augments, which `//gs export` shows as "Path: A". A Tizona that exports "Path: A" is 119 III (bg-wiki, BGWiki:Ultimate Weapon Augments).
-  - The export prints the same "Almace" for nine stages, Level 80 up to 119 III, so it doesn't show which one Vanar has (gear-notes.md, Almace). Only the item-level stages have Sword skill (+242 or +269); the Level 99 stage has none (bg-wiki, Almace (Level 99)). Check its item text before counting any.
+  - The export prints the same "Almace" for nine stages, Level 80 up to 119 III, so it doesn't show which one a character has (gear-notes.md, Almace). Only the item-level stages have Sword skill (+242 or +269); the Level 99 stage has none (bg-wiki, Almace (Level 99)). Check its item text before counting any.
 - Item-level 119 swords run from Sword skill +215 (Tokko Sword) to +277 (Caliburnus III) (bg-wiki, Category:Sword).
 - The in-game Skills menu leaves the weapon's own skill out. It still counts toward attack (bg-wiki says so outright) and toward accuracy (implied by the same page and by Item Level) (bg-wiki, Attack).
 
@@ -603,13 +583,13 @@ Which hand a weapon stat helps is under Which hand a weapon's stats work from (W
 
 - **(player)** At Master Level 25, BLU and RDM sword skill is past 600. Each point of sword skill on gear is then worth about 0.9 accuracy and 1 attack, so Sword skill +30 is about Acc +27 and Att +30.
 - **bg-wiki** puts the cause on the weapon, not the Master Level:
-  - Without the weapon's own skill, RDM sword at Master Level 25 with Vanar's 8/8 merits is 398 + 25 + 16 = 439, and BLU's is 424 + 25 + 16 = 465. Both are below 600 (bg-wiki, Category:Combat Skills).
+  - Without the weapon's own skill, RDM sword at Master Level 25 with 8/8 merits is 398 + 25 + 16 = 439, and BLU's is 424 + 25 + 16 = 465. Both are below 600 (bg-wiki, Category:Combat Skills).
   - An item-level weapon puts its hand past 600. Even the lowest item-level 119 sword (+215) takes a RDM with no Master Levels to 613.
-  - A weapon with no item level, such as Thibron, leaves Vanar's hand at 439 (RDM) or 465 (BLU), in the 0.8 band.
+  - A weapon with no item level, such as Thibron, leaves the hand at 439 (RDM) or 465 (BLU), in the 0.8 band.
 - Both readings agree for the hand that holds an item-level weapon: there, Sword skill +30 (Hashishin Kavuk +3) is about Acc +27. BLU at Master Level 25 with 8/8 sword merits, Naegling hand: 424 + 25 + 16 + 250 = 715 → 745 skill, 643 → 670 accuracy from skill (+27). The same +30 on a Thibron hand: 465 → 495 skill, 432 → 456 (+24). Attack +30 depends on the unsettled 1-for-1 rate above.
-- Main hand and off hand can end up far apart. RDM at Master Level 25 with 8/8 sword merits, Naegling and Thibron: Naegling hand 398 + 25 + 16 + 250 = 689 skill (620 accuracy from skill), Thibron hand 439 (411), so the off hand is 209 accuracy behind. No armor closes that. An item-level off-hand sword does: with the same Master Level and merits, Almace gives an off hand of 708 skill (637) at Level 119 III (+269), or 681 (612) at 119 or 119 II (+242). Both figures assume Vanar's Almace is at least Level 119; a lower stage adds no skill, like Thibron.
-- These figures use Vanar's 8/8 sword merits (player, 2026-10-02; Combat skill).
-- The worked numbers here use Vanar's Master Level 25 (Combat skill). The **(player)** line under Enhancing skill gives 480 enhancing skill at Master Level 24; at 25 that count is 481.
+- Main hand and off hand can end up far apart. RDM at Master Level 25 with 8/8 sword merits, Naegling and Thibron: Naegling hand 398 + 25 + 16 + 250 = 689 skill (620 accuracy from skill), Thibron hand 439 (411), so the off hand is 209 accuracy behind. No armor closes that. An item-level off-hand sword does: with the same Master Level and merits, Almace gives an off hand of 708 skill (637) at Level 119 III (+269), or 681 (612) at 119 or 119 II (+242). Both figures assume an Almace of at least Level 119; a lower stage adds no skill, like Thibron.
+- These figures use 8/8 sword merits (Combat skill).
+- The worked numbers here use Master Level 25 (Combat skill). The **(player)** line under Enhancing skill gives 480 enhancing skill at Master Level 24; at 25 that count is 481.
 
 ### Accuracy
 
@@ -674,7 +654,7 @@ Other sources:
 | Composure (RDM) | +50 at level 99, plus 1 per level of the Composure Effect job point category, up to +70 | floor((24 × level + 74) ÷ 49) (bg-wiki, Composure) |
 | RDM job point gifts | +3, +5, +6, +8 at 45, 320, 845, 1620 JP spent: +22 | Always on (bg-wiki, Red Mage) |
 | BLU job point gifts | +5, +8, +10, +13 at 30, 280, 780, 1530 JP spent: +36 | Always on (bg-wiki, Blue Mage) |
-| RDM Group 2 merit, Accuracy | +5 per level, up to 5 levels (+25) | Shares the group's 10 levels with Enfeebling and Enhancing Magic Duration, Magic Accuracy, Immunobreak Chance and En-spell Damage (bg-wiki, Merit Points). Vanar has 0 here: his 10 levels are elsewhere (player, 2026-10-02; Building a set) |
+| RDM Group 2 merit, Accuracy | +5 per level, up to 5 levels (+25) | Shares the group's 10 levels with Enfeebling and Enhancing Magic Duration, Magic Accuracy, Immunobreak Chance and En-spell Damage (bg-wiki, Merit Points). |
 | Accuracy Bonus trait | +10, +22, +35, +48, +60, +73 for tiers I to VI | Also ranged accuracy. See below |
 | Aggressor (/WAR) | +25, with Evasion −25 | 3 minutes, 5-minute recast; no longer ranged accuracy (bg-wiki, Aggressor) |
 | Blade Madrigal (bard) | +60 at +0 song gear to +114 at +9 | +5 per Madrigal merit after the percentage; Marcato ×1.5, Soul Voice ×2 (bg-wiki, BGWiki:SongPotency) |
@@ -682,7 +662,7 @@ Other sources:
 
 - The job point gift tiers are listed one by one. bg-wiki doesn't say they add up; the +22 and +36 totals assume they do, as it does for the capacity point gifts.
 - Accuracy Bonus trait (bg-wiki, Accuracy Bonus and Blue Mage Job Traits):
-  - RDM has none of its own. As a support job at level 53 or 54 (49 + floor(Master Level ÷ 5); 54 for Vanar), /DNC and /DRG give tier I (+10; tier II needs 60) and /RUN tier I.
+  - RDM has none of its own. As a support job at level 53 or 54 (49 + floor(Master Level ÷ 5)), /DNC and /DRG give tier I (+10; tier II needs 60) and /RUN tier I.
   - BLU gets it only from set blue magic, up to tier IV, with tiers V and VI from job point gifts. Each tier needs 8 trait points. Spells (set points / trait points): Dimensional Death 5/4, Frenetic Rip 3/4, Disseverment 5/4, Vanity Dive 2/4, Nature's Meditation 6/8, Anvil Lightning 8/8.
   - The Job Trait Bonus gifts at 100 and 1200 JP seem to add 8 trait points to each set trait (bg-wiki hedges this), but a trait needs its first 8 points from spells. With 1200+ JP, the cheapest sets are 5 set points for tier III (+35, Frenetic Rip and Vanity Dive), 11 for IV, 19 for V and 29 for VI. With no Accuracy Bonus spell set, BLU gets nothing.
   - A BLU's spell tier and the support job's tier don't add; the higher applies.
@@ -793,8 +773,8 @@ pDIF cap = (weapon type base cap + Damage Limit+ trait)
 | Nyame, Path A only | up to 7% (body) at rank 30 | RDM, BLU | augment |
 | Bunzi's Robe | 1% at rank 1, up to 8% at rank 29 and 30 | WHM, RDM, BRD, SMN | augment |
 
-- Gleti's PDL is a base stat, so Vanar's rank 0 Gleti's pieces have it in full. They have none of the rank augments: Attack and a piece-specific line from rank 1 (Counter, Double Attack, Store TP, Subtle Blow, Evasion), Accuracy and Magic Accuracy from rank 16, and a fourth line from rank 21 (Regen, status resistance, DEX, Triple Attack, STR). rank-augments.md has the values.
-- Vanar's Bunzi's Robe is rank 0, so it has no PDL. Vanar's Nyame Helm, Mail, Flanchard and Sollerets are Path B at rank 20 (Attack +25 each, weapon skill damage and Double Attack, no PDL) and the Gauntlets are rank 0, so Vanar's Nyame adds no PDL. Per-rank values for both are in rank-augments.md.
+- Gleti's PDL is a base stat, so a rank 0 Gleti's piece has it in full. It has none of the rank augments: Attack and a piece-specific line from rank 1 (Counter, Double Attack, Store TP, Subtle Blow, Evasion), Accuracy and Magic Accuracy from rank 16, and a fourth line from rank 21 (Regen, status resistance, DEX, Triple Attack, STR). rank-augments.md has the values.
+- Bunzi's Robe's PDL is a rank augment, so a rank 0 copy has none. Nyame Path B adds Attack, weapon skill damage and Double Attack, and no PDL at any rank. Per-rank values for both are in rank-augments.md.
 - Worked caps (derived): RDM in five Malignance pieces, 3.35 × 1.20 = 4.02, which needs a ratio near 4.4 to fill. BLU in five Gleti's pieces, 3.25 × 1.35 ≈ 4.39, near a ratio of 4.76.
 
 ## Defensive skills and shield block
@@ -884,12 +864,12 @@ While dual wielding, each stat on a weapon falls into one of three groups (bg-wi
 - "Main hand:" effects include Maxentius's Black Halo +50% and Naegling's Savage Blade +15%. Tizona's Expiacion +30% and its Aftermath are Mythic stats, so they are main hand only too.
 - An Ultimate Weapon in the off hand, such as Almace, adds its combat skill to its own hits but gives none of its unique stats or Aftermath.
 - TP Bonus on a weapon works only from the main hand, unless it is an augment. Trial of the Magians, Odyssey and Unity weapons whose TP Bonus is an augment give it to every weapon skill from the sub or range slot too (bg-wiki, TP Bonus). The Dual Wield page names only Magian and Odyssey weapons as exceptions.
-- wsdist pools crit rate and TP Bonus from both weapons. The crit pooling matters for Vanar: in RDM's Chant du Cygne mode, wsdist gives Gleti's Knife's off-hand Crit Rate +5 to the main-hand hits too. The TP Bonus pooling is harmless here, since Thibron's +1000 is an augment (see Where wsdist and bg-wiki disagree).
+- wsdist pools crit rate and TP Bonus from both weapons. The crit pooling matters with a crit weapon in the off hand: with Gleti's Knife there, wsdist gives its Crit Rate +5 to the main-hand hits too. The TP Bonus pooling is harmless for Thibron, whose +1000 is an augment (see Where wsdist and bg-wiki disagree).
 - Thibron is a Trial of the Magians sword (DMG 55, Delay 238; RDM, PLD and BLU). TP Bonus +1000 is one of its three augment options; the others are DMG +3 with weapon skill damage +10%, and DMG +3 with Store TP +17. Only a copy with the TP Bonus augment gives +1000 from the sub slot (bg-wiki, Thibron).
 - bg-wiki doesn't say whether an off-hand weapon's "Magic Damage" counts (Bunzi's Rod +248, Maxentius +232). It matters for magical weapon skills.
 - Examples in the sub slot:
-  - Bunzi's Rod (RDM and BLU): Accuracy +40, Magic Accuracy +40 and Magic Attack Bonus +35 count for both hands. Club skill +242 helps only its own hits. Magic Accuracy skill +255 does nothing. These are base stats. Vanar's copy is rank 0 **(player, 2026-10-02)**, so it has no augments; rank-augments.md lists them by rank (DMG and MAB first, Accuracy and Magic Accuracy from rank 16).
-  - Gleti's Knife (RDM, not BLU): Accuracy +40 and Magic Accuracy +40 count for both hands. Dagger skill +255 helps only its own hits. These are base stats. Vanar's copy is rank 0 **(player, 2026-10-02)**, so it has no augments; rank-augments.md lists them by rank (DMG and Attack first, Accuracy and Magic Accuracy from rank 16).
+  - Bunzi's Rod (RDM and BLU): Accuracy +40, Magic Accuracy +40 and Magic Attack Bonus +35 count for both hands. Club skill +242 helps only its own hits. Magic Accuracy skill +255 does nothing. These are base stats. rank-augments.md lists its augments by rank (DMG and MAB first, Accuracy and Magic Accuracy from rank 16).
+  - Gleti's Knife (RDM, not BLU): Accuracy +40 and Magic Accuracy +40 count for both hands. Dagger skill +255 helps only its own hits. These are base stats. rank-augments.md lists its augments by rank (DMG and Attack first, Accuracy and Magic Accuracy from rank 16).
   - Neither Bunzi's Rod nor Gleti's Knife has TP Bonus at any rank (rank-augments.md).
 - Other plain Magic Accuracy on off-hand and ranged items: Maxentius +40 (either job, with Dual Wield), Ammurapi Shield +38 and Ullr +40 (RDM only). Ullr needs the ammo slot empty or holding an arrow, so it nets 40 minus the Magic Accuracy of the ammo it displaces (bg-wiki, Dual Wield and each item's page for the Magic Accuracy; the ammo rule is general game behavior, not on Ullr's page; see TP reset).
 - A weapon in the sub slot needs Dual Wield. RDM has none of its own and gets it from /NIN or /DNC. BLU gets it from set blue magic or from /NIN or /DNC; the two don't stack, and the higher tier wins (bg-wiki, Blue Mage Job Traits). Tiers and gear: see Dual Wield. BLU's Dual Wield spells: see Traits from set spells.
@@ -981,7 +961,7 @@ fTP = fTP(anchor below) + (TP − anchor below) ÷ 1000 × (fTP(anchor above) �
 - bg-wiki calls WSD inconsistently implemented. Some first-hit sources apply to both hits of certain skills (Sturmwind, Atonement), and Magian weapons with "Weapon Skill Damage +n%" apply to every hit. First hit only is the usual rule, not a universal one.
 - Cap: bg-wiki gives no figure. A reference link on the Weapon Skill Damage page is titled "WSD's cap is >+100%". No known cap limits stacking WSD in a set.
 - WSD is worth most where the first hit carries most of the fTP (Savage Blade, Black Halo, Expiacion), and least on replicating multi-hit skills (Requiescat, Chant du Cygne, Vorpal Blade, Evisceration).
-- Nyame Path B's WSD is a rank augment. At Vanar's rank 20 **(player, 2026-10-02)**: Helm +8%, Mail +10%, Flanchard +9%, Sollerets +8%, 35% for the four. Vanar's Nyame Gauntlets are rank 0 and have no augments. rank-augments.md has the other ranks.
+- Nyame Path B's WSD is a rank augment. At rank 20, for example, the Mail has +10% and the Sollerets +8%, and at rank 10 the Gauntlets have +5%. rank-augments.md has every rank.
 - Bonuses that apply to every hit, each as its own multiplier with flooring between steps: Dragoon's WSD trait, Overwhelm, Building Flourish, and bonuses for one named weapon skill, such as "Savage Blade damage +15%". An augmented named bonus, such as a Magian "Burning Blade: DMG +10%", is another separate multiplier; it doesn't add to an unaugmented one (bg-wiki, Weapon Skill Damage).
 
 ### Elemental gorgets and belts
@@ -1099,7 +1079,7 @@ Magic accuracy = skill in the spell's magic type          (1 skill = 1 macc)
 
 - +1 skill in the spell's own school, +1 Magic Accuracy on gear and +1 main-hand Magic Accuracy skill are worth the same. An INT or MND point is worth 1 at most; see dSTAT.
 - Frazzle, Frazzle II, Frazzle III, Distract, Distract II and Distract III each add +150 of their own (bg-wiki, Frazzle III).
-- Each Master Level adds +1 to every base stat, INT and MND included, and +1 to the cap of every combat and magic skill the job learns itself (bg-wiki, Master Levels). At Vanar's Master Level 25 that is 25 more macc in every school the job has, plus up to 25 through dSTAT.
+- Each Master Level adds +1 to every base stat, INT and MND included, and +1 to the cap of every combat and magic skill the job learns itself (bg-wiki, Master Levels). At Master Level 25 that is 25 more macc in every school the job has, plus up to 25 through dSTAT.
 
 ### Magic hit rate
 
@@ -1140,7 +1120,7 @@ The target's magic evasion depends on its level, its resistance rank (below), dI
 | 150 | 1,400 | | 1,943 |
 
 - Compare the whole total with the table: skill, dSTAT, main-hand Magic Accuracy skill, gear, job bonuses and food. The page doesn't say what dINT or level correction the estimates assume, and the 20% and 25% ranks had no data, so a total within a few dozen of the line is uncertain.
-- Example: Vanar's RDM at Master Level 25 has 460 + 25 + 16 = 501 enfeebling skill, with his 8 Magic Skills merit levels in it (player, 2026-10-02; Building a set). A weapon with 255 Magic Accuracy skill brings that to 756. A level 135 foe at a 100% rank then needs about 272 more (1,028 − 756), or about 157 after his +115 always-on (272 − 115; see Job sources). At a 30% rank it needs about 531 after the +115 (1,402 − 756 − 115). An Ice or Earth spell needs 10 to 15 less again, from his Group 1 merits (assumed 5 levels; Job sources).
+- Example: a RDM at Master Level 25 with 8 Magic Skills merit levels has 460 + 25 + 16 = 501 enfeebling skill. A weapon with 255 Magic Accuracy skill brings that to 756. A level 135 foe at a 100% rank then needs about 272 more (1,028 − 756), or about 157 after an always-on +115 (272 − 115; see Job sources). At a 30% rank it needs about 531 after the +115 (1,402 − 756 − 115). An Ice or Earth spell needs 10 to 15 less again with 5 levels of that element's Group 1 merit (Job sources).
 - A burst moves the target one rank weaker (see Resistance ranks). bg-wiki's example: a V20 Ongo needs 1,222 macc for a bursted earth spell and 1,365 for a free nuke (bg-wiki, Magic Accuracy Skill).
 - Every wsdist enemy preset has Magic Evasion 0, "BG Wiki sets" included, so wsdist lands every spell unresisted. Its nuke, burst, enspell and magical weapon skill sets aren't evidence that macc can be dropped; enter a real magic evasion before trusting a wsdist magic number (see Where wsdist and bg-wiki disagree).
 
@@ -1157,10 +1137,10 @@ The target's magic evasion depends on its level, its resistance rank (below), dI
 
 Sources: bg-wiki, Red Mage, Category:Enfeebling Magic, Category:Elemental Magic, Category:Dark Magic, Category:Divine Magic and Category:Blue Magic.
 
-- Skill caps rise 1 per Master Level. At Vanar's Master Level 25 his RDM has enfeebling 485, elemental 403, and dark and divine 325 (each table figure + 25), and his BLU has blue magic 485, all before merits.
-- With Vanar's Magic Skills merits (player, 2026-10-02; Building a set), before gear: enfeebling 485 + 16 = 501, elemental 403 + 16 = 419, dark 325 + 16 = 341. Divine stays 325 and blue magic 485; he has no merits in either. Enhancing (481) and healing (409) are under Enhancing skill and Cure formula.
+- Skill caps rise 1 per Master Level. At Master Level 25, RDM has enfeebling 485, elemental 403, and dark and divine 325 (each table figure + 25), and BLU has blue magic 485, all before merits.
+- With 8 Magic Skills merit levels in a skill (+16), before gear: enfeebling 485 + 16 = 501, elemental 403 + 16 = 419, dark 325 + 16 = 341. Without merits, divine stays 325 and blue magic 485. Enhancing (481) and healing (409) are under Enhancing skill and Cure formula.
 - The job mastery figures come from four skill gifts, +5, +8, +10 and +13 (RDM enfeebling at 60, 360, 910 and 1,710 job points). They leave out merits.
-- The general merit Magic Skills adds +2 a level to one skill, up to 8 levels (+16) per skill (bg-wiki, Merit Points). Merited skill is 1:1 macc for that school, so Vanar's merits add 16 macc to enfeebling, elemental and dark spells.
+- The general merit Magic Skills adds +2 a level to one skill, up to 8 levels (+16) per skill (bg-wiki, Merit Points). Merited skill is 1:1 macc for that school, so 8 levels add 16 macc to that school's spells.
 - "Enfeebling magic skill +X" adds X macc to enfeebles only, and nothing to dark or divine spells. "All magic skills +X" counts for every school.
 - Elemental skill sets elemental spells' macc and interruption rate, not their damage (Meteor excepted). In a nuke set it competes with Magic Accuracy+, not Magic Attack Bonus.
 - Dark skill also sets the potency of some dark spells.
@@ -1216,7 +1196,7 @@ Bunzi's Rod, Naegling, Maxentius and Tauret also have INT+15 and MND+15. Bunzi's
 
 - Ullr needs the ammo slot empty or holding an arrow, so it nets 40 minus the macc of the ammo it displaces. The ammo rule is general game behavior, not stated on a bg-wiki page read (see TP reset).
 - Changing main, sub or range resets TP (see Weapons and TP).
-- The Bunzi's Rod and Gleti's Knife values above are base stats. **(player)** Vanar's copies are rank 0, with no augments; see Odyssey augments at Vanar's ranks.
+- The Bunzi's Rod and Gleti's Knife values above are base stats. A rank 0 copy has them, and no augments; see Odyssey augments below rank 30.
 
 ### Resistance ranks
 
@@ -1281,21 +1261,21 @@ RDM (bg-wiki, Red Mage, unless noted):
 |---|---|
 | Job point gifts at 30, 280, 780 and 1,530 spent | +10, +15, +20, +25; +70 if they add |
 | Job point category Magic Accuracy Bonus | +1 a level, +20 at 20 |
-| Group 2 merit Magic Accuracy | +5 a level, +25 at 5. Vanar has 5 levels: 5 × 5 = +25 |
-| Viti. Chapeau relic augment, while worn | +3 per level of that merit, +15 at 5 (bg-wiki, Viti. Chapeau +4). Vanar: 5 × 3 = +15 |
-| Group 1 merits, one per element | +3 a level (Red Mage page and the community guide) or +2 (Merit Points page); that element's spells only. Vanar: Ice and Earth, +10 or +15 each at an assumed 5 levels |
+| Group 2 merit Magic Accuracy | +5 a level, +25 at 5 |
+| Viti. Chapeau relic augment, while worn | +3 per level of that merit, +15 at 5 (bg-wiki, Viti. Chapeau +4) |
+| Group 1 merits, one per element | +3 a level (Red Mage page and the community guide) or +2 (Merit Points page); that element's spells only |
 | Saboteur (1 minute, 3-minute recast) | a level-scaled amount for all spells, with no number given; plus +2 enfeebling macc per level of the Saboteur Effect job point category, +40 at 20 |
 | Stymie (SP ability, 1-hour recast) | next enfeeble 100% |
 
 - No page says outright that the gift tiers add up. RDM's and BLU's skill gifts do (424 + 5 + 8 + 10 + 13 = 460), and bg-wiki totals the Capacity Point gifts the same way, so they most likely do.
 - A mastered RDM then has +115 always on (gifts 70, job points 20, merits 25), if 5 of its Group 2 merit levels are in Magic Accuracy. Group 2 allows 10 levels in all (bg-wiki, Merit Points).
-- Vanar's RDM has 5 levels in Magic Accuracy (player, 2026-10-02, changed; Building a set), so his always-on total is the full 70 + 20 + 5 × 5 = +115.
-- Count Viti. Chapeau +4 as Magic Accuracy 42 + 15 = 57 only with 5 levels in that merit. Vanar has 5, so for him it is 42 + 5 × 3 = 57.
+- With 5 levels in Magic Accuracy, a RDM's always-on total is the full 70 + 20 + 5 × 5 = +115.
+- Count Viti. Chapeau +4 as Magic Accuracy 42 + 15 = 57 only with 5 levels in that merit.
 - The community guide recommends 5/5 Ice and 5/5 Wind (Ice covers Distract, Paralyze and Bind; Wind covers Gravity and Silence) and 5/5 Group 2 Magic Accuracy (bg-wiki, Community Red Mage Guide).
-- **(player, 2026-10-02)** Vanar's RDM Group 1 merits are Ice and Earth Magic Accuracy.
-  - The level count isn't recorded. Group 1 allows 10 levels, at most 5 a category (bg-wiki, Merit Points). Only if all 10 levels are in Ice and Earth (Convert Recast and the other four elements at 0) does the 5-level cap force 5 in each; this doc assumes that.
+- A Group 1 merit adds magic accuracy to one element's spells:
+  - Group 1 allows 10 levels, at most 5 a category (bg-wiki, Merit Points).
   - At 5 levels: +10 (5 × 2, Merit Points page) or +15 (5 × 3, Red Mage page) to Ice spells (Paralyze, Paralyze II, Bind, Distract to Distract III, the Blizzard nukes) and Earth spells (Slow, Slow II, Break, the Stone nukes). Elements: bg-wiki, each spell's page.
-  - So on those spells his always-on total is 115 + 10 = 125 to 115 + 15 = 130. Gravity, Silence, Sleep, Frazzle, Dia, Addle, Blind, Poison and the other nukes get only the 115.
+  - So on those spells the always-on total is 115 + 10 = 125 to 115 + 15 = 130. A spell of an element with no merit levels gets only the 115.
 - Composure's accuracy bonus is physical only; it adds no magic accuracy (bg-wiki, Composure).
 - Stymie: what it can't get past, and how long it lasts, is under Stymie. While it is up, the enfeebling set can trade macc pieces for potency and duration (bg-wiki, Stymie).
 
@@ -1305,12 +1285,12 @@ BLU (bg-wiki, Blue Mage, unless noted):
 |---|---|
 | Job point gifts at 125, 450, 1,050 and 1,900 spent | +5, +8, +10, +13; +36 if they add, as BLU's skill gifts do |
 | Job point category Magic Accuracy Bonus | +1 a level, +20 at 20 |
-| Group 1 merit Magical Accuracy | +2 a level, magical blue magic only. Vanar has 5: +10 |
-| Convergence (Group 2 merit ability) | next magical blue spell +5 per merit level, +25 at 5; that spell becomes single-target (bg-wiki, Convergence). Vanar has 0 levels, so no Convergence (Job points and merits) |
+| Group 1 merit Magical Accuracy | +2 a level, magical blue magic only; +10 at 5 |
+| Convergence (Group 2 merit ability) | next magical blue spell +5 per merit level, +25 at 5; that spell becomes single-target (bg-wiki, Convergence) |
 | Magic Accuracy Bonus trait, from setting Tenebral Crush (8 trait points) | +10 at tier I; +22 at tier II, which needs the Job Trait Bonus gift at 100 job points; tier III, at 1,200 job points, has no known value (bg-wiki, Blue Mage Job Traits) |
 
 - Tenebral Crush is BLU's only macc trait. A blue magic trait doesn't stack with the same trait from the subjob; the higher tier applies.
-- Vanar's BLU on magical blue magic: 36 (gifts, if they add) + 20 (category) + 10 (5 Magical Accuracy merits; player, 2026-10-02) = +66 always on, plus the Tenebral Crush trait when it is set.
+- A mastered BLU with 5 Magical Accuracy merits has, on magical blue magic: 36 (gifts, if they add) + 20 (category) + 10 (merits) = +66 always on, plus the Tenebral Crush trait when it is set.
 - wsdist gives BLU a fixed +36 macc, equal to the gifts. It leaves out the +20 job point category and set-spell traits such as Tenebral Crush's, and it can't model blue magic or Cures at all (see Where wsdist and bg-wiki disagree).
 
 ### Magic accuracy food
@@ -1330,11 +1310,10 @@ Percentage macc foods multiply only Magic Accuracy+ and main-hand Magic Accuracy
 
 - A 290 or 295 main-hand weapon alone caps Crepe B. Helene and Pear Crepe. Crepe des Rois needs about 160 more Magic Accuracy+ from the rest of the set.
 
-### Odyssey augments at Vanar's ranks
+### Odyssey augments below rank 30
 
 - Every Bunzi's and Gleti's piece, Bunzi's Rod and Gleti's Knife included, gains "Accuracy+1 Mag. Acc.+1" at rank 16, rising 1 a rank to +15 at rank 30. Nyame Path B has no Mag. Acc. line at any rank; Paths A and D have one on every piece, and Path C on the Helm only (Mag. Acc.+10 at rank 30). Every rank's values: rank-augments.md.
-- **(player)** Vanar's Nyame Helm, Mail, Flanchard and Sollerets are Path B at rank 20. The Nyame Gauntlets and every Bunzi's and Gleti's piece are rank 0.
-- So none of Vanar's Odyssey pieces has augment macc; count base stats only. A set or total quoted at rank 30 overstates each Bunzi's or Gleti's piece by 15 macc.
+- So a Bunzi's or Gleti's piece below rank 16, and a Nyame Path B piece at any rank, has no augment macc; count base stats only. A set or total quoted at rank 30 overstates each such Bunzi's or Gleti's piece by 15 macc.
 
 ### Elemental affinity, day and weather
 
@@ -1375,17 +1354,17 @@ RDM enhancing skill without gear (bg-wiki, Red Mage; Merit Points; Master Levels
 | Level 99 | 404 |
 | + Magic Skills merits at 8/8 (+2 a level) | 420 |
 | + the four job point gifts (+36): job mastery | 456 |
-| + 1 per Master Level | 480 at Master Level 24; 481 at 25 (Vanar) |
+| + 1 per Master Level | 480 at Master Level 24; 481 at 25 |
 
 - The gifts add +5, +8, +10 and +13 at 80, 405, 980 and 1805 job points spent. RDM has no job point category for enhancing skill.
 - Each Master Level raises the cap of every skill the job learns natively by 1.
 - bg-wiki's Red Mage table gives 404 at level 99, 440 at job mastery and 490 at Master Level 50. Those columns leave out merits.
 - **(player)** A RDM 99 at Master Level 24 has 480 enhancing skill without gear, 24 more than bg-wiki's job mastery figure.
   - bg-wiki's numbers give the same 480: 404 + 16 (merits) + 36 (gifts) + 24 (Master Levels). The 24 is counted from 456, which includes merits; bg-wiki's own mastery column (440) leaves them out.
-  - At Vanar's Master Level 25 (Combat skill) the same count is 404 + 16 + 36 + 25 = 481. The 16 is his 8 enhancing skill merit levels (player, 2026-10-02; Building a set).
+  - At Master Level 25 the same count is 404 + 16 + 36 + 25 = 481. The 16 is 8 enhancing skill merit levels.
 - From 481 (Master Level 25), reaching 500 skill takes +19 from gear and reaching 501 takes +20. Each further Master Level lowers that by 1.
-- Skill on gear shows as "Enhancing magic skill +X" or "All magic skills +X". Weapons and shields carry it too: Pukulatmuj +1 +11, Forfend +1 Path A +10 at max rank and Secespita +10. Gada +18 can't be worn by RDM or BLU (bg-wiki, Gada). Forfend +1's skill is a rank augment, +2 a rank from rank 11 to +10 at rank 15; Vanar's rank is unknown (rank-augments.md). Leth. Houseaux +3 has +35 and Shedir Seraweels +15.
-- As a subjob, RDM has 144 enhancing skill at level 49, WHM 139 and SCH 133 (144 under Light Arts) (bg-wiki, Category:Enhancing Magic). Master Levels raise the subjob to level 49 + floor(Master Level ÷ 5), at most 59, so it is 54 at Vanar's Master Level 25. bg-wiki gives no skill figures for subjob levels 50 to 59.
+- Skill on gear shows as "Enhancing magic skill +X" or "All magic skills +X". Weapons and shields carry it too: Pukulatmuj +1 +11, Forfend +1 Path A +10 at max rank and Secespita +10. Gada +18 can't be worn by RDM or BLU (bg-wiki, Gada). Forfend +1's skill is a rank augment, +2 a rank from rank 11 to +10 at rank 15; rank-augments.md has every rank. Leth. Houseaux +3 has +35 and Shedir Seraweels +15.
+- As a subjob, RDM has 144 enhancing skill at level 49, WHM 139 and SCH 133 (144 under Light Arts) (bg-wiki, Category:Enhancing Magic). Master Levels raise the subjob to level 49 + floor(Master Level ÷ 5), at most 59, so it is 54 at Master Level 25. bg-wiki gives no skill figures for subjob levels 50 to 59.
 - That is far below 500, so on another job skill still raises potency, but slowly. At 144 skill Phalanx cuts 12 a hit and each 10 more skill adds 1, while one Phalanx+ piece adds up to 3 (Taeon) or 5 (Sakpata's Sword, Herculean). Phalanx+ gear comes before skill. Aquaveil stays at 1 block from skill.
 
 ### Phalanx
@@ -1420,7 +1399,7 @@ Temper II:  Triple Attack = floor((skill − 300) / 10)%,   capped at 700 skill 
 
 - Temper's Double Attack adds to other Double Attack. Its page says it is no longer capped at 500 but marks that as needing information, and the talk page's data stops at 471 skill.
 - Temper II's 700 cap was confirmed in 2025. Category:Enhancing Magic still says Temper, Temper II and the enspells have no known cap. Skill past 700 in a Temper II set does nothing.
-- **(player, 2026-10-02)** 700 skill is hard to reach, so Temper II is in effect uncapped: build its set for as much skill as possible (Player rules for these jobs).
+- **(player, 2026-10-02)** 700 skill is hard to reach, so Temper II is in effect uncapped.
 - Only the skill worn at the cast counts, and both pages say skill gear can come off afterwards. The Talk:Temper tester (2011) says he assumed that rather than tested it.
 
 ### Gain, Boost and barspells
@@ -1464,10 +1443,10 @@ damage = (base + merits + job point gifts + Sword enhancement spell damage +n)
 - Both tiers work out magic accuracy every attack round, from magic accuracy, the main weapon's Magic Accuracy skill and, on a RDM main job only, the enhancing skill worn at that moment. Magic Attack Bonus and Magic Damage do nothing for enspell damage.
 - wsdist builds enspell damage the same way but never rolls a resist, so its enspell sets put no value on magic accuracy or on enhancing skill as accuracy (see Where wsdist and bg-wiki disagree).
 - "Sword enhancement spell damage +n" works during melee rounds, so it has to be worn while attacking. On armor it applies to both hands; on a weapon, only to that weapon. Ghostfyre Cape's +5 is this kind, so in a casting set only its duration augment counts.
-- A weapon's "+n%" adds to Composure's multiplier, for that weapon's hits only: Crocea Mors +500%, Vitiation Sword +400% and Duelist's Sword +300% (each a Path C augment), Pukulatmuj +1 +150% and Demersal Degen +1 +50%. Demersal Degen +1's is a rank augment that starts at rank 11 (+10% a rank); Vanar's copy is rank 0 and has none (rank-augments.md). Pukulatmuj +1's +150% is its rank 15 Unity augment; Vanar's copy exports no augments (rank 0) and has none (rank-augments.md, Oboro rank augments).
+- A weapon's "+n%" adds to Composure's multiplier, for that weapon's hits only: Crocea Mors +500%, Vitiation Sword +400% and Duelist's Sword +300% (each a Path C augment), Pukulatmuj +1 +150% and Demersal Degen +1 +50%. Demersal Degen +1's is a rank augment that starts at rank 11 (+10% a rank) (rank-augments.md). Pukulatmuj +1's +150% is its rank 15 Unity augment (rank-augments.md, Oboro rank augments).
 - Composure triples base Enspell damage and any Enspell +n.
 - Merits and gifts add to the base, before the multiplier, for both hands. The En-spell Damage merit (RDM Group 2, up to 5 levels) adds +3 a level to tier I and +6 to tier II. The job point gifts add +5, +5, +6 and +7 at 125, 450, 1050 and 1900 job points spent, +23 in all. A mastered RDM with 5/5 merits adds +38 to a tier I base and +53 to tier II (bg-wiki, Merit Points; Job Points). Vitiation Tights boost the En-spell merit.
-- Vanar has 0 En-spell Damage merits (player, 2026-10-02; Building a set). His base gets only the gifts' +23, on both tiers, and the Vitiation Tights' En-spell merit augment adds nothing.
+- With 0 En-spell Damage merits, the base gets only the gifts' +23, on both tiers, and the Vitiation Tights' En-spell merit augment adds nothing.
 
 ### Enhancing duration
 
@@ -1494,7 +1473,7 @@ Duration = (base + 6s × RDM Group 2 merit + 3s × relic hands merit augment + R
 | Rune Fencer gifts | RUN's own job point gifts, so always 1 on a RDM or BLU main job. A /RUN subjob gets no gifts; general game behavior, not stated on the pages read |
 | Perpetuance | always 1 on RDM and BLU (see Accession and Perpetuance) |
 
-- Vanar's RDM has 5 levels of Enhancing Magic Duration (player, 2026-10-02, changed; Building a set): 5 × 6 = 30 s from the merit, and 5 × 3 = 15 s more from Vitiation Gloves while worn. His job point category is at 20 (job mastery; Combat skill), so the flat seconds are 30 + 20 = 50 s, or 50 + 15 = 65 s with the gloves.
+- With 5 levels of Enhancing Magic Duration: 5 × 6 = 30 s from the merit, and 5 × 3 = 15 s more from Vitiation Gloves while worn. With the job point category at 20 (job mastery; Combat skill), the flat seconds are 30 + 20 = 50 s, or 50 + 15 = 65 s with the gloves.
 
 - Duration that an item lists natively adds together. Augmented duration, such as Telchine's "Enh. Mag. eff. dur. +10", adds together in its own multiplier. So once some native duration is worn, +20% from an augment is worth more than +20% listed natively. Two native +25% pieces give +50%; a native +25% and an augmented +25% give 1.25 × 1.25, +56% (bg-wiki, Community Red Mage Guide).
 
@@ -1528,7 +1507,7 @@ Augmented duration gear, all in the second multiplier:
 - Telchine's duration augment shares its Dusk augment slot with its Regen potency augment, so one piece carries one or the other.
 - Ghostfyre Cape (augmented 20%) against Sucellos's Cape (native 20%): Ghostfyre gives more when the set's other native duration is larger than its other augmented duration. Ghostfyre's edge in the total multiplier is 0.2 × (other native − other augmented), both as fractions (from the formula; bg-wiki, Ghostfyre Cape).
 - Vitiation Gloves (+15 s in the base, with 5/5 duration merits) against Atrophy Gloves +3 or +4 (native 20%): the Atrophy Gloves win when the base seconds (spell base + merits + job points + gear seconds) are more than 75 × the native multiplier worn without the hands piece. With about +100% native already worn, that is about 150 s, so Atrophy Gloves win for 180 s spells and for Refresh. The more native duration is worn, the closer it gets. This is arithmetic from the formula, not stated on a page.
-  - With Vanar's 5 merit levels the gloves give the full +15 s (5 × 3), so the line above holds for him: 75 × the native multiplier (15 ÷ 0.2), about 150 s with +100% native worn. Atrophy Gloves still win for 180 s spells and for Refresh.
+  - With 5 merit levels the gloves give the full +15 s (5 × 3), so the line above holds in full: 75 × the native multiplier (15 ÷ 0.2), about 150 s with +100% native worn. Atrophy Gloves still win for 180 s spells and for Refresh.
 - Gear that lists seconds adds to the base before any multiplier:
 
 | Piece | Seconds | Spell | Counts on |
@@ -1547,7 +1526,7 @@ Augmented duration gear, all in the second multiplier:
 - Composure triples the duration of enhancing magic a RDM casts on itself, up to 30 minutes. A spell that would last longer than 30 minutes without Composure keeps that duration, and Composure does nothing for it (bg-wiki, Composure).
 - Composure can't be used from a RDM subjob, even one above level 49 through Master Levels. BLU/RDM gets neither the ×3 nor the Lethargy bonus.
 - FFXIclopedia says Protect, Shell and Reraise aren't tripled. bg-wiki lists no exceptions.
-- On a self-cast under Composure, duration gear stops helping once the duration before the ×3 reaches 600 s. With Vanar's 5 duration merit levels and 20/20 job points (5 × 6 + 20 = 30 + 20 = 50 s; Enhancing duration), the native and augmented multipliers together reach that at 600 ÷ (base + 50):
+- On a self-cast under Composure, duration gear stops helping once the duration before the ×3 reaches 600 s. With 5 duration merit levels and 20/20 job points (5 × 6 + 20 = 30 + 20 = 50 s; Enhancing duration), the native and augmented multipliers together reach that at 600 ÷ (base + 50):
 
 | Base | Spells | Multiplier that reaches 30 min |
 |---|---|---|
@@ -1579,11 +1558,6 @@ Augmented duration gear, all in the second multiplier:
 - "Refresh"+N without the word potency is the wearer's own MP a tick, not spell potency. Atrophy Tabard +4 lists both: "Refresh" potency +2 and "Refresh"+3 (bg-wiki, Atrophy Tabard +4). Vitiation Chapeau's "Refresh"+2 or +3 and Lethargy Sayon +3's "Refresh"+4 have the passive wording. They belong in idle sets, not the Refresh midcast set.
 - **(player, 2026-10-02)** "Refresh +X" is MP the wearer receives passively each tick while the item is equipped. "Refresh potency" is a bonus to the recipients of a Refresh spell the player casts.
   - This doc uses the two terms that way. By the player's definition the potency reaches party members the spell lands on, not only the caster; no bg-wiki page read says so.
-- **(player, 2026-10-02)** When casting Refresh, prioritize Refresh potency gear. When idling, focus on passive refresh (Refresh +X).
-  - So the Refresh midcast set takes the potency table above first; Atrophy Tabard +4 counts there for its potency +2, not its "Refresh"+3. Idle sets take "Refresh"+N.
-- **(player, 2026-10-02)** Vanar is a citizen of Windurst.
-  - So Sibyl Scarf's `Citizen of Windurst: "Refresh"+1` works for him in idle sets; its INT +10 and MAB +10 work anywhere (item text).
-  - His other nation latents don't: Elite Royal Collar's `Citizen of San d'Oria: "Regen"+3` and Rep. Plat. Medal's `Citizen of Bastok: "Regain"+2`. Their other stats still apply (item text; gear-notes.md). These three are the only nation latents in his exported items.
 - Refresh duration seconds pieces are all "received"; see Enhancing duration.
 
 ### Regen
@@ -1599,7 +1573,7 @@ HP a tick = (base + base × % bonus) × Embolden + flat "Regen" potency +X
   - Telchine augment, +1 to 3 a piece, five pieces. It shares a slot with Telchine's duration augment.
   - Taeon augment, +1 to 3 a piece, five pieces. It shares a slot with Taeon's Phalanx augment. Category:Regen Spell doesn't list it.
   - Bolelabunga (club), +10%: 10% of the base, floored, plus 1, so +1 on Regen and +2 on Regen II. A main-hand swap resets TP (bg-wiki, Bolelabunga).
-  - Bunzi's Sabots (WHM, RDM, BRD, SMN): Path A gains "Regen" potency with rank. Vanar's pair is rank 0, so it adds none; rank-augments.md has every rank's value.
+  - Bunzi's Sabots (WHM, RDM, BRD, SMN): Path A gains "Regen" potency with rank. A rank 0 pair adds none; rank-augments.md has every rank's value.
 - Telchine Chasuble adds +12 s (4 ticks) to Regen's base.
 
 ### Stoneskin
@@ -1630,7 +1604,7 @@ HP a tick = (base + base × % bonus) × Embolden + flat "Regen" potency +X
 - The bg-wiki Stone Mufflers and Earthcry Earring pages word their bonus as raising the Stoneskin cap. Read literally, that would do nothing for a caster below 350. The Stoneskin and Siegel Sash pages say it adds a flat amount. It only matters for a subjob caster under the cap.
 - Siegel Sash's +20 only has to be worn during the cast, and it only works on the Stoneskin spell, not Diamondhide, Metallic Body or Earthen Ward (FFXIclopedia). bg-wiki's Metallic Body and Diamondhide pages say the same for those two. Its casting time −8% belongs in precast, so it helps in both sets.
 - FFXIclopedia says the same for Stone Gorget: Stoneskin+ only has to be worn during the cast. bg-wiki says nothing about timing.
-- Stoneskin costs 29 MP, casts in 7 s, recasts in 30 s, lasts 300 s and targets the caster only. WHM learns it at 28, RDM 34, SCH 44 and RUN 55. BLU has none of its own and casts it from a subjob; /RUN reaches level 55 only at Master Level 30 (bg-wiki, Stoneskin; Master Levels). Vanar's BLU, at Master Level 25, has a level 54 subjob, so it can't cast Stoneskin as /RUN.
+- Stoneskin costs 29 MP, casts in 7 s, recasts in 30 s, lasts 300 s and targets the caster only. WHM learns it at 28, RDM 34, SCH 44 and RUN 55. BLU has none of its own and casts it from a subjob; /RUN reaches level 55 only at Master Level 30 (bg-wiki, Stoneskin; Master Levels).
 - From a subjob, the cap needs (540 − skill) ÷ 3 MND: about 132 as /RDM (144 skill) and 134 as /WHM (139 skill), a little less for a subjob raised above 49 by Master Levels. Each 3 skill on gear lowers that by 1 MND. Below it, MND and skill gear still raise absorption; at or above it they do nothing.
 - Stoneskin doesn't overwrite an active Stoneskin, so a stronger cast can't replace a weaker one until the old one breaks or wears off. It does overwrite Metallic Body, Diamondhide, Earthen Ward and Afflatus Solace's Stoneskin, and they can't overwrite it (FFXIclopedia, Stoneskin; bg-wiki, Metallic Body).
 - With Accession, the caster's Stoneskin+ gear only raises the caster's own Stoneskin. The party gets only the skill and MND part, capped at 350.
@@ -1659,7 +1633,7 @@ Skill does nothing for these. Apart from Spikes, their pages give fixed values a
 - Spell interruption rate down (SIRD) is checked against each enemy attack during the cast, so it only works in the midcast set. SIRD in precast does nothing (bg-wiki, Spell Interruption Rate).
 - At −102% SIRD, physical damage can no longer interrupt a cast. SIRD past −102% does nothing.
 - SIRD merits give −2% a level, up to −10%.
-- Fi Follet Cape +1 Path A carries SIRD as a rank augment: −1% from rank 6, rising to −5% at rank 15. Vanar's is rank 11, so −3% (player, 2026-10-02).
+- Fi Follet Cape +1 Path A carries SIRD as a rank augment: −1% from rank 6, rising to −5% at rank 15.
 - Shield Mastery (RDM trait at 87 and 97, +10 and +20 TP a block): a blocked attack can't interrupt a spell, but every attack of a multi-attack round has to be blocked. It needs a shield in the sub slot (bg-wiki, Shield Mastery; see Shield block).
 
 ### Aquaveil
@@ -1694,7 +1668,7 @@ Skill does nothing for these. Apart from Spikes, their pages give fixed values a
 
 - Everything that decides whether an enfeeble lands, how strong it is and how long it lasts goes in the **midcast** set: magic accuracy, enfeebling skill, MND or INT, "Enfeebling magic effect +", enfeebling duration, the Saboteur hands, Lethargy set pieces and "Immunobreak"+1.
 - bg-wiki doesn't say whether enfeebling gear is read when the cast finishes or when the effect lands. It does say the Lethargy Gantherots' Saboteur bonus needs them on during midcast, and the Composure set bonus counts the pieces worn when the spell is cast (bg-wiki, Leth. Ganth. +3 and Composure). Either way the midcast set is the one that counts. Nothing in the precast set or the job ability set counts.
-- Precast takes Fast Cast and "Enfeebling magic casting time −X%": Lethargy Chappel −14, −15, −16 and −17% (NQ to +3), Estoqueur's Chappel +1 and +2 −8 and −12%, Wikyo Cloak −7%. bg-wiki says this shares the 80% cap with Fast Cast (bg-wiki, Category:Enfeebling Magic). For the player's rule and the dispute, see "Does anything break the 80% cap?".
+- Precast takes Fast Cast and "Enfeebling magic casting time −X%": Lethargy Chappel −14, −15, −16 and −17% (NQ to +3), Estoqueur's Chappel +1 and +2 −8 and −12%, Wikyo Cloak −7%. bg-wiki says this shares the 80% cap with Fast Cast (bg-wiki, Category:Enfeebling Magic). For the dispute, see "Does anything break the 80% cap?".
 - Saboteur multiplies only the base part of potency and duration. Effect+ gear multiplies the whole potency. Duration gear multiplies the whole duration.
 - Effect+ gear only works on the spells in the "Effect+" column below. It does nothing for Sleep, Bind, Silence, Break, Dispel or Inundation, and for Dia it adds damage over time but no defense down.
 
@@ -1799,8 +1773,8 @@ Blind    = (dINT + 80) ÷ 4 above about −40 dINT, (dINT + 120) ÷ 8 below; hel
 
 - Enfeebling skill sets every enfeeble's magic accuracy and interruption rate, and raises the Immunobreak chance. It adds potency only to Frazzle, Distract, Poison and Poison II (bg-wiki, Category:Enfeebling Magic).
 - RDM enfeebling skill without gear is 424 at level 99, 460 at job mastery and 510 at Master Level 50. The job point gifts add +5, +8, +10 and +13 at 60, 360, 910 and 1710 job points spent; each Master Level adds 1. The Magic Skills merit category adds +2 a level, up to 8 levels (bg-wiki, Red Mage, Master Levels and Merit Points).
-- At Vanar's Master Level 25, with his 8 enfeebling skill merit levels (player, 2026-10-02; Building a set), that is 460 + 25 + 16 = 501. Gear then needs +109 skill for Distract III's 610 (610 − 501) and +124 for Frazzle III's 625 (625 − 501).
-- Obstinate Sash (MND +5, enfeebling duration +5%) is an Odyssey item. Its augment reaches Magic Accuracy +15, enfeebling skill +15 and Enmity −5 at rank 30 (bg-wiki, Obstin. Sash). Vanar's copy has no augments (rank 0), so it is base stats only; rank-augments.md has every rank.
+- At Master Level 25 with 8 enfeebling skill merit levels, that is 460 + 25 + 16 = 501. Gear then needs +109 skill for Distract III's 610 (610 − 501) and +124 for Frazzle III's 625 (625 − 501).
+- Obstinate Sash (MND +5, enfeebling duration +5%) is an Odyssey item. Its augment reaches Magic Accuracy +15, enfeebling skill +15 and Enmity −5 at rank 30 (bg-wiki, Obstin. Sash). At rank 20 it has Magic Accuracy +15 and enfeebling skill +5, and no Enmity; rank-augments.md has every rank.
 
 ### Saboteur
 
@@ -1861,7 +1835,7 @@ Flat seconds, added before the multipliers:
 - Duelist's Chapeau +2 and Vitiation Chapeau (NQ to +4) add +3 s per level of that merit, +15 s at 5 (bg-wiki, Viti. Chapeau +4).
 - The RDM job point category "Enfeebling Magic Duration" adds +1 s a level, up to +20 s.
 - Group 2 allows 5 levels per category and 10 levels in all (bg-wiki, Merit Points), so the relic head's duration and the relic boots' Immunobreak augments compete with the other Group 2 merits.
-- Vanar's RDM has 0 levels of Enfeebling Magic Duration (player, 2026-10-02, changed; Building a set): 0 × 6 = 0 s from the merit and 0 × 3 = 0 s from the relic head, worn or not. With the job point category at 20 (job mastery), that is 0 + 0 + 20 = 20 s, with or without the relic head. Dia's flat sum uses the same seconds.
+- With 0 levels of Enfeebling Magic Duration: 0 s from the merit and 0 s from the relic head, worn or not. With the job point category at 20 (job mastery), that is 20 s, with or without the relic head. Dia's flat sum uses the same seconds.
 
 ### Lethargy set on enfeebles
 
@@ -1906,7 +1880,7 @@ Dia duration = (base + enfeebling duration job points + 6s × merits + 3s × rel
 - "Immunobreak"+1 makes each Immunobreak drop the rank two steps. Only Chironic Hose has it, as a base stat, and it works while equipped.
 - The chance rises with enfeebling skill, the number of resists, Saboteur, the Group 2 "Immunobreak Chance" merit (+3% a level, up to +15%) and the relic boots' augment (Duelist's Boots +2 to Vitiation Boots +4: +1% per level of that merit, up to +5%; bg-wiki, Viti. Boots +4).
 - So Chironic Hose and the relic boots belong in the midcast sets of Immunobreak spells against high-resistance targets, and do nothing for Frazzle, Distract, Addle, Dia or Dispel. The relic boots' augment does nothing without Immunobreak Chance merits.
-- Vanar has 0 Immunobreak Chance levels (player, 2026-10-02; Building a set), so the merit's +3% a level and the relic boots' augment are both 0 for him. His chance comes from enfeebling skill, the number of resists and Saboteur. Chironic Hose still makes each Immunobreak drop two steps.
+- With 0 Immunobreak Chance levels, the merit's +3% a level and the relic boots' augment are both 0. The chance then comes from enfeebling skill, the number of resists and Saboteur. Chironic Hose still makes each Immunobreak drop two steps.
 
 ### Choosing a land-rate or potency set
 
@@ -1975,11 +1949,11 @@ D = Magic Damage stat + V + dINT × M
 - INT stops adding damage where M reaches 0: at dINT 100 for tier I nukes, 200 for tier II, 300 for tier III, 400 for tier IV and 500 for tier V. Tier VI has M 1 from 500 to 599 and caps at 600.
 - RDM gets the tier V nukes from a job point gift at 100 job points spent (bg-wiki, Red Mage). On them INT keeps adding up to dINT 500, which in practice is never reached.
 - "Magic Damage +X" adds X straight to D, before any multiplier (bg-wiki, Magic Damage (Statistic)). It is a different stat from "Magic Atk. Bonus". As a share of the total it counts most on spells with a low base, such as low-tier nukes and helixes.
-- One INT is worth M Magic Damage: about 3.75 to 5 on a tier V nuke at dINT 50 to 199. INT and MND are secondary stats under the player's stat priority (see Player rules for these jobs).
+- One INT is worth M Magic Damage: about 3.75 to 5 on a tier V nuke at dINT 50 to 199.
 - With a few hundred Magic Damage from gear and weapon, a tier V nuke's D at dINT 100–199 is roughly 1,600 to 2,100, so +20 Magic Damage adds about 1% (arithmetic from the table below, not stated by bg-wiki).
 - bg-wiki doesn't say whether an offhand weapon's Magic Damage counts, for example Maxentius's +232 or Bunzi's Rod's +248 in the sub slot.
-- Bunzi's armor gains Attack and Magic Damage with rank, up to +30 each at rank 30. Vanar's Bunzi's pieces are rank 0 **(player, 2026-10-02)**, so they have only their base stats. The other ranks are in `docs/rank-augments.md`.
-  - Those base stats include Magic Atk. Bonus +30 and Magic Damage +30 on every Bunzi's armor piece, so Vanar's five rank 0 pieces still carry +150 MAB and +150 Magic Damage. Only the augment's extra Attack and Magic Damage is missing (bg-wiki, Bunzi's Hat, Robe, Gloves, Pants and Sabots).
+- Bunzi's armor gains Attack and Magic Damage with rank, up to +30 each at rank 30. A rank 0 piece has only its base stats. The other ranks are in `docs/rank-augments.md`.
+  - Those base stats include Magic Atk. Bonus +30 and Magic Damage +30 on every Bunzi's armor piece, so five rank 0 pieces still carry +150 MAB and +150 Magic Damage. Only the augment's extra Attack and Magic Damage is missing (bg-wiki, Bunzi's Hat, Robe, Gloves, Pants and Sabots).
 
 Tier V values (bg-wiki, Magic Damage). Each cell is V / M for the band starting at that dINT; the last column is the damage cap.
 
@@ -2019,7 +1993,7 @@ MAB before gear:
 | BLU gifts at 60, 360, 910 and 1710 job points | +5, +8, +10, +13 |
 
 - bg-wiki doesn't say whether each gift value is a step or the running total. A mastered RDM has 28 (trait) + 20 (category) + 10 or 28 (gifts) before gear.
-- BLU's Job Trait Bonus gifts, at 100 and 1200 job points spent, each raise the traits from set blue magic one tier (bg-wiki: they seem to add 8 trait points each) and unlock tiers V and VI. From set points alone, traits stop at tier IV. The gifts don't affect Gilfinder, Double Attack or Auto Refresh. BLU's MAB and Magic Burst Bonus tiers therefore depend on its job points as well as its spell set; check the trait list in game. Vanar's BLU, at Master Level 25, has both gifts (Job points and merits).
+- BLU's Job Trait Bonus gifts, at 100 and 1200 job points spent, each raise the traits from set blue magic one tier (bg-wiki: they seem to add 8 trait points each) and unlock tiers V and VI. From set points alone, traits stop at tier IV. The gifts don't affect Gilfinder, Double Attack or Auto Refresh. BLU's MAB and Magic Burst Bonus tiers therefore depend on its job points as well as its spell set; check the trait list in game. A BLU with any Master Level has both gifts (Job points and merits).
 - Two job point categories add damage only while their ability is up: RDM's Chainspell Effect (+2 elemental magic damage per level, during Chainspell) and BLU's Burst Affinity Bonus (+2 blue magic damage per level, during Burst Affinity).
 
 ### Elemental affinity and Orpheus's Sash
@@ -2088,12 +2062,12 @@ MBB = 1 + min(Magic burst damage, 0.40) + bonuses outside the cap
 - RDM gets I at 85 and II at 95, so +7% at 99. A RDM with 40% from gear bursts at MBB 1.47.
 - BLU gets I to III from set blue magic (Leafstorm, Cimicine Discharge, Reaving Wind, Rail Cannon). IV also needs the 100 job point Job Trait Bonus gift and V the 1200 job point one (bg-wiki, Blue Mage Job Traits).
 
-Magic burst damage (inside the 40% cap) on Vanar's gear (bg-wiki, Magic Burst, unless noted):
+Magic burst damage (inside the 40% cap) on gear (bg-wiki, Magic Burst, unless noted):
 
 | Piece | Magic burst damage | Notes |
 |---|---|---|
 | Bunzi's Rod | +10% | |
-| Bunzi's Hat, Robe, Gloves, Pants, Sabots | +7, +10, +8, +9, +6% (40% for 5) | RDM, not BLU. Base stats, so Vanar's rank 0 copies have them (bg-wiki, each item's page; the Magic Burst table lists only the Robe) |
+| Bunzi's Hat, Robe, Gloves, Pants, Sabots | +7, +10, +8, +9, +6% (40% for 5) | RDM, not BLU. Base stats, so rank 0 copies have them (bg-wiki, each item's page; the Magic Burst table lists only the Robe) |
 | Mizukage-no-Kubikazari | +10% | |
 | Atro. Chapeau +4 | +10% | bg-wiki, Atrophy Armor Set +4 |
 | Leth. Fuseau +3 | +15% | also MAB +58 and Magic Damage +33 (bg-wiki, Leth. Fuseau +3) |
@@ -2106,8 +2080,8 @@ Magic burst damage (inside the 40% cap) on Vanar's gear (bg-wiki, Magic Burst, u
 
 - bg-wiki's Magic Burst table lags current gear (it lists Leth. Fuseau +2, not +3). Check an item's own page.
 - The five Bunzi's armor pieces reach the 40% gear cap by themselves (derived from their item pages). With all five on, magic burst damage on any other piece, Bunzi's Rod included, is wasted; the other slots can go to MAB, Magic Damage, magic burst damage II or affinity.
-- Magic burst damage II: Nyame gets it only from Path C augments, and Bunzi's Gloves from their augments, up to +5 to +7 per piece at rank 30 (`docs/rank-augments.md`). Vanar's Nyame Helm, Mail, Flanchard and Sollerets are Path B, and the Nyame Gauntlets and every Bunzi's piece are rank 0 **(player, 2026-10-02)**, so none of Vanar's copies has it.
-- Ea Houppelande's Magic burst damage II +8 is a base stat, so Vanar's copy has it, and it counts even when the 40% cap is already full (its item text).
+- Magic burst damage II: Nyame gets it only from Path C augments, and Bunzi's Gloves from their augments, up to +5 to +7 per piece at rank 30 (`docs/rank-augments.md`). A Path B Nyame piece and a rank 0 Bunzi's piece have none.
+- Ea Houppelande's Magic burst damage II +8 is a base stat, so any copy has it, and it counts even when the 40% cap is already full (its item text).
 
 ### Bursting a spell that deals no damage
 
@@ -2137,9 +2111,9 @@ Cure potency II that RDM or BLU can wear: Janniston Ring +1 6%, Janniston Ring 5
 
 Cure potency received that RDM or BLU can wear: Buremte Gloves 13%, Sanus Ensis 10% (also Cure potency 13%), Corybant Pearl 10%, Chuq'aba Belt 5%, Kunaji Ring 5%, Phalaina Locket 4% (also Cure potency 4%), Asklepian Ring 3%, Shedir Manteel 3%.
 
-Bunzi's Rod has "Cure" potency +30%, 30 of the 50% cap on its own (bg-wiki, Bunzi's Rod). It is a main-hand club, and changing the main weapon resets TP. Vanar's copy is rank 0 **(player, 2026-10-02)**: base stats only, no augments. Its augments at other ranks (DMG, MAB, Accuracy and Magic Accuracy, Enmity −) are in `docs/rank-augments.md`.
+Bunzi's Rod has "Cure" potency +30%, 30 of the 50% cap on its own (bg-wiki, Bunzi's Rod). It is a main-hand club, and changing the main weapon resets TP. These are base stats. Its augments by rank (DMG, MAB, Accuracy and Magic Accuracy, Enmity −) are in `docs/rank-augments.md`.
 
-Bunzi's Robe (RDM, not BLU) has "Cure" potency +15% as a base stat, so Vanar's rank 0 copy has it (its item text). With Bunzi's Rod that is 45 of the 50% cap.
+Bunzi's Robe (RDM, not BLU) has "Cure" potency +15% as a base stat, so a rank 0 copy has it (its item text). With Bunzi's Rod that is 45 of the 50% cap.
 
 ### Cure formula
 
@@ -2175,9 +2149,9 @@ Base  = floor((Power − bracket's power) / bracket's rate) + bracket's HP
 | Cure III | 700 (hard cap) | — | 340 |
 
 - RDM's healing magic skill is rated C−: 368 at level 99 before merits, job points and gear (bg-wiki, Category:Healing Magic). Healing skill also sets healing magic's interruption rate.
-- Vanar's RDM healing skill before gear: 368 + 25 (Master Levels) + 16 (8 Magic Skills merit levels; player, 2026-10-02, Building a set) = 409. RDM has no healing skill gifts; bg-wiki's Red Mage table gives 368 at job mastery too.
+- RDM healing skill before gear at Master Level 25 with 8 Magic Skills merit levels: 368 + 25 + 16 = 409. RDM has no healing skill gifts; bg-wiki's Red Mage table gives 368 at job mastery too.
 - With MND/2 and VIT/4 on top, a RDM's Cure IV power falls in the 400–699 bracket. There each point of power adds 0.4 HP to Cure IV and 0.2 HP to Cure III.
-- On a Cure IV base near 570 HP, 1% Cure potency adds about 5.7 HP, as much as about 14 healing skill or 28 MND. Potency comes first; skill and MND only fill slots that offer no potency (arithmetic from the table). MND and VIT are secondary stats under the player's stat priority.
+- On a Cure IV base near 570 HP, 1% Cure potency adds about 5.7 HP, as much as about 14 healing skill or 28 MND. Potency comes first; skill and MND only fill slots that offer no potency (arithmetic from the table).
 
 Curaga, Cura and the blue magic heals use a different power:
 
@@ -2215,8 +2189,7 @@ Each kind of blue magic lands and scales on different stats, so one blue magic s
 | Drains | Magic accuracy and Blue Magic skill | Blue Magic skill | Magic Attack, dINT, Drain potency gear |
 
 - Everything that sets a spell's effect is read when the spell goes off, so it goes in the midcast set. Casting time gear goes in precast; recast gear goes in midcast (see Recast). Breath HP is the exception; see Breath blue magic.
-- Several of these spells scale with one secondary stat: WSC stats and dINT for nukes, MND and VIT for the cure-formula heals. **(player)** Stat priority skips pieces that only add a secondary stat (see Player rules for these jobs). bg-wiki's formulas say those stats do add damage or healing to these spells.
-  - **(player, 2026-10-02)** Optimizing for INT and MND is fine; just don't bring in dedicated pieces for it (Player rules for these jobs).
+- Several of these spells scale with one secondary stat: WSC stats and dINT for nukes, MND and VIT for the cure-formula heals. bg-wiki's formulas say those stats do add damage or healing to these spells.
 
 ### Casting time and recast
 
@@ -2230,11 +2203,11 @@ Each kind of blue magic lands and scales on different stats, so one blue magic s
 | Level 49 | 150 |
 | Level 99 | 424 |
 | Job mastery | 460 (424 + 36 from gifts) |
-| Master Level n | 460 + n: 485 at ML25 (Vanar), 500 at ML40, 510 at ML50 |
+| Master Level n | 460 + n: 485 at ML25, 500 at ML40, 510 at ML50 |
 
 - The Blue Magic Skill Bonus gifts add +5, +8, +10 and +13 at 150, 500, 1125 and 2000 job points spent, +36 in all (bg-wiki, Blue Mage).
 - Magic Skills merits add +2 per merit, up to 8 merits (+16). The 460 figure is 424 + 36, so it leaves merits out (bg-wiki, Merit Points).
-- Each Master Level adds 1 to the skill cap (bg-wiki, Master Levels). Vanar's BLU, at Master Level 25 (Combat skill), has 460 + 25 = 485 without gear. He has no Blue Magic skill merits (player, 2026-10-02; Building a set), so 485 is his figure. Check the in-game value before adding skill gear for a spell that stops at a skill cap.
+- Each Master Level adds 1 to the skill cap (bg-wiki, Master Levels). A BLU at Master Level 25 (Combat skill) has 460 + 25 = 485 without gear or merits. Check the in-game value before adding skill gear for a spell that stops at a skill cap.
 - What skill does (bg-wiki, Category:Blue Magic):
   - It is the skill term in magic accuracy for magical spells and for the added effects of blue spells.
   - It sets physical spells' base damage, up to each spell's cap (see Physical blue magic). It doesn't decide whether a physical spell hits.
@@ -2246,7 +2219,7 @@ Each kind of blue magic lands and scales on different stats, so one blue magic s
 
 ### Job points and merits
 
-A job point category goes to 20 levels, and level n costs n points, so a category costs 210. BLU has 10 categories, and job mastery takes 2,100 job points, so a mastered BLU has every category at 20 and every gift. Master Levels need job mastery on that job, so a BLU with any Master Level has all of this (bg-wiki, Master Levels and Job Points; the "every category" step is arithmetic). Vanar's BLU is Master Level 25 (player, 2026-10-02; Combat skill), so it has all of it.
+A job point category goes to 20 levels, and level n costs n points, so a category costs 210. BLU has 10 categories, and job mastery takes 2,100 job points, so a mastered BLU has every category at 20 and every gift. Master Levels need job mastery on that job, so a BLU with any Master Level has all of this (bg-wiki, Master Levels and Job Points; the "every category" step is arithmetic).
 
 | Source | At maximum |
 |---|---|
@@ -2269,17 +2242,17 @@ A job point category goes to 20 levels, and level n costs n points, so a categor
 | Merit, Diffusion (Group 2) | The ability, then +5% duration a level after the first; same section |
 | Merit, Enchainment (Group 2) | Chain Affinity TP Bonus +100 a level (bg-wiki, Merit Points and Enchainment); see Chain Affinity, Burst Affinity, Efflux and Azure Lore |
 
-- **(player, 2026-10-02)** Vanar's BLU merits: 5 in Physical Potency, 5 in Magical Accuracy, 5 in Diffusion, 5 in Enchainment.
+- BLU's merit categories, at 5 levels each:
   - Physical Potency: blue magic accuracy +10 (5 × 2) and attack +20/256, about 7.8% (5 × 4/256).
   - Magical Accuracy: magic accuracy +10 (5 × 2) on magical blue magic.
   - Diffusion: +20% duration, +45% with Luhlaza Charuqs +1 (Convergence, Diffusion and Unbridled Learning).
   - Enchainment: Chain Affinity TP Bonus +500 (5 × 100), +750 with Luhlaza Jubbah +1 (Chain Affinity, Burst Affinity, Efflux and Azure Lore).
-  - Group 1 and Group 2 each allow 10 levels, at most 5 a category (bg-wiki, Merit Points). 5 + 5 fills each group, so the rest are 0: Chain Affinity Recast, Burst Affinity Recast and Monster Correlation in Group 1; Convergence and Assimilation in Group 2.
-  - A Group 2 ability needs a merit level to unlock (bg-wiki, Merit Points), so Vanar has no Convergence. With no Assimilation his set points are 55 + 20 = 75 (Traits from set spells).
+  - Group 1 and Group 2 each allow 10 levels, at most 5 a category (bg-wiki, Merit Points), so 5 + 5 fills a group and leaves its other categories at 0. Besides the two above, Group 1 has Chain Affinity Recast, Burst Affinity Recast and Monster Correlation, and Group 2 has Convergence and Assimilation.
+  - A Group 2 ability needs a merit level to unlock (bg-wiki, Merit Points), so a BLU with no Convergence merits has no Convergence. With no Assimilation merits the set points are 55 + 20 = 75 (Traits from set spells).
 
 ### Physical blue magic
 
-- Whether a physical spell hits depends on the main-hand weapon's accuracy, DEX and Accuracy (bg-wiki, Category:Blue Magic). That main-hand sword skill also counts is an inference; the page names only weapon accuracy. Physical Potency merits add blue magic accuracy: +10 and attack +20/256 at Vanar's 5 levels (Job points and merits).
+- Whether a physical spell hits depends on the main-hand weapon's accuracy, DEX and Accuracy (bg-wiki, Category:Blue Magic). That main-hand sword skill also counts is an inference; the page names only weapon accuracy. Physical Potency merits add blue magic accuracy: +10 and attack +20/256 at 5 levels (Job points and merits).
 - A single-hit physical spell's accuracy caps at 95% (bg-wiki, Sudden Lunge).
 - Damage works like a weapon skill (bg-wiki, Calculating Blue Magic Damage, tagged outdated):
 
@@ -2403,7 +2376,7 @@ ST = WSC from the spell's stat modifiers, doubled by Burst Affinity
 - Rosmerta's Cape carries "Efflux" TP bonus +250 and Monster correlation effects +10 in its base text, so every augmented copy has them (bg-wiki, Rosmerta's Cape).
 - With Hashishin Tayt +3, Rosmerta's Cape and the 20-level Efflux category, an Efflux cast has 1000 + 800 + 250 + 200 = 2250 TP bonus (Community Blue Mage Guide).
 - Enchainment (BLU Group 2 merit) gives Chain Affinity TP Bonus +100 a level. Luhlaza Jubbah (NQ to +3) and Mirage Jubbah +2 add +50 a level more, +750 in all at 5 (bg-wiki, Enchainment).
-  - Vanar has 5 levels (player, 2026-10-02; Job points and merits): 5 × 100 = +500, and 5 × 150 = +750 with his Luhlaza Jubbah +1 on.
+  - At 5 levels: 5 × 100 = +500, and 5 × 150 = +750 with Luhlaza Jubbah +1 on.
   - When the Jubbah is read isn't stated, so wear it for Chain Affinity and in the spell's midcast (gear-notes.md, Luhlaza Jubbah +1).
   - The Efflux page says, marked for verification, that Efflux's TP bonus doesn't stack with Enchainment; the higher applies.
 - Hashi. Basmak +3 also has Magic burst damage +15 (bg-wiki, Hashishin Attire Set).
@@ -2413,10 +2386,9 @@ ST = WSC from the spell's stat modifiers, doubled by Burst Affinity
 - Convergence (merit ability, 10-minute recast) makes the next magical spell single-target. Per merit it adds +5% magic damage and +5 magic accuracy, up to +25% and +25. Luhlaza Keffiyeh (NQ to +3) and Mirage Keffiyeh +2 add +2% more per merit, up to +35% damage. The damage bonus is its own multiplier (bg-wiki, Convergence). The Bad Breath, Frost Breath and Heat Breath pages say it raises breath damage too.
   - The Blue Mage and Merit Points pages give the merit as +5 Magic Attack Bonus and +5 magic accuracy per merit instead of +5% damage. The Calculating page gives a multiplier of 1.05, 1.10 and 1.15 for merits 1 to 3.
   - Luhlaza Keffiyeh's Convergence bonus only counts on a Convergence cast. Its breath damage and Blue Magic skill count on any cast.
-  - Vanar has no Convergence merits, so he can't use it (Job points and merits).
 - Diffusion (merit ability, 10-minute recast) spreads the next self-target support spell to party members within 9 yalms at full potency. Each merit after the first adds 5% duration (+20% at 5/5). Luhlaza Charuqs (NQ to +3, and augmented Mirage Charuqs +2) add 5% per merit (+25%), for +45% in all (bg-wiki, Diffusion). The Diffusion page's own wording ("+5% per merit, up to +45%") doesn't add up on its own; Mighty Guard's 3:36 becoming 5:13 (× 1.45) fits this split.
   - When to wear the Charuqs isn't settled: the Sabishii guide says when Diffusion is used, and the Diffusion and Charuqs pages give no timing. Wearing them for the Diffusion job ability and in the diffused spell's midcast covers both readings.
-  - Vanar has 5 Diffusion levels (player, 2026-10-02; Job points and merits) and Luhlaza Charuqs +1: 20 + 25 = +45%. So his Mighty Guard lasts the 5:13 below (216 s × 1.45 = 313 s).
+  - With 5 Diffusion levels and Luhlaza Charuqs +1: 20 + 25 = +45%. Mighty Guard then lasts the 5:13 below (216 s × 1.45 = 313 s).
 - Unbridled Learning lasts 60 seconds, has a 5-minute recast and ends after one Unbridled spell. Unbridled Wisdom lasts 60 seconds, has a 1-hour recast and allows any number of them. No gear enhances either; Unbridled spells use the normal physical, magical or buff gear (bg-wiki, Unbridled Learning and Unbridled Wisdom).
 - Mighty Guard needs Unbridled Learning or Unbridled Wisdom. It lasts 3 minutes, 3:36 with the 20-level Unbridled Learning Effect II category, and 5:13 with 5/5 Diffusion merits and Luhlaza Charuqs. It gives Defense +25% (the Diffusion page's table says +15%), Magic Defense Bonus +15, Regen 30 HP a tick and magic haste +15% (marked unverified). Its only duration gear is the Charuqs under Diffusion (bg-wiki, Mighty Guard).
 
@@ -2428,7 +2400,7 @@ ST = WSC from the spell's stat modifiers, doubled by Burst Affinity
 ### Traits from set spells
 
 - Set points: 55 at level 91 to 99, plus 1 per Assimilation merit (up to +5) and 1 per Blue Magic Point Bonus level (up to +20), so 80 at most. At most 20 spells can be set (bg-wiki, Blue Mage).
-  - Vanar has no Assimilation merits and the Blue Magic Point Bonus category at 20 (Job points and merits): 55 + 0 + 20 = 75 set points.
+  - With no Assimilation merits and the Blue Magic Point Bonus category at 20 (Job points and merits): 55 + 0 + 20 = 75 set points.
 - Each set spell gives 4, 6 or 8 trait points toward its trait, and every tier takes 8 trait points (bg-wiki, Blue Mage Job Traits). The page's "TierCosts" and "Min. Pts" figures are the cheapest set-point cost of a tier, not trait points.
 - From spells alone, a trait reaches tier IV at most.
 - The Job Trait Bonus gifts, at 100 and 1200 job points spent, each add 8 trait points to every set trait and unlock tiers V and VI. bg-wiki hedges the 8-point mechanism ("seems to"). Since a hotfix they don't complete a half-set trait: a trait needs its first 8 points from spells. They don't work for Auto Refresh, Double Attack, Gilfinder, Rapid Shot or Zanshin; Killer and Resist traits are unverified.
@@ -2459,14 +2431,15 @@ ST = WSC from the spell's stat modifiers, doubled by Burst Affinity
 - A Step lands on melee hit rate, capped at 95%, with its own Accuracy +10. Step accuracy gear, the Step accuracy merits and Presto are Dancer's (bg-wiki, Step).
 - Desperate Flourish and Violent Flourish have to hit. Violent Flourish's stun is then resisted on the user's magic accuracy (bg-wiki, Violent Flourish).
 - HP cured by a Waltz = (1 + Waltz potency + Waltz potency received) × (M × (user's CHR + target's VIT) + B + 2 × Waltz job point tiers), floored at each step. M is the tier's slope and B its base. M is halved when Dancer is the subjob. Waltz potency from gear caps at 50%, and Waltz potency received at 30% (bg-wiki, Waltz).
-- Of the gear Vanar owns that RDM can wear, only Gleti's Knife names a dancer ability: Waltz potency +10%. Jig and Samba durations change only with Dancer gear.
+- Of the gear these notes cover that RDM can wear, only Gleti's Knife names a dancer ability: Waltz potency +10%. Jig and Samba durations change only with Dancer gear.
 - Thief can also wear Gleti's Cuirass, which has Waltz potency +10% too.
 
 ## Gear and GearSwap
 
 - Leth. Earring +1 and Hashi. Earring +1: their item text says their bonuses only work in the right ear.
 - `//gs export` shows a path augment ("Path: A") but not its rank.
-- Odyssey path augments rise with rank, up to rank 30. A copy that exports with no augments is rank 0; for any other copy the rank has to come from the player, since the export doesn't show it. `docs/rank-augments.md` lists every rank's values, generated from bg-wiki's rank tables. **(player, 2026-10-02)** Vanar's Nyame Helm, Mail, Flanchard and Sollerets are Path B at rank 20: Attack +25 each, weapon skill damage +8% (Helm), +10% (Mail), +9% (Flanchard) and +8% (Sollerets), and Double Attack +2%, +3%, +3% and +2%. The Nyame Gauntlets and every Bunzi's and Gleti's piece are rank 0.
+- Odyssey path augments rise with rank, up to rank 30. A copy that exports with no augments is rank 0; for any other copy the rank has to come from the player, since the export doesn't show it. `docs/rank-augments.md` lists every rank's values, generated from bg-wiki's rank tables. A character's ranks are in `data/<Character>/<Character>_rank_augments.md`.
+- With the Rahvin engine loaded, `//gs export all` writes one table for each bag and then one for each storage slip, `slip1` to `slip33`, holding the items a porter moogle keeps on it (RahvinGS/export.lua, from engine commit 6443b3e). A piece on a slip is owned, but GearSwap can't equip it: it has to come back from a porter moogle into the inventory or a wardrobe first. A slip records no augments.
 - When you own more than one copy of an item, name each copy by its augments, exactly as `//gs export` printed them.
 - Rahvin engine: a set named for the exact spell, `sets.Midcast['<spell>']`, replaces the whole enhancing set for that spell. `sets.Midcast.Phalanx`, `.Refresh` and `.Regen` are also the family sets the engine merges over the enhancing set, and over the Others set off self, for every spell of that family. So the spells called Phalanx, Refresh and Regen wear that table alone. If those sets only list the slots they change, the first-tier spells lose all their duration gear; if they are full copies of the enhancing set, casts on others lose the Others set's Lethargy pieces. Keeping them short and putting the enhancing set back for those three spells in `midcast_custom` avoids both.
 - Rahvin weapon lock: `Locked` holds the weapon mode's main and sub in every phase, idle and casting included, so idle and casting weapon sets never go on. `Unlocked` frees them out of combat and holds them while engaged, so a cast mid-fight never swaps weapons or costs TP, but it also skips any weapons its set names, such as enhancing skill weapons. The job file sets the starting value with `state.WeaponLock:set(...)`.
@@ -2485,16 +2458,13 @@ bg-wiki's Community Red Mage Guide groups RDM spells into sets by the stat that 
 ### What the guide assumes
 
 - Its sets and expected values assume 2100 job points, full merits and Master Level 30. A RDM short of that needs more skill and magic accuracy from gear than the sets carry.
-  - Vanar's RDM has the 2100 job points but is Master Level 25 (Combat skill), so each of its skills is 5 below the guide's figures. He has 8/8 merits in sword, dagger, club, enhancing, enfeebling, elemental, dark and healing (player, 2026-10-02; Building a set), so in those the guide's full merits match and the gap is the 5.
-- It marks path items with path and rank (Contemplator +1 A R15, Dls. Torque +2 R25) and counts those augments. A lower-rank copy has smaller augments. rank-augments.md lists every rank for Vanar's items; Vanar's Marin Staff +1 and Obstin. Sash export with no augments (rank 0).
-- The only Odyssey gear in its sets is Nyame Flanchard (the Aquaveil heavy-fire swap), Nyame Sollerets (a non-Stoneskin slot in the Stoneskin set) and Sakpata's Sword (the Stoneskin set's main hand, an HP-dip and recast slot). None is there for a path augment. No Nyame path carries a player DT augment; Path D's is Pet: Damage taken (bg-wiki, Nyame Flanchard and Nyame Sollerets). So Vanar's Path B rank 20 copies give the same DT as any copy.
-- No guide set uses Bunzi's or Gleti's gear. The guide names Bunzi's Rod and Gleti's Knife only as Odyssey weapons to get, with no rank. Vanar's Bunzi's and Gleti's pieces, both weapons included, are rank 0: base stats only (rank-augments.md).
+- It marks path items with path and rank (Contemplator +1 A R15, Dls. Torque +2 R25) and counts those augments. A lower-rank copy has smaller augments. rank-augments.md lists every rank.
+- The only Odyssey gear in its sets is Nyame Flanchard (the Aquaveil heavy-fire swap), Nyame Sollerets (a non-Stoneskin slot in the Stoneskin set) and Sakpata's Sword (the Stoneskin set's main hand, an HP-dip and recast slot). None is there for a path augment. No Nyame path carries a player DT augment; Path D's is Pet: Damage taken (bg-wiki, Nyame Flanchard and Nyame Sollerets). So a Path B copy gives the same DT as any copy, whatever its rank.
+- No guide set uses Bunzi's or Gleti's gear. The guide names Bunzi's Rod and Gleti's Knife only as Odyssey weapons to get, with no rank.
 - Merits it recommends. These bonuses exist only if the merits are bought:
   - Group 1: 5/5 Ice and 5/5 Wind magic accuracy, +3 a level (+15 for each element; the Merit Points page says +2 a level, see Job sources). Ice covers Distract, Paralyze and Bind; Wind covers Gravity and Silence.
   - Group 2: 5/5 Magic Accuracy (+5 a level, +3 more a level with the relic head) and 5/5 Immunobreak Chance (+3% a level, +1% more a level with the relic boots).
   - It calls the En-spell merit not worth buying. The talk page disagrees for Enspell-based content.
-  - Vanar's Group 2 (player, 2026-10-02, changed; Building a set) has all 5 of the guide's Magic Accuracy levels and none of its Immunobreak Chance; his other 5 levels (10 − 5) are in Enhancing Magic Duration.
-  - Vanar's Group 1 is Ice and Earth (player, 2026-10-02; Job sources). He shares the guide's Ice; in place of Wind, Earth covers Slow, Slow II and Break. So Gravity and Silence get none of the guide's +15 Wind merit macc for him.
 - Gaps. Its only sets are the seven enfeebling sets, Aquaveil, Stoneskin, two enhancing duration sets, TP, Enspell-only, Seraph Blade and Sanguine Blade. It has no fast cast, Cure, idle, DT, nuking, Refresh, Regen, Phalanx, Gain, Temper or physical weapon skill set. Its Lethargy piece notes are blank.
 
 ### Enfeebling sets
@@ -2513,7 +2483,7 @@ Every guide enfeebling set wears Contemplator +1 (A R15) with Enki Strap, Viti. 
 
 Targets (the guide's figures, checked on bg-wiki; formulas under Enfeebling magic):
 
-- Frazzle III caps at 625 enfeebling skill and Distract III at 610, each with +50 dMND (bg-wiki, Frazzle III and Distract III). At Vanar's Master Level 25 with his 8/8 enfeebling merits, 501 skill (Enfeebling skill), that is +124 skill from gear for Frazzle III (625 − 501) and +109 for Distract III (610 − 501).
+- Frazzle III caps at 625 enfeebling skill and Distract III at 610, each with +50 dMND (bg-wiki, Frazzle III and Distract III). At Master Level 25 with 8/8 enfeebling merits, 501 skill (Enfeebling skill), that is +124 skill from gear for Frazzle III (625 − 501) and +109 for Distract III (610 − 501).
 - dMND stops adding potency at ±40 for Paralyze II, ±75 for Slow II and ±100 for Addle II. The guide has no current formula for Blind II; its old one capped dINT at ±120 with no skill term, and its Blind II values are its own estimates. bg-wiki's Blind II page gives 19 at −80 dINT to 94 at +120 (see Potency by spell).
 - Frazzle II caps at 350 skill, which RDM passes without gear, so its set is all magic accuracy. Cast it first, then Frazzle III in the Skill Potency set: if Frazzle III misses, Frazzle II stays on. Distract II and III work the same way.
 - Dispel: Dls. Torque +1 or +2 ("Dispel"+1) removes one more effect (bg-wiki, Dls. Torque +1).
@@ -2525,7 +2495,6 @@ Notes:
 - Saboteur hands. The guide puts Lethargy Gantherots +1 (Saboteur +12%) in hands for any enfeeble cast under Saboteur. That is out of date: Leth. Ganth. +3 gives +14%. The hands only count in the midcast set, and the +3's bonus is bugged on Dia (bg-wiki, Leth. Ganth. +3 and Category:Enfeebling Magic).
 - Murgleis. The guide leaves Murgleis III out. Its 108 magic accuracy and INT and MND +12 come within a fraction of a percent of Contemplator +1's 80 magic accuracy, enfeebling skill +20, MND +32 and INT +22, so it isn't worth making for magic accuracy sets alone.
 - **(disputed)** The guide says the magic accuracy spells have no dSTAT, or one too small to matter. The talk page calls this wrong: dSTAT always adds magic accuracy, so MND or INT still helps those spells land (bg-wiki, Talk:Community Red Mage Guide).
-- The player's rule to skip pieces that add only an attribute still applies to the MND and INT sets (see Player rules for these jobs).
 
 ### Enhancing sets
 
@@ -2551,8 +2520,8 @@ Notes:
 - The others set wears four Lethargy pieces, for +35% from the set bonus on spells cast on others. Self casts get no set bonus, so the self set spends those three slots on duration instead.
 - Ghostfyre or Sucellos's. The guide's text says a fully augmented Ghostfyre Cape gives more duration than Sucellos's, because native and augmented duration multiply: two native +25% pieces give +50%, a native and an augmented +25% give +56%. Its self set still wears Sucellos's. A Ghostfyre at +20% augmented beats Sucellos's +20% native by 0.2 × (native − augmented) of the duration before gear, counting the rest of the set (bg-wiki, Ghostfyre Cape). The rest of the self set has 104% native (Tabard 15, Gloves 20, Houseaux 40, Ammurapi Shield 10, Embla Sash 10, Leth. Earring +2 9) against 49% augmented, so Ghostfyre would give 0.2 × 0.55 = 0.11 on a 2.24 × 1.49 base, about 3% more duration. That is arithmetic from the formula, using the native duration table under Enhancing duration. Sucellos's stays the enfeebling cape.
 - Barspells sit in the duration sets, but the guide's Barspell note says skill gear is needed to reach 500: +44 before Master Levels (456 skill), +14 at ML30 (486). At 480 (player, ML24) that is +20, one less for each Master Level gained.
-  - At Vanar's Master Level 25 the skill is 481 (Enhancing skill), so it is +19.
-- Under Composure, self Barspells (8 minutes base) reach the 30-minute cap at +25% duration (480 s × 3 × 1.25 = 1800 s), or at ×1.13 with Vanar's 5 duration merit levels and 20/20 job points (600 ÷ 530 s, from 480 + 5 × 6 + 20; see Composure and the Lethargy set). Duration past that does nothing, so those slots can go to skill (bg-wiki, Composure).
+  - At Master Level 25 the skill is 481 (Enhancing skill), so it is +19.
+- Under Composure, self Barspells (8 minutes base) reach the 30-minute cap at +25% duration (480 s × 3 × 1.25 = 1800 s), or at ×1.13 with 5 duration merit levels and 20/20 job points (600 ÷ 530 s, from 480 + 5 × 6 + 20; see Composure and the Lethargy set). Duration past that does nothing, so those slots can go to skill (bg-wiki, Composure).
 
 **Aquaveil SIRD set.**
 
@@ -2560,14 +2529,14 @@ Notes:
 - Pieces: Grioavolr (SIRD +10% augment) with Magic Strap, Staunch Tathlum +1, Amalric Coif +1 (Aquaveil +2), Dls. Torque +2, Halasz Earring, Magnetic Earring, Ros. Jaseran +1, Regal Cuffs (Aquaveil +2), Freke Ring, Defending Ring, Sucellos's Cape (PDT −10%), Emphatikos Rope (Aquaveil +1), Shedir Seraweels (Aquaveil +1) and Amalric Nails +1.
 - It has 28% PDT. Under heavy fire, Loricate Torque +1 and Nyame Flanchard take it to 42% for one block less. The lost block is Shedir Seraweels, which the Flanchard replaces in legs (inferred from the slots). With 5/5 SIRD merits, Gelatinous Ring +1 in place of Freke Ring gives 49% PDT and more HP.
 - **(disputed)** Blocks. The guide counts 2 from skill, capped at 355, for 8 in all. bg-wiki's Aquaveil page gives 1 block at 300 skill or less, 2 at 301 or more and 3 at 501 or more, so the same gear at 501 skill blocks 9. From 480 (player), that takes +21 enhancing skill from gear.
-  - From Vanar's 481 at Master Level 25 (Enhancing skill), it takes +20.
+  - From 481 at Master Level 25 (Enhancing skill), it takes +20.
 
 **Stoneskin.** Only the Stoneskin+ pieces are mandatory; the other slots limit HP dip and recast. A RDM 99 already reaches the 350 base cap without gear (456 or more skill and MND 28 or more), so enhancing skill and MND gear add nothing (bg-wiki, Stoneskin; see Stoneskin).
 
 ### Melee and weapon skill sets
 
 - TP: Crocea Mors (C) with Daybreak; Malignance head, body, legs and feet; Aya. Manopolas +2; Anu Torque; Sherida and Dedition earrings; Hetairoi Ring and Chirich Ring +1; Orpheus's Sash; Sucellos's Cape DEX+20, Acc+30/Atk+20, Dual Wield +10.
-- Enspell damage only: Aern Dagger with Qutrub Knife, Ullr, Dls. Torque +2, Telos Earring and two Chirich Ring +1, keeping the TP set's cape and Orpheus's Sash. It is worn while meleeing, so the player's rule against Enspell gear that stays on in melee applies (see Player rules for these jobs).
+- Enspell damage only: Aern Dagger with Qutrub Knife, Ullr, Dls. Torque +2, Telos Earring and two Chirich Ring +1, keeping the TP set's cape and Orpheus's Sash. It is worn while meleeing.
 - Orpheus's Sash (elemental affinity +15% at 1.93' or closer, +1% at 13' or more) applies to Enspells, elemental weapon skills and skillchain damage, so it pays only at melee range; see Elemental affinity and Orpheus's Sash.
 - Seraph Blade and Sanguine Blade: Amalric +1 body, legs and feet; Jhakri Cuffs +2; Freke Ring; Orpheus's Sash; Sucellos's Cape MND+30, MAcc/MDmg+20, WSD+10%. Sanguine Blade adds Pixie Hairpin +1 and Archon Ring. The talk page dates both sets to July 2020, so they predate current gear.
 - Elemental "Magic Atk. Bonus", such as Pixie Hairpin +1's Dark +28 or Archon Ring's Dark +5, is an affinity, not MAB, so it belongs only in sets for that element (bg-wiki, Pixie Hairpin +1 and Archon Ring; see Elemental affinity and Orpheus's Sash).
@@ -2640,7 +2609,7 @@ All from (bg-wiki, All Jobs Gear Sets/Blue Mage):
 - Master Level 30, BLU/WAR. The page lists no food or buffs, so the main page's apply.
 - Odyssey gear at rank 30. Nyame alone at rank 25, Path B.
 - Thibron (TP Bonus +1000) allowed in every set. Ice Brand and Flametongue are off unless stated. Sanguine Blade and Red Lotus Blade also have an Ice Brand version.
-- Traits come from the "Zahak Reborn" spell list in an FFXIAH BLU guide: Accuracy and Ranged Accuracy +48, Magic Accuracy +36, Triple Attack +5%, critical hit damage +11%, Store TP +30, Dual Wield +25, STR +11, DEX +37, VIT +15, AGI +8, INT +6, MND +3, CHR +4. Its Skillchain Bonus +16% isn't used. Another spell set gives other traits, so compare Vanar's set first, Dual Wield, Triple Attack and crit damage above all.
+- Traits come from the "Zahak Reborn" spell list in an FFXIAH BLU guide: Accuracy and Ranged Accuracy +48, Magic Accuracy +36, Triple Attack +5%, critical hit damage +11%, Store TP +30, Dual Wield +25, STR +11, DEX +37, VIT +15, AGI +8, INT +6, MND +3, CHR +4. Its Skillchain Bonus +16% isn't used. Another spell set gives other traits, so compare the character's own spell set first, Dual Wield, Triple Attack and crit damage above all.
 - The live page adds: 8 trait points unlock a trait and each 8 more raise it a tier. A mastered BLU gets Trait Tier +2 from job point gifts, so unlocked traits start at tier 3, with the exceptions the gifts list.
 - Weapon skills at 1200 TP before TP Bonus. Aftermath: AM3 for Expiacion, AM1 for Chant du Cygne and Imperator. TP sets start at 1000 TP.
 
@@ -2655,44 +2624,21 @@ All from (bg-wiki, All Jobs Gear Sets/Blue Mage):
 - RDM: Savage Blade, Chant du Cygne, Death Blossom, Knights of Round, Imperator, Requiescat, Mercy Stroke, Ruthless Stroke, Evisceration and Black Halo (mid and high); Sanguine Blade, Seraph Blade, Red Lotus Blade and Aeolian Edge (mid only); Fire V free nuke and magic burst; Enspell with Crocea Mors or Archduke's Sword; Naegling + Thibron TP at −50% and −25% DT (the same set).
 - BLU: Expiacion, Chant du Cygne, Requiescat, Imperator and Savage Blade (mid and high); Sanguine Blade and Red Lotus Blade (mid, plus an Ice Brand version); Tizona + Thibron (AM3) and Caliburnus + Thibron (AM1) TP at −50% and −25% DT. No blue magic sets.
 
-### What this means for Vanar
+### What this means for a character below those ranks
 
-The sims assume stronger Odyssey copies than Vanar's (player, 2026-10-02). Values per rank are in rank-augments.md.
-
-| Piece | Sims | Vanar | What Vanar's copy lacks next to the sim's |
-|---|---|---|---|
-| Nyame Helm, Mail, Flanchard, Sollerets | rank 25, Path B | rank 20, Path B | Each: 5 Attack, 2% WSD, 2% Double Attack, and the fourth line (Helm Accuracy +5, Mail STR and VIT +5, Flanchard STR +10, Sollerets Accuracy +8) |
-| Nyame Gauntlets | rank 25, Path B | rank 0 | All of it: Attack +30, WSD +10%, Double Attack +4%, VIT +10 |
-| Bunzi's Robe | rank 30 | rank 0 | PDL +8%, Attack and Magic Damage +30, Accuracy and Magic Accuracy +15, DEX +5 |
-| Bunzi's Gloves | rank 30 | rank 0 | Magic burst damage II +6, Attack and Magic Damage +30, Accuracy and Magic Accuracy +15, MND +5 |
-| Bunzi's Hat | rank 30 | rank 0 | Store TP +8, Quadruple Attack +3%, Attack and Magic Damage +30, Accuracy and Magic Accuracy +15 |
-| Bunzi's Rod | rank 30 | rank 0 | Magic Attack Bonus +30, Accuracy and Magic Accuracy +15, DMG +11 |
-| Gleti's Cuirass, Gauntlets, Breeches, Boots | rank 30 | rank 0 | Each: Attack +30, Accuracy and Magic Accuracy +15. Plus Cuirass Double Attack +10%, Gauntlets Store TP +8 and DEX +5, Breeches Triple Attack +5%, Boots STR +5. PDL and crit rate are base stats, so Vanar's have them |
-| Gleti's Knife | rank 30 | rank 0 | DMG +11, Attack +45, Accuracy and Magic Accuracy +15, Subtle Blow II +10 |
-
-Where that matters:
-
-- RDM's high-buff Death Blossom, Imperator, Requiescat and Black Halo wear Bunzi's Robe. The sim's rank 30 copy adds PDL +8% and Attack +30; Vanar's rank 0 copy has neither augment (its base Attack +40 and MND +43 remain).
-- Nyame Gauntlets are in six RDM mid-buff sets, and in BLU Expiacion (mid), Imperator and Savage Blade (both). Vanar's pair has no WSD at all.
-- Nyame Flanchard is in all 16 RDM physical non-crit sets and 6 of the 8 BLU ones, and Nyame Sollerets in 6 of the 8 BLU ones. Each is 2% WSD and 5 Attack short on Vanar.
-- Bunzi's Rod (RDM nukes, Sanguine Blade on both jobs) is 30 Magic Attack Bonus short. Bunzi's Gloves in the RDM magic burst set lack their magic burst damage II. Bunzi's Hat in the RDM TP set lacks its Store TP and Quadruple Attack.
-- Gleti's in the BLU sets keep their PDL at rank 0 but are 30 Attack and 15 Accuracy short each.
-- So the pages overvalue these pieces for Vanar. A substitution needs the lost values from rank-augments.md weighed against the next piece; the page totals can't be corrected by hand. The simulator has rank 0, 15, 20, 25 and 30 versions of each Nyame, Bunzi's and Gleti's piece and of Coiste Bodhar, and each Nyame path (IzaKastra/wsdist_beta, gear.py), so a run at Vanar's ranks is the clean check. Alabaster Earring and Murky Ring (R30), Sailfi Belt +1 (R15), Mirage Stole +2 (R25) and Dls. Torque +1 (R20) have only their max-rank entry, so a lower rank needs an edited dict (wsdist data errors).
+- The pages overvalue an Odyssey piece held at a lower rank than the sims'. A substitution needs the lost values from rank-augments.md weighed against the next piece; the page totals can't be corrected by hand. The simulator has rank 0, 15, 20, 25 and 30 versions of each Nyame, Bunzi's and Gleti's piece and of Coiste Bodhar, and each Nyame path (IzaKastra/wsdist_beta, gear.py), so a run at the character's own ranks is the clean check. It has no entry for a Nyame piece between rank 0 and rank 15, and Alabaster Earring and Murky Ring (R30), Sailfi Belt +1 (R15), Mirage Stole +2 (R25) and Dls. Torque +1 (R20) have only their max-rank entry, so each of those needs an edited dict (wsdist data errors).
+- Gleti's pieces keep their PDL and crit rate at rank 0, since those are base stats, but a rank 0 piece is 30 Attack and 15 Accuracy short of the sims' rank 30 copy.
 - A data error, as one sign of the unknown quality: the simulator's rank 0 Bunzi's Rod has DMG 152 (144+8), but the item's own text says DMG 144 (IzaKastra/wsdist_beta, gear.py; bg-wiki, Bunzi's Rod; the item's help text). More under wsdist data errors.
+- What a character's own copies lack next to the sims', and which of the sims' pieces the character doesn't own, are in that character's `data/<Character>/<Character>_notes.md` and `<Character>_gear_notes.md`.
 
 Utility the sets ignore:
 
 - Each set maximizes one number. The weapon skill and nuke sets carry no damage taken, enmity or other utility. Only the TP sets have a DT limit.
 - The casting sets leave out Orpheus's Sash, whose bonus falls with distance: +15% within 1.93' of the target, +1% at 13' or more (bg-wiki, Orpheus's Sash). The magic weapon skill and Enspell sets do wear it, and the simulator counts it at a flat +15% (IzaKastra/wsdist_beta, gear.py), so those sets assume you stand close.
-- The Enspell set only pays while meleeing, since Enspell damage lands on melee hits. The player's rule is no Enspell gear that has to stay on while meleeing (Player rules for these jobs).
-- The sims take pieces for STR, DEX, MND and other base stats whenever those add damage. Hoxne Earring has only base stats, by Mastery Rank (bg-wiki, Hoxne Earring); the sim counts +15 to each at Mastery Rank 7. It is in every physical weapon skill set on both jobs. The player's rule skips pieces that only add those stats (Player rules for these jobs).
+- The Enspell set only pays while meleeing, since Enspell damage lands on melee hits.
+- The sims take pieces for STR, DEX, MND and other base stats whenever those add damage. Hoxne Earring has only base stats, by Mastery Rank (bg-wiki, Hoxne Earring); the sim counts +15 to each at Mastery Rank 7. It is in every physical weapon skill set on both jobs.
 
-Gear in the sets that Vanar doesn't own, most-used first:
-
-- RDM: Crepuscular Pebble (every high-buff non-crit physical set), Hoxne Earring (10 weapon skills), Sroda Ring (7), Malignance Gloves (6), Sroda Tathlum (6), Malignance Earring (5), Orpheus's Sash (5), Dls. Torque +2 (4; Vanar has the +1), Metamor. Ring +1 (4). Weapons: Caliburnus, Excalibur, Mandau, Murgleis, Crocea Mors, Sequence, Daybreak, Sakpata's Sword, Crepuscular Knife.
-- BLU: Hoxne Earring (6 weapon skills), Beithir Ring (4), Crepuscular Pebble (4), Sroda Ring (3), the Sworn armor in the TP and Requiescat sets, and the Adhemar pieces. Weapons: Caliburnus, Sequence, Archduke's Sword, Ice Brand, Zantetsuken, Sakpata's Sword.
-- Capes. Vanar's augmented Sucellos's Capes are STR/WSD, DEX/Double Attack, MND/Magic Accuracy/Haste and INT/Magic Accuracy/Magic Attack Bonus. The sims also use MND/WSD (Requiescat, Sanguine Blade, high-buff Black Halo), DEX/WSD (high-buff Imperator), INT/WSD (Aeolian Edge), DEX/crit (Chant du Cygne, Evisceration) and DEX/Store TP (TP). Vanar's Rosmerta's Capes are STR/WSD, DEX/crit, DEX/Double Attack and INT/Magic Accuracy/Magic Attack Bonus. The sims also use INT/WSD (Sanguine Blade, Red Lotus Blade), MND/Double Attack (Requiescat), DEX/WSD (high-buff Imperator), DEX/Store TP and DEX/Dual Wield (TP).
-- The pages assume upgraded relic, mythic and empyrean weapons ("Level 119 III") and stage 4 primes. Vanar's Tizona is Level 119 III like the sims', since it exports "Path: A" (Combat skill). The export can't show the stage of his Almace or Mpu Gandring; ask the player.
+The pages assume upgraded relic, mythic and empyrean weapons ("Level 119 III") and stage 4 primes. A Tizona that exports "Path: A" is Level 119 III like the sims' (Combat skill). The export can't show the stage of an Almace or Mpu Gandring; ask the player.
 
 ### What the simulated sets favour
 
@@ -2747,7 +2693,7 @@ Everything here comes from reading the source as text at commit d12ac59 (2026-07
 
 - Physical: 73 checks. 42 agree, 13 differ, 18 exist only in wsdist.
 - Magical: 39 checks. 17 agree, 13 differ, 9 exist only in wsdist.
-- Gear: 25 of wsdist's item entries checked against bg-wiki and Vanar's export. 21 have a data error or differ from Vanar's copy. The other 4 (Gleti's Knife, Tauret, Fotia Belt, Carmine Cuisses +1) have correct data but an engine problem tied to them.
+- Gear: 25 of wsdist's item entries checked against bg-wiki and one character's export. 21 have a data error or differ from that character's copy. The other 4 (Gleti's Knife, Tauret, Fotia Belt, Carmine Cuisses +1) have correct data but an engine problem tied to them.
 
 Rule: wsdist is a second opinion. Where it disagrees with a mechanics section of this doc, the mechanics section wins.
 
@@ -2765,7 +2711,7 @@ Nothing below was run in this repo. Treat it as a reading of the code.
 
 **GUI.** `python gui_main.py`, or double-click gui_main.exe. The README recommends downloading the exe from the repo's Actions page, and says the exe only picks up edits to gear.py and enemies.py. Tabs: Quicklook, Optimize, Simulations, Player Stats. Inputs:
 
-- Main job, support job and Master Level (default 30; Vanar's RDM and BLU are 25).
+- Main job, support job and Master Level (default 30).
 - Buffs: BRD songs, COR rolls, GEO bubbles, WHM spells and a storm, and food. The numbers come from buffs.py.
 - "Special toggles": job abilities (Composure, Temper II, EnSpell, Chainspell, Magic Burst, Berserk, and so on), plus the target debuffs Angon, Armor Break, Box Step, Corrosive Ooze, Swooping Frenzy and Distract III (gui_main.py:1728-1785; buffs.py:131-140).
 - Enemy: a preset, or typed Evasion, Defense, VIT, AGI, INT, MND, CHR, Magic Evasion, Magic Defense, Magic DT% and resist rank.
@@ -2817,8 +2763,8 @@ slots = ["main", "sub", "ranged", "ammo", "head", "neck", "ear1", "ear2",
 start = {s: all_gear["Empty"] for s in slots}
 start["main"], start["sub"] = all_gear["Naegling"], all_gear["Gleti's Knife R0"]
 cands = {s: [] for s in slots}           # [] = frozen at start[s]
-cands["legs"] = [all_gear[n] for n in ["Nyame Flanchard R20B", "Empty"]]
-cands["hands"] = [all_gear[n] for n in ["Nyame Gauntlets R0", "Empty"]]
+cands["body"] = [all_gear[n] for n in ["Nyame Mail R20B", "Empty"]]
+cands["feet"] = [all_gear[n] for n in ["Nyame Sollerets R20B", "Empty"]]
 
 np.random.seed(1)                         # the search starts from a random set
 player, out = build_set("rdm", "nin", 30, {"food": food},
@@ -2839,19 +2785,19 @@ The `__main__` block of wsdist.py is stale and can't run as written. It needs th
 - "Name2" is unique per augment path or rank. The set lists, the GUI and the gear.all_gear lookup are keyed by it (gear.py:3-4, 1953). Items without one get Name2 = Name (gear.py:1930-1935).
 - Odyssey pieces have one entry per rank, for example "Gleti's Knife R0", "Gleti's Knife R15", "Gleti's Knife R20", "Gleti's Knife R25" and "Gleti's Knife R30" (gear.py:54-58), with a "Rank" key. Nyame has one per rank and path: "Nyame Flanchard R0", "R15A" ... "R30C".
 - Other forms: "Almace" and "Almace R15" (REMA augment), "Almace (sub)" and "Almace R15 (sub)" (off-hand entries without main-hand-only stats), "Crocea Mors R25C", "Mpu Gandring IV" and "V" (prime stages), "Hoxne Earring MR07", "Amalric Coif +1A" (Nolan path), "Merlinic Crackows (Occult Acumen)" (one augment roll).
-- Ambuscade capes are generated as `<cape> <stat> <main stat>`, e.g. "Sucellos's Cape STR Weapon Skill Damage", "Sucellos's Cape DEX Crit Rate", "Sucellos's Cape INT Magic Attack" and "Sucellos's Cape MND Weapon Skill Damage (Magic)". Every physical cape is Accuracy and Attack +20, stat +30, main stat +10 and PDT -10 (gear.py:1162-1225). A cape with Haste or Fast Cast, like Vanar's MND/Magic Accuracy/Haste Sucellos's, has no entry.
+- Ambuscade capes are generated as `<cape> <stat> <main stat>`, e.g. "Sucellos's Cape STR Weapon Skill Damage", "Sucellos's Cape DEX Crit Rate", "Sucellos's Cape INT Magic Attack" and "Sucellos's Cape MND Weapon Skill Damage (Magic)". Every physical cape is Accuracy and Attack +20, stat +30, main stat +10 and PDT -10 (gear.py:1162-1225). A cape with Haste or Fast Cast has no entry.
 - Names are the long in-game names ("Vitiation Chapeau +4"), not GearSwap's short ones ("Viti. Chapeau +4"). item_list.csv maps id, long name and short name.
 - Stat keys must spell one of gear.py's available_stats exactly (gear.py:1916). gear.py checks its own lists at import, but a dict built in your own script isn't checked, so a misspelled stat silently counts as nothing.
 
-**Getting Vanar's gear into the GUI.** Two import buttons on the Optimize tab:
+**Getting a character's gear into the GUI.** Two import buttons on the Optimize tab:
 
-- "Import selections" reads lines of the form slot="Name2", the same format "Export selections" writes, and selects exactly those entries, with no filters (gui_main.py:391-425). This is the reliable way to run Vanar's mixed ranks.
-- "Select all File" reads a `//gs export` file, maps short names through item_list.csv, then selects every Name2 whose Name matches. After that it deselects by rules (gui_main.py:428-524), and those rules misfire for Vanar:
-  - Odyssey pieces whose Rank differs from the one rank setting are dropped (gui_main.py:476-477). Vanar's ranks are mixed (Nyame rank 20, Nyame Gauntlets and Bunzi's at rank 0).
-  - Nyame entries not ending in "B" are dropped (gui_main.py:480-482), which includes every "R0" entry, so Vanar's rank 0 Nyame Gauntlets.
-  - Relic, mythic and empyrean weapons are dropped unless their Name2 has "R15" (gui_main.py:490-491). Vanar's unaugmented Almace would be simmed as "Almace R15": DMG +5, DEX and MND +20, and Chant du Cygne +10%.
+- "Import selections" reads lines of the form slot="Name2", the same format "Export selections" writes, and selects exactly those entries, with no filters (gui_main.py:391-425). This is the reliable way to run mixed ranks.
+- "Select all File" reads a `//gs export` file, maps short names through item_list.csv, then selects every Name2 whose Name matches. After that it deselects by rules (gui_main.py:428-524), and those rules misfire for a character with mixed ranks:
+  - Odyssey pieces whose Rank differs from the one rank setting are dropped (gui_main.py:476-477).
+  - Nyame entries not ending in "B" are dropped (gui_main.py:480-482), which includes every "R0" entry, and so every Nyame piece below rank 15.
+  - Relic, mythic and empyrean weapons are dropped unless their Name2 has "R15" (gui_main.py:490-491). An unaugmented Almace would be simmed as "Almace R15": DMG +5, DEX and MND +20, and Chant du Cygne +10%.
   - Stage V primes, Kraken Club, Empyrean +2 earrings and Balder Earring +1 are dropped too.
-  - Items with only one entry, such as the R15-only ones under "wsdist data errors", get that entry whatever Vanar's copy is.
+  - Items with only one entry, such as the R15-only ones under "wsdist data errors", get that entry whatever the character's copy is.
 
 ### What it models
 
@@ -2864,11 +2810,11 @@ The `__main__` block of wsdist.py is stale and can't run as written. It needs th
 Built-in assumptions that a result inherits:
 
 - 5/5 crit rate merits (create_player.py:915) and 8/8 merits in every combat and magic skill, +16 (create_player.py:860, 871, 879-880, 918-920). RDM Accuracy merits 0.
-  - Vanar matches in sword, dagger, club, elemental and dark (Building a set). wsdist also adds +16 to divine and blue magic skill, where Vanar has no merits, and to evasion, which isn't among his combat skill merits. wsdist has no enfeebling skill. His crit rate merits aren't recorded.
-- RDM magic: MAB +28 trait, +48 from job points and gifts, Magic Accuracy +90 from job points and gifts, +40 from merits. 15 of the merit 40 are five Group 1 elemental-accuracy merits, which in game apply to one element; wsdist applies them to every spell and magical WS (create_player.py:277-283, 814-815, 892, 932). Vanar's are Ice and Earth (Job sources), so the 15 overstates every other element. On Ice and Earth spells it matches only at the assumed 5 levels and +3 a level; at +2 a level it is 5 high there too (Job sources). The other 25 are 5/5 Group 2 Magic Accuracy; Vanar has 5 levels, 5 × 5 = +25, so that part matches (Job sources). The same line gives RDM 5/5 En-spell Damage merits (+15); Vanar has 0.
-- BLU is always the "Zahak Reborn" spell set: Accuracy +48, Magic Accuracy +36, Store TP +30, Dual Wield +25, Triple Attack +5%, crit damage +11%, plus fixed stat bonuses. No Attack Bonus, no Double Attack (create_player.py:972-987). Compare with Vanar's own spell set before trusting a BLU result.
+  - That matches a character with 8/8 merits in each of those skills. It also covers divine and blue magic skill and evasion, merited or not. wsdist has no enfeebling skill.
+- RDM magic: MAB +28 trait, +48 from job points and gifts, Magic Accuracy +90 from job points and gifts, +40 from merits. 15 of the merit 40 are five Group 1 elemental-accuracy merits, which in game apply to one element; wsdist applies them to every spell and magical WS (create_player.py:277-283, 814-815, 892, 932). So the 15 overstates every element a character has no merit levels in, and at +2 a level it is 5 high on a merited element too (Job sources). The other 25 are 5/5 Group 2 Magic Accuracy (Job sources). The same line gives RDM 5/5 En-spell Damage merits (+15).
+- BLU is always the "Zahak Reborn" spell set: Accuracy +48, Magic Accuracy +36, Store TP +30, Dual Wield +25, Triple Attack +5%, crit damage +11%, plus fixed stat bonuses. No Attack Bonus, no Double Attack (create_player.py:972-987). Compare with the character's own spell set before trusting a BLU result.
 - Requiescat at 5/5 merits (85% MND). Naegling at +13% attack, as if 13 buffs were up (weaponskill_info.py:54-63).
-  - Vanar's Requiescat merit level isn't recorded (at least 1, since he uses it); 85% assumes 5/5 (73% + 4 × 3%), so ask the player before trusting a Requiescat result.
+  - 85% assumes 5/5 Requiescat merits (73% + 4 × 3%), so ask the player for the merit level before trusting a Requiescat result.
 - Orpheus's Sash always at its +15% maximum. Hachirin-no-Obi only with a SCH storm, and no day bonus or random weather (actions.py:1380-1382, 1415, 2341-2349).
 - Magic burst: a two-step skillchain always (actions.py:1184), and +100 magic accuracy, which bg-wiki also gives only as unverified (actions.py:1179-1180).
 - Mythic aftermath at 85% of each range (create_player.py:526-560). Base stats by job with no race (create_player.py:747-796).
@@ -2902,7 +2848,7 @@ Physical and melee:
 - **Crit pDIF counted twice** (get_pdif.py:34, 62-71 per roll; 103-104, 132-140 averaged). wsdist adds 1 to the attack ratio for a crit, clips at the non-crit cap, then adds 1 to pDIF again. bg-wiki's PDIF page adds 1.0 to the ratio only, with one-hand caps of 3.25 (non-crit) and 4.25 (crit). Effect: at cRatio 1.5 a one-hand crit averages 3.5 pDIF in wsdist against 2.5 on bg-wiki (+40%; +51% at cRatio 1.0, +33% at 2.0). The two meet only at a ratio of 3.625. Below that, each point of crit rate is worth about twice as much pDIF as it should, and with PDL gear the crit cap becomes (3.25+t)(1+p)+1 instead of (4.25+t)(1+p). Verdict: bg-wiki right. It inflates Chant du Cygne, Evisceration and auto-attack crits more than anything else in these jobs. If the older version that printed the bg-wiki sets shared it, those crit sets lean too hard on crit rate.
 - **Off-hand weapon skill hit gets the first-swing +100 accuracy** (actions.py:1765-1768). bg-wiki (Category:Weapon_Skills) gives the roughly +100 bonus to the first swing only. No page addresses the off-hand hit directly, so "no bonus" is a reading of "additional swings" (about 75% confident). Effect: overrates the off-hand hit's hit rate, damage, TP and multi-attack, and undervalues accuracy in dual-wield Savage Blade, Black Halo and Expiacion sets. Worst with a skill-less off hand such as Thibron, about 200 accuracy behind Naegling. Verdict: bg-wiki right.
 - **"Occasionally attacks X times" on weapon skills** (get_ma_rate.py:234-235, 261-267, 273-274; actions.py:1696-1705). wsdist rolls OA2/OA3 on the main weapon and OA2 to OA8 on the sub during weapon skills: Kraken Club, Blurred Knife +1 and Demersal Degen +1 (OA2 45%) among RDM off hands. bg-wiki: these proc on weapon skills only from Mythic AM3. Double, Triple and Quad Attack can proc at most twice per weapon skill, which wsdist gets right. Verdict: bg-wiki right. For Tizona or Murgleis AM3, wsdist is right, except that it can roll AM3 twice on a single-wielded multi-hit weapon skill.
-- **Crit rate and TP Bonus pooled across hands** (create_player.py:671-672; actions.py:244, 1645). Every weapon stat except DMG, delay, skill, OA, follow-up and enspell damage goes into one pool. bg-wiki (Dual_Wield, TP_Bonus): crit rate counts only for its own weapon's hits, and TP Bonus counts from the main hand only, except on Magian, Odyssey and augmented TP Bonus weapons. Effect for Vanar: RDM's Chant du Cygne mode puts Gleti's Knife in the off hand, and wsdist credits its Crit Rate +5 to the main-hand hits too. Thibron's +1000 is an augment, so the TP Bonus pooling is harmless here. Verdict: bg-wiki right.
+- **Crit rate and TP Bonus pooled across hands** (create_player.py:671-672; actions.py:244, 1645). Every weapon stat except DMG, delay, skill, OA, follow-up and enspell damage goes into one pool. bg-wiki (Dual_Wield, TP_Bonus): crit rate counts only for its own weapon's hits, and TP Bonus counts from the main hand only, except on Magian, Odyssey and augmented TP Bonus weapons. Effect: with Gleti's Knife in the off hand, wsdist credits its Crit Rate +5 to the main-hand hits too. Thibron's +1000 is an augment, so the TP Bonus pooling is harmless for it. Verdict: bg-wiki right.
 - **Average pDIF** (wsdist-only; get_pdif.py:79-144). The optimizer uses the midpoint of the pDIF range, clipped to the cap, with crits blended in linearly. bg-wiki's average (Motenten's model, marked "Verification Needed") adds a spike at pDIF = 1 for wRatio 0.5 to 1.5. Against it, wsdist runs about 9% low at wRatio 0.77, matches at 1.0 and runs up to 6% high at 1.2, so between 0.8 and 1.2 it values attack about 1.5 times as much (derived). From 1.5 up it matches, and near the cap it is within 1%. Verdict: unconfirmed either way; distrust its attack-versus-other-stat calls against high-defense targets.
 - **Defense Down effects stacked** (gui_main.py:962-972, 1007-1015; buffs.py:110-137). wsdist sums every defense-down toggle into one Defense × (1 - sum), minimum 1. bg-wiki (Defense_Down): Dia, Box Step and Frailty add, plus at most one Defense Down effect (Angon, Armor Break, Corrosive Ooze, Swooping Frenzy, weapon skill effects); those don't stack with each other. The code comment at actions.py:1721 says "multiplicative", but the code adds. Verdict: bg-wiki right. Enable at most one of those four toggles.
 - **Distract III fixed at -280 evasion** (buffs.py:138). bg-wiki: potency = floor(6/21 × (enfeebling skill - 190)) + floor(dMND/5) (0 to 10), capped at 130 before potency gear. Saboteur doubles the base on normal monsters and adds 25% on NMs, and NM tests showed about 130 to 152. Verdict: bg-wiki right. 280 fits only a non-NM with Saboteur and potency gear, so wsdist overstates hit rate against bosses.
@@ -2932,24 +2878,24 @@ Magic:
 
 ### wsdist data errors
 
-From the gear checks. Correct these in a copy of the item dict before trusting a run with them. Effects are for a Vanar sim.
+From the gear checks. Correct these in a copy of the item dict before trusting a run with them.
 
-Entries that exist only at a higher rank or path than Vanar's copy, or only at max rank where Vanar's rank is unknown. Without a substitute, the sim uses the stronger one:
+Entries that exist only at a higher rank or path than a character's copy may be, or only at max rank. Without a substitute, the sim uses the stronger one:
 
-| Item | wsdist entry | What it adds over Vanar's copy | Conf. |
+| Item | wsdist entry | What it adds over an unaugmented copy | Conf. |
 |---|---|---|---|
-| Tanmogayi +1 | "Tanmogayi +1 R15", gear.py:310 | DMG +11, Accuracy, Magic Accuracy and Attack +40 each. Vanar's has no augment. | 95% |
-| Pukulatmuj +1 | "Pukulatmuj +1 R15", gear.py:133 | DMG +36, Accuracy and Magic Accuracy +30, enspell damage +150%. Vanar's has no augment. The R15 DMG itself should be +38 (75%). | 95% |
-| Marin Staff +1 | "Marin Staff +1 R15", gear.py:100 | Magic Accuracy +40, MAB +40, INT and MND +10, and Unity INT +14 assumed. Leaves out R15's Accuracy +40. Vanar's is rank 0. | 95% |
-| Kentarch Belt +1 | "Kentarch Belt +1 R15", gear.py:1246 | STR and DEX +10. Store TP at the Unity maximum, 5. Vanar's has no augment. | 90% |
-| Demersal Degen +1 | "Demersal Degen +1 R15", gear.py:316 | Accuracy and Magic Accuracy +45, DEX +10, enspell damage +50%. Vanar's has no augment (rank 0). | 95% |
-| Alabaster Earring | "Alabaster Earring R30", gear.py:790 | Rank 30 augments: Accuracy, Ranged Accuracy and Magic Accuracy +15, all attributes +10, Store TP +5. Max rank only; Vanar's rank unknown. | 95% |
-| Murky Ring | "Murky Ring R30", gear.py:1154 | Rank 30 augments: Accuracy, Ranged Accuracy and Magic Accuracy +15, Evasion and Magic Evasion +10, crit rate +5%. Max rank only; Vanar's rank unknown. | 95% |
-| Sailfi Belt +1 | "Sailfi Belt +1 R15", gear.py:1249 | Rank 15 augments: STR +15, Double Attack +5%. Max rank only; Vanar's rank unknown. | 95% |
-| Mirage Stole +2 | "Mirage Stole +2 R25", gear.py:691 | Rank 25 augments: STR and DEX +25, Store TP +7, crit rate +5%. Max rank only; Vanar's rank unknown. | 95% |
-| Dls. Torque +1 | "Duelist's Torque +1 R20", gear.py:661 | Rank 20 augments: INT and MND +12 (the duration augments aren't modeled). Max rank only; Vanar's rank unknown. | 95% |
-| Mpu Gandring | "Mpu Gandring IV" and "V", gear.py:359-360 | Only the 119 II and 119 III stages exist. Vanar's stage is unknown: the export gives only the name, and four items share it (DMG 117, 124, 130 and 137; Windower resources, items 21587-21590). The import keeps "IV" (DMG 130). Against the Incomplete dagger (DMG 117, skills +252, nothing else) it adds DMG +13, dagger and Magic Accuracy skill +17, DEX/AGI/CHR +30, Accuracy and Magic Accuracy +30, Triple Attack 4%, a +30% hidden damage proc every main-hand round (actions.py:371-377) and, given an aftermath level, prime aftermath PDL (create_player.py:568-600). So "IV" overstates any stage below 119 II, matches 119 II and understates 119 III. Ask the player. | 95% |
-| Almace | "Almace", "Almace R15" and "(sub)" entries, gear.py:107-110 | Only the 119 III stage (DMG 158, DEX +50, skill 269). No 119 or 119 II entry (DMG 114, DEX +20, skill 242, Magic Accuracy skill 215); the export can't show Vanar's stage. "Almace R15 (sub)" keeps the REMA DMG +5, which works in the main hand only (should be 158). Vanar's has no REMA augment. | 90% |
+| Tanmogayi +1 | "Tanmogayi +1 R15", gear.py:310 | DMG +11, Accuracy, Magic Accuracy and Attack +40 each. | 95% |
+| Pukulatmuj +1 | "Pukulatmuj +1 R15", gear.py:133 | DMG +36, Accuracy and Magic Accuracy +30, enspell damage +150%. The R15 DMG itself should be +38 (75%). | 95% |
+| Marin Staff +1 | "Marin Staff +1 R15", gear.py:100 | Magic Accuracy +40, MAB +40, INT and MND +10, and Unity INT +14 assumed. Leaves out R15's Accuracy +40. | 95% |
+| Kentarch Belt +1 | "Kentarch Belt +1 R15", gear.py:1246 | STR and DEX +10. Store TP at the Unity maximum, 5. | 90% |
+| Demersal Degen +1 | "Demersal Degen +1 R15", gear.py:316 | Accuracy and Magic Accuracy +45, DEX +10, enspell damage +50%. | 95% |
+| Alabaster Earring | "Alabaster Earring R30", gear.py:790 | Rank 30 augments: Accuracy, Ranged Accuracy and Magic Accuracy +15, all attributes +10, Store TP +5. Max rank only: against a rank 2 copy, for example, it overstates Accuracy and Magic Accuracy by 13 and adds 10 attributes and 5 Store TP. | 95% |
+| Murky Ring | "Murky Ring R30", gear.py:1154 | Rank 30 augments: Accuracy, Ranged Accuracy and Magic Accuracy +15, Evasion and Magic Evasion +10, crit rate +5%. Max rank only. | 95% |
+| Sailfi Belt +1 | "Sailfi Belt +1 R15", gear.py:1249 | Rank 15 augments: STR +15, Double Attack +5%. Max rank only: against a rank 14 copy only STR is 1 over. | 95% |
+| Mirage Stole +2 | "Mirage Stole +2 R25", gear.py:691 | Rank 25 augments: STR and DEX +25, Store TP +7, crit rate +5%. Max rank only. | 95% |
+| Dls. Torque +1 | "Duelist's Torque +1 R20", gear.py:661 | Rank 20 augments: INT and MND +12 (the duration augments aren't modeled). Max rank only. | 95% |
+| Mpu Gandring | "Mpu Gandring IV" and "V", gear.py:359-360 | Only the 119 II and 119 III stages exist. The export gives only the name, and four items share it (DMG 117, 124, 130 and 137; Windower resources, items 21587-21590). The import keeps "IV" (DMG 130). Against the Incomplete dagger (DMG 117, skills +252, nothing else) it adds DMG +13, dagger and Magic Accuracy skill +17, DEX/AGI/CHR +30, Accuracy and Magic Accuracy +30, Triple Attack 4%, a +30% hidden damage proc every main-hand round (actions.py:371-377) and, given an aftermath level, prime aftermath PDL (create_player.py:568-600). So "IV" overstates any stage below 119 II, matches 119 II and understates 119 III. Ask the player. | 95% |
+| Almace | "Almace", "Almace R15" and "(sub)" entries, gear.py:107-110 | Only the 119 III stage (DMG 158, DEX +50, skill 269). No 119 or 119 II entry (DMG 114, DEX +20, skill 242, Magic Accuracy skill 215); the export can't show the stage. "Almace R15 (sub)" keeps the REMA DMG +5, which works in the main hand only (should be 158). | 90% |
 | Akademos | "Akademos R15C", gear.py:131 | INT, Magic Accuracy and MAB +15. SCH only, so never in a RDM or BLU run. | 95% |
 | Kustawi +1 | "Kustawi +1 R25", gear.py:174 | Labeled R25, but the item only ranks to 15; the values are R15's. RDM and BLU can't equip it. | 95% |
 
@@ -2960,15 +2906,15 @@ Wrong numbers:
 | Bunzi's Rod | "Bunzi's Rod R0", gear.py:102 | DMG 152 (144 + 8); base is 144, +8 is the R15 augment. Affects physical hits only. | 97% |
 | Hashishin Kavuk +3 | gear.py:593 | Missing Sword skill +30. On a sword hand already above 600 skill that's 30 Attack and 27 Accuracy short. | 95% |
 | Sanctity Necklace | gear.py:653 | No Accuracy key; the necklace has Accuracy +10. | 95% |
-| Coiste Bodhar | "Coiste Bodhar R30", gear.py:456 | DEX +5; rank 30 is DEX +10. R0 to R25 are right. | 95% |
+| Coiste Bodhar | "Coiste Bodhar R30", gear.py:456 | DEX +5; rank 30 is DEX +10. R0 to R25 are right, so a copy at rank 25 or below is unaffected. | 95% |
 | Nyame Flanchard | "Nyame Flanchard R15B", gear.py:1581 | Attack +19, which is R14; R15 is +20. Every other Nyame rank-15 to 30 row on paths A, B and C checks out. | 95% |
-| Jhakri Robe +2 | gear.py:903 | Gear Haste 4; the item has Haste +1%. Vanar doesn't use it. | 97% |
+| Jhakri Robe +2 | gear.py:903 | Gear Haste 4; the item has Haste +1%. | 97% |
 | Gleti's Breeches | "Gleti's Breeches R0", gear.py:1689 | Subtle Blow 8, the R15 value; base has none. The engine never reads Subtle Blow. | 97% |
 | Merlinic Crackows | gear.py:1554 | Magic Evasion 116; the item has 118. Unused by the damage code. | 95% |
 
-A different augment roll from Vanar's:
+A different augment roll from the copy checked:
 
-| Item | wsdist entry | wsdist's roll | Vanar's copy | Conf. |
+| Item | wsdist entry | wsdist's roll | The copy checked | Conf. |
 |---|---|---|---|---|
 | Moonshade Earring | gear.py:728 | Accuracy +4, TP Bonus +250 | Attack +4, TP Bonus +250 | 95% |
 | Samnuha Tights | gear.py:1363 | STR +10, DEX +10, DA +3%, TA +3% | STR +9, DEX +8, DA +2%, TA +2% | 95% |
@@ -2982,15 +2928,15 @@ Engine problems tied to an item (the data is right; editing the dict won't fix t
 |---|---|---|
 | Gleti's Knife (sub) | Its Crit Rate +5 goes into the shared pool and raises main-hand melee and Chant du Cygne crits (create_player.py:651-675; actions.py:244; weaponskill_info.py:176). Stats match at every rank. | 90% |
 | Tauret | The low-TP crit bonus (+50% × (1 - TP/3000)) goes into the crit rate for every hit in a melee round: off hand, Daken, kicks (actions.py:248, 455, 1050-1051). bg-wiki: Tauret's own hits only. Correctly off during weapon skills. | 90% |
-| Maxentius | Its burst bonus is a flat Magic Burst Damage 4, which also counts from the sub slot, where Vanar's BLU sets.Weapons.Casting puts it. bg-wiki: main hand only, 4% per skillchain. | 90% |
+| Maxentius | Its burst bonus is a flat Magic Burst Damage 4, which also counts from the sub slot. bg-wiki: main hand only, 4% per skillchain. | 90% |
 | Fotia Belt and Gorget | Their accuracy is stored as Weapon Skill Accuracy, added only to physical and ranged weapon skills (actions.py:1759-1760, 2244), never to magical weapon skill magic accuracy. | 85% |
-| Carmine +1 set | No set bonus code at all, though gear.py has four Carmine +1 pieces. bg-wiki: Accuracy +20/30/40/50 for 2 to 5 pieces. Vanar owns only the cuisses. | 95% |
+| Carmine +1 set | No set bonus code at all, though gear.py has four Carmine +1 pieces. bg-wiki: Accuracy +20/30/40/50 for 2 to 5 pieces. | 95% |
 | Pukulatmuj +1 (enspell) | The random-roll path gives off-hand enspell hits the main hand's Enspell Damage% (actions.py:331). The optimizer's averaged path (actions.py:983-984) is right. | 95% |
 
-Before trusting a wsdist result for Vanar:
+Before trusting a wsdist result:
 
 1. Set the target's Magic Evasion (and Magic Defense) for any magic number, and enable at most one Defense Down effect. Replace Distract III's 280 with about 130 to 150 for an NM, by lowering enemy evasion.
-2. Swap in Vanar's actual copies for every item in the four tables above. Select items by Name2 ("Import selections" in the GUI, or a hand-built check_gear headless), never through "Select all File".
+2. Swap in the character's actual copies for every item in the four tables above. Select items by Name2 ("Import selections" in the GUI, or a hand-built check_gear headless), never through "Select all File".
 3. For Chant du Cygne, Evisceration and crit-heavy TP sets, discount crit rate (the pDIF double count, plus Gleti's Knife pooling). Check a WSD build against the crit build by hand.
 4. For dual-wield weapon skills, remember the off-hand hit is too accurate and OA off hands are overrated.
 5. Check the BLU spell-set traits and the AF set bonus by hand.
@@ -3011,7 +2957,7 @@ wsdist-only items: formulas the research didn't have, each re-checked against bg
 - **Elemental weapon skill damage +100% (Crocea Mors Path C)** (actions.py:2324; gear.py:132). Multiplies the (152 + floor((weapon level - 99) × 2.45) + WSC) × fTP part, before dSTAT and Magic Damage are added. bg-wiki (Crocea_Mors): same placement. Confirms. It's why the bg-wiki RDM Sanguine Blade set mains Crocea Mors.
 - **Enspell base damage** (nuking.py:9-22). Kastra's fit to his own 500-650 skill data: int((skill - 223)/7.70) + 29 below 600, int((skill - 202.5)/8.05) + 29 from 600. That's 64 at 500, 78 at 600, 84 at 650. bg-wiki (Category:Enspell): floor((skill - 180)/8) + 25 above 180 skill, giving 65, 77 and 83. Not confirmed, but within 1 point from 500 to 650; prefer bg-wiki's.
 - **Food attack after Attack%** (create_player.py:122-128; gui_main.py:954-957). (8 + skill + STR + flat Attack) × (1 + summed Attack%), then food Attack. Grape Daifuku +1 is entered at its caps (Attack 55, Accuracy 85), which is right whenever attack is at least 500 and accuracy at least 773, always true at 99. bg-wiki doesn't give the order; unconfirmed. If food applied first, Berserk, Warcry and the like would scale the 55 too.
-- **Base stats by job** (create_player.py:747-796). Level 99 RDM: STR 90, DEX 90, VIT 87, AGI 87, INT 93, MND 93, CHR 90. BLU: 87 in every stat. Plus a support-job table and Master Level, no race. bg-wiki has race-dependent starting stats but no level 99 job table; unconfirmed. Use Vanar's /checkparam numbers when a stat margin matters.
+- **Base stats by job** (create_player.py:747-796). Level 99 RDM: STR 90, DEX 90, VIT 87, AGI 87, INT 93, MND 93, CHR 90. BLU: 87 in every stat. Plus a support-job table and Master Level, no race. bg-wiki has race-dependent starting stats but no level 99 job table; unconfirmed. Use the player's /checkparam numbers when a stat margin matters.
 
 Weapon skill data for RDM and BLU (weaponskill_info.py). fTP is interpolated linearly between the 1000, 2000 and 3000 TP values, at TP + TP Bonus clamped to 1000-3000 (weaponskill_info.py:51; actions.py:1648). "Repl." means every hit uses the fTP; otherwise later hits use 1.0. Physical unless an element is given.
 
@@ -3085,24 +3031,6 @@ bg-wiki:
 [Carmine Armor Set](https://www.bg-wiki.com/ffxi/Carmine_Armor_Set),
 [Nolan](https://www.bg-wiki.com/ffxi/Nolan),
 and the item pages named in the data-error tables.
-
-## Player rules for these jobs
-
-The player gave these rules for Vanar's sets. They are recorded here so they don't have to be explained again.
-
-- Stat priority: accuracy, then magic accuracy, weapon skill damage, attack, magic attack and damage taken. Skip pieces that only add a secondary stat (STR, DEX, VIT, AGI, INT, MND, CHR).
-  - **(player, 2026-10-02)** Optimizing for INT and MND is fine; just don't bring in dedicated pieces for it.
-- Enhancing magic: skill to about 500, then duration over recast.
-  - Refresh: Refresh +X, then duration, then recast.
-    - **(player, 2026-10-02)** Terms: "Refresh +X" is MP the wearer receives passively each tick while the item is equipped. "Refresh potency" is a bonus to the recipients of a Refresh spell the player casts.
-    - **(player, 2026-10-02)** When casting Refresh, prioritize Refresh potency gear. When idling, focus on passive refresh (Refresh +X).
-    - So for the cast, the rule's first term is "Refresh" potency (Refresh), then duration, then recast. Refresh +X goes in idle sets.
-  - Regen: Regen +X, then duration, then recast.
-  - Temper, Temper II and the Enspells: as much skill as possible, with weapon swaps.
-    - **(player, 2026-10-02)** Temper II's 700-skill cap (40%) is hard to reach, so it is in effect uncapped. The rule stands: as much skill as possible.
-- Regen, Refresh, Temper and Enspell potency come first. Stoneskin potency and casting time are also priorities.
-- No Enspell gear that has to stay on while meleeing; only gear for the cast.
-- Inventory: at most 160 unique pieces across BLU and RDM, ideally about 140.
 
 ## Sources
 

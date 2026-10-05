@@ -1,7 +1,12 @@
 # Vanar: BLU, RDM and THF gear list
 
-Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export` of 2026-10-03: **130 pieces** (92 for BLU, 94 for RDM, 58 worn by both; 25 for THF, 2 of them THF only). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export` of 2026-10-04: **130 pieces** (92 for BLU, 93 for RDM, 57 worn by both; 25 for THF, 2 of them THF only). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
+## Reference
+
+- [Vanar_notes.md](Vanar_notes.md): the player's rules for these sets, the ranks the player has given, Vanar's merits, job points, Master Levels and nation, and what the mechanics give at those values.
+- [Vanar_gear_notes.md](Vanar_gear_notes.md): notes on Vanar's own copies, and the pieces bg-wiki's simulated sets wear that Vanar doesn't own.
+- [Vanar_rank_augments.md](Vanar_rank_augments.md): Vanar's path and rank for each path item, with the augments at that rank.
 
 ## Weapons (14)
 
@@ -152,14 +157,14 @@ Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export
 |---|---|---|---|---|
 | Chaac Belt |  | `TreasureHunter` | `TreasureHunter` |  |
 | Embla Sash |  |  | `Idle.Sublimation`, `Precast.FastCast`, `Midcast.Enhancing` |  |
-| Eschan Stone |  | `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.Dark`, `WS.MAB`, `midcast_custom()` | `Midcast.Dark`, `Midcast.Divine`, `Midcast.Nuke`, `Step`, `WS.ACC`, `WS.MAB`, `midcast_custom()` | `Step` |
+| Eschan Stone |  | `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.Dark`, `WS.MAB`, `midcast_custom()` | `Midcast.Nuke`, `Step`, `WS.ACC`, `WS.MAB` | `Step` |
 | Flume Belt |  | `Idle`, `Midcast['White Wind']` | `Idle` |  |
 | Fotia Belt |  | `WS['Seraph Blade']`, `WS['Red Lotus Blade']`, `WS['Flash Nova']`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `WS.Crit`, `WS['Seraph Blade']`, `WS['Red Lotus Blade']`, `WS['Aeolian Edge']` | `WS` |
 | Fucho-no-Obi |  | `LowMP` | `LowMP` |  |
 | Kentarch Belt +1 |  | `OffenseMode`, `WS.ACC` | `OffenseMode` | `OffenseMode` |
-| Obstin. Sash |  |  | `Midcast.Enfeebling.Duration` |  |
+| Obstin. Sash |  |  | `Midcast.Enfeebling` |  |
 | Olympus Sash |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |  |
-| Rumination Sash |  | `Midcast.Enfeebling` | `Midcast.Enfeebling` |  |
+| Rumination Sash |  | `Midcast.Enfeebling` |  |  |
 | Sailfi Belt +1 |  | `OffenseMode.TP`, `WS` | `OffenseMode.TP`, `WS` |  |
 | Siegel Sash |  | `Precast.Enhancing`, `Midcast['Stoneskin']` | `Precast['Stoneskin']`, `Midcast['Stoneskin']` |  |
 | Witful Belt |  | `Precast.FastCast`, `Midcast.FastRecast` |  |  |

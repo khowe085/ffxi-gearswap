@@ -1,5 +1,5 @@
 -- Vanar's Thief, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/THF.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-03 00-46-48.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-04 20-01-43.lua.
 -- A basic file: one weapon mode, Gleti's armor engaged, Nyame armor for weapon skills, and the dancer
 -- sets for a DNC subjob. It carries nothing BLU.lua and RDM.lua don't already use except Nyame Gauntlets
 -- and Skulk. Earring +1. Skulk. Earring +1 is always in the right ear, the only ear its stats work in.
@@ -83,8 +83,8 @@ function get_sets()
 	-- is 32% (Nyame Helm 6, Gleti's 14, Lehko's Ring 10, Gleti's Knife 2), past the 26% cap, so no piece here
 	-- is picked for haste.
 	sets.OffenseMode = {
-		ammo = gear.coiste,							-- DA 3, STP 3
-		head = gear.nyameHead,						-- Acc 40, Att 55, DA 2, DT 7 (Path B rank 20)
+		ammo = gear.coiste,							-- DA 3, STP 3, Att 15, STR 5 (Path A rank 20)
+		head = gear.nyameHead,						-- Acc 40, Att 46, DT 7 (Path B rank 11)
 		body = gear.gletiBody,						-- Acc 40, Att 40, Crit 8, PDT 9, Regain 3
 		hands = gear.gletiHands,					-- Acc 40, Att 40, Crit 6, PDT 7, Regain 2
 		legs = gear.gletiLegs,						-- Acc 40, Att 40, Crit 7, PDT 8, Regain 3
@@ -96,7 +96,7 @@ function get_sets()
 		left_ring = gear.lehkoHabhokaRing,			-- STP 10, Crit 10, Haste 10
 		right_ring = gear.rajas,					-- STP 5, Subtle Blow 5
 		back = gear.solemnityCape,					-- DT 4, the only carried cape Thief can wear
-	}	-- Acc 235, Att 225, Crit 35, Regain 10. Physical DT 40, magic DT 11.
+	}	-- Acc 235, Att 231, Crit 35, Regain 10. Physical DT 40, magic DT 11.
 	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {})
 
 	-- ===================================================================================================================
@@ -124,7 +124,8 @@ function get_sets()
 
 	-- Steps land on melee hit rate, with Accuracy +10 of their own (bg-wiki, Step). This is the engaged set
 	-- with the two carried pieces that add accuracy over it. Alabaster Earring and Murky Ring give the wearer
-	-- accuracy only from their Path A rank, which isn't recorded, so they stay out.
+	-- accuracy only from their Path A rank: Alabaster's is 2 at Vanar's rank 2, and Murky Ring's rank isn't
+	-- recorded. Neither is in the set.
 	sets.Step = set_combine(sets.OffenseMode, {
 		ammo = gear.honedTathlum,					-- Acc 15, over Coiste Bodhar's DA 3
 		waist = gear.eschan,						-- Acc 15, Macc 7, over Kentarch Belt +1's Acc 14
@@ -156,19 +157,19 @@ function get_sets()
 	-- skill damage counts on the first hit only (bg-wiki, Weapon Skill Damage). The back keeps the engaged
 	-- set's cape.
 	sets.WS = {
-		ammo = gear.coiste,							-- DA 3
-		head = gear.nyameHead,						-- WSD 8, Acc 40, Att 55, DA 2 (Path B rank 20)
+		ammo = gear.coiste,							-- Att 15, STR 5, DA 3 (Path A rank 20)
+		head = gear.nyameHead,						-- WSD 5, Acc 40, Att 46 (Path B rank 11)
 		body = gear.nyameBody,						-- WSD 10, Acc 40, Att 55, DA 3
-		hands = gear.nyameHands,					-- Acc 40, Att 30, DEX 42 (rank 0)
-		legs = gear.nyameLegs,						-- WSD 9, Acc 40, Att 55, DA 3
+		hands = gear.nyameHands,					-- Acc 40, Att 45, WSD 5, DEX 42 (Path B rank 10)
+		legs = gear.nyameLegs,						-- WSD 6, Acc 40, Att 46 (Path B rank 11)
 		feet = gear.nyameFeet,						-- WSD 8, Acc 40, Att 55, DA 2
 		neck = gear.fotiaNeck,						-- Acc 10 and +25/256 fTP on every hit (latent)
 		waist = gear.fotiaWaist,					-- Acc 10 and +25/256 fTP on every hit (latent)
-		left_ear = gear.moonshade,					-- TP Bonus 250
+		left_ear = gear.moonshade,					-- TP Bonus 250, Att 4
 		right_ear = gear.skulkerEarringPlusOne,		-- Acc 11, TA 4
 		left_ring = gear.lehkoHabhokaRing,			-- Crit 10, DEX 10
 		right_ring = gear.karieyh,					-- WS Acc 5, WSD 3
-	}	-- Acc 236, Att 254, WSD 38, DA 13
+	}	-- Acc 236, Att 266, WSD 37, DA 8
 end
 
 -------------------------------------------------------------------------------------------------------------------
