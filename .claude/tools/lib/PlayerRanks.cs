@@ -33,7 +33,7 @@ static class PlayerRanks
 			if (lines[i].StartsWith('|') is false)
 				continue;
 			var cells = lines[i].Trim().Trim('|').Split('|').Select(cell => cell.Trim()).ToArray();
-			if (cells[0] == "Item" || cells[0].StartsWith("---"))
+			if (cells[0] == "Item" || Markdown.IsDelimiterRow(lines[i]))
 				continue;
 			var where = $"{Tool.RepoRelative(notesPath)}:{i + 1}";
 			if (cells.Length != 4)
@@ -50,7 +50,6 @@ static class PlayerRanks
 	}
 }
 
-// The path and rank the player gave for one item, and the day.
 sealed class PlayerRank
 {
 	public string Path { get; }

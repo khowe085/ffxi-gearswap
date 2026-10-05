@@ -33,12 +33,14 @@ for (var i = 0; i < lines.Length; i++)
 	if (entry.Success)
 		entries.Add(new GearEntry(i + 1, entry.Groups[1].Value, Fields(entry.Groups[2].Value)));
 }
+if (entries.Count == 0)
+	Tool.Fail("gear.py in .claude/cache/wsdist_beta holds no item entry this tool can read. Delete that folder and run fetch-sources.cs again.");
 
 if (cli.Flag("--check-nyame"))
 	return CheckNyame();
 if (cli.Words.Count != 1)
 	Tool.Fail("Give one regex to match item names against, or --check-nyame.");
-var wanted = new Regex(cli.Words[0], RegexOptions.IgnoreCase);
+var wanted = Tool.Pattern("The item pattern", cli.Words[0]);
 var found = entries.Where(entry => wanted.IsMatch(entry.Text("Name")) || wanted.IsMatch(entry.Text("Name2"))).ToList();
 foreach (var entry in found)
 {
@@ -128,7 +130,10 @@ int CheckNyame()
 	var tables = new Dictionary<string, Dictionary<string, Dictionary<int, List<string>>>>();
 	string? item = null;
 	string? path = null;
-	foreach (var line in File.ReadLines(Tool.InRepo("docs", "rank-augments.md")))
+	var docPath = Tool.InRepo("docs", "rank-augments.md");
+	if (File.Exists(docPath) is false)
+		Tool.Fail("docs/rank-augments.md is missing. Write it with: dotnet run --no-cache .claude/tools/rank-doc.cs");
+	foreach (var line in File.ReadLines(docPath))
 	{
 		var heading = Regex.Match(line, @"^### (.+)$");
 		var pathLine = Regex.Match(line, @"^Path ([A-D])");
@@ -154,7 +159,11 @@ int CheckNyame()
 
 	var differences = 0;
 	var nyame = entries.Select(entry => new { Entry = entry, Id = Regex.Match(entry.Variable, @"^Nyame_\w+?(\d+)([A-D]?)$") }).Where(pair => pair.Id.Success).ToList();
-	foreach (var pair in nyame.Where(pair => pair.Id.Groups[1].Value != "0"))
+	var ranked = nyame.Where(pair => pair.Id.Groups[1].Value != "0").ToList();
+	// Nothing to compare isn't a pass. It means wsdist no longer names these entries the way this reads them.
+	if (ranked.Count == 0)
+		Tool.Fail("gear.py has no ranked Nyame entry, such as Nyame_Helm15B, so there is nothing to check.");
+	foreach (var pair in ranked)
 	{
 		var name = pair.Entry.Text("Name");
 		var rank = int.Parse(pair.Id.Groups[1].Value);
@@ -214,7 +223,7 @@ int CheckNyame()
 			differences++;
 		}
 	}
-	Console.WriteLine($"{nyame.Count(pair => pair.Id.Groups[1].Value != "0")} ranked Nyame entries checked; differences: {differences}");
+	Console.WriteLine($"{ranked.Count} ranked Nyame entries checked; differences: {differences}");
 	return differences > 0 ? 1 : 0;
 }
 

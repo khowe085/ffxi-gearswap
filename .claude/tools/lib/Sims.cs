@@ -75,7 +75,6 @@ static class Sims
 	// Wiki links become their label, and the footnote star after a name goes.
 	static string Clean(string text) => Regex.Replace(Regex.Replace(text, @"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]", "$1"), @"\s+", " ").Trim().TrimEnd('*').Trim();
 
-	// A set as sims.cs --json writes it.
 	sealed class SetJson
 	{
 		public string Section { get; }

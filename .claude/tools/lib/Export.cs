@@ -12,7 +12,6 @@ namespace GearTools;
 // Reads the files //gs export writes into data/export: every item a character holds, bag by bag.
 static class Export
 {
-	// The bags GearSwap can equip from. A piece anywhere else has to be moved before a set can wear it.
 	public static IReadOnlyList<string> EquippableBags { get; }
 
 	static Regex fileName;
@@ -31,7 +30,6 @@ static class Export
 		quoted = new Regex(@"'((?:[^'\\]|\\.)*)'");
 	}
 
-	// The export a tool should read: the one named with --export, or the newest one for the character.
 	public static string Resolve(Arguments cli)
 	{
 		var given = cli.Option("--export");
@@ -46,12 +44,10 @@ static class Export
 	// and "Vanar_2026-09-27_18-24-29.lua", so the names themselves don't sort by date.
 	public static string Latest(string? character)
 	{
-		var dir = Tool.InRepo("data", "export");
-		var dated = Directory.GetFiles(dir, "*.lua")
-			.Select(path => new DatedExport(path, fileName.Match(Path.GetFileName(path))))
-			.Where(export => export.Name.Success)
-			.ToList();
+		var dated = Dated();
 		var characters = dated.Select(export => export.Character).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+		if (characters.Count == 0)
+			Tool.Fail("data/export holds no //gs export.");
 		if (character is null && characters.Count != 1)
 			Tool.Fail($"data/export holds exports for {characters.Count} characters ({string.Join(", ", characters)}). Pass --char <name>.");
 		character ??= characters[0];
@@ -63,19 +59,15 @@ static class Export
 		return newest.Path;
 	}
 
-	// The characters data/export holds an export for.
-	public static IReadOnlyList<string> Owners() => Directory.GetFiles(Tool.InRepo("data", "export"), "*.lua")
-		.Select(path => fileName.Match(Path.GetFileName(path)))
-		.Where(name => name.Success)
-		.Select(name => name.Groups["who"].Value)
+	public static IReadOnlyList<string> Owners() => Dated()
+		.Select(export => export.Character)
 		.Distinct(StringComparer.OrdinalIgnoreCase)
 		.Order(StringComparer.Ordinal)
 		.ToList();
 
-	// The character an export belongs to, from its file name.
 	public static string CharacterOf(string exportPath) => NameOf(exportPath).Groups["who"].Value;
 
-	// The date in an export's file name, as yyyy-MM-dd.
+	// As yyyy-MM-dd.
 	public static string DateOf(string exportPath) => NameOf(exportPath).Groups["stamp"].Value[..10];
 
 	// Every line of an export, bag by bag. With the Rahvin engine loaded, //gs export all writes one table for each
@@ -102,7 +94,22 @@ static class Export
 				: [];
 			items.Add(new ExportItem(bag, entry.Groups[1].Value, Unescape(name), list));
 		}
+		// A character always holds something, so a file with no item in it is some other file.
+		if (items.Count == 0)
+			Tool.Fail($"{Tool.RepoRelative(path)} holds no items, so it isn't a //gs export this tool can read.");
 		return items;
+	}
+
+	// Every file in data/export named the way //gs export names them. No folder means no exports.
+	static List<DatedExport> Dated()
+	{
+		var dir = Tool.InRepo("data", "export");
+		if (Directory.Exists(dir) is false)
+			return [];
+		return Directory.GetFiles(dir, "*.lua")
+			.Select(path => new DatedExport(path, fileName.Match(Path.GetFileName(path))))
+			.Where(export => export.Name.Success)
+			.ToList();
 	}
 
 	static Match NameOf(string exportPath)

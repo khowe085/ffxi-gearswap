@@ -7,7 +7,7 @@ For agents that build gear sets from a character's `//gs export`. The export lis
 - **Reading an entry.** The italic line under each heading gives the item's full name and, where it matters, which of RDM and BLU can wear it.
 - **Companion docs.** [ffxi-mechanics.md](ffxi-mechanics.md) has the mechanics these notes rely on (fast cast, recast, duration, potency, caps). [rank-augments.md](rank-augments.md) has every rank's augments for the Odyssey pieces and the other path items in its table, and only the top-rank values for the items Oboro ranks up: `Dls. Torque +1`, `Mirage Stole +2`, `Tizona`, `Almace` and `Pukulatmuj +1` ([Oboro rank augments](rank-augments.md#oboro-rank-augments-maximum-only)).
 - **Refresh terms.** "Refresh +X" is MP the wearer gets every tick while the piece is on. "Refresh potency" is a bonus for whoever receives a Refresh spell the wearer casts.
-- **Staged weapons.** `//gs export` prints the same name for every stage of a staged weapon, so it doesn't show the stage. Matching the name to an item ID gives the lowest stage's ID and help text, which may not be the stage held. This affects `Almace`, `Tizona` and `Mpu Gandring`; their entries say what the stages differ in.
+- **Staged weapons.** `//gs export` prints the same name for every stage of a staged weapon, so it doesn't show the stage. Every stage's item ID shares that name, so the help text a lookup by name finds may not be the held stage's. This affects `Almace`, `Tizona` and `Mpu Gandring`; their entries say what the stages differ in.
 - **Simulated sets and wsdist.** An entry also lists the bg-wiki simulated sets (All Jobs Gear Sets) that wear the piece, and any error wsdist, the simulator that built them, makes with the piece (line numbers are at wsdist commit d12ac59). What the simulations assume is in [ffxi-mechanics.md](ffxi-mechanics.md#simulated-sets-bg-wiki-all-jobs-gear-sets), and wsdist itself in [its section there](ffxi-mechanics.md#wsdist-kastras-damage-simulator).
 
 ## Contents
@@ -290,7 +290,7 @@ bg-wiki's set pages show no set bonus for these, and no help text of their items
 
 *Almace.*
 
-- The export prints only "Almace", a name nine items share, from the Level 80 stage up to iL119 III. The help text that name matches (DMG:52, no stats) is the Level 80 stage's, so the export can't tell which stage a character owns. ([bg-wiki](https://www.bg-wiki.com/ffxi/Almace), [bg-wiki](https://www.bg-wiki.com/ffxi/Almace_%28Level_80%29))
+- The export prints only "Almace", a name nine items share, from the Level 80 stage (DMG:52, no stats) up to iL119 III, so the export can't tell which stage a character owns. ([bg-wiki](https://www.bg-wiki.com/ffxi/Almace), [bg-wiki](https://www.bg-wiki.com/ffxi/Almace_%28Level_80%29))
 - The iL119 III stage has DMG:158, DEX+50, Magic Damage+186, Sword skill +269 and Magic Accuracy skill +255. ([bg-wiki](https://www.bg-wiki.com/ffxi/Almace_%28Level_119_III%29))
 - The iL119 and iL119 II stages have DMG:114, DEX+20, Sword skill +242 and Magic Accuracy skill +215. ([bg-wiki](https://www.bg-wiki.com/ffxi/Almace_%28Level_119%29), [bg-wiki](https://www.bg-wiki.com/ffxi/Almace_%28Level_119_II%29))
 - Chant du Cygne with Almace in the main hand gives an Aftermath. It procs only on Almace's own melee hits, Double and Triple Attack hits included, and never on weapon skills, Counters or Retaliations. ([bg-wiki](https://www.bg-wiki.com/ffxi/Empyrean_Aftermath))
@@ -349,7 +349,7 @@ bg-wiki's set pages show no set bonus for these, and no help text of their items
 - Its Magic burst damage +10 counts toward the 40% Magic Burst damage I cap. ([bg-wiki](https://www.bg-wiki.com/ffxi/Magic_Burst))
 - In the sub slot its Magic Accuracy skill +255 doesn't count, because only the main hand's does. Its DMG and Club skill count only for its own hits. ([bg-wiki](https://www.bg-wiki.com/ffxi/Magic_Accuracy_Skill), [bg-wiki](https://www.bg-wiki.com/ffxi/Dual_Wield))
 - In the sub slot, Accuracy+40, Magic Accuracy+40, Magic Atk. Bonus+35 and INT/MND+15 still apply. ([bg-wiki](https://www.bg-wiki.com/ffxi/Dual_Wield))
-- Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): RDM: Sanguine Blade (Mid buff); Casting (Free Nuke, Magic Burst); BLU: Sanguine Blade (Mid buff, Ice Brand enabled). In Sanguine Blade it is the off hand. Bonus +30, Accuracy and Magic Accuracy +15, Enmity-5), so the sims overvalue it ([rank-augments.md](rank-augments.md#bunzis-rod)).
+- Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): RDM: Sanguine Blade (Mid buff); Casting (Free Nuke, Magic Burst); BLU: Sanguine Blade (Mid buff, Ice Brand enabled). In Sanguine Blade it is the off hand.
 - wsdist: its rank 0 entry has DMG 152 (144 plus the rank 15 +8); the base is 144. Only the rod's own physical hits are affected. ([gear.py](https://github.com/IzaKastra/wsdist_beta/blob/main/gear.py), line 102)
 
 ### Chac-chacs

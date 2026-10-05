@@ -4,7 +4,8 @@
 //   dotnet run --no-cache .claude/tools/doc-lint.cs [-- --char <name>] [--export <path>]
 //
 // Every doc: links and anchors resolve, tables keep one column count and have a delimiter row and a blank line
-// above, no raw HTML-like tag or pair of tildes sits outside code (both change how the page renders).
+// above, no raw HTML-like tag or pair of tildes sits outside code (both change how the page renders), and every
+// code fence is closed.
 // docs/: no doc names a character, since what holds for one character goes in that character's folder.
 // docs/gear-notes.md: no item has two entries, no item is both in a "No notes" list and given an entry, and every
 // "Simulated sets" bullet agrees with the sets in bg_job_guides.
@@ -24,12 +25,12 @@ using GearTools;
 Tool.Init();
 var cli = new Arguments(args, ["--char", "--export"], []);
 var exportPath = Export.Resolve(cli);
-var character = cli.Option("--char") ?? Export.CharacterOf(exportPath);
+var character = Characters.Named(cli.Option("--char") ?? Export.CharacterOf(exportPath));
 var export = Export.Read(exportPath);
 var ownDir = Tool.InRepo("data", character);
+string[] folders = [Tool.InRepo("docs"), ownDir];
 // Each doc by its path from the repo root.
-var docs = Directory.GetFiles(Tool.InRepo("docs"), "*.md")
-	.Concat(Directory.Exists(ownDir) ? Directory.GetFiles(ownDir, "*.md") : [])
+var docs = folders.Where(Directory.Exists).SelectMany(folder => Directory.GetFiles(folder, "*.md"))
 	.Select(Tool.RepoRelative)
 	.Order(StringComparer.Ordinal)
 	.ToDictionary(path => path, path => File.ReadAllLines(Tool.InRepo(path)));
@@ -72,12 +73,14 @@ foreach (var doc in docs)
 	var lines = doc.Value;
 	var folder = Path.GetDirectoryName(Tool.InRepo(doc.Key))!;
 	var inFence = false;
+	var fenceLine = 0;
 	for (var i = 0; i < lines.Length; i++)
 	{
 		var line = lines[i];
 		if (line.TrimStart().StartsWith("```"))
 		{
 			inFence = inFence is false;
+			fenceLine = i + 1;
 			columns = null;
 			continue;
 		}
@@ -117,12 +120,13 @@ foreach (var doc in docs)
 			columns = null;
 			continue;
 		}
-		var cells = prose.Replace("\\|", "").Trim().Trim('|').Split('|').Length;
+		// A pipe ends a cell wherever it is, inside a code span too. Only a backslash before it keeps it in.
+		var cells = line.Replace("\\|", "").Trim().Trim('|').Split('|').Length;
 		if (columns is null)
 		{
 			columns = cells;
 			tableStart = i;
-			if (i + 1 >= lines.Length || Regex.IsMatch(lines[i + 1], @"^\|[\s:|-]+\|?\s*$") is false)
+			if (i + 1 >= lines.Length || Markdown.IsDelimiterRow(lines[i + 1]) is false)
 				Problem($"{doc.Key}:{i + 1}: table without a delimiter row");
 			if (i > 0 && lines[i - 1].Trim().Length > 0)
 				Problem($"{doc.Key}:{i + 1}: table with no blank line above it");
@@ -132,6 +136,8 @@ foreach (var doc in docs)
 			Problem($"{doc.Key}:{i + 1}: {cells} cells, but the table that starts at line {tableStart + 1} has {columns}");
 		}
 	}
+	if (inFence)
+		Problem($"{doc.Key}:{fenceLine}: a code fence that is never closed, so nothing after it is checked");
 }
 
 // docs/ holds what is true for any character, so a character's name there marks something misplaced: a rank, a
@@ -148,6 +154,8 @@ foreach (var doc in docs.Where(doc => doc.Key.StartsWith("docs/")))
 
 var wearable = export.Where(line => line.SlotKey != "item").ToList();
 var haveSets = Directory.Exists(Tool.InCache("bg_job_guides"));
+// Windower's item names, read once, and only when the simulated sets are there to hold the notes to.
+Resources? itemNames = null;
 if (haveSets is false)
 	Console.WriteLine("Simulated sets not checked: .claude/cache/bg_job_guides is missing. Run fetch-sources.cs.");
 
@@ -163,7 +171,11 @@ if (docs.TryGetValue(notesPath, out var notes))
 	{
 		if (notes[i].StartsWith(noNotes) is false)
 			continue;
-		var listed = notes[i][noNotes.Length..].TrimEnd('.').Split(", ");
+		// The line ends in a full stop, and so may the last name on it, as "Tatena. Sune." does, with a second stop
+		// after it or without. So the last name counts both as it is written and without its final stop.
+		var listed = notes[i][noNotes.Length..].TrimEnd().Split(", ").ToList();
+		if (listed[^1].EndsWith('.'))
+			listed.Add(listed[^1][..^1]);
 		foreach (var item in listed.Where(entries.ContainsKey))
 			Problem($"{notesPath}:{i + 1}: {item} is in a \"No notes\" list and has an entry");
 		covered.UnionWith(listed);
@@ -249,11 +261,11 @@ Dictionary<string, List<NumberedLine>> Entries(string path, string[] lines)
 // bullet is checked against the sets, and a piece in the character's bags that the sets wear has to have one.
 void CheckSimulatedSetBullets(Dictionary<string, List<NumberedLine>> entries)
 {
-	var resources = Resources.Load();
+	var resources = itemNames ??= Resources.Load();
 	// The entries cover the gear in the bags. Gear on a storage slip is owned too, but has no entries yet.
 	var inBags = export.Where(line => line.Slip == 0).Select(line => line.Name).ToHashSet();
 	var owned = export.Select(line => line.Name).ToHashSet();
-	var usage = SimulatedSets.Usage();
+	var usage = SimulatedSets.Usage(resources);
 	bool IsCape(string piece) => resources.Pick(piece)?.Group == "back";
 
 	var withBullet = new HashSet<string>();
@@ -296,6 +308,7 @@ void CheckPiecesLacking(string[] ownNotes)
 	var start = Array.FindIndex(ownNotes, line => line.StartsWith("## Pieces the simulated sets use"));
 	if (start < 0)
 		return;
+	var resources = itemNames ??= Resources.Load();
 	var owned = export.Select(line => line.Name).ToHashSet();
 	var listed = SimulatedSets.Jobs.ToDictionary(job => job, job => new Dictionary<string, NumberedLine>());
 	string? tableJob = null;
@@ -307,7 +320,7 @@ void CheckPiecesLacking(string[] ownNotes)
 		{
 			tableJob = marker;
 		}
-		else if (row.Success && tableJob is not null && row.Groups[1].Value is not ("Piece" or "---"))
+		else if (row.Success && tableJob is not null && Markdown.IsDelimiterRow(ownNotes[i]) is false && row.Groups[1].Value != "Piece")
 		{
 			listed[tableJob][row.Groups[1].Value] = new NumberedLine(i + 1, row.Groups[2].Value);
 		}
@@ -322,7 +335,8 @@ void CheckPiecesLacking(string[] ownNotes)
 		{
 			foreach (var slot in set.Items.Keys)
 			{
-				var piece = Sims.ItemName(set.Items[slot]);
+				// A page names a piece by either of its names, and the export prints the short one.
+				var piece = resources.ExportName(Sims.ItemName(set.Items[slot]));
 				var hasAugment = set.Augments.TryGetValue(slot, out var augment);
 				if (owned.Contains(piece) && slot != "Back" && hasAugment is false)
 					continue;
@@ -362,8 +376,9 @@ static class SimulatedSets
 		Jobs = ["RDM", "BLU"];
 	}
 
-	// Piece -> job -> set name -> buff levels, each in page order.
-	public static Dictionary<string, Dictionary<string, Dictionary<string, List<string>>>> Usage()
+	// Piece -> job -> set name -> buff levels, each in page order. A piece goes by the name the export prints,
+	// whichever of its two names the page uses.
+	public static Dictionary<string, Dictionary<string, Dictionary<string, List<string>>>> Usage(Resources resources)
 	{
 		var usage = new Dictionary<string, Dictionary<string, Dictionary<string, List<string>>>>();
 		foreach (var job in Jobs)
@@ -372,7 +387,7 @@ static class SimulatedSets
 			{
 				foreach (var slot in set.Items.Keys)
 				{
-					var piece = Sims.ItemName(set.Items[slot]);
+					var piece = resources.ExportName(Sims.ItemName(set.Items[slot]));
 					if (usage.TryGetValue(piece, out var byJob) is false)
 						usage[piece] = byJob = [];
 					if (byJob.TryGetValue(job, out var bySet) is false)

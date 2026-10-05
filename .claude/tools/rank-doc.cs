@@ -6,8 +6,11 @@
 //   dotnet run --no-cache .claude/tools/rank-doc.cs [-- --check]
 //
 // When the player reports a new rank: change its row in the Ranks table, run this, then correct what the character's
-// notes and the job files' comments say about that piece. Both documents are generated; don't edit them. --check
-// writes nothing, and exits with 1 when a document isn't what this would write.
+// notes and the job files' comments say about that piece. Both documents are generated; don't edit them. A Ranks
+// row that names an unknown item, a path the item lacks, a rank its table lacks or a path other than the one the
+// export prints stops the run with nothing written. So does an exported item that prints a path and has neither a
+// rank table nor a row among the items Oboro ranks up. --check writes nothing, and exits with 1 when a document
+// isn't what this would write.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -22,7 +25,7 @@ var cli = new Arguments(args, [], ["--check"]);
 
 // Oboro's augments (JSE necks, Ultimate Weapons, Unity weapons) rank up too, but bg-wiki gives only the maximum, not
 // a table for each rank, so this section is typed in from the pages read on 2026-10-02. An item of this kind that
-// turns up in an export needs a row here.
+// turns up in an export needs a row here, and the run stops until it has one.
 var oboro = new OboroAugments(
 [
 	"## Oboro rank augments (maximum only)",
@@ -73,6 +76,7 @@ foreach (var document in documents)
 	var text = string.Join(newline, document.Value) + newline;
 	if (cli.Flag("--check") is false)
 	{
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 		File.WriteAllText(path, text);
 		Console.WriteLine($"{document.Value.Count} lines -> {Tool.RepoRelative(path)}");
 	}

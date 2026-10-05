@@ -20,10 +20,12 @@ using GearTools;
 Tool.Init();
 var cli = new Arguments(args, ["--job", "--char", "--export"], []);
 var exportPath = Export.Resolve(cli);
-var character = cli.Option("--char") ?? Export.CharacterOf(exportPath);
+var character = Characters.Named(cli.Option("--char") ?? Export.CharacterOf(exportPath));
 var owned = Export.Read(exportPath);
 var resources = Resources.Load();
 var files = GearFiles.Load(character);
+if (files.Jobs.Count == 0)
+	Tool.Fail($"data/{character} holds no job file to check. A job file is named for its job, as RDM.lua is.");
 
 Console.WriteLine($"Export: {Tool.RepoRelative(exportPath)}");
 var errors = 0;

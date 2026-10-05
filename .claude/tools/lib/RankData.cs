@@ -32,7 +32,17 @@ sealed class RankTables
 	{
 		if (File.Exists(FilePath) is false)
 			Tool.Fail("bg-wiki's rank tables aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/rank-tables.cs");
-		var file = JsonSerializer.Deserialize<FileJson>(File.ReadAllText(FilePath))!;
+		FileJson? file = null;
+		try
+		{
+			file = JsonSerializer.Deserialize<FileJson>(File.ReadAllText(FilePath));
+		}
+		catch (JsonException)
+		{
+			// Stops below, as a file that holds nothing does.
+		}
+		if (file is null)
+			Tool.Fail("The rank tables in .claude/cache/ranks/ranks.json can't be read. Write them again: dotnet run --no-cache .claude/tools/rank-tables.cs");
 		return new RankTables(file.Fetched, file.Items.Select(item => new RankedItem(item.Name, item.Title, item.RankMax,
 			item.Paths.Select(path => new RankPath(path.Path, path.Ranks.Select(row => new RankRow(row.Rank, row.Augments)).ToList())).ToList())).ToList());
 	}
@@ -58,7 +68,6 @@ sealed class RankTables
 		File.WriteAllText(FilePath, JsonSerializer.Serialize(file, new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
 	}
 
-	// The shape of ranks.json.
 	sealed class FileJson
 	{
 		public string Fetched { get; set; }
@@ -116,7 +125,6 @@ sealed class RankTables
 	}
 }
 
-// One item with a rank table.
 sealed class RankedItem
 {
 	// The name as the export prints it.

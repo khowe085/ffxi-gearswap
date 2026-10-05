@@ -31,7 +31,16 @@ foreach (var file in resourceFiles)
 		Console.WriteLine($"res/{file}: present ({new FileInfo(path).Length / 1024} KB, from {File.GetLastWriteTime(path):yyyy-MM-dd})");
 		continue;
 	}
-	var bytes = await http.GetByteArrayAsync("https://raw.githubusercontent.com/Windower/Resources/master/resources_data/" + file);
+	byte[] bytes;
+	try
+	{
+		bytes = await http.GetByteArrayAsync("https://raw.githubusercontent.com/Windower/Resources/master/resources_data/" + file);
+	}
+	catch (Exception problem) when (problem is HttpRequestException or TaskCanceledException)
+	{
+		Tool.Fail($"res/{file}: couldn't download it. {problem.Message}");
+		throw;
+	}
 	await File.WriteAllBytesAsync(path, bytes);
 	Console.WriteLine($"res/{file}: downloaded ({bytes.Length / 1024} KB)");
 }

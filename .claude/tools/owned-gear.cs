@@ -23,7 +23,7 @@ using GearTools;
 Tool.Init();
 var cli = new Arguments(args, ["--job", "--slot", "--grep", "--char", "--export"], ["--json"]);
 var exportPath = Export.Resolve(cli);
-var character = cli.Option("--char") ?? Export.CharacterOf(exportPath);
+var character = Characters.Named(cli.Option("--char") ?? Export.CharacterOf(exportPath));
 var resources = Resources.Load();
 var files = GearFiles.Load(character);
 var wantedJobs = (cli.Option("--job") ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(job => job.ToUpperInvariant()).ToList();
@@ -38,7 +38,7 @@ var slot = cli.Option("--slot") switch
 };
 if (slot is not null && Resources.SlotNames.Contains(slot) is false)
 	Tool.Fail($"{cli.Option("--slot")} isn't a slot. Slots: main sub range ammo head neck ear body hands ring back waist legs feet");
-var grep = cli.Option("--grep") is { } pattern ? new Regex(pattern, RegexOptions.IgnoreCase) : null;
+var grep = cli.Option("--grep") is { } pattern ? Tool.Pattern("--grep", pattern) : null;
 
 // Every definition that could name a piece, with the file it is in when that isn't the library.
 var definitions = files.Library.Defs.Select(def => new NamedDef(def, null)).ToList();

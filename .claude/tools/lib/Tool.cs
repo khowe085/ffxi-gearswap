@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace GearTools;
 
@@ -48,6 +49,21 @@ static class Tool
 
 	// A path as the docs and the job files write it: relative to the repo, with forward slashes.
 	public static string RepoRelative(string path) => Path.GetRelativePath(RepoRoot, path).Replace('\\', '/');
+
+	// A regular expression given on the command line, matched without regard to case. One that can't be read stops
+	// the tool.
+	public static Regex Pattern(string what, string pattern)
+	{
+		try
+		{
+			return new Regex(pattern, RegexOptions.IgnoreCase);
+		}
+		catch (ArgumentException problem)
+		{
+			Fail($"{what} isn't a regular expression: {problem.Message}");
+			throw;
+		}
+	}
 
 	[DoesNotReturn]
 	public static void Fail(string message)

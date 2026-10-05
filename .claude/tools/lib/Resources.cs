@@ -72,24 +72,31 @@ sealed class Resources
 				list.Add(item);
 			}
 		}
+		if (byName.Count == 0)
+			Tool.Fail(".claude/cache/res/items.lua holds no weapon or armor. Fetch it again: dotnet run --no-cache .claude/tools/fetch-sources.cs -- --refresh");
 		return new Resources(byName);
 	}
 
-	// The names of every blue magic spell, for checking a BLU file's spell lists.
 	public static List<string> BlueSpells()
 	{
 		var path = Tool.InCache("res", "spells.lua");
 		if (File.Exists(path) is false)
 			Tool.Fail("Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
-		return File.ReadLines(path)
+		var spells = File.ReadLines(path)
 			.Where(line => line.Contains("type=\"BlueMagic\""))
 			.Select(line => Unescape(Regex.Match(line, "\\ben=\"((?:[^\"\\\\]|\\\\.)*)\"").Groups[1].Value))
 			.ToList();
+		if (spells.Count == 0)
+			Tool.Fail(".claude/cache/res/spells.lua holds no blue spell. Fetch it again: dotnet run --no-cache .claude/tools/fetch-sources.cs -- --refresh");
+		return spells;
 	}
 
 	// Every weapon or armor piece with this name or log name, ignoring case, which is how GearSwap matches the
 	// name a set gives. Several ids can share one name: every stage of a Relic, Mythic or Empyrean weapon does.
 	public IReadOnlyList<ItemInfo> Named(string name) => byName.TryGetValue(name, out var list) ? list : [];
+
+	// The name //gs export prints for an item, whichever of its two names is given. A name no item has stays as it is.
+	public string ExportName(string name) => Pick(name)?.Name ?? name;
 
 	// The item to describe for a name. Of several, it prefers the ones that fit the slot the export printed, then
 	// the highest item level, so an upgraded weapon shows its last stage, not its level 75 one.

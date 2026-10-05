@@ -13,7 +13,6 @@ namespace GearTools;
 // docs/. What holds for one is beside that character's job files, linked from the gear list.
 static class Characters
 {
-	// Every folder under data/ that holds a job file.
 	public static IReadOnlyList<string> All()
 	{
 		var data = Tool.InRepo("data");
@@ -26,7 +25,18 @@ static class Characters
 			.ToList();
 	}
 
-	// A job file is named for its job: BLU.lua.
+	// A character's name as its folder under data/ spells it, whatever case it was given in. A name with no folder
+	// stays as it was given.
+	public static string Named(string name)
+	{
+		var data = Tool.InRepo("data");
+		if (Directory.Exists(data) is false)
+			return name;
+		return Directory.GetDirectories(data)
+			.Select(folder => Path.GetFileName(folder))
+			.FirstOrDefault(folder => folder.Equals(name, StringComparison.OrdinalIgnoreCase)) ?? name;
+	}
+
 	public static bool IsJobFile(string path) => Regex.IsMatch(Path.GetFileName(path), "^[A-Z]{3}\\.lua$");
 
 	// Every piece the job files wear and the sets that wear it. gear-list.cs checks it.

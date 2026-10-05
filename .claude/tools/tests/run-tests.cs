@@ -6,7 +6,10 @@
 //   dotnet run --no-cache .claude/tools/tests/run-tests.cs [-- <text>]
 //
 // With <text>, only the tests whose name contains it run. Exit code 1 when a test fails. Nothing here uses the
-// network: wiki.cs, rank-tables.cs and fetch-sources.cs are covered through the shared code they call.
+// network: wiki.cs and rank-tables.cs ask a stand-in for bg-wiki on this machine, and they and fetch-sources.cs
+// are also run with the network cut off, to see them stop. The git sources are fetched from repositories made here.
+// That leaves two things no test runs: a download of Windower's resources that works, and the wait after bg-wiki
+// answers 429.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -15,6 +18,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 using GearTools;
 
@@ -27,6 +32,8 @@ var workDir = Path.Combine(Path.GetTempPath(), "gear-tools-tests-" + Environment
 var pristine = NewSandbox();
 Environment.SetEnvironmentVariable("GEAR_TOOLS_ROOT", pristine.Repo);
 Environment.SetEnvironmentVariable("GEAR_TOOLS_CACHE", pristine.Cache);
+// The tests call the shared code in this process, so a build older than lib/ would test the old code.
+Tool.Init();
 
 var tests = new List<KeyValuePair<string, Action>>();
 void Test(string name, Action body) => tests.Add(KeyValuePair.Create(name, body));
@@ -35,6 +42,7 @@ void Test(string name, Action body) => tests.Add(KeyValuePair.Create(name, body)
 
 Test("Export.Latest takes the newest export by the date in its name, under either spelling", () =>
 {
+	// The fixture has an export of the same day, an hour earlier, under the underscore spelling.
 	Equal("Testy 2026-01-02 08-00-00.lua", Path.GetFileName(Export.Latest(null)));
 	Equal("Testy", Export.CharacterOf(Export.Latest(null)));
 	Equal("2026-01-02", Export.DateOf(Export.Latest(null)));
@@ -85,6 +93,14 @@ Test("Resources finds an item by its short name or its log name, as GearSwap doe
 	Equal(99, resources.Pick("Nyame Helm")!.Level);
 	Equal(119, resources.Pick("Nyame Helm")!.ItemLevel);
 	True(resources.Pick("Nyame Helm")!.Description.Contains("Accuracy+40"), "the help text comes along");
+});
+
+Test("Resources gives the name the export prints, whichever of an item's two names it is asked by", () =>
+{
+	var resources = Resources.Load();
+	Equal("Hashi. Bazu. +3", resources.ExportName("Hashishin Bazubands +3"));
+	Equal("Hashi. Bazu. +3", resources.ExportName("Hashi. Bazu. +3"));
+	Equal("No Such Item", resources.ExportName("No Such Item"));
 });
 
 Test("Resources shows the highest stage of a weapon whose name several ids share", () =>
@@ -198,6 +214,18 @@ Test("Characters finds each folder that holds job files, and names its documents
 	Equal("data/Testy/Testy_rank_augments.md", Tool.RepoRelative(Characters.RankAugments("Testy")));
 });
 
+Test("a character named in another case is still the one whose folder it is", () =>
+{
+	var sandbox = NewSandbox();
+	sandbox.Edit("data/Testy/Testy_gear_notes.md", "| Hoxne Earring | Savage Blade |", "| Hoxne Earring | Chant du Cygne |");
+	var run = sandbox.Run("doc-lint", "--char", "testy");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "data/Testy/Testy_gear_notes.md:");
+	Contains(run.Output, "Hoxne Earring, RDM sets");
+	Equal("Testy", Characters.Named("testy"));
+	Equal("Nobody", Characters.Named("Nobody"));
+});
+
 Test("PlayerRanks reads the Ranks table in a character's notes, with the day each rank was given", () =>
 {
 	var ranks = PlayerRanks.Read(Characters.Notes("Testy"));
@@ -208,6 +236,25 @@ Test("PlayerRanks reads the Ranks table in a character's notes, with the day eac
 	var bare = Path.Combine(workDir, "notes-without-ranks.md");
 	File.WriteAllText(bare, "# Notes\n\n## Rules\n\n| Item | Path | Rank | Given |\n|---|---|---|---|\n| Nyame Helm | B | 2 | 2026-01-03 |\n");
 	Equal(0, PlayerRanks.Read(bare).Count);
+});
+
+Test("Markdown.IsDelimiterRow knows the row under a table's header, however it is spaced or aligned", () =>
+{
+	string[] rows = ["|---|---|", "| --- | :--- | ---: | :-: |", "|---|---", "| - |"];
+	foreach (var row in rows)
+		True(Markdown.IsDelimiterRow(row), row + " is a delimiter row");
+	string[] others = ["| a | b |", "||", "| |", "---", "| Nyame Helm | - |"];
+	foreach (var other in others)
+		True(Markdown.IsDelimiterRow(other) is false, other + " isn't a delimiter row");
+});
+
+Test("PlayerRanks reads a Ranks table whose delimiter row sets the alignment", () =>
+{
+	var notes = Path.Combine(workDir, "notes-with-aligned-ranks.md");
+	File.WriteAllText(notes, "## Ranks\n\n| Item | Path | Rank | Given |\n|:---|:---:|---:| --- |\n| Nyame Helm | B | 2 | 2026-01-03 |\n");
+	var ranks = PlayerRanks.Read(notes);
+	Equal("Nyame Helm", string.Join(", ", ranks.Keys));
+	Equal(2, ranks["Nyame Helm"].Rank);
 });
 
 Test("PlayerRanks refuses a Ranks row it can't read, and gives its line", () =>
@@ -236,6 +283,66 @@ Test("Sims.Load reads each simulated set with its buff level, items and augment 
 	True(sets[0].Items.ContainsKey("Sub") is false, "an empty slot is left out");
 	Equal("STR, Weapon Skill Damage", sets[0].Augments["Back"]);
 	Equal("Almace", Sims.ItemName(Sims.Load("blu")[0].Items["Main"]));
+});
+
+Test("Wiki.Read takes the pages, the renamed titles and the continuation out of a reply", () =>
+{
+	var reply = Wiki.Read("""
+		{"continue":{"rvcontinue":"12|34","continue":"||"},"query":{
+		"normalized":[{"from":"Nyame_Helm","to":"Nyame Helm"},{"from":"Obstinate_Sash","to":"Obstinate Sash"}],
+		"redirects":[{"from":"Obstinate Sash","to":"Obstin. Sash"}],
+		"pages":[{"title":"Nyame Helm","revisions":[{"slots":{"main":{"content":"helm text"}}}]},{"title":"Obstin. Sash"},{"title":"No Such Page","missing":true}]}}
+		""");
+	Equal("helm text", reply.Texts["Nyame Helm"]);
+	Equal(1, reply.Texts.Count);
+	Equal("12|34", reply.Continue["rvcontinue"]);
+	Equal("||", reply.Continue["continue"]);
+	Equal("Nyame Helm", Wiki.Settled("Nyame_Helm", reply.Renamed));
+	Equal("Obstin. Sash", Wiki.Settled("Obstinate_Sash", reply.Renamed));
+	Equal("Naegling", Wiki.Settled("Naegling", reply.Renamed));
+	Equal(0, Wiki.Read("""{"batchcomplete":true,"query":{"pages":[]}}""").Continue.Count);
+});
+
+Test("Wiki.Read refuses an error from the API, and a reply that isn't JSON", () =>
+{
+	Contains(Throws<InvalidOperationException>(() => Wiki.Read("""{"error":{"code":"toomanyvalues","info":"Too many values supplied for parameter \"titles\"."}}""")).Message, "toomanyvalues: Too many values supplied");
+	Contains(Throws<InvalidOperationException>(() => Wiki.Read("""{"batchcomplete":true}""")).Message, "without a query");
+	Contains(Throws<InvalidOperationException>(() => Wiki.Read("<html>Just a moment...</html>")).Message, "isn't JSON");
+});
+
+Test("Wiki.Fetch asks again for the rest of a reply the wiki cut short, and keys each page as it was asked for", () =>
+{
+	var asked = new List<string>();
+	var replies = new Queue<string>([
+		"""{"continue":{"rvcontinue":"12|34","continue":"||"},"query":{"normalized":[{"from":"Nyame_Helm","to":"Nyame Helm"}],"redirects":[{"from":"Obstinate Sash","to":"Obstin. Sash"}],"pages":[{"title":"Nyame Helm","revisions":[{"slots":{"main":{"content":"helm text"}}}]},{"title":"Obstin. Sash"},{"title":"No Such Page","missing":true}]}}""",
+		"""{"batchcomplete":true,"query":{"normalized":[{"from":"Nyame_Helm","to":"Nyame Helm"}],"redirects":[{"from":"Obstinate Sash","to":"Obstin. Sash"}],"pages":[{"title":"Nyame Helm"},{"title":"Obstin. Sash","revisions":[{"slots":{"main":{"content":"sash text"}}}]},{"title":"No Such Page","missing":true}]}}""",
+	]);
+	var pages = Wiki.Fetch(["Nyame_Helm", "Obstinate Sash", "No Such Page"], url =>
+	{
+		asked.Add(url);
+		return Task.FromResult(replies.Dequeue());
+	}).GetAwaiter().GetResult();
+	Equal(2, asked.Count);
+	True(asked[0].EndsWith("&titles=Nyame_Helm%7CObstinate%20Sash%7CNo%20Such%20Page"), asked[0]);
+	Equal(asked[0] + "&continue=%7C%7C&rvcontinue=12%7C34", asked[1]);
+	Equal("Nyame Helm", pages["Nyame_Helm"].Title);
+	Equal("helm text", pages["Nyame_Helm"].Text);
+	Equal("Obstin. Sash", pages["Obstinate Sash"].Title);
+	Equal("sash text", pages["Obstinate Sash"].Text);
+	Equal(2, pages.Count);
+});
+
+Test("Wiki.Fetch gives up on a wiki that never finishes a reply", () =>
+{
+	var requests = 0;
+	var endless = """{"continue":{"rvcontinue":"1|2","continue":"||"},"query":{"pages":[{"title":"Naegling"}]}}""";
+	var problem = Throws<InvalidOperationException>(() => Wiki.Fetch(["Naegling"], url =>
+	{
+		requests++;
+		return Task.FromResult(endless);
+	}).GetAwaiter().GetResult());
+	Contains(problem.Message, "kept answering in parts");
+	Equal(2, requests);
 });
 
 Test("RankTableParser reads every path and rank of a wiki page's rank table", () =>
@@ -325,6 +432,30 @@ Test("RankDoc.RenderCharacter refuses a rank for an item that has no rank table"
 	Contains(failure.Message, "Obstin. Sash");
 });
 
+Test("RankDoc.RenderCharacter refuses a path the item lacks, a rank its table lacks, and a path the export contradicts", () =>
+{
+	string Refusal(string item, PlayerRank rank)
+	{
+		var data = TestCharacterRanks(copy => copy);
+		data.Ranks[item] = rank;
+		return Throws<InvalidOperationException>(() => RankDoc.RenderCharacter(RankTables.Load(), Resources.Load(), TestOboro(), data)).Message;
+	}
+	Contains(Refusal("Nyame Helm", new PlayerRank("b", 1, "2026-01-03")), "Nyame Helm has no path \"b\". Its paths: A, B, C.");
+	Contains(Refusal("Obstin. Sash", new PlayerRank("A", 31, "2026-01-03")), "Obstin. Sash has no rank 31 on path A. Its ranks there: 1, 20.");
+	Contains(Refusal("Nyame Helm", new PlayerRank("A", 1, "2026-01-03")), "gives Nyame Helm path A, but the export prints 'Path: B'.");
+	// Rank 0 needs no row: it is the unranked piece.
+	var unranked = TestCharacterRanks(copy => copy);
+	unranked.Ranks["Coiste Bodhar"] = new PlayerRank("A", 0, "2026-01-03");
+	Contains(string.Join("\n", RankDoc.RenderCharacter(RankTables.Load(), Resources.Load(), TestOboro(), unranked)), "| ammo | A | 0 | 2026-01-03 | none (base stats only) |");
+});
+
+Test("RankDoc.RenderCharacter refuses an export that prints a path for an item no rank table covers", () =>
+{
+	var data = TestCharacterRanks(copy => copy.Name == "Prolix Ring" ? new ExportItem(copy.Bag, copy.SlotKey, copy.Name, ["Path: A"]) : copy);
+	var failure = Throws<InvalidOperationException>(() => RankDoc.RenderCharacter(RankTables.Load(), Resources.Load(), TestOboro(), data));
+	Contains(failure.Message, "data/export/Testy 2026-01-02 08-00-00.lua prints a path for Prolix Ring, and no rank table goes by that name.");
+});
+
 Test("GitSource.Fetch checks out the pinned commit, and leaves a folder already at it alone", () =>
 {
 	var source = NewGitRepo("source-one");
@@ -338,7 +469,8 @@ Test("GitSource.Fetch recovers a folder left half made by a fetch that failed", 
 {
 	var source = NewGitRepo("source-two");
 	var target = Path.Combine(workDir, "fetch-two");
-	Throws<InvalidOperationException>(() => GitSource.Fetch(target, Path.Combine(workDir, "no-such-repo"), source.Commit));
+	var failure = Throws<InvalidOperationException>(() => GitSource.Fetch(target, Path.Combine(workDir, "no-such-repo"), source.Commit));
+	Contains(failure.Message, $"git fetch --quiet --depth 1 --filter=blob:none origin {source.Commit} failed in {target}: ");
 	True(Directory.Exists(Path.Combine(target, ".git")), "the failed fetch left its folder behind");
 	Contains(GitSource.Fetch(target, source.Path, source.Commit), "fetched");
 	Equal("hello", File.ReadAllText(Path.Combine(target, "file.txt")).Trim());
@@ -409,9 +541,213 @@ Test("a tool stops on an option it doesn't know, a job that has no file, or a st
 	var stray = pristine.Run("check-export", "RDM");
 	Equal(2, stray.ExitCode);
 	Contains(stray.Output, "Unexpected argument RDM");
+	var grep = pristine.Run("owned-gear", "--grep", "(");
+	Equal(2, grep.ExitCode);
+	Contains(grep.Output, "--grep isn't a regular expression");
+	var pattern = pristine.Run("wsdist-gear", "nyame (");
+	Equal(2, pattern.ExitCode);
+	Contains(pattern.Output, "The item pattern isn't a regular expression");
 });
 
 // ---------------------------------------------------------------- gear-list.cs
+
+Test("a tool stops on a value it can't use: a character, an export, a slot, a job or a set", () =>
+{
+	Stops(pristine.Run("check-export", "--job"), "--job needs a value.");
+	Stops(pristine.Run("check-export", "--char", "Nobody"), "No export for Nobody in data/export.");
+	Stops(pristine.Run("check-export", "--export", "nowhere.lua"), "No export at nowhere.lua.");
+	Stops(pristine.Run("check-export", "--export", Path.Combine("data", "Testy", "RDM.lua")), "RDM.lua isn't named like a //gs export (<character> <date> <time>.lua).");
+	Stops(pristine.Run("owned-gear", "--slot", "bogus"), "bogus isn't a slot. Slots: main sub range ammo head neck ear body hands ring back waist legs feet");
+	Stops(pristine.Run("owned-gear", "--job", "XYZ"), "XYZ isn't a job. Jobs: WAR MNK");
+	Stops(pristine.Run("sims"), "Name the job: --job rdm");
+	Stops(pristine.Run("sims", "--job", "nope"), "No simulated sets for nope in .claude/cache/bg_job_guides. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
+	Stops(pristine.Run("sims", "--job", "rdm", "--set", "zzzz"), "No set on the rdm page has \"zzzz\" in its name.");
+	Stops(pristine.Run("wsdist-gear"), "Give one regex to match item names against, or --check-nyame.");
+	Stops(pristine.Run("wsdist-gear", "nyame", "helm"), "Give one regex to match item names against, or --check-nyame.");
+	Stops(pristine.Run("wiki"), "Name at least one page: dotnet run --no-cache .claude/tools/wiki.cs -- \"Nyame Helm\"");
+	// With exports for two characters, a tool has to be told whose to read.
+	var two = NewSandbox();
+	File.Copy(Path.Combine(two.Repo, "data", "export", "Testy 2026-01-02 08-00-00.lua"), Path.Combine(two.Repo, "data", "export", "Ghost 2026-02-01 08-00-00.lua"));
+	Stops(two.Run("check-export"), "data/export holds exports for 2 characters (Ghost, Testy). Pass --char <name>.");
+	Stops(two.Run("check-export", "--char", "Ghost"), "No folder data/Ghost.");
+	Equal(0, two.Run("check-export", "--char", "Testy").ExitCode);
+});
+
+Test("a tool stops when the file it checks, or the engine it checks against, isn't there", () =>
+{
+	var sandbox = NewSandbox();
+	File.Delete(Path.Combine(sandbox.Repo, "data", "Testy", "BLU.lua"));
+	File.Delete(Path.Combine(sandbox.Repo, "data", "Testy", "Testy_gear_list.md"));
+	Stops(sandbox.Run("check-blu-spells"), "No data/Testy/BLU.lua.");
+	Stops(sandbox.Run("gear-list"), "No gear list at data/Testy/Testy_gear_list.md.");
+	Directory.Delete(Path.Combine(sandbox.Repo, "data", "common"), true);
+	Stops(sandbox.Run("check-export"), "data/common/RahvinGS/GearSets-Include.lua is missing. Run: git submodule update --init");
+});
+
+Test("a tool that finds part of the cache missing names the command that fills it", () =>
+{
+	var sandbox = NewSandbox();
+	File.Delete(Path.Combine(sandbox.Cache, "res", "spells.lua"));
+	Stops(sandbox.Run("check-blu-spells"), "Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
+	File.Delete(Path.Combine(sandbox.Cache, "res", "items.lua"));
+	Stops(sandbox.Run("owned-gear"), "Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
+	Directory.Delete(Path.Combine(sandbox.Cache, "ranks"), true);
+	Stops(sandbox.Run("rank-doc", "--check"), "bg-wiki's rank tables aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/rank-tables.cs");
+	Directory.Delete(Path.Combine(sandbox.Cache, "wsdist_beta"), true);
+	Stops(sandbox.Run("wsdist-gear", "nyame"), "wsdist isn't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
+	// doc-lint goes on without the simulated sets, and says so.
+	Directory.Delete(Path.Combine(sandbox.Cache, "bg_job_guides"), true);
+	var lint = sandbox.Run("doc-lint");
+	Equal(0, lint.ExitCode);
+	Contains(lint.Output, "Simulated sets not checked: .claude/cache/bg_job_guides is missing. Run fetch-sources.cs.");
+});
+
+Test("a tool stops, and says what is missing, when the repository lacks a folder or a file it reads", () =>
+{
+	var noExports = NewSandbox();
+	Directory.Delete(Path.Combine(noExports.Repo, "data", "export"), true);
+	var export = noExports.Run("check-export");
+	Equal(2, export.ExitCode);
+	Contains(export.Output, "data/export holds no //gs export");
+	var noEngine = NewSandbox();
+	Directory.Delete(Path.Combine(noEngine.Repo, "data", "common"), true);
+	var spells = noEngine.Run("check-blu-spells");
+	Equal(2, spells.ExitCode);
+	Contains(spells.Output, "data/common/RahvinGS/interface.lua is missing");
+	var noDocs = NewSandbox();
+	Directory.Delete(Path.Combine(noDocs.Repo, "docs"), true);
+	var lint = noDocs.Run("doc-lint");
+	Equal(1, lint.ExitCode);
+	Contains(lint.Output, "link to a missing file, ../../docs/rank-augments.md");
+	var nyame = noDocs.Run("wsdist-gear", "--check-nyame");
+	Equal(2, nyame.ExitCode);
+	Contains(nyame.Output, "docs/rank-augments.md is missing");
+	// rank-doc makes the folder its document goes in.
+	Equal(0, noDocs.Run("rank-doc").ExitCode);
+	True(File.Exists(Path.Combine(noDocs.Repo, "docs", "rank-augments.md")), "rank-doc didn't write docs/rank-augments.md");
+});
+
+Test("a tool stops when a file it reads holds nothing it can use", () =>
+{
+	var ranks = NewSandbox();
+	File.WriteAllText(Path.Combine(ranks.Cache, "ranks", "ranks.json"), "{ not json");
+	Stops(ranks.Run("rank-doc", "--check"), "ranks.json can't be read");
+	File.WriteAllText(Path.Combine(ranks.Cache, "ranks", "ranks.json"), "null");
+	Stops(ranks.Run("rank-doc", "--check"), "ranks.json can't be read");
+	var items = NewSandbox();
+	File.WriteAllText(Path.Combine(items.Cache, "res", "items.lua"), "");
+	Stops(items.Run("owned-gear"), "res/items.lua holds no weapon or armor");
+	var spells = NewSandbox();
+	File.WriteAllText(Path.Combine(spells.Cache, "res", "spells.lua"), "");
+	Stops(spells.Run("check-blu-spells"), "res/spells.lua holds no blue spell");
+	var wsdist = NewSandbox();
+	File.WriteAllText(Path.Combine(wsdist.Cache, "wsdist_beta", "gear.py"), "Naegling = {\"Name\":\"Naegling\", \"DMG\":166}\n");
+	Stops(wsdist.Run("wsdist-gear", "--check-nyame"), "gear.py has no ranked Nyame entry");
+	File.WriteAllText(Path.Combine(wsdist.Cache, "wsdist_beta", "gear.py"), "");
+	Stops(wsdist.Run("wsdist-gear", "nyame"), "wsdist_beta holds no item entry");
+	var page = NewSandbox();
+	File.WriteAllText(Path.Combine(page.Cache, "bg_job_guides", "rdm.md"), "");
+	Stops(page.Run("sims", "--job", "rdm"), "holds no simulated set");
+	var export = NewSandbox();
+	File.WriteAllText(Path.Combine(export.Repo, "data", "export", "Testy 2026-01-02 08-00-00.lua"), "garbage");
+	Stops(export.Run("owned-gear"), "holds no items");
+	var jobless = NewSandbox();
+	File.Delete(Path.Combine(jobless.Repo, "data", "Testy", "BLU.lua"));
+	File.Delete(Path.Combine(jobless.Repo, "data", "Testy", "RDM.lua"));
+	Stops(jobless.Run("check-export"), "holds no job file");
+});
+
+Test("a tool that needs the network stops with exit code 2 when it can't be reached", () =>
+{
+	var sandbox = NewSandbox();
+	var tables = Path.Combine(sandbox.Cache, "ranks", "ranks.json");
+	var saved = File.ReadAllText(tables);
+	var wiki = sandbox.RunOffline("wiki", "Nyame Helm");
+	Equal(2, wiki.ExitCode);
+	Contains(wiki.Output, "Couldn't reach bg-wiki");
+	var ranks = sandbox.RunOffline("rank-tables");
+	Equal(2, ranks.ExitCode);
+	Contains(ranks.Output, "Couldn't reach bg-wiki");
+	Equal(saved, File.ReadAllText(tables));
+	var sources = sandbox.RunOffline("fetch-sources", "--refresh");
+	Equal(2, sources.ExitCode);
+	Contains(sources.Output, "res/items.lua: couldn't download it");
+	// Without --refresh the resources in the cache stay as they are, and the first repository git can't fetch stops it.
+	var repositories = sandbox.RunOffline("fetch-sources");
+	Equal(2, repositories.ExitCode);
+	Contains(repositories.Output, "res/items.lua: present (");
+	Contains(repositories.Output, "wsdist_beta: git fetch --quiet --depth 1 --filter=blob:none origin d12ac5923ccace977ad55d172c8698b5886b9e4f failed in ");
+});
+
+Test("wiki saves each page under the name it was asked by, says which it couldn't find, and asks once", () =>
+{
+	var reply = """
+		{"batchcomplete":true,"query":{
+		"redirects":[{"from":"Obstinate Sash","to":"Obstin. Sash"}],
+		"pages":[{"title":"Nyame Helm","revisions":[{"slots":{"main":{"content":"helm text"}}}]},
+		{"title":"Obstin. Sash","revisions":[{"slots":{"main":{"content":"sash text"}}}]},
+		{"title":"Category:Enspell","revisions":[{"slots":{"main":{"content":"enspell text"}}}]},
+		{"title":"No Such Page","missing":true}]}}
+		""";
+	using var site = new StandInSite(request => new StandInReply(200, reply));
+	var sandbox = NewSandbox();
+	var run = sandbox.RunAgainst(site, "wiki", "Nyame Helm", "Obstinate Sash", "Category:Enspell", "No Such Page");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "saved   ../cache/wiki/Nyame_Helm.txt (9 chars)\n");
+	Contains(run.Output, "saved   ../cache/wiki/Obstinate_Sash.txt (9 chars) (the page is \"Obstin. Sash\")");
+	Contains(run.Output, "saved   ../cache/wiki/Category_Enspell.txt (12 chars)");
+	Contains(run.Output, "MISSING No Such Page: bg-wiki has no page by that name");
+	Equal("sash text", File.ReadAllText(Path.Combine(sandbox.Cache, "wiki", "Obstinate_Sash.txt")));
+	Equal(1, site.Requests.Count);
+	Contains(site.Requests[0], "titles=Nyame Helm|Obstinate Sash|Category:Enspell|No Such Page");
+	// A page already saved is asked for again only with --refresh.
+	var again = sandbox.RunAgainst(site, "wiki", "Category:Enspell");
+	Equal(0, again.ExitCode);
+	Contains(again.Output, "cached  ../cache/wiki/Category_Enspell.txt (12 bytes, from ");
+	Equal(1, site.Requests.Count);
+	Equal(0, sandbox.RunAgainst(site, "wiki", "--refresh", "Category:Enspell").ExitCode);
+	Equal(2, site.Requests.Count);
+});
+
+Test("wiki stops when bg-wiki answers with an error, in HTTP or in its reply", () =>
+{
+	var sandbox = NewSandbox();
+	using var busy = new StandInSite(request => new StandInReply(503, "busy"));
+	Stops(sandbox.RunAgainst(busy, "wiki", "Nyame Helm"), "bg-wiki answered 503 for http://127.0.0.1:");
+	using var refusing = new StandInSite(request => new StandInReply(200, """{"error":{"code":"maxlag","info":"Waiting for a database server"}}"""));
+	Stops(sandbox.RunAgainst(refusing, "wiki", "Nyame Helm"), "bg-wiki's API answered with an error, maxlag: Waiting for a database server");
+	Equal(0, Directory.GetFiles(Path.Combine(sandbox.Cache, "wiki")).Length);
+});
+
+Test("rank-tables saves the rank table of every exported item whose page has one", () =>
+{
+	var helm = string.Join("\n", "|RankMax=30", "{{Augment Rank Table", "|Path=A", "{{Augment Rank Row", "|Rank=1", "|Augment1=Accuracy+1", "|Augment2=---", "}}",
+		"|Path=B", "{{Augment Rank Row", "|Rank=1", "|Augment1=Attack+3 Rng. Atk.+3", "|Augment2=---", "|Augment3=---", "}}", "}}");
+	string Reply(string helmText) => "{\"query\":{\"pages\":[{\"title\":\"Naegling\",\"revisions\":[{\"slots\":{\"main\":{\"content\":\"no table here\"}}}]},"
+		+ "{\"title\":\"Nyame Helm\",\"revisions\":[{\"slots\":{\"main\":{\"content\":" + JsonSerializer.Serialize(helmText) + "}}}]}]}}";
+	using var site = new StandInSite(request => new StandInReply(200, Reply(helm)));
+	var sandbox = NewSandbox();
+	var run = sandbox.RunAgainst(site, "rank-tables");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "1 items with rank tables, from data/export/Testy 2026-01-02 08-00-00.lua: Nyame Helm");
+	Contains(run.Output, "No bg-wiki page under the export's name for: Rumination Sash, Almace, Ammurapi Shield, ");
+	Equal(1, site.Requests.Count);
+	Contains(site.Requests[0], "titles=Rumination Sash|Naegling|Almace|");
+	var path = Path.Combine(sandbox.Cache, "ranks", "ranks.json");
+	using var saved = JsonDocument.Parse(File.ReadAllText(path));
+	Equal(DateTime.Today.ToString("yyyy-MM-dd"), saved.RootElement.GetProperty("Fetched").GetString());
+	var items = saved.RootElement.GetProperty("Items");
+	Equal(1, items.GetArrayLength());
+	Equal("Nyame Helm", items[0].GetProperty("Name").GetString());
+	Equal(30, items[0].GetProperty("RankMax").GetInt32());
+	Equal("A B", string.Join(" ", items[0].GetProperty("Paths").EnumerateArray().Select(entry => entry.GetProperty("Path").GetString())));
+	Equal("Attack+3 Rng. Atk.+3", items[0].GetProperty("Paths")[1].GetProperty("Ranks")[0].GetProperty("Augments")[0].GetString());
+	// A page whose table can't be read stops the run, and the tables saved before stay.
+	var before = File.ReadAllText(path);
+	using var odd = new StandInSite(request => new StandInReply(200, Reply("{{Augment Rank Table\n|Path=A\n}}")));
+	Stops(sandbox.RunAgainst(odd, "rank-tables"), "bg-wiki's Nyame Helm page has an Augment Rank Table, but not every path's rows could be read from it.");
+	Equal(before, File.ReadAllText(path));
+});
 
 Test("gear-list passes a list that matches the job files, and --print reproduces it", () =>
 {
@@ -425,7 +761,7 @@ Test("gear-list passes a list that matches the job files, and --print reproduces
 	Equal(string.Join("\n", written), string.Join("\n", printed));
 });
 
-Test("gear-list reports each kind of mismatch between the list and the job files", () =>
+Test("gear-list reports rows, counts, copies and totals that differ from the job files", () =>
 {
 	var sandbox = NewSandbox();
 	var list = "data/Testy/Testy_gear_list.md";
@@ -480,14 +816,139 @@ Test("gear-list reports a job file the list has no column for, and --print gives
 	Contains(printed, "| Eschan Stone |  |  | `WS[each magical WS].ACC` | `Idle` |");
 });
 
+Test("gear-list wants a row for each of two identical copies", () =>
+{
+	var sandbox = NewSandbox();
+	var list = "data/Testy/Testy_gear_list.md";
+	sandbox.Edit(list, "| Stikini Ring | one of two identical copies |  | `Idle` |\n| Stikini Ring | one of two identical copies |  | `Idle` |\n", "| Stikini Ring | one of two identical copies |  | `Idle` |\n");
+	sandbox.Edit(list, "## Rings (3)", "## Rings (2)");
+	sandbox.Edit(list, "**17 pieces** (3 for BLU, 15 for RDM, 1 worn by both)", "**16 pieces** (3 for BLU, 14 for RDM, 1 worn by both)");
+	var run = sandbox.Run("gear-list");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "Stikini Ring: no row left, since another copy took its one row. Expected: BLU:  | RDM: `Idle`");
+	Contains(run.Output, "problems: 1");
+});
+
+Test("gear-list reads the totals from the list's opening sentence only", () =>
+{
+	var sandbox = NewSandbox();
+	var list = "data/Testy/Testy_gear_list.md";
+	sandbox.Edit(list, "(3 for BLU, 15 for RDM, 1 worn by both)", "(3 for BLU)");
+	sandbox.Edit(list, "## Reference\n", "## Reference\n\nThe notes say 99 for RDM, which isn't a count of this list.\n");
+	var run = sandbox.Run("gear-list");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "problems: 0");
+});
+
+Test("gear-list counts a malformed row or a column with no job file as a problem in the list", () =>
+{
+	var sandbox = NewSandbox();
+	sandbox.Edit("data/Testy/Testy_gear_list.md", "| Naegling |  |  | `Weapons['Savage Blade']` |", "| Naegling |  |  | `Weapons['Savage Blade']` | extra |");
+	var malformed = sandbox.Run("gear-list");
+	Equal(1, malformed.ExitCode);
+	Contains(malformed.Output, "line 17: 5 cells, but the header has 4");
+	var orphaned = NewSandbox();
+	File.Delete(Path.Combine(orphaned.Repo, "data", "Testy", "BLU.lua"));
+	var column = orphaned.Run("gear-list");
+	Equal(1, column.ExitCode);
+	Contains(column.Output, "The list has a BLU column, but there is no data/Testy/BLU.lua");
+});
+
+Test("gear-list leaves tables outside the gear sections alone, and reports a section whose columns differ", () =>
+{
+	var sandbox = NewSandbox();
+	var list = "data/Testy/Testy_gear_list.md";
+	sandbox.Edit(list, "## Reference\n", "## Reference\n\n| File | What it holds |\n|---|---|\n| Testy_notes.md | The player's rules |\n");
+	var reference = sandbox.Run("gear-list");
+	Equal(0, reference.ExitCode);
+	Contains(reference.Output, "problems: 0");
+	sandbox.Edit(list, "## Ammo (1)\n\n| Item | Copy | BLU sets | RDM sets |\n|---|---|---|---|\n| Coiste Bodhar |  |  | `WS` |", "## Ammo (1)\n\n| Item | Copy | RDM sets |\n|---|---|---|\n| Coiste Bodhar |  | `WS` |");
+	var columns = sandbox.Run("gear-list");
+	Equal(1, columns.ExitCode);
+	Contains(columns.Output, "## Ammo has the job columns RDM, but the list's first table has BLU, RDM");
+	Contains(columns.Output, "problems: 1");
+});
+
+Test("gear-list reports a key with no entry, a piece worn under two sections, and a row the export doesn't back", () =>
+{
+	var sets = NewSandbox();
+	sets.Edit("data/Testy/RDM.lua", "\tsets.WS = { ammo = gear.coiste }\n", "\tsets.WS = { ammo = gear.coiste, neck = gear.noSuchKey, waist = gear.nyameHead }\n");
+	var worn = sets.Run("gear-list");
+	Equal(1, worn.ExitCode);
+	Contains(worn.Output, "RDM: gear.noSuchKey (line 45) has no definition; check-export.cs reports these");
+	Contains(worn.Output, "RDM: gear.nyameHead is worn in waist (Waist) at line 45, but elsewhere under Head");
+	var rows = NewSandbox();
+	var list = "data/Testy/Testy_gear_list.md";
+	rows.Edit(list, "| Eschan Stone |  |", "| Eschan Stonee |  |");
+	rows.Edit(list, "| Prolix Ring |  |", "| Prolix Ring | one of two identical copies |");
+	var unbacked = rows.Run("gear-list");
+	Equal(1, unbacked.ExitCode);
+	Contains(unbacked.Output, "Eschan Stonee isn't in the export");
+	Contains(unbacked.Output, "Prolix Ring is listed as one of several copies, but the export has 1");
+	Contains(unbacked.Output, "Prolix Ring: the Copy column says [one of two identical copies], but the export has one copy, so the column stays empty");
+	// Three identical copies need three rows.
+	var third = NewSandbox();
+	third.Edit("data/Testy/RDM.lua", "gear.stikini2 = hp_gear(\"Stikini Ring\", 0)\n", "gear.stikini2 = hp_gear(\"Stikini Ring\", 0)\ngear.stikini3 = hp_gear(\"Stikini Ring\", 0)\n");
+	third.Edit("data/Testy/RDM.lua", "\tsets.WS = { ammo = gear.coiste }\n", "\tsets.WS = { ammo = gear.coiste, left_ring = gear.stikini3 }\n");
+	Contains(third.Run("gear-list").Output, "Stikini Ring: no row left, since another copy took each of its 2 rows. Expected: BLU:  | RDM: `WS`");
+});
+
+Test("gear-list says it once when the files wear two copies of a piece and the export holds one", () =>
+{
+	var sandbox = NewSandbox();
+	var export = Path.Combine(sandbox.Repo, "data", "export", "Testy 2026-01-02 08-00-00.lua");
+	File.WriteAllText(export, File.ReadAllText(export).Replace("        left_ring=\"Stikini Ring\",\n        left_ring=\"Stikini Ring\",\n", "        left_ring=\"Stikini Ring\",\n"));
+	var run = sandbox.Run("gear-list");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "Stikini Ring is listed as one of several copies, but the export has 1");
+	True(run.Output.Contains("one of 1 identical") is false, run.Output);
+	Contains(run.Output, "problems: 2");
+});
+
+Test("gear-list reads each table by its own header, and says so when it can't", () =>
+{
+	var list = "data/Testy/Testy_gear_list.md";
+	var ammo = "## Ammo (1)\n\n| Item | Copy | BLU sets | RDM sets |\n|---|---|---|---|\n";
+	var spaced = NewSandbox();
+	spaced.Edit(list, ammo, "## Ammo (1)\n\n| Item | Copy | BLU sets | RDM sets |\n| --- | :-- | --- | --- |\n");
+	Equal(0, spaced.Run("gear-list").ExitCode);
+	var twice = NewSandbox();
+	twice.Edit(list, ammo + "| Coiste Bodhar |  |  | `WS` |", "## Ammo (1)\n\n| Item | Copy | RDM sets | RDM sets |\n|---|---|---|---|\n| Coiste Bodhar |  |  | `WS` |");
+	var repeated = twice.Run("gear-list");
+	Equal(1, repeated.ExitCode);
+	Contains(repeated.Output, "line 21: the header names a job more than once: RDM, RDM");
+	Contains(repeated.Output, "problems: 2");
+	var headless = NewSandbox();
+	headless.Edit(list, ammo, "## Ammo (1)\n\n| Piece | Copy | BLU sets | RDM sets |\n|---|---|---|---|\n");
+	var unread = headless.Run("gear-list");
+	Equal(1, unread.ExitCode);
+	Contains(unread.Output, "line 21: this table's first row isn't an `| Item | Copy | ... |` header, so its rows aren't read");
+	Contains(unread.Output, "Coiste Bodhar: no row.");
+	Contains(unread.Output, "## Ammo (1) has 0 rows");
+});
+
+Test("gear-list says why the Copy column stays empty for an entry that names no augments", () =>
+{
+	var sandbox = NewSandbox();
+	var list = "data/Testy/Testy_gear_list.md";
+	sandbox.Edit("data/Testy/RDM.lua", "\t\tright_ring = gear.stikini2,\n", "");
+	sandbox.Edit(list, "| Stikini Ring | one of two identical copies |  | `Idle` |\n| Stikini Ring | one of two identical copies |  | `Idle` |\n", "| Stikini Ring | one of two identical copies |  | `Idle` |\n");
+	sandbox.Edit(list, "## Rings (3)", "## Rings (2)");
+	sandbox.Edit(list, "**17 pieces** (3 for BLU, 15 for RDM, 1 worn by both)", "**16 pieces** (3 for BLU, 14 for RDM, 1 worn by both)");
+	var run = sandbox.Run("gear-list");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "Stikini Ring: the Copy column says [one of two identical copies], but the entry that wears it names no augments, so the column stays empty");
+	Contains(run.Output, "problems: 1");
+});
+
 // ---------------------------------------------------------------- rank-doc.cs
 
 Test("rank-doc finds both rank documents to be what it would write", () =>
 {
 	var run = pristine.Run("rank-doc", "--check");
 	Equal(0, run.ExitCode);
-	Contains(run.Output, "docs/rank-augments.md");
-	Contains(run.Output, "data/Testy/Testy_rank_augments.md");
+	Contains(run.Output, "docs/rank-augments.md is what this would write");
+	Contains(run.Output, "data/Testy/Testy_rank_augments.md is what this would write");
 });
 
 Test("rank-doc rewrites a character's document from the Ranks table, and leaves the tables alone", () =>
@@ -502,6 +963,8 @@ Test("rank-doc rewrites a character's document from the Ranks table, and leaves 
 	Equal(before, File.ReadAllText(Path.Combine(pristine.Repo, "docs", "rank-augments.md")));
 	var run = sandbox.Run("rank-doc");
 	Equal(0, run.ExitCode);
+	Contains(run.Output, "86 lines -> docs/rank-augments.md");
+	Contains(run.Output, "22 lines -> data/Testy/Testy_rank_augments.md");
 	Contains(File.ReadAllText(Path.Combine(sandbox.Repo, "data", "Testy", "Testy_rank_augments.md")),
 		"| [Nyame Helm](../../docs/rank-augments.md#nyame-helm) | head | B | 15 | 2026-01-05 | Attack+20 Rng. Atk.+20, Weapon skill damage +7% |");
 	Equal(before, File.ReadAllText(tables));
@@ -525,6 +988,18 @@ Test("rank-doc stops on a Ranks row it can't use, and writes nothing", () =>
 });
 
 // ---------------------------------------------------------------- owned-gear.cs
+
+Test("rank-doc stops on an exported path item that no rank table covers, and writes nothing", () =>
+{
+	var sandbox = NewSandbox();
+	sandbox.Edit("data/export/Testy 2026-01-02 08-00-00.lua", "left_ring=\"Prolix Ring\",", "left_ring={ name=\"Prolix Ring\", augments={'Path: A',}},");
+	var document = Path.Combine(sandbox.Repo, "data", "Testy", "Testy_rank_augments.md");
+	var before = File.ReadAllText(document);
+	var run = sandbox.Run("rank-doc");
+	Equal(2, run.ExitCode);
+	Contains(run.Output, "prints a path for Prolix Ring, and no rank table goes by that name.");
+	Equal(before, File.ReadAllText(document));
+});
 
 Test("owned-gear lists what a job can wear in a slot, with bag, jobs, keys and who wears it", () =>
 {
@@ -555,6 +1030,15 @@ Test("owned-gear marks bags GearSwap can't reach, counts copies and names the en
 	Contains(run.Output, "[9 items share this name; this is the highest stage]");
 	Contains(run.Output, "20 pieces");
 	True(run.Output.Contains("Echo Drops") is false, "an item that can't be worn isn't gear");
+});
+
+Test("owned-gear names what the export holds that the resources don't know as gear", () =>
+{
+	var sandbox = NewSandbox();
+	sandbox.Edit("data/export/Testy 2026-01-02 08-00-00.lua", "        sub=\"Ammurapi Shield\",\n", "        sub=\"Ammurapi Shield\",\n        sub=\"No Such Shield\",\n");
+	var run = sandbox.Run("owned-gear");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "20 pieces; not weapons or armor in the resources: No Such Shield");
 });
 
 Test("owned-gear filters by slot under either hand and by text, and writes JSON for another tool", () =>
@@ -588,7 +1072,51 @@ Test("check-blu-spells passes lists that hold every blue spell once", () =>
 	var run = pristine.Run("check-blu-spells");
 	Equal(0, run.ExitCode);
 	Contains(run.Output, "9 blue spells; BluePhysical 2, BlueBreath 1, BlueNuke 1, BlueSkill 1, BlueBuff 1, BlueTank 2, BlueHealing 1, BlueACC 0");
+	Contains(run.Output, "lists from BLU.lua: BlueBuff; from the engine: BluePhysical, BlueBreath, BlueNuke, BlueSkill, BlueTank, BlueHealing, BlueACC");
 	Contains(run.Output, "problems: 0");
+	// A list declared inside a function is the same global.
+	var indented = NewSandbox();
+	indented.Edit("data/Testy/BLU.lua", "BlueBuff = S { 'Cocoon' }", "\tBlueBuff = S { 'Cocoon', 'Foot Kick' }");
+	Contains(indented.Run("check-blu-spells").Output, "Foot Kick: in BluePhysical and BlueBuff");
+});
+
+Test("check-blu-spells takes a spell with a set of its own as placed, since the engine wears that set", () =>
+{
+	var sandbox = NewSandbox();
+	sandbox.Edit("data/Testy/BLU.lua", "BlueBuff = S { 'Cocoon' }", "BlueBuff = S { }");
+	sandbox.Edit("data/Testy/BLU.lua", "\tsets.Midcast = set_combine(sets.Idle, {})\n", "\tsets.Midcast = set_combine(sets.Idle, {})\n\tsets.Midcast['Cocoon'] = set_combine(sets.Midcast, {})\n");
+	var run = sandbox.Run("check-blu-spells");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "in no list, wearing a set of their own: Cocoon");
+	Contains(run.Output, "problems: 0");
+	sandbox.Edit("data/Testy/BLU.lua", "sets.Midcast['Cocoon'] =", "sets.Midcast.Cocoon =");
+	Equal(0, sandbox.Run("check-blu-spells").ExitCode);
+	// A set under another name leaves the spell where it was.
+	sandbox.Edit("data/Testy/BLU.lua", "sets.Midcast.Cocoon =", "sets.Midcast.Cocoons =");
+	Contains(sandbox.Run("check-blu-spells").Output, "Cocoon: in no list, so it casts in the idle set");
+});
+
+Test("check-blu-spells says so when the job file changes a list in a way it can't read", () =>
+{
+	var sandbox = NewSandbox();
+	sandbox.Edit("data/Testy/BLU.lua", "BlueBuff = S { 'Cocoon' }", "BlueBuff = BlueBuff + S { 'Foot Kick' }\nBlueTank:remove('Blank Gaze')");
+	var run = sandbox.Run("check-blu-spells");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "BLU.lua changes BlueBuff at line 7 in a way this check can't read, so the list it checked may not be the one the game uses");
+	Contains(run.Output, "BLU.lua changes BlueTank at line 8 in a way this check can't read");
+	Contains(run.Output, "lists from BLU.lua: none; from the engine: BluePhysical, BlueBreath, BlueNuke, BlueSkill, BlueBuff, BlueTank, BlueHealing, BlueACC");
+	Contains(run.Output, "problems: 2");
+	// Which of two assignments the game ends up with depends on when each runs, and the text doesn't say.
+	var twice = NewSandbox();
+	twice.Edit("data/Testy/BLU.lua", "function get_sets()\n", "function get_sets()\n\tBlueBuff = S { 'Cocoon', 'Foot Kick' }\n");
+	var second = twice.Run("check-blu-spells");
+	Equal(1, second.ExitCode);
+	Contains(second.Output, "BLU.lua changes BlueBuff at line 10 in a way this check can't read");
+	Contains(second.Output, "problems: 1");
+	// Reading a list changes nothing.
+	var reading = NewSandbox();
+	reading.Edit("data/Testy/BLU.lua", "function get_sets()\n", "function get_sets()\n\tif BlueBuff:contains('Cocoon') and BlueBuff ~= nil and BlueBuff == BlueBuff then end\n");
+	Equal(0, reading.Run("check-blu-spells").ExitCode);
 });
 
 Test("check-blu-spells reports a spell in no list, in two lists, and a name that isn't a spell", () =>
@@ -631,7 +1159,7 @@ Test("doc-lint passes docs that are in order, and says which owned pieces have n
 	Contains(run.Output, "problems: 0");
 });
 
-Test("doc-lint reports each kind of mistake in the docs", () =>
+Test("doc-lint reports mistakes in links, entries, Simulated sets bullets, table rows and raw markup", () =>
 {
 	var sandbox = NewSandbox();
 	var notes = "docs/gear-notes.md";
@@ -656,6 +1184,84 @@ Test("doc-lint reports each kind of mistake in the docs", () =>
 	Contains(run.Output, "docs/ffxi-mechanics.md:13: link to a missing file, nowhere.md");
 	Contains(run.Output, "docs/ffxi-mechanics.md:13: raw tag <b>");
 	Contains(run.Output, "docs/ffxi-mechanics.md:13: two tildes on one line");
+});
+
+Test("doc-lint reports what else can be wrong with a link, a table, a Simulated sets bullet or a row of pieces lacking", () =>
+{
+	var sandbox = NewSandbox();
+	var notes = "docs/gear-notes.md";
+	var bullet = "- Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): ";
+	File.AppendAllText(Path.Combine(sandbox.Repo, "data", "Testy", "Testy_notes.md"), "\nThe sets are in [the job file](RDM.lua#idle).\n");
+	File.AppendAllText(Path.Combine(sandbox.Repo, "docs", "ffxi-mechanics.md"), "\n| a | b |\n| 1 | 2 |\n\nText right above.\n| c | d |\n|---|---|\n| 1 | 2 |\n");
+	sandbox.Edit(notes, "*Naegling.*\n\n" + bullet, "*Naegling.*\n\n- Simulated sets (bg-wiki): ");
+	sandbox.Edit(notes, "No notes beyond the help text: Colada.", "### Colada\n\n" + bullet + "RDM: Savage Blade (Mid buff).");
+	sandbox.Edit(notes, "## Other slots\n", "## Ears\n\n### Hoxne Earring\n\n" + bullet + "RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff).\n\n## Other slots\n");
+	sandbox.Edit("data/Testy/Testy_gear_notes.md", "| Hoxne Earring | Savage Blade |", "| Hoxne Earring | Chant du Cygne |");
+	var run = sandbox.Run("doc-lint");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "data/Testy/Testy_notes.md:22: anchor into a file this tool doesn't read, RDM.lua#idle");
+	Contains(run.Output, "docs/ffxi-mechanics.md:15: table without a delimiter row");
+	Contains(run.Output, "docs/ffxi-mechanics.md:19: table with no blank line above it");
+	Contains(run.Output, "Naegling: the Simulated sets bullet doesn't open the way the others do");
+	Contains(run.Output, "Colada has a Simulated sets bullet, but no RDM or BLU set wears it");
+	Contains(run.Output, "docs/gear-notes.md: Hoxne Earring has a Simulated sets bullet but isn't in the export");
+	Contains(run.Output, "Hoxne Earring, RDM sets\n    doc:   Chant du Cygne\n    pages: Savage Blade");
+});
+
+Test("doc-lint reads a table of pieces lacking whose delimiter row is spaced out and sets the alignment", () =>
+{
+	var sandbox = NewSandbox();
+	var own = Path.Combine(sandbox.Repo, "data", "Testy", "Testy_gear_notes.md");
+	File.WriteAllText(own, File.ReadAllText(own).Replace("|---|---|", "| :--- | :--- |"));
+	var run = sandbox.Run("doc-lint");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "problems: 0");
+});
+
+Test("doc-lint reads a \"No notes\" list whose last name ends in a full stop of its own", () =>
+{
+	var sandbox = NewSandbox();
+	sandbox.Edit("data/export/Testy 2026-01-02 08-00-00.lua", "        waist=\"Eschan Stone\",\n", "        waist=\"Eschan Stone\",\n        legs=\"Tatena. Sune.\",\n");
+	Contains(sandbox.Run("doc-lint").Output, "No notes yet for 2 pieces in the bags: Ea Houppelande, Tatena. Sune.");
+	sandbox.Edit("docs/gear-notes.md", "No notes beyond the help text: Colada.", "No notes beyond the help text: Colada, Tatena. Sune.");
+	var run = sandbox.Run("doc-lint");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "No notes yet for 1 pieces in the bags: Ea Houppelande\n");
+	// The list and an entry for the same piece are still told apart.
+	sandbox.Edit("docs/gear-notes.md", "## Other slots\n", "## Legs\n\n### Tatena. Sune.\n\n*Legs.*\n\n## Other slots\n");
+	var twice = sandbox.Run("doc-lint");
+	Equal(1, twice.ExitCode);
+	Contains(twice.Output, "Tatena. Sune. is in a \"No notes\" list and has an entry");
+});
+
+Test("doc-lint counts a pipe inside a code span as a cell, as the page does", () =>
+{
+	var sandbox = NewSandbox();
+	sandbox.Edit("docs/ffxi-mechanics.md", "| Fast Cast | 80% |", "| Fast Cast | `80|90`% |");
+	var run = sandbox.Run("doc-lint");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "docs/ffxi-mechanics.md:11: 3 cells, but the table that starts at line 9 has 2");
+});
+
+Test("doc-lint knows an owned piece that a simulated set names by its long name", () =>
+{
+	var sandbox = NewSandbox();
+	var page = Path.Combine(sandbox.Cache, "bg_job_guides", "blu.md");
+	File.WriteAllText(page, File.ReadAllText(page).Replace("|Head = Nyame Helm", "|Head = Nyame Helm\n            |Hands = Hashishin Bazubands +3"));
+	var run = sandbox.Run("doc-lint");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "docs/gear-notes.md: Hashi. Bazu. +3 is in a bag and in the simulated sets, but its entry has no Simulated sets bullet. Sets: BLU: Expiacion (Mid buff)");
+	True(run.Output.Contains("lacks Hashishin Bazubands +3") is false, "an owned piece was taken for one the character lacks:\n" + run.Output);
+	Contains(run.Output, "problems: 1");
+});
+
+Test("doc-lint reports a code fence that is never closed", () =>
+{
+	var sandbox = NewSandbox();
+	File.AppendAllText(Path.Combine(sandbox.Repo, "docs", "ffxi-mechanics.md"), "\n```\n| a | b |\n");
+	var run = sandbox.Run("doc-lint");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "docs/ffxi-mechanics.md:15: a code fence that is never closed, so nothing after it is checked");
 });
 
 Test("doc-lint keeps what holds for one character out of docs/", () =>
@@ -710,6 +1316,19 @@ Test("wsdist-gear finds an item's entries, and checks Nyame's against the rank d
 	Equal(1, wrong.ExitCode);
 	Contains(wrong.Output, "gear.py:8 Nyame Helm R15B: wsdist adds Attack 19, Ranged Attack 20, Weapon Skill Damage 7 | bg-wiki Attack 20, Ranged Attack 20, Weapon Skill Damage 7");
 	Equal(2, pristine.Run("wsdist-gear").ExitCode);
+});
+
+Test("wsdist-gear --check-nyame says what it can't compare and what it can't read", () =>
+{
+	var sandbox = NewSandbox();
+	File.AppendAllText(Path.Combine(sandbox.Cache, "wsdist_beta", "gear.py"), "Nyame_Mail15B = {\"Name\":\"Nyame Mail\", \"Name2\":\"Nyame Mail R15B\", \"Rank\":15, \"Accuracy\":40}\n");
+	sandbox.Edit("docs/rank-augments.md", "| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +7% |", "| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage up 7% |");
+	sandbox.Edit("docs/rank-augments.md", "| 15 | \"Mag. Atk. Bns.\"+20 | INT/MND/CHR+5 |", "| 15 | \"Mag. Atk. Bns.\"+20 | Enmity+5 |");
+	var run = sandbox.Run("wsdist-gear", "--check-nyame");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "gear.py:11 Nyame Mail R15B: no rank 0 entry or no row in docs/rank-augments.md to compare with");
+	Contains(run.Output, "docs/rank-augments.md, Nyame Helm R15B: can't read \"Weapon skill damage up 7%\"");
+	Contains(run.Output, "docs/rank-augments.md, Nyame Helm R15C: no wsdist stat known for \"Enmity\"");
 });
 
 Test("search-fast-recast reads owned-gear's JSON, with the hidden Fast Cast values", () =>
@@ -854,6 +1473,13 @@ CharacterRanks TestCharacterRanks(Func<ExportItem, ExportItem> change)
 	return new CharacterRanks("Testy", Tool.RepoRelative(export), Export.Read(export).Select(change).ToList(), PlayerRanks.Read(Characters.Notes("Testy")));
 }
 
+// A tool that couldn't run: exit code 2, and a line that says why.
+void Stops(ToolRun run, string message)
+{
+	Equal(2, run.ExitCode);
+	Contains(run.Output, message);
+}
+
 void True(bool condition, string what)
 {
 	if (condition is false)
@@ -894,7 +1520,6 @@ sealed class TestFailure : Exception
 	}
 }
 
-// A repository made for one test, and its only commit.
 sealed class GitRepo
 {
 	public string Path { get; }
@@ -908,7 +1533,6 @@ sealed class GitRepo
 	}
 }
 
-// What a tool printed and how it ended.
 sealed class ToolRun
 {
 	public int ExitCode { get; }
@@ -923,6 +1547,77 @@ sealed class ToolRun
 		ExitCode = exitCode;
 		StandardOutput = standardOutput;
 		Output = standardOutput + standardError;
+	}
+}
+
+// Stands in for bg-wiki's API on this machine: it answers each request with what a test hands it.
+sealed class StandInSite : IDisposable
+{
+	public string Url { get; }
+
+	// The path and query of each request, unescaped, in the order they came.
+	public List<string> Requests { get; }
+
+	TcpListener listener;
+	Func<string, StandInReply> answer;
+
+	public StandInSite(Func<string, StandInReply> answer)
+	{
+		this.answer = answer;
+		Requests = [];
+		// Port 0 leaves the choice of a free port to the system.
+		listener = new TcpListener(IPAddress.Loopback, 0);
+		listener.Start();
+		Url = $"http://127.0.0.1:{((IPEndPoint)listener.LocalEndpoint).Port}/api.php";
+		Task.Run(Serve);
+	}
+
+	public void Dispose() => listener.Stop();
+
+	async Task Serve()
+	{
+		while (true)
+		{
+			TcpClient client;
+			try
+			{
+				client = await listener.AcceptTcpClientAsync();
+			}
+			catch (Exception stopped) when (stopped is SocketException or ObjectDisposedException)
+			{
+				return;
+			}
+			using (client)
+			{
+				var stream = client.GetStream();
+				var reader = new StreamReader(stream, Encoding.ASCII);
+				var requestLine = await reader.ReadLineAsync() ?? "";
+				// The headers end at the first empty line, and a GET sends nothing after them.
+				while ((await reader.ReadLineAsync())?.Length > 0)
+				{
+				}
+				var target = Uri.UnescapeDataString(requestLine.Split(' ').ElementAtOrDefault(1) ?? "");
+				Requests.Add(target);
+				var reply = answer(target);
+				var body = Encoding.UTF8.GetBytes(reply.Body);
+				var head = $"HTTP/1.1 {reply.Status} Stand-in\r\nContent-Type: application/json; charset=utf-8\r\nContent-Length: {body.Length}\r\nConnection: close\r\n\r\n";
+				await stream.WriteAsync(Encoding.ASCII.GetBytes(head));
+				await stream.WriteAsync(body);
+			}
+		}
+	}
+}
+
+sealed class StandInReply
+{
+	public int Status { get; }
+
+	public string Body { get; }
+
+	public StandInReply(int status, string body)
+	{
+		Status = status;
+		Body = body;
 	}
 }
 
@@ -953,13 +1648,19 @@ sealed class Sandbox
 		File.WriteAllText(path, text.Replace(oldText, newText));
 	}
 
-	// Runs one of the tools against this sandbox, as the command line does.
 	public ToolRun Run(string tool, params string[] arguments) => Start(Path.Combine(toolsDir, tool + ".cs"), true, arguments);
 
-	// Runs a tool file from anywhere, with or without --no-cache.
+	// Runs a tool with its web requests sent to a closed port of this machine, so each fails at once, as it does
+	// with no network.
+	public ToolRun RunOffline(string tool, params string[] arguments) => Start(Path.Combine(toolsDir, tool + ".cs"), true, arguments, offline: true);
+
+	// Runs a tool with bg-wiki's API answered by a stand-in on this machine. Every other web request goes to the
+	// closed port, so a tool that asked the real site would fail, not reach it.
+	public ToolRun RunAgainst(StandInSite wiki, string tool, params string[] arguments) => Start(Path.Combine(toolsDir, tool + ".cs"), true, arguments, offline: true, wiki: wiki.Url);
+
 	public ToolRun RunFile(string toolFile, bool rebuild) => Start(toolFile, rebuild, []);
 
-	ToolRun Start(string toolFile, bool rebuild, string[] arguments)
+	ToolRun Start(string toolFile, bool rebuild, string[] arguments, bool offline = false, string? wiki = null)
 	{
 		var start = new ProcessStartInfo("dotnet") { WorkingDirectory = Repo, RedirectStandardOutput = true, RedirectStandardError = true };
 		start.ArgumentList.Add("run");
@@ -971,6 +1672,25 @@ sealed class Sandbox
 			start.ArgumentList.Add(argument);
 		start.Environment["GEAR_TOOLS_ROOT"] = Repo;
 		start.Environment["GEAR_TOOLS_CACHE"] = Cache;
+		if (offline)
+		{
+			// .NET reads these in either case, and takes the lower-case name first where case matters.
+			string[] proxies = ["http_proxy", "https_proxy", "all_proxy", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"];
+			foreach (var proxy in proxies)
+				start.Environment[proxy] = "http://127.0.0.1:1";
+			// The same for git, over any proxy its own configuration names.
+			start.Environment["GIT_CONFIG_COUNT"] = "1";
+			start.Environment["GIT_CONFIG_KEY_0"] = "http.proxy";
+			start.Environment["GIT_CONFIG_VALUE_0"] = "http://127.0.0.1:1";
+			start.Environment.Remove("no_proxy");
+			start.Environment.Remove("NO_PROXY");
+		}
+		if (wiki is not null)
+		{
+			start.Environment["GEAR_TOOLS_WIKI"] = wiki;
+			start.Environment["no_proxy"] = "127.0.0.1";
+			start.Environment["NO_PROXY"] = "127.0.0.1";
+		}
 		using var process = Process.Start(start)!;
 		var error = process.StandardError.ReadToEndAsync();
 		var output = process.StandardOutput.ReadToEnd();

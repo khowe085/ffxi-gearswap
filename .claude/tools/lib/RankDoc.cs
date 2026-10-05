@@ -86,8 +86,8 @@ static class RankDoc
 		return md;
 	}
 
-	// <Character>_rank_augments.md, line by line. It throws when the Ranks table names an item that has no rank
-	// table and isn't one Oboro ranks up, since a rank under the wrong name would be left out without a word.
+	// <Character>_rank_augments.md, line by line. It throws when the Ranks table names an item, or the export prints
+	// a path for one, that has no rank table and isn't one Oboro ranks up: either would be left out without a word.
 	public static List<string> RenderCharacter(RankTables tables, Resources resources, OboroAugments oboro, CharacterRanks character)
 	{
 		var named = tables.Items.Select(item => item.Name).Concat(oboro.Items.Select(item => item.Name)).ToList();
@@ -95,18 +95,39 @@ static class RankDoc
 		if (unknown.Count > 0)
 			throw new InvalidOperationException($"{character.Character}'s Ranks table names {string.Join(", ", unknown.Select(name => $"\"{name}\""))}, and no rank table goes by that name. A rank is recorded under the name the export prints: {string.Join(", ", named)}.");
 
+		var untabled = character.Owned.Where(copy => copy.Augments.Any(augment => augment.StartsWith("Path: ")) && named.Contains(copy.Name) is false)
+			.Select(copy => copy.Name).Distinct().ToList();
+		if (untabled.Count > 0)
+			throw new InvalidOperationException($"{character.Export} prints a path for {Listed(untabled)}, and no rank table goes by that name. Run rank-tables.cs to read bg-wiki's table. An item bg-wiki has no table for needs a row among the items Oboro ranks up, in rank-doc.cs.");
+
 		var who = character.Character;
 		List<ExportItem> CopiesOf(string name) => character.Owned.Where(copy => copy.Name == name).ToList();
+		// A slip records no augments, so only a copy in a bag shows its path.
+		IReadOnlyList<string> PrintedOf(string name) => CopiesOf(name).Where(copy => copy.Slip == 0).Select(copy => copy.Augments).FirstOrDefault() ?? [];
+
+		// A Ranks row is held to what can be checked: the path the export prints, the item's paths and the ranks
+		// its table has. A mistyped row would otherwise put another path's augments, or none, in the document.
+		foreach (var given in character.Ranks)
+		{
+			// bg-wiki has no rank table for an item Oboro ranks up, so its row can only be held to the export.
+			var item = tables.Items.FirstOrDefault(candidate => candidate.Name == given.Key);
+			var path = item?.Paths.FirstOrDefault(candidate => candidate.Path == given.Value.Path);
+			if (item is not null && path is null)
+				throw new InvalidOperationException($"{who}'s Ranks table: {given.Key} has no path \"{given.Value.Path}\". Its paths: {string.Join(", ", item.Paths.Select(candidate => candidate.Path))}.");
+			var printed = Regex.Match(AsExported(PrintedOf(given.Key)), @"Path: (\w)");
+			if (printed.Success && printed.Groups[1].Value != given.Value.Path)
+				throw new InvalidOperationException($"{who}'s Ranks table gives {given.Key} path {given.Value.Path}, but the export prints 'Path: {printed.Groups[1].Value}'.");
+			if (path is not null && given.Value.Rank > 0 && path.Ranks.Any(row => row.Rank == given.Value.Rank) is false)
+				throw new InvalidOperationException($"{who}'s Ranks table: {given.Key} has no rank {given.Value.Rank} on path {path.Path}. Its ranks there: {Spans(path.Ranks.Select(row => row.Rank).ToList())}.");
+		}
 		bool Held(string name) => CopiesOf(name).Count > 0 || character.Ranks.ContainsKey(name);
-		// What is known of a copy: the player's word, or else what the export alone can tell. A storage slip
-		// records no augments, so only a copy in a bag says anything of its path.
+		// What is known of a copy: the player's word, or else what the export alone can tell.
 		CopyRank RankOf(string name)
 		{
-			var inBags = CopiesOf(name).Where(copy => copy.Slip == 0).ToList();
-			IReadOnlyList<string> augments = inBags.Count > 0 ? inBags[0].Augments : [];
+			var augments = PrintedOf(name);
 			if (character.Ranks.TryGetValue(name, out var given))
 				return new CopyRank(given.Path, given.Rank.ToString(), given.Given, augments);
-			if (inBags.Count == 0)
+			if (CopiesOf(name).All(copy => copy.Slip > 0))
 				return new CopyRank("?", "unknown", "", augments);
 			if (augments.Count == 0)
 				return new CopyRank("none", "0", "", augments);
@@ -206,6 +227,10 @@ static class RankDoc
 	}
 
 	static string Anchor(string name) => new string(name.ToLowerInvariant().Replace(' ', '-').Where(c => char.IsLetterOrDigit(c) || c == '-').ToArray());
+
+	// Numbers as a reader lists them: "1 to 30" for an unbroken run, "1, 2, 15, 20" otherwise.
+	static string Spans(IReadOnlyList<int> numbers) =>
+		numbers.Count > 2 && numbers[^1] - numbers[0] == numbers.Count - 1 ? $"{numbers[0]} to {numbers[^1]}" : string.Join(", ", numbers);
 
 	// "a", "a and b", "a, b and c".
 	static string Listed(IReadOnlyList<string> parts) => parts.Count <= 1 ? string.Concat(parts) : string.Join(", ", parts.Take(parts.Count - 1)) + " and " + parts[^1];
