@@ -5,7 +5,8 @@
 //
 //   dotnet run --no-cache .claude/tools/gear-list.cs [-- --print] [--char <name>] [--export <path>]
 //
-// --print writes the table the job files call for, to paste over the list's sections. Exit code 1 on a mismatch.
+// --print writes the table the job files call for, to paste over the list's sections, or to start the list from
+// when the character has none yet. Exit code 1 on a mismatch.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -24,14 +25,15 @@ var owned = Export.Read(exportPath);
 var resources = Resources.Load();
 var files = GearFiles.Load(character);
 var listPath = Characters.GearList(character);
-if (File.Exists(listPath) is false)
-	Tool.Fail($"No gear list at {Tool.RepoRelative(listPath)}.");
-var lines = File.ReadAllLines(listPath);
+var hasList = File.Exists(listPath);
+if (hasList is false && cli.Flag("--print") is false)
+	Tool.Fail($"No gear list at {Tool.RepoRelative(listPath)}. --print gives the table to start one from.");
+var lines = hasList ? File.ReadAllLines(listPath) : [];
 
 string[] sectionOrder = ["Weapons", "Ammo", "Head", "Neck", "Earrings", "Body", "Hands", "Rings", "Back", "Waist", "Legs", "Feet"];
 // The list names a set built in a loop once, by what the loop covers. ws is the loop over the magical weapon skills.
-// The wording goes by the loop's variable alone, so a second loop over ws that wore gear would take it too. Give
-// such a loop a variable of its own.
+// The wording goes by the loop's variable alone, which is why two loops over one variable that both wear gear are
+// reported further down.
 var loopSetWording = new Dictionary<string, string> { ["[ws]"] = "[each magical WS]" };
 
 var problems = 0;
@@ -115,7 +117,8 @@ foreach (var job in columns)
 		twins.Add(group.Key);
 }
 var pieces = new Dictionary<string, Piece>();
-foreach (var job in unlisted)
+// With no list yet there is no column to miss. The missing list is the one thing to report, below.
+foreach (var job in hasList ? unlisted : [])
 	Problem($"data/{character}/{job}.lua has no column in the list. --print gives the table with a {job} column");
 foreach (var job in columns)
 {
@@ -149,6 +152,25 @@ foreach (var job in columns)
 	}
 }
 
+// A set built in a loop takes the loop's variable into its name, as in WS[ws].ACC. Two loops over one variable that
+// both wear gear would come out under one name, and the list couldn't tell their sets apart.
+foreach (var job in columns)
+{
+	var text = LuaGearFile.StripComments(File.ReadAllText(files.Jobs[job].Path));
+	var loops = Regex.Matches(text, @"\bfor\s+(\w+)\s*(?:,\s*(\w+))?\s+in\b")
+		.SelectMany(match => match.Groups.Values.Skip(1).Where(group => group.Success).Select(group => new { Variable = group.Value, Line = text.AsSpan(0, match.Index).Count('\n') + 1 }))
+		.ToList();
+	foreach (var variable in loops.Select(loop => loop.Variable).Distinct())
+	{
+		var opened = loops.Where(loop => loop.Variable == variable).Select(loop => loop.Line).ToList();
+		// A use belongs to the last loop over its variable that opens above it.
+		var wearing = files.Jobs[job].Uses.Where(use => use.SetName.Contains($"[{variable}]") && opened[0] <= use.Line)
+			.Select(use => opened.Last(line => line <= use.Line)).Distinct().ToList();
+		if (wearing.Count > 1)
+			Problem($"{job}: sets named by the loop variable {variable} wear gear in the loops at lines {string.Join(", ", wearing)}. The list words such a set by its variable alone, so give each loop a variable of its own");
+	}
+}
+
 if (cli.Flag("--print"))
 {
 	foreach (var name in sectionOrder)
@@ -169,6 +191,13 @@ if (cli.Flag("--print"))
 			Console.WriteLine($"| {piece.Item} | {CopyColumn(piece)} | {string.Join(" | ", columns.Select(job => Cell(piece.Sets[job])))} |");
 		Console.WriteLine();
 	}
+}
+
+if (hasList is false)
+{
+	Problem($"No gear list at {Tool.RepoRelative(listPath)} yet. The table above is the one to start it from");
+	Console.WriteLine($"problems: {problems}");
+	return 1;
 }
 
 // Each piece finds its row, and no row serves two pieces. An item with several rows is told apart by the Copy
