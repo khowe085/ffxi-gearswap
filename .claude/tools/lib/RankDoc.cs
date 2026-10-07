@@ -136,7 +136,9 @@ static class RankDoc
 		}
 
 		var held = Ordered(tables, resources).Where(item => Held(item.Name)).ToList();
-		var ahead = held.Where(item => character.Ranks.ContainsKey(item.Name) && RankOf(item.Name).Augments.Count == 0).Select(item => FullName(resources, item.Name)).ToList();
+		// Only a copy in a bag is printed with its augments, so only one of those can be printed bare.
+		var ahead = held.Where(item => character.Ranks.ContainsKey(item.Name) && CopiesOf(item.Name).Any(copy => copy.Slip == 0) && RankOf(item.Name).Augments.Count == 0)
+			.Select(item => FullName(resources, item.Name)).ToList();
 
 		List<string> md =
 		[

@@ -1,6 +1,7 @@
 // Checks a BLU job file's blue magic lists against Windower's spell list. The engine gives a blue spell the midcast
 // set of the first list that names it, so a spell in two lists only ever gets the first one's set, and a spell in
-// none gets no blue magic set at all, only the idle set under every cast. It also catches a misspelled spell name.
+// none gets no blue magic set at all: it casts in the idle set with only sets.Midcast over it. It also catches a
+// misspelled spell name.
 //
 //   dotnet run --no-cache .claude/tools/check-blu-spells.cs [-- --char <name>]
 //
@@ -78,7 +79,7 @@ foreach (var spell in spells)
 	}
 	else if (named.Count == 0)
 	{
-		Problem($"{spell}: in no list, so it casts in the idle set");
+		Problem($"{spell}: in no list, so it casts in the idle set with only sets.Midcast over it, and no blue magic set");
 	}
 	else if (named.Count > 1)
 	{

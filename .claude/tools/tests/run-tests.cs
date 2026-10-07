@@ -408,6 +408,19 @@ Test("RankDoc.RenderCharacter says so when the player gave a rank the export doe
 	Contains(text, "| [Obstin. Sash](../../docs/rank-augments.md#obstin-sash) | waist | A | 20 | 2026-01-02 | Mag. Acc.+15, Enfb. mag. skill +5 |");
 });
 
+Test("RankDoc.RenderCharacter says the export prints a piece bare only when it prints the piece", () =>
+{
+	// A slip records nothing of the augments, and a piece in no bag isn't printed at all.
+	var onSlip = TestCharacterRanks(copy => copy.Name == "Obstin. Sash" ? new ExportItem("slip5", copy.SlotKey, copy.Name, []) : copy);
+	var text = string.Join("\n", RankDoc.RenderCharacter(RankTables.Load(), Resources.Load(), TestOboro(), onSlip));
+	True(text.Contains("The export prints") is false, text);
+	Contains(text, "| [Obstin. Sash](../../docs/rank-augments.md#obstin-sash) | waist | A | 20 | 2026-01-02 | Mag. Acc.+15, Enfb. mag. skill +5 |");
+	var absent = TestCharacterRanks(copy => copy.Name == "Obstin. Sash" ? new ExportItem(copy.Bag, copy.SlotKey, "Rumination Sash", []) : copy);
+	text = string.Join("\n", RankDoc.RenderCharacter(RankTables.Load(), Resources.Load(), TestOboro(), absent));
+	True(text.Contains("The export prints") is false, text);
+	Contains(text, "| [Obstin. Sash](../../docs/rank-augments.md#obstin-sash) | waist | A | 20 | 2026-01-02 | Mag. Acc.+15, Enfb. mag. skill +5 |");
+});
+
 Test("RankDoc.RenderCharacter reads an Oboro item's path from the export and its rank from the Ranks table", () =>
 {
 	var data = TestCharacterRanks(copy => copy.Name == "Almace" ? new ExportItem(copy.Bag, copy.SlotKey, copy.Name, ["Path: A"]) : copy);
@@ -905,6 +918,31 @@ Test("gear-list says it once when the files wear two copies of a piece and the e
 	Contains(run.Output, "problems: 2");
 });
 
+Test("gear-list --print gives the table to start a list from when the character has none", () =>
+{
+	var sandbox = NewSandbox();
+	File.Delete(Path.Combine(sandbox.Repo, "data", "Testy", "Testy_gear_list.md"));
+	var run = sandbox.Run("gear-list", "--print");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "## Weapons (3)\n\n| Item | Copy | BLU sets | RDM sets |\n|---|---|---|---|\n| Ammurapi Shield |  |  | `Weapons['Savage Blade']` |");
+	Contains(run.Output, "No gear list at data/Testy/Testy_gear_list.md yet. The table above is the one to start it from");
+	Contains(run.Output, "problems: 1");
+});
+
+Test("gear-list reports two loops over one variable that both wear gear, since it can't tell their sets apart", () =>
+{
+	var loop = "\t\tsets.WS[ws].ACC = set_combine(sets.WS[ws], { waist = gear.eschan })\n\tend\n";
+	var sandbox = NewSandbox();
+	sandbox.Edit("data/Testy/RDM.lua", loop, loop + "\tfor _, ws in ipairs({ 'Chant du Cygne' }) do\n\t\tsets.WS[ws].ACC = set_combine(sets.WS[ws], { ammo = gear.coiste })\n\tend\n");
+	var run = sandbox.Run("gear-list");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "RDM: sets named by the loop variable ws wear gear in the loops at lines 46, 50. The list words such a set by its variable alone, so give each loop a variable of its own");
+	// A second loop that wears nothing takes no wording, so it is no trouble.
+	var bare = NewSandbox();
+	bare.Edit("data/Testy/RDM.lua", loop, loop + "\tfor _, ws in ipairs({ 'Chant du Cygne' }) do\n\t\tsets.WS[ws].ACC = set_combine(sets.WS[ws], {})\n\tend\n");
+	Equal(0, bare.Run("gear-list").ExitCode);
+});
+
 Test("gear-list reads each table by its own header, and says so when it can't", () =>
 {
 	var list = "data/Testy/Testy_gear_list.md";
@@ -1094,6 +1132,13 @@ Test("check-blu-spells takes a spell with a set of its own as placed, since the 
 	// A set under another name leaves the spell where it was.
 	sandbox.Edit("data/Testy/BLU.lua", "sets.Midcast.Cocoon =", "sets.Midcast.Cocoons =");
 	Contains(sandbox.Run("check-blu-spells").Output, "Cocoon: in no list, so it casts in the idle set");
+});
+
+Test("check-blu-spells says what a spell in no list ends up wearing", () =>
+{
+	var sandbox = NewSandbox();
+	sandbox.Edit("data/Testy/BLU.lua", "BlueBuff = S { 'Cocoon' }", "BlueBuff = S { }");
+	Contains(sandbox.Run("check-blu-spells").Output, "Cocoon: in no list, so it casts in the idle set with only sets.Midcast over it, and no blue magic set");
 });
 
 Test("check-blu-spells says so when the job file changes a list in a way it can't read", () =>
