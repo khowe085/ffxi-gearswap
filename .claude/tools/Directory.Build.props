@@ -1,0 +1,14 @@
+<Project>
+  <!-- Every file-based app in this folder also compiles lib/*.cs, the code they share.
+       dotnet run only watches the app's own file for changes, so the tools are run with its
+       no-cache switch (README.md), which lets MSBuild see an edit under lib/. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)lib/*.cs" />
+  </ItemGroup>
+  <!-- A file-based app is built for native AOT unless told otherwise, and that turns off the
+       reflection System.Text.Json uses to read and write the tools' JSON classes. -->
+  <PropertyGroup>
+    <PublishAot>false</PublishAot>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+  </PropertyGroup>
+</Project>

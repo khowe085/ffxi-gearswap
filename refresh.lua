@@ -97,12 +97,7 @@ function load_user_files(job_id,user_file)
     local path,base_dir,filename
     path,base_dir,filename = pathsearch({user_file})
     if not path then
-        local long_job = res.jobs[job_id].english
-        local short_job = res.jobs[job_id].english_short
-        local tab = {player.name..'_'..short_job..'.lua',player.name..'-'..short_job..'.lua',
-            player.name..'_'..long_job..'.lua',player.name..'-'..long_job..'.lua',
-            player.name..'.lua',short_job..'.lua',long_job..'.lua','default.lua'}
-        path,base_dir,filename = pathsearch(tab)
+        path,base_dir,filename = pathsearch(job_file_names(job_id))
     end
 
     if not path then
@@ -111,42 +106,7 @@ function load_user_files(job_id,user_file)
         return
     end
 
-    user_env = {gearswap = _G, _global = _global, _settings = _settings,_addon=_addon,
-        -- Player functions
-        equip = equip, cancel_spell=cancel_spell, change_target=change_target, cast_delay=cast_delay,
-        print_set=print_set,set_combine=set_combine,disable=disable,enable=user_enable,
-        send_command=send_cmd_user,windower=user_windower,include=include_user,
-        midaction=user_midaction,pet_midaction=user_pet_midaction,set_language=set_language,
-        show_swaps = show_swaps,debug_mode=debug_mode,include_path=user_include_path,
-        register_unhandled_command=user_unhandled_command,move_spell_target=move_spell_target,
-        language=language,
-
-        -- Library functions
-        string=string,math=math,table=table,set=set,list=list,queue=queue,T=T,S=S,L=L,Q=Q,pack=pack,functions=functions,
-        os=os,texts=texts,bit=bit,type=type,tostring=tostring,tonumber=tonumber,pairs=pairs,
-        ipairs=ipairs, print=print, add_to_chat=add_to_chat_user,unpack=unpack,next=next,
-        select=select,lua_base_path=windower.addon_path,empty=empty,file=file,
-        loadstring=loadstring,assert=assert,error=error,pcall=pcall,io=io,dofile=dofile,
-
-        debug=debug,coroutine=coroutine,setmetatable=setmetatable,getmetatable=getmetatable,
-        rawset=rawset,rawget=rawget,require=include_user,
-        _libs=_libs,
-
-        -- Player environment things
-        buffactive=buffactive,
-        player=player,
-        world=world,
-        pet=pet,
-        fellow=fellow,
-        alliance=alliance,
-        party=alliance[1],
-        sets={naked = {main=empty,sub=empty,range=empty,ammo=empty,
-                head=empty,neck=empty,ear1=empty,ear2=empty,
-                body=empty,hands=empty,ring1=empty,ring2=empty,
-                back=empty,waist=empty,legs=empty,feet=empty}}
-        }
-
-    user_env['_G'] = user_env
+    user_env = new_user_env()
 
     -- Try to load data/<name>_<main job>.lua
     local funct, err = loadfile(path)
@@ -181,6 +141,73 @@ function load_user_files(job_id,user_file)
 
     gearswap_disabled = false
     sets = user_env.sets
+end
+
+
+-----------------------------------------------------------------------------------
+--Name: job_file_names(job_id)
+--Args:
+---- job_id - The job's id in res.jobs.
+-----------------------------------------------------------------------------------
+--Returns:
+---- The names a job's user file can have, in the order load_user_files tries them.
+-----------------------------------------------------------------------------------
+function job_file_names(job_id)
+    local long_job = res.jobs[job_id].english
+    local short_job = res.jobs[job_id].english_short
+    return {player.name..'_'..short_job..'.lua',player.name..'-'..short_job..'.lua',
+        player.name..'_'..long_job..'.lua',player.name..'-'..long_job..'.lua',
+        player.name..'.lua',short_job..'.lua',long_job..'.lua','default.lua'}
+end
+
+-----------------------------------------------------------------------------------
+--Name: new_user_env()
+--Args:
+---- None
+-----------------------------------------------------------------------------------
+--Returns:
+---- A new environment for a user file: GearSwap's functions for user files, the
+---- libraries and the player tables. load_user_files loads the user file into one,
+---- and gs stash and gs pull read other jobs' files into ones of their own.
+-----------------------------------------------------------------------------------
+function new_user_env()
+    local env = {gearswap = _G, _global = _global, _settings = _settings,_addon=_addon,
+        -- Player functions
+        equip = equip, cancel_spell=cancel_spell, change_target=change_target, cast_delay=cast_delay,
+        print_set=print_set,set_combine=set_combine,disable=disable,enable=user_enable,
+        send_command=send_cmd_user,windower=user_windower,include=include_user,
+        midaction=user_midaction,pet_midaction=user_pet_midaction,set_language=set_language,
+        show_swaps = show_swaps,debug_mode=debug_mode,include_path=user_include_path,
+        register_unhandled_command=user_unhandled_command,move_spell_target=move_spell_target,
+        language=language,
+
+        -- Library functions
+        string=string,math=math,table=table,set=set,list=list,queue=queue,T=T,S=S,L=L,Q=Q,pack=pack,functions=functions,
+        os=os,texts=texts,bit=bit,type=type,tostring=tostring,tonumber=tonumber,pairs=pairs,
+        ipairs=ipairs, print=print, add_to_chat=add_to_chat_user,unpack=unpack,next=next,
+        select=select,lua_base_path=windower.addon_path,empty=empty,file=file,
+        loadstring=loadstring,assert=assert,error=error,pcall=pcall,io=io,dofile=dofile,
+
+        debug=debug,coroutine=coroutine,setmetatable=setmetatable,getmetatable=getmetatable,
+        rawset=rawset,rawget=rawget,require=include_user,
+        _libs=_libs,
+
+        -- Player environment things
+        buffactive=buffactive,
+        player=player,
+        world=world,
+        pet=pet,
+        fellow=fellow,
+        alliance=alliance,
+        party=alliance[1],
+        sets={naked = {main=empty,sub=empty,range=empty,ammo=empty,
+                head=empty,neck=empty,ear1=empty,ear2=empty,
+                body=empty,hands=empty,ring1=empty,ring2=empty,
+                back=empty,waist=empty,legs=empty,feet=empty}}
+        }
+
+    env['_G'] = env
+    return env
 end
 
 

@@ -1,0 +1,73 @@
+{
+  "Fetched": "2026-01-03",
+  "Items": [
+    {
+      "Name": "Coiste Bodhar",
+      "Title": "Coiste Bodhar",
+      "RankMax": 30,
+      "Paths": [
+        {
+          "Path": "A",
+          "Ranks": [
+            { "Rank": 1, "Augments": ["Attack+1", "", "", ""] }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Nyame Helm",
+      "Title": "Nyame Helm",
+      "RankMax": 30,
+      "Paths": [
+        {
+          "Path": "A",
+          "Ranks": [
+            { "Rank": 1, "Augments": ["Accuracy+1", "", "", ""] }
+          ]
+        },
+        {
+          "Path": "B",
+          "Ranks": [
+            { "Rank": 1, "Augments": ["Attack+3 Rng. Atk.+3", "", "", ""] },
+            { "Rank": 2, "Augments": ["Attack+4 Rng. Atk.+4", "Weapon skill damage +1%", "", ""] },
+            { "Rank": 15, "Augments": ["Attack+20 Rng. Atk.+20", "Weapon skill damage +7%", "", ""] },
+            { "Rank": 20, "Augments": ["Attack+25 Rng. Atk.+25", "Weapon skill damage +8%", "", ""] }
+          ]
+        },
+        {
+          "Path": "C",
+          "Ranks": [
+            { "Rank": 15, "Augments": ["\"Mag. Atk. Bns.\"+20", "INT/MND/CHR+5", "", ""] }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Obstin. Sash",
+      "Title": "Obstin. Sash",
+      "RankMax": 30,
+      "Paths": [
+        {
+          "Path": "A",
+          "Ranks": [
+            { "Rank": 1, "Augments": ["Mag. Acc.+1", "", "", ""] },
+            { "Rank": 20, "Augments": ["Mag. Acc.+15", "Enfb. mag. skill +5", "", ""] }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Eschan Stone",
+      "Title": "Eschan Stone",
+      "RankMax": 15,
+      "Paths": [
+        {
+          "Path": "A",
+          "Ranks": [
+            { "Rank": 1, "Augments": ["Accuracy+1", "", "", ""] }
+          ]
+        }
+      ]
+    }
+  ]
+}

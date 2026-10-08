@@ -127,6 +127,8 @@ require 'user_functions'
 require 'refresh'
 require 'export'
 require 'validate'
+require 'wardrobe'
+require 'test'
 require 'flow'
 require 'triggers'
 
@@ -159,6 +161,9 @@ windower.register_event('addon command',function (...)
 
     local cmd = table.remove(splitup,1):lower()
 
+    -- Short words. t is gs test, GearSwap's own, so it works whatever the user file is built on.
+    cmd = ({e = 'equip', x = 'export', t = 'test'})[cmd] or cmd
+
     if cmd == 'c' then
         if gearswap_disabled then return end
         if splitup[1] then
@@ -186,6 +191,10 @@ windower.register_event('addon command',function (...)
         else
             msg.addon_msg(123,'There is nothing to validate because there is no file loaded.')
         end
+    elseif cmd == 'stash' or cmd == 'pull' then
+        move_job_gear(cmd, splitup)
+    elseif cmd == 'test' then
+        test_command(splitup)
     elseif cmd == 'l' or cmd == 'load' then
         if splitup[1] then
             local f_name = table.concat(splitup,' ')
@@ -221,6 +230,7 @@ windower.register_event('addon command',function (...)
         print('GearSwap: Valid commands are:')
         print(' c <string>      : passes the string to the user\'s self_command function.')
         print(' equip <string>  : attempts to equip the set indicated by the string.')
+        print(' e / x / t       : short for equip / export / test.')
         print(' debugmode       : toggles debugmode on or off.')
         print(' demomode        : toggles demomode on or off.')
         print(' showswaps       : toggles whether gearswap displays equipment changes in the chat log.')
@@ -229,6 +239,10 @@ windower.register_event('addon command',function (...)
         print(' export <opts>   : Exports your item collections based on the passed options.')
         print(' disable <slot>  : Disables equip commands targeting a specified slot.')
         print(' validate <opts> : Checks your current inventory against your item collections (or vice versa).')
+        print(' test set <set>  : equips the set over a naked character and holds it for 30 seconds.')
+        print(' test [precast|midcast] <action> : equips what the user file would for an action, without using it, and holds it.')
+        print(' stash <jobs> [unused] : moves the gear in those jobs\' files out of wardrobe and wardrobe2 (unused: everything else).')
+        print(' pull <jobs>     : moves the gear in those jobs\' files into wardrobe and wardrobe2 from the other bags in reach.')
         print('  Please see the gearswap/README.md file for more details.')
     elseif _settings.debug_mode and strip(cmd) == 'eval' then
         assert(loadstring(table.concat(splitup,' ')))()
@@ -247,6 +261,8 @@ windower.register_event('addon command',function (...)
 end)
 
 function disenable(tab,funct,functname,pol)
+    -- A bare enable or disable leaves the user file as the player set it, even mid gs test.
+    if not tab[1] then test_hold_end() end
     local slot_name = ''
     local ltab = L{}
     for i,v in pairs(tab) do
