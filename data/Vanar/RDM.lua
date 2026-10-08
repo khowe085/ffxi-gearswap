@@ -1,5 +1,5 @@
 -- Vanar's Red Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/RDM.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-04 20-01-43.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-05 18-30-06.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Leth. Earring +1 is always in the right ear, the only ear its Fast Cast and
 -- enhancing duration work in.
@@ -165,7 +165,7 @@ function get_sets()
 
 	sets.Weapons['Savage Blade Acc'] = {
 		main = gear.naegling,
-		sub = gear.gleti,			-- Acc 40, Att 30, TA 6
+		sub = gear.gleti,			-- Acc 40, Att 32, TA 6 (Path A rank 1)
 		range = empty,
 	}
 
@@ -195,13 +195,13 @@ function get_sets()
 
 	sets.Weapons['Chant du Cygne'] = {
 		main = gear.almace,
-		sub = gear.gleti,			-- Acc 40, Att 30, TA 6, Crit 5
+		sub = gear.gleti,			-- Acc 40, Att 32, TA 6, Crit 5 (Path A rank 1)
 		range = empty,
 	}
 
 	sets.Weapons['Evisceration'] = {
 		main = gear.tauret,
-		sub = gear.gleti,			-- Acc 40, Att 30, TA 6, Crit 5
+		sub = gear.gleti,			-- Acc 40, Att 32, TA 6, Crit 5 (Path A rank 1)
 		range = empty,
 	}
 
@@ -316,19 +316,27 @@ function get_sets()
 		back = gear.sucellosDA,						-- Acc 30, Att 20, DA 10, DT 5
 	}	-- Acc 379, Att 355, DT 40
 
-	-- Sailfi Belt +1 trades Kentarch Belt +1's Acc 14 for multi-attack and Attack. ACC and DT keep Kentarch.
+	-- Sailfi Belt +1 trades Kentarch Belt +1's Acc 14 for multi-attack and Attack. DT keeps Kentarch. An estimate puts
+	-- this set at 1352 main-hand accuracy with Naegling and Grape Daifuku and 1346 with Oden, against the player's 1350
+	-- floor (gear and food), and Black Halo's Maxentius 70 lower; the set waits on a /checkparam.
 	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {
 		neck = gear.asperity,						-- Att 8, STP 3, DA 2
 		waist = gear.sailfi,						-- TA 2, DA 5, STR 14 (Path A rank 14), Att 10-15 (Unity)
 	})	-- Acc 355, Att 363-368, DT 40
 
-	-- Four Atrophy +4 pieces add the set's Acc +45.
+	-- ACC mode puts accuracy first (the player's rule): every slot takes the most accurate piece RDM carries. Four
+	-- Atrophy +4 pieces add the set's Acc +45. Eschan Stone, Alabaster Earring and Jhakri Ring replace Kentarch Belt +1,
+	-- Brutal Earring and Rajas Ring, 5 or 6 more accuracy for DA 8 and STP 6. Jhakri Ring and Ayanmo Ring tie at Acc 6;
+	-- Jhakri adds Att 6. No ammo RDM can equip from its wardrobes has accuracy, so Coiste Bodhar stays.
 	sets.OffenseMode.ACC = set_combine(sets.OffenseMode, {
-		head = gear.atrophyHeadPlusFour,			-- Acc 64
-		body = gear.atrophyBodyPlusFour,			-- Acc 65
-		hands = gear.atrophyHandsPlusFour,			-- Acc 63, Att 35
+		head = gear.atrophyHeadPlusFour,			-- Acc 64, DEX 32
+		body = gear.atrophyBodyPlusFour,			-- Acc 65, DEX 34
+		hands = gear.atrophyHandsPlusFour,			-- Acc 63, DEX 46
 		legs = gear.atrophyLegsPlusFour,			-- Acc 59
-	})	-- Acc 425, DT 5
+		waist = gear.eschan,						-- Acc 15
+		left_ear = gear.alabaster,					-- Acc 2 (Path A rank 2)
+		right_ring = gear.jhakriRing,				-- Acc 6
+	})	-- Acc 434, DT 10. An estimate gives 1432 main-hand accuracy with Naegling and Grape Daifuku, 6 less with Oden.
 
 	sets.OffenseMode.DT = set_combine(sets.OffenseMode, {
 		right_ring = gear.murky,					-- DT 10
@@ -437,7 +445,7 @@ function get_sets()
 		hands = gear.atrophyHandsPlusFour,		-- 20%, Haste 3
 		legs = gear.telchineBraconiBEnhDur,		-- augment 10%, Haste 5
 		feet = gear.lethargyFeetPlusThree,		-- 40%, Haste 3
-		neck = gear.duelistTorquePlusOne,		-- augment 20% (Path A)
+		neck = gear.duelistTorquePlusOne,		-- augment 20% (Path A rank 20, the maximum)
 		waist = gear.embla,						-- 10%, Fast Cast 5
 		left_ear = gear.alabaster,				-- Haste 5
 		right_ear = gear.lethargyEarringPlusOne,	-- 8%, Fast Cast 8
@@ -529,8 +537,8 @@ function get_sets()
 	-- midcast_custom.
 	-- Four Atrophy +4 pieces add the set's Macc +45. Cast while the weapons are free, sets.Weapons.Casting adds Macc 118
 	-- but empties the ammo for Ullr, which drops Pemphredo Tathlum's 8: net +110.
-	-- Obstin. Sash is worth 20 magic accuracy on enfeebles (Macc 15 plus skill 5) against Rumination Sash's 10
-	-- (Macc 3 plus skill 7), and lengthens them by 5%.
+	-- Obstin. Sash is worth 17 magic accuracy on enfeebles (Macc 15 and enfeebling skill 2 at rank 17) against
+	-- Rumination Sash's 10 (Macc 3 plus skill 7), and lengthens them by 5%.
 	sets.Midcast.Enfeebling = set_combine(sets.Midcast, {
 		ammo = gear.pemphredoTathlum,				-- Macc 8, on casts that keep the ammo slot (engaged or Locked)
 		head = gear.atrophyHeadPlusFour,			-- Macc 64
@@ -538,14 +546,14 @@ function get_sets()
 		hands = gear.atrophyHandsPlusFour,			-- Macc 63
 		legs = gear.atrophyLegsPlusFour,			-- Macc 59
 		feet = gear.vitiationFeetPlusFour,			-- Macc 48, Enfeebling skill 17, effect +10
-		neck = gear.duelistTorquePlusOne,			-- Macc 25, effect +7
-		waist = gear.obstinateSash,					-- Macc 15, Enfeebling skill 5, MND 5, duration 5% (Path A rank 20)
+		neck = gear.duelistTorquePlusOne,			-- Macc 25, effect +7, MND 12, augmented duration 20% (Path A rank 20)
+		waist = gear.obstinateSash,					-- Macc 15, Enfeebling skill 2, MND 5, duration 5% (Path A rank 17)
 		left_ear = gear.snotra,						-- Macc 10, duration 10%
 		right_ear = gear.lethargyEarringPlusOne,	-- Macc 15
 		left_ring = gear.stikini1,					-- Macc 8, Enfeebling skill 5
 		right_ring = gear.stikini2,					-- Macc 8, Enfeebling skill 5
 		back = gear.sucellosMND,					-- Macc 30, MND 20, effect +10
-	})	-- Macc 463 with the set bonus, plus Enfeebling skill 54, which adds to magic accuracy one for one.
+	})	-- Macc 463 with the set bonus, plus Enfeebling skill 51, which adds to magic accuracy one for one.
 
 	-- Enfeebles that only need to land, such as Dispel, Frazzle and Poison. Enfeebling skill counts one for one as magic
 	-- accuracy here, so Vitiation Chapeau +4 and Lethargy Gantherots +3 beat the Atrophy head and hands even
@@ -558,8 +566,10 @@ function get_sets()
 	-- Potency-based enfeebles, such as Paralyze, Slow, Addle, Distract, Blind and Gravity. It is
 	-- adapted from bg-wiki's MND potency set (Community Red Mage Guide): Leth. Fuseau +3 in place of Chironic
 	-- Hose for a third Lethargy piece, which lengthens these spells by 20% while Composure is up. The waist is
-	-- the guide's Obstin. Sash, from the base set. It has 2 less enfeebling skill than Rumination Sash, which
-	-- costs Frazzle III one point at Vanar's 589 skill (Master Level 25) and Distract III none.
+	-- the guide's Obstin. Sash, from the base set. At rank 17 it has 5 less enfeebling skill than Rumination Sash,
+	-- which costs Frazzle III two points and Distract III one at Vanar's 586 skill (Master Level 25), for 7 more
+	-- magic accuracy and 5% more duration. Their 150 innate magic accuracy already puts this set 200 or more past
+	-- what a level 150 foe at a 100% rank needs, so for those two the sash's gain is the duration alone.
 	sets.Midcast.Enfeebling.Potency = set_combine(sets.Midcast.Enfeebling, {
 		head = gear.vitiationChapeauPlusFour,		-- Macc 42, Enfeebling skill 27, merit Macc +15 (5 merits)
 		body = gear.lethargyBodyPlusThree,			-- Enfeebling effect +18, Macc 64
@@ -634,13 +644,10 @@ function get_sets()
 	-- Dancer abilities, for a DNC subjob. Each family set is worn for its abilities, with a set
 	-- named for one ability over it. None of them swaps weapons, since new weapons reset TP.
 
-	-- Steps land on melee hit rate, with Accuracy +10 of their own (bg-wiki, Step). This is the ACC engaged
-	-- set with the three carried pieces that add accuracy over it.
-	sets.Step = set_combine(sets.OffenseMode.ACC, {
-		waist = gear.eschan,						-- Acc 15, Macc 7, over Kentarch Belt +1's Acc 14
-		left_ring = gear.ayanmoRing,				-- Acc 6, Macc 6
-		right_ring = gear.jhakriRing,				-- Acc 6, Macc 6
-	})	-- Acc 438, Macc 400
+	-- Steps land on melee hit rate, with Accuracy +10 of their own (bg-wiki, Step), so they take the ACC engaged set
+	-- as it is, the most accurate set RDM carries. Ayanmo Ring in place of Lehko's Ring would trade DEX 10 for Acc 6,
+	-- about 2 less accuracy.
+	sets.Step = set_combine(sets.OffenseMode.ACC, {})	-- Acc 434, Macc 396
 
 	-- Desperate and Violent Flourish also have to hit, and Violent Flourish's stun is resisted on magic
 	-- accuracy (bg-wiki, Violent Flourish), which the Atrophy +4 pieces and their set bonus carry as well.
@@ -664,14 +671,16 @@ function get_sets()
 
 	-- Worn on every weaponskill: the weapon skill damage set. Savage Blade, Black Halo and Death
 	-- Blossom wear it as it is. It is bg-wiki's Savage Blade set (All Jobs Gear Sets/Red Mage) with Leth.
-	-- Earring +1 for Hoxne Earring and Karieyh Ring for Sroda Ring. Nyame values are Path B: rank 20 Mail, rank 11
-	-- Flanchard. Leth. Fuseau +3 would trade the Flanchard's WSD 6 and DT 8 for 23 more accuracy and 17 more attack.
+	-- Earring +1 for Hoxne Earring and Karieyh Ring for Sroda Ring. Nyame values are Path B: rank 20 Mail, rank 17
+	-- Flanchard. Leth. Fuseau +3 would trade the Flanchard's WSD 8, DA 1 and DT 8 for 23 more accuracy and 11 more
+	-- attack. That accuracy comes first if this set is under the player's 1350 floor (gear and food), as an estimate
+	-- says it is (about 1240 with Grape Daifuku); the set waits on a /checkparam.
 	sets.WS = {
 		ammo = gear.coiste,							-- Att 15, STR 5, DA 3 (Path A rank 20)
 		head = gear.vitiationChapeauPlusFour,		-- WSD 9, Acc 42, Att 72
 		body = gear.nyameBody,						-- WSD 10, DA 3, Acc 40, Att 55, DT 9
 		hands = gear.atrophyHandsPlusFour,			-- WSD 9, Acc 63, Att 35
-		legs = gear.nyameLegs,						-- WSD 6, Acc 40, Att 46, DT 8 (Path B rank 11)
+		legs = gear.nyameLegs,						-- WSD 8, DA 1, Acc 40, Att 52, DT 8 (Path B rank 17)
 		feet = gear.lethargyFeetPlusThree,			-- WSD 12, Acc 60, Att 60
 		neck = gear.republicanPlatinumMedal,		-- Att 30
 		waist = gear.sailfi,
@@ -682,13 +691,30 @@ function get_sets()
 		back = gear.sucellosWSD,					-- WSD 10, Acc 20, Att 20, DT 5
 	}
 
-	-- Worn over sets.WS in ACC mode on weaponskills with no set of their own: Savage Blade, Black Halo and
-	-- Death Blossom. Every named set below carries its own ACC set instead. List only the pieces the mode
-	-- changes, since every slot named here overrides sets.WS.
+	-- Worn in ACC mode on every physical weaponskill, over the set named for it, so it names every slot. ACC mode puts
+	-- accuracy first (the player's rule): each slot takes the most accurate piece RDM carries, and four Atrophy +4
+	-- pieces add Acc +45. Fotia Gorget and Sanctity Necklace tie at 10 accuracy on a weapon skill's hits; the gorget
+	-- adds +25/256 fTP. Jhakri Ring and Ayanmo Ring tie at Acc 6; Jhakri adds Att 6. No ammo RDM can equip from its
+	-- wardrobes has accuracy. Chant du Cygne, Evisceration, Vorpal Blade and Requiescat take it too, Eschan Stone's
+	-- Acc 15 over Fotia Belt's 10 and Alabaster Earring over Moonshade Earring.
+	-- An estimate gives 1422 main-hand accuracy with Naegling and Grape Daifuku and 1353 with Maxentius, 6 less with
+	-- Oden. Against the TP-mode sets that costs Savage Blade about 30% of its damage, and Chant du Cygne, Evisceration
+	-- and Requiescat 11 to 18%, but gives Black Halo 17 to 22% more, its club hand missing often without it.
 	sets.WS.ACC = {
-		neck = gear.sanctity,						-- Acc 10
-		waist = gear.eschan,						-- Acc 15, Att 15
-	}
+		ammo = gear.coiste,							-- Att 15, STR 5, DA 3 (Path A rank 20)
+		head = gear.atrophyHeadPlusFour,			-- Acc 64, DEX 32
+		body = gear.atrophyBodyPlusFour,			-- Acc 65, DEX 34
+		hands = gear.atrophyHandsPlusFour,			-- Acc 63, DEX 46, WSD 9
+		legs = gear.atrophyLegsPlusFour,			-- Acc 59
+		feet = gear.lethargyFeetPlusThree,			-- Acc 60, DEX 30, WSD 12
+		neck = gear.fotiaNeck,						-- Accuracy +10 on a weapon skill with a skillchain property (latent)
+		waist = gear.eschan,						-- Acc 15
+		left_ear = gear.alabaster,					-- Acc 2 (Path A rank 2)
+		right_ear = gear.lethargyEarringPlusOne,	-- Acc 15
+		left_ring = gear.lehkoHabhokaRing,			-- DEX 10
+		right_ring = gear.jhakriRing,				-- Acc 6
+		back = gear.sucellosDA,						-- Acc 30, DEX 20
+	}	-- Acc 424, DEX 172 and weapon skill Acc 10 from gear
 
 	-- MAB and Crit are not offense modes here. They are shared sets for the weaponskills below.
 	sets.WS.MAB = {
@@ -733,11 +759,23 @@ function get_sets()
 	sets.WS["Red Lotus Blade"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade, waist = gear.fotiaWaist })
 	sets.WS["Aeolian Edge"] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade, waist = gear.fotiaWaist })
 
-	-- In ACC mode these magical weaponskills raise magic accuracy instead of taking sets.WS.ACC, whose
-	-- waist would replace theirs. Lethargy Gantherots +3 trade Jhakri
-	-- Cuffs +2's WSD 7 for Macc 19 and MAB 12 more.
+	-- In ACC mode these magical weaponskills take the most magic accuracy RDM carries instead of sets.WS.ACC:
+	-- magic accuracy is a magical weapon skill's hit stat, and accuracy does nothing for it. Four Atrophy +4 pieces
+	-- add Macc +45. The Sucellos's Capes tie at Macc 30; the INT cape stays for its MAB and Magic Damage. Gear magic
+	-- accuracy goes from 442 to 555 on Sanguine Blade and from 405 to 515 on the other three, for 45 to 56% less
+	-- damage when the hit lands.
 	for _, ws in ipairs({ "Sanguine Blade", "Seraph Blade", "Red Lotus Blade", "Aeolian Edge" }) do
-		sets.WS[ws].ACC = set_combine(sets.WS[ws], { hands = gear.lethargyHandsPlusThree })
+		sets.WS[ws].ACC = set_combine(sets.WS[ws], {
+			head = gear.atrophyHeadPlusFour,			-- Macc 64
+			body = gear.atrophyBodyPlusFour,			-- Macc 65
+			hands = gear.atrophyHandsPlusFour,			-- Macc 63
+			legs = gear.atrophyLegsPlusFour,			-- Macc 59
+			neck = gear.duelistTorquePlusOne,			-- Macc 25
+			waist = gear.obstinateSash,					-- Macc 15 (Path A rank 17)
+			left_ear = gear.snotra,						-- Macc 10
+			left_ring = gear.stikini1,					-- Macc 8
+			right_ring = gear.stikini2,					-- Macc 8
+		})
 	end
 
 	sets.WS["Chant du Cygne"] = set_combine(sets.WS.Crit, {})
@@ -748,13 +786,7 @@ function get_sets()
 	-- attack, and the ring's DEX 10 (about Acc 7) and Store TP 10 still beat the Acc 6 of Vanar's other rings, so it
 	-- wears that set as it is.
 	sets.WS["Requiescat"] = set_combine(sets.WS.Crit, {})
-
-	-- In ACC mode these keep their own set instead of taking sets.WS.ACC. Its Sanctity Necklace and Eschan
-	-- Stone would replace Fotia Gorget and Fotia Belt, whose latents already give every hit of these weapon
-	-- skills Accuracy +10 each and +25/256 fTP. The swap would trade that fTP for 5 more accuracy and Att 15.
-	for _, ws in ipairs({ "Chant du Cygne", "Evisceration", "Vorpal Blade", "Requiescat" }) do
-		sets.WS[ws].ACC = set_combine(sets.WS[ws], {})
-	end
+	-- In ACC mode these four have no ACC set of their own, so they take sets.WS.ACC above.
 end
 
 -------------------------------------------------------------------------------------------------------------------

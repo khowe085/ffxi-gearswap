@@ -1,5 +1,5 @@
 -- Vanar's Blue Mage, built on the Rahvin GearSwap 2.1 sample (data/common/Sample Job Files/BLU.lua).
--- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-04 20-01-43.lua.
+-- Every piece named here comes from Vanar's //gs export, data/export/Vanar 2026-10-05 18-30-06.lua.
 -- Sets favor, in order: accuracy, magic accuracy, weapon skill damage, attack, magic attack and
 -- damage taken. Hashi. Earring +1 is always in the right ear, the only ear its sword and blue magic
 -- skill bonuses work in. At Master Level 25 sword skill is past 600, where each point adds 0.9 accuracy
@@ -373,16 +373,23 @@ function get_sets()
 		back = gear.rosmertaDA,						-- Acc 30, Att 20, DA 10, DT 5
 	}	-- Acc 371, Att 340, DT 47
 
-	-- Sailfi Belt +1 trades Kentarch Belt +1's Acc 14 for multi-attack and Attack. ACC and DT keep Kentarch.
+	-- Sailfi Belt +1 trades Kentarch Belt +1's Acc 14 for multi-attack and Attack. DT keeps Kentarch.
 	sets.OffenseMode.TP = set_combine(sets.OffenseMode, {
 		waist = gear.sailfi,						-- TA 2, DA 5, STR 14 (Path A rank 14), Att 10-15 (Unity)
 	})	-- Acc 357, Att 350-355, DT 47
 
+	-- ACC mode puts accuracy first (the player's rule): every slot takes the most accurate piece BLU carries.
+	-- Assimilator's Jubbah +4 has 4 less Acc than Hashishin Mintan +3 but 15 more DEX, about 7 more accuracy. Eschan
+	-- Stone and Alabaster Earring replace Kentarch Belt +1 and Brutal Earring, 3 more for DA 8. Jhakri Ring and
+	-- Ayanmo Ring tie at Acc 6; Jhakri adds Att 6.
 	sets.OffenseMode.ACC = set_combine(sets.OffenseMode, {
 		ammo = gear.honedTathlum,					-- Acc 15
-		feet = gear.hashishinFeetPlusThree,			-- Acc 60, Att 60
-		right_ring = gear.ayanmoRing,				-- Acc 6, DT 3
-	})	-- Acc 412, DT 43
+		body = gear.assimilatorBodyPlusFour,		-- Acc 60, DEX 49
+		feet = gear.hashishinFeetPlusThree,			-- Acc 60, DEX 30
+		waist = gear.eschan,						-- Acc 15
+		left_ear = gear.alabaster,					-- Acc 2 (Path A rank 2)
+		right_ring = gear.jhakriRing,				-- Acc 6
+	})	-- Acc 411 and DEX 201 from gear, DT 32. An estimate gives 1532 main-hand accuracy with Tizona and Grape Daifuku, 6 less with Oden.
 
 	sets.OffenseMode.DT = set_combine(sets.OffenseMode, {
 		right_ring = gear.murky,					-- DT 10
@@ -704,13 +711,14 @@ function get_sets()
 		head = gear.amalricCoifPlusOne,			-- Aquaveil +2
 	})
 
-	-- Weaponskill base, the weapon skill damage set. Savage Blade, Expiacion and Black Halo wear it as it is.
-	-- It follows bg-wiki's simulated Savage Blade and Expiacion sets (All Jobs Gear Sets/Blue Mage). Jhakri
-	-- Cuffs +2 stand in for its Path B Nyame Gauntlets, since Vanar's are only Path B rank 10, Hashi. Earring +1 for
-	-- Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at rank 20 (Sollerets, Mail).
-	-- The legs are Luhlaza Shalwar +4 in place of its Nyame Flanchard, for 6 more WSD and 10 more accuracy
-	-- at the cost of Att 46 (Vanar's Flanchard is rank 11), and the body Assimilator's Jubbah +4 in place of
-	-- its Nyame Mail, for 2 more WSD, 20 more accuracy and 25 more DEX at the cost of Att 55 and DA 3.
+	-- Weaponskill base, the weapon skill damage set. Black Halo wears it as it is; Savage Blade and Expiacion swap in
+	-- the Nyame pieces below. It follows bg-wiki's simulated Savage Blade and Expiacion sets (All Jobs Gear Sets/Blue
+	-- Mage), with Hashi. Earring +1 for Hoxne Earring and Karieyh Ring for Beithir Ring. Nyame values are Path B at
+	-- rank 20 (Sollerets, Mail). The body is Assimilator's Jubbah +4 in place of its Nyame Mail, for 2 more WSD, 20
+	-- more accuracy and 25 more DEX at the cost of Att 55 and DA 3.
+	-- Black Halo's club hand is under the player's 1350 accuracy floor (gear and food): an estimate gives 1314 with
+	-- Grape Daifuku and 1308 with Oden. Below it accuracy comes first, so this set keeps the more accurate hands and
+	-- legs, Jhakri Cuffs +2 (Acc 43) and Luhlaza Shalwar +4 (Acc 50), over the Nyame Gauntlets and Flanchard (Acc 40).
 	sets.WS = {
 		ammo = gear.coiste,							-- Att 15, STR 5, DA 3 (Path A rank 20)
 		head = gear.hashishinHeadPlusThree,			-- WSD 12, Acc 61, Att 61, Sword skill 30
@@ -718,7 +726,7 @@ function get_sets()
 		hands = gear.jhakriHandsPlusTwo,			-- WSD 7, Acc 43, Att 43
 		legs = gear.luhlazaLegsPlusFour,			-- WSD 12, Acc 50, STR 46
 		feet = gear.nyameFeet,						-- WSD 8, DA 2, Acc 40, Att 55
-		neck = gear.mirageStolePlusTwo,				-- STR 25, DEX 25 (Path A), Acc 25
+		neck = gear.mirageStolePlusTwo,				-- Acc 25, and STR and DEX from Path A rank 20 (bg-wiki gives only rank 25's +25)
 		waist = gear.sailfi,
 		left_ear = gear.moonshade,					-- TP Bonus 250
 		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, Sword skill 11
@@ -727,12 +735,43 @@ function get_sets()
 		back = gear.rosmertaWSD,					-- WSD 10, Acc 20, Att 20
 	}
 
-	-- Merged in ACC mode after the set named for the weaponskill, so its slots win. A weaponskill with an ACC set of its own skips it.
-	-- The feet stay Nyame Sollerets (WSD 8, Acc 40). Hashishin Basmak +3 would trade their WSD 8 for 20 more accuracy.
+	-- Savage Blade (50% STR, 50% MND) and Expiacion take the Nyame Flanchard over the Shalwar: 4 less WSD, but Att 52
+	-- and DA 1, about 1% more Savage Blade and 0.5% more Expiacion damage, for 10 less accuracy. An estimate leaves
+	-- both 24 or more over the 1350 floor with either food (1382 and 1380 with Grape Daifuku, 6 less with Oden),
+	-- counting Accuracy Bonus III from the melee spell set; at tier I they would sit on the floor.
+	-- Savage Blade also takes the Nyame Gauntlets: the same WSD 7 as Jhakri Cuffs +2, with Att 9, DA 1 and MND 5 more,
+	-- about 1% more damage, for 3 less accuracy. With 8 less INT they come out even or slightly behind on Expiacion.
+	-- ACC mode takes sets.WS.ACC over both sets.
+	sets.WS['Savage Blade'] = set_combine(sets.WS, {
+		hands = gear.nyameHands,					-- WSD 7, Att 52, DA 1, Acc 40, DT 7 (Path B rank 17)
+		legs = gear.nyameLegs,						-- WSD 8, Att 52, DA 1, Acc 40 (Path B rank 17)
+	})
+	sets.WS['Expiacion'] = set_combine(sets.WS, {
+		legs = gear.nyameLegs,						-- WSD 8, Att 52, DA 1, Acc 40 (Path B rank 17)
+	})
+
+	-- Worn in ACC mode on every physical weaponskill, over the set named for it, so it names every slot. ACC mode puts
+	-- accuracy first (the player's rule): each slot takes the most accurate piece BLU carries, Hashishin Basmak +3 over
+	-- Nyame Sollerets included. Jhakri Ring and Ayanmo Ring tie at Acc 6; Jhakri adds Att 6. Chant du Cygne and
+	-- Requiescat take it too, Eschan Stone's Acc 15 over Fotia Belt's 10 and Mirage Stole +2's 25 over Fotia Gorget's.
+	-- An estimate gives 1532 main-hand accuracy with Tizona, 1537 with Naegling and 1456 with Maxentius on Grape
+	-- Daifuku, 6 less with Oden. Against the TP-mode sets that costs Expiacion about 24% of its damage, Savage Blade
+	-- 27%, Black Halo and Requiescat 22% and Chant du Cygne 8%, Moonshade Earring's TP Bonus and the WSD pieces most.
 	sets.WS.ACC = {
-		hands = gear.hashishinHandsPlusThree,		-- Acc 62
-		waist = gear.kentarchPlusOne,				-- Acc 14
-	}
+		ammo = gear.honedTathlum,					-- Acc 15
+		head = gear.hashishinHeadPlusThree,			-- Acc 61, DEX 29, Sword skill 30
+		body = gear.assimilatorBodyPlusFour,		-- Acc 60, DEX 49
+		hands = gear.hashishinHandsPlusThree,		-- Acc 62, DEX 43
+		legs = gear.hashishinLegsPlusThree,			-- Acc 63, DEX 20
+		feet = gear.hashishinFeetPlusThree,			-- Acc 60, DEX 30
+		neck = gear.mirageStolePlusTwo,				-- Acc 25
+		waist = gear.eschan,						-- Acc 15
+		left_ear = gear.alabaster,					-- Acc 2 (Path A rank 2)
+		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, Sword skill 11
+		left_ring = gear.lehkoHabhokaRing,			-- DEX 10
+		right_ring = gear.jhakriRing,				-- Acc 6
+		back = gear.rosmertaDA,						-- Acc 30, DEX 20
+	}	-- Acc 411 and DEX 201 from gear
 
 	-- MAB is not an offense mode. It is the shared table for the magical weaponskills below.
 	sets.WS.MAB = {
@@ -760,11 +799,21 @@ function get_sets()
 	sets.WS['Red Lotus Blade'] = set_combine(sets.WS.MAB, { left_ear = gear.moonshade, waist = gear.fotiaWaist })
 	sets.WS['Flash Nova'] = set_combine(sets.WS.MAB, { waist = gear.fotiaWaist })
 
-	-- In ACC mode these magical weaponskills raise magic accuracy instead of taking sets.WS.ACC, whose
-	-- Kentarch Belt +1 would replace their waist. Hashishin Bazubands +3 trade Jhakri
-	-- Cuffs +2's WSD 7 for Macc 19 and MAB 17 more.
+	-- In ACC mode these magical weaponskills take the most magic accuracy BLU carries instead of sets.WS.ACC: magic
+	-- accuracy is a magical weapon skill's hit stat, and accuracy does nothing for it. The waists stay: Eschan Stone on
+	-- Sanguine Blade, and on the other three Fotia Belt, whose Accuracy +10 counts as magic accuracy there (bg-wiki,
+	-- Fotia Belt). Gear magic accuracy goes from 386 to 450 on Sanguine Blade and from 389 to 453 on the others, for
+	-- 17 to 28% less damage when the hit lands.
 	for _, ws in ipairs({ 'Sanguine Blade', 'Seraph Blade', 'Red Lotus Blade', 'Flash Nova' }) do
-		sets.WS[ws].ACC = set_combine(sets.WS[ws], { hands = gear.hashishinHandsPlusThree })
+		sets.WS[ws].ACC = set_combine(sets.WS[ws], {
+			body = gear.hashishinBodyPlusThree,			-- Macc 64
+			hands = gear.hashishinHandsPlusThree,		-- Macc 62
+			legs = gear.hashishinLegsPlusThree,			-- Macc 63
+			neck = gear.mirageStolePlusTwo,				-- Macc 25
+			left_ear = gear.alabaster,					-- Macc 2 (Path A rank 2)
+			left_ring = gear.stikini1,					-- Macc 8
+			right_ring = gear.stikini2,					-- Macc 8
+		})
 	end
 
 	-- Chant du Cygne: DEX and critical hit rate, which rises with TP. It follows bg-wiki's set, with Lehko's
@@ -778,7 +827,7 @@ function get_sets()
 		hands = gear.gletiHands,					-- Crit 6, Acc 40, Att 40
 		legs = gear.gletiLegs,						-- Crit 7, Acc 40, Att 40
 		feet = gear.gletiFeet,						-- Crit 4, Acc 40, Att 40
-		neck = gear.mirageStolePlusTwo,				-- DEX 25, Crit 5 (Path A), Acc 25
+		neck = gear.mirageStolePlusTwo,				-- Acc 25, and DEX and Crit from Path A rank 20 (bg-wiki gives only rank 25's 25 and 5)
 		waist = gear.fotiaWaist,
 		left_ear = gear.moonshade,					-- TP Bonus 250
 		right_ear = gear.hashishinEarringPlusOne,	-- Acc 12, Sword skill 11
@@ -804,13 +853,7 @@ function get_sets()
 		back = gear.rosmertaDA,						-- Acc 30, DA 10
 	}
 
-	-- In ACC mode these keep their own set instead of taking sets.WS.ACC, whose Kentarch Belt +1 would replace
-	-- Fotia Belt. Its latent already gives every hit of these weapon skills Accuracy +10 and +25/256 fTP. Chant du
-	-- Cygne still takes sets.WS.ACC's Hashishin Bazubands +3; Requiescat already wears them.
-	sets.WS['Chant du Cygne'].ACC = set_combine(sets.WS['Chant du Cygne'], {
-		hands = gear.hashishinHandsPlusThree,		-- Acc 62
-	})
-	sets.WS['Requiescat'].ACC = set_combine(sets.WS['Requiescat'], {})
+	-- In ACC mode Chant du Cygne and Requiescat have no ACC set of their own, so they take sets.WS.ACC above.
 
 	-- Treasure Hunter gear. In Tag mode it is worn only for an action TH_Whitelist lists, aimed at a monster not yet tagged, never just for being engaged. Full Time also wears it whenever engaged. TH Mode starts in Tag, Alt+F11 cycles it, and None turns it off.
 	sets.TreasureHunter = {

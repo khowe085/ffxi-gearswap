@@ -681,8 +681,12 @@ bg-wiki, Category:Accuracy Food:
 | Prime Marine Stewpot | +95 flat | Ranged Accuracy and Magic Accuracy +95 |
 | Marine Stewpot | +90 flat | Ranged Accuracy and Magic Accuracy +90 |
 | Miso Soup +1 | +11% (cap 45) | |
+| Grape Daifuku | +10% (cap 80) | Attack +10% (cap 50), STR +2, VIT +3, Magic Atk. Bonus +3 (bg-wiki, Grape Daifuku) |
+| Oden | +15% (cap 70) | DEX +5, INT +5, Magic Accuracy +15% (cap 70) (bg-wiki, Oden) |
 
-- Percentage food multiplies total accuracy after every other source, up to its cap (FFXIclopedia, Accuracy; bg-wiki gives the percentages and caps but not how they apply). It pays its full cap only once accuracy before food reaches: Sublime Sushi +1 955, Sublime Sushi 1000, Oceanfin Soup 634.
+- Percentage food multiplies total accuracy after every other source, up to its cap (FFXIclopedia, Accuracy; bg-wiki gives the percentages and caps but not how they apply). It pays its full cap only once accuracy before food reaches: Sublime Sushi +1 955, Sublime Sushi 1000, Oceanfin Soup 634, Grape Daifuku 800, Oden 467.
+- Oden's DEX +5 adds 3 or 4 more accuracy, so at the caps it gives 6 or 7 less accuracy than Grape Daifuku and no Attack, but 70 more magic accuracy (Magic accuracy food).
+- Grape Daifuku is the food bg-wiki's simulated sets assume (Buffs, under Simulated sets). Crepe B. Helene, a magic accuracy food, adds no Accuracy: INT +2, Magic Accuracy +21% (cap 50), Magic Def. Bonus +1 (bg-wiki, Crepe B. Helene).
 - Above 955, Sublime Sushi +1 is worth about 111 (105, plus about 6 from DEX +8). Below those totals the flat Stewpots can give more, and they add magic accuracy for sets that must also land spells.
 
 ## Attack and pDIF
@@ -3308,6 +3312,7 @@ bg-wiki, read directly:
 [Obstin. Sash](https://www.bg-wiki.com/ffxi/Obstin._Sash),
 [Occasionally Quickens Spellcasting](https://www.bg-wiki.com/ffxi/Occasionally_Quickens_Spellcasting),
 [Occultation](https://www.bg-wiki.com/ffxi/Occultation),
+[Oden](https://www.bg-wiki.com/ffxi/Oden),
 [Orpheus's Sash](https://www.bg-wiki.com/ffxi/Orpheus%27s_Sash),
 [Pahtli Cape](https://www.bg-wiki.com/ffxi/Pahtli_Cape),
 [Paralyze](https://www.bg-wiki.com/ffxi/Paralyze),
