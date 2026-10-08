@@ -84,6 +84,9 @@ function export_set(options)
     local buildmsg = 'Exporting '
     if all_items then
         buildmsg = buildmsg .. 'all your items'
+        if not compact and not bgwiki then
+            buildmsg = buildmsg .. ', grouped by bag and storage slip,'
+        end
     elseif wearable then
         buildmsg = buildmsg .. 'all your items in inventory and wardrobes'
     elseif targinv then
@@ -129,9 +132,22 @@ function export_set(options)
     msg.addon_msg(123, buildmsg)
 
     local item_list = T{}
+    -- all, unless compact or bgwiki, writes one table per bag and then one per storage slip, so the file says
+    -- where each item is.
+    local bag_lists
     if all_items then
+        bag_lists = not compact and not bgwiki and {} or nil
         for i = 0, #res.bags do
-            item_list:extend(get_item_list(items[res.bags[i].english:gsub(' ', ''):lower()]))
+            local bag_name = res.bags[i].english:gsub(' ', ''):lower()
+            local bag_items = get_item_list(items[bag_name])
+            item_list:extend(bag_items)
+            if bag_lists then bag_lists[#bag_lists+1] = {name = bag_name, items = bag_items} end
+        end
+        if bag_lists then
+            for _, slip in ipairs(get_slip_lists()) do
+                item_list:extend(slip.items)
+                bag_lists[#bag_lists+1] = slip
+            end
         end
     elseif wearable then
         for _, v in pairs(equippable_item_bags) do
@@ -267,15 +283,31 @@ function export_set(options)
         output = output .. '|List = y\n|Background = \n}}\n|Equipment Set Notes =\n}'
 
     else
-        for i,v in ipairs(item_list) do
-            if v.name ~= empty then
-                if v.augments then
-                    --Advanced set table
-                    output = output .. '    %s={ name="%s", augments={%s}},':format(v.slot, v.name, v.augments)
-                elseif not onlyaugmented then
-                    output = output .. '    %s="%s",':format(v.slot, v.name)
+        if bag_lists then
+            for _, bag in ipairs(bag_lists) do
+                local lines = ''
+                for _, v in ipairs(bag.items) do
+                    if v.augments and not noaugments then
+                        lines = lines .. '        %s={ name="%s", augments={%s}},':format(v.slot, v.name, v.augments) .. newline
+                    elseif not onlyaugmented then
+                        lines = lines .. '        %s="%s",':format(v.slot, v.name) .. newline
+                    end
                 end
-                output = output .. newline
+                if lines ~= '' then
+                    output = output .. '    %s = {':format(bag.name) .. newline .. lines .. '    },' .. newline
+                end
+            end
+        else
+            for i,v in ipairs(item_list) do
+                if v.name ~= empty then
+                    if v.augments then
+                        --Advanced set table
+                        output = output .. '    %s={ name="%s", augments={%s}},':format(v.slot, v.name, v.augments)
+                    elseif not onlyaugmented then
+                        output = output .. '    %s="%s",':format(v.slot, v.name)
+                    end
+                    output = output .. newline
+                end
             end
         end
     end
@@ -406,4 +438,28 @@ function get_item_list(bag)
         end
     end
     return items_in_bag
+end
+
+-- One list per storage slip, named slip1 to slip33, of the items stored on it with a porter moogle, as Windower's
+-- slips library reads them from the slip's extdata. A slip records only which items it holds, so these never
+-- carry augments.
+function get_slip_lists()
+    local slips = require 'slips'
+    local slip_items = slips.get_player_items()
+    local lists = {}
+    for n, slip_id in ipairs(slips.storages) do
+        local list = {}
+        for _, id in ipairs(slip_items[slip_id]) do
+            local item = res.items[id]
+            if item then
+                local slot_id = item.slots and next(item.slots)
+                list[#list+1] = {
+                    name = item[language],
+                    slot = slot_id and res.slots[slot_id].english:gsub(' ', '_'):lower() or 'item',
+                }
+            end
+        end
+        lists[#lists+1] = {name = 'slip'..n, items = list}
+    end
+    return lists
 end

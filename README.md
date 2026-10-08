@@ -1,47 +1,59 @@
-PLEASE DO NOT MESSAGE ME ABOUT ANYTHING THIRD PARTY IN GAME
+## This repository
 
-PLEASE DO NOT MESSAGE ME ABOUT ANYTHING THIRD PARTY IN GAME
+* `data/Vanar/` holds Vanar's notes: `Vanar_gear_list.md`, the gear Vanar's job files use, and the files it links: `Vanar_notes.md` (the player's rules for the sets, the ranks the player has given, merits, job points, Master Levels and nation), `Vanar_gear_notes.md` (notes on Vanar's copies) and `Vanar_rank_augments.md` (Vanar's path and rank for each path-augmented item). The job files themselves and the RahvinGS engine they include are on the `rahvin` branch.
+* `docs/ffxi-mechanics.md` explains the game mechanics the gear sets rely on: casting time, recast, haste, accuracy and attack, magic accuracy, enhancing and enfeebling magic, magic damage, Cure, blue magic and weapon skills.
+* `docs/gear-notes.md` records what an item's text and the export don't show, for any copy of the item: hidden values, set bonuses, conditions and slot or hand restrictions.
+* `docs/rank-augments.md` gives the augment values at every rank for the exports' path-augmented gear (Nyame, Bunzi's, Gleti's and the other "Path:" items), taken from bg-wiki's rank tables.
+* The three files under `docs/` hold for any character and name none. What holds for one character is in that character's folder under `data/`.
+* `.claude/agents/gear-optimizer.md` is a Claude Code agent that builds and reviews gear sets from the export, the docs above and the character's own notes. `.claude/tools/` holds the .NET file-based apps it checks its work with (`.claude/tools/README.md`): they list what the character owns, check a job file against the export, and keep the gear list and the docs in step. They need the .NET 10 SDK, and keep what they download in `.claude/cache/`, which git ignores. The tools that read job files or the gear library need the RahvinGS engine at `data/common/RahvinGS/`, which this branch doesn't include.
+* This branch (`selindrile`) also carries [Selindrile/GearSwap](https://github.com/Selindrile/GearSwap): the `libs/Sel-*` engine, the job files in `data/`, and the `data/Mytha/` gear files. `data/Vanar/Vanar_{Rdm,Blu,Thf}_Gear.lua` are copies of Mytha's. `.claude/selindrile-upstream.md` records the upstream commit the files came from and how to bring in later ones.
 
-PLEASE DO NOT MESSAGE ME ABOUT ANYTHING THIRD PARTY IN GAME
+---
 
-You will be either ignored or blacklisted if you message multiple times.
+Author: Byrth
 
-Feel free to send me a way to contact you outside of game,and I'm happy to help, my preferred way of being contacted is Discord, my support discord is here: https://discord.gg/ug6xtvQ
+Version: 0.930
 
-Setting up my Gearswaps and Github updating:
+Date: 06/13/2017
 
-0.) DO NOT MESSAGE ME ABOUT ANYTHING THIRD PARTY IN GAME.
+GearSwap
 
-1.) Create a Github account if you don't already have one: https://github.com/join
+Abbreviation: gs
 
-2.) Download Github Desktop if you don't already have it : https://desktop.github.com/
+Commands (<> indicates a field. You do not actually have to use <>s):
+* gs c <string> : Passes the <string> to the self_command() user function.
+* gs equip <string> : Attempts to interpret the <string> as an index of the sets table and equip that set. Will ignore "sets" if the string starts with it.
+** gs equip naked : This equips the default set "naked," which is just a bunch of empty slots. If you remake sets (sets={}) in your get_sets(), this will not work.
+* gs debugmode : Activates GearSwap's Debug Mode, which prints out why specific gear equipping attempts failed, shows you when you're entering events, and enables the eval command.
+** gs eval <string> : This command evaluates the <string> as Lua code in the global gearswap environment (not the user environment, which is in the user_env table). It is only available when debugmode is on.
+* gs showswaps : Shows when your gear successfully changes and what it changes to.
+* gs load <string> : (or l <string>) Attempts to load the first version of <string> found, assuming it is a file path relative to 9 potential base directories, in this order:
+  
+  * ..GearSwap/libs-dev/<string>
+  * ..GearSwap/libs/<string>
+  * GearSwap/data/<character_name>/<string>
+  * GearSwap/data/common/<string>
+  * GearSwap/data/<string>
+  * APPDATA/Windower/GearSwap/<character_name>/<string>
+  * APPDATA/Windower/GearSwap/common/<string>
+  * APPDATA/Windower/GearSwap/<string>
+  * ..Windower/addons/libs/<string>
 
-3.) If you don't have Gearswap installed, do so from Windower addons.
+* gs reload : Reloads the current user file.
+* gs export <options> : Exports your currently equipped gear, inventory, or all the items in your current Lua files' sets into GearSwap .lua or spellcast .xml format. Takes options "inventory", "all", "wearable", "sets", and "xml." Defaults to currently equipped gear and lua otherwise. Also exports appropriate advanced set tables with augments for currently equipped gear and inventory. "all", unless with "compact" or "bgwiki", writes one table per bag (inventory, safe2, wardrobe3...), then one per storage slip (slip1 to slip33) for the items stored with a porter moogle; slip items carry no augments, and an empty bag or slip is left out.
+* gs enable <slot> : Enables equip commands targeting a specified slot. "All" will allow all equip commands. Providing no slot argument will enable user GearSwap file execution, if it was disabled.
+* gs disable <slot> : Disables equip commands targeting a given slot. "All" will prevent all equip commands. Providing no second argument will disable user GearSwap file execution, although registered events will still run.
+* gs validate <sets|inv> <filter> : This command checks to see whether the equipment in the sets table also exists in your inventory (default), or (by passing "inv") whether the equipment in your inventory exists in your sets table. <filter> is an optional list of words that restricts the output to only those items that contain text from one of the filter's words.
+* gs test set <set> : Equips the set over a naked character, reading it as gs equip does, then disables the user file for 30 seconds so the gear stays on.
+* gs test [precast|midcast] <action> : Strips every slot but main, sub and range, then calls the user file's precast and then midcast for the named spell, ability or weapon skill, without using it, and disables the user file for 30 seconds. "precast" stops before midcast. The spell table is aimed at your target, or at you with none, and carries spell.test = true so the user file can tell a test from a real use. When the 30 seconds end, the file is enabled and gets a status_change with your current status. Another gs test during the 30 seconds starts over, and a bare gs enable or gs disable takes over from the timer.
+* gs stash <jobs> [unused] : Reads the file GearSwap would load for each job listed, such as `gs stash BLU RDM`, and moves the gear their sets use out of wardrobe and wardrobe2, into the first of case, sack, safe, safe2, storage and locker with room. With "unused", it moves everything else out of the two wardrobes instead. Equipped pieces stay. It stops with a message when every stash bag in reach is full.
+* gs pull <jobs> : Reads the same files and moves the gear their sets use into wardrobe, then wardrobe2, from every other bag in reach, taking only the copies the wardrobes lack. The inventory, satchel, sack, case and wardrobes 3 to 8 are in reach anywhere; safe, safe2, storage and locker are in reach in the Mog House, and all but storage at a Nomad or Pilgrim Moogle. It stops with a message when both wardrobes are full.
+* gs e, gs x and gs t are short for gs equip, gs export and gs test.
 
-4.) Take your existing Gearswap folder from inside Windower\Addons and move it to your desktop. https://www.dropbox.com/s/ib1vvdv5x8g1jql/Move.png?dl=0
+Purpose: To assist in the micromanaging of equipment!
 
-5.) If you're transitioning to my gearswaps from other gearswaps remove the Gearswap\Data folder from the old folder, and place it somewhere you can find to help you edit my gearswaps later, https://www.dropbox.com/s/wquioii9r16oho2/MoveData.png?dl=0 if you're setting up gearswap for the first time you can delete the old Gearswap\Data folder
+Settings Files:  
+There is no settings file for GearSwap.
 
-6.) Open Github Desktop and login. (As Admin if your Gearswap Folder is located in Program Files) https://www.dropbox.com/s/ietq7dpe0obqcor/Github%20As%20Admin.png?dl=0
-
-7.) Click File, Clone Repository, click the URL tab, in the Repository box put: Selindrile/GearSwap in the Local Path box put the location your Gearswap directory was, for example C:\Program Files\Windower\Addons\Gearswap then click Clone.
-
-8.) Move your old Gearswap folder on the desktop to the same directory as the new one to merge them. https://www.dropbox.com/s/vd5tqw7mw6t9xa6/Merge%201.png?dl=0 https://www.dropbox.com/s/i602azszzv2fl25/Merge%202.png?dl=0 Yes here. https://www.dropbox.com/s/gtt59xw556l04kd/Merge%203.png?dl=0 Yes for all. https://www.dropbox.com/s/n1myd584muntey3/Merge%204.png?dl=0 Skip these files. Make sure not to overwrite any files, choose skip or "do not replace" for any common files.
-
-9.) Inside your Gearswap\Data\ folder, first copy, then rename the "Mytha" folder once for each of your characters' names. https://www.dropbox.com/s/wquioii9r16oho2/MoveData.png?dl=0 Rename all the files inside that folder as well, you can use Rename.bat (If it doesn't work you will have to rename these files manually. https://www.dropbox.com/s/lpz3t8va77mvh17/Charactername.png?dl=0
-
-10.) For full functionality my gearswap and init files do depend on a few other addons that can be found in your launcher, I'll list them here: Addons: Shortcuts, Cancel, Itemizer. Plugins: Timers, Run
-
-11.) To update my gearswaps in the future open up Github Desktop and click the third button (Fetch Origin, then push the same button again. https://www.dropbox.com/s/zroxiy1e6r3y3cb/Fetch.png?dl=0
-
-12.) Optional: If you're new to editing files like this I highly reccomend Notepad++, https://notepad-plus-plus.org/ and using File: Open Folder as Workspace, and adding your Gearswap\Data folder there.
-
-13.) Optional: Obtain Init file (Goes in Windower\Script folder) from: this repo and place it in your Windower\Scripts folder (Rename and keep your original just in case you want to revert.)
-
-14.) Read the Cheat Sheet in your Data Folder, feel free to contact me if there's anything you don't understand but again:
-
-PLEASE DO NOT MESSAGE ME ABOUT ANYTHING THIRD PARTY IN GAME
-
-PLEASE DO NOT MESSAGE ME ABOUT ANYTHING THIRD PARTY IN GAME
-
-PLEASE DO NOT MESSAGE ME ABOUT ANYTHING THIRD PARTY IN GAME
+Additional Assistance:
+The Windower/addons/GearSwap/beta_examples_and_information folder has a file in it named Variables.xlsx that gives more specific information. If that is insufficient, you can go to BlueGartr's FFXI section or FFXIAH and ask for more assistance.
