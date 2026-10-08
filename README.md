@@ -1,3 +1,14 @@
+## This repository
+
+* `data/Vanar/` holds Vanar's notes: `Vanar_gear_list.md`, the gear Vanar's job files use, and the files it links: `Vanar_notes.md` (the player's rules for the sets, the ranks the player has given, merits, job points, Master Levels and nation), `Vanar_gear_notes.md` (notes on Vanar's copies) and `Vanar_rank_augments.md` (Vanar's path and rank for each path-augmented item). The job files themselves and the RahvinGS engine they include are on the `rahvin` branch.
+* `docs/ffxi-mechanics.md` explains the game mechanics the gear sets rely on: casting time, recast, haste, accuracy and attack, magic accuracy, enhancing and enfeebling magic, magic damage, Cure, blue magic and weapon skills.
+* `docs/gear-notes.md` records what an item's text and the export don't show, for any copy of the item: hidden values, set bonuses, conditions and slot or hand restrictions.
+* `docs/rank-augments.md` gives the augment values at every rank for the exports' path-augmented gear (Nyame, Bunzi's, Gleti's and the other "Path:" items), taken from bg-wiki's rank tables.
+* The three files under `docs/` hold for any character and name none. What holds for one character is in that character's folder under `data/`.
+* `.claude/agents/gear-optimizer.md` is a Claude Code agent that builds and reviews gear sets from the export, the docs above and the character's own notes. `.claude/tools/` holds the .NET file-based apps it checks its work with (`.claude/tools/README.md`): they list what the character owns, check a job file against the export, and keep the gear list and the docs in step. They need the .NET 10 SDK, and keep what they download in `.claude/cache/`, which git ignores. The tools that read job files or the gear library need the RahvinGS engine at `data/common/RahvinGS/`, which this branch doesn't include.
+
+---
+
 Author: Byrth
 
 Version: 0.930
