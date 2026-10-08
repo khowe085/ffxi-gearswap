@@ -660,6 +660,9 @@ function get_sets()
 
 	-- Sets named for one spell. Each replaces the family set for that spell.
 
+	sets.Midcast["Mighty Guard"] = set_combine(sets.Midcast.BlueMagic.Buff, sets.JA["Diffusion"])
+	sets.Midcast["Harden Shell"] = set_combine(sets.Midcast.BlueMagic.Buff, sets.JA["Diffusion"])
+
 	-- Battery Charge is a refresh spell you cast, so Refresh potency gear raises it (bg-wiki, Amalric Coif +1).
 	sets.Midcast["Battery Charge"] = set_combine(sets.Midcast.BlueMagic.Buff, {
 		head = gear.amalricCoifPlusOne,			-- Refresh potency +2
