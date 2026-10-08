@@ -10,22 +10,37 @@ function character_user_job_setup()
 	state.ResistDefenseMode:options('MEVA')
 	state.BuffWeaponsMode = M{'Always','Never'}
 	state.AutoBuffMode = M{['description'] = 'Auto Buff Mode','Off','Auto','AutoMelee','AutoMage'}
-	state.Weapons:options('None','Naegling','Maxentius','Crocea','Tauret','EnspellOnly','DualWeapons','DualWeaponsAcc','DualMaxentius','DualCrocea','DualMaxentiusAcc','DualPrime','DualAeolian','DualEnspellOnly','DualProcSword')
+	state.Weapons:options('None','Naegling','Maxentius','Crocea','Tauret','EnspellOnly','Savage Blade','Savage Blade Acc','Black Halo','DualCrocea','Black Halo Max Acc','DualPrime','DualAeolian','DualEnspellOnly','DualProcSword')
+
+	--Weaponskills that get a buff from Auto WS Buff (User-Globals.lua) first.
+	ws_buff_list = S{'Savage Blade','Evisceration','Chant du Cygne','Vorpal Blade','Black Halo','Requiescat','Realmrazer'}
 	state.WeaponSets:options('Default','Dual','Proc','Dynamis')
 
 	weapon_sets = {
 		['Default'] = {'None','Naegling','Maxentius','Crocea','Tauret','EnspellOnly'},
-		['Dual'] = {'DualWeapons','DualWeaponsAcc','DualMaxentius','DualCrocea','DualMaxentiusAcc','DualPrime','DualAeolian','DualEnspellOnly'},
+		['Dual'] = {'Savage Blade','Savage Blade Acc','Black Halo','DualCrocea','Black Halo Max Acc','DualPrime','DualAeolian','DualEnspellOnly'},
 		['Dynamis'] = {'DualCroceaSavageBlade','DualCrocea','DualTauretCrocea','DualAeolian'},
 		['Proc'] = {'ProcSword','ProcDagger','DualProcSword','DualProcDagger'},
 	}
 
 	default_weapons = 'Naegling'
-	default_dual_weapons = 'DualWeapons'
+	default_dual_weapons = 'Savage Blade'
 
-	autows_list =  {['Naegling']='Savage Blade',['Maxentius']='Black Halo',['Crocea']='Sanguine Blade',['Tauret']='Aeolian Edge',['DualWeapons']='Savage Blade',['DualWeaponsAcc']='Savage Blade',
-					['DualMaxentius']='Black Halo',['DualMaxentiusAcc']='Black Halo',['DualEvisceration']='Evisceration',['DualCrocea']='Sanguine Blade',['DualClubs']='Black Halo',
-					['DualAeolian']='Aeolian Edge',['DualPrime']='Exenterator',['DualCroceaSavageBlade']="Savage Blade",['CroceaDaybreak']="Seraph Blade",["DualTauretCrocea"]="Aeolian Edge"}
+	--Auto WS choices, copied verbatim from the rahvin branch's RDM.lua, so the keys are rahvin's weapon mode names.
+	--Moonshade Earring's TP Bonus +250, which the weapon skill sets wear, turns 1750 into 2000 and 2750 into
+	--3000, the cap. With Thibron's TP Bonus +1000 in the offhand, 1750 already reaches the cap, so those modes
+	--stop at 1750.
+	AutoWS_List = {
+		['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
+		['Savage Blade Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+		['Sanguine Blade'] = { { 'Sanguine Blade', 1000 } },
+		['Black Halo'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 } },
+		['Black Halo Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
+		['Black Halo Max Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
+		['Chant du Cygne'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 } },
+		['Evisceration'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
+		['Aeolian Edge'] = { { 'Aeolian Edge', 1000 }, { 'Aeolian Edge', 1750 }, { 'Aeolian Edge', 2750 } },
+	}
 	trust_list = {"Joachim","Ulmia","Qultada","Yoran-Oran (UC)","Selh'teus"}
 	
 	gear.mnd_enfeebling_jse_back = {name="Sucellos's Cape",augments={'MND+20','Mag. Acc+20 /Mag. Dmg.+20','MND+10','Haste+10','Damage taken-5%',}}
@@ -63,8 +78,8 @@ function init_gear_sets()
 	sets.weapons.Crocea = {main="Crocea Mors",sub="Ammurapi Shield",range=empty}
 	sets.weapons.Maxentius = {main="Maxentius",sub="Ammurapi Shield",range=empty}
 	sets.weapons.Tauret = {main="Tauret",sub="Ammurapi Shield",range=empty}
-	sets.weapons.DualWeapons = {main="Naegling",sub="Thibron",range=empty}
-	sets.weapons.DualWeaponsAcc = {main="Naegling",sub="Gleti's Knife",range=empty}
+	sets.weapons['Savage Blade'] = {main="Naegling",sub="Thibron",range=empty}
+	sets.weapons['Savage Blade Acc'] = {main="Naegling",sub="Gleti's Knife",range=empty}
 	sets.weapons.DualPrime = {main="Mpu Gandring",sub="Gleti's Knife",range=empty}
 	sets.weapons.DualEvisceration = {}
 	sets.weapons.DualCrocea = {main="Crocea Mors",sub="Daybreak",range=empty}
@@ -77,8 +92,8 @@ function init_gear_sets()
 	sets.weapons.DualEnspellOnly = {main="Qutrub Knife",sub="Ethereal Dagger"}
 	sets.weapons.DualBow = {}
 	sets.weapons.BowMacc = {}
-	sets.weapons.DualMaxentius = {main="Maxentius",sub="Thibron",range=empty}
-	sets.weapons.DualMaxentiusAcc = {main="Maxentius",sub="Gleti's Knife",range=empty}
+	sets.weapons['Black Halo'] = {main="Maxentius",sub="Thibron",range=empty}
+	sets.weapons['Black Halo Max Acc'] = {main="Maxentius",sub="Gleti's Knife",range=empty}
 	
 	--Temporary Weapon Sets for Dynamis RP
 	sets.weapons.DualCroceaSavageBlade = {main="Crocea Mors",sub="Thibron"}
@@ -641,6 +656,14 @@ function user_job_lockstyle()
 		end
 	elseif player.sub_job == 'NIN' or player.sub_job == 'DNC' then
 		windower.chat.input('/lockstyleset 020')
+	end
+end
+
+--From the rahvin branch: with Ullr in range, the ammo a weaponskill, Waltz or Step set names would strip the
+--bow and reset TP before the action fires, so the ammo slot stays bare.
+function user_job_post_precast(spell, spellMap, eventArgs)
+	if player.equipment.range == 'Ullr' and spell.action_type ~= 'Ranged Attack' then
+		equip({ammo=empty})
 	end
 end
 

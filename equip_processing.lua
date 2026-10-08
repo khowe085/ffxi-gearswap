@@ -282,11 +282,13 @@ function equip_piece(eq_slot_id,bag_id,inv_slot_id)
         items[to_bag_api(res.bags[bag_id].english)][inv_slot_id].status = 5
         local minichunk = string.char(inv_slot_id,eq_slot_id,bag_id,0)
         injected_equipment_registry[minichunk:byte(2)]:append(minichunk:sub(1,3))
+        injected_equipment_time[minichunk:byte(2)] = os.clock()
         return minichunk
     else
         --items.equipment[toslotname(eq_slot_id)] = {slot=empty,bag_id=0}
         local minichunk = string.char(0,eq_slot_id,0,0)
         injected_equipment_registry[minichunk:byte(2)]:append(minichunk:sub(1,3))
+        injected_equipment_time[minichunk:byte(2)] = os.clock()
         return minichunk
     end
 end

@@ -205,6 +205,10 @@ injected_equipment_registry = {}
 for i=0,15 do
     injected_equipment_registry[i] = L{}
 end
+-- When each slot's latest equip request was recorded (os.clock). update_equipment stops trusting a slot's
+-- requests once the latest has gone unconfirmed for equip_confirm_window seconds.
+injected_equipment_time = {}
+equip_confirm_window = 3
 
 
 _global = make_user_table()

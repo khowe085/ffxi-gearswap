@@ -1,3 +1,108 @@
+## Modes and keys
+
+Every mode below can be changed in game with `//gs c toggle <Mode>` (on/off modes), `//gs c cycle <Mode>` (modes with a list of values; add `reverse` to go backwards) or `//gs c set <Mode> <value>`. Key notation: `^` Ctrl, `!` Alt, `@` Windows key, `~` Shift.
+
+### Keys for every job (`data/User/User-Globals.lua`)
+
+| Key | Command | Mode | Values (default first) |
+|---|---|---|---|
+| `F7` | cycle | Weapons | The job file's weapon sets |
+| `!^F7` | toggle | AutoFoodMode | off, on |
+| `!@^F7` | cycle | AutoWS | OFF, then the current weapon set's `AutoWS_List` choices; back to OFF on a weapon change |
+| `@F8` | toggle | AutoNukeMode | off, on |
+| `^F8` | toggle | AutoStunMode | off, on |
+| `!F8` | toggle | AutoDefenseMode | off, on |
+| `!@^F8` | toggle | AutoTrustMode | off, on |
+| `F9` | cycle | OffenseMode | Set per job |
+| `^F9` | cycle | HybridMode | Set per job |
+| `@F9` | cycle | RangedMode | Set per job |
+| `!F9` | cycle | WeaponskillMode | Match, then per job |
+| `F10` | set | DefenseMode Physical | Turns on the physical defense set |
+| `^F10` | cycle | PhysicalDefenseMode | PDT, then per job |
+| `!F10` | toggle | Kiting | off, on |
+| `F11` | set | DefenseMode Magical | Turns on the magical defense set |
+| `^F11` | cycle | MagicalDefenseMode | MDT, then per job |
+| `@F11` | cycle | CastingMode | Set per job |
+| `!F11` | cycle | ExtraMeleeMode | Set per job |
+| `F12` | set | DefenseMode Resist | Turns on the resist defense set |
+| `^F12` | cycle | ResistDefenseMode | MEVA, then per job |
+| `@F12` | cycle | IdleMode | Set per job |
+| `!F12` | reset | DefenseMode | Back to None |
+| `@Pause` | cycle | AutoBuffMode | Off, Auto, then the job's other buff lists |
+| `@ScrollLock` | cycle | Passive | None, then per job |
+
+Other keys for every job: `Pause` runs `gs c update user`, `!@^F12` reloads GearSwap, `!@^Pause` runs `gs org`, `!@^Backspace` runs `gs c buffup`.
+
+### Vanar's job keys (`data/Vanar/Vanar_<Job>_Gear.lua`)
+
+| Job | Key | Command | Mode |
+|---|---|---|---|
+| BLU | `@F10` | toggle | LearningMode |
+| BLU | `` !@^` `` | cycle | MagicBurstMode (the file binds SkillchainMode to this key first, and the second bind wins) |
+| BLU | — | cycle | JobMode: AoE, Melee (default Melee); loads the AzureSets spell set |
+| RDM | `@F10` | cycle | RecoverMode: 35%, 60%, Always, Never |
+| RDM | `` @` `` | cycle | ElementalMode: Fire, Ice, Wind, Earth, Lightning, Water, Light, Dark |
+| THF | `@F10` | toggle | AmbushMode |
+| THF | `` @` `` | cycle | SkillchainMode: Off, Single, Lock |
+
+The three files also bind `@F8` to AutoNukeMode, which is the same as the global key. Their other keys use job abilities or spells directly and change no mode.
+
+### Modes with no key, for every job
+
+| Mode | Values (default first) | What it does |
+|---|---|---|
+| TreasureMode | None, Tag (THF also SATA, Fulltime); every job starts in Tag | Treasure Hunter gear; Tag wears it until a monster is tagged |
+| AutoWSBuff | on, off | Uses Last Resort, Berserk, Warcry or Aggressor before a weaponskill in the job file's `ws_buff_list` |
+| AutoWSRestore | on, off | Lets AutoWS use Sanguine Blade, Catastrophe, Entropy or Mystic Boon at low HP or MP |
+| UnlockWeapons | off, on | Lets sets change main and sub; while engaged they stay put |
+| AutoWSMode | off, on | Only drives RngHelper's ranged auto-ws, and stays off without RngHelper |
+| RngHelper, RngHelperQuickDraw | off, on | Ranged attack helper |
+| AutoArts, AutoLockstyle, ReEquip, SkipProcWeapons | on, off | Arts upkeep, lockstyle on load and weapon change, re-equip weapons when bare, hide Proc weapon sets |
+| AutoShadowMode, AutoSubMode, AutoJumpMode, AutoSuperJumpMode, AutoTankMode, AutoCleanupMode, AutoAcceptRaiseMode | off, on | Job automation |
+| AutoRemoveDoomMode, AutoHolyWaterMode, AutoContradanceMode, CancelStoneskin, AdjustTargets, MiniQueue, RefineWaltz, IdleStep, HoverShot, UseCustomTimers, SelfWarp2Block, DisplayMode | on, off | Upkeep and convenience |
+| Capacity, NotifyBuffs, SelectNPCTargets, WakeUpWeapons, ElementalWheel | off, on | Capacity cape on; tell the party about buffs in `NotifyBuffs`; let `<st>` targeting pick NPCs; hold `sets.WakeUpWeapons` while asleep; move ElementalMode on after each nuke |
+| AutoRuneMode | Off, Runes, Full | RUN or /RUN: keeps runes up |
+| AutoSambaMode | Off, Haste Samba, Aspir Samba, Drain Samba II | DNC or /DNC: keeps the chosen samba up |
+| MagicBurstMode, SkillchainMode | Off, Single, Lock | Wears the magic burst or skillchain set for the next action (Single) or until turned off (Lock) |
+| RecoverMode | 35%, 60%, Always, Never | Nukes wear the MP-recovery set below that MP |
+| ElementalMode | Fire, Ice, Wind, Earth, Lightning, Water, Light, Dark | Element used by the element-picking nuke and ninjutsu commands |
+| RuneElement | Ignis, Gelus, Flabra, Tellus, Sulpor, Unda, Lux, Tenebrae | Rune AutoRuneMode keeps up |
+| RegenMode | None, Duration, Potency | Which Regen midcast set to wear |
+| AspisMode | 250, 500, 1000, Always, Never | When Diamond Aspis swaps in for a job ability: below that TP, always, or never |
+| Uninterruptible | Delay, Off, Full | Delay holds a cast pressed while moving until you stop; Full keeps queued actions through an interruption |
+| PCTargetMode | default, stpt, stal, stpc | Subtarget used for spells aimed at players |
+| WeaponSets | Set per job | Picks which group of weapon sets `Weapons` cycles through |
+| CraftingMode, CraftQuality, EquipStop, RestingMode | | Crafting and debugging |
+
+### Modes each job file adds (`data/<JOB>.lua`), none bound to a key
+
+| Job | Modes |
+|---|---|
+| BLM | DeathMode, AutoManawell |
+| BLU | LearningMode, AutoUnbridled |
+| BRD | ExtraSongsMode, AutoDummyMode, CarnMode, Pianissimode, AutoSongMode |
+| BST | AutoFightMode, AutoReadyMode, AutoRewardMode, AutoCallPet, PetMode, RewardMode, JugMode |
+| COR | CompensatorMode, RollMode, AutoAmmoMode, UseDefaultAmmo, TrueShotMode, LuzafRing |
+| DNC | MainStep, CycleStep, AutoPrestoMode, AutoStepMode, DanceStance |
+| DRG | Stance, AutoBondMode |
+| DRK | Stance, DrainSwapWeaponMode |
+| GEO | ShowDistance, AutoEntrust, UnlockGeomancy, CombatEntrustOnly, AutoGeoAbilities |
+| MNK | AutoBoost |
+| NIN | Stance, ElementalMode |
+| PLD | Stance, CurrentStep, AutoEmblem, AutoCover, AutoMajesty |
+| PUP | PartyChatWS, PetMode, AutoManeuvers, AutoPuppetMode, AutoRepairMode, AutoDeployMode, AutoPetMode, PetWSGear, PetEnmityGear |
+| RDM | BuffWeaponsMode, MurgleisMode |
+| RNG | AutoAmmoMode, UseDefaultAmmo, TrueShotMode |
+| RUN | Stance, Steps |
+| SAM | Stance |
+| SMN | PactSpamMode, AutoFavor, AutoConvert |
+| WAR | Stance, ConquerorMode |
+| WHM | AutoCaress, AutoCelerity, Gambanteinn, BlockLowDevotion, ElementalMode |
+
+Vanar's gear files add ExtraMeleeMode (BLU, THF), JobMode (BLU), AmbushMode (THF) and BuffWeaponsMode (RDM).
+
+---
+
 ## This repository
 
 * `data/Vanar/` holds Vanar's notes: `Vanar_gear_list.md`, the gear Vanar's job files use, and the files it links: `Vanar_notes.md` (the player's rules for the sets, the ranks the player has given, merits, job points, Master Levels and nation), `Vanar_gear_notes.md` (notes on Vanar's copies) and `Vanar_rank_augments.md` (Vanar's path and rank for each path-augmented item). The job files themselves and the RahvinGS engine they include are on the `rahvin` branch.

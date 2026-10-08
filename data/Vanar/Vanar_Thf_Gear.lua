@@ -11,6 +11,9 @@ function character_user_job_setup()
 	state.ResistDefenseMode:options('MEVA')
 	state.Weapons:options('Savage','Aeneas','Aeolian','ProcWeapons','Evisceration','Throwing','SwordThrowing','Bow')
 
+	--Weaponskills that get a buff from Auto WS Buff (User-Globals.lua) first.
+	ws_buff_list = S{'Evisceration'}
+
 	state.ExtraMeleeMode = M{['description']='Extra Melee Mode','None','Suppa','DWMax','Parry'}
 	state.AmbushMode = M(false, 'Ambush Mode')
 
@@ -289,4 +292,9 @@ function user_job_lockstyle()
 	end
 end
 
-autows_list = {['Aeneas']="Rudra's Storm",['Aeolian']='Aeolian Edge',['Savage']='Savage Blade',['Throwing']="Rudra's Storm",['SwordThrowing']='Savage Blade',['Evisceration']='Evisceration',['ProcWeapons']='Wasp Sting',['Bow']='Empyreal Arrow'}
+--Auto WS choices, copied verbatim from the rahvin branch's THF.lua, so the keys are rahvin's weapon mode names.
+--Moonshade Earring's TP Bonus +250, which the weapon skill set wears, turns 1750 into 2000 and 2750 into
+--3000, the cap. Evisceration's critical hit rate rises with TP.
+AutoWS_List = {
+	['Evisceration'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
+}

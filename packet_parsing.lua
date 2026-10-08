@@ -266,12 +266,14 @@ parse.o[0x050] = function (data,injected) --equip
     -- injected chunks in the chunk events but will hit the server before them.
     -- Thus, I use insert here instead of append
     injected_equipment_registry[data:byte(6)]:insert(1,data:sub(5,7))
+    injected_equipment_time[data:byte(6)] = os.clock()
 end
 
 parse.o[0x051] = function (data,injected) --equipset
     if injected then return end
     for i=9,9+4*(data:byte(5)-1),4 do
         injected_equipment_registry[data:byte(i+1)]:insert(1,data:sub(i,i+2))
+        injected_equipment_time[data:byte(i+1)] = os.clock()
     end
 end
 
@@ -301,9 +303,16 @@ function update_equipment()
     for i,v in pairs(items.equipment) do
         tab[i] = {bag_id = v.bag_id,slot=v.slot}
     end
+    local now = os.clock()
     for i,v in pairs(injected_equipment_registry) do
         local last = v:last()
-        if last then
+        if last and now - (injected_equipment_time[i] or now) > equip_confirm_window then
+            -- No request for this slot was confirmed in time, so they were refused or lost. The game never
+            -- confirms an equip it won't carry out, such as a weapon in sub without Dual Wield, and trusting
+            -- the request would keep that item from ever being sent again. What the server last reported
+            -- stands, and the next build sends the item again.
+            injected_equipment_registry[i] = L{}
+        elseif last then
             tab[default_slot_map[i]] = {
                 bag_id = last:byte(3),
                 slot = last:byte(1) == 0 and empty or last:byte(1),

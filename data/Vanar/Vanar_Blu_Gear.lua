@@ -8,17 +8,23 @@ function character_user_job_setup()
 	state.PhysicalDefenseMode:options('PDT')
 	state.MagicalDefenseMode:options('MDT')
 	state.ResistDefenseMode:options('MEVA')
-	state.Weapons:options('Tizbron','Tizalmace','None','Almace','MeleeClubs','HybridWeapons','Naegbron','Naegmace')
+	state.Weapons:options('Tizona','Tizona Acc','None','Almace','MeleeClubs','HybridWeapons','Savage Blade','Savage Blade Acc')
 
     state.ExtraMeleeMode = M{['description']='Extra Melee Mode','None','MP','SuppaBrutal','DWEarrings','DWMax'}
+
+	--Picks the AzureSets spell set: AoE loads {sub}_mage and Melee loads {sub}_melee. Save these in AzureSets with //aset save <name>.
+	--Cycle with: gs c cycle JobMode
+	state.JobMode = M{['description']='Job Mode','AoE','Melee'}
+	state.JobMode:set('Melee')
+
+	--Weaponskills that get a buff from Auto WS Buff (User-Globals.lua) first.
+	ws_buff_list = S{'Savage Blade','Expiacion','Chant du Cygne','Vorpal Blade','Black Halo','Requiescat','Realmrazer'}
 
 	gear.da_jse_back = {name="Rosmerta's Cape",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Dbl.Atk."+10',}}
 	gear.stp_jse_back = {name="Rosmerta's Cape",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Store TP"+10',}}
 	gear.crit_jse_back = {name="Rosmerta's Cape",augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','Crit.hit rate+10',}}
 	gear.wsd_jse_back = {name="Rosmerta's Cape",augments={'STR+20','Accuracy+20 Attack+20','STR+10','Weapon skill damage +10%',}}
 	gear.nuke_jse_back = {name="Rosmerta's Cape",augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','"Mag.Atk.Bns."+10',}}
-
-	autows = 'Expiacion'
 
 	-- Additional local binds
 	send_command('bind ^` input /ja "Chain Affinity" <me>')
@@ -33,6 +39,7 @@ function character_user_job_setup()
 	send_command('bind @f8 gs c toggle AutoNukeMode')
 
 	select_default_macro_book()
+	queue_azure_set(5)
 end
 
 function init_gear_sets()
@@ -469,12 +476,12 @@ function init_gear_sets()
 	sets.TreasureHunter = set_combine(sets.TreasureHunter, {})
 	
 	-- Weapons sets
-	sets.weapons.Tizalmace = {main="Tizona",sub="Almace"}
-	sets.weapons.Tizbron = {main="Tizona",sub="Thibron"}
+	sets.weapons['Tizona Acc'] = {main="Tizona",sub="Almace"}
+	sets.weapons['Tizona'] = {main="Tizona",sub="Thibron"}
 	sets.weapons.MeleeClubs = {main="Maxentius",sub="Nehushtan"}
 	sets.weapons.Almace = {main="Almace",sub="Sequence"}
-	sets.weapons.Naegbron = {main="Naegling",sub="Thibron"}
-	sets.weapons.Naegmace = {main="Naegling",sub="Almace"}
+	sets.weapons['Savage Blade'] = {main="Naegling",sub="Thibron"}
+	sets.weapons['Savage Blade Acc'] = {main="Naegling",sub="Almace"}
 	sets.weapons.MaccWeapons = {main="Iris",sub="Iris"}
 	sets.weapons.HybridWeapons = {main="Vampirism",sub="Vampirism"}
 
@@ -583,5 +590,215 @@ function select_default_macro_book()
 	end
 end
 
-autows_list = {['Tizbron']='Expiacion',['Tizalmace']='Expiacion',['Almace']='Chant Du Cygne',['MeleeClubs']='Realmrazer',
-     ['HybridWeapons']='Sanguine Blade',['Naegbron']='Savage Blade',['Naegmace']='Savage Blade'}
+--Auto WS choices, copied verbatim from the rahvin branch's BLU.lua, so the keys are rahvin's weapon mode names.
+--Moonshade Earring's TP Bonus +250, which the weapon skill sets wear, turns 1750 into 2000 and 2750 into
+--3000, the cap. With Thibron's TP Bonus +1000 in the offhand, 1750 already reaches the cap, so those modes
+--stop at 1750. 'AM2' and 'AM3' build that Aftermath level first, then fire at 1000 while it lasts.
+AutoWS_List = {
+	['Tizona'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
+	['Tizona Acc'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 2750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
+	['Black Halo'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 } },
+	['Black Halo Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
+	['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
+	['Savage Blade Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+	['Chant du Cygne'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 } },
+	['Chant du Cygne Acc'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 } },
+}
+
+--Auto Unbridled Learning, Diffusion, Chain Affinity and Efflux, ported from the rahvin branch's BLU.lua.
+--Blue magic that needs Unbridled Learning or Unbridled Wisdom up before it can be cast: the 18 spells that take no set points.
+local Unbridled_Spells = S{'Absolute Terror','Bilgestorm','Blistering Roar','Bloodrake','Carcharian Verve',
+	'Cesspool','Crashing Thunder','Cruel Joke','Droning Whirlwind','Gates of Hades','Harden Shell',
+	'Mighty Guard','Polar Roar','Pyric Bulwark','Tearing Gust','Thunderbolt','Tourbillion','Uproot'}
+
+--Blue magic that uses Diffusion first, when it is ready and not already up, so the buff reaches the party.
+local Diffusion_Spells = S{'Mighty Guard','Harden Shell'}
+
+--Physical blue magic that needs Chain Affinity up or ready (the spell is dropped otherwise), and that also
+--uses Efflux first when it is ready and not already up.
+local Chain_Affinity_Spells = S{'Sinker Drill'}
+
+--The spell sent again after its abilities, set as that send goes out so it alone passes untouched, and the
+--os.clock() time until which other blue magic presses are dropped while the abilities go up.
+local blu_refire, blu_lock_until = nil, 0
+--The last time Unbridled Learning was reported not ready, so a cast AutoBuffMode retries prints it once every 30 seconds at most.
+local unbridled_abort_said = nil
+
+--A spell from the lists above that needs one of the abilities is dropped, the abilities go up 1.1 seconds
+--apart, and the spell is sent again 1.1 seconds after them. That second send always passes, whether or not
+--the abilities landed, so this never loops. Runs ahead of BLU.lua's own Unbridled check in job_filter_precast.
+function user_job_filter_precast(spell, spellMap, eventArgs)
+	if spell.type ~= 'BlueMagic' then return end
+	--Silenced, the spell would fail after its abilities went up and onto their recasts, so none is used.
+	if buffactive['Silence'] or buffactive['Mute'] or buffactive['Omerta'] then return end
+	--Under Amnesia or Impairment the abilities themselves fail. A Chain Affinity spell without Chain Affinity up
+	--is still dropped, as it is when Chain Affinity isn't ready; anything else goes ahead without its abilities.
+	if buffactive['Amnesia'] or buffactive['Impairment'] then
+		if Chain_Affinity_Spells:contains(spell.english) and not buffactive['Chain Affinity'] then
+			eventArgs.cancel = true
+			add_to_chat(123, "Abort: Chain Affinity can't be used.")
+		end
+		return
+	end
+
+	local now = os.clock()
+	if now >= blu_lock_until then blu_refire = nil end
+	if blu_refire == spell.english then
+		blu_refire, blu_lock_until = nil, 0
+		return
+	end
+	if now < blu_lock_until then
+		eventArgs.cancel = true
+		return
+	end
+
+	local recasts = windower.ffxi.get_ability_recasts()
+	local unbridled = Unbridled_Spells:contains(spell.english) and not buffactive['Unbridled Learning'] and not buffactive['Unbridled Wisdom']
+	local diffusion = Diffusion_Spells:contains(spell.english) and not buffactive['Diffusion'] and recasts[184] == 0
+	local chain = Chain_Affinity_Spells:contains(spell.english)
+	local chain_affinity = chain and not buffactive['Chain Affinity']
+	local efflux = chain and not buffactive['Efflux'] and recasts[185] == 0
+	if not (unbridled or diffusion or chain_affinity or efflux) then return end
+	if ((windower.ffxi.get_spell_recasts()[spell.recast_id] or 0) / 60) > 1 then return end
+
+	if unbridled and recasts[81] ~= 0 then
+		eventArgs.cancel = true
+		if not unbridled_abort_said or now - unbridled_abort_said > 30 then
+			unbridled_abort_said = now
+			add_to_chat(123, 'Abort: Unbridled Learning not active.')
+		end
+		return
+	end
+	if chain_affinity and recasts[181] ~= 0 then
+		eventArgs.cancel = true
+		add_to_chat(123, 'Abort: Chain Affinity not ready.')
+		return
+	end
+
+	eventArgs.cancel = true
+	--rahvin's busy gate: mid-action, the first ability would be refused.
+	if midaction() then return end
+
+	local abilities = {}
+	if unbridled then abilities[#abilities + 1] = 'Unbridled Learning' end
+	if diffusion then abilities[#abilities + 1] = 'Diffusion' end
+	if chain_affinity then abilities[#abilities + 1] = 'Chain Affinity' end
+	if efflux then abilities[#abilities + 1] = 'Efflux' end
+
+	local delay = 0
+	for _, ability in ipairs(abilities) do
+		windower.chat.input:schedule(delay, '/ja "'..ability..'" <me>')
+		delay = delay + 1.1
+	end
+
+	local name, target = spell.english, spell.target.raw or '<me>'
+	blu_lock_until = now + delay + 1
+	local refire = function()
+		blu_refire = name
+		windower.chat.input('/ma "'..name..'" '..target)
+	end
+	refire:schedule(delay)
+	add_tick_delay(delay)
+end
+
+--AzureSets auto-load and the Dual Wield re-check, ported from the rahvin branch's BLU.lua.
+
+--The AzureSets save file, read to learn which spell sets exist.
+local azure_settings_path = windower.windower_path..'addons/AzureSets/data/settings.xml'
+
+--Each queued load takes a new request number, and a scheduled load or retry for an older number does nothing.
+--Changing main job to BLU loads this file and may also change the subjob, and this keeps that to one //aset command.
+local azure_request = 0
+
+--Whether the job traits include Dual Wield (trait 18) now, from the subjob or from set blue magic.
+local function has_dual_wield()
+	local abilities = windower.ffxi.get_abilities()
+	return abilities ~= nil and abilities.job_traits ~= nil and table.contains(abilities.job_traits, 18)
+end
+
+local function azure_set_names()
+	local file = io.open(azure_settings_path, 'r')
+	if not file then return nil end
+	local text = file:read('*a'):lower()
+	file:close()
+	local names = {}
+	for name in text:gmatch('<([%w_]+)%s*/?>') do names[name] = true end
+	return names
+end
+
+--Watches Dual Wield each second for a minute after //aset spellset, while AzureSets sets the spells one at a time.
+--Set blue magic grants or removes the trait, and Sel only rereads it on a load or subjob change. Each change seen
+--here updates Sel's can_dual_wield and its weapons, then the gear. The first check does the same, since the trait
+--may have changed since Sel last read it. During an action the rebuild is left to the one the action ends with.
+local function watch_dual_wield(request, had, checks)
+	if request ~= azure_request or checks > 60 then return end
+	local has = has_dual_wield()
+	if has ~= had then
+		set_dual_wield()
+		if not midaction() then send_command('gs c update') end
+	end
+	watch_dual_wield:schedule(1, request, has, checks + 1)
+end
+
+--Loads the AzureSets spell set for the subjob and job mode: {sub}_mage in AoE mode, {sub}_melee in Melee mode.
+--A missing {sub}_mage falls back to {sub}_melee. For a subjob other than NIN, a missing {sub}_melee falls back to
+--war_melee, whose blue magic gives Dual Wield from traits; NIN brings the trait itself. With no subjob it loads
+--war_melee. Each miss is warned in chat. After a job change the game sends the blue magic spell list late, and
+--AzureSets errors without it, so it retries each second for up to ten tries.
+local function load_azure_set(request, tries)
+	if request ~= azure_request then return end
+	local current = windower.ffxi.get_player()
+	if current and current.main_job ~= 'BLU' then return end
+	local job_data = current and windower.ffxi.get_mjob_data()
+	if not job_data or not job_data.spells then
+		tries = (tries or 0) + 1
+		if tries < 10 then
+			load_azure_set:schedule(1, request, tries)
+		else
+			add_to_chat(123, 'Blue magic spell list not loaded, AzureSets spell set skipped.')
+		end
+		return
+	end
+
+	local sub = (current.sub_job or 'war'):lower()
+	local candidates = {}
+	if state.JobMode.value == 'AoE' then candidates[#candidates + 1] = sub..'_mage' end
+	candidates[#candidates + 1] = sub..'_melee'
+	if sub ~= 'nin' and sub ~= 'war' then candidates[#candidates + 1] = 'war_melee' end
+
+	local names = azure_set_names()
+	local chosen
+	if not names then
+		add_to_chat(123, 'AzureSets settings not found at '..azure_settings_path..', loading '..candidates[1]..' unchecked.')
+		chosen = candidates[1]
+	else
+		for _, name in ipairs(candidates) do
+			if names[name] then chosen = name break end
+			add_to_chat(123, 'AzureSets spell set '..name..' is missing.')
+		end
+		if not chosen then return end
+	end
+
+	send_command('input //aset spellset '..chosen)
+	watch_dual_wield(request, nil, 0)
+end
+
+--Global, since character_user_job_setup above calls it.
+function queue_azure_set(delay)
+	azure_request = azure_request + 1
+	load_azure_set:schedule(delay, azure_request)
+end
+
+--Waits for the game to finish the change, because a main job change also fires this while this file is still loaded.
+function user_job_sub_job_change(newSubjob, oldSubjob)
+	queue_azure_set(5)
+end
+
+function user_job_state_change(stateField, newValue, oldValue)
+	if stateField == 'Job Mode' then queue_azure_set(0) end
+end
+
+--Retires any spell set load or Dual Wield watch still scheduled, so none runs after this file is gone.
+function user_job_unload()
+	azure_request = azure_request + 1
+end
