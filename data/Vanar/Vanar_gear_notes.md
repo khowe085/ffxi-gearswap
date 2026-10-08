@@ -94,7 +94,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Sets with no set bonus
 
-- Vanar owns no Sakpata's piece. Vanar's Nyame pieces are all Path B, and every Bunzi's and Gleti's piece, `Bunzi's Rod` and `Gleti's Knife` included, is rank 0, with base stats only **(player, 2026-10-04)**. [Vanar_rank_augments.md](Vanar_rank_augments.md) has each piece's rank and its augments at that rank.
+- Vanar owns no Sakpata's piece. Vanar's Nyame pieces are all Path B, and every Bunzi's and Gleti's piece, `Bunzi's Rod` included, is rank 0, with base stats only **(player, 2026-10-04)**. `Gleti's Knife` was too, and is Path A rank 1 from 2026-10-05 **(player)**. [Vanar_rank_augments.md](Vanar_rank_augments.md) has each piece's rank and its augments at that rank.
 
 ## Weapons (main hand)
 
@@ -144,8 +144,9 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Gleti's Knife
 
-- Vanar's copy is rank 0 (player, 2026-10-02). It exports with no "Path: A" and no augments, so it has only the base stats in its help text.
-- Vanar's copy is rank 0, without the rank 30 augment (DMG+11, Attack+45, Accuracy and Magic Accuracy +15, Subtle Blow II +10), so the sims overvalue it ([rank-augments.md](../../docs/rank-augments.md#gletis-knife)).
+- **(player, 2026-10-05)** Vanar's copy is Path A rank 1: DMG+1 and Attack+2 over its base stats. It was rank 0, exporting with no augments, up to 2026-10-04.
+- At rank 1 it lacks DMG+10, Attack+43, Accuracy and Magic Accuracy +15 and Subtle Blow II +10 of the rank 30 augment, so the sims overvalue it ([rank-augments.md](../../docs/rank-augments.md#gletis-knife)).
+- As RDM's casting off hand, against Maxentius (`sets.Weapons.CastingDualWield`): both have Magic Accuracy +40, which counts from the sub slot. The knife adds Mag. Acc. +1 a rank from rank 16 (+15 at rank 30) and no INT or MND. Maxentius adds INT and MND +15, worth up to 15 macc while the caster's stat is within 10 of the target's, about 7.5 from 10 to 30 below, 3.75 from 30 to 70 below, and nothing past that ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#dstat)). So for landing a spell the knife passes Maxentius at rank 16 when the caster's stat is more than 70 below the target's, at rank 19 when 30 to 70 below, and at rank 23 when 10 to 30 below; within 10, it only ties at rank 30. At Vanar's rank 1, Maxentius stays.
 
 ### Heartbeater
 
@@ -230,7 +231,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Tizona
 
-- Vanar's Tizona exports with `'Path: A'`, so it is Level 119 III. Its rank (1 to 15) isn't recorded, since ranks change often, and the export doesn't show it; ask the player when a set decision turns on it.
+- Vanar's Tizona exports with `'Path: A'`, so it is Level 119 III. **(player, 2026-10-05)** It is rank 15, the maximum: main hand DMG +18, Expiacion damage +15%, Accuracy +30 and Magic Accuracy +30 ([rank-augments.md](../../docs/rank-augments.md#oboro-rank-augments-maximum-only)).
 - The simulated sets assume Level 119 III, the stage Vanar's `'Path: A'` copy is.
 
 ### Twilight Knife
@@ -390,6 +391,12 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's RDM has 341 dark magic skill without gear (300 + 25 Master Levels + 16 merits; [Vanar's merits and skills](Vanar_notes.md#merits)), so he is always past 300 and gets the +4 HP figure: 7 × 5/8 ≈ 4.4.
 
+### Dls. Torque +1
+
+- **(player, 2026-10-05)** Vanar's copy is Path A rank 20, the +1's maximum: INT and MND +12, and enhancing and enfeebling magic effect duration +20% each, as augmented duration. RDM's enhancing duration total already counted the 20%.
+- Against Sanctity Necklace in RDM's nuke set: Magic Accuracy +25 against +10, and INT +12 against MAB +10. On a tier V nuke at dINT 50 to 199, INT is worth 3.75 to 5 to D a point, so +12 adds about 45 to 60; at dINT 100 to 199, where D is about 1,600 to 2,100, that is 2 to 3%. MAB +10 at about 400 MAB is ×1.02. bg-wiki gives no M values below 0 dINT, where INT is worth less ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#d-magic-damage-and-int)).
+- **(player, 2026-10-07)** The nuke set's neck stays Sanctity Necklace: magic accuracy doesn't strictly come first in nuke sets. In ACC mode, where it does, the torque takes the magical weapon skills' neck for its Magic Accuracy +25.
+
 ### Elite Royal Collar
 
 - Vanar is a citizen of Windurst (player, 2026-10-02), so this Regen never works for Vanar.
@@ -401,6 +408,10 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Loricate Torque
 
 - Elite Royal Collar strictly beats it: the same Damage taken -5%, plus DEF 30 (more than this neck's best Unity DEF +15) and VIT +10. ([bg-wiki](https://www.bg-wiki.com/ffxi/Elite_Royal_Collar))
+
+### Mirage Stole +2
+
+- **(player, 2026-10-05)** Vanar's copy is Path A rank 20 of 25. bg-wiki gives the augment only at rank 25 (STR and DEX +25, Store TP +7, Critical hit rate +5%), so the rank 20 values have to be read off the item in game ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:JSE_Necks)).
 
 ### Rep. Plat. Medal
 
@@ -426,6 +437,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Alabaster Earring
 
 - **(player, 2026-10-04)** Vanar's copy is rank 2: Accuracy, Ranged Accuracy and Magic Accuracy +2, and none of the attribute or Store TP augments.
+- In both jobs' ACC-mode sets, where accuracy comes first **(player, 2026-10-07)**, it takes the left ear: Accuracy+2 is the most of any earring in Vanar's wardrobes that fits the left ear. Heartseeker and Steelflash Earrings (Accuracy+8) and Assuage Earring (Accuracy+7) are in the Mog Safe 2.
 
 ### Arbatel Earring +1
 
@@ -448,6 +460,12 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Dudgeon Earring
 
 - Suppanomimi, also in Vanar's export, gives Dual Wield +5% from a single ear (bg-wiki: [Dudgeon Earring](https://www.bg-wiki.com/ffxi/Dudgeon_Earring), [Dual Wield](https://www.bg-wiki.com/ffxi/Dual_Wield), [Suppanomimi](https://www.bg-wiki.com/ffxi/Suppanomimi)).
+
+### Friomisi Earring
+
+- Against Snotra Earring (Magic Accuracy+10) in RDM's nuke set, by the calculation under [Obstin. Sash](#obstin-sash): at a level 145 foe with a 100% rank, Friomisi's MAB+10 is about 2% more damage on a free cast with either melee food, and on an engaged cast with Oden; engaged with Grape Daifuku the set is 36 short of the cap and Snotra is 9% ahead. Against a level 150 foe, or a 30% rank, Snotra is 5 to 16% ahead.
+- Jhakri Ring (Magic Accuracy+6, MAB+3) for a Stikini Ring (Magic Accuracy+8 and all magic skills +5, so 13 on a nuke) follows the same pattern at about 0.6% a ring. The earring and both rings together are about 3% more at a level 145 foe when the set has 24 to spare.
+- The player hasn't given the magic accuracy margin wanted for nukes **(player, 2026-10-07)**, so the nuke set keeps Snotra Earring and the Stikini Rings.
 
 ### Hashi. Earring +1
 
@@ -644,8 +662,11 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Nyame Gauntlets
 
-- Vanar's copy is Path B at rank 10 (player, 2026-10-04): Attack+15, Ranged Attack+15 and Weapon skill damage +5%, with no Double Attack. Vanar's Mail and Sollerets are Path B rank 20 and the Helm and Flanchard rank 11.
-- Vanar's copy is rank 10 Path B, so the sims overvalue it: rank 25 has 15 more Attack, 5% more Weapon skill damage, Double Attack +4% and VIT+10 ([rank-augments.md](../../docs/rank-augments.md#nyame-gauntlets)).
+- Vanar's copy is Path B at rank 17 **(player, 2026-10-06)**: Attack+22, Ranged Attack+22, Weapon skill damage +7% and Double Attack +1%. Vanar's Mail and Sollerets are Path B rank 20, the Flanchard rank 17 and the Helm rank 11.
+- Vanar's copy is rank 17 Path B, so the sims overvalue it: rank 25 has 8 more Attack, 3% more Weapon skill damage and Double Attack, and VIT+10 ([rank-augments.md](../../docs/rank-augments.md#nyame-gauntlets)).
+- Against Jhakri Cuffs +2 in BLU's weapon skill set, at rank 17: the same WSD 7%, Attack 52 against 43, Double Attack +1%, MND 40 against 35 and DT -7%, for Accuracy 40 against 43 and INT 28 against 36. Expected damage at 2250 TP on bg-wiki's test enemy (1350 evasion, 1500 defense), from a calculation with the formulas in [ffxi-mechanics.md](../../docs/ffxi-mechanics.md), wsdist's race-less base stats, BLU/WAR, the melee spell set's Accuracy and Attack Bonus III and no buffs: Savage Blade +0.9 to +1.0%, Expiacion -0.2% with Grape Daifuku and +0.1% with Oden, Black Halo +1.2%, each for 2 to 3 less accuracy. So BLU wears them for Savage Blade only: Expiacion's two foods disagree, and Black Halo's set is under the 1350 floor, where accuracy comes first.
+- At rank 20 (Attack 55, WSD 8%, Double Attack +2%) they would add about 0.8 to 0.9% to Savage Blade over rank 17, and beat Jhakri Cuffs +2 by about 0.6 to 0.7% on Expiacion for 2 less accuracy, leaving Expiacion's set (with the Flanchard) at about 1,378 with Grape Daifuku and 1,372 with Oden. Black Halo's set is under the floor.
+- Against Atrophy Gloves +4 in RDM's weapon skill set they lose up to rank 21: WSD 9% and Accuracy 63 against at most 8% and 40 (at rank 20, about 18% less Savage Blade damage on this calculation, and 5% less with Composure). From rank 22 their WSD matches or passes the gloves', with 23 less accuracy at every rank.
 
 ### Odyssean Gauntlets
 
@@ -684,6 +705,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Ayanmo Ring
 
 - Vanar owns no Ayanmo armor, so the set bonus never applies.
+- It ties Jhakri Ring at Accuracy+6 in the ACC-mode sets; Jhakri's Attack+6 takes the slot. Lehko's Ring's DEX+10 is about 2 more accuracy than either, so RDM's Step set takes Lehko's too. Enlivened Ring (Accuracy+7, DEX+2) is in storage.
 
 ### Dark Ring
 
@@ -849,9 +871,18 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Obstin. Sash
 
-- **(player, 2026-10-04)** Vanar's copy is rank 20: Magic Accuracy+15 and Enfeebling magic skill+5, no Enmity.
-- At rank 20 it is worth Magic Accuracy+20 on enfeebles (+15 plus skill +5), against Rumination Sash's +10, and +15 on dark, divine and elemental magic, where enfeebling skill doesn't count, against Eschan Stone's +7. So it is RDM's waist for enfeebling, dark and divine magic and the elemental debuffs **(player, 2026-10-04)**.
-- Against Rumination Sash it gives up 2 enfeebling skill and Spell interruption rate down 10%. At Vanar's 589 skill in the potency set (Master Level 25), the 2 skill is one point of Frazzle III and none of Distract III ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md), Potency by spell).
+- **(player, 2026-10-06)** Vanar's copy is rank 17: Magic Accuracy+15 and Enfeebling magic skill +2, and no Enmity (from rank 21). It was rank 13 on 2026-10-05, which replaced the rank 20 recorded on 2026-10-04.
+- At rank 17 it is worth Magic Accuracy+17 on enfeebles (15, plus the 2 skill), against Rumination Sash's +10, and +15 on dark, divine and elemental magic, against Eschan Stone's +7. So it stays RDM's waist for enfeebling, dark and divine magic and the elemental debuffs, as the player had it at rank 20 **(player, 2026-10-04)**.
+- Against Rumination Sash it gives up 5 enfeebling skill and Spell interruption rate down 10%. At Vanar's 586 skill in the potency set (Master Level 25), that is two points of Frazzle III (108 against 110) and one of Distract III (113 against 114) ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#potency-by-spell)). With Saboteur on a normal monster and the set's effect +45%, that is 349 against 355 and 363 against 366, if dMND is past +50.
+  - With their innate +150, Frazzle III and Distract III have about 1,600 magic accuracy in that set engaged, and 1,680 with the casting weapons (with Crepe B. Helene, dMND not counted). A level 150 foe at a 100% rank needs about 1,400 ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#macc-needed-to-cap)), so the sash's extra magic accuracy does nothing on those two spells, and what it gains there is its 5% duration.
+- Against Eschan Stone in RDM's nuke set, by a calculation with the hit rate, resist and MAB formulas in [ffxi-mechanics.md](../../docs/ffxi-mechanics.md#magic-hit-rate) (dINT not counted):
+  - Eschan's MAB 7 is worth 1.3% to 1.5%. The sash's 8 more magic accuracy only pays while the set is short of the 95% hit rate cap, and it beats Eschan once the set is 3 or more short.
+  - With the casting weapons and Crepe B. Helene the set has 1,365 magic accuracy, and 1,290 engaged with Naegling and Thibron. That caps a level 145 foe at a 100% rank (by 89, and by 14 engaged), so Eschan wins there and against anything weaker.
+  - Against a level 150 foe, or a level 135 foe at a 30% rank, the set is 35 to 112 short, and the sash would add 6% to 12%.
+  - The magic burst set has 39 less, before a burst's own magic accuracy bonus. At rank 13 the sash's 6 more magic accuracy gave the same winner against every one of these foes, so the rank doesn't change the nuke set.
+  - With the melee foods in place of Crepe B. Helene, the set has 1,385 magic accuracy free and 1,310 engaged with Oden, and 1,315 and 1,240 with Grape Daifuku, which leaves an engaged cast 36 short of a level 145 foe.
+  - **(player, 2026-10-07)** The nuke set's waist stays Eschan Stone: magic accuracy doesn't strictly come first in nuke sets.
+- In RDM's magical weapon skill sets, Eschan Stone (MAB 7, about 1.4% on Sanguine Blade) and Fotia Belt (+25/256 fTP, 2% to 4% of the fTP part at the TP the weapon modes reach, plus Magic Accuracy+10) stay in TP mode. The sash has 8 and 5 more magic accuracy than they do, which pays only below the cap, and how much magic accuracy these weapon skills get is unsettled ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#where-wsdist-and-bg-wiki-disagree)), so how far they are from the cap can't be worked out. In ACC mode, where magic accuracy comes first **(player, 2026-10-07)**, the sash takes the waist of all four.
 - BLU can't wear it, so BLU's enfeebling waist stays Rumination Sash.
 
 ### Oneiros Sash
@@ -861,7 +892,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Ovate Rope
 
 - For spells that only need to land, it has 1 more Magic Accuracy than Eschan Stone (+8 vs +7), plus MND+4.
-- For RDM's enfeebling magic, Rumination Sash is better, and Obstin. Sash at rank 20 better still.
+- For RDM's enfeebling magic, Rumination Sash is better, and Obstin. Sash at Vanar's rank 17 better still.
 
 ### Phasmida Belt
 
@@ -871,7 +902,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Rumination Sash
 
 - On enfeebles its +10 is more than Eschan Stone (+7) or Ovate Rope (+8).
-- Obstin. Sash at rank 20 is worth +20 on enfeebles and took its place in RDM's sets **(player, 2026-10-04)**. BLU can't wear Obstin. Sash, so this is still BLU's enfeebling waist.
+- Obstin. Sash took its place in RDM's sets **(player, 2026-10-04)**. At Vanar's rank 17 **(player, 2026-10-06)** it is worth +17 on enfeebles against this sash's +10. BLU can't wear Obstin. Sash, so this is still BLU's enfeebling waist.
 
 ### Sailfi Belt +1
 
@@ -926,7 +957,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 - Accuracy+18 Attack+18 is in the combined slot, which caps at 25.
 - Weapon skill damage +4% is at the normal cap (5% with Fern Stones).
 - The extra Accuracy+13 is in a slot that caps at 15 ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Escha_Rewards/Arcane_Glyptics_Inscription)).
-- Vanar's Nyame Flanchard (Path B, rank 11) beats it in all four: Accuracy 40 vs 31, Attack 46 vs 33, STR 43 vs 40 and WSD 6% vs 4%; see [rank-augments.md](../../docs/rank-augments.md#nyame-flanchard) for each rank.
+- Vanar's Nyame Flanchard (Path B, rank 17) beats it in all four: Accuracy 40 vs 31, Attack 52 vs 33, STR 43 vs 40 and WSD 8% vs 4%; see [rank-augments.md](../../docs/rank-augments.md#nyame-flanchard) for each rank.
 - Luh. Shalwar +4 has WSD +12% and Accuracy+50. So this copy has no use in BLU weapon skill sets ([bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Flanchard)).
 
 ### Luh. Shalwar +4
@@ -945,10 +976,15 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Nyame Flanchard
 
-- Vanar's copy is Path B at rank 11 (player, 2026-10-04): Attack+16, Ranged Attack+16 and Weapon skill damage +6%, with no Double Attack. The export prints the path but not the rank.
-- At rank 11 (Weapon skill damage +6%, Attack 46) it is RDM's weapon skill legs again, as in bg-wiki's set **(player, 2026-10-04)**. Leth. Fuseau +3 would trade its Weapon skill damage +6% and Damage taken -8% for Accuracy 63 vs 40, Attack 63 vs 46 and STR+MND 81 vs 75. BLU's legs stay Luh. Shalwar +4: Weapon skill damage +12% and Accuracy 50.
-- Vanar's copy is rank 11 Path B, so the sims overvalue it: rank 25 has 14 more Attack, 5% more Weapon skill damage, Double Attack +5% and STR+10 ([rank-augments.md](../../docs/rank-augments.md#nyame-flanchard)).
-- wsdist has no entry for rank 11, Vanar's rank.
+- Vanar's copy is Path B at rank 17 **(player, 2026-10-07)**: Attack+22, Ranged Attack+22, Weapon skill damage +8% and Double Attack +1%. It was rank 11 from 2026-10-04. The export prints the path but not the rank.
+- It is RDM's weapon skill legs, as in bg-wiki's set **(player, 2026-10-04)**. Rank 17 adds about 1.6% to Savage Blade and Black Halo over rank 11, on the calculation under [Nyame Gauntlets](#nyame-gauntlets).
+  - Leth. Fuseau +3 would trade its Weapon skill damage +8%, Double Attack +1% and Damage taken -8% for Accuracy 63 vs 40, Attack 63 vs 52 and STR+MND 81 vs 75.
+  - That calculation puts RDM's weapon skill set at about 1,242 accuracy for Savage Blade and 1,173 for Black Halo with Grape Daifuku, and 6 or 7 less with Oden **(player, 2026-10-07: RDM eats one of the two)**: under the player's 1350 floor, where the rule puts accuracy first. There the Fuseau is worth about 12% more Savage Blade and 22% more Black Halo without buffs, and with Composure's +70 accuracy about 3% less Savage Blade and 12% more Black Halo. The player's `/checkparam` decides it.
+- Against Luh. Shalwar +4 in BLU's weapon skill sets, at rank 17: WSD 8% against 12%, Attack 52 against none, Double Attack +1%, MND 32 against 27 and DT -8%, for Accuracy 40 against 50 and STR 43 against 46.
+  - Expected damage on the same calculation, with the melee spell set's Accuracy Bonus III and Attack Bonus III **(player, 2026-10-07: the set gives both; tier not recorded)**: Savage Blade (with the Nyame Gauntlets) +0.8% with Grape Daifuku and +1.1% with Oden, Expiacion +0.5% and +0.6%, Black Halo +1.2% and +1.4%. At rank 20 the first two would be about +1.0%.
+  - The 10 accuracy leaves Savage Blade's set at about 1,382 and Expiacion's at 1,380 with Grape Daifuku, 6 less with Oden, 24 or more over the 1350 floor, so both wear the Flanchard (`sets.WS['Savage Blade']`, `sets.WS['Expiacion']`). Black Halo's set is under the floor (1,314 and 1,308) and keeps the Shalwar's accuracy. With Accuracy Bonus I in place of III, the two sets would fall to about 1,351 and 1,349 with Oden.
+- Vanar's copy is rank 17 Path B, so the sims overvalue it: rank 25 has 8 more Attack, 3% more Weapon skill damage, 4% more Double Attack and STR+10 ([rank-augments.md](../../docs/rank-augments.md#nyame-flanchard)).
+- wsdist has no entry for rank 17, Vanar's rank.
 
 ### Odyssean Cuisses
 
