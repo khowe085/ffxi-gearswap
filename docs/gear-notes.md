@@ -67,7 +67,8 @@ RDM artifact armor. ([bg-wiki](https://www.bg-wiki.com/ffxi/Atrophy_Armor_Set))
 | 4 | +45 |
 | 5 or more | +60 |
 
-- **What counts:** Atrophy +2, +3 and +4 pieces. NQ and +1 Atrophy have no set bonus. A Regal Earring counts as one more piece (see [Regal](#regal-set)). bg-wiki says +2 and +3 pieces mix ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Reforged_Artifact_Armor_%2B3)).
+- **What counts (confirmed):** Atrophy +2, +3 and +4 pieces. The set page fills in the set bonus for those three tiers only and leaves it empty for NQ and +1. The bonus is the table above for each tier, to Accuracy, Ranged Accuracy and Magic Accuracy alike, up to 5 pieces. A Regal Earring counts as one more piece (see [Regal](#regal-set)).
+- **Mixing tiers:** +2 and +3 pieces mix (confirmed, [bg-wiki](https://www.bg-wiki.com/ffxi/Category:Reforged_Artifact_Armor_%2B3)). +4 pieces mixing with them hasn't been tested on Atrophy; the in-game test that confirmed it for [Assimilator's](#assimilators-set), the same Reforged Artifact bonus, makes it very likely.
 - **When:** whenever the stat is used. Put the pieces in the midcast set for magic accuracy on spells, or in the engaged or weapon skill set for melee accuracy.
 - **Slot conflict with Lethargy:** Atrophy uses the head, body, hands and legs slots, and Lethargy uses those four plus the feet. One set can't hold both bonuses at full strength:
 
@@ -90,8 +91,8 @@ BLU artifact armor. ([bg-wiki](https://www.bg-wiki.com/ffxi/Assimilator%27s_Atti
 | 4 | +45 |
 | 5 or more | +60 |
 
-- **What counts:** Assimilator's +2, +3 and +4 pieces. NQ and +1 pieces have no set bonus. A Regal Earring counts as one more piece (see [Regal](#regal-set)).
-- **Mixing tiers (unconfirmed for +4):** bg-wiki says +2 and +3 pieces mix. It gives the +4 tier the same bonus, but it never says that +4 pieces mix with +2 and +3 pieces. It very likely does (about 85%), but no source states it. A test in game would settle it: with a +4 piece and a +2 or +3 piece both on, Accuracy should be 15 higher than the two pieces' own Accuracy adds up to.
+- **What counts (confirmed):** Assimilator's +2, +3 and +4 pieces. The set page fills in the set bonus for those three tiers only and leaves it empty for NQ and +1, and the +1 pieces' item text has no `Set:` line ([bg-wiki](https://www.bg-wiki.com/ffxi/Assim._Keffiyeh_%2B1), [bg-wiki](https://www.bg-wiki.com/ffxi/Assim._Shalwar_%2B1)). The bonus is the same for each tier: the table above, to Accuracy, Ranged Accuracy and Magic Accuracy alike, up to 5 pieces. A Regal Earring counts as one more piece (see [Regal](#regal-set)).
+- **Mixing tiers (confirmed):** +2 and +3 pieces mix ("These bonuses apply even when +2 and +3 set pieces are mixed together", [bg-wiki](https://www.bg-wiki.com/ffxi/Category:Reforged_Artifact_Armor_%2B3)). +4 pieces mix with them too: neither the set page nor the +4 category page says so, but an in-game test (2026-10-09) with Assim. Jubbah +4 and Assim. Bazu. +3 showed Accuracy 16 above the two pieces' own Accuracy added up, the two-piece +15 plus 1 from the DEX of the two adding before the fraction is dropped.
 - **When:** whenever the stat is used. Put the pieces in the midcast set for magic accuracy on blue magic, or in the engaged or weapon skill set for melee accuracy.
 - **Slot conflict with Hashishin:** the three counting pieces leave only the head and legs for Hashishin.
 
@@ -114,8 +115,8 @@ RDM empyrean armor. The set line reads `Augments "Composure"`. ([bg-wiki](https:
 | 5 | +50% |
 
 - **What it lengthens:** enfeebling magic, and enhancing magic you cast on someone else. Enhancing magic you cast on yourself gets nothing from it. Composure itself triples self-cast enhancing duration instead, up to 30 minutes ([bg-wiki](https://www.bg-wiki.com/ffxi/Composure)).
-- **How it stacks:** it is its own multiplier, separate from duration % listed on gear and from augmented duration %. Gear that lists seconds adds to the base before any of them (formula on the set page and in ffxi-mechanics.md, [Enhancing duration](ffxi-mechanics.md#enhancing-duration) and [Enfeebling duration](ffxi-mechanics.md#enfeebling-duration)).
-- **What counts:** Lethargy pieces of every tier (NQ, +1, +2, +3) and Estoqueur's +2 pieces, in any mix. `Leth. Earring +1` is not an armor piece and doesn't count.
+- **How it stacks:** it is its own multiplier, separate from duration % listed on gear and from augmented duration %. Gear that lists seconds adds to the base before any of them (formula on the set page and in ffxi-mechanics.md, [Enhancing duration](ffxi-mechanics.md#enhancing-duration) and [Enfeebling duration](ffxi-mechanics.md#enfeebling-duration)). The set page's order: (base + 6 s per RDM Group 2 duration merit + 3 s per merit with the relic hands' augment + job points + gear listing seconds) × the set bonus × (duration % listed on gear + Naturalist's Roll) × augmented duration % × Rune Fencer gifts.
+- **What counts (confirmed):** Lethargy pieces of every tier (NQ, +1, +2, +3) and Estoqueur's +2 pieces, in any mix: the set page says the tiers "can mix and match". `Leth. Earring +1` is not an armor piece and doesn't count.
 - **When:** bg-wiki counts the pieces worn when the spell is cast, so they go in the midcast set.
 - **Composure:** treat Composure as required. bg-wiki only presents the bonus as an augment to Composure: the set line says so, and the Composure page lists the set under equipment that modifies the ability. Neither page says outright that it does nothing without Composure. FFXIclopedia's Composure page lists the bonus as part of Composure's effect.
 
@@ -138,7 +139,8 @@ BLU empyrean armor. The set line reads `Occ. augments Blue magic spells`. ([bg-w
 | 5 | 5% |
 
 - **Effect:** when it goes off, the blue magic spell's WSC (its stat modifier) is tripled. With Chain Affinity or Burst Affinity up, it is quadrupled.
-- **What counts:** Hashishin pieces of every tier (NQ to +3) and Mavi +2 pieces, in any mix ([bg-wiki](https://www.bg-wiki.com/ffxi/Mavi_Attire_Set)). `Hashi. Earring +1` and `Mavi Tathlum` are not set pieces and don't count.
+- **What counts (confirmed):** Hashishin pieces of every tier (NQ to +3) and Mavi +2 pieces, in any mix: the set page says the tiers "can mix and match" ([bg-wiki](https://www.bg-wiki.com/ffxi/Mavi_Attire_Set)). `Hashi. Earring +1` and `Mavi Tathlum` are not set pieces and don't count.
+- **What it's worth:** a proc adds two more WSC either way (×3 in place of ×1, or ×4 in place of ×2 under Chain or Burst Affinity), so each piece adds about 2% of one WSC to the spell's expected base damage. That is arithmetic from the effect above, not a sourced figure.
 - **When:** bg-wiki gives no timing. The bonus changes the spell's damage, so wear the pieces in the blue magic midcast set. This is an inference, not a sourced rule.
 
 ### Jhakri set
@@ -267,7 +269,11 @@ Ambuscade armor. ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Ambuscade_Rewa
 
 The Regal accessories drop from Ou in Omen. Three of them carry a set line. It doesn't form a set of its own: it counts as one more piece toward any Reforged Artifact +2, +3 or +4 set, here [Atrophy](#atrophy-set) and [Assimilator's](#assimilators-set). The 5-piece cap of +60 still applies. ([bg-wiki](https://www.bg-wiki.com/ffxi/Regal_Earring), [bg-wiki](https://www.bg-wiki.com/ffxi/Category:Omen_Rewards))
 
-- Of the three, only `Regal Earring` can be worn by RDM or BLU. Regal Ring is for melee jobs, and Regal Belt's bonus is for avatars only. The other Regal pieces have no set line.
+- Ou's accessories are Regal Belt, Regal Earring, Regal Gem, Regal Necklace and Regal Ring ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Omen_Rewards)). The three with a set line, each page saying it activates the bonus "with Reforged Artifact Armor +2, +3 and +4 for an additional +15" (confirmed):
+  - `Regal Earring`: WHM, BLM, RDM, BRD, BLU, SCH and GEO. The only one RDM or BLU can wear.
+  - `Regal Ring`: the melee jobs, not RDM or BLU ([bg-wiki](https://www.bg-wiki.com/ffxi/Regal_Ring)).
+  - `Regal Belt`: SMN, and its set line is for the avatar only ([bg-wiki](https://www.bg-wiki.com/ffxi/Regal_Belt)).
+- Regal Gem (RDM ammo) and Regal Necklace (COR) have no set line, and neither do Regal Cuffs, Omen hands rather than one of Ou's accessories ([bg-wiki](https://www.bg-wiki.com/ffxi/Regal_Gem), [bg-wiki](https://www.bg-wiki.com/ffxi/Regal_Necklace), [bg-wiki](https://www.bg-wiki.com/ffxi/Regal_Cuffs)).
 
 ### Sets with no set bonus
 
