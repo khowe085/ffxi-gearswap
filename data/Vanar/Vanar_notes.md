@@ -219,7 +219,7 @@ Estimated main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` a
 
 | Set (2026-10-10) | Weapons | Floor accuracy | Floor |
 |---|---|---|---|
-| BLU TP (`sets.engaged`) | Tizona, Naegling, Almace + Thibron; Maxentius + Bunzi's Rod | 1475, 1479, 1482; 1439 | 1275 |
+| BLU TP (`sets.engaged`) | Tizona, Naegling, Almace + Thibron; Maxentius + Bunzi's Rod | 1383, 1387, 1390; 1347 | 1275 |
 | BLU `sets.precast.WS` (Black Halo) | Maxentius + Bunzi's Rod | 1329 | 1275 |
 | BLU Savage Blade, Expiacion | Naegling, Tizona + Thibron | 1330, 1326 | 1275 |
 | BLU Requiescat | Naegling + Thibron | 1497 | 1275 |
@@ -234,7 +234,7 @@ Estimated main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` a
 - Bunzi's Rod in the off hand adds its Accuracy 40 to the main hand too ([Which hand a weapon's stats work from](../../docs/ffxi-mechanics.md#which-hand-a-weapons-stats-work-from)), and so does Gleti's Knife; Thibron and Ammurapi Shield add none, so the Thibron rows are each set's low end.
 - RDM's hit rate has Composure's +70 on top, which the floor doesn't count (Rules for these sets).
 - The 2026-10-10 weapon skill sets come from exhaustive searches over the wardrobe pieces: scratch `rdmws-search.cs` for RDM's Savage Blade, Black Halo and Requiescat, and a second model with the same formulas for the rest, which also checked those three. Each set was scored across TP, target AGI (300, 340, 400), evasion (1250, 1350) and buffs (none; attack ×1.3 + 250 and defense −10%), keeping the set with the best worst case. Modelled gains over the sets before: RDM Savage Blade +4%, Black Halo +8%, Chant du Cygne and Evisceration +3%; BLU Savage Blade +4%, Expiacion +3%, Black Halo +4.5%, Chant du Cygne +16%. Requiescat stayed on both jobs: at most 1% either way, and the two models disagree on RDM's.
-- The TP sets weren't changed on 2026-10-10: both clear their floor with every weapon pair. A scratch TP model that turns TP gain into weapon skills favoured, on RDM, the Atrophy +4 set (DT 40 to 5) for its accuracy on the skill-less Thibron off hand, and on BLU, Dual Wield and multi-attack pieces, by amounts that turn on the target's evasion and the magic haste received.
+- The TP sets weren't changed by those searches: both clear their floor with every weapon pair. BLU's was changed later that day **(player, 2026-10-10)**: Nyame Mail, Gauntlets and Flanchard for the Hashishin body, hands and legs, trading 69 gear Accuracy and 31 DEX (about 92 accuracy) for Double Attack 24 to 32, and losing Refresh 4, which moved to `sets.MP`. A scratch TP model that turns TP gain into weapon skills favoured, on RDM, the Atrophy +4 set (DT 40 to 5) for its accuracy on the skill-less Thibron off hand, and on BLU, Dual Wield and multi-attack pieces, by amounts that turn on the target's evasion and the magic haste received.
 
 ### Attack and pDIF: Physical damage limit
 
