@@ -11,7 +11,7 @@
 -- How long the char-stats packets must stop for the gear to count as on, how long to wait for the first one
 -- (gear that is already on sends none), and how long /checkparam's lines must stop before the record is written.
 local audit_settle_seconds = 1
-local audit_stats_timeout = 3
+local audit_stats_timeout = 10
 local audit_checkparam_seconds = 1.5
 
 local checkparam_messages = {
@@ -173,6 +173,11 @@ windower.register_event('incoming chunk', function(id, data, modified, injected)
     if id == 0x061 and pending.stage == 'gear' then
         pending.stats_seen = true
         audit_schedule(pending, audit_settle_seconds, audit_checkparam)
+    elseif id == 0x061 and pending.stage == 'checkparam' then
+        -- Late: it came after /checkparam went out. The record reads the last packet when it is
+        -- written, so holding the write until these stop as well makes it current.
+        pending.stats_seen = true
+        audit_schedule(pending, audit_checkparam_seconds, audit_write)
     elseif id == 0x029 and pending.stage == 'checkparam' then
         local fields = checkparam_messages[data:unpack('H', 0x19) % 32768]
         local actor, target = data:unpack('I', 0x05), data:unpack('I', 0x09)
