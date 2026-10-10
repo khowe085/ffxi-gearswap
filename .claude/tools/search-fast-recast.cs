@@ -1,16 +1,20 @@
-// A worked example of choosing a set by search instead of by eye: the fastest recast BLU can reach from owned gear.
-// It was used to build sets.Midcast.FastRecast in data/Vanar/BLU.lua. Copy it for a new question: change what is
-// read from each piece and the formula in Score, and keep the shape (prune each slot, then try every combination).
-// It shares nothing with the other tools, so a copy runs from any folder.
+// A worked example of choosing a set by search instead of by eye: the fastest recast a job can reach from owned gear.
+// Copy it for a new question: change what is read from each piece and the formula in Score, and keep the shape (prune
+// each slot, then try every combination). It shares nothing with the other tools, so a copy runs from any folder.
 //
-//   dotnet run --no-cache .claude/tools/owned-gear.cs -- --job BLU --json > pieces.json
-//   dotnet run --no-cache .claude/tools/search-fast-recast.cs -- pieces.json [--table]
+//   dotnet run --no-cache .claude/tools/owned-gear.cs -- --job BLU --json --sets <sets.json> > pieces.json
+//   dotnet run --no-cache .claude/tools/search-fast-recast.cs -- pieces.json --job BLU [--hidden <values.json>]
+//                                                               [--exclude <regex>] [--traits 5,15,20,25] [--table]
 //
-// --table prints what was read from each piece, in place of searching.
+// --hidden gives the Fast Cast a piece's help text hides ("Enhances "Fast Cast" effect"), as { "<item>": <value> }:
+// the values in docs/gear-notes.md, and a path piece's at the character's rank. --exclude keeps out the pieces whose
+// name matches, for a player's rule against them. --traits lists the job's Fast Cast trait levels to search for (0 when
+// not given). --table prints what was read from each piece, in place of searching.
 // recast = base x (1 - gear haste) x (1 - floor(min(trait + gear Fast Cast, 80) / 2) / 100) x (1 - Blue magic recast)
 // Gear haste caps at 26% as listed, which is 25% (256/1024). Every slot but main, sub and range is searched; the
-// two ears and the two rings take two different copies. It prints the best set for each Fast Cast trait level and
-// for three pools: pieces BLU's sets already wear, pieces any job file wears, and everything owned.
+// two ears and the two rings take two different copies. It prints the best set for each trait level and for three
+// pools: pieces the job's sets already wear (from owned-gear's WornBy), pieces any job's sets wear, and everything
+// owned; each for any spell other than blue magic and, for BLU only, for blue magic, which takes Blue magic recast gear.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -21,29 +25,81 @@ using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-if (args.Length is < 1 or > 2 || File.Exists(args[0]) is false || (args.Length == 2 && args[1] != "--table"))
+const string usage = "Give the file owned-gear.cs --json wrote and the job: search-fast-recast.cs -- pieces.json --job BLU [--hidden <values.json>] [--exclude <regex>] [--traits 5,15] [--table]";
+string? piecesPath = null;
+string? job = null;
+string? hiddenPath = null;
+Regex? exclude = null;
+int[] traits = [0];
+var showTable = false;
+// A trait list or a pattern that can't be read sends the usage line, as a missing argument does.
+var unreadable = false;
+for (var i = 0; i < args.Length; i++)
 {
-	Console.Error.WriteLine("Give the file owned-gear.cs --job BLU --json wrote, and --table to see what was read from each piece.");
+	var hasValue = i + 1 < args.Length;
+	if (args[i] == "--table")
+	{
+		showTable = true;
+	}
+	else if (args[i] == "--job" && hasValue)
+	{
+		job = args[++i].ToUpperInvariant();
+	}
+	else if (args[i] == "--hidden" && hasValue)
+	{
+		hiddenPath = args[++i];
+	}
+	else if (args[i] == "--exclude" && hasValue)
+	{
+		try
+		{
+			exclude = new Regex(args[++i], RegexOptions.IgnoreCase);
+		}
+		catch (ArgumentException)
+		{
+			unreadable = true;
+		}
+	}
+	else if (args[i] == "--traits" && hasValue)
+	{
+		var levels = args[++i].Split(',');
+		unreadable |= levels.Any(level => int.TryParse(level, out _) is false);
+		traits = unreadable ? traits : levels.Select(int.Parse).ToArray();
+	}
+	else if (piecesPath is null && args[i].StartsWith("--") is false)
+	{
+		piecesPath = args[i];
+	}
+	else
+	{
+		piecesPath = null;
+		break;
+	}
+}
+if (unreadable || piecesPath is null || job is null || File.Exists(piecesPath) is false || (hiddenPath is not null && File.Exists(hiddenPath) is false))
+{
+	Console.Error.WriteLine(usage);
 	return 2;
 }
 
-// "Enhances "Fast Cast" effect" hides its number in the help text; these are the values (docs/gear-notes.md).
-// Fi Follet Cape +1's is its Path A augment at Vanar's rank 11, which the export doesn't print.
-var hiddenFastCast = new Dictionary<string, int>
+Dictionary<string, int> hiddenFastCast;
+try
 {
-	["Loquac. Earring"] = 2, ["Prolix Ring"] = 2, ["Swith Cape"] = 3, ["Witful Belt"] = 3,
-	["Enif Cosciales"] = 8, ["Chelona Boots"] = 4, ["Orvail Pants +1"] = 5, ["Fi Follet Cape +1"] = 8,
-};
+	hiddenFastCast = hiddenPath is null ? [] : JsonSerializer.Deserialize<Dictionary<string, int>>(File.ReadAllText(hiddenPath)) ?? [];
+}
+catch (JsonException)
+{
+	Console.Error.WriteLine(usage);
+	return 2;
+}
 // The Jhakri set bonus is Fast Cast by pieces worn, so each piece counts toward it and the bonus is added at the end.
 HashSet<string> jhakri = ["Jhakri Coronal +2", "Jhakri Robe +2", "Jhakri Cuffs +2", "Jhakri Slops +2", "Jhakri Pigaches +2", "Jhakri Ring"];
 int[] jhakriFastCast = [0, 0, 3, 6, 9, 12, 12];
-// Player rule: no Quick Magic gear but Witful Belt.
-HashSet<string> quickMagic = ["Impatiens", "Perimede Cape", "Ogapepo Cape"];
 // Lines of help text from here on describe a set bonus, a pet or a condition, not what the wearer always gets.
 var conditional = new Regex(@"^\s*(Set:|Pet:|Avatar:|Wyvern:|Automaton:|Unity Ranking|Latent effect|Citizen of|Summoned Pet)", RegexOptions.IgnoreCase);
 
 var pieces = new List<Piece>();
-using (var json = JsonDocument.Parse(File.ReadAllText(args[0])))
+using (var json = JsonDocument.Parse(File.ReadAllText(piecesPath)))
 {
 	foreach (var entry in json.RootElement.EnumerateArray())
 	{
@@ -60,33 +116,32 @@ using (var json = JsonDocument.Parse(File.ReadAllText(args[0])))
 		var blueRecast = Sum(always, @"Blue magic recast delay -(\d+)%");
 		var damageTaken = Sum(always, @"(?<!Physical |Magic |Phys\. )Damage taken-(\d+)%") + Sum(augmentText, @"^Damage taken-(\d+)%");
 		var wornBy = entry.GetProperty("WornBy").EnumerateObject().Select(job => job.Name).ToList();
-		var who = wornBy.Contains("BLU") ? "BLU" : wornBy.FirstOrDefault() ?? "-";
+		var who = wornBy.Contains(job) ? job : wornBy.FirstOrDefault() ?? "-";
 		// One candidate for each copy held, so two copies of a ring can fill both ring slots.
 		foreach (var bag in entry.GetProperty("Bags").EnumerateArray())
-			pieces.Add(new Piece(name, bag.GetString()!, slots, haste, fastCast, blueRecast, jhakri.Contains(name) ? 1 : 0, damageTaken, who, quickMagic.Contains(name)));
+			pieces.Add(new Piece(name, bag.GetString()!, slots, haste, fastCast, blueRecast, jhakri.Contains(name) ? 1 : 0, damageTaken, who, exclude?.IsMatch(name) ?? false));
 	}
 }
 
 // The numbers read from each piece that has any. Check these against the help text before trusting a result: a
 // pattern that misses a stat, or counts a pet's, makes every answer below wrong.
-if (args.Length == 2)
+if (showTable)
 {
 	foreach (var piece in pieces.Where(piece => piece.Haste + piece.FastCast + piece.BlueRecast + piece.Jhakri > 0).OrderBy(piece => piece.Slots[0], StringComparer.Ordinal).ThenByDescending(piece => piece.Haste + piece.FastCast))
 		Console.WriteLine($"{piece.Slots[0],-10} H{piece.Haste,2} FC{piece.FastCast,2} B{piece.BlueRecast,2} J{piece.Jhakri} DT{piece.DamageTaken,2} {piece.Bag,-10} {piece.Who,-4} {piece.Name}");
 	return 0;
 }
 
-int[] traits = [5, 15, 20, 25];
 string[] singleSlots = ["ammo", "head", "body", "hands", "legs", "feet", "neck", "waist", "back"];
 string[] pairedSlots = ["left_ear", "left_ring"];
-string[] pools = ["BLU", "carried", "owned"];
-// Blue magic takes Blue magic recast gear; Utsusemi and other spells don't.
-bool[] spellKinds = [true, false];
+string[] pools = [job, "carried", "owned"];
+// Blue magic takes Blue magic recast gear; Utsusemi and other spells don't. Only BLU casts blue magic.
+bool[] spellKinds = job == "BLU" ? [true, false] : [false];
 foreach (var pool in pools)
 {
 	foreach (var blue in spellKinds)
 	{
-		bool Eligible(Piece piece) => piece.QuickMagic is false && (pool == "owned" || (pool == "carried" ? piece.Who != "-" : piece.Who == "BLU"));
+		bool Eligible(Piece piece) => piece.Excluded is false && (pool == "owned" || (pool == "carried" ? piece.Who != "-" : piece.Who == job));
 		// Each slot's choices: one piece, or none, which leaves the idle set's piece in place.
 		var groups = new List<List<Piece[]>>();
 		foreach (var slot in singleSlots)
@@ -197,12 +252,12 @@ sealed class Piece
 
 	public int DamageTaken { get; }
 
-	// "BLU" when a BLU set wears it, another job's name when only that job's sets do, "-" when no set does.
+	// The job searched for when its sets wear it, another job's name when only that job's sets do, "-" when no set does.
 	public string Who { get; }
 
-	public bool QuickMagic { get; }
+	public bool Excluded { get; }
 
-	public Piece(string name, string bag, IReadOnlyList<string> slots, int haste, int fastCast, int blueRecast, int jhakri, int damageTaken, string who, bool quickMagic)
+	public Piece(string name, string bag, IReadOnlyList<string> slots, int haste, int fastCast, int blueRecast, int jhakri, int damageTaken, string who, bool excluded)
 	{
 		Name = name;
 		Bag = bag;
@@ -213,7 +268,7 @@ sealed class Piece
 		Jhakri = jhakri;
 		DamageTaken = damageTaken;
 		Who = who;
-		QuickMagic = quickMagic;
+		Excluded = excluded;
 	}
 }
 
