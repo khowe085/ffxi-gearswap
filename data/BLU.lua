@@ -211,7 +211,7 @@ function job_setup()
 	blue_magic_maps.Buff = S{
 		'Amplification','Animating Wail','Barrier Tusk','Battery Charge','Carcharian Verve','Cocoon',
 		'Erratic Flutter','Fantod','Feather Barrier','Harden Shell','Memento Mori','Metallic Body',
-		'Mighty Guard','Nat. Meditation','Orcish Counterstance','Pyric Bulwark',
+		'Mighty Guard','Nat. Meditation','O. Counterstance','Pyric Bulwark',
 		'Refueling','Regeneration','Saline Coat','Triumphant Roar','Warm-Up','Winds of Promy.',
 		'Zephyr Mantle'
 	}

@@ -16,6 +16,12 @@ Branch `selindrile` holds a copy of https://github.com/Selindrile/GearSwap laid 
 - The old `data/Instructions.txt` was deleted (README step 5).
 - `data/Vanar/Vanar_{Rdm,Blu,Thf}_Gear.lua` were copied from `data/Mytha/Mytha_{Rdm,Blu,Thf}_Gear.lua` and renamed.
 
+## Local edits to upstream files
+
+Re-apply these after copying in an upstream version of the file, unless upstream has made the same fix.
+
+- `data/BLU.lua`: `'Orcish Counterstance'` → `'O. Counterstance'` in `blue_magic_maps.Buff` (Windower's resources name for spell 696).
+
 ## Pulling in later upstream commits
 
 1. Clone or fetch upstream outside the repo, e.g. in a scratch directory:

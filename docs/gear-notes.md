@@ -672,7 +672,7 @@ No notes beyond the help text: Anahera Sword, Deathbane, Eosuchus Club, Extincti
 - Its `Enhancing magic duration +10%` is duration listed on gear; bg-wiki uses this shield as its example. It adds with other listed duration % and multiplies separately from augmented duration (Telchine, Ghostfyre).
 - It counts when the spell lands, so it belongs in midcast.
 - Changing the sub slot resets TP. ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Enhancing_Magic))
-- The Rahvin engine's Weapon Lock (engine f58021c) decides whether this shield can go on. Under `Locked`, the weapon mode's main and sub go back over every precast and midcast set, engaged or not, so a midcast set never puts it on. Under `Unlocked`, they go back only while you are engaged, so it goes on for casts made while not engaged. `Locked` is the engine's default for a file that sets nothing. ([builders.lua](https://github.com/khowe085/rahvin-gearswap/blob/f58021c/RahvinGS/builders.lua) and [equip.lua](https://github.com/khowe085/rahvin-gearswap/blob/f58021c/RahvinGS/equip.lua); default in [interface.lua](https://github.com/khowe085/rahvin-gearswap/blob/f58021c/RahvinGS/interface.lua))
+- Whether a midcast set can put it on is up to the framework's weapon lock. Under Selindrile's, a locked weapon set keeps every other set's sub out of the slot, so a midcast set puts it on only with the weapons state at `None` or the lock off ([frameworks/sel.md](frameworks/sel.md#the-weapon-lock)).
 - Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): RDM: Casting (Free Nuke, Magic Burst).
 
 ### Aureole
@@ -701,7 +701,7 @@ No notes beyond the help text: Anahera Sword, Deathbane, Eosuchus Club, Extincti
 - The skill starts at rank 11, at +2 per rank, so a copy below rank 15 has +0 to +8. ([bg-wiki](https://www.bg-wiki.com/ffxi/Forfend_%2B1))
 - The export doesn't show the rank. [rank-augments.md](rank-augments.md#forfend-1) has every rank.
 - `Unity Ranking: Accuracy+10～20` depends on your Unity's weekly ranking. A higher-ranked Unity gives more, up to +20. ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Unity_Concord))
-- Like Ammurapi Shield, a midcast set never puts it on under the engine's Weapon Lock `Locked` (the default), and under `Unlocked` only for casts made while not engaged. ([builders.lua](https://github.com/khowe085/rahvin-gearswap/blob/f58021c/RahvinGS/builders.lua) and [equip.lua](https://github.com/khowe085/rahvin-gearswap/blob/f58021c/RahvinGS/equip.lua); default in [interface.lua](https://github.com/khowe085/rahvin-gearswap/blob/f58021c/RahvinGS/interface.lua))
+- Like Ammurapi Shield, whether a midcast set can put it on is up to the framework's weapon lock ([frameworks/sel.md](frameworks/sel.md#the-weapon-lock)).
 
 ### Fulcio Grip
 
@@ -2165,7 +2165,7 @@ No notes beyond the help text: Acumen Ring, Apate Ring, Corneus Ring, Enlivened 
 
 *Pahtli Cape.*
 
-- Cure spellcasting time -8% cuts casting time, so it goes in `sets.Precast.Cure`. The engine wears that set for Cure, Cura and Curaga.
+- Cure spellcasting time -8% cuts casting time, so it goes in the precast set a Cure spell wears (`sets.precast.FC.Cure` under Selindrile's framework; see [frameworks/sel.md](frameworks/sel.md#how-sel-picks-a-set)).
 - bg-wiki's Cure page counts it with Fast Cast and Healing magic casting time under one 80% hard cap. The player holds that such cuts go past it ([ffxi-mechanics.md](ffxi-mechanics.md#does-anything-break-the-80-cap-disputed)). ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Cure_Spell))
 
 ### Perimede Cape

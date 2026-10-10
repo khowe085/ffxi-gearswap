@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "character": "Testy",
+  "job": "RDM",
+  "sets": [
+    { "name": "Idle", "slots": { "head": { "item": "Nyame Helm" } } },
+    { "name": "Broken", "base": "Idle", "slots": {
+        "neck": { "item": "Regal Gem" },
+        "back": { "item": "Sucellos's Cape", "augments": ["MND+20", "Nope"] },
+        "legs": { "item": "Nyame Helmm" },
+        "hands": { "item": "Hashishin Bazubands +3" },
+        "left_ear": { "item": "Stikini Ring" },
+        "right_ring": { "item": "Stikini Ring", "bag": "wardrobe8" },
+        "body": { "item": "Ayanmo Corazza +2" } } },
+    { "name": "Burst", "slots": { "body": { "item": "Ea Houppelande" }, "neck": { "item": "Regal Gem" } } }
+  ]
+}

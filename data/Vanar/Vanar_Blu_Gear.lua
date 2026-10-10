@@ -185,7 +185,7 @@ function init_gear_sets()
 	-- Fotia Belt: fTP +25/256, and its Accuracy 10 counts as Macc
 	sets.precast.WS['Flash Nova'] = set_combine(sets.precast.WS['Sanguine Blade'], {waist="Fotia Belt"})
 
-	sets.precast.WS['Sanguine Blade'].DT = set_combine(sets.precast.WS.DT, {ammo="Pemphredo Tathlum",neck="Sanctity Necklace",waist="Eschan Stone"})
+	sets.precast.WS['Flash Nova'].DT = set_combine(sets.precast.WS['Sanguine Blade'].DT, {waist="Fotia Belt"})
 
 	sets.precast.WS['Sanguine Blade'].Acc = set_combine(sets.precast.WS['Sanguine Blade'], {neck="Mirage Stole +2",ear1="Alabaster Earring",
 		body="Hashishin Mintan +3",hands="Hashi. Bazu. +3",ring1="Stikini Ring",ring2="Stikini Ring",back=gear.nuke_jse_back,legs="Hashishin Tayt +3"})

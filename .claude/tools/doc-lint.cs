@@ -1,5 +1,5 @@
-// Checks the docs after an edit: the ones under docs/, which hold for any character, and a character's own beside
-// the job files in data/<Character>/.
+// Checks the docs after an edit: the ones under docs/ and its folders, which hold for any character, and a
+// character's own in data/<Character>/.
 //
 //   dotnet run --no-cache .claude/tools/doc-lint.cs [-- --char <name>] [--export <path>]
 //
@@ -28,9 +28,10 @@ var exportPath = Export.Resolve(cli);
 var character = Characters.Named(cli.Option("--char") ?? Export.CharacterOf(exportPath));
 var export = Export.Read(exportPath);
 var ownDir = Tool.InRepo("data", character);
-string[] folders = [Tool.InRepo("docs"), ownDir];
-// Each doc by its path from the repo root.
-var docs = folders.Where(Directory.Exists).SelectMany(folder => Directory.GetFiles(folder, "*.md"))
+var docsDir = Tool.InRepo("docs");
+// Each doc by its path from the repo root: every one under docs/, folders within it too, and the character's own.
+var docs = (Directory.Exists(docsDir) ? Directory.GetFiles(docsDir, "*.md", SearchOption.AllDirectories) : [])
+	.Concat(Directory.Exists(ownDir) ? Directory.GetFiles(ownDir, "*.md") : [])
 	.Select(Tool.RepoRelative)
 	.Order(StringComparer.Ordinal)
 	.ToDictionary(path => path, path => File.ReadAllLines(Tool.InRepo(path)));

@@ -6,7 +6,7 @@
 //   dotnet run --no-cache .claude/tools/rank-doc.cs [-- --check]
 //
 // When the player reports a new rank: change its row in the Ranks table, run this, then correct what the character's
-// notes and the job files' comments say about that piece. Both documents are generated; don't edit them. A Ranks
+// notes and gear notes say about that piece, and look again at the sets that wear it. Both documents are generated; don't edit them. A Ranks
 // row that names an unknown item, a path the item lacks, a rank its table lacks or a path other than the one the
 // export prints stops the run with nothing written. So does an exported item that prints a path and has neither a
 // rank table nor a row among the items Oboro ranks up. --check writes nothing, and exits with 1 when a document

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "character": "Testy",
+  "job": "RDM",
+  "sets": [
+    { "name": "Weapons", "slots": {} },
+    { "name": "Weapons['Savage Blade']", "slots": { "main": { "item": "Naegling" }, "sub": { "item": "Ammurapi Shield" } } },
+    { "name": "Weapons.Idle", "slots": { "main": { "item": "Colada", "augments": ["\"Refresh\"+2", "Mag. Acc.+11", "DMG:+1"] } } },
+    { "name": "Idle", "slots": {
+        "head": { "item": "Nyame Helm" },
+        "body": { "item": "Lethargy Sayon +3" },
+        "left_ring": { "item": "Stikini Ring" },
+        "right_ring": { "item": "Stikini Ring" },
+        "back": { "item": "Sucellos's Cape", "augments": ["MND+20", "Mag. Acc+20 /Mag. Dmg.+20", "Haste+10"] } } },
+    { "name": "Midcast", "base": "Idle", "slots": {} },
+    { "name": "Midcast.Enfeebling", "base": "Midcast", "slots": {
+        "head": { "item": "Atrophy Chapeau +4" },
+        "waist": { "item": "Obstin. Sash" },
+        "left_ear": { "item": "Loquacious Earring" } } },
+    { "name": "Midcast['Stoneskin']", "base": "Midcast", "slots": { "left_ring": { "item": "Prolix Ring" } } },
+    { "name": "WS", "slots": { "ammo": { "item": "Coiste Bodhar" } } },
+    { "name": "WS[each magical WS]", "base": "WS", "slots": {} },
+    { "name": "WS[each magical WS].ACC", "base": "WS[each magical WS]", "slots": { "waist": { "item": "Eschan Stone" } } },
+    { "name": "midcast_custom()", "slots": {
+        "back": { "item": "Sucellos's Cape", "augments": ["INT+20", "Mag. Acc+20 /Mag. Dmg.+20", "\"Mag.Atk.Bns.\"+10"] } } }
+  ]
+}

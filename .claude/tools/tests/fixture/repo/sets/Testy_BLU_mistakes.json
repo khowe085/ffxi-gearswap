@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "character": "Testy",
+  "job": "BLU",
+  "sets": [
+    { "name": "Idle", "slots": {
+        "head": { "item": "Nyame Helm" },
+        "hands": { "item": "Hashishin Bazubands +3" },
+        "waist": { "item": "Rumination Sash" } } }
+  ],
+  "spellLists": {
+    "Physical": ["Foot Kick", "Power Attack"],
+    "Breath": ["Frost Breath"],
+    "Magical": ["Blastbomb"],
+    "SkillBasedBuff": ["Occultation"],
+    "Buff": ["Foot Kick", "Cocon"],
+    "Healing": ["Magic Fruit"],
+    "MagicAccuracy": ["Sheep Song", "Blank Gaze"]
+  }
+}
