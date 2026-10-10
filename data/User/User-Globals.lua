@@ -28,6 +28,7 @@ state.AutoWS				= M{['description']='Auto WS', 'OFF'} --Options are rebuilt from
 send_command('bind !@^f7 gs c cycle AutoWS') --Cycles auto-ws through OFF and the current weapon's AutoWS_List choices.
 send_command('bind !^f7 gs c toggle AutoFoodMode') --Turns auto-ws mode on and off.
 send_command('bind f7 gs c cycle Weapons') --Cycle through weapons sets.
+send_command('bind ^f7 gs c toggle UnlockWeapons') --Lets sets change main and sub out of combat; while engaged they stay put.
 send_command('bind @f8 gs c toggle AutoNukeMode') --Turns auto-nuke mode on and off.
 send_command('bind ^f8 gs c toggle AutoStunMode') --Turns auto-stun mode off and on.
 send_command('bind !f8 gs c toggle AutoDefenseMode') --Turns auto-defense mode off and on.

@@ -7,6 +7,7 @@ Every mode below can be changed in game with `//gs c toggle <Mode>` (on/off mode
 | Key | Command | Mode | Values (default first) |
 |---|---|---|---|
 | `F7` | cycle | Weapons | The job file's weapon sets |
+| `^F7` | toggle | UnlockWeapons | off, on (RDM starts on). Lets sets change main and sub out of combat; while engaged they stay put |
 | `!^F7` | toggle | AutoFoodMode | off, on |
 | `!@^F7` | cycle | AutoWS | OFF, then the current weapon set's `AutoWS_List` choices; back to OFF on a weapon change |
 | `@F8` | toggle | AutoNukeMode | off, on |
@@ -54,7 +55,6 @@ The three files also bind `@F8` to AutoNukeMode, which is the same as the global
 | TreasureMode | None, Tag (THF also SATA, Fulltime); every job starts in Tag | Treasure Hunter gear; Tag wears it until a monster is tagged. A job file with a `TH_Whitelist` (RDM, BLU) limits it to those spells, abilities and weaponskills plus ranged attacks, and engaging alone wears none |
 | AutoWSBuff | on, off | Uses Last Resort, Berserk, Warcry or Aggressor before a weaponskill in the job file's `ws_buff_list` |
 | AutoWSRestore | on, off | Lets AutoWS use Sanguine Blade, Catastrophe, Entropy or Mystic Boon at low HP or MP |
-| UnlockWeapons | off, on | Lets sets change main and sub; while engaged they stay put |
 | AutoWSMode | off, on | Only drives RngHelper's ranged auto-ws, and stays off without RngHelper |
 | RngHelper, RngHelperQuickDraw | off, on | Ranged attack helper |
 | AutoArts, AutoLockstyle, ReEquip, SkipProcWeapons | on, off | Arts upkeep, lockstyle on load and weapon change, re-equip weapons when bare, hide Proc weapon sets |
