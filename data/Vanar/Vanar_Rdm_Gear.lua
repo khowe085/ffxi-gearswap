@@ -11,6 +11,8 @@ function character_user_job_setup()
 	state.BuffWeaponsMode = M{'Always','Never'}
 	state.AutoBuffMode = M{['description'] = 'Auto Buff Mode','Off','Auto','AutoMelee','AutoMage'}
 	state.Weapons:options('None','Naegling','Maxentius','Crocea','Tauret','EnspellOnly','Savage Blade','Savage Blade Acc','Black Halo','DualCrocea','Black Halo Max Acc','DualPrime','DualAeolian','DualEnspellOnly','DualProcSword')
+	--Start with the weapons unlocked, so idle and casting sets can change main and sub out of combat. While engaged they stay put.
+	state.UnlockWeapons:set(true)
 
 	--Weaponskills that get a buff from Auto WS Buff (User-Globals.lua) first.
 	ws_buff_list = S{'Savage Blade','Evisceration','Chant du Cygne','Vorpal Blade','Black Halo','Requiescat','Realmrazer'}
