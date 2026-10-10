@@ -18,6 +18,9 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
   - **(player, 2026-10-02)** Optimizing for INT and MND is fine; just don't bring in dedicated pieces for it.
   - **(player, 2026-10-07)** Nuke sets are an exception: magic accuracy doesn't strictly come before magic attack there. Their waist and neck stay Eschan Stone and Sanctity Necklace. The magic accuracy margin wanted for nukes isn't recorded.
   - **(player, 2026-10-08)** MAB raises BLU's magical blue magic, and the rule above covers those nukes too.
+  - **(player, 2026-10-10)** In `Vanar_Rdm_Gear.lua`, the Normal-mode midcast sets valued for magic accuracy or enfeebling wear Ullr with the ammo slot empty, unless the set counts on Pemphredo Tathlum's INT or MAB. This covers the enfeebling, dark magic, Absorb and Stun sets and the like.
+    - The Normal nuke and magic burst sets keep Pemphredo Tathlum, by the nuke rule above; their Resistant sets wear Ullr. Ullr gives 32 more Magic Accuracy than Pemphredo, which gives INT 4 and MAB 4.
+    - Engaged, or with the range slot held empty by the weapon lock or the engaged hold, the job file's `user_job_post_midcast` swaps Pemphredo Tathlum in for Ullr, since equipping Ullr resets TP.
 - Enhancing magic: skill to about 500, then duration over recast.
   - Refresh: Refresh +X, then duration, then recast.
     - **(player, 2026-10-02)** Terms: "Refresh +X" is MP the wearer receives passively each tick while the item is equipped. "Refresh potency" is a bonus to the recipients of a Refresh spell the player casts.
@@ -26,6 +29,12 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
   - Regen: Regen +X, then duration, then recast.
   - Temper, Temper II and the Enspells: as much skill as possible, with weapon swaps.
     - **(player, 2026-10-02)** Temper II's 700-skill cap (40%) is hard to reach, so it is in effect uncapped. The rule stands: as much skill as possible.
+  - **(player, 2026-10-09)** Gear haste caps at 25.6%. Treat the cap as 26%, rounding up.
+    - bg-wiki puts the gear haste cap at 256/1024, 25% ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#haste)). Either way, the listed haste to aim for is 26%.
+  - **(player, 2026-10-09)** In `Vanar_Rdm_Gear.lua`, enhancing sets whose spell doesn't scale with skill wear as much gear haste as they can, up to the cap, for recast: Refresh, Haste, Regen, Flurry, Aquaveil, the Gain- and Bar- duration sets, Phalanx on others, Sneak and Invisible, the ComposureOther overlay and the like. Skill-based spells are excluded: Enspells, Temper, Phalanx on self, Stoneskin, and Bar-element potency at skill.
+  - **(player, 2026-10-09)** Never trade enhancing duration or Refresh potency gear for haste. Haste goes only in slots those stats don't use.
+  - **(player, 2026-10-09)** The player's example: the Refresh set, as worn after Sel layers it, reaches 24% with Lehko's Ring in place of Murky Ring.
+    - `RDM.lua`'s `job_post_midcast` layers the base enhancing set, then ComposureOther (another player, under Composure), then the spell's own set. Layered that way, every set above already lists 26% with Murky Ring. The Refresh set's comes from Hasty Pinion 1, Amalric Coif +1 6, Alabaster Earring 5, Atrophy Tabard +4 3, Atro. Gloves +4 3, Leth. Fuseau +3 5 and Leth. Houseaux +3 3. The example's 24% matches the Refresh set's own three pieces (14) plus the ring (10), without the base set's 12 under them.
 - Regen, Refresh, Temper and Enspell potency come first. Stoneskin potency and casting time are also priorities.
 - No Enspell gear that has to stay on while meleeing; only gear for the cast.
 - **(player)** Avoid Quick Magic pieces such as Impatiens and Perimede Cape. Witful Belt is the exception, because nothing else replaces its Fast Cast.

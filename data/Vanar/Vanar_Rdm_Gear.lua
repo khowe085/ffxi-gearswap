@@ -86,15 +86,15 @@ function init_gear_sets()
 	sets.weapons.ProcSword = {main="Pukulatmuj +1",sub="Ammurapi Shield",range=empty}
 	sets.weapons.ProcDagger = {main="Gleti's Knife",sub="Ammurapi Shield",range=empty}
 	sets.weapons.DualProcDagger = {main="Gleti's Knife",sub="Pukulatmuj +1",range=empty}
-	sets.weapons.EnspellOnly = {main="Tauret",sub="Ammurapi Shield"}
-	sets.weapons.DualEnspellOnly = {main="Tauret",sub="Gleti's Knife"}
+	sets.weapons.EnspellOnly = {main="Tauret",sub="Ammurapi Shield",range=empty}
+	sets.weapons.DualEnspellOnly = {main="Tauret",sub="Gleti's Knife",range=empty}
 	sets.weapons.DualBow = {}
 	sets.weapons.BowMacc = {}
 	sets.weapons['Black Halo'] = {main="Maxentius",sub="Thibron",range=empty}
 	sets.weapons['Black Halo Max Acc'] = {main="Maxentius",sub="Gleti's Knife",range=empty}
 
-	sets.weapons.DualCroceaSavageBlade = {main="Naegling",sub="Thibron"}
-	sets.weapons.DualTauretCrocea = {main="Tauret",sub="Bunzi's Rod"}
+	sets.weapons.DualCroceaSavageBlade = {main="Naegling",sub="Thibron",range=empty}
+	sets.weapons.DualTauretCrocea = {main="Tauret",sub="Bunzi's Rod",range=empty}
 
 	sets.precast.JA['Chainspell'] = {body="Viti. Tabard +4"}	-- Chainspell +20 s
 
@@ -260,7 +260,7 @@ function init_gear_sets()
 	sets.Self_Phalanx = {}
 	sets.Self_Phalanx.DW = {}
 
-	sets.midcast['Enfeebling Magic'] = {main="Bunzi's Rod",sub="Ammurapi Shield",range=empty,ammo="Pemphredo Tathlum",
+	sets.midcast['Enfeebling Magic'] = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Ullr",ammo=empty,
 		head="Viti. Chapeau +4",neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.mnd_enfeebling_jse_back,waist="Obstin. Sash",legs="Leth. Fuseau +3",feet="Viti. Boots +4"}
@@ -380,13 +380,13 @@ function init_gear_sets()
 	sets.midcast['Elemental Magic'].DW = {main="Bunzi's Rod",sub="Ammurapi Shield"}
 
 	-- Atrophy set (2 pieces): Macc +15
-	sets.midcast.Impact = {main="Bunzi's Rod",sub="Ammurapi Shield",range=empty,ammo="Pemphredo Tathlum",
+	sets.midcast.Impact = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Ullr",ammo=empty,
 		head=empty,neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
 		hands="Atro. Gloves +4",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.int_enfeebling_jse_back,waist="Obstin. Sash",legs="Atro. Tights +4",feet="Leth. Houseaux +3"}
 
 	-- Atrophy set (4 pieces): Macc +45
-	sets.midcast['Dark Magic'] = {main="Bunzi's Rod",sub="Ammurapi Shield",range=empty,ammo="Pemphredo Tathlum",
+	sets.midcast['Dark Magic'] = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Ullr",ammo=empty,
 		head="Atro. Chapeau +4",neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
 		body="Atrophy Tabard +4",hands="Atro. Gloves +4",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.int_enfeebling_jse_back,waist="Obstin. Sash",legs="Atro. Tights +4",feet="Leth. Houseaux +3"}
@@ -554,14 +554,12 @@ function user_job_post_precast(spell, spellMap, eventArgs)
 	end
 end
 
---With the weapons locked, Pemphredo Tathlum (Macc 8, MAB 4) fills the ammo slot a midcast set left empty for Ullr.
+--Engaged, or with the range slot held empty, Pemphredo Tathlum (Macc 8, MAB 4) replaces a midcast set's Ullr, which would cost TP.
 function user_job_post_midcast(spell, spellMap, eventArgs)
-	if spell.action_type ~= 'Magic' or state.UnlockWeapons.value or state.Weapons.value == 'None' or not sets.weapons[state.Weapons.value] then return end
-	if not (spell.skill == 'Enfeebling Magic' or spell.skill == 'Dark Magic' or (spell.skill == 'Elemental Magic' and spellMap ~= 'ElementalEnfeeble' and spell.english ~= 'Impact')) then return end
-	local currentSet = standardize_set(get_midcast_set(spell, spellMap))
-	local currentWeapons = standardize_set(sets.weapons[state.Weapons.value])
-	if currentSet.range == "Ullr" and currentWeapons.range == 'empty' and not currentWeapons.ammo and not item_equippable("Regal Gem") then
-		equip({ammo="Pemphredo Tathlum"})
+	if spell.action_type ~= 'Magic' or standardize_set(get_midcast_set(spell, spellMap)).range ~= "Ullr" then return end
+	local held = disabled_sets["Weapons"] and standardize_set(disabled_sets["Weapons"])
+	if player.status == 'Engaged' or (held and held.range == 'empty') then
+		equip({range=empty,ammo=item_equippable("Regal Gem") and "Regal Gem" or "Pemphredo Tathlum"})
 	end
 end
 
