@@ -6,11 +6,13 @@ What only holds for Vanar: the player's rules for these sets, the ranks the play
 
 The player gave these rules for Vanar's sets. They are recorded here so they don't have to be explained again.
 
-- **(player, 2026-10-05)** Melee sets by offense mode, in the player's words: "Overall damage (including WSD) can come first in TP as long as I hit a minimum of 1350 ACC, ACC comes first in ACC mode. DT in DT set."
-  - **(player, 2026-10-05)** The 1350 counts gear and food, not buffs.
-  - **(player, 2026-10-08)** Fodder mode doesn't count toward the 1350 floor. Fodder is the first offense mode in `Vanar_Blu_Gear.lua`, so BLU starts in it.
-  - **(player, 2026-10-09)** Composure is always up when RDM melees, so its +70 accuracy counts toward the 1350 for RDM's melee and weapon skill sets: they need about 1280 from gear and food. Composure's +70 is 50 at level 99 and 20 more from its job point category ([bg-wiki](https://www.bg-wiki.com/ffxi/Composure)).
-  - **(player, 2026-10-07)** The weapon skill's first-swing +100 accuracy doesn't count toward the 1350.
+- **(player, 2026-10-05)** Melee sets by offense mode, in the player's words: "Overall damage (including WSD) can come first in TP as long as I hit a minimum of 1350 ACC, ACC comes first in ACC mode. DT in DT set." The 1350 floor has since been replaced (next lines).
+  - **(player, 2026-10-10)** RDM's floor is 1250, from gear, food and weapon skill accuracy, with Composure not counted. Composure's +70 comes on top, 1320 in all. This replaces the 2026-10-09 rule, which counted Composure toward 1350. Composure is always up when RDM melees (player, 2026-10-09), and its +70 is 50 at level 99 and 20 more from its job point category ([bg-wiki](https://www.bg-wiki.com/ffxi/Composure)).
+  - **(player, 2026-10-10)** Every other job's floor is 1275: BLU's here.
+  - **(player, 2026-10-10)** Weapon skill accuracy counts toward the floor: Karieyh Ring's +5, Fotia Gorget's and Fotia Belt's +10, and the like.
+  - **(player, 2026-10-05)** The floor counts gear and food, not buffs.
+  - **(player, 2026-10-08, kept 2026-10-10)** Fodder mode doesn't count toward the floor. Fodder is the first offense mode in `Vanar_Blu_Gear.lua`, so BLU starts in it.
+  - **(player, 2026-10-07)** The weapon skill's first-swing +100 accuracy doesn't count toward the floor.
   - **(player, 2026-10-07)** Both jobs eat Oden or Grape Daifuku for melee, so a melee decision has to hold with either food. The job files' `Food` setting stays as it is.
   - **(player, 2026-10-07)** The ACC-mode rebuild is approved: on both jobs, `sets.OffenseMode.ACC`, `sets.WS.ACC` and every weapon skill's own `.ACC` set take the most accuracy they can, ties going to the higher-damage piece. For magical weapon skills that means magic accuracy.
   - The engine wears the TP-mode weapon skill sets in DT mode too, since neither job file has a `sets.WS.DT`. In ACC mode it adds `sets.WS.ACC`, or a weapon skill's own `.ACC` set.
@@ -18,6 +20,9 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
   - **(player, 2026-10-02)** Optimizing for INT and MND is fine; just don't bring in dedicated pieces for it.
   - **(player, 2026-10-07)** Nuke sets are an exception: magic accuracy doesn't strictly come before magic attack there. Their waist and neck stay Eschan Stone and Sanctity Necklace. The magic accuracy margin wanted for nukes isn't recorded.
   - **(player, 2026-10-08)** MAB raises BLU's magical blue magic, and the rule above covers those nukes too.
+  - **(player, 2026-10-10)** The rule covers the magic burst sets too: their neck and waist stay Sanctity Necklace and Eschan Stone.
+  - **(player, 2026-10-10)** A Resistant burst adds the pieces that raise both magic accuracy and burst damage, through `sets.ResistantMagicBurst`: Atro. Chapeau +4 on RDM.
+  - **(player, 2026-10-10)** On BLU with the weapons free, a burst outside Resistant, FullMacc and Proc takes Maxentius in the main hand and Bunzi's Rod in the sub, through the job file's `user_job_post_midcast`. Nothing changes the weapons while engaged or held by the weapon lock.
   - **(player, 2026-10-10)** In `Vanar_Rdm_Gear.lua`, the Normal-mode midcast sets valued for magic accuracy or enfeebling wear Ullr with the ammo slot empty, unless the set counts on Pemphredo Tathlum's INT or MAB. This covers the enfeebling, dark magic, Absorb and Stun sets and the like.
     - The Normal nuke and magic burst sets keep Pemphredo Tathlum, by the nuke rule above; their Resistant sets wear Ullr. Ullr gives 32 more Magic Accuracy than Pemphredo, which gives INT 4 and MAB 4.
     - Engaged, or with the range slot held empty by the weapon lock or the engaged hold, the job file's `user_job_post_midcast` swaps Pemphredo Tathlum in for Ullr, since equipping Ullr resets TP.
@@ -210,29 +215,26 @@ Vanar's numbers under the formulas in [ffxi-mechanics.md](../../docs/ffxi-mechan
 
 ### Skill and accuracy: Accuracy
 
-Estimated main-hand accuracy of the TP-mode sets against the player's 1350 floor (2026-10-07): gear, food, base stats, job point gifts and BLU's traits, with no buffs and no first-swing bonus. They use wsdist's race-less job tables (no level 99 Elvaan values are in reach), RDM/NIN, BLU/WAR with Accuracy Bonus IV **(player, 2026-10-08)**, and Mirage Stole +2's rank 20 DEX taken as 0. The BLU rows were worked out at tier III and raised by the 13 that tier IV adds (+48 against +35). A `/checkparam` replaces each.
+Estimated main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_Blu_Gear.lua` as the 2026-10-10 floor counts it: gear, Oden (the lower of the two foods), weapon skill accuracy, base stats, job point gifts and BLU's traits, with no buffs and no first-swing bonus. They use wsdist's race-less job tables (no level 99 Elvaan values are in reach), RDM/NIN, BLU/WAR with Accuracy Bonus IV **(player, 2026-10-08)**, and Mirage Stole +2's rank 20 DEX taken as 0. Grape Daifuku adds 6 or 7. A `/checkparam` replaces each.
 
-| Set | Grape Daifuku | Oden |
-|---|---|---|
-| BLU TP, Tizona or Naegling + Thibron | 1481 to 1485 | 1475 to 1479 |
-| BLU TP, Maxentius + Thibron | 1405 | 1399 |
-| BLU `WS['Savage Blade']`, `WS['Expiacion']` (with the Nyame Flanchard) | 1395, 1393 | 1389, 1387 |
-| BLU Expiacion with the Nyame Gauntlets and Flanchard (`Vanar_Blu_Gear.lua`) | 1391 | 1385 |
-| BLU `sets.WS`, Black Halo | 1327 | 1321 |
-| BLU Black Halo, Maxentius + Bunzi's Rod, with the Nyame Gauntlets (`Vanar_Blu_Gear.lua`) | 1365 | 1359 |
-| BLU Requiescat (Naegling), Chant du Cygne (Almace) | 1483, 1403 | 1477, 1397 |
-| RDM TP, Naegling + Thibron | 1352 | 1346 |
-| RDM TP, Maxentius + Thibron | 1283 | 1277 |
-| RDM TP, Naegling + Gleti's Knife | 1403 | 1397 |
-| RDM `sets.WS`, Savage Blade and Black Halo | 1242, 1173 | 1236, 1166 |
-| RDM Chant du Cygne, Evisceration (Gleti's Knife off hand) | 1409, 1406 | 1403, 1399 |
-| RDM Requiescat (Naegling + Thibron) | 1354 | 1348 |
-| RDM Savage Blade and Black Halo, built for the 1280 floor (`Vanar_Rdm_Gear.lua`) | 1288, 1289 | 1282, 1282 |
-| RDM Requiescat (`Vanar_Rdm_Gear.lua`) | 1301 | 1295 |
+| Set (2026-10-10) | Weapons | Floor accuracy | Floor |
+|---|---|---|---|
+| BLU TP (`sets.engaged`) | Tizona, Naegling, Almace + Thibron; Maxentius + Bunzi's Rod | 1475, 1479, 1482; 1439 | 1275 |
+| BLU `sets.precast.WS` (Black Halo) | Maxentius + Bunzi's Rod | 1329 | 1275 |
+| BLU Savage Blade, Expiacion | Naegling, Tizona + Thibron | 1330, 1326 | 1275 |
+| BLU Requiescat | Naegling + Thibron | 1497 | 1275 |
+| BLU Chant du Cygne | Almace + Thibron | 1451 | 1275 |
+| RDM TP (`sets.engaged`) | Naegling, Maxentius + Thibron; Naegling + Gleti's Knife | 1346, 1277; 1397 | 1250 |
+| RDM Savage Blade | Naegling + Thibron | 1256 | 1250 |
+| RDM Black Halo | Maxentius + Thibron | 1250 | 1250 |
+| RDM Requiescat | Naegling + Thibron | 1320 | 1250 |
+| RDM Chant du Cygne and Evisceration | Tauret + Gleti's Knife | 1349 | 1250 |
 
-- Each 4 DEX is about 3 accuracy. The Chant du Cygne rows count Almace's DEX+50, which the export shows for the highest stage only.
-- Bunzi's Rod in the off hand adds its Accuracy 40 to the main hand too ([Which hand a weapon's stats work from](../../docs/ffxi-mechanics.md#which-hand-a-weapons-stats-work-from)). So the Maxentius + Bunzi's Rod row is the `sets.WS` Black Halo row plus 40, less about 2 for the Nyame Gauntlets over Jhakri Cuffs +2.
-- The last two rows move the RDM rows above by each set's gear Accuracy, 0.75 a DEX and the Atrophy set bonus. They are gear and Oden or Grape Daifuku only; with Composure's +70, which counts for RDM melee (Rules for these sets), the RDM TP sets and these weapon skill sets clear the 1350 floor, except Maxentius in the TP set (1277 + 70 = 1347). The weapon skill sets assume Thibron or Ammurapi Shield in the off hand, which add no accuracy; Gleti's Knife adds 40.
+- Each 4 DEX is about 3 accuracy. The Chant du Cygne row counts Almace's DEX+50, which the export shows for the highest stage only.
+- Bunzi's Rod in the off hand adds its Accuracy 40 to the main hand too ([Which hand a weapon's stats work from](../../docs/ffxi-mechanics.md#which-hand-a-weapons-stats-work-from)), and so does Gleti's Knife; Thibron and Ammurapi Shield add none, so the Thibron rows are each set's low end.
+- RDM's hit rate has Composure's +70 on top, which the floor doesn't count (Rules for these sets).
+- The 2026-10-10 weapon skill sets come from exhaustive searches over the wardrobe pieces: scratch `rdmws-search.cs` for RDM's Savage Blade, Black Halo and Requiescat, and a second model with the same formulas for the rest, which also checked those three. Each set was scored across TP, target AGI (300, 340, 400), evasion (1250, 1350) and buffs (none; attack ×1.3 + 250 and defense −10%), keeping the set with the best worst case. Modelled gains over the sets before: RDM Savage Blade +4%, Black Halo +8%, Chant du Cygne and Evisceration +3%; BLU Savage Blade +4%, Expiacion +3%, Black Halo +4.5%, Chant du Cygne +16%. Requiescat stayed on both jobs: at most 1% either way, and the two models disagree on RDM's.
+- The TP sets weren't changed on 2026-10-10: both clear their floor with every weapon pair. A scratch TP model that turns TP gain into weapon skills favoured, on RDM, the Atrophy +4 set (DT 40 to 5) for its accuracy on the skill-less Thibron off hand, and on BLU, Dual Wield and multi-attack pieces, by amounts that turn on the target's evasion and the magic haste received.
 
 ### Attack and pDIF: Physical damage limit
 
@@ -311,6 +313,13 @@ Estimated main-hand accuracy of the TP-mode sets against the player's 1350 floor
 ### Magic burst: Burst damage
 
 - None of Vanar's Nyame or Bunzi's pieces has Magic burst damage II: the Nyame are Path B and every Bunzi's piece is rank 0 **(player, 2026-10-04)**. Vanar's five rank 0 Bunzi's armor pieces still carry their base +150 MAB and +150 Magic Damage.
+- How Sel layers the burst sets in Vanar's job files: `sets.MagicBurst` goes over the midcast set of any spell Sel's `is_nuke` accepts (elemental nukes, Drain and Aspir, and BLU's Magical spell maps), in every casting mode but Proc. Resistant modes wear `sets.ResistantMagicBurst` instead; BLU's FullMacc mode isn't a Resistant mode, so it wears `sets.MagicBurst`. On BLU, `sets.buff['Burst Affinity']` goes on after the burst set, so for blue magic under Burst Affinity the legs are Hashishin Tayt +3 and the feet Hashi. Basmak +3 whatever the burst set names, and the job file's `user_job_post_midcast` comes after that. In a defense mode in combat, the nuke's `.DT` set goes on after the burst set (`libs/Sel-Include.lua`, `general_post_midcast` and `default_post_midcast`; `data/BLU.lua`, `job_post_midcast`).
+- RDM's burst totals (2026-10-10): the nuke set's Leth. Fuseau +3 and the overlay's Ea Houppelande and Jhakri Ring make magic burst damage 25, and 35 with Bunzi's Rod, plus Magic burst damage II 8 and the trait's 7. The neck stays Sanctity Necklace by the nuke rule **(player, 2026-10-10)**; Mizu. Kubikazari's 10 would have been about 3.7% more damage with the weapons free and 7% locked.
+  - No mix of the owned burst pieces reaches 40 for less than it costs. The Sollerets, the cheapest Nyame piece for a Lethargy +3 piece, cost MAB 20, Magic Damage 30, INT 5 and Magic Accuracy 20 for 5: about 3.5% less damage with Magic Damage and INT in D (dINT 100 to 199, D about 1,850, M 3.85). These are from a scratch search over every mix.
+  - The Resistant overlay's Atro. Chapeau +4 **(player, 2026-10-10)** raises the Resistant nuke sets' magic accuracy by 21 (Magic Accuracy 64 and elemental magic skill 18 against Leth. Chappel +3's 61) and burst damage by 10, to 25 and 35 with Bunzi's Rod, for MAB 56, Magic Damage 31 and DT 10: about 6% less damage on a nuke that lands unresisted.
+- BLU's burst totals (2026-10-10): Hashi. Basmak +3 and the overlay's Jhakri Ring make 17 with the weapons held. With them free, the job file's hook adds Maxentius in the main hand (+4 a skillchain) and Bunzi's Rod in the sub (+10): 31 after a two-step chain, 35 after three and 39 after four, for 5 magic accuracy (Maxentius's Magic Accuracy skill 250 against Bunzi's Rod's 255).
+  - On blue magic under Burst Affinity, each Nyame piece in place of a Hashishin +3 piece costs Magic Accuracy 21 to 27 and a Hashishin proc share, for no damage gain. The magical sets' traits and job point MAB aren't recorded; the ranking held from 45 to 76 base MAB and with the Magic Burst Bonus trait at 0 or +9%.
+  - No owned BLU piece adds burst damage without lowering the Resistant sets' magic accuracy: Jhakri Ring costs 7 (against a Stikini Ring's Magic Accuracy 8 and Blue magic skill 5), Maxentius in the main hand 5, and each Nyame piece 21 to 27. So `sets.ResistantMagicBurst` adds nothing on BLU.
 
 ### Blue magic: Job points and merits
 

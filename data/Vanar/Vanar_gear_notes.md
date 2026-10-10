@@ -29,7 +29,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's Atrophy pieces are all +4, so whether tiers mix doesn't matter here.
 - **Vanar owns:** `Atro. Chapeau +4`, `Atrophy Tabard +4`, `Atro. Gloves +4` and `Atro. Tights +4`. He has no Atrophy Boots and no Regal Earring. His maximum is +45, and only with all four on.
-- **In Vanar_Rdm_Gear.lua:** all four (+45) in Step, Violent Flourish, the ACC engaged set, the ACC-mode weapon skill sets and the magical weapon skills' ACC sets; the head and gloves (+15) in Black Halo; the body and legs (+15) in the enfeebling magic accuracy sets. Two or more are the cheapest accuracy RDM has, each piece adding its own Acc 59 to 65 and 15 more. With Composure counted toward the floor **(player, 2026-10-09)**, Savage Blade and the default set need only the gloves (no bonus) and take Viti. Chapeau +4's WSD back.
+- **In Vanar_Rdm_Gear.lua:** all four (+45) in Step, Violent Flourish, the ACC engaged set, the ACC-mode weapon skill sets and the magical weapon skills' ACC sets; the body and legs (+15) in the enfeebling magic accuracy sets; the head alone (no bonus) in the Resistant burst overlay, for its Magic Accuracy 64, elemental magic skill 18 and magic burst damage 10. Two or more are the cheapest accuracy RDM has, each piece adding its own Acc 59 to 65 and 15 more. Under the 2026-10-10 floor (1250 with weapon skill accuracy, Composure not counted), Savage Blade, Black Halo and the default set wear only the gloves (no bonus) and take Viti. Chapeau +4's WSD; Black Halo gave up the head and the +15 on 2026-10-10 for Viti. Chapeau +4, Fotia Gorget and Karieyh Ring, about 7.5% more damage at 1250 with Oden.
 
 ### Assimilator's set
 
@@ -423,6 +423,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Rep. Plat. Medal
 
 - Vanar is a citizen of Windurst (player, 2026-10-02), so the Regain never works for Vanar.
+- On BLU it took the neck of the default weapon skill set, Savage Blade and Expiacion from Mirage Stole +2 on 2026-10-10: STR+10 and Attack+30 against Accuracy+25 (the stole's rank 20 STR and DEX taken as 0). Once the 1275 floor no longer needed the stole's accuracy, that was about 2.5 to 3% more damage on the 2026-10-10 search.
 
 ### Sibyl Scarf
 
@@ -567,6 +568,10 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's copy is rank 0 (player, 2026-10-02): no augments, only the base stats in its help text. The export prints no augments for it, not even `'Path: A'`.
 - Vanar's copy is rank 0, without the rank 30 augment (Attack+30, Double Attack +10%, Accuracy and Magic Accuracy +15, status ailment resistance +10), so the sims overvalue it ([rank-augments.md](../../docs/rank-augments.md#gletis-cuirass)).
+- In BLU's Chant du Cygne set (2026-10-10), Assim. Jubbah +4, Nyame Gauntlets and Hashishin Tayt +3 replace the Cuirass, Gauntlets and Breeches, with Fotia Gorget and Sailfi Belt +1 for Mirage Stole +2 and Fotia Belt: about 16% more damage on the 2026-10-10 search. Its reasons, from the formulas in [ffxi-mechanics.md](../../docs/ffxi-mechanics.md#critical-hits):
+  - With Lehko's Ring, the crit cape and Chant du Cygne's own +25 to +29% at 2,000 to 2,250 TP, the crit rate is already about 75 to 80%, so more crit rate adds little.
+  - PDL does nothing until the attack ratio reaches its cap, and against defense 1,500 the ratio is about 1.0 unbuffed and 1.7 with mid buffs. Gleti's crit and PDL gain once heavy buffs cap the ratio.
+  - The Jubbah's DEX+49 goes into Chant du Cygne's 80% DEX WSC and its dDEX crit bonus, and Fotia Gorget adds 25/256 fTP to every hit.
 
 ### Helios Jacket
 
@@ -928,8 +933,9 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Assim. Shalwar +1
 
-- Its "Burst Affinity"+12 adds 0.12 to the WSC multiplier under Burst Affinity, with Hashi. Basmak +3's +21: 2.33 in place of 2 ([gear-notes.md](../../docs/gear-notes.md#assim-shalwar-1)). Vanar_Blu_Gear.lua wears it in the Burst Affinity overlay **(player, 2026-10-09: Mytha's buff-set pieces, in Vanar's tier)**, and for its Spell interruption rate down 20% in the magical SIRD set.
+- Its "Burst Affinity"+12 adds 0.12 to the WSC multiplier under Burst Affinity, with Hashi. Basmak +3's +21: 2.33 in place of 2 ([gear-notes.md](../../docs/gear-notes.md#assim-shalwar-1)). Vanar_Blu_Gear.lua wore it in the Burst Affinity overlay **(player, 2026-10-09: Mytha's buff-set pieces, in Vanar's tier)** until the player put Hashishin Tayt +3 there instead **(player, 2026-10-10)**. It stays in the magical SIRD set for its Spell interruption rate down 20%.
 - **(player, 2026-10-08)** It is moving from the Mog Case to a wardrobe.
+- Against Hashishin Tayt +3 under Burst Affinity, worked out 2026-10-10 from the two items' help text: its +12 takes the WSC multiplier from 2.21 to 2.33, so it raises only the WSC part of the damage, by at most 5.4%. The Tayt's MAB 53 multiplies all of it: about 11 to 13% at the magical set's MAB (gear 258 to 367, plus 45 to 76 from traits and gifts). The Tayt also has Magic Accuracy 63 and Blue magic skill 33 against none, and is a fifth Hashishin piece. So the Tayt does more damage under Burst Affinity, since the WSC part can't be worth more than the whole spell ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#magical-blue-magic)).
 
 ### Atro. Tights +4
 
@@ -966,6 +972,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Hashishin Tayt +3
 
+- **(player, 2026-10-10)** It is the Burst Affinity overlay's legs, in place of Assim. Shalwar +1: MAB 53, Magic Accuracy 63, Blue magic skill 33, DT 12 and a fifth Hashishin piece on blue magic under Burst Affinity, for the Shalwar's Burst Affinity +12 (see [Assim. Shalwar +1](#assim-shalwar-1)).
 - Its "Efflux" TP Bonus +800 goes in the Efflux overlay with the Double Attack Rosmerta's Cape (+250). Vanar's BLU has every job point, so its Efflux category is at 20 (+200): an Efflux cast has 1000 + 800 + 250 + 200 = 2250 TP bonus ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#chain-affinity-burst-affinity-efflux-and-azure-lore)).
 
 ### Herculean Trousers
@@ -996,11 +1003,12 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 - Vanar's copy is Path B at rank 20 **(player, 2026-10-09)**: Attack+25, Ranged Attack+25, Weapon skill damage +9% and Double Attack +3%. It was rank 18 from 2026-10-08, rank 17 from 2026-10-07 and rank 11 from 2026-10-04. The export prints the path but not the rank.
 - It is RDM's weapon skill legs, as in bg-wiki's set **(player, 2026-10-04)**. Rank 17 added about 1.6% to Savage Blade and Black Halo over rank 11, on the calculation under [Nyame Gauntlets](#nyame-gauntlets).
   - Leth. Fuseau +3 would trade its Weapon skill damage +9%, Double Attack +3% and Damage taken -8% for Accuracy 63 vs 40, Attack 63 vs 55 and STR+MND 81 vs 75.
-  - That calculation puts RDM's weapon skill set at about 1,242 accuracy for Savage Blade and 1,173 for Black Halo with Grape Daifuku, and 6 or 7 less with Oden **(player, 2026-10-07: RDM eats one of the two)**: under the player's 1350 floor, where the rule puts accuracy first. There the Fuseau is worth about 12% more Savage Blade and 22% more Black Halo without buffs, and with Composure's +70 accuracy about 3% less Savage Blade and 12% more Black Halo. The player's `/checkparam` decides it.
-  - **In Vanar_Rdm_Gear.lua:** the weapon skill sets hold the floor, the player's later rule. Since Composure's +70 counts toward it **(player, 2026-10-09)**, Savage Blade, the default set and Requiescat wear the Flanchard again. Black Halo, whose club hand is about 70 behind, keeps Leth. Fuseau +3 ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
+  - That calculation puts RDM's weapon skill set at about 1,242 accuracy for Savage Blade and 1,173 for Black Halo with Grape Daifuku, and 6 or 7 less with Oden **(player, 2026-10-07: RDM eats one of the two)**: under the player's 1350 floor of the time, where the rule puts accuracy first. There the Fuseau is worth about 12% more Savage Blade and 22% more Black Halo without buffs, and with Composure's +70 accuracy about 3% less Savage Blade and 12% more Black Halo. The player's `/checkparam` decides it.
+  - **In Vanar_Rdm_Gear.lua:** the weapon skill sets hold the 2026-10-10 floor, 1250 with weapon skill accuracy and without Composure. Savage Blade, the default set, Requiescat and the Chant du Cygne and Evisceration set wear the Flanchard. Black Halo keeps Leth. Fuseau +3: its set sits at the floor, and the Flanchard's 23 less accuracy would take it to about 1,227 with Oden ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - Against Luh. Shalwar +4 in BLU's weapon skill sets, at rank 17 (rank 20 adds Attack +3, WSD +1% and Double Attack +2%): WSD 8% against 12%, Attack 52 against none, Double Attack +1%, MND 32 against 27 and DT -8%, for Accuracy 40 against 50 and STR 43 against 46.
   - Expected damage on the same calculation, with the melee spell set's Accuracy Bonus III and Attack Bonus III **(player, 2026-10-07: the set gives both; tier not recorded)**: Savage Blade (with the Nyame Gauntlets) +0.8% with Grape Daifuku and +1.1% with Oden, Expiacion +0.5% and +0.6%, Black Halo +1.2% and +1.4%. At rank 20 the first two would be about +1.0%. The Accuracy Bonus has since turned out to be tier IV **(player, 2026-10-08)**; these weren't worked out again.
-  - At tier IV the 10 accuracy leaves Savage Blade's set at about 1,395 and Expiacion's at 1,393 with Grape Daifuku, 6 less with Oden, so both wear the Flanchard. Black Halo keeps the Shalwar: with Maxentius, Bunzi's Rod and the Nyame Gauntlets it is at about 1,365 and 1,359, and the Flanchard's 10 would put it at about 1,349 with Oden, under the 1350 floor. With Thibron in the off hand, as in the rahvin branch's `sets.WS`, it is 1,327 and 1,321 ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
+  - At tier IV the 10 accuracy leaves Savage Blade's set at about 1,395 and Expiacion's at 1,393 with Grape Daifuku, 6 less with Oden, so both wear the Flanchard. Black Halo kept the Shalwar under the 1350 floor of the time: with Maxentius, Bunzi's Rod and the Nyame Gauntlets the Flanchard would have put it at about 1,349 with Oden.
+  - Under the 2026-10-10 floor (1275 with weapon skill accuracy), the default set, which Black Halo wears, takes the Flanchard too, at about 1,329 with Oden. Across the 2026-10-10 search's scenarios it beats Hashishin Tayt +3 there by about 1% on average and the Shalwar by more ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - Vanar's copy is rank 20 Path B, so the sims overvalue it: rank 25 has 5 more Attack, 2% more Weapon skill damage, 2% more Double Attack and STR+10 ([rank-augments.md](../../docs/rank-augments.md#nyame-flanchard)).
 - wsdist has a rank 20 entry, Vanar's rank.
 
@@ -1065,7 +1073,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Hashi. Basmak +3
 
-- Its "Burst Affinity"+21 adds 0.21 to the WSC multiplier under Burst Affinity ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#chain-affinity-burst-affinity-efflux-and-azure-lore)). It is the magical sets' feet anyway, and the Burst Affinity overlay names it with Assim. Shalwar +1 (+12): 2.33 in all.
+- Its "Burst Affinity"+21 adds 0.21 to the WSC multiplier under Burst Affinity ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#chain-affinity-burst-affinity-efflux-and-azure-lore)). It is the magical sets' feet anyway, and the Burst Affinity overlay names it with Hashishin Tayt +3 on the legs **(player, 2026-10-10)**: +21, 2.21 in all.
 
 ### Herculean Boots
 

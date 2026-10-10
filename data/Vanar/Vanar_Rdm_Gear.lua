@@ -145,22 +145,23 @@ function init_gear_sets()
 		back=gear.da_jse_back,waist="Fotia Belt",legs="Nyame Flanchard",feet="Leth. Houseaux +3"}
 	sets.precast.WS['Requiescat'].Acc = set_combine(sets.precast.WS.Acc, {})
 
-	sets.precast.WS['Chant du Cygne'] = set_combine(sets.precast.WS['Requiescat'], {ring1="Lehko's Ring"})
+	-- Crit 10, DA 23; Fotia Gorget and Fotia Belt fTP +25/256 a hit each
+	sets.precast.WS['Chant du Cygne'] = set_combine(sets.precast.WS['Requiescat'], {hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Rajas Ring"})
 	sets.precast.WS['Chant du Cygne'].Acc = set_combine(sets.precast.WS.Acc, {})
 
 	sets.precast.WS['Evisceration'] = sets.precast.WS['Chant du Cygne']
 
-	-- WSD 57
+	-- WSD 67
 	sets.precast.WS['Savage Blade'] = {range=empty,ammo="Coiste Bodhar",
 		head="Viti. Chapeau +4",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Leth. Earring +1",
-		body="Lethargy Sayon +3",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
+		body="Nyame Mail",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
 		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Nyame Flanchard",feet="Leth. Houseaux +3"}
 	sets.precast.WS['Savage Blade'].Acc = set_combine(sets.precast.WS.Acc, {})
 
-	-- WSD 36; Atrophy set (2 pieces): Acc +15
+	-- WSD 48; Fotia Gorget fTP +25/256 on the first hit
 	sets.precast.WS['Black Halo'] = {range=empty,ammo="Coiste Bodhar",
-		head="Atro. Chapeau +4",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Leth. Earring +1",
-		body="Lethargy Sayon +3",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Rajas Ring",
+		head="Viti. Chapeau +4",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Leth. Earring +1",
+		body="Lethargy Sayon +3",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
 		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 	sets.precast.WS['Black Halo'].Acc = set_combine(sets.precast.WS.Acc, {})
 
@@ -375,8 +376,10 @@ function init_gear_sets()
 
 	sets.RecoverMP = {}
 
-	-- Magic burst damage 35, 45 with Bunzi's Rod (cap 40); MBD II 8
-	sets.MagicBurst = {main="Bunzi's Rod",sub="Ammurapi Shield",body="Ea Houppelande",neck="Mizu. Kubikazari",ring1="Jhakri Ring"}
+	-- Magic burst damage 25, 35 with Bunzi's Rod (cap 40); MBD II 8
+	sets.MagicBurst = {main="Bunzi's Rod",sub="Ammurapi Shield",body="Ea Houppelande",ring1="Jhakri Ring"}
+	-- Magic burst damage 25, 35 with Bunzi's Rod (cap 40); Macc +21 with elemental magic skill
+	sets.ResistantMagicBurst = {head="Atro. Chapeau +4"}
 	sets.midcast['Elemental Magic'].DW = {main="Bunzi's Rod",sub="Ammurapi Shield"}
 
 	-- Atrophy set (2 pieces): Macc +15

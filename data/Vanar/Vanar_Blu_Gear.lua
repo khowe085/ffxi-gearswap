@@ -44,8 +44,8 @@ end
 
 function init_gear_sets()
 
-	-- Burst Affinity +33 (WSC multiplier 2.33)
-	sets.buff['Burst Affinity'] = {legs="Assim. Shalwar +1",feet="Hashi. Basmak +3"}
+	-- Burst Affinity +21 (WSC multiplier 2.21)
+	sets.buff['Burst Affinity'] = {legs="Hashishin Tayt +3",feet="Hashi. Basmak +3"}
 	-- Chain Affinity +22
 	sets.buff['Chain Affinity'] = {feet="Assim. Charuqs +2"}
 	-- Convergence +2% per merit level (0 merits: no effect)
@@ -101,11 +101,11 @@ function init_gear_sets()
 	sets.precast.FC['Blue Magic'] = set_combine(sets.precast.FC, {body="Hashishin Mintan +3"})
 
 
-	-- WSD 70
+	-- WSD 67
 	sets.precast.WS = {ammo="Coiste Bodhar",
-		head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Moonshade Earring",ear2="Hashi. Earring +1",
+		head="Hashishin Kavuk +3",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Hashi. Earring +1",
 		body="Assim. Jubbah +4",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
-		back=gear.wsd_jse_back,waist="Sailfi Belt +1",legs="Luh. Shalwar +4",feet="Nyame Sollerets"}
+		back=gear.wsd_jse_back,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
 
 	-- Assimilator's set (2 pieces): Acc +15
 	sets.precast.WS.Acc = {ammo="Honed Tathlum",
@@ -141,11 +141,11 @@ function init_gear_sets()
 	sets.precast.WS['Realmrazer'].DT = set_combine(sets.precast.WS['Requiescat'].DT, {})
 	sets.precast.WS['Realmrazer'].Fodder = set_combine(sets.precast.WS['Realmrazer'], {})
 
-	-- Crit 45, PDL 29
+	-- Crit 24, DA 19; Fotia Gorget fTP +25/256 a hit
 	sets.precast.WS['Chant du Cygne'] = {ammo="Coiste Bodhar",
-		head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Moonshade Earring",ear2="Hashi. Earring +1",
-		body="Gleti's Cuirass",hands="Gleti's Gauntlets",ring1="Lehko's Ring",ring2="Rajas Ring",
-		back=gear.crit_jse_back,waist="Fotia Belt",legs="Gleti's Breeches",feet="Gleti's Boots"}
+		head="Hashishin Kavuk +3",neck="Fotia Gorget",ear1="Brutal Earring",ear2="Hashi. Earring +1",
+		body="Assim. Jubbah +4",hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Rajas Ring",
+		back=gear.crit_jse_back,waist="Sailfi Belt +1",legs="Hashishin Tayt +3",feet="Gleti's Boots"}
 	sets.precast.WS['Chant du Cygne'].Acc = set_combine(sets.precast.WS.Acc, {})
 	sets.precast.WS['Chant du Cygne'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
 	-- DT 55
@@ -153,8 +153,8 @@ function init_gear_sets()
 		body="Hashishin Mintan +3",hands="Hashi. Bazu. +3",ring2="Murky Ring",back=gear.da_jse_back,legs="Hashishin Tayt +3"})
 	sets.precast.WS['Chant du Cygne'].Fodder = set_combine(sets.precast.WS['Chant du Cygne'], {})
 
-	-- WSD 67
-	sets.precast.WS['Savage Blade'] = set_combine(sets.precast.WS, {hands="Nyame Gauntlets",legs="Nyame Flanchard"})
+	-- WSD 65
+	sets.precast.WS['Savage Blade'] = set_combine(sets.precast.WS, {body="Nyame Mail"})
 	sets.precast.WS['Savage Blade'].Acc = set_combine(sets.precast.WS.Acc, {})
 	sets.precast.WS['Savage Blade'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
 	sets.precast.WS['Savage Blade'].DT = set_combine(sets.precast.WS.DT, {})
@@ -166,8 +166,8 @@ function init_gear_sets()
 	sets.precast.WS['Vorpal Blade'].DT = sets.precast.WS['Chant du Cygne'].DT
 	sets.precast.WS['Vorpal Blade'].Fodder = sets.precast.WS['Chant du Cygne'].Fodder
 
-	-- WSD 67
-	sets.precast.WS['Expiacion'] = set_combine(sets.precast.WS, {hands="Nyame Gauntlets",legs="Nyame Flanchard"})
+	-- WSD 65
+	sets.precast.WS['Expiacion'] = set_combine(sets.precast.WS, {body="Nyame Mail"})
 	sets.precast.WS['Expiacion'].Acc = set_combine(sets.precast.WS.Acc, {})
 	sets.precast.WS['Expiacion'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
 	sets.precast.WS['Expiacion'].DT = set_combine(sets.precast.WS.DT, {})
@@ -501,8 +501,10 @@ function init_gear_sets()
 	sets.Self_Healing = {}
 	sets.Cure_Received = {}
 	sets.Self_Refresh = {}
-	-- Magic burst damage 17, 27 with Bunzi's Rod (cap 40)
+	-- Magic burst damage 17, and 31 to 39 with the weapons free (cap 40)
 	sets.MagicBurst = {ring1="Jhakri Ring"}
+	-- Resistant nukes add no burst gear: magic burst damage 15, 25 with Bunzi's Rod (cap 40)
+	sets.ResistantMagicBurst = {}
 	sets.Phalanx_Received = {}
 end
 
@@ -620,6 +622,15 @@ function user_job_filter_precast(spell, spellMap, eventArgs)
 	end
 	refire:schedule(delay)
 	add_tick_delay(delay)
+end
+
+--With the weapons free, a burst outside Resistant, FullMacc and Proc takes Maxentius in the main hand (magic burst damage +4 a skillchain) and Bunzi's Rod in the sub (+10).
+function user_job_post_midcast(spell, spellMap, eventArgs)
+	if spell.action_type ~= 'Magic' or state.MagicBurstMode.value == 'Off' or not is_nuke(spell, spellMap) then return end
+	local mode = state.CastingMode.value
+	if mode:contains('Resistant') or mode == 'FullMacc' or mode == 'Proc' then return end
+	if player.status == 'Engaged' or disabled_sets["Weapons"] or not can_dual_wield then return end
+	equip({main="Maxentius",sub="Bunzi's Rod"})
 end
 
 local azure_settings_path = windower.windower_path..'addons/AzureSets/data/settings.xml'
