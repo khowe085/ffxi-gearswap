@@ -51,7 +51,7 @@ The three files also bind `@F8` to AutoNukeMode, which is the same as the global
 
 | Mode | Values (default first) | What it does |
 |---|---|---|
-| TreasureMode | None, Tag (THF also SATA, Fulltime); every job starts in Tag | Treasure Hunter gear; Tag wears it until a monster is tagged |
+| TreasureMode | None, Tag (THF also SATA, Fulltime); every job starts in Tag | Treasure Hunter gear; Tag wears it until a monster is tagged. A job file with a `TH_Whitelist` (RDM, BLU) limits it to those spells, abilities and weaponskills plus ranged attacks, and engaging alone wears none |
 | AutoWSBuff | on, off | Uses Last Resort, Berserk, Warcry or Aggressor before a weaponskill in the job file's `ws_buff_list` |
 | AutoWSRestore | on, off | Lets AutoWS use Sanguine Blade, Catastrophe, Entropy or Mystic Boon at low HP or MP |
 | UnlockWeapons | off, on | Lets sets change main and sub; while engaged they stay put |

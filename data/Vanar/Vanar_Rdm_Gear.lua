@@ -12,6 +12,10 @@ function character_user_job_setup()
 	state.Weapons:options('None','Naegling','Maxentius','Crocea','Tauret','EnspellOnly','Savage Blade','Savage Blade Acc','Black Halo','DualCrocea','Black Halo Max Acc','DualPrime','DualAeolian','DualEnspellOnly','DualProcSword')
 
 	ws_buff_list = S{'Savage Blade','Evisceration','Chant du Cygne','Vorpal Blade','Black Halo','Requiescat','Realmrazer'}
+
+	--Spells, job abilities and weaponskills that wear sets.TreasureHunter against an untagged monster, plus any ranged attack (User-Globals.lua).
+	--In Tag mode nothing else wears it, melee included, and an action off the list doesn't count as tagging. Delete the line to let every action tag.
+	TH_Whitelist = S{'Dia','Dia II','Dia III','Stonega'}
 	state.WeaponSets:options('Default','Dual','Proc','Dynamis')
 
 	weapon_sets = {
