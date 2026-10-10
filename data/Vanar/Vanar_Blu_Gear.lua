@@ -550,7 +550,7 @@ local unbridled_abort_said = nil
 
 --Drops the spell, uses its abilities 1.1 s apart, then resends it. The resend always passes, so this never loops.
 function user_job_filter_precast(spell, spellMap, eventArgs)
-	if spell.type ~= 'BlueMagic' then return end
+	if spell.type ~= 'BlueMagic' or spell.test then return end
 	--Silenced, the spell would fail after the abilities were spent.
 	if buffactive['Silence'] or buffactive['Mute'] or buffactive['Omerta'] then return end
 	--Under Amnesia or Impairment the abilities fail: a Chain Affinity spell is dropped, any other goes ahead.
