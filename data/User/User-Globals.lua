@@ -544,3 +544,73 @@ function filter_precast(spell, spellMap, eventArgs)
 	if spell.test then return end
 	return sel_filter_precast(spell, spellMap, eventArgs)
 end
+
+--Magic burst detection, ported from the rahvin branch. A skillchain on a monster within 21 yalms, closed by anyone,
+--opens an eight-second window on that monster for the elements the chain made. A nuke (Sel's is_nuke: elemental
+--magic, BLU magical spells, elemental ninjutsu and the like) cast at it inside the window, of one of those elements,
+--wears Sel's burst sets (MagicBurst, HelixBurst, the Resistant and RecoverBurst variants) as if MagicBurstMode were
+--Single for that one cast. A weaponskill landing on that monster closes the window. MagicBurstMode still works by hand.
+local skillchain_elements = {
+	Light = {'Light', 'Lightning', 'Wind', 'Fire'}, Darkness = {'Dark', 'Ice', 'Water', 'Earth'},
+	Gravitation = {'Dark', 'Earth'}, Fragmentation = {'Lightning', 'Wind'}, Distortion = {'Ice', 'Water'},
+	Fusion = {'Light', 'Fire'}, Compression = {'Dark'}, Liquefaction = {'Fire'}, Induration = {'Ice'},
+	Reverberation = {'Water'}, Transfixion = {'Light'}, Scission = {'Earth'}, Detonation = {'Wind'},
+	Impaction = {'Lightning'},
+}
+--Add-effect message ids that report a skillchain: 288-301 chain damage and 385-398 chain healing, both in this
+--order, then 767-770 Radiance and Umbra.
+local skillchain_order = {'Light', 'Darkness', 'Gravitation', 'Fragmentation', 'Distortion', 'Fusion', 'Compression',
+	'Liquefaction', 'Induration', 'Reverberation', 'Transfixion', 'Scission', 'Detonation', 'Impaction'}
+local skillchain_by_message = {[767] = 'Light', [768] = 'Darkness', [769] = 'Light', [770] = 'Darkness'}
+for i, name in ipairs(skillchain_order) do
+	skillchain_by_message[287 + i] = name
+	skillchain_by_message[384 + i] = name
+end
+
+local burst_target_id, burst_time, burst_elements = 0, 0, {}
+
+windower.raw_register_event('action', function(act)
+	if not act or (act.category ~= 3 and act.category ~= 4) then return end
+	local target = act.targets and act.targets[1]
+	local action = target and target.actions and target.actions[1]
+	if not action then return end
+
+	local chain = skillchain_by_message[action.add_effect_message]
+	if chain then
+		local mob = windower.ffxi.get_mob_by_id(target.id)
+		if mob and mob.spawn_type == 16 and math.sqrt(mob.distance) < 21 then
+			burst_target_id, burst_time, burst_elements = mob.id, os.clock(), {}
+			for _, element in ipairs(skillchain_elements[chain]) do burst_elements[element] = true end
+		end
+	elseif act.category == 3 and act.param ~= 0 and target.id == burst_target_id then
+		burst_target_id, burst_time, burst_elements = 0, 0, {}
+	end
+end)
+
+local function is_burst(spell, spellMap)
+	--Blue magic can only magic burst under Burst Affinity.
+	if spell.skill == 'Blue Magic' and not buffactive['Burst Affinity'] then return false end
+	return spell.target and spell.target.id == burst_target_id and os.clock() - burst_time < 8
+		and burst_elements[spell.element] and is_nuke(spell, spellMap)
+end
+
+--Set at the first midcast hook and put back at the last, so every midcast stage, the job file's included, sees it.
+local burst_forced = false
+
+function user_midcast(spell, spellMap, eventArgs)
+	--A midcast cancelled after this hook never reaches extra_user_post_midcast, so a forced Single is undone here.
+	if burst_forced and state.MagicBurstMode.value == 'Single' then state.MagicBurstMode:set('Off') end
+	burst_forced = false
+	if spell.action_type == 'Magic' and state.MagicBurstMode.value == 'Off' and is_burst(spell, spellMap) then
+		state.MagicBurstMode:set('Single')
+		burst_forced = true
+		add_to_chat(122, '['..spell.english..'] Burst Detected!')
+	end
+end
+
+function extra_user_post_midcast(spell, spellMap, eventArgs)
+	if burst_forced then
+		state.MagicBurstMode:set('Off')
+		burst_forced = false
+	end
+end
