@@ -7,6 +7,7 @@ Every mode below can be changed in game with `//gs c toggle <Mode>` (on/off mode
 | Key | Command | Mode | Values (default first) |
 |---|---|---|---|
 | `F7` | cycle | Weapons | The job file's weapon sets |
+| `^F7` | toggle | UnlockWeapons | off, on (RDM starts on). Lets sets change main and sub out of combat; while engaged they stay put |
 | `!^F7` | toggle | AutoFoodMode | off, on |
 | `!@^F7` | cycle | AutoWS | OFF, then the current weapon set's `AutoWS_List` choices; back to OFF on a weapon change |
 | `@F8` | toggle | AutoNukeMode | off, on |
@@ -54,7 +55,6 @@ The three files also bind `@F8` to AutoNukeMode, which is the same as the global
 | TreasureMode | None, Tag (THF also SATA, Fulltime); every job starts in Tag | Treasure Hunter gear; Tag wears it until a monster is tagged. A job file with a `TH_Whitelist` (RDM, BLU) limits it to those spells, abilities and weaponskills plus ranged attacks, and engaging alone wears none |
 | AutoWSBuff | on, off | Uses Last Resort, Berserk, Warcry or Aggressor before a weaponskill in the job file's `ws_buff_list` |
 | AutoWSRestore | on, off | Lets AutoWS use Sanguine Blade, Catastrophe, Entropy or Mystic Boon at low HP or MP |
-| UnlockWeapons | off, on | Lets sets change main and sub; while engaged they stay put |
 | AutoWSMode | off, on | Only drives RngHelper's ranged auto-ws, and stays off without RngHelper |
 | RngHelper, RngHelperQuickDraw | off, on | Ranged attack helper |
 | AutoArts, AutoLockstyle, ReEquip, SkipProcWeapons | on, off | Arts upkeep, lockstyle on load and weapon change, re-equip weapons when bare, hide Proc weapon sets |
@@ -151,6 +151,7 @@ Commands (<> indicates a field. You do not actually have to use <>s):
 * gs validate <sets|inv> <filter> : This command checks to see whether the equipment in the sets table also exists in your inventory (default), or (by passing "inv") whether the equipment in your inventory exists in your sets table. <filter> is an optional list of words that restricts the output to only those items that contain text from one of the filter's words.
 * gs test set <set> : Equips the set over a naked character, reading it as gs equip does, then disables the user file for 30 seconds so the gear stays on.
 * gs test [precast|midcast] <action> : Strips every slot but main, sub and range, then calls the user file's precast and then midcast for the named spell, ability or weapon skill, without using it, and disables the user file for 30 seconds. "precast" stops before midcast. The spell table is aimed at your target, or at you with none, and carries spell.test = true so the user file can tell a test from a real use. When the 30 seconds end, the file is enabled and gets a status_change with your current status. Another gs test during the 30 seconds starts over, and a bare gs enable or gs disable takes over from the timer.
+* gs audit <gs test's arguments> : Runs gs test with those arguments, waits for the server's stats update, sends /checkparam <me>, and appends one JSON object a line to data/audit/<character>.jsonl: the arguments, the date, job and levels, STR to CHR (totals, and what gear and buffs add), attack, defense, elemental resistances, max HP and MP, /checkparam's accuracy and attack for each hand and ranged and its evasion and defense, the gear in each slot, and the active buffs. Haste, fast cast, magic accuracy and damage taken aren't in it, because the game doesn't send them to the client. A gs test, another gs audit, a bare gs enable or gs disable, a user file load, or the end of the 30 seconds before the record is written drops it. If no stats update arrives after the gear goes on, the record says so with char_stats_fresh = false.
 * gs stash <jobs> [unused] : Reads the file GearSwap would load for each job listed, such as `gs stash BLU RDM`, and moves the gear their sets use out of wardrobe and wardrobe2, into the first of case, sack, safe, safe2, storage and locker with room. With "unused", it moves everything else out of the two wardrobes instead. Equipped pieces stay. It stops with a message when every stash bag in reach is full.
 * gs pull <jobs> : Reads the same files and moves the gear their sets use into wardrobe, then wardrobe2, from every other bag in reach, taking only the copies the wardrobes lack. The inventory, satchel, sack, case and wardrobes 3 to 8 are in reach anywhere; safe, safe2, storage and locker are in reach in the Mog House, and all but storage at a Nomad or Pilgrim Moogle. It stops with a message when both wardrobes are full.
 * gs e, gs x and gs t are short for gs equip, gs export and gs test.

@@ -28,6 +28,7 @@ state.AutoWS				= M{['description']='Auto WS', 'OFF'} --Options are rebuilt from
 send_command('bind !@^f7 gs c cycle AutoWS') --Cycles auto-ws through OFF and the current weapon's AutoWS_List choices.
 send_command('bind !^f7 gs c toggle AutoFoodMode') --Turns auto-ws mode on and off.
 send_command('bind f7 gs c cycle Weapons') --Cycle through weapons sets.
+send_command('bind ^f7 gs c toggle UnlockWeapons') --Lets sets change main and sub out of combat; while engaged they stay put.
 send_command('bind @f8 gs c toggle AutoNukeMode') --Turns auto-nuke mode on and off.
 send_command('bind ^f8 gs c toggle AutoStunMode') --Turns auto-stun mode off and on.
 send_command('bind !f8 gs c toggle AutoDefenseMode') --Turns auto-defense mode off and on.
@@ -397,10 +398,40 @@ function extra_user_customize_idle_set(idleSet)
 	return idleSet
 end
 
+--Lockstyle 5 seconds after a job change (a file load) or a subjob change, on a timer of its own rather than Sel's
+--tick, which other tick work can hold off. Each change restarts the timer, so a subjob change straight after a job
+--change locks once, for the final pair. Sel's own later locks (weapon change, RDM's arts) still go through its tick.
+local lockstyle_token = 0
+
+local function apply_lockstyle(token)
+	if token ~= lockstyle_token or not state.AutoLockstyle.value then return end
+	if user_job_lockstyle then
+		user_job_lockstyle()
+	elseif user_lockstyle then
+		user_lockstyle()
+	else
+		windower.chat.input('/lockstyle on')
+	end
+	--Sel's load-time lock is still pending in its tick; this stands in for it.
+	style_lock = false
+	style_delay = os.clock() + 15
+end
+
+local function queue_lockstyle()
+	lockstyle_token = lockstyle_token + 1
+	apply_lockstyle:schedule(5, lockstyle_token)
+end
+
+--A lock still scheduled when the file unloads (on a job change) would run with the old job's settings.
+function user_unload()
+	lockstyle_token = lockstyle_token + 1
+end
+
 --Runs at load and on every subjob change.
 function extra_user_setup()
 	autows_sync()
 	wrap_job_check_buff()
+	queue_lockstyle()
 	send_command('wait 5;gs validate')
 end
 

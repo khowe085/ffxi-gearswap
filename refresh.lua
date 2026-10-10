@@ -60,6 +60,7 @@ end
 ---- variables.
 -----------------------------------------------------------------------------------
 function load_user_files(job_id,user_file)
+    audit_cancel()
     job_id = tonumber(job_id)
 
     if current_file then

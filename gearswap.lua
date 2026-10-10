@@ -129,6 +129,7 @@ require 'export'
 require 'validate'
 require 'wardrobe'
 require 'test'
+require 'audit'
 require 'flow'
 require 'triggers'
 
@@ -194,7 +195,10 @@ windower.register_event('addon command',function (...)
     elseif cmd == 'stash' or cmd == 'pull' then
         move_job_gear(cmd, splitup)
     elseif cmd == 'test' then
+        audit_cancel()
         test_command(splitup)
+    elseif cmd == 'audit' then
+        audit_command(splitup)
     elseif cmd == 'l' or cmd == 'load' then
         if splitup[1] then
             local f_name = table.concat(splitup,' ')
@@ -241,6 +245,7 @@ windower.register_event('addon command',function (...)
         print(' validate <opts> : Checks your current inventory against your item collections (or vice versa).')
         print(' test set <set>  : equips the set over a naked character and holds it for 30 seconds.')
         print(' test [precast|midcast] <action> : equips what the user file would for an action, without using it, and holds it.')
+        print(' audit <test args> : runs gs test, then /checkparam <me>, and appends the stats to data/audit/<name>.jsonl.')
         print(' stash <jobs> [unused] : moves the gear in those jobs\' files out of wardrobe and wardrobe2 (unused: everything else).')
         print(' pull <jobs>     : moves the gear in those jobs\' files into wardrobe and wardrobe2 from the other bags in reach.')
         print('  Please see the gearswap/README.md file for more details.')
@@ -262,7 +267,10 @@ end)
 
 function disenable(tab,funct,functname,pol)
     -- A bare enable or disable leaves the user file as the player set it, even mid gs test.
-    if not tab[1] then test_hold_end() end
+    if not tab[1] then
+        audit_cancel()
+        test_hold_end()
+    end
     local slot_name = ''
     local ltab = L{}
     for i,v in pairs(tab) do
