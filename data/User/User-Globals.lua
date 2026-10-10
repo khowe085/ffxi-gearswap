@@ -467,3 +467,71 @@ function handle_smartws(cmdParams)
 	if choices and choices[1] then autows = choices[1][1] end
 	return sel_handle_smartws(cmdParams)
 end
+
+--TH_Whitelist, as on the rahvin branch. A job file that sets TH_Whitelist = S{'Dia','Dia II','Stonega'} limits
+--Treasure Hunter gear to the listed spells, job abilities and weaponskills, plus any ranged attack, against an
+--untagged monster. Engaging no longer locks the TH set on in Tag mode (that lock is what kept precast fast cast
+--gear off before the first hit), and an action off the list doesn't count as tagging, since it landed without TH
+--gear; neither does a melee swing in Tag mode. Fulltime and SATA still lock it on while engaged. A job file with no
+--TH_Whitelist keeps Sel's behavior. A spell wears the set at midcast, so its precast keeps the fast cast gear.
+local function th_gated()
+	return TH_Whitelist ~= nil and state.TreasureMode.value ~= 'None'
+end
+
+local function th_listed(spell)
+	return spell.action_type == 'Ranged Attack' or TH_Whitelist:contains(spell.english)
+end
+
+local sel_TH_for_first_hit = TH_for_first_hit
+function TH_for_first_hit()
+	if TH_Whitelist and state.TreasureMode.value == 'Tag' then
+		if state.th_gear_is_locked then unlock_TH() end
+		return
+	end
+	return sel_TH_for_first_hit()
+end
+
+--The raw action event tags every target of a listed action, including an area spell's.
+local sel_th_action_check = th_action_check
+function th_action_check(category, param)
+	if not TH_Whitelist then return sel_th_action_check(category, param) end
+	if category == 2 then return true end
+
+	local resource = (category == 4 and res.spells) or (category == 3 and res.weapon_skills) or ((category == 6 or category == 14) and res.job_abilities)
+	local entry = resource and resource[param]
+	return entry ~= nil and TH_Whitelist:contains(entry.en)
+end
+
+--Sel's TH equips in default_post_precast (weaponskills, abilities) and general_post_midcast (spells) are
+--written inline against sets.TreasureHunter, so for an unlisted action it's set empty for the length of the call.
+local function without_th_unless_listed(sel_function)
+	return function(spell, spellMap, eventArgs)
+		if not th_gated() or th_listed(spell) then return sel_function(spell, spellMap, eventArgs) end
+
+		local th_set = sets.TreasureHunter
+		sets.TreasureHunter = {}
+		local ok, err = pcall(sel_function, spell, spellMap, eventArgs)
+		sets.TreasureHunter = th_set
+		if not ok then error(err, 0) end
+	end
+end
+default_post_precast = without_th_unless_listed(default_post_precast)
+general_post_midcast = without_th_unless_listed(general_post_midcast)
+
+--Sel's aftercast marks the target tagged after any action, so an unlisted one is taken back out.
+local sel_default_aftercast = default_aftercast
+function default_aftercast(spell, spellMap, eventArgs)
+	local target_id = spell.target and spell.target.id
+	local was_tagged = target_id and info.tagged_mobs[target_id]
+	sel_default_aftercast(spell, spellMap, eventArgs)
+	if target_id and th_gated() and not was_tagged and not th_listed(spell) then
+		info.tagged_mobs[target_id] = nil
+	end
+end
+
+--A ranged attack against an untagged monster wears the TH set at precast.
+function user_post_precast(spell, spellMap, eventArgs)
+	if th_gated() and spell.action_type == 'Ranged Attack' and spell.target.type == 'MONSTER' and not info.tagged_mobs[spell.target.id] then
+		equip(sets.TreasureHunter)
+	end
+end
