@@ -30,6 +30,7 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
 - No Enspell gear that has to stay on while meleeing; only gear for the cast.
 - **(player)** Avoid Quick Magic pieces such as Impatiens and Perimede Cape. Witful Belt is the exception, because nothing else replaces its Fast Cast.
 - Inventory: at most 160 unique pieces across BLU and RDM, ideally about 140.
+- **(player, 2026-10-09)** Comments in `Vanar_Rdm_Gear.lua` and `Vanar_Blu_Gear.lua` state only a set's stats or effects, such as "FC 44, DT 49" or "Chain Affinity +50", kept short and on one line where possible. No bags or moves, no comparisons with rejected pieces, no rationale or history, no accuracy floor workings, no rank notes and no references to the notes.
 
 ## Ranks
 

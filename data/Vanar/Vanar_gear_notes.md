@@ -807,6 +807,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar owns four copies.
 - Vanar has no Monster Correlation merits: Physical Potency 5 and Magical Accuracy 5 (player, 2026-10-02) fill BLU Group 1's 10 levels ([Vanar's merits and skills](Vanar_notes.md#merits)).
+- Every copy carries "Efflux" TP bonus +250 in its base text. Vanar_Blu_Gear.lua's Efflux overlay names the Double Attack copy, as Mytha's names her Double Attack cape **(player, 2026-10-09)**.
 - Copy `'DEX+20','Accuracy+20 Attack+20','DEX+10','Crit.hit rate+10'`: it has no Resin (fifth) augment, so unlike the Double Attack copy it has no Damage taken-5%. ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:JSE_Capes))
 - Copy `'INT+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Mag.Atk.Bns."+10'`:
   - It has no Resin augment, and its Dye went to Magic Accuracy+10 instead of INT+10.
@@ -925,6 +926,11 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ## Legs
 
+### Assim. Shalwar +1
+
+- Its "Burst Affinity"+12 adds 0.12 to the WSC multiplier under Burst Affinity, with Hashi. Basmak +3's +21: 2.33 in place of 2 ([gear-notes.md](../../docs/gear-notes.md#assim-shalwar-1)). Vanar_Blu_Gear.lua wears it in the Burst Affinity overlay **(player, 2026-10-09: Mytha's buff-set pieces, in Vanar's tier)**, and for its Spell interruption rate down 20% in the magical SIRD set.
+- **(player, 2026-10-08)** It is moving from the Mog Case to a wardrobe.
+
 ### Atro. Tights +4
 
 - Its Enhancing magic skill +22 is the most of any legs Vanar owns. Carmine Cuisses +1 has +18, Portent Pants +15 and Rawhide Trousers +10 (help text, with augments from the [export](../export/Vanar%202026-10-01%2022-41-03.lua)).
@@ -957,6 +963,10 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's copy is rank 0 (player, 2026-10-02): no augments, only the base stats in its help text. The export prints no augments for it, not even `'Path: A'`.
 - Vanar's copy is rank 0, without the rank 30 augment (Attack+30, Subtle Blow +15, Accuracy and Magic Accuracy +15, Triple Attack +5%), so the sims overvalue it ([rank-augments.md](../../docs/rank-augments.md#gletis-breeches)).
+
+### Hashishin Tayt +3
+
+- Its "Efflux" TP Bonus +800 goes in the Efflux overlay with the Double Attack Rosmerta's Cape (+250). Vanar's BLU has every job point, so its Efflux category is at 20 (+200): an Efflux cast has 1000 + 800 + 250 + 200 = 2250 TP bonus ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#chain-affinity-burst-affinity-efflux-and-azure-lore)).
 
 ### Herculean Trousers
 
@@ -1035,6 +1045,11 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ## Feet
 
+### Assim. Charuqs +2
+
+- Its "Chain Affinity"+22 adds 22 to the base damage of every hit of a physical spell under Chain Affinity, past the spell's damage cap ([gear-notes.md](../../docs/gear-notes.md#assim-charuqs-2)). Vanar_Blu_Gear.lua wears it in the Chain Affinity overlay, Mytha's piece and tier **(player, 2026-10-09)**. Hashishin Kavuk +3's +28 is in the physical sets' head.
+- **(player, 2026-10-08)** It is moving from the Mog Case to a wardrobe.
+
 ### Bunzi's Sabots
 
 - Vanar's copy is rank 0 (player, 2026-10-02): no augments, only the base stats in its help text. The export prints no augments for it, not even `'Path: A'`.
@@ -1047,6 +1062,10 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's copy is rank 0 (player, 2026-10-02): no augments, only the base stats in its help text. The export prints no augments for it, not even `'Path: A'`.
 - Vanar's copy is rank 0, without the rank 30 augment (Attack+30, Evasion+15, Accuracy and Magic Accuracy +15, STR+5), so the sims overvalue it ([rank-augments.md](../../docs/rank-augments.md#gletis-boots)).
+
+### Hashi. Basmak +3
+
+- Its "Burst Affinity"+21 adds 0.21 to the WSC multiplier under Burst Affinity ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#chain-affinity-burst-affinity-efflux-and-azure-lore)). It is the magical sets' feet anyway, and the Burst Affinity overlay names it with Assim. Shalwar +1 (+12): 2.33 in all.
 
 ### Herculean Boots
 
