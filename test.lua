@@ -66,6 +66,7 @@ local function test_hold()
     coroutine.schedule(function()
         if token ~= test_token or not test_holding then return end
         test_release()
+        audit_cancel()
         notice('user file back on.')
         refresh_globals()
         -- GearSwap's own status_change trigger skips dead, engaged dead and event (2, 3 and 4).
@@ -85,6 +86,7 @@ local function test_phase(phase, spell, strip)
     end, nil, spell)
 end
 
+-- Returns true when the gear went on.
 function test_command(args)
     if gearswap_disabled and not test_holding then
         msg.addon_msg(123, 'Cannot test while the user file is disabled.')
@@ -116,7 +118,7 @@ function test_command(args)
         end, nil, set)
         notice('naked, then '..table.concat(args, ' ', 2))
         test_hold()
-        return
+        return true
     end
 
     local first = 1
@@ -151,4 +153,5 @@ function test_command(args)
         notice('['..spell.name..'] midcast')
     end
     test_hold()
+    return true
 end
