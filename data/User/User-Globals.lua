@@ -500,7 +500,7 @@ function th_action_check(category, param)
 
 	local resource = (category == 4 and res.spells) or (category == 3 and res.weapon_skills) or ((category == 6 or category == 14) and res.job_abilities)
 	local entry = resource and resource[param]
-	return entry ~= nil and TH_Whitelist:contains(entry.en)
+	return entry and TH_Whitelist:contains(entry.en) or false
 end
 
 --Sel's TH equips in default_post_precast (weaponskills, abilities) and general_post_midcast (spells) are
