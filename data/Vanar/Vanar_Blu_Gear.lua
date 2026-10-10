@@ -632,7 +632,7 @@ local unbridled_abort_said = nil
 --apart, and the spell is sent again 1.1 seconds after them. That second send always passes, whether or not
 --the abilities landed, so this never loops. Runs ahead of BLU.lua's own Unbridled check in job_filter_precast.
 function user_job_filter_precast(spell, spellMap, eventArgs)
-	if spell.type ~= 'BlueMagic' then return end
+	if spell.type ~= 'BlueMagic' or spell.test then return end
 	--Silenced, the spell would fail after its abilities went up and onto their recasts, so none is used.
 	if buffactive['Silence'] or buffactive['Mute'] or buffactive['Omerta'] then return end
 	--Under Amnesia or Impairment the abilities themselves fail. A Chain Affinity spell without Chain Affinity up

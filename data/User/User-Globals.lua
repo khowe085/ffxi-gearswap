@@ -94,7 +94,8 @@ end
 
 --Runs ahead of every other precast filter, so a dropped press never swaps into the weaponskill set.
 function user_filter_precast(spell, spellMap, eventArgs)
-	if spell.type ~= 'WeaponSkill' then return end
+	--gs test flags spell.test: it only wants the gear, and the TP check would leave nothing but the weapons on.
+	if spell.type ~= 'WeaponSkill' or spell.test then return end
 
 	--A lapsed lock means the second send never made it back here, and its token must not wave a much later press through.
 	if os.clock() >= ws_buff_lock then ws_buff_refire = nil end
@@ -117,7 +118,7 @@ end
 
 --Runs after Sel's own precast filters, so the buff is never used for a weaponskill they would refuse.
 function user_precast(spell, spellMap, eventArgs)
-	if spell.type ~= 'WeaponSkill' or not state.AutoWSBuff.value or eventArgs.ws_buff_refiring then return end
+	if spell.type ~= 'WeaponSkill' or spell.test or not state.AutoWSBuff.value or eventArgs.ws_buff_refiring then return end
 	if silent_check_amnesia() then return end
 	--WAR.lua pops Warcry and re-sends the weaponskill itself under AutoBuffMode; the lock below would drop that re-send.
 	if player.main_job == 'WAR' and state.AutoBuffMode.value ~= 'Off' then return end
@@ -534,4 +535,12 @@ function user_post_precast(spell, spellMap, eventArgs)
 	if th_gated() and spell.action_type == 'Ranged Attack' and spell.target.type == 'MONSTER' and not info.tagged_mobs[spell.target.id] then
 		equip(sets.TreasureHunter)
 	end
+end
+
+--gs test (spell.test) wants only the gear. Sel's precast checks can cancel a test and queue the action to cast once
+--a recast or a move ends, which the test's silenced input can't stop, so they're skipped for it.
+local sel_filter_precast = filter_precast
+function filter_precast(spell, spellMap, eventArgs)
+	if spell.test then return end
+	return sel_filter_precast(spell, spellMap, eventArgs)
 end

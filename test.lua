@@ -19,6 +19,9 @@ local weapon_slots = {main = true, sub = true, range = true}
 -- test_holding marks the file as switched off by a test rather than by the player.
 local test_token, test_holding = 0, false
 
+-- True while a test phase runs the user file's hooks. send_cmd_user drops the file's commands while it is set.
+test_silenced = false
+
 local function notice(text)
     msg.addon_msg(123, 'Test: '..text)
 end
@@ -34,6 +37,11 @@ local function test_action(name)
             r_line.name = r_line[language]
             local spell = spell_complete(r_line)
             spell.target = target_complete(windower.ffxi.get_mob_by_target('t') or windower.ffxi.get_mob_by_target('me'))
+            -- A spell that can't be aimed at a monster is tested on the player, as it would be cast. Aimed at the
+            -- monster, a file that corrects targets (Sel's AdjustTargets) would cancel it and cast it for real.
+            if spell.target.type == 'MONSTER' and not (spell.targets and spell.targets.Enemy) then
+                spell.target = target_complete(windower.ffxi.get_mob_by_target('me'))
+            end
             spell.target.raw = spell.target.type == 'SELF' and '<me>' or '<t>'
             spell.action_type = action_type_map[prefix]
             spell.test = true
@@ -77,12 +85,21 @@ end
 
 -- One phase of the action, run as GearSwap runs that event, so a phase check in the hook sees the phase it
 -- expects. strip names the slots to empty first; the hook's own equip calls land over them.
+-- The hooks run with the file's chat input and commands silenced, so nothing a framework or job file sends in
+-- response (an ability it uses first, a corrected target, the action itself) reaches the game. Input it schedules
+-- during the phase is the silent stand-in, so that stays quiet too.
 local function test_phase(phase, spell, strip)
-    equip_sets(function()
+    local chat_input = windower.chat.input
+    windower.chat.input = function() end
+    test_silenced = true
+    local ok, err = pcall(equip_sets, function()
         _global.current_event = phase
         if strip then equip(strip) end
         user_pcall(phase, spell)
     end, nil, spell)
+    windower.chat.input = chat_input
+    test_silenced = false
+    if not ok then error(err, 0) end
 end
 
 function test_command(args)

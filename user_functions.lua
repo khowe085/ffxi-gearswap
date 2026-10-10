@@ -245,6 +245,7 @@ function print_set(set,title)
 end
 
 function send_cmd_user(command)
+    if test_silenced then return end
     if string.byte(1) ~= 0x40 then
         command='@'..command
     end
