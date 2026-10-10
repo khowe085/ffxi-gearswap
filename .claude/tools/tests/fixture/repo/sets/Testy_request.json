@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "character": "Testy",
+  "job": "BLU",
+  "export": "data/export/Testy 2026-01-02 08-00-00.lua",
+  "sets": {
+    "schemaVersion": 1,
+    "character": "Testy",
+    "job": "BLU",
+    "sets": [
+      { "name": "Idle", "slots": { "head": { "item": "Nyame Helm" }, "waist": { "item": "Rumination Sash" } } },
+      { "name": "Midcast", "base": "Idle", "slots": {} }
+    ]
+  },
+  "bags": ["wardrobe", "wardrobe2"],
+  "targets": { "Midcast": "Damage taken as low as it goes" }
+}

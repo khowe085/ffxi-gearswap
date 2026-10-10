@@ -40,6 +40,23 @@ static class Export
 		return Path.GetFullPath(given);
 	}
 
+	// The export a tool that checks sets reads: the one --export names, or the newest of the sets' character. An export
+	// of another character stops the tool.
+	public static string ForSets(Arguments cli, string character)
+	{
+		var path = cli.Option("--export") is null ? Latest(character) : Resolve(cli);
+		RequireOwner(path, character);
+		return path;
+	}
+
+	// Stops unless the export at path is character's.
+	public static void RequireOwner(string path, string character)
+	{
+		var owner = CharacterOf(path);
+		if (owner.Equals(character, StringComparison.OrdinalIgnoreCase) is false)
+			Tool.Fail($"{Path.GetFileName(path)} is {owner}'s export, and the sets are {character}'s.");
+	}
+
 	// The newest export, by the time in its file name. //gs export has written both "Vanar 2026-10-01 20-15-33.lua"
 	// and "Vanar_2026-09-27_18-24-29.lua", so the names themselves don't sort by date.
 	public static string Latest(string? character)
@@ -70,8 +87,8 @@ static class Export
 	// As yyyy-MM-dd.
 	public static string DateOf(string exportPath) => NameOf(exportPath).Groups["stamp"].Value[..10];
 
-	// Every line of an export, bag by bag. With the Rahvin engine loaded, //gs export all writes one table for each
-	// bag and then one for each storage slip (slip1 to slip33), holding the items a porter moogle keeps on it.
+	// Every line of an export, bag by bag. This repo's GearSwap (export.lua) makes //gs export all write one table for
+	// each bag and then one for each storage slip (slip1 to slip33), holding the items a porter moogle keeps on it.
 	public static List<ExportItem> Read(string path)
 	{
 		var items = new List<ExportItem>();
@@ -153,7 +170,7 @@ sealed class ExportItem
 
 	public string Name { get; }
 
-	// As printed, in order. A job file names one copy of several by repeating this list exactly.
+	// As printed, in order. A set names one copy of several by repeating this list exactly.
 	public IReadOnlyList<string> Augments { get; }
 
 	public string AugmentText => string.Join(", ", Augments);

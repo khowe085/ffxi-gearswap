@@ -47,7 +47,7 @@ static class Tool
 
 	public static string InCache(params string[] parts) => Path.Combine([CacheDir, .. parts]);
 
-	// A path as the docs and the job files write it: relative to the repo, with forward slashes.
+	// A path as the docs write it: relative to the repo, with forward slashes.
 	public static string RepoRelative(string path) => Path.GetRelativePath(RepoRoot, path).Replace('\\', '/');
 
 	// A regular expression given on the command line, matched without regard to case. One that can't be read stops
@@ -90,7 +90,8 @@ sealed class Arguments
 {
 	public IReadOnlyList<string> Words { get; }
 
-	Dictionary<string, string> values;
+	// Every value an option was given, in order.
+	Dictionary<string, List<string>> values;
 	HashSet<string> flags;
 
 	// A name outside both lists stops the tool, and so does a word when the tool takes none, so a mistyped option
@@ -112,7 +113,9 @@ sealed class Arguments
 			{
 				if (i + 1 >= args.Length)
 					Tool.Fail($"{arg} needs a value.");
-				values[arg] = args[++i];
+				if (values.TryGetValue(arg, out var given) is false)
+					values[arg] = given = [];
+				given.Add(args[++i]);
 			}
 			else if (arg.StartsWith("--"))
 			{
@@ -130,7 +133,10 @@ sealed class Arguments
 		Words = words;
 	}
 
-	public string? Option(string name) => values.GetValueOrDefault(name);
+	// An option given more than once keeps its last value here. Options gives them all.
+	public string? Option(string name) => values.GetValueOrDefault(name)?[^1];
+
+	public IReadOnlyList<string> Options(string name) => values.GetValueOrDefault(name) ?? [];
 
 	public bool Flag(string name) => flags.Contains(name);
 }

@@ -9,17 +9,19 @@ using System.Text.RegularExpressions;
 
 namespace GearTools;
 
-// The characters with job files here, and where each one's own documents are. What holds for any character is under
-// docs/. What holds for one is beside that character's job files, linked from the gear list.
+// The characters here, and where each one's own documents are. What holds for any character is under docs/. What
+// holds for one is in that character's folder under data/, linked from the gear list.
 static class Characters
 {
+	// A character is a folder under data/ that holds its notes or its gear list. Folders of framework files alone, as
+	// data/User is, aren't characters.
 	public static IReadOnlyList<string> All()
 	{
 		var data = Tool.InRepo("data");
 		if (Directory.Exists(data) is false)
 			return [];
 		return Directory.GetDirectories(data)
-			.Where(folder => Directory.GetFiles(folder, "*.lua").Any(IsJobFile))
+			.Where(folder => File.Exists(Notes(Path.GetFileName(folder))) || File.Exists(GearList(Path.GetFileName(folder))))
 			.Select(folder => Path.GetFileName(folder))
 			.Order(StringComparer.Ordinal)
 			.ToList();
@@ -37,9 +39,7 @@ static class Characters
 			.FirstOrDefault(folder => folder.Equals(name, StringComparison.OrdinalIgnoreCase)) ?? name;
 	}
 
-	public static bool IsJobFile(string path) => Regex.IsMatch(Path.GetFileName(path), "^[A-Z]{3}\\.lua$");
-
-	// Every piece the job files wear and the sets that wear it. gear-list.cs checks it.
+	// Every piece the sets wear and the sets that wear it. gear-list.cs checks it.
 	public static string GearList(string character) => InFolder(character, "_gear_list.md");
 
 	// The player's rules, merits and the like, and the Ranks table rank-doc.cs reads.
