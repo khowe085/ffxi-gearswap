@@ -7,7 +7,7 @@ function character_user_job_setup()
 	state.PhysicalDefenseMode:options('PDT')
 	state.MagicalDefenseMode:options('MDT')
 	state.ResistDefenseMode:options('MEVA')
-	state.Weapons:options('Tizona','Tizona Acc','None','Almace','MeleeClubs','HybridWeapons','Savage Blade','Savage Blade Acc')
+	state.Weapons:options('Tizona','Tizona Acc','Almace','MeleeClubs','HybridWeapons','Savage Blade','Savage Blade Acc')
 
     state.ExtraMeleeMode = M{['description']='Extra Melee Mode','None','MP','SuppaBrutal','DWEarrings','DWMax'}
 
@@ -436,8 +436,8 @@ function init_gear_sets()
 	sets.Kiting = {legs="Carmine Cuisses +1"}	-- Movement speed 18%
 
     sets.Knockback = {}
-	-- Converts 2% of damage taken to MP
-    sets.MP = {waist="Flume Belt"}
+	-- Converts 2% of damage taken to MP, Refresh 4
+    sets.MP = {body="Hashishin Mintan +3",waist="Flume Belt"}
     sets.MP_Knockback = {}
 	sets.SuppaBrutal = {ear1="Brutal Earring"}
 	sets.DWEarrings = {}
@@ -456,8 +456,8 @@ function init_gear_sets()
 
 	sets.engaged = {main="Tizona",sub="Almace",ammo="Coiste Bodhar",
 			    head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Brutal Earring",ear2="Hashi. Earring +1",
-			    body="Hashishin Mintan +3",hands="Hashi. Bazu. +3",ring1="Lehko's Ring",ring2="Rajas Ring",
-			    back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Hashishin Tayt +3",feet="Nyame Sollerets"}
+			    body="Nyame Mail",hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Rajas Ring",
+			    back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
 
 	sets.engaged.AM = set_combine(sets.engaged, {back=gear.crit_jse_back,feet="Hashi. Basmak +3"})
 

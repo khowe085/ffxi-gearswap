@@ -9,7 +9,7 @@ function character_user_job_setup()
 	state.ResistDefenseMode:options('MEVA')
 	state.BuffWeaponsMode = M{'Always','Never'}
 	state.AutoBuffMode = M{['description'] = 'Auto Buff Mode','Off','Auto','AutoMelee','AutoMage'}
-	state.Weapons:options('None','Naegling','Maxentius','Crocea','Tauret','EnspellOnly','Savage Blade','Savage Blade Acc','Black Halo','DualCrocea','Black Halo Max Acc','DualPrime','DualAeolian','DualEnspellOnly','DualProcSword')
+	state.Weapons:options('Naegling','Maxentius','Crocea','Tauret','EnspellOnly','Savage Blade','Savage Blade Acc','Black Halo','DualCrocea','Black Halo Max Acc','DualPrime','DualAeolian','DualEnspellOnly','DualProcSword')
 	--Start with the weapons unlocked, so idle and casting sets can change main and sub out of combat. While engaged they stay put.
 	state.UnlockWeapons:set(true)
 
@@ -21,7 +21,7 @@ function character_user_job_setup()
 	state.WeaponSets:options('Default','Dual','Proc','Dynamis')
 
 	weapon_sets = {
-		['Default'] = {'None','Naegling','Maxentius','Crocea','Tauret','EnspellOnly'},
+		['Default'] = {'Naegling','Maxentius','Crocea','Tauret','EnspellOnly'},
 		['Dual'] = {'Savage Blade','Savage Blade Acc','Black Halo','DualCrocea','Black Halo Max Acc','DualPrime','DualAeolian','DualEnspellOnly'},
 		['Dynamis'] = {'DualCroceaSavageBlade','DualCrocea','DualTauretCrocea','DualAeolian'},
 		['Proc'] = {'ProcSword','ProcDagger','DualProcSword','DualProcDagger'},

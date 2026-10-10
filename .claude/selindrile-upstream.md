@@ -21,6 +21,7 @@ Branch `selindrile` holds a copy of https://github.com/Selindrile/GearSwap laid 
 Re-apply these after copying in an upstream version of the file, unless upstream has made the same fix.
 
 - `data/BLU.lua`: `'Orcish Counterstance'` → `'O. Counterstance'` in `blue_magic_maps.Buff` (Windower's resources name for spell 696).
+- `libs/Sel-Display.lua`: in `update_job_states`, the `Weapons` entry shows "Locked" (white) when `state.UnlockWeapons` is off, so the HUD always shows the weapon lock state; upstream shows only "Unlocked".
 
 ## Pulling in later upstream commits
 

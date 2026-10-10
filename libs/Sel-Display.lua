@@ -316,6 +316,8 @@ function update_job_states()
 		elseif n == 'Weapons' then
 			if state.UnlockWeapons.value then
 				stateBox:append(string.format("%sUnlocked ", display.colors.LightBlue))
+			else
+				stateBox:append(string.format("%sLocked ", display.colors.White))
 			end
 			
 			if state.WeaponSets.value ~= 'Default' and state.WeaponSets.value ~= 'None' then
