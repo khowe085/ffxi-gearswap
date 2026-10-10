@@ -63,7 +63,7 @@ The three files also bind `@F8` to AutoNukeMode, which is the same as the global
 | Capacity, NotifyBuffs, SelectNPCTargets, WakeUpWeapons, ElementalWheel | off, on | Capacity cape on; tell the party about buffs in `NotifyBuffs`; let `<st>` targeting pick NPCs; hold `sets.WakeUpWeapons` while asleep; move ElementalMode on after each nuke |
 | AutoRuneMode | Off, Runes, Full | RUN or /RUN: keeps runes up |
 | AutoSambaMode | Off, Haste Samba, Aspir Samba, Drain Samba II | DNC or /DNC: keeps the chosen samba up |
-| MagicBurstMode, SkillchainMode | Off, Single, Lock | Wears the magic burst or skillchain set for the next action (Single) or until turned off (Lock) |
+| MagicBurstMode, SkillchainMode | Off, Single, Lock | Wears the magic burst or skillchain set for the next action (Single) or until turned off (Lock). A nuke inside a detected skillchain window, of a matching element, wears the burst set on its own |
 | RecoverMode | 35%, 60%, Always, Never | Nukes wear the MP-recovery set below that MP |
 | ElementalMode | Fire, Ice, Wind, Earth, Lightning, Water, Light, Dark | Element used by the element-picking nuke and ninjutsu commands |
 | RuneElement | Ignis, Gelus, Flabra, Tellus, Sulpor, Unda, Lux, Tenebrae | Rune AutoRuneMode keeps up |
