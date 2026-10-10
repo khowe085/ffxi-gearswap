@@ -11,8 +11,9 @@ namespace GearTools;
 
 // A set's stat totals, read from each piece's help text and its copy's augments, as set-stats.cs prints them. It
 // reads what the text says the wearer always has: a pet's, a set bonus's, a latent effect's and the like are dropped.
-// What the text hides (docs/gear-notes.md) and a path piece's augments at the character's rank come from the caller,
-// as extra stats by item. The numbers are a sum, not the game's caps or formulas; docs/ffxi-mechanics.md has those.
+// A path piece's augments at the character's rank come from the character's rank file, and what the text hides
+// (docs/gear-notes.md) from the caller, as extra stats by item. The numbers are a sum, not the game's caps or formulas;
+// docs/ffxi-mechanics.md has those.
 sealed class StatBook
 {
 	// The order Describe lists the stats in. A stat outside it comes after, by name.
@@ -25,6 +26,8 @@ sealed class StatBook
 	Resources resources;
 	IReadOnlyList<ExportItem> owned;
 	Dictionary<string, Dictionary<string, int>> extra;
+	// Null when the caller gives no rank file.
+	IReadOnlyDictionary<string, RankedCopy>? ranks;
 
 	static StatBook()
 	{
@@ -47,6 +50,7 @@ sealed class StatBook
 			("Acc.+", "Accuracy+"), ("Atk.+", "Attack+"),
 			("\"Dbl.Atk.\"", "\"Double Attack\""), ("Crit.hit rate", "Critical hit rate"),
 			("Enfb.mag. skill", "Enfeebling magic skill"), ("Enha.mag. skill", "Enhancing magic skill"),
+			("Enfb. mag. skill", "Enfeebling magic skill"), ("Enha. mag. skill", "Enhancing magic skill"),
 			("Elem. magic skill", "Elemental magic skill"), ("Enh. Mag. eff. dur.", "AUGENHDUR"),
 		];
 		// In this order: each match is blanked out before the next rule runs, so "Magic Accuracy+" is never counted
@@ -58,18 +62,20 @@ sealed class StatBook
 			(@"Magic Accuracy\s*\+(\d+)", "Macc"), (@"Magic Damage taken\s*-(\d+)%", "MDT"), (@"Physical [Dd]amage taken\s*-(\d+)%", "PDT"),
 			(@"Phys\. dmg\. taken -(\d+)%", "PDT"), (@"Damage taken\s*-(\d+)%", "DT"), (@"Magic Damage\s*\+(\d+)", "MDmg"),
 			(@"Magic Evasion\s*\+(\d+)", "MEva"), (@"Evasion\s*\+(\d+)", "Eva"), (@"MDB\s*\+(\d+)", "MDB"), (@"MAB\s*\+(\d+)", "MAB"),
-			(@"Accuracy\s*\+(\d+)", "Acc"), (@"Attack\s*\+(\d+)", "Att"), (@"""Fast Cast""\s*\+(\d+)%?", "FC"), (@"Haste\s*\+(\d+)%?", "Haste"),
+			(@"Accuracy\s*\+(\d+)", "Acc"),
+			// The rank file writes it unquoted, which the Attack rule after it would read as Attack.
+			(@"\bDouble Attack\s*\+(\d+)%?", "DA"), (@"Attack\s*\+(\d+)", "Att"), (@"""Fast Cast""\s*\+(\d+)%?", "FC"), (@"Haste\s*\+(\d+)%?", "Haste"),
 			(@"""Cure"" potency II \+(\d+)%", "CureII"), (@"""Cure"" potency \+(\d+)%", "Cure"), (@"""Cure"" spellcasting time -(\d+)%", "CureCast"),
 			(@"Enhancing magic skill \+(\d+)", "EnhSkill"), (@"Enfeebling magic skill \+(\d+)", "EnfSkill"), (@"Elemental magic skill \+(\d+)", "ElemSkill"),
 			(@"Dark magic skill \+(\d+)", "DarkSkill"), (@"Healing magic skill \+(\d+)", "HealSkill"), (@"Blue [Mm]agic skill \+(\d+)", "BlueSkill"),
 			(@"All magic skills \+(\d+)", "AllSkill"), (@"Sword skill \+(\d+)", "SwordSkill"), (@"Club skill \+(\d+)", ""), (@"Dagger skill \+(\d+)", ""),
-			(@"Enhancing magic duration \+(\d+)%", "EnhDur"), (@"AUGENHDUR \+(\d+)", "AugEnhDur"), (@"Enfeebling magic duration \+(\d+)%", "EnfDur"),
+			(@"Enhancing magic effect duration \+(\d+)%", "EnhDur"), (@"Enfeebling magic effect duration \+(\d+)%", "EnfDur"), (@"Enhancing magic duration \+(\d+)%", "EnhDur"), (@"AUGENHDUR \+(\d+)", "AugEnhDur"), (@"Enfeebling magic duration \+(\d+)%", "EnfDur"),
 			(@"Enfeebling [Mm]agic effect \+(\d+)", "EnfEffect"), (@"Enfeebling magic casting time -(\d+)%", "EnfCast"), (@"Weapon [Ss]kill [Dd]amage\s*\+(\d+)%", "WSD"),
-			(@"""Double Attack""\s*\+(\d+)%?", "DA"), (@"""Triple Attack""\s*\+(\d+)%?", "TA"), (@"""Store TP""\s*-(\d+)", "-STP"), (@"""Store TP""\s*\+(\d+)", "STP"),
+			(@"""Double Attack""\s*\+(\d+)%?", "DA"), (@"""Triple Attack""\s*\+(\d+)%?", "TA"), (@"""Store TP""\s*-(\d+)", "-STP"), (@"""Store TP""\s*\+(\d+)", "STP"), (@"\bStore TP \+(\d+)", "STP"),
 			(@"Critical hit rate\s*\+(\d+)%?", "Crit"), (@"Physical damage limit\s*\+(\d+)%", "PDL"), (@"""Refresh"" potency \+(\d+)", "RefreshPot"),
 			// "Refesh" is how one item's help text spells it.
 			(@"""Refresh""\s*\+(\d+)", "Refresh"), (@"""Refesh""\s*\+(\d+)", "Refresh"), (@"""Regen"" potency\s*\+(\d+)", "RegenPot"), (@"Magic burst damage II \+(\d+)", "MBD2"),
-			(@"Magic burst damage\s*\+(\d+)", "MBD"), (@"Spell interruption rate down (\d+)%", "SIRD"), (@"""Aquaveil""\s*\+(\d+)", "Aquaveil"),
+			(@"Magic burst damage\s*\+(\d+)", "MBD"), (@"Spell interruption rate down (\d+)%", "SIRD"), (@"Spell [Ii]nterruption [Rr]ate -(\d+)%", "SIRD"), (@"""Aquaveil""\s*\+(\d+)", "Aquaveil"),
 			(@"""Stoneskin""\s*\+(\d+)", "Stoneskin"), (@"""Treasure Hunter""\s*\+(\d+)", "TH"), (@"""Dual Wield""\s*\+(\d+)", "DW"),
 			(@"Blue magic spellcasting time -(\d+)%", "BMCast"), (@"Blue magic recast delay -(\d+)%", "BMRecast"), (@"Breath Damage dealt\s*\+(\d+)%", "BreathDmg"),
 			(@"TP Bonus \+(\d+)", "TPBonus"), (@"""Subtle Blow""\s*\+(\d+)", "SB"), (@"""Gain"" magic effects \+(\d+)", "Gain"),
@@ -83,12 +89,14 @@ sealed class StatBook
 	}
 
 	// owned: the export, for the augments of the copy each piece means. extra: stats to add for an item, by the name
-	// the export prints.
-	public StatBook(Resources resources, IReadOnlyList<ExportItem> owned, IReadOnlyDictionary<string, Dictionary<string, int>> extra)
+	// the export prints. ranks: the character's rank file (RankAugments.Read).
+	public StatBook(Resources resources, IReadOnlyList<ExportItem> owned, IReadOnlyDictionary<string, Dictionary<string, int>> extra,
+		IReadOnlyDictionary<string, RankedCopy>? ranks = null)
 	{
 		this.resources = resources;
 		this.owned = owned;
 		this.extra = new Dictionary<string, Dictionary<string, int>>(extra, StringComparer.OrdinalIgnoreCase);
+		this.ranks = ranks;
 	}
 
 	// A set's slots, resolved over their bases (Dto.Resolve). An empty slot, or an item the resources don't know,
@@ -133,6 +141,30 @@ sealed class StatBook
 				foreach (var (stat, value) in Parse(augment))
 					Add(stat, value);
 			}
+			// The export prints a ranked copy's path but never its rank, so what the rank adds comes from the rank file.
+			// A copy printed with no path can still be the row's: rank-doc.cs writes a rank the player has given since.
+			var printedPath = copy?.Augments.FirstOrDefault(augment => augment.StartsWith("Path: "));
+			RankedCopy? ranked = null;
+			if (copy is not null && ranks is not null && ranks.TryGetValue(info.Name, out var row))
+				ranked = row;
+			else if (copy is not null && ranks is not null && printedPath is not null)
+				warnings?.Add($"{slot}: \"{piece.Item}\" prints path {printedPath["Path: ".Length..]}, and the rank file has no row for it, so its rank augments are missing");
+			if (ranked is { MaxRank: not null })
+			{
+				foreach (var (stat, value) in OboroAugments(slot, piece.Item, ranked, warnings))
+					Add(stat, value);
+			}
+			else if (ranked is not null && printedPath is not null && printedPath != $"Path: {ranked.Path}")
+			{
+				warnings?.Add($"{slot}: \"{piece.Item}\" prints path {printedPath["Path: ".Length..]}, but the rank file gives path {ranked.Path}; run rank-doc.cs, since its rank augments are missing");
+			}
+			else if (ranked is not null)
+			{
+				if (ranked.Rank == "unknown")
+					warnings?.Add($"{slot}: \"{piece.Item}\" is path {ranked.Path} at a rank the player hasn't given, so its rank augments are missing");
+				foreach (var (stat, value) in Parse(ranked.Augments))
+					Add(stat, value);
+			}
 			foreach (var (stat, value) in extra.GetValueOrDefault(info.Name) ?? [])
 				Add(stat, value);
 			// A weapon's magic accuracy skill counts from the main hand only.
@@ -144,6 +176,27 @@ sealed class StatBook
 		foreach (var (stat, value) in SetBonuses(worn))
 			Add(stat, value);
 		return total.Where(stat => stat.Value != 0).ToDictionary();
+	}
+
+	// An item Oboro ranks up: bg-wiki gives its augments at maximum rank only, so they count at that rank and are
+	// missing below it. An Ultimate Weapon's, written after "Main hand:", work in the main hand only.
+	static IEnumerable<(string Stat, int Value)> OboroAugments(string slot, string item, RankedCopy ranked, List<string>? warnings)
+	{
+		if (ranked.Rank == "0")
+			return [];
+		if (ranked.Rank == "unknown")
+		{
+			warnings?.Add($"{slot}: \"{item}\" is ranked by Oboro at a rank the player hasn't given, so its augments are missing");
+			return [];
+		}
+		if (ranked.Rank != ranked.MaxRank)
+		{
+			warnings?.Add($"{slot}: \"{item}\" is rank {ranked.Rank} of {ranked.MaxRank}, and its augments are known at rank {ranked.MaxRank} only, so they're missing");
+			return [];
+		}
+		if (ranked.Augments.StartsWith("Main hand:"))
+			return slot == "main" ? Parse(ranked.Augments["Main hand:".Length..], sharedValues: true) : [];
+		return Parse(ranked.Augments, sharedValues: true);
 	}
 
 	// The set bonuses counted, by the names the export prints. The help text names a set bonus only as "Set:", so the
@@ -181,11 +234,15 @@ sealed class StatBook
 		.ThenBy(stat => stat, StringComparer.Ordinal)
 		.Select(stat => $"{stat} {totals[stat]}"));
 
-	public static Dictionary<string, int> Read(string text) => Parse(text).GroupBy(stat => stat.Stat).ToDictionary(group => group.Key, group => group.Sum(stat => stat.Value));
+	public static Dictionary<string, int> Read(string text, bool sharedValues = false) => Parse(text, sharedValues).GroupBy(stat => stat.Stat).ToDictionary(group => group.Key, group => group.Sum(stat => stat.Value));
 
-	static IEnumerable<(string Stat, int Value)> Parse(string text)
+	// sharedValues: the text is docs/rank-augments.md's, which writes two stats that share a value as "INT and MND +12".
+	static IEnumerable<(string Stat, int Value)> Parse(string text, bool sharedValues = false)
 	{
 		var work = conditional.Replace(text, "").Replace("Right ear:", "");
+		// Help text says "HP and MP recovered while healing +2" of one stat, so only that text is read this way.
+		if (sharedValues)
+			work = Regex.Replace(work, @"\b(\w[\w. ]*?) and (\w[\w. ]*?) \+(\d+)", "$1 +$3 $2 +$3");
 		foreach (var (from, to) in abbreviations)
 			work = work.Replace(from, to);
 		foreach (var (pattern, stat) in rules)

@@ -687,6 +687,130 @@ Test("StatBook totals a set's stats from the help text, the copy's augments and 
 	Equal("", StatBook.Describe(book.Totals(new Dictionary<string, PieceDto> { ["head"] = new PieceDto { Item = Dto.Empty } })));
 });
 
+Test("StatBook adds a path item's augments at the character's rank, from the rank file, to the copy on that path", () =>
+{
+	var ranks = RankAugments.Read(Characters.RankAugments("Testy"));
+	var helm = new Dictionary<string, PieceDto> { ["head"] = new PieceDto { Item = "Nyame Helm" } };
+	ExportItem[] onPath = [new("wardrobe", "head", "Nyame Helm", ["Path: B"])];
+	var unranked = new StatBook(Resources.Load(), onPath, new Dictionary<string, Dictionary<string, int>>()).Totals(helm);
+	// Testy's Nyame Helm is path B, rank 2: Attack+4 Rng. Atk.+4, Weapon skill damage +1%.
+	var ranked = new StatBook(Resources.Load(), onPath, new Dictionary<string, Dictionary<string, int>>(), ranks).Totals(helm);
+	Equal(unranked["Att"] + 4, ranked["Att"]);
+	Equal(unranked.GetValueOrDefault("WSD") + 1, ranked["WSD"]);
+	// The export can print a copy with no augments after the player has given its rank; rank-doc.cs writes that row
+	// with the given path and rank, so the row is the copy's.
+	ExportItem[] bare = [new("wardrobe", "head", "Nyame Helm", [])];
+	Equal(StatBook.Describe(ranked), StatBook.Describe(new StatBook(Resources.Load(), bare, new Dictionary<string, Dictionary<string, int>>(), ranks).Totals(helm)));
+	// A copy printed on another path isn't the row's.
+	ExportItem[] otherPath = [new("wardrobe", "head", "Nyame Helm", ["Path: A"])];
+	Equal(StatBook.Describe(unranked), StatBook.Describe(new StatBook(Resources.Load(), otherPath, new Dictionary<string, Dictionary<string, int>>(), ranks).Totals(helm)));
+});
+
+Test("StatBook warns of a path copy whose rank the player hasn't given, and not of an unranked piece", () =>
+{
+	var ranks = RankAugments.Read(Characters.RankAugments("Testy"));
+	ExportItem[] owned = [new("wardrobe", "ammo", "Coiste Bodhar", ["Path: A"]), new("wardrobe", "waist", "Eschan Stone", [])];
+	var warnings = new List<string>();
+	new StatBook(Resources.Load(), owned, new Dictionary<string, Dictionary<string, int>>(), ranks).Totals(new Dictionary<string, PieceDto>
+	{
+		["ammo"] = new PieceDto { Item = "Coiste Bodhar" },
+		["waist"] = new PieceDto { Item = "Eschan Stone" },
+	}, warnings);
+	Equal("ammo: \"Coiste Bodhar\" is path A at a rank the player hasn't given, so its rank augments are missing", string.Join("\n", warnings));
+});
+
+Test("StatBook warns of a path copy the rank file has no row for, when it is given a rank file", () =>
+{
+	ExportItem[] owned = [new("wardrobe", "ammo", "Coiste Bodhar", ["Path: A"])];
+	var ammo = new Dictionary<string, PieceDto> { ["ammo"] = new PieceDto { Item = "Coiste Bodhar" } };
+	var warnings = new List<string>();
+	new StatBook(Resources.Load(), owned, new Dictionary<string, Dictionary<string, int>>(), new Dictionary<string, RankedCopy>()).Totals(ammo, warnings);
+	Equal("ammo: \"Coiste Bodhar\" prints path A, and the rank file has no row for it, so its rank augments are missing", string.Join("\n", warnings));
+	// A caller that gives no rank file counts no rank augments, and isn't told so piece by piece.
+	var none = new List<string>();
+	new StatBook(Resources.Load(), owned, new Dictionary<string, Dictionary<string, int>>()).Totals(ammo, none);
+	Equal(0, none.Count);
+});
+
+Test("StatBook warns when the copy prints another path than the rank file's row, so rank-doc.cs is out of date", () =>
+{
+	var ranks = RankAugments.Read(Characters.RankAugments("Testy"));
+	// Testy's rank file has Eschan Stone as path none, rank 0.
+	ExportItem[] owned = [new("wardrobe", "waist", "Eschan Stone", ["Path: A"])];
+	var warnings = new List<string>();
+	new StatBook(Resources.Load(), owned, new Dictionary<string, Dictionary<string, int>>(), ranks)
+		.Totals(new Dictionary<string, PieceDto> { ["waist"] = new PieceDto { Item = "Eschan Stone" } }, warnings);
+	Equal("waist: \"Eschan Stone\" prints path A, but the rank file gives path none; run rank-doc.cs, since its rank augments are missing", string.Join("\n", warnings));
+});
+
+Test("StatBook counts an item Oboro ranks up at its maximum rank, from docs/rank-augments.md, and warns below it", () =>
+{
+	var file = Path.Combine(workDir, "Oboro_rank_augments.md");
+	File.WriteAllText(file, string.Join("\n",
+		"| Item | Slot | Path | Rank | Given | Augments at that rank |",
+		"|---|---|---|---|---|---|",
+		"",
+		"## Items Oboro ranks up",
+		"",
+		"| Item | Slot | Max rank | Oboro's copy |",
+		"|---|---|---|---|",
+		"| Dls. Torque +1 | neck | 20 | `'Path: A'`, rank 20 (2026-01-02) |",
+		"| Mirage Stole +2 | neck | 25 | `'Path: A'`, rank 20 (2026-01-02) |",
+		"| Tizona | main | 15 | `'Path: A'` (so Level 119 III), rank 15 (2026-01-02) |",
+		"| Almace | main | 15 | no augments: rank 0, stage unknown |",
+		""));
+	var ranks = RankAugments.Read(file, Path.Combine(pristine.Repo, "docs", "rank-augments.md"));
+	ExportItem[] owned =
+	[
+		new("wardrobe", "neck", "Dls. Torque +1", ["Path: A"]), new("wardrobe", "neck", "Mirage Stole +2", ["Path: A"]),
+		new("wardrobe", "main", "Tizona", ["Path: A"]), new("wardrobe", "main", "Almace", []),
+	];
+	var none = new Dictionary<string, Dictionary<string, int>>();
+	(Dictionary<string, int> Totals, string Warnings) Wear(string slot, string item)
+	{
+		var piece = new Dictionary<string, PieceDto> { [slot] = new PieceDto { Item = item } };
+		var bare = new StatBook(Resources.Load(), owned, none).Totals(piece);
+		var warnings = new List<string>();
+		var ranked = new StatBook(Resources.Load(), owned, none, ranks).Totals(piece, warnings);
+		var added = ranked.Keys.Union(bare.Keys).Where(stat => ranked.GetValueOrDefault(stat) != bare.GetValueOrDefault(stat))
+			.ToDictionary(stat => stat, stat => ranked.GetValueOrDefault(stat) - bare.GetValueOrDefault(stat));
+		return (added, string.Join("\n", warnings));
+	}
+	// At its maximum rank, bg-wiki's augments are the copy's.
+	Equal("EnhDur 20, EnfDur 20, INT 12, MND 12 | ", $"{StatBook.Describe(Wear("neck", "Dls. Torque +1").Totals)} | {Wear("neck", "Dls. Torque +1").Warnings}");
+	// Below it, they aren't known.
+	Equal(" | neck: \"Mirage Stole +2\" is rank 20 of 25, and its augments are known at rank 25 only, so they're missing",
+		$"{StatBook.Describe(Wear("neck", "Mirage Stole +2").Totals)} | {Wear("neck", "Mirage Stole +2").Warnings}");
+	// An Ultimate Weapon's augments work in the main hand only.
+	Equal("Acc 30, Macc 30 | ", $"{StatBook.Describe(Wear("main", "Tizona").Totals)} | {Wear("main", "Tizona").Warnings}");
+	Equal(" | ", $"{StatBook.Describe(Wear("sub", "Tizona").Totals)} | {Wear("sub", "Tizona").Warnings}");
+	// A copy that exports with no augments is rank 0.
+	Equal(" | ", $"{StatBook.Describe(Wear("main", "Almace").Totals)} | {Wear("main", "Almace").Warnings}");
+});
+
+Test("StatBook reads \"X and Y +N\" as two stats only in docs/rank-augments.md's text, not in help text", () =>
+{
+	// Seven items' help text says "HP and MP recovered while healing +2", which gives no HP.
+	Equal("", StatBook.Describe(StatBook.Read("HP and MP recovered while healing +2")));
+});
+
+Test("StatBook reads the augments as docs/rank-augments.md writes them at an Oboro item's maximum rank", () =>
+{
+	string Read(string text) => StatBook.Describe(StatBook.Read(text, sharedValues: true));
+	Equal("EnhDur 20, EnfDur 20, INT 12, MND 12", Read("INT and MND +12, Enhancing magic effect duration +20%, Enfeebling magic effect duration +20%"));
+	Equal("STP 7, Crit 5, STR 25, DEX 25", Read("STR and DEX +25, Store TP +7, Critical hit rate +5%"));
+	Equal("Acc 30, Macc 30", Read("DMG +38, Accuracy and Magic Accuracy +30, Sword enhancement spell damage +150% (its own enspell damage only)"));
+});
+Test("StatBook reads the augments as the rank file writes them", () =>
+{
+	string Read(string text) => StatBook.Describe(StatBook.Read(text));
+	Equal("Acc 15, Macc 15, EnhSkill 10", Read("Accuracy+15, Mag. Acc.+15, Enha. mag. skill +10"));
+	Equal("Macc 15, EnfSkill 2", Read("Mag. Acc.+15, Enfb. mag. skill +2"));
+	Equal("DA 5, STR 14", Read("STR+14, Double Attack +5%"));
+	Equal("FC 8, SIRD 3", Read("\"Fast Cast\" +8%, Spell Interruption Rate -3%"));
+	Equal("Att 25, WSD 10, DA 3", Read("Attack+25 Rng. Atk.+25, Weapon skill damage +10%, \"Double Attack\"+3%"));
+});
+
 Test("StatBook counts the set bonuses docs/gear-notes.md gives, by the pieces worn", () =>
 {
 	string Bonus(params string[] pieces) => StatBook.Describe(StatBook.SetBonuses(pieces));
@@ -795,6 +919,30 @@ Test("set-stats prints each set's totals, laid over its base, with the values a 
 	Equal(16, parsed.RootElement[0].GetProperty("stats").GetProperty("FC").GetInt32());
 	Stops(pristine.Run("set-stats"), "Name the sets file: --in <sets.json>");
 	Stops(pristine.Run("set-stats", "--in", "sets/Testy_RDM.json", "--extra", Path.Combine(workDir, "no-such-extra.json")), "No stats file at ");
+});
+
+Test("set-stats adds what the character's rank file gives, and warns of a rank the player hasn't given", () =>
+{
+	var sets = Dto.ReadSets(Path.Combine(pristine.Repo, "sets", "Testy_RDM.json"));
+	var unranked = new StatBook(Resources.Load(), Export.Read(Export.Latest(null)), new Dictionary<string, Dictionary<string, int>>())
+		.Totals(Dto.Resolve(sets, "Midcast.Enfeebling"));
+	EnfSkill(pristine, unranked.GetValueOrDefault("EnfSkill") + 5);
+	var ws = pristine.Run("set-stats", "--in", "sets/Testy_RDM.json", "--set", "^WS$");
+	Contains(ws.Output, "  warn  WS ammo: \"Coiste Bodhar\" is path A at a rank the player hasn't given, so its rank augments are missing");
+	// A character with no rank file gets the totals without it.
+	var sandbox = NewSandbox();
+	File.Delete(Path.Combine(sandbox.Repo, "data", "Testy", "Testy_rank_augments.md"));
+	EnfSkill(sandbox, unranked.GetValueOrDefault("EnfSkill"));
+
+	void EnfSkill(Sandbox where, int expected)
+	{
+		var run = where.Run("set-stats", "--in", "sets/Testy_RDM.json", "--set", "^Midcast.Enfeebling$", "--json");
+		Equal(0, run.ExitCode);
+		using var parsed = JsonDocument.Parse(run.StandardOutput);
+		// A stat that totals 0 is left out.
+		var stats = parsed.RootElement[0].GetProperty("stats");
+		Equal(expected, stats.TryGetProperty("EnfSkill", out var skill) ? skill.GetInt32() : 0);
+	}
 });
 
 Test("Characters finds each folder that holds a character's notes or gear list, and names its documents", () =>

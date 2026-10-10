@@ -80,7 +80,7 @@ dotnet run --no-cache .claude/tools/owned-gear.cs -- --job RDM --slot legs --set
 | `fetch-sources.cs` | Fill `.claude/cache/` when another tool says it is empty. |
 | `owned-gear.cs` | See what a slot can choose from: every owned piece the job can wear, with bag and help text, and with `--sets` the sets that already wear it. `--grep` searches the help text, `--json` feeds a script. |
 | `check-export.cs` | Check a sets file against the export: each piece a real item, owned with those augments, wearable by the job, right for the slot, and in a bag GearSwap can equip from. Pass the request's `bags` as `--bags`. |
-| `set-stats.cs` | Total each set's stats over its base. Give it what the help text hides with `--extra`: the values from `docs/gear-notes.md` and path pieces at the character's rank. The totals behind every shortfall come from here. |
+| `set-stats.cs` | Total each set's stats over its base. It adds path pieces at the character's rank from the character's rank augments file itself, and an item Oboro ranks up at its maximum rank, so don't give those again. Give it what the help text hides with `--extra`: the values from `docs/gear-notes.md`. A path piece it warns of has no rank to count: ask the player for it. The totals behind every shortfall come from here. |
 | `check-blu-spells.cs` | Check a BLU sets file's spell lists after moving a spell between them. |
 | `gear-list.cs` | Check the gear list against the sets files, one `--in` for each job. `--print` gives the table the sets call for. |
 | `sims.cs` | Read bg-wiki's simulated sets for a job as a starting point, with what the character owns marked. |
