@@ -36,7 +36,6 @@ function character_user_job_setup()
 	send_command('bind @backspace input /ja "Convergence" <me>')
 	send_command('bind @f10 gs c toggle LearningMode')
 	send_command('bind ^@!` gs c cycle MagicBurstMode')
-	send_command('bind @f8 gs c toggle AutoNukeMode')
 
 	select_default_macro_book()
 	queue_azure_set(5)

@@ -65,7 +65,6 @@ function character_user_job_setup()
 	send_command('bind ^\\\\ input /ma "Protect V" <t>')
 	send_command('bind @\\\\ input /ma "Shell V" <t>')
 	send_command('bind !\\\\ input /ma "Reraise III" <me>')
-	send_command('bind @f8 gs c toggle AutoNukeMode')
 	send_command('bind @f10 gs c cycle RecoverMode')
 	
 	select_default_macro_book()
