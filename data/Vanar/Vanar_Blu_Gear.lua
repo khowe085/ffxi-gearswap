@@ -529,12 +529,48 @@ local Diffusion_Spells = S{'Mighty Guard','Harden Shell'}
 --Dropped unless Chain Affinity is up or ready; Efflux goes up first when it is ready.
 local Chain_Affinity_Spells = S{'Sinker Drill'}
 
---The resent spell, which passes untouched, and the os.clock() time until which other blue magic is dropped.
-local blu_refire, blu_lock_until = nil, 0
+--The resent spell, which passes untouched until the os.clock() time blu_refire_until.
+local blu_refire, blu_refire_until = nil, 0
+--The abilities still to use before the spell is resent; other blue magic is dropped while it is set.
+local blu_chain = nil
 --Last time Unbridled Learning was reported not ready, so AutoBuffMode's retries print it at most every 30 s.
 local unbridled_abort_said = nil
 
---Drops the spell, uses its abilities 1.1 s apart, then resends it. The resend always passes, so this never loops.
+--A step that gets no aftercast in this many seconds ends the chain and drops the spell.
+local blu_chain_timeout = 5
+
+local function blu_chain_send(chain)
+	if blu_chain ~= chain then return end
+	--Sent before the framework's next_cast, the action would be parked in MiniQueue and lost when the spell clears it.
+	local wait = next_cast - os.clock()
+	if wait > 0 then
+		blu_chain_send:schedule(wait + .05, chain)
+		return
+	end
+
+	chain.step_id = chain.step_id + 1
+	local step_id = chain.step_id
+	local ability = chain.abilities[chain.step]
+	if not ability then
+		blu_chain = nil
+		blu_refire, blu_refire_until = chain.name, os.clock() + 1
+		windower.chat.input('/ma "'..chain.name..'" '..chain.target)
+		return
+	end
+
+	windower.chat.input('/ja "'..ability..'" <me>')
+	add_tick_delay(blu_chain_timeout)
+	local timeout = function()
+		if blu_chain == chain and chain.step_id == step_id then
+			blu_chain = nil
+			add_to_chat(123, 'Abort: '..ability..' got no response, '..chain.name..' not cast.')
+		end
+	end
+	timeout:schedule(blu_chain_timeout)
+end
+
+--Drops the spell, uses its abilities one after another as each one's aftercast arrives, then resends it.
+--The resend always passes, so this never loops.
 function user_job_filter_precast(spell, spellMap, eventArgs)
 	if spell.type ~= 'BlueMagic' or spell.test then return end
 	--Silenced, the spell would fail after the abilities were spent.
@@ -549,12 +585,12 @@ function user_job_filter_precast(spell, spellMap, eventArgs)
 	end
 
 	local now = os.clock()
-	if now >= blu_lock_until then blu_refire = nil end
+	if now >= blu_refire_until then blu_refire = nil end
 	if blu_refire == spell.english then
-		blu_refire, blu_lock_until = nil, 0
+		blu_refire = nil
 		return
 	end
-	if now < blu_lock_until then
+	if blu_chain then
 		eventArgs.cancel = true
 		return
 	end
@@ -592,20 +628,19 @@ function user_job_filter_precast(spell, spellMap, eventArgs)
 	if chain_affinity then abilities[#abilities + 1] = 'Chain Affinity' end
 	if efflux then abilities[#abilities + 1] = 'Efflux' end
 
-	local delay = 0
-	for _, ability in ipairs(abilities) do
-		windower.chat.input:schedule(delay, '/ja "'..ability..'" <me>')
-		delay = delay + 1.1
-	end
+	blu_chain = {abilities = abilities, step = 1, step_id = 0, name = spell.english, target = spell.target.raw or '<me>'}
+	--Scheduled so that this spell's cancel is done before the first ability is sent.
+	blu_chain_send:schedule(0, blu_chain)
+end
 
-	local name, target = spell.english, spell.target.raw or '<me>'
-	blu_lock_until = now + delay + 1
-	local refire = function()
-		blu_refire = name
-		windower.chat.input('/ma "'..name..'" '..target)
-	end
-	refire:schedule(delay)
-	add_tick_delay(delay)
+--A failed or refused ability moves the chain on too, so the spell goes out without it.
+function user_job_aftercast(spell, spellMap, eventArgs)
+	local chain = blu_chain
+	if not chain or spell.english ~= chain.abilities[chain.step] then return end
+	chain.step = chain.step + 1
+	chain.step_id = chain.step_id + 1
+	--Scheduled so that default_aftercast has set next_cast before the next step reads it.
+	blu_chain_send:schedule(0, blu_chain)
 end
 
 --With the weapons free, a burst outside Resistant, FullMacc and Proc takes Maxentius in the main hand (magic burst damage +4 a skillchain) and Bunzi's Rod in the sub (+10).
