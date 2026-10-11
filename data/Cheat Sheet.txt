@@ -60,11 +60,6 @@ name them Character_Job.lua.
 :Macro:		/console gs c cycle HybridMode
 
 
-[Alt+F9]	= Change Weasponskill mode. (Usually accuracy sets to depend on targets.)
-
-:Macro:		/console gs c cycle WeaponskillMode
-
-
 [Win+F9]	= Change ranged mode. (Again usually accuracy sets for target's evasion.) This doesn't affect
 				ranged WS, that's the above.
 				

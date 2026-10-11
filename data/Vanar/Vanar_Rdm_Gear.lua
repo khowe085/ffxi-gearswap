@@ -1,7 +1,7 @@
 function character_user_job_setup()
     state.OffenseMode:options('Normal','Acc')
     state.HybridMode:options('Normal','DT')
-	state.WeaponskillMode:options('Match','Proc')
+	state.WeaponskillMode:options('Match','Acc')
 	state.CastingMode:options('Normal','Resistant','Proc','SIRD')
     state.IdleMode:options('Normal','PDT','MDT','MEVA','Aminon')
     state.PhysicalDefenseMode:options('PDT','NukeLock')
@@ -134,8 +134,6 @@ function init_gear_sets()
 		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Nyame Flanchard",feet="Leth. Houseaux +3"}
 
 	sets.precast.WS.Acc = set_combine(sets.precast.Step, {neck="Fotia Gorget"})
-
-	sets.precast.WS.Proc = set_combine(sets.precast.Step, {})
 
 	-- WSD 33, DA 21; Fotia Gorget and Fotia Belt fTP +25/256 a hit each
 	sets.precast.WS['Requiescat'] = {range=empty,ammo="Coiste Bodhar",

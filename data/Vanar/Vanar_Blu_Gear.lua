@@ -1,7 +1,7 @@
 function character_user_job_setup()
     state.OffenseMode:options('Fodder','Normal','Acc','FullAcc')
 	state.HybridMode:options('Normal','DT')
-    state.WeaponskillMode:options('Match','Normal','Acc','FullAcc','Fodder')
+    state.WeaponskillMode:options('Match','Fodder','Acc','FullAcc')
     state.CastingMode:options('Normal','SIRD','Resistant','FullMacc','Fodder','Proc')
     state.IdleMode:options('Normal','Sphere','PDT','DTHippo')
 	state.PhysicalDefenseMode:options('PDT')

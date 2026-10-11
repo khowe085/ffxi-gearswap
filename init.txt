@@ -183,7 +183,6 @@ alias acc gs c cycle OffenseMode
 alias racc gs c cycle RangedMode
 alias hybrid gs c cycle HybridMode
 alias rangeacc gs c cycle RangedMode
-alias wsacc gs c cycle WeaponskillMode
 alias pdt gs c set DefenseMode Physical
 alias changepdt gs c cycle PhysicalDefenseMode
 alias kiting gs c toggle Kiting

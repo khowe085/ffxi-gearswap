@@ -30,7 +30,7 @@ Every mode below can be changed in game with `//gs c toggle <Mode>` (on/off mode
 | `@F12` | cycle | IdleMode | Set per job |
 | `@ScrollLock` | cycle | Passive | None, then per job |
 
-F8 is left free for the game's nearest-enemy targeting. WeaponskillMode has no key: it stays on Match, which picks the weapon skill set named for the current OffenseMode (or RangedMode, for a ranged weapon skill) and Normal otherwise. `//gs c set WeaponskillMode Proc` reaches the Proc weapon skill sets on RDM and THF.
+F8 is left free for the game's nearest-enemy targeting. WeaponskillMode has no key or alias: it stays on Match, which picks the weapon skill set named for the current OffenseMode (or RangedMode, for a ranged weapon skill) and Normal otherwise. Each Vanar gear file lists its offense modes as weapon skill modes after Match, because Match only takes a mode the list holds.
 
 Other keys for every job: `Pause` runs `gs c update user`, `!@^F12` reloads GearSwap, `!@^Pause` runs `gs org`, `!@^Backspace` runs `gs c buffup`.
 

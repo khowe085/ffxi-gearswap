@@ -4,7 +4,7 @@ function character_user_job_setup()
 	state.OffenseMode:options('Normal','Acc')
 	state.HybridMode:options('Normal','DT')
 	state.RangedMode:options('Normal', 'Acc')
-	state.WeaponskillMode:options('Match','Normal','Acc','Proc')
+	state.WeaponskillMode:options('Match','Acc')
 	state.IdleMode:options('Normal','Refresh')
 	state.PhysicalDefenseMode:options('PDT')
 	state.MagicalDefenseMode:options('MDT')
@@ -133,11 +133,6 @@ function init_gear_sets()
 	sets.precast.WS["Evisceration"].SATA = sets.precast.WS["Rudra's Storm"].SA
 
 	sets.precast.WS['Savage Blade'] = set_combine(sets.precast.WS, {ear1="Alabaster Earring",body="Gleti's Cuirass",ring2="Karieyh Ring",feet="Gleti's Boots"})
-
-	sets.precast.WS.Proc = {ammo="Honed Tathlum",
-		head="Nyame Helm",neck="Fotia Gorget",ear1="Alabaster Earring",ear2="Skulk. Earring +1",
-		body="Gleti's Cuirass",hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Karieyh Ring",
-		back={name="Toutatis's Cape",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','Crit.hit rate+10'}},waist="Eschan Stone",legs="Nyame Flanchard",feet="Gleti's Boots"}
 
 	sets.precast.WS['Last Stand'] = sets.precast.WS
 	sets.precast.WS['Empyreal Arrow'] = sets.precast.WS['Last Stand']
