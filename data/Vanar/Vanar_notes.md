@@ -19,6 +19,7 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
     - Expected hits ≈ 1 + 3 × Quadruple + 2 × Triple + Double Attack, rolled in that order, so Double Attack is worth a little less beside Triple and Quadruple ([Multi-attack](../../docs/ffxi-mechanics.md#multi-attack)).
     - TP per hit = base TP × (100 + Store TP) ÷ 100 ([TP gain and Store TP](../../docs/ffxi-mechanics.md#tp-gain-and-store-tp)).
     - Below the cap, 2 accuracy, 1% Double Attack and 1 Store TP are each worth roughly 1% TP per round; each one's value shrinks as the other two grow.
+    - **(player, 2026-10-10)** A TP-mode engaged set keeps Damage taken at 36 or more. TP per round is weighed only among sets that do; a set that gains TP per round below DT 36 dies too often.
   - **(player, 2026-10-07)** Both jobs eat Oden or Grape Daifuku for melee, so a melee decision has to hold with either food. The job files' `Food` setting stays as it is.
   - **(player, 2026-10-07)** The ACC-mode rebuild is approved: on both jobs, `sets.OffenseMode.ACC`, `sets.WS.ACC` and every weapon skill's own `.ACC` set take the most accuracy they can, ties going to the higher-damage piece. For magical weapon skills that means magic accuracy.
   - The engine wears the TP-mode weapon skill sets in DT mode too, since neither job file has a `sets.WS.DT`. In ACC mode it adds `sets.WS.ACC`, or a weapon skill's own `.ACC` set.
