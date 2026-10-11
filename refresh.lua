@@ -61,6 +61,7 @@ end
 -----------------------------------------------------------------------------------
 function load_user_files(job_id,user_file)
     audit_cancel()
+    naked_hold_end()
     job_id = tonumber(job_id)
 
     if current_file then

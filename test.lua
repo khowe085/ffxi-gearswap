@@ -58,11 +58,13 @@ local function test_release()
     gearswap_disabled = false
 end
 
--- Called by a bare gs enable or gs disable, which leaves the file as the player set it.
+-- Called by a bare gs enable or gs disable, which leaves the file as the player set it, and by gs naked.
+-- Returns true when there was a hold to end.
 function test_hold_end()
-    if not test_holding then return end
+    if not test_holding then return false end
     test_holding = false
     test_token = test_token + 1
+    return true
 end
 
 local function test_hold()
