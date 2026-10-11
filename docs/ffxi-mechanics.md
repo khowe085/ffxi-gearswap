@@ -384,11 +384,12 @@ Double, Triple and Quadruple Attack are rolled on melee rounds and on weapon ski
 
 - Checks run in a fixed order: Virtue, Raetic and Su4/Su5 follow-up weapons first, then Quadruple Attack (+3 hits), Triple Attack (+2), Double Attack (+1), "Occasionally attacks X times" (+1 to +7), then Hasso and Zanshin. Once a higher check procs, that weapon gets no lower check that round (bg-wiki, Category:Multi-Attack).
   - So Double Attack is worth a little less when stacked with high Quadruple or Triple Attack.
+  - Mythic Aftermath Level 3's extra attacks (twice 40% of the time, thrice 20%) are a fifth-order check, so a Double, Triple or Quadruple Attack proc replaces them that round; the category page says Double Attack interferes with Mythic Aftermath for this reason. A Double Attack proc then adds 1 hit where Level 3 would have added 0.8 on average (0.4 × 1 + 0.2 × 2, taking the two rates as one roll), so under Level 3 Double Attack is worth about a fifth of its usual value on that hand; Triple and Quadruple Attack keep more of theirs. That figure is arithmetic from the two pages, not a sourced one (bg-wiki, Category:Multi-Attack and Mythic Aftermath).
 - Dual Wield and multi-attack together are limited to 8 hits per round.
 - On weapon skills, Double, Triple and Quadruple Attack can all proc. Double Attack can proc at most twice per weapon skill, and so can Triple Attack, within the 8-hit limit. When dual wielding, each hand rolls separately (bg-wiki, Double Attack and Triple Attack).
   - Extra hits matter most on fTP-replicating weapon skills, where they carry the full fTP (see Weapon skills).
 - "Occasionally attacks X times" procs on weapon skills only from Mythic AM3 (bg-wiki, Category:Multi-Attack). wsdist rolls it on every weapon skill, so it overrates OA off hands there, such as Kraken Club, Blurred Knife +1 and Demersal Degen +1 (see Where wsdist and bg-wiki disagree).
-- BLU gets Double Attack (7%) from set blue magic. Setting enough for a second tier gives Triple Attack (5%, from BLU 92) instead of Double Attack. A /WAR support job gives a higher Double Attack rate than the spell trait (bg-wiki, Double Attack and Blue Mage Job Traits).
+- BLU gets Double Attack (7%) from set blue magic. Setting enough for a second tier gives Triple Attack (5%, from BLU 92) instead of Double Attack. A /WAR support job gives a higher Double Attack rate than the spell trait: WAR has tier I (10%) at 25 and tier II (12%) at 50, so /WAR at 53 or 54 gives 12% (bg-wiki, Double Attack and Blue Mage Job Traits).
 - RDM's own multi-attack comes from Temper and Temper II (see Enhancing magic).
 
 Quadruple Attack has no job trait; it comes only from gear. Pieces RDM or BLU can wear (bg-wiki, Quadruple Attack):
