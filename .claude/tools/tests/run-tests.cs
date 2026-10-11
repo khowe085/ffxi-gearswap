@@ -811,6 +811,13 @@ Test("StatBook reads the augments as the rank file writes them", () =>
 	Equal("Att 25, WSD 10, DA 3", Read("Attack+25 Rng. Atk.+25, Weapon skill damage +10%, \"Double Attack\"+3%"));
 });
 
+Test("StatBook reads the export's abbreviated Triple Attack augment", () =>
+{
+	string Read(string text) => StatBook.Describe(StatBook.Read(text));
+	Equal("Acc 21, Att 31, TA 2", Read("Accuracy+21 Attack+21, \"Triple Atk.\"+2, Attack+10"));
+	Equal("DA 2, TA 2, STR 9, DEX 8", Read("STR+9, DEX+8, \"Dbl.Atk.\"+2, \"Triple Atk.\"+2"));
+});
+
 Test("StatBook counts the set bonuses docs/gear-notes.md gives, by the pieces worn", () =>
 {
 	string Bonus(params string[] pieces) => StatBook.Describe(StatBook.SetBonuses(pieces));

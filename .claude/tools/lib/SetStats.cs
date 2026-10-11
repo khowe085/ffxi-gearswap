@@ -48,7 +48,7 @@ sealed class StatBook
 			("Mag. Dmg.+", "Magic Damage+"), ("Mag. Dmg.", "Magic Damage"),
 			("Mag. Eva.", "Magic Evasion"), ("Magic Eva.", "Magic Evasion"), ("Eva.", "Evasion"),
 			("Acc.+", "Accuracy+"), ("Atk.+", "Attack+"),
-			("\"Dbl.Atk.\"", "\"Double Attack\""), ("Crit.hit rate", "Critical hit rate"),
+			("\"Dbl.Atk.\"", "\"Double Attack\""), ("\"Triple Atk.\"", "\"Triple Attack\""), ("Crit.hit rate", "Critical hit rate"),
 			("Enfb.mag. skill", "Enfeebling magic skill"), ("Enha.mag. skill", "Enhancing magic skill"),
 			("Enfb. mag. skill", "Enfeebling magic skill"), ("Enha. mag. skill", "Enhancing magic skill"),
 			("Elem. magic skill", "Elemental magic skill"), ("Enh. Mag. eff. dur.", "AUGENHDUR"),
