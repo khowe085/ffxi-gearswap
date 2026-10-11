@@ -9,7 +9,7 @@ state.ReEquip 		  		= M(true, 'ReEquip Mode')		 --Set this to false if you don't
 state.AutoArts 		  		= M(true, 'AutoArts') 		 --Set this to false if you don't want to automatically try to keep up Solace/Arts.
 state.AutoLockstyle	 	    = M(true, 'AutoLockstyle Mode') --Set this to false if you don't want gearswap to automatically lockstyle on load and weapon change.
 state.CancelStoneskin 		= M(true, 'Cancel Stone Skin') --Set this to false if you don't want to automatically cancel stoneskin when you're slept.
-state.SkipProcWeapons 		= M(true, 'Skip Proc Weapons') --Set this to false if you want to display weapon sets fulltime rather than just Aby/Voidwatch.
+state.SkipProcWeapons 		= M(false, 'Skip Proc Weapons') --Set this to true to skip Proc weapon sets when cycling Weapons, outside a Proc WeaponSets group.
 state.NotifyBuffs	  		= M(false, 'Notify Buffs') 	 --Set this to true if you want to notify your party when you recieve a specific buff/debuff. (List Below)
 state.TreasureMode:set('Tag') --Sel-TreasureHunter only defaults THF to Tag; this makes every job start in Tag.
 state.AutoWSBuff			= M(true, 'Auto WS Buff') --Set this to false if you don't want a ready WAR/DRK buff used before each weaponskill. Toggle: gs c toggle AutoWSBuff
@@ -33,7 +33,6 @@ send_command('bind ^!f7 gs c cycle ResistDefenseMode') --Changes your resist def
 send_command('bind f9 gs c cycle Weapons') --Cycle through weapons sets.
 send_command('bind ^f9 gs c cycle AutoWS') --Cycles auto-ws through OFF and the current weapon's AutoWS_List choices.
 send_command('bind !f9 gs c toggle UnlockWeapons') --Lets sets change main and sub out of combat; while engaged they stay put.
-send_command('bind ^!f9 gs c cycle WeaponskillMode') --Changes weaponskill offense settings such as accuracy.
 send_command('bind @f9 gs c cycle RangedMode') --Changes ranged offense settings such as accuracy.
 send_command('bind f10 gs c cycle AutoBuffMode') --Automatically keeps certain buffs up, job-dependant.
 send_command('bind ^f10 gs c toggle AutoFoodMode') --Turns auto-food mode on and off.

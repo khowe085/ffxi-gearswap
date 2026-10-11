@@ -6,31 +6,31 @@ Every mode below can be changed in game with `//gs c toggle <Mode>` (on/off mode
 
 | Key | Command | Mode | Values (default first) |
 |---|---|---|---|
-| `F7` | cycle | Weapons | The job file's weapon sets |
-| `^F7` | toggle | UnlockWeapons | off, on (RDM starts on). Lets sets change main and sub out of combat; while engaged they stay put |
-| `!^F7` | toggle | AutoFoodMode | off, on |
-| `!@^F7` | cycle | AutoWS | OFF, then the current weapon set's `AutoWS_List` choices; back to OFF on a weapon change |
-| `@F8` | toggle | AutoNukeMode | off, on |
-| `^F8` | toggle | AutoStunMode | off, on |
-| `!F8` | toggle | AutoDefenseMode | off, on |
-| `!@^F8` | toggle | AutoTrustMode | off, on |
-| `F9` | cycle | OffenseMode | Set per job |
-| `^F9` | cycle | HybridMode | Set per job |
+| `F6` | toggle | AutoTrustMode | off, on |
+| `F7` | set | DefenseMode Physical | Turns on the physical defense set |
+| `^F7` | cycle | PhysicalDefenseMode | PDT, then per job |
+| `!F7` | set | DefenseMode Resist | Turns on the resist defense set |
+| `!^F7` | cycle | ResistDefenseMode | MEVA, then per job |
+| `F9` | cycle | Weapons | The job file's weapon sets |
+| `^F9` | cycle | AutoWS | OFF, then the current weapon set's `AutoWS_List` choices; back to OFF on a weapon change |
+| `!F9` | toggle | UnlockWeapons | off, on (RDM starts on). Lets sets change main and sub out of combat; while engaged they stay put |
 | `@F9` | cycle | RangedMode | Set per job |
-| `!F9` | cycle | WeaponskillMode | Match, then per job |
-| `F10` | set | DefenseMode Physical | Turns on the physical defense set |
-| `^F10` | cycle | PhysicalDefenseMode | PDT, then per job |
-| `!F10` | toggle | Kiting | off, on |
-| `F11` | set | DefenseMode Magical | Turns on the magical defense set |
-| `^F11` | cycle | MagicalDefenseMode | MDT, then per job |
-| `@F11` | cycle | CastingMode | Set per job |
-| `!F11` | cycle | ExtraMeleeMode | Set per job |
-| `F12` | set | DefenseMode Resist | Turns on the resist defense set |
-| `^F12` | cycle | ResistDefenseMode | MEVA, then per job |
+| `F10` | cycle | AutoBuffMode | Off, Auto, then the job's other buff lists |
+| `^F10` | toggle | AutoFoodMode | off, on |
+| `!F10` | toggle | AutoStunMode | off, on |
+| `!^F10` | toggle | AutoNukeMode | off, on |
+| `F11` | toggle | Kiting | off, on |
+| `^F11` | set | DefenseMode Magical | Turns on the magical defense set |
+| `!F11` | cycle | MagicalDefenseMode | MDT, then per job |
+| `!^F11` | reset | DefenseMode | Back to None |
+| `F12` | cycle | OffenseMode | Set per job |
+| `^F12` | cycle | HybridMode | Set per job |
+| `!F12` | cycle | ExtraMeleeMode | Set per job |
+| `!^F12` | cycle | CastingMode | Set per job |
 | `@F12` | cycle | IdleMode | Set per job |
-| `!F12` | reset | DefenseMode | Back to None |
-| `@Pause` | cycle | AutoBuffMode | Off, Auto, then the job's other buff lists |
 | `@ScrollLock` | cycle | Passive | None, then per job |
+
+F8 is left free for the game's nearest-enemy targeting. WeaponskillMode has no key: it stays on Match, which picks the weapon skill set named for the current OffenseMode (or RangedMode, for a ranged weapon skill) and Normal otherwise. `//gs c set WeaponskillMode Proc` reaches the Proc weapon skill sets on RDM and THF.
 
 Other keys for every job: `Pause` runs `gs c update user`, `!@^F12` reloads GearSwap, `!@^Pause` runs `gs org`, `!@^Backspace` runs `gs c buffup`.
 
@@ -43,10 +43,9 @@ Other keys for every job: `Pause` runs `gs c update user`, `!@^F12` reloads Gear
 | BLU | — | cycle | JobMode: AoE, Melee (default Melee); loads the AzureSets spell set |
 | RDM | `@F10` | cycle | RecoverMode: 35%, 60%, Always, Never |
 | RDM | `` @` `` | cycle | ElementalMode: Fire, Ice, Wind, Earth, Lightning, Water, Light, Dark |
-| THF | `@F10` | toggle | AmbushMode |
 | THF | `` @` `` | cycle | SkillchainMode: Off, Single, Lock |
 
-The three files also bind `@F8` to AutoNukeMode, which is the same as the global key. Their other keys use job abilities or spells directly and change no mode.
+Their other keys use job abilities or spells directly and change no mode.
 
 ### Modes with no key, for every job
 
@@ -57,8 +56,9 @@ The three files also bind `@F8` to AutoNukeMode, which is the same as the global
 | AutoWSRestore | on, off | Lets AutoWS use Sanguine Blade, Catastrophe, Entropy or Mystic Boon at low HP or MP |
 | AutoWSMode | off, on | Only drives RngHelper's ranged auto-ws, and stays off without RngHelper |
 | RngHelper, RngHelperQuickDraw | off, on | Ranged attack helper |
-| AutoArts, AutoLockstyle, ReEquip, SkipProcWeapons | on, off | Arts upkeep, lockstyle on load and weapon change, re-equip weapons when bare, hide Proc weapon sets |
-| AutoShadowMode, AutoSubMode, AutoJumpMode, AutoSuperJumpMode, AutoTankMode, AutoCleanupMode, AutoAcceptRaiseMode | off, on | Job automation |
+| AutoArts, AutoLockstyle, ReEquip | on, off | Arts upkeep, lockstyle on load and weapon change, re-equip weapons when bare |
+| SkipProcWeapons | off, on | On, `Weapons` skips weapon sets named Proc unless WeaponSets is a Proc group |
+| AutoDefenseMode, AutoShadowMode, AutoSubMode, AutoJumpMode, AutoSuperJumpMode, AutoTankMode, AutoCleanupMode, AutoAcceptRaiseMode | off, on | Job automation |
 | AutoRemoveDoomMode, AutoHolyWaterMode, AutoContradanceMode, CancelStoneskin, AdjustTargets, MiniQueue, RefineWaltz, IdleStep, HoverShot, UseCustomTimers, SelfWarp2Block, DisplayMode | on, off | Upkeep and convenience |
 | Capacity, NotifyBuffs, SelectNPCTargets, WakeUpWeapons, ElementalWheel | off, on | Capacity cape on; tell the party about buffs in `NotifyBuffs`; let `<st>` targeting pick NPCs; hold `sets.WakeUpWeapons` while asleep; move ElementalMode on after each nuke |
 | AutoRuneMode | Off, Runes, Full | RUN or /RUN: keeps runes up |
