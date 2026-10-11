@@ -39,10 +39,10 @@ send_command('bind f10 gs c cycle AutoBuffMode') --Automatically keeps certain b
 send_command('bind ^f10 gs c toggle AutoFoodMode') --Turns auto-food mode on and off.
 send_command('bind !f10 gs c toggle AutoStunMode') --Turns auto-stun mode off and on.
 send_command('bind ^!f10 gs c toggle AutoNukeMode') --Turns auto-nuke mode on and off.
-send_command('bind f11 gs c set DefenseMode Magical') --Turns your magical defense set on.
-send_command('bind ^f11 gs c cycle MagicalDefenseMode') --Changes your magical defense set.
-send_command('bind !f11 gs c reset DefenseMode') --Turns your defensive mode off.
-send_command('bind ^!f11 gs c toggle Kiting') --Keeps your kiting gear on..
+send_command('bind f11 gs c toggle Kiting') --Keeps your kiting gear on..
+send_command('bind ^f11 gs c set DefenseMode Magical') --Turns your magical defense set on.
+send_command('bind !f11 gs c cycle MagicalDefenseMode') --Changes your magical defense set.
+send_command('bind ^!f11 gs c reset DefenseMode') --Turns your defensive mode off.
 send_command('bind f12 gs c cycle OffenseMode') --Changes offense settings such as accuracy.
 send_command('bind ^f12 gs c cycle HybridMode') --Changes defense settings for melee such as PDT.
 send_command('bind !f12 gs c cycle ExtraMeleeMode') --Adds another set layered on top of your engaged set.
