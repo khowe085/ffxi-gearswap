@@ -74,6 +74,7 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 | Dls. Torque +1 | A | 20 | 2026-10-05 |
 | Mirage Stole +2 | A | 20 | 2026-10-05 |
 | Tizona | A | 15 | 2026-10-05 |
+| Murky Ring | A | 2 | 2026-10-11 |
 
 - **(player, 2026-10-04)** The Nyame Helm and Flanchard went from rank 2 to rank 11 on 2026-10-04.
 - **(player, 2026-10-04)** Every Bunzi's and Gleti's piece, `Bunzi's Rod` and `Gleti's Knife` included, and `Kentarch Belt +1` aren't augmented yet: rank 0, with base stats only. `Demers. Degen +1`, `Kustawi +1`, `Marin Staff +1` and `Tanmogayi +1` aren't used.
@@ -83,7 +84,8 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 - **(player, 2026-10-08)** The Nyame Gauntlets went from rank 17 to rank 20, and the Nyame Flanchard from rank 17 to rank 18.
 - **(player, 2026-10-09)** The Nyame Flanchard went from rank 18 to rank 20, and the Nyame Helm from rank 11 to rank 14.
 - **(player, 2026-10-02)** The other ranks aren't worth listing, because they change often. Ask the player when a set decision turns on one.
-- `Murky Ring` is the one path item that exports a "Path:" line and has no rank here **(player, 2026-10-05: still unknown)**. `Tizona` exports Path A, so it is Level 119 III. `Almace` and `Pukulatmuj +1` export with no augments, so they are rank 0, and Almace's stage is unknown.
+- **(player, 2026-10-11)** `Murky Ring` is rank 2.
+- `Tizona` exports Path A, so it is Level 119 III. `Almace` and `Pukulatmuj +1` export with no augments, so they are rank 0, and Almace's stage is unknown.
 
 ## Jobs, Master Levels and nation
 
@@ -95,7 +97,8 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 - **(player, 2026-10-07)** BLU's melee spell set gives Accuracy Bonus, Attack Bonus and Store TP; see [Blue magic: Traits from set spells](#blue-magic-traits-from-set-spells).
   - **(player, 2026-10-08)** The Accuracy Bonus is tier IV. The Attack Bonus and Store TP tiers aren't recorded.
 - The support jobs aren't recorded. The estimates assume RDM/NIN (Dual Wield for the Thibron and Gleti's Knife modes) and BLU/WAR, as bg-wiki's simulated BLU sets do.
-- Nothing is recorded for Vanar's THF beyond its job file: no Master Level, merits or rules of its own.
+- **(player, 2026-10-11)** Vanar's THF has no Master Levels and 471 of 2,100 job points. It has learned Rudra's Storm. Its support job and merits aren't recorded.
+- **(player, 2026-10-11)** THF's sets put the 1275 accuracy floor before damage, and have no Sneak Attack or Trick Attack set of their own for now.
 
 ## Merits
 

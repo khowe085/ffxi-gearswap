@@ -1,6 +1,6 @@
 # Vanar: BLU, RDM and THF gear list
 
-Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export` of 2026-10-05: **130 pieces** (93 for BLU, 93 for RDM, 57 worn by both; 25 for THF, 1 of them THF only). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export` of 2026-10-08: **134 pieces** (94 for BLU, 96 for RDM, 60 worn by both; 42 for THF, 4 of them THF only). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 ## Reference
 
@@ -12,188 +12,192 @@ Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Almace |  | `Weapons['Tizona Acc']`, `Weapons['Savage Blade Acc']`, `Weapons['Chant du Cygne']`, `Weapons['Chant du Cygne Acc']` | `Weapons['Chant du Cygne']` |  |
-| Ammurapi Shield |  |  | `Weapons.Casting`, `Weapons.Shield`, `Midcast.Enhancing` |  |
-| Archduke's Shield |  |  | `Weapons.Idle` |  |
-| Bunzi's Rod |  | `Weapons['Black Halo Acc']`, `Weapons.Casting` | `Weapons['Sanguine Blade']`, `Weapons['Black Halo Acc']`, `Weapons.Casting` |  |
-| Colada | "Refresh"+2, Mag. Acc.+11, "Mag.Atk.Bns."+12, DMG:+1 | `Weapons.Idle` | `Weapons.Idle` |  |
-| Forfend +1 |  |  | `Midcast.Enhancing.Skill` |  |
-| Gleti's Knife |  |  | `Weapons['Savage Blade Acc']`, `Weapons['Black Halo Max Acc']`, `Weapons['Chant du Cygne']`, `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` | `Weapons['Evisceration']` |
-| Maxentius |  | `Weapons['Black Halo']`, `Weapons['Black Halo Acc']`, `Weapons.Casting` | `Weapons['Black Halo']`, `Weapons['Black Halo Acc']`, `Weapons['Black Halo Max Acc']`, `Weapons.CastingDualWield` |  |
-| Naegling |  | `Weapons['Savage Blade']`, `Weapons['Savage Blade Acc']`, `Weapons['Chant du Cygne Acc']` | `Weapons['Savage Blade']`, `Weapons['Savage Blade Acc']`, `Weapons['Sanguine Blade']` |  |
-| Pukulatmuj +1 |  | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` |  |
-| Tauret |  |  | `Weapons['Evisceration']`, `Weapons['Aeolian Edge']` | `Weapons['Evisceration']` |
-| Thibron |  | `Weapons['Tizona']`, `Weapons['Black Halo']`, `Weapons['Savage Blade']`, `Weapons['Chant du Cygne']` | `Weapons['Savage Blade']`, `Weapons['Black Halo']` |  |
-| Tizona |  | `Weapons['Tizona']`, `Weapons['Tizona Acc']` |  |  |
-| Ullr |  |  | `Weapons.Casting` |  |
+| Almace |  | `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `weapons['Tizona Acc']`, `weapons.Almace`, `weapons['Savage Blade Acc']`, `engaged`, `engaged.Acc`, `engaged.DT` |  |  |
+| Ammurapi Shield |  |  | `weapons.Naegling`, `weapons.Crocea`, `weapons.Maxentius`, `weapons.Tauret`, `weapons.ProcSword`, `weapons.ProcDagger`, `weapons.EnspellOnly`, `midcast.Cure`, `midcast['Enhancing Magic']`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic']`, `MagicBurst`, `midcast['Elemental Magic'].DW`, `midcast.Impact`, `midcast['Dark Magic']`, `HPCure` |  |
+| Archduke's Shield |  |  | `resting`, `idle` |  |
+| Bunzi's Rod |  | `HPCure`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast.Cure`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].UnlockedAoEHealing`, `midcast['Blue Magic'].Healing`, `weapons.MeleeClubs`, `weapons.MaccWeapons`, `weapons.HybridWeapons` | `weapons.DualCrocea`, `weapons.DualAeolian`, `weapons.DualTauretCrocea`, `midcast.Cure`, `midcast.Cure.DT`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast['Enfeebling Magic'].DW`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast.Sleep.DW`, `midcast.Dispel.DW`, `midcast.Dispelga.DW`, `midcast.Frazzle.DW`, `midcast.Addle.DW`, `midcast.Gravity.DW`, `midcast.Silence.DW`, `midcast['Elemental Magic']`, `MagicBurst`, `midcast['Elemental Magic'].DW`, `midcast.Impact`, `midcast['Dark Magic']`, `midcast.Stun.DW`, `HPCure` |  |
+| Colada | "Refresh"+2, Mag. Acc.+11, "Mag.Atk.Bns."+12, DMG:+1 | `precast.FC`, `resting`, `idle` | `precast.FullFC`, `midcast['Enhancing Magic']`, `resting`, `Ballista`, `idle` |  |
+| Forfend +1 |  |  | `midcast.Cure.DT`, `EnhancingSkill`, `midcast['Elemental Magic'].Proc`, `Ballista`, `idle.PDT` |  |
+| Gleti's Knife |  |  | `weapons['Savage Blade Acc']`, `weapons.DualPrime`, `weapons.DualProcSword`, `weapons.ProcDagger`, `weapons.DualProcDagger`, `weapons.DualEnspellOnly`, `weapons['Black Halo Max Acc']`, `midcast['Elemental Magic'].Proc` | `weapons.Savage`, `weapons.Evisceration` |
+| Maxentius |  | `midcast['Blue Magic'].Magical`, `midcast['Elemental Magic']`, `midcast.Cure`, `weapons.MeleeClubs` | `weapons.Maxentius`, `weapons['Black Halo']`, `weapons['Black Halo Max Acc']`, `midcast['Enfeebling Magic'].DW`, `midcast.Sleep.DW`, `midcast.Dispel.DW`, `midcast.Dispelga.DW`, `midcast.Frazzle.DW`, `midcast.Addle.DW`, `midcast.Gravity.DW`, `midcast.Silence.DW`, `midcast.Stun.DW` |  |
+| Naegling |  | `weapons['Savage Blade']`, `weapons['Savage Blade Acc']`, `weapons.HybridWeapons` | `weapons.Naegling`, `weapons.Crocea`, `weapons['Savage Blade']`, `weapons['Savage Blade Acc']`, `weapons.DualCrocea`, `weapons.DualCroceaSavageBlade` | `weapons.Savage` |
+| Pukulatmuj +1 |  | `midcast.Phalanx` | `weapons.DualProcSword`, `weapons.ProcSword`, `weapons.DualProcDagger`, `EnhancingSkill` |  |
+| Tauret |  |  | `weapons.Tauret`, `weapons.DualPrime`, `weapons.DualAeolian`, `weapons.EnspellOnly`, `weapons.DualEnspellOnly`, `weapons.DualTauretCrocea` | `weapons.Evisceration` |
+| Thibron |  | `weapons.Tizona`, `weapons.Almace`, `weapons['Savage Blade']` | `weapons['Savage Blade']`, `weapons['Black Halo']`, `weapons.DualCroceaSavageBlade` |  |
+| Tizona |  | `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Blue Magic'].Stun`, `weapons['Tizona Acc']`, `weapons.Tizona`, `weapons.MaccWeapons`, `engaged`, `engaged.Acc`, `engaged.DT` |  |  |
+| Ullr |  |  | `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic'].Resistant`, `midcast.Impact`, `midcast['Dark Magic']`, `midcast['Absorb-TP']`, `midcast['Absorb-TP'].Resistant` |  |
 
 ## Ammo (5)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Coiste Bodhar |  | `OffenseMode`, `Midcast.BlueMagic.Physical`, `WS`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `OffenseMode`, `WS`, `WS.ACC`, `WS.Crit` | `OffenseMode`, `WS` |
-| Hasty Pinion |  |  | `Midcast.Enhancing` |  |
-| Honed Tathlum |  | `OffenseMode.ACC`, `WS.ACC` |  | `Step` |
-| Mavi Tathlum |  | `Midcast.BlueMagic.Skill`, `Midcast.BlueMagic.Breath` |  |  |
-| Pemphredo Tathlum |  | `Idle`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` | `Midcast.Enfeebling`, `Midcast.Nuke`, `WS.MAB` |  |
+| Coiste Bodhar |  | `precast.WS`, `precast.WS.DT`, `precast.WS.Requiescat`, `precast.WS['Chant du Cygne']`, `midcast['Blue Magic'].Physical`, `defense.PDT`, `engaged`, `engaged.DT` | `precast.Step`, `precast.WS`, `precast.WS.Requiescat`, `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |  |
+| Hasty Pinion |  | `midcast.FastRecast` | `midcast.FastRecast`, `midcast['Enhancing Magic']`, `midcast['Elemental Magic'].Proc` |  |
+| Honed Tathlum |  | `precast.Step`, `precast.WS.Acc`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Stun.Resistant`, `engaged.Acc` |  | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.WS`, `precast.WS.Proc`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |
+| Mavi Tathlum |  | `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].SkillBasedBuff` |  |  |
+| Pemphredo Tathlum |  | `precast.WS['Sanguine Blade']`, `precast.WS['Sanguine Blade'].DT`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast['Blue Magic'].Stun`, `resting`, `idle`, `defense.MDT` | `precast.WS['Sanguine Blade']`, `precast.WS['Sanguine Blade'].Acc`, `midcast['Elemental Magic']`, `HPDown` | `HPDown` |
 
 ## Head (10)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Amalric Coif +1 |  | `Precast.FastCast`, `Midcast.FastRecast`, `Midcast.Refresh`, `Midcast['Battery Charge']`, `Midcast['Aquaveil']` | `Midcast.Refresh`, `Midcast['Aquaveil']` |  |
-| Atro. Chapeau +4 |  |  | `OffenseMode.ACC`, `Precast.FastCast`, `Midcast.Enfeebling`, `WS.ACC`, `WS[each magical WS].ACC`, `midcast_custom()` |  |
-| Hashishin Kavuk +3 |  | `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Healing`, `WS`, `WS.ACC`, `WS.MAB`, `WS['Chant du Cygne']`, `WS['Requiescat']` |  |  |
-| Leth. Chappel +3 |  |  | `OffenseMode`, `Midcast.Enhancing.Others`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS.MAB`, `WS.Crit` |  |
-| Luh. Keffiyeh +1 |  | `Midcast.BlueMagic.Skill`, `Midcast.BlueMagic.Breath` |  |  |
-| Nyame Helm |  | `Midcast['White Wind']` |  | `OffenseMode`, `WS` |
-| Rawhide Mask |  | `Idle` |  |  |
-| Telchine Cap |  | `Midcast.Enhancing` | `Midcast.Enhancing` |  |
-| Viti. Chapeau +4 |  |  | `Idle`, `Midcast.Enfeebling.MACC`, `Midcast.Enfeebling.Potency`, `WS` |  |
-| Wh. Rarab Cap +1 |  | `TreasureHunter` | `TreasureHunter` |  |
+| Amalric Coif +1 |  | `precast.FC`, `midcast.FastRecast`, `midcast.Refresh`, `midcast.Aquaveil`, `midcast['Blue Magic']['Battery Charge']`, `midcast['Blue Magic']['Carcharian Verve']` | `midcast.Refresh`, `midcast.Aquaveil` |  |
+| Atro. Chapeau +4 |  |  | `precast.Step`, `precast.FC`, `precast.FullFC`, `precast.WS['Sanguine Blade'].Acc`, `midcast.FastRecast`, `midcast.Cure`, `midcast['Elemental Magic'].Proc`, `ResistantMagicBurst`, `midcast['Dark Magic']`, `engaged.Acc` |  |
+| Hashishin Kavuk +3 |  | `precast.Waltz`, `precast.Step`, `precast.WS`, `precast.WS.Acc`, `precast.WS.Requiescat`, `precast.WS['Chant du Cygne']`, `precast.WS['Sanguine Blade']`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast.Cure`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].Healing`, `defense.PDT`, `defense.MDT`, `engaged`, `engaged.Acc`, `engaged.DT` |  |  |
+| Leth. Chappel +3 |  |  | `precast.WS['Sanguine Blade']`, `midcast.Cure.DT`, `buff.ComposureOther`, `midcast.Sleep`, `midcast['Elemental Magic']`, `Ballista`, `idle.PDT`, `idle.MDT`, `idle.MEVA`, `engaged`, `engaged.DT`, `engaged.Acc.DT` |  |
+| Luh. Keffiyeh +1 |  | `buff.Convergence`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].SkillBasedBuff` |  |  |
+| Nyame Helm |  | `HPCure`, `precast.WS.DT`, `midcast['Blue Magic'].UnlockedAoEHealing`, `idle.DTHippo` | `HPCure` | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.Waltz`, `precast.WS`, `precast.WS.Proc`, `midcast.FastRecast`, `midcast.RA`, `midcast.RA.Acc`, `HPMax`, `idle`, `defense.PDT`, `defense.MDT`, `defense.MEVA`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |
+| Rawhide Mask |  | `resting`, `idle` |  | `resting`, `idle.Refresh` |
+| Telchine Cap |  | `midcast['Enhancing Magic']` | `midcast['Enhancing Magic']` |  |
+| Viti. Chapeau +4 |  |  | `precast.WS`, `precast.WS.Requiescat`, `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep.Resistant`, `resting`, `idle` |  |
+| Wh. Rarab Cap +1 |  | `TreasureHunter`, `HPDown` | `TreasureHunter`, `midcast.Dia`, `midcast.Diaga`, `midcast.Bio`, `HPDown` | `TreasureHunter`, `precast.WS.TH`, `midcast.Dia`, `midcast.Diaga`, `midcast['Dia II']`, `midcast.Bio`, `midcast['Bio II']`, `HPDown` |
 
-## Neck (10)
+## Neck (9)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Asperity Necklace |  |  | `OffenseMode.TP` |  |
-| Dls. Torque +1 |  |  | `Midcast.Enhancing`, `Midcast.Enfeebling`, `WS[each magical WS].ACC` |  |
-| Enhancing Torque |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |  |
-| Fotia Gorget |  | `WS['Requiescat']` | `WS.ACC`, `WS.Crit` | `WS` |
-| Mirage Stole +2 |  | `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill`, `WS`, `WS.ACC`, `WS[each magical WS].ACC`, `WS['Chant du Cygne']` |  |  |
-| Mizu. Kubikazari |  |  | `Midcast.Burst` |  |
-| Nodens Gorget |  |  | `Midcast.Cure`, `Midcast['Stoneskin']` |  |
-| Rep. Plat. Medal |  |  | `WS` |  |
-| Sanctity Necklace |  | `Midcast['White Wind']`, `WS.MAB` | `OffenseMode`, `Midcast.Nuke`, `WS.MAB` | `OffenseMode` |
-| Sibyl Scarf |  | `Idle` | `Idle` |  |
+| Asperity Necklace |  |  | `engaged`, `engaged.DT` |  |
+| Dls. Torque +1 |  |  | `precast.WS['Sanguine Blade'].Acc`, `midcast['Enhancing Magic']`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic'].Resistant`, `midcast['Elemental Magic'].Proc`, `midcast.Impact`, `midcast['Dark Magic']` |  |
+| Enhancing Torque |  | `midcast.Phalanx` | `EnhancingSkill` |  |
+| Fotia Gorget |  | `precast.WS.Requiescat`, `precast.WS['Chant du Cygne']` | `precast.WS`, `precast.WS.Acc`, `precast.WS.Requiescat`, `precast.WS['Black Halo']` | `precast.WS`, `precast.WS.Proc` |
+| Mirage Stole +2 |  | `precast.Step`, `precast.WS.Acc`, `precast.WS.DT`, `precast.WS['Sanguine Blade'].Acc`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Magical.Resistant`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic'].Resistant`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].SkillBasedBuff`, `defense.PDT`, `engaged`, `engaged.Acc`, `engaged.DT` |  |  |
+| Nodens Gorget |  |  | `midcast.Cure`, `midcast.Cure.DT`, `midcast.Stoneskin` |  |
+| Rep. Plat. Medal |  | `precast.WS` | `precast.WS['Savage Blade']` |  |
+| Sanctity Necklace |  | `HPCure`, `precast.WS['Sanguine Blade']`, `precast.WS['Sanguine Blade'].DT`, `midcast['Blue Magic'].Magical`, `midcast['Elemental Magic']`, `midcast['Blue Magic'].UnlockedAoEHealing` | `precast.Step`, `precast.WS['Sanguine Blade']`, `midcast['Elemental Magic']`, `HPCure`, `engaged.Acc`, `engaged.Acc.DT` | `precast.Step`, `precast.JA['Violent Flourish']`, `midcast.RA`, `midcast.RA.Acc`, `HPMax`, `idle`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |
+| Sibyl Scarf |  | `HPDown`, `resting`, `idle`, `defense.MDT` | `HPDown`, `resting`, `Ballista`, `idle` | `resting`, `HPDown`, `idle.Refresh` |
 
 ## Earrings (14)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Alabaster Earring |  | `Idle`, `OffenseMode.ACC`, `Midcast.Enfeebling`, `Midcast['White Wind']`, `WS.ACC`, `WS[each magical WS].ACC` | `Idle`, `OffenseMode.ACC`, `Midcast.Enhancing`, `WS.ACC` |  |
-| Andoaa Earring |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |  |
-| Brutal Earring |  | `OffenseMode` | `OffenseMode` | `OffenseMode` |
-| Etiolation Earring |  | `Idle`, `Precast.FastCast`, `Midcast.FastRecast` | `Idle` |  |
-| Friomisi Earring |  | `Midcast.BlueMagic.Nuke`, `WS.MAB` | `WS.MAB` |  |
-| Hashi. Earring +1 |  | `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill`, `WS`, `WS.ACC`, `WS.MAB`, `WS['Chant du Cygne']`, `WS['Requiescat']` |  |  |
-| Leth. Earring +1 |  |  | `OffenseMode`, `Precast.FastCast`, `Midcast.Enhancing`, `Midcast.Enfeebling`, `Midcast.Nuke`, `WS`, `WS.ACC`, `WS.MAB`, `WS.Crit` |  |
-| Loquac. Earring |  | `Precast.FastCast`, `Midcast.FastRecast` | `Precast['Stoneskin']` |  |
-| Mendi. Earring |  | `Precast.Cure`, `Midcast.Cure`, `Midcast.BlueMagic.Healing`, `Midcast['Restoral']`, `Midcast['White Wind']` | `Precast.Cure`, `Midcast.Cure` |  |
-| Mimir Earring |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |  |
-| Moonshade Earring |  | `Midcast.BlueMagic.Physical`, `WS`, `WS['Seraph Blade']`, `WS['Red Lotus Blade']`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `WS`, `WS.Crit`, `WS['Seraph Blade']`, `WS['Red Lotus Blade']`, `WS['Aeolian Edge']` | `WS` |
-| Njordr Earring |  | `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill` |  |  |
-| Skulk. Earring +1 |  |  |  | `OffenseMode`, `WS` |
-| Snotra Earring |  |  | `Midcast.Enfeebling`, `Midcast.Nuke`, `WS[each magical WS].ACC` |  |
+| Alabaster Earring |  | `HPCure`, `precast.Waltz`, `precast.Step`, `precast.WS.Acc`, `precast.WS.DT`, `precast.WS.Requiescat.DT`, `precast.WS['Chant du Cygne'].DT`, `precast.WS['Sanguine Blade'].Acc`, `AccMaxTP`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Enfeebling Magic']`, `midcast.Cure`, `midcast['Blue Magic'].UnlockedAoEHealing`, `midcast['Blue Magic'].Healing`, `resting`, `idle`, `defense.PDT`, `defense.MDT`, `engaged.Acc` | `precast.Step`, `precast.FC`, `AccMaxTP`, `midcast.FastRecast`, `midcast.Cure`, `midcast.Cure.DT`, `midcast['Enhancing Magic']`, `midcast['Elemental Magic'].DT`, `HPCure`, `resting`, `Ballista`, `idle`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.Waltz`, `precast.WS.Acc`, `precast.WS['Savage Blade']`, `precast.WS.Proc`, `MaxTP`, `AccMaxTP`, `midcast.FastRecast`, `midcast.RA`, `midcast.RA.Acc`, `HPMax`, `idle`, `idle.Refresh`, `defense.PDT`, `defense.MDT`, `defense.MEVA`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |
+| Andoaa Earring |  | `HPDown`, `midcast.Phalanx` | `EnhancingSkill`, `HPDown` | `HPDown` |
+| Brutal Earring |  | `precast.WS['Chant du Cygne']`, `MaxTP`, `SuppaBrutal`, `engaged`, `engaged.DT` | `MaxTP`, `engaged` |  |
+| Etiolation Earring |  | `precast.Waltz`, `precast.FC`, `midcast.FastRecast`, `midcast['Blue Magic'].UnlockedAoEHealing`, `resting`, `idle`, `defense.MDT` | `midcast.Cure.DT`, `HPCure`, `resting`, `Ballista`, `idle` | `precast.Waltz`, `precast.FC`, `HPMax`, `idle`, `idle.Refresh`, `defense.MDT`, `defense.MEVA` |
+| Friomisi Earring |  | `precast.WS['Sanguine Blade']`, `midcast['Blue Magic'].Magical`, `midcast['Elemental Magic']` | `precast.WS['Sanguine Blade']`, `MagicalMaxTP` |  |
+| Hashi. Earring +1 |  | `precast.Step`, `precast.WS`, `precast.WS.Acc`, `precast.WS.DT`, `precast.WS.Requiescat`, `precast.WS['Chant du Cygne']`, `precast.WS['Sanguine Blade']`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].SkillBasedBuff`, `defense.PDT`, `engaged`, `engaged.Acc`, `engaged.DT` |  |  |
+| Leth. Earring +1 |  |  | `precast.Step`, `precast.FC`, `precast.FullFC`, `precast.WS`, `precast.WS.Requiescat`, `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `precast.WS['Sanguine Blade']`, `precast.WS['Sanguine Blade'].Acc`, `midcast.FastRecast`, `midcast['Enhancing Magic']`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic']`, `midcast['Elemental Magic'].Proc`, `midcast.Impact`, `midcast['Dark Magic']`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |  |
+| Loquac. Earring |  | `HPDown`, `precast.FC`, `midcast.FastRecast` | `precast.FullFC`, `HPDown` | `precast.FC`, `midcast.FastRecast`, `HPDown` |
+| Mendi. Earring |  | `HPCure`, `midcast.Cure`, `midcast['Blue Magic'].AoEHealing`, `midcast['Blue Magic'].Healing` | `midcast.Cure` |  |
+| Mimir Earring |  | `midcast.Phalanx` | `EnhancingSkill` |  |
+| Moonshade Earring |  | `precast.WS`, `precast.WS.Requiescat`, `midcast['Blue Magic'].Physical` | `precast.WS`, `precast.WS.Requiescat`, `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `precast.WS['Seraph Blade']` | `precast.WS` |
+| Njordr Earring |  | `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Magical.Resistant`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].SkillBasedBuff` |  |  |
+| Skulk. Earring +1 |  |  |  | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.WS`, `precast.WS.Proc`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |
+| Snotra Earring |  |  | `precast.JA['Violent Flourish']`, `precast.WS['Sanguine Blade'].Acc`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic']`, `midcast['Elemental Magic'].Proc`, `midcast.Impact`, `midcast['Dark Magic']` |  |
 
 ## Body (11)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Assim. Jubbah +4 |  | `OffenseMode.ACC`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill`, `WS`, `WS.ACC` |  |  |
-| Atrophy Tabard +4 |  |  | `OffenseMode.ACC`, `Midcast.Refresh`, `Midcast.Enfeebling`, `WS.ACC`, `WS[each magical WS].ACC` |  |
-| Ea Houppelande |  |  | `Midcast.Burst` |  |
-| Gleti's Cuirass |  | `Waltz`, `WS['Chant du Cygne']` |  | `OffenseMode` |
-| Hashishin Mintan +3 |  | `Idle`, `OffenseMode`, `Precast.BlueMagic`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.Healing`, `Midcast.Enfeebling`, `WS[each magical WS].ACC`, `WS['Requiescat']` |  |  |
-| Lethargy Sayon +3 |  |  | `Idle`, `OffenseMode`, `Midcast.Enhancing.Others`, `Midcast.Enfeebling.Potency`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS.Crit` |  |
-| Luhlaza Jubbah +1 |  | `Precast.FastCast`, `JA['Chain Affinity']`, `Midcast.FastRecast` |  |  |
-| Nyame Mail |  | `Midcast['White Wind']`, `WS.MAB` | `WS`, `WS.MAB` | `WS` |
-| Telchine Chas. |  | `Midcast.Enhancing.Skill`, `Midcast.Regen` | `Midcast.Regen` |  |
-| Viti. Tabard +4 |  |  | `Precast.FastCast`, `Midcast.Cure`, `Midcast.Enhancing`, `Midcast.Enhancing.Skill`, `JA['Chainspell']` |  |
-| Volte Jupon |  | `TreasureHunter` | `TreasureHunter` |  |
+| Assim. Jubbah +4 |  | `precast.Step`, `precast.WS`, `precast.WS.Acc`, `precast.WS['Chant du Cygne']`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].SkillBasedBuff`, `engaged.Acc` |  |  |
+| Atrophy Tabard +4 |  |  | `precast.Step`, `precast.WS['Sanguine Blade'].Acc`, `midcast.Refresh`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep.Resistant`, `midcast['Dark Magic']`, `engaged.Acc` |  |
+| Ea Houppelande |  |  | `MagicBurst` |  |
+| Gleti's Cuirass |  | `precast.Waltz` |  | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.Waltz`, `precast.WS.Acc`, `precast.WS.Evisceration`, `precast.WS['Savage Blade']`, `precast.WS.Proc`, `engaged`, `engaged.Acc` |
+| Hashishin Mintan +3 |  | `precast.FC['Blue Magic']`, `precast.WS.Requiescat`, `precast.WS['Chant du Cygne'].DT`, `precast.WS['Sanguine Blade'].Acc`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Magical`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast.Cure`, `midcast['Blue Magic'].Healing`, `resting`, `idle`, `defense.PDT`, `defense.MDT`, `MP`, `engaged.DT`, `engaged.Acc.DT` |  |  |
+| Lethargy Sayon +3 |  |  | `precast.WS`, `precast.WS.Requiescat`, `precast.WS['Black Halo']`, `midcast.Cure.DT`, `buff.ComposureOther`, `midcast['Enfeebling Magic']`, `midcast.Sleep`, `midcast['Elemental Magic']`, `resting`, `Ballista`, `idle`, `engaged`, `engaged.DT`, `engaged.Acc.DT` |  |
+| Luhlaza Jubbah +1 |  | `precast.FC`, `midcast.FastRecast` |  |  |
+| Nyame Mail |  | `HPCure`, `precast.WS.DT`, `precast.WS['Savage Blade']`, `precast.WS.Expiacion`, `precast.WS['Sanguine Blade']`, `midcast['Blue Magic'].UnlockedAoEHealing`, `engaged` | `precast.WS['Savage Blade']`, `precast.WS['Sanguine Blade']`, `HPCure`, `idle.MEVA` | `precast.WS`, `midcast.FastRecast`, `midcast.RA`, `midcast.RA.Acc`, `HPMax`, `idle`, `idle.Refresh`, `defense.PDT`, `defense.MDT`, `defense.MEVA`, `engaged.DT`, `engaged.Acc.DT` |
+| Telchine Chas. |  | `HPDown`, `midcast.Phalanx` | `midcast.Regen`, `HPDown` |  |
+| Viti. Tabard +4 |  |  | `precast.JA.Chainspell`, `precast.FC`, `precast.FullFC`, `midcast.FastRecast`, `midcast.Cure`, `midcast['Enhancing Magic']`, `EnhancingSkill`, `midcast['Elemental Magic'].Proc` |  |
+| Volte Jupon |  | `TreasureHunter` | `TreasureHunter`, `midcast.Dia`, `midcast.Diaga`, `midcast.Bio` | `TreasureHunter`, `precast.WS.TH`, `midcast.Dia`, `midcast.Diaga`, `midcast['Dia II']`, `midcast.Bio`, `midcast['Bio II']` |
 
-## Hands (11)
+## Hands (12)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Atro. Gloves +4 |  |  | `OffenseMode.ACC`, `Midcast.Enhancing`, `Midcast.Enfeebling`, `WS`, `WS.ACC`, `WS[each magical WS].ACC`, `midcast_custom()` |  |
-| Gleti's Gauntlets |  | `WS['Chant du Cygne']` |  | `OffenseMode` |
-| Hashi. Bazu. +3 |  | `Idle`, `OffenseMode`, `Midcast.FastRecast`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.ACC`, `WS[each magical WS].ACC`, `WS['Requiescat']` |  |  |
-| Jhakri Cuffs +2 |  | `WS`, `WS.MAB` | `WS.MAB` |  |
-| Leth. Ganth. +3 |  |  | `Idle`, `OffenseMode`, `Midcast.Enfeebling.MACC`, `Midcast.Enfeebling.Potency`, `Midcast.Enfeebling.Duration`, `Midcast.Enfeebling.Saboteur`, `Midcast.Nuke`, `WS.Crit` |  |
-| Luh. Bazubands +1 |  | `JA['Azure Lore']` |  |  |
-| Nyame Gauntlets |  | `WS['Savage Blade']` |  | `WS` |
-| Pinga Mittens |  | `Precast.FastCast`, `Midcast.Utsusemi` |  |  |
-| Telchine Gloves | "Regen" potency+3 | `Midcast.Regen` | `Midcast.Cure`, `Midcast.Regen` |  |
-| Telchine Gloves | Haste+3, Enh. Mag. eff. dur. +10 | `Midcast.Cure`, `Midcast.Enhancing`, `Midcast.BlueMagic.Healing`, `Midcast['Restoral']`, `Midcast['White Wind']` |  |  |
-| Viti. Gloves +4 |  |  | `Midcast.Enhancing.Skill`, `Midcast.Enhancing.Gain` |  |
+| Assim. Bazu. +3 |  | `precast.Step`, `precast.WS.Acc`, `Learning`, `engaged.Acc` |  |  |
+| Atro. Gloves +4 |  |  | `precast.Step`, `precast.WS`, `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `precast.WS['Sanguine Blade'].Acc`, `midcast['Enhancing Magic']`, `midcast['Elemental Magic'].Proc`, `midcast.Impact`, `midcast['Dark Magic']`, `engaged.Acc` |  |
+| Gleti's Gauntlets |  |  |  | `precast.WS.Evisceration`, `precast.WS.Evisceration.Acc`, `defense.MDT`, `engaged.Acc` |
+| Hashi. Bazu. +3 |  | `precast.Waltz`, `precast.Flourish1`, `precast.WS.Requiescat`, `precast.WS['Chant du Cygne'].DT`, `precast.WS['Sanguine Blade'].Acc`, `midcast.FastRecast`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].SkillBasedBuff`, `resting`, `idle`, `defense.PDT`, `defense.MDT`, `engaged.DT`, `engaged.Acc.DT` |  |  |
+| Jhakri Cuffs +2 |  | `HPDown`, `precast.WS['Sanguine Blade']` | `precast.FullFC`, `precast.WS['Sanguine Blade']`, `HPDown` |  |
+| Leth. Ganth. +3 |  |  | `precast.FC`, `precast.WS.Requiescat`, `midcast.FastRecast`, `midcast.Cure.DT`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic']`, `buff.Saboteur`, `resting`, `Ballista`, `idle`, `engaged`, `engaged.DT`, `engaged.Acc.DT` |  |
+| Luh. Bazubands +1 |  | `precast.JA['Azure Lore']` |  |  |
+| Nyame Gauntlets |  | `precast.WS`, `precast.WS.DT`, `precast.WS['Chant du Cygne']`, `defense.MEVA`, `engaged` | `precast.WS['Chant du Cygne']`, `idle.MEVA` | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.Waltz`, `precast.WS`, `precast.WS.Proc`, `midcast.FastRecast`, `midcast.RA`, `midcast.RA.Acc`, `HPMax`, `idle`, `idle.Refresh`, `defense.PDT`, `defense.MEVA`, `engaged`, `engaged.DT`, `engaged.Acc.DT` |
+| Pinga Mittens |  | `precast.FC` |  |  |
+| Telchine Gloves | "Regen" potency+3 |  | `midcast.Regen` |  |
+| Telchine Gloves | Haste+3, Enh. Mag. eff. dur. +10 | `HPCure`, `midcast['Enhancing Magic']`, `midcast.Cure`, `midcast['Blue Magic'].UnlockedAoEHealing`, `midcast['Blue Magic'].Healing` | `midcast.Cure`, `HPCure` |  |
+| Viti. Gloves +4 |  |  | `EnhancingSkill`, `midcast.BoostStat` |  |
 
 ## Rings (11)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Ayanmo Ring |  | `Midcast.BlueMagic.Physical` | `Idle` |  |
-| Epaminondas's Ring |  | `WS`, `WS.MAB` | `WS`, `WS.MAB` |  |
-| Jhakri Ring |  | `OffenseMode.ACC`, `Midcast.BlueMagic.Physical`, `WS.ACC`, `WS.MAB` | `OffenseMode.ACC`, `Midcast.Burst`, `WS.ACC`, `WS.MAB`, `WS.Crit` |  |
-| Karieyh Ring |  | `Idle`, `WS` | `WS` | `WS` |
-| Lehko's Ring |  | `OffenseMode`, `Midcast.FastRecast`, `WS.ACC`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `OffenseMode`, `WS.ACC`, `WS.Crit` | `OffenseMode`, `WS` |
-| Murky Ring |  | `Idle`, `OffenseMode.DT` | `Idle`, `OffenseMode.DT` |  |
-| Naji's Loop |  | `Precast.FastCast`, `Midcast.Cure`, `Midcast.BlueMagic.Healing`, `Midcast['Restoral']`, `Midcast['White Wind']` | `Midcast.Cure` |  |
-| Prolix Ring |  | `Precast.FastCast`, `Midcast.FastRecast`, `Midcast.Enhancing` | `Precast['Stoneskin']`, `Midcast.Enhancing`, `Midcast.Phalanx` |  |
-| Rajas Ring |  | `OffenseMode`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `OffenseMode` | `OffenseMode` |
-| Stikini Ring | one of two identical copies | `Midcast.Enhancing.Skill`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill`, `Midcast.BlueMagic.Healing`, `WS[each magical WS].ACC` | `Midcast.Enhancing.Skill`, `Midcast.Enfeebling`, `Midcast.Nuke`, `WS[each magical WS].ACC` |  |
-| Stikini Ring | one of two identical copies | `Midcast.Enhancing.Skill`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill`, `WS[each magical WS].ACC` | `Midcast.Enhancing.Skill`, `Midcast.Enfeebling`, `Midcast.Nuke`, `WS[each magical WS].ACC` |  |
+| Ayanmo Ring |  | `precast.Waltz`, `precast.Flourish1`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Stun.Resistant`, `idle.DTHippo`, `defense.MDT` | `precast.JA['Violent Flourish']`, `precast.FC`, `midcast.FastRecast`, `midcast.Cure.DT`, `midcast['Elemental Magic'].DT`, `resting`, `Ballista`, `idle` |  |
+| Epaminondas's Ring |  | `precast.WS`, `precast.WS.DT`, `precast.WS['Sanguine Blade']` | `precast.WS`, `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `precast.WS['Sanguine Blade']` | `precast.WS` |
+| Jhakri Ring |  | `precast.Step`, `precast.WS.Acc`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Stun.Resistant`, `engaged.Acc`, `MagicBurst` | `precast.Step`, `precast.FullFC`, `precast.WS.Requiescat`, `MagicBurst`, `engaged.Acc` |  |
+| Karieyh Ring |  | `precast.WS`, `precast.WS['Sanguine Blade']`, `resting`, `idle` | `precast.WS`, `precast.WS.Requiescat`, `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `precast.WS['Sanguine Blade']` | `precast.WS.Acc`, `precast.WS.Evisceration`, `precast.WS['Savage Blade']`, `precast.WS.Proc`, `idle`, `idle.Refresh` |
+| Lehko's Ring |  | `precast.Step`, `precast.WS.Acc`, `precast.WS.Requiescat`, `precast.WS['Chant du Cygne']`, `midcast.FastRecast`, `midcast['Blue Magic'].Physical.Resistant`, `defense.PDT`, `engaged`, `engaged.Acc`, `engaged.DT` | `precast.Step`, `precast.WS['Chant du Cygne']`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.WS`, `precast.WS.Proc`, `midcast.RA`, `midcast.RA.Acc`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |
+| Murky Ring |  | `HPDown`, `HPCure`, `precast.Waltz`, `precast.WS.DT`, `precast.WS.Requiescat.DT`, `precast.WS['Chant du Cygne'].DT`, `midcast['Blue Magic'].Magical.SIRD`, `midcast.Cure`, `midcast['Blue Magic'].UnlockedAoEHealing`, `resting`, `idle`, `defense.PDT`, `defense.MDT`, `engaged.DT`, `engaged.Acc.DT` | `precast.FC`, `midcast.FastRecast`, `midcast.Cure`, `midcast.Cure.DT`, `midcast['Enhancing Magic']`, `midcast['Elemental Magic'].DT`, `HPDown`, `HPCure`, `resting`, `Ballista`, `idle`, `engaged.DT`, `engaged.Acc.DT` | `precast.Waltz`, `midcast.FastRecast`, `midcast.RA`, `midcast.RA.Acc`, `HPDown`, `idle`, `idle.Refresh`, `defense.PDT`, `defense.MDT`, `defense.MEVA`, `engaged`, `engaged.DT`, `engaged.Acc.DT` |
+| Naji's Loop |  | `HPCure`, `precast.FC`, `midcast.Cure`, `midcast['Blue Magic'].UnlockedAoEHealing`, `midcast['Blue Magic'].Healing` | `midcast.Cure`, `HPCure` | `precast.FC` |
+| Prolix Ring |  | `HPDown`, `precast.FC`, `midcast.FastRecast` | `precast.FullFC`, `midcast['Enhancing Magic']`, `midcast['Elemental Magic'].Proc`, `HPDown` | `precast.FC`, `midcast.FastRecast`, `HPDown` |
+| Rajas Ring |  | `precast.WS.Requiescat`, `precast.WS['Chant du Cygne']`, `engaged` | `precast.WS['Chant du Cygne']`, `engaged` | `precast.Step`, `precast.JA['Violent Flourish']`, `engaged.Acc` |
+| Stikini Ring | one of two identical copies | `precast.WS['Sanguine Blade'].Acc`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast.Phalanx`, `midcast['Elemental Magic']`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].SkillBasedBuff` | `precast.WS['Sanguine Blade'].Acc`, `EnhancingSkill`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic']`, `midcast['Elemental Magic'].Proc`, `midcast.Impact`, `midcast['Dark Magic']` |  |
+| Stikini Ring | one of two identical copies | `precast.WS['Sanguine Blade'].Acc`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast.Phalanx`, `midcast['Elemental Magic']`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].Healing`, `midcast['Blue Magic'].SkillBasedBuff` | `precast.WS['Sanguine Blade'].Acc`, `EnhancingSkill`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic']`, `midcast.Impact`, `midcast['Dark Magic']` |  |
 
-## Back (12)
+## Back (14)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Cornflower Cape |  | `Midcast.BlueMagic.Skill` |  |  |
-| Fi Follet Cape +1 |  | `Precast.FastCast`, `Midcast.FastRecast`, `Midcast.Enhancing.Skill` | `Precast['Stoneskin']`, `Midcast.Enhancing.Skill` |  |
-| Ghostfyre Cape |  |  | `Midcast.Enhancing` |  |
-| Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, DEX+10, Crit.hit rate+10 | `WS['Chant du Cygne']` |  |  |
-| Rosmerta's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 | `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `WS.MAB` |  |  |
-| Rosmerta's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10% | `Midcast.BlueMagic.Physical`, `WS` |  |  |
-| Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, "Dbl.Atk."+10, Damage taken-5% | `Idle`, `OffenseMode`, `WS.ACC`, `WS['Requiescat']` |  |  |
-| Solemnity Cape |  | `Midcast.Cure`, `Midcast.BlueMagic.Healing`, `Midcast['Restoral']`, `Midcast['White Wind']` | `Midcast.Cure` | `OffenseMode` |
-| Sucellos's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10%, Damage taken-5% |  | `WS` |  |
-| Sucellos's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, "Dbl.Atk."+10, Damage taken-5% |  | `Idle`, `OffenseMode`, `WS.ACC`, `WS.Crit` |  |
-| Sucellos's Cape | MND+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, Haste+10 |  | `Midcast.Enfeebling` |  |
-| Sucellos's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 |  | `Midcast.Dark`, `Midcast.Nuke`, `WS.MAB`, `midcast_custom()` |  |
+| Cornflower Cape |  | `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].SkillBasedBuff` |  |  |
+| Fi Follet Cape +1 |  | `HPDown`, `precast.FC`, `midcast.FastRecast`, `midcast.Phalanx` | `precast.FullFC`, `EnhancingSkill`, `HPDown` |  |
+| Ghostfyre Cape |  |  | `midcast['Enhancing Magic']` |  |
+| Mecisto. Mantle |  | `Capacity` | `Capacity` | `Capacity` |
+| Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, DEX+10, Crit.hit rate+10 | `precast.WS['Chant du Cygne']`, `engaged.AM`, `engaged.DT.AM` |  |  |
+| Rosmerta's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 | `precast.WS['Sanguine Blade'].Acc`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast['Blue Magic'].Breath` |  |  |
+| Rosmerta's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10% | `precast.WS`, `precast.WS.DT`, `precast.WS['Sanguine Blade']`, `midcast['Blue Magic'].Physical` |  |  |
+| Rosmerta's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, "Dbl.Atk."+10, Damage taken-5% | `buff.Efflux`, `precast.Waltz`, `precast.Step`, `precast.WS.Acc`, `precast.WS.Requiescat`, `precast.WS['Chant du Cygne'].DT`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Stun.Resistant`, `resting`, `idle`, `defense.PDT`, `defense.MDT`, `engaged`, `engaged.Acc`, `engaged.DT` |  |  |
+| Solemnity Cape |  | `HPCure`, `midcast.Cure`, `midcast['Blue Magic'].UnlockedAoEHealing`, `midcast['Blue Magic'].Healing` | `midcast.Cure`, `HPCure` | `precast.Waltz`, `midcast.FastRecast`, `midcast.RA`, `midcast.RA.Acc`, `HPDown`, `idle`, `idle.Refresh`, `defense.PDT`, `defense.MDT`, `defense.MEVA` |
+| Sucellos's Cape | STR+20, Accuracy+20 Attack+20, STR+10, Weapon skill damage +10%, Damage taken-5% |  | `precast.WS`, `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `precast.WS['Sanguine Blade']` |  |
+| Sucellos's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, "Dbl.Atk."+10, Damage taken-5% |  | `precast.Step`, `precast.FC`, `precast.WS.Requiescat`, `midcast.FastRecast`, `midcast.Cure.DT`, `resting`, `Ballista`, `idle`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |  |
+| Sucellos's Cape | MND+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, Haste+10 |  | `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Silence`, `midcast['Elemental Magic'].Proc`, `midcast['Absorb-TP']` |  |
+| Sucellos's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, Mag. Acc.+10, "Mag.Atk.Bns."+10 |  | `precast.WS['Sanguine Blade'].Acc`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast.Gravity`, `midcast['Elemental Magic']`, `midcast.Impact`, `midcast['Dark Magic']` |  |
+| Toutatis's Cape | DEX+20, Accuracy+20 Attack+20, Accuracy+10, Crit.hit rate+10 |  |  | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.WS`, `precast.WS.Proc`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |
 
 ## Waist (13)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Chaac Belt |  | `TreasureHunter` | `TreasureHunter` |  |
-| Embla Sash |  |  | `Idle.Sublimation`, `Precast.FastCast`, `Midcast.Enhancing` |  |
-| Eschan Stone |  | `OffenseMode.ACC`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.Dark`, `WS.ACC`, `WS.MAB`, `midcast_custom()` | `OffenseMode.ACC`, `Midcast.Nuke`, `WS.ACC`, `WS.MAB` | `Step` |
-| Flume Belt |  | `Idle`, `Midcast['White Wind']` | `Idle` |  |
-| Fotia Belt |  | `WS['Seraph Blade']`, `WS['Red Lotus Blade']`, `WS['Flash Nova']`, `WS['Chant du Cygne']`, `WS['Requiescat']` | `WS.Crit`, `WS['Seraph Blade']`, `WS['Red Lotus Blade']`, `WS['Aeolian Edge']` | `WS` |
-| Fucho-no-Obi |  | `LowMP` | `LowMP` |  |
-| Kentarch Belt +1 |  | `OffenseMode` | `OffenseMode` | `OffenseMode` |
-| Obstin. Sash |  |  | `Midcast.Enfeebling`, `WS[each magical WS].ACC` |  |
-| Olympus Sash |  | `Midcast.Enhancing.Skill` | `Midcast.Enhancing.Skill` |  |
-| Rumination Sash |  | `Midcast.Enfeebling` |  |  |
-| Sailfi Belt +1 |  | `OffenseMode.TP`, `WS` | `OffenseMode.TP`, `WS` |  |
-| Siegel Sash |  | `Precast.Enhancing`, `Midcast['Stoneskin']` | `Precast['Stoneskin']`, `Midcast['Stoneskin']` |  |
-| Witful Belt |  | `Precast.FastCast`, `Midcast.FastRecast` |  |  |
+| Chaac Belt |  | `TreasureHunter` | `TreasureHunter`, `midcast.Dia`, `midcast.Diaga`, `midcast.Bio` | `TreasureHunter`, `precast.WS.TH`, `midcast.Dia`, `midcast.Diaga`, `midcast['Dia II']`, `midcast.Bio`, `midcast['Bio II']` |
+| Embla Sash |  |  | `precast.FC`, `precast.FullFC`, `midcast.FastRecast`, `midcast.Cure`, `midcast['Enhancing Magic']`, `buff.Sublimation`, `buff.DTSublimation` |  |
+| Eschan Stone |  | `HPCure`, `precast.Step`, `precast.WS.Acc`, `precast.WS['Sanguine Blade']`, `precast.WS['Sanguine Blade'].DT`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Dark Magic']`, `midcast['Elemental Magic']`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].UnlockedAoEHealing`, `engaged.Acc` | `precast.Step`, `precast.WS`, `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `precast.WS['Sanguine Blade']`, `midcast['Elemental Magic']`, `HPCure`, `engaged.Acc`, `engaged.Acc.DT` | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.WS`, `precast.WS.Proc`, `midcast.RA`, `midcast.RA.Acc`, `HPMax`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |
+| Flume Belt |  | `precast.Waltz`, `midcast.Cure`, `idle`, `defense.PDT`, `defense.MDT`, `MP` | `midcast.Cure.DT`, `Ballista`, `idle` | `precast.Waltz`, `HPDown`, `idle`, `idle.Refresh`, `defense.PDT` |
+| Fotia Belt |  | `precast.WS.Requiescat`, `precast.WS['Flash Nova']`, `precast.WS['Flash Nova'].DT`, `precast.WS['Flash Nova'].Acc` | `precast.WS.Requiescat`, `precast.WS['Seraph Blade']`, `precast.WS['Flash Nova']` | `precast.WS.Evisceration` |
+| Fucho-no-Obi |  | `HPDown`, `latent_refresh`, `resting` | `midcast.Drain`, `HPDown`, `resting`, `latent_refresh` |  |
+| Kentarch Belt +1 |  | `engaged.DT` |  |  |
+| Obstin. Sash |  |  | `precast.WS['Sanguine Blade'].Acc`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic'].Resistant`, `midcast['Elemental Magic'].Proc`, `midcast.Impact`, `midcast['Dark Magic']` |  |
+| Olympus Sash |  | `midcast.Phalanx` | `EnhancingSkill` |  |
+| Rumination Sash |  | `midcast['Blue Magic'].Magical.SIRD`, `midcast['Enfeebling Magic']` |  |  |
+| Sailfi Belt +1 |  | `precast.WS`, `precast.WS.DT`, `precast.WS['Chant du Cygne']`, `engaged` | `engaged`, `engaged.DT` | `midcast.FastRecast` |
+| Siegel Sash |  | `midcast.Stoneskin` | `midcast.Stoneskin` |  |
+| Witful Belt |  | `precast.FC`, `midcast.FastRecast`, `midcast['Blue Magic'].SkillBasedBuff` |  |  |
 
-## Legs (10)
-
-| Item | Copy | BLU sets | RDM sets | THF sets |
-|---|---|---|---|---|
-| Atro. Tights +4 |  |  | `OffenseMode.ACC`, `Midcast.Cure`, `Midcast.Enhancing.Skill`, `Midcast.Enfeebling`, `WS.ACC`, `WS[each magical WS].ACC` |  |
-| Carmine Cuisses +1 |  | `Movement`, `Midcast.Enhancing.Skill` | `Movement` |  |
-| Doyen Pants |  | `Precast['Stoneskin']`, `Precast.Cure` | `Precast['Stoneskin']`, `Precast.Cure` |  |
-| Enif Cosciales |  | `Precast.FastCast`, `Midcast.FastRecast` |  |  |
-| Gleti's Breeches |  | `WS['Chant du Cygne']` |  | `OffenseMode` |
-| Hashishin Tayt +3 |  | `Idle`, `OffenseMode`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Skill`, `Midcast.BlueMagic.Healing`, `WS.ACC`, `WS[each magical WS].ACC`, `WS['Requiescat']` |  |  |
-| Leth. Fuseau +3 |  |  | `Idle`, `OffenseMode`, `Midcast.Enhancing.Others`, `Midcast.Refresh`, `Midcast.Enfeebling.Potency`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS.MAB`, `WS.Crit` |  |
-| Luh. Shalwar +4 |  | `WS`, `WS.MAB` |  |  |
-| Nyame Flanchard |  | `Midcast['White Wind']`, `WS['Savage Blade']`, `WS['Expiacion']` | `WS` | `WS` |
-| Telchine Braconi |  | `Midcast.Enhancing` | `Midcast.Enhancing` |  |
-
-## Feet (9)
+## Legs (11)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Chelona Boots |  | `Precast.FastCast`, `Midcast.FastRecast` |  |  |
-| Gleti's Boots |  | `WS['Chant du Cygne']` |  | `OffenseMode` |
-| Hashi. Basmak +3 |  | `Idle`, `OffenseMode.ACC`, `Midcast.BlueMagic.Physical`, `Midcast.BlueMagic.Nuke`, `Midcast.BlueMagic.ACC`, `Midcast.BlueMagic.Healing`, `WS.ACC`, `WS.MAB`, `WS['Requiescat']` |  |  |
-| Leth. Houseaux +3 |  |  | `OffenseMode`, `Midcast.Enhancing`, `Midcast.Enhancing.Skill`, `Midcast.Enfeebling.Duration`, `Midcast.Nuke`, `WS`, `WS.ACC`, `WS.MAB`, `WS.Crit` |  |
-| Luhlaza Charuqs +1 |  | `JA['Diffusion']`, `Midcast.BlueMagic.Skill`, `Diffusion` |  |  |
-| Nyame Sollerets |  | `OffenseMode`, `Midcast['White Wind']`, `WS` |  | `WS` |
-| Telchine Pigaches |  | `Midcast.Regen` | `Midcast.Regen` |  |
-| Vanya Clogs |  |  | `Precast.Cure`, `Midcast.Cure` |  |
-| Viti. Boots +4 |  |  | `Idle`, `Midcast.Enfeebling` |  |
+| Assim. Shalwar +1 |  | `midcast['Blue Magic'].Magical.SIRD` |  |  |
+| Atro. Tights +4 |  |  | `precast.Step`, `precast.WS['Sanguine Blade'].Acc`, `midcast.Cure`, `midcast.Cure.DT`, `midcast.Cursna`, `EnhancingSkill`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic'].Proc`, `midcast.Impact`, `midcast['Dark Magic']`, `HPCure`, `engaged.Acc` |  |
+| Carmine Cuisses +1 |  | `midcast.Phalanx`, `midcast.Cursna`, `idle.DTHippo`, `Kiting`, `DWMax` | `Ballista`, `Kiting` |  |
+| Doyen Pants |  |  | `HPDown` |  |
+| Enif Cosciales |  | `HPDown`, `precast.FC`, `midcast.FastRecast` |  | `precast.FC`, `midcast.FastRecast` |
+| Gleti's Breeches |  |  |  | `precast.WS.Evisceration`, `precast.WS.Evisceration.Acc`, `engaged.Acc` |
+| Hashishin Tayt +3 |  | `buff['Burst Affinity']`, `buff.Efflux`, `precast.Waltz`, `precast.Step`, `precast.WS.Acc`, `precast.WS.Requiescat`, `precast.WS['Chant du Cygne']`, `precast.WS['Chant du Cygne'].DT`, `precast.WS['Sanguine Blade'].Acc`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast.Cure`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].Healing`, `midcast['Blue Magic'].SkillBasedBuff`, `resting`, `idle`, `defense.PDT`, `defense.MDT`, `engaged.Acc`, `engaged.DT` |  |  |
+| Leth. Fuseau +3 |  |  | `precast.WS['Black Halo']`, `precast.WS['Sanguine Blade']`, `buff.ComposureOther`, `midcast.Refresh`, `midcast['Enfeebling Magic']`, `midcast.Sleep`, `midcast['Elemental Magic']`, `resting`, `idle`, `engaged`, `engaged.DT`, `engaged.Acc.DT` |  |
+| Luh. Shalwar +4 |  | `precast.WS['Sanguine Blade']`, `midcast['Blue Magic'].Magical.Fodder` |  |  |
+| Nyame Flanchard |  | `HPCure`, `precast.WS`, `precast.WS.DT`, `precast.WS.Fodder`, `midcast['Blue Magic'].UnlockedAoEHealing`, `engaged` | `precast.FC`, `precast.WS`, `precast.WS.Requiescat`, `precast.WS['Savage Blade']`, `midcast.FastRecast` | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.Waltz`, `precast.WS`, `precast.WS.Proc`, `midcast.RA`, `midcast.RA.Acc`, `HPMax`, `idle`, `idle.Refresh`, `defense.PDT`, `defense.MDT`, `defense.MEVA`, `engaged`, `engaged.DT`, `engaged.Acc.DT` |
+| Telchine Braconi |  | `midcast['Enhancing Magic']` | `midcast['Enhancing Magic']` |  |
+
+## Feet (10)
+
+| Item | Copy | BLU sets | RDM sets | THF sets |
+|---|---|---|---|---|
+| Assim. Charuqs +2 |  | `buff['Chain Affinity']` |  |  |
+| Chelona Boots |  | `HPDown`, `precast.FC`, `midcast.FastRecast`, `resting` | `precast.FullFC`, `HPDown`, `resting` |  |
+| Gleti's Boots |  | `precast.WS['Chant du Cygne']` |  | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.WS.Acc`, `precast.WS.Evisceration`, `precast.WS['Savage Blade']`, `precast.WS.Proc`, `engaged`, `engaged.Acc` |
+| Hashi. Basmak +3 |  | `buff['Burst Affinity']`, `precast.Step`, `precast.WS.Acc`, `precast.WS.Requiescat`, `precast.WS['Sanguine Blade']`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast.Cure`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].Healing`, `idle`, `defense.PDT`, `defense.MDT`, `engaged.AM`, `engaged.Acc` |  |  |
+| Leth. Houseaux +3 |  |  | `precast.Step`, `precast.WS`, `precast.WS.Requiescat`, `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `precast.WS['Sanguine Blade']`, `precast.WS['Sanguine Blade'].Acc`, `midcast['Enhancing Magic']`, `buff.ComposureOther`, `EnhancingSkill`, `midcast.Sleep`, `midcast['Elemental Magic']`, `midcast.Impact`, `midcast['Dark Magic']`, `idle.MDT`, `engaged`, `engaged.Acc`, `engaged.DT`, `engaged.Acc.DT` |  |
+| Luhlaza Charuqs +1 |  | `buff.Diffusion`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].SkillBasedBuff` |  |  |
+| Nyame Sollerets |  | `HPCure`, `precast.Waltz`, `precast.WS`, `precast.WS.DT`, `midcast['Blue Magic'].UnlockedAoEHealing`, `engaged`, `engaged.DT` | `precast.FC`, `midcast.FastRecast`, `HPCure` | `precast.Waltz`, `precast.WS`, `midcast.FastRecast`, `midcast.RA`, `midcast.RA.Acc`, `HPMax`, `idle`, `idle.Refresh`, `defense.PDT`, `defense.MDT`, `defense.MEVA`, `engaged.DT`, `engaged.Acc.DT` |
+| Telchine Pigaches |  |  | `midcast.Regen` |  |
+| Vanya Clogs |  |  | `midcast.Cure`, `midcast.Cure.DT`, `midcast.Cursna`, `midcast['Elemental Magic'].Proc` |  |
+| Viti. Boots +4 |  |  | `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep.Resistant`, `Ballista`, `idle` |  |
