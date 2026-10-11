@@ -411,13 +411,13 @@ function extra_user_customize_idle_set(idleSet)
 	return idleSet
 end
 
---Lockstyle 5 seconds after a job change (a file load) or a subjob change, on a timer of its own rather than Sel's
---tick, which other tick work can hold off. Each change restarts the timer, so a subjob change straight after a job
---change locks once, for the final pair. Sel's own later locks (weapon change, RDM's arts) still go through its tick.
-local lockstyle_token = 0
+--Lockstyle and gs validate 5 seconds after a job change (a file load) or a subjob change, on a timer of its own rather
+--than Sel's tick, which other tick work can hold off. Each change restarts the timer, so a subjob change straight after
+--a job change runs them once, for the final pair. Sel's own later locks (weapon change, RDM's arts) still go through its tick.
+local job_change_token = 0
 
-local function apply_lockstyle(token)
-	if token ~= lockstyle_token or not state.AutoLockstyle.value then return end
+local function apply_lockstyle()
+	if not state.AutoLockstyle.value then return end
 	if user_job_lockstyle then
 		user_job_lockstyle()
 	elseif user_lockstyle then
@@ -430,14 +430,20 @@ local function apply_lockstyle(token)
 	style_delay = os.clock() + 15
 end
 
-local function queue_lockstyle()
-	lockstyle_token = lockstyle_token + 1
-	apply_lockstyle:schedule(5, lockstyle_token)
+local function after_job_change(token)
+	if token ~= job_change_token then return end
+	apply_lockstyle()
+	send_command('gs validate')
 end
 
---A lock still scheduled when the file unloads (on a job change) would run with the old job's settings.
+local function queue_after_job_change()
+	job_change_token = job_change_token + 1
+	after_job_change:schedule(5, job_change_token)
+end
+
+--A timer still scheduled when the file unloads (on a job change) would run with the old job's settings.
 function user_unload()
-	lockstyle_token = lockstyle_token + 1
+	job_change_token = job_change_token + 1
 end
 
 --Sel's status box has no label for a new mode, so Auto WS is appended after it draws. Sel-Display loads
@@ -460,8 +466,7 @@ function extra_user_setup()
 	autows_sync()
 	wrap_job_check_buff()
 	wrap_update_job_states()
-	queue_lockstyle()
-	send_command('wait 5;gs validate')
+	queue_after_job_change()
 end
 
 --Sel only skips a weapon set it can't dual wield when the set's name has 'Dual' or 'DW' in it, and the
