@@ -1206,15 +1206,16 @@ function check_recast(spell, spellMap, eventArgs)
 					eventArgs.cancel = true
 					send_command('@input /ja "Swipe" <t>')
 					return true
-				elseif abil_recasts[spell.recast_id] < 5 and state.MiniQueue.value and (delayed_cast ~= spell.english or delayed_target ~= spell.target.id) then
-					local seconds = seconds_to_clock(abil_recasts[spell.recast_id], 'seconds')
-					add_to_chat(123,'Abort: ['..spell.english..'] waiting on recast, attempting to cast in ('..seconds..') seconds.')
-					eventArgs.cancel = true
-					delayed_prefix = spell.prefix or ''
-					delayed_cast = spell.english or ''
-					delayed_target = spell.target.id or ''
-					add_tick_delay(tonumber(seconds) +.1)
-					return true
+				--Local edit (selindrile-upstream.md): MiniQueue doesn't hold a press waiting on recast, which could fire it after a different action.
+				--elseif abil_recasts[spell.recast_id] < 5 and state.MiniQueue.value and (delayed_cast ~= spell.english or delayed_target ~= spell.target.id) then
+					--local seconds = seconds_to_clock(abil_recasts[spell.recast_id], 'seconds')
+					--add_to_chat(123,'Abort: ['..spell.english..'] waiting on recast, attempting to cast in ('..seconds..') seconds.')
+					--eventArgs.cancel = true
+					--delayed_prefix = spell.prefix or ''
+					--delayed_cast = spell.english or ''
+					--delayed_target = spell.target.id or ''
+					--add_tick_delay(tonumber(seconds) +.1)
+					--return true
 				else
 					add_to_chat(123,'Abort: ['..spell.english..'] waiting on recast. ('..seconds_to_clock(abil_recasts[spell.recast_id])..')')
 					eventArgs.cancel = true
@@ -1228,15 +1229,16 @@ function check_recast(spell, spellMap, eventArgs)
 			if spell_recasts[spell.recast_id] > spell_latency then
 				if stepdown(spell, eventArgs) then
 					return true
-				elseif spell_recasts[spell.recast_id]/60 < 5 and state.MiniQueue.value and (delayed_cast ~= spell.english or delayed_target ~= spell.target.id) then
-					local seconds = seconds_to_clock(spell_recasts[spell.recast_id]/60, 'seconds')
-					add_to_chat(123,'Abort: ['..spell.english..'] waiting on recast, attempting to cast in ('..seconds..') seconds.')
-					eventArgs.cancel = true
-					delayed_prefix = spell.prefix or ''
-					delayed_cast = spell.english or ''
-					delayed_target = spell.target.id or ''
-					add_tick_delay(tonumber(seconds) +.1)
-					return true
+				--Local edit (selindrile-upstream.md): as above, for spells.
+				--elseif spell_recasts[spell.recast_id]/60 < 5 and state.MiniQueue.value and (delayed_cast ~= spell.english or delayed_target ~= spell.target.id) then
+					--local seconds = seconds_to_clock(spell_recasts[spell.recast_id]/60, 'seconds')
+					--add_to_chat(123,'Abort: ['..spell.english..'] waiting on recast, attempting to cast in ('..seconds..') seconds.')
+					--eventArgs.cancel = true
+					--delayed_prefix = spell.prefix or ''
+					--delayed_cast = spell.english or ''
+					--delayed_target = spell.target.id or ''
+					--add_tick_delay(tonumber(seconds) +.1)
+					--return true
 				else
 					add_to_chat(123,'Abort: ['..spell.english..'] waiting on recast. ('..seconds_to_clock(spell_recasts[spell.recast_id]/60)..')')
 					eventArgs.cancel = true

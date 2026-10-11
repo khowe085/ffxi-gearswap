@@ -22,6 +22,7 @@ Re-apply these after copying in an upstream version of the file, unless upstream
 
 - `data/BLU.lua`: `'Orcish Counterstance'` → `'O. Counterstance'` in `blue_magic_maps.Buff` (Windower's resources name for spell 696).
 - `libs/Sel-Display.lua`: in `update_job_states`, the `Weapons` entry shows "Locked" (white) when `state.UnlockWeapons` is off, so the HUD always shows the weapon lock state; upstream shows only "Unlocked".
+- `libs/Sel-Utility.lua`: in `check_recast`, the two MiniQueue branches that held a job ability or spell with under 5 seconds of recast and sent it when ready are commented out. Such a press is now refused with "waiting on recast" like a longer recast, so a held press can't go off after the player has moved on to another action.
 
 ## Pulling in later upstream commits
 
