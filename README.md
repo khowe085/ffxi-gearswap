@@ -56,7 +56,8 @@ Their other keys use job abilities or spells directly and change no mode.
 | AutoWSRestore | on, off | Lets AutoWS use Sanguine Blade, Catastrophe, Entropy or Mystic Boon at low HP or MP |
 | AutoWSMode | off, on | Only drives RngHelper's ranged auto-ws, and stays off without RngHelper |
 | RngHelper, RngHelperQuickDraw | off, on | Ranged attack helper |
-| AutoArts, AutoLockstyle, ReEquip | on, off | Arts upkeep, lockstyle on load and weapon change, re-equip weapons when bare |
+| AutoLockstyle, ReEquip | on, off | Lockstyle on load and weapon change, re-equip weapons when bare |
+| AutoArts | off, on | Composure, Light or Dark Arts, Afflatus Solace and Addendum upkeep. Off stops them entirely, AutoBuffMode and `gs c buffup` included |
 | SkipProcWeapons | off, on | On, `Weapons` skips weapon sets named Proc unless WeaponSets is a Proc group |
 | AutoDefenseMode, AutoShadowMode, AutoSubMode, AutoJumpMode, AutoSuperJumpMode, AutoTankMode, AutoCleanupMode, AutoAcceptRaiseMode | off, on | Job automation |
 | AutoRemoveDoomMode, AutoHolyWaterMode, AutoContradanceMode, CancelStoneskin, AdjustTargets, MiniQueue, RefineWaltz, IdleStep, HoverShot, UseCustomTimers, SelfWarp2Block, DisplayMode | on, off | Upkeep and convenience |

@@ -6,7 +6,7 @@ conserveshadows = false
 
 --Options for automation.
 state.ReEquip 		  		= M(true, 'ReEquip Mode')		 --Set this to false if you don't want to equip your current Weapon set when you aren't wearing any weapons.
-state.AutoArts 		  		= M(true, 'AutoArts') 		 --Set this to false if you don't want to automatically try to keep up Solace/Arts.
+state.AutoArts 		  		= M(false, 'AutoArts') 		 --Set this to true to keep up Composure, Arts, Solace and the like automatically.
 state.AutoLockstyle	 	    = M(true, 'AutoLockstyle Mode') --Set this to false if you don't want gearswap to automatically lockstyle on load and weapon change.
 state.CancelStoneskin 		= M(true, 'Cancel Stone Skin') --Set this to false if you don't want to automatically cancel stoneskin when you're slept.
 state.SkipProcWeapons 		= M(false, 'Skip Proc Weapons') --Set this to true to skip Proc weapon sets when cycling Weapons, outside a Proc WeaponSets group.
@@ -182,6 +182,16 @@ local sel_equip_weaponset = equip_weaponset
 function equip_weaponset()
 	sel_equip_weaponset()
 	hold_engaged_weapons()
+end
+
+--The job files' check_arts (Composure, Light Arts and the like) also fires under AutoBuffMode and gs c buffup,
+--so AutoArts alone doesn't stop it. Off means never.
+if check_arts then
+	local job_check_arts = check_arts
+	function check_arts()
+		if not state.AutoArts.value then return false end
+		return job_check_arts()
+	end
 end
 
 function user_status_change(newStatus, oldStatus, eventArgs)
