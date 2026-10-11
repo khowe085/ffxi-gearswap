@@ -25,14 +25,11 @@ state.AutoWS				= M{['description']='Auto WS', 'OFF'} --Options are rebuilt from
 	~ = Shift Key
 	# = Apps Key
 ]]
+send_command('bind f6 gs c toggle AutoTrustMode') --Summons trusts automatically.
 send_command('bind f7 gs c set DefenseMode Physical') --Turns your physical defense set on.
 send_command('bind ^f7 gs c cycle PhysicalDefenseMode') --Changes your physical defense set.
 send_command('bind !f7 gs c set DefenseMode Resist') --Turns your resist defense set on.
 send_command('bind ^!f7 gs c cycle ResistDefenseMode') --Changes your resist defense set.
-send_command('bind f8 gs c set DefenseMode Magical') --Turns your magical defense set on.
-send_command('bind ^f8 gs c cycle MagicalDefenseMode') --Changes your magical defense set.
-send_command('bind !f8 gs c reset DefenseMode') --Turns your defensive mode off.
-send_command('bind ^!f8 gs c toggle Kiting') --Keeps your kiting gear on..
 send_command('bind f9 gs c cycle Weapons') --Cycle through weapons sets.
 send_command('bind ^f9 gs c cycle AutoWS') --Cycles auto-ws through OFF and the current weapon's AutoWS_List choices.
 send_command('bind !f9 gs c toggle UnlockWeapons') --Lets sets change main and sub out of combat; while engaged they stay put.
@@ -42,7 +39,10 @@ send_command('bind f10 gs c cycle AutoBuffMode') --Automatically keeps certain b
 send_command('bind ^f10 gs c toggle AutoFoodMode') --Turns auto-food mode on and off.
 send_command('bind !f10 gs c toggle AutoStunMode') --Turns auto-stun mode off and on.
 send_command('bind ^!f10 gs c toggle AutoNukeMode') --Turns auto-nuke mode on and off.
-send_command('bind f11 gs c toggle AutoTrustMode') --Summons trusts automatically.
+send_command('bind f11 gs c set DefenseMode Magical') --Turns your magical defense set on.
+send_command('bind ^f11 gs c cycle MagicalDefenseMode') --Changes your magical defense set.
+send_command('bind !f11 gs c reset DefenseMode') --Turns your defensive mode off.
+send_command('bind ^!f11 gs c toggle Kiting') --Keeps your kiting gear on..
 send_command('bind f12 gs c cycle OffenseMode') --Changes offense settings such as accuracy.
 send_command('bind ^f12 gs c cycle HybridMode') --Changes defense settings for melee such as PDT.
 send_command('bind !f12 gs c cycle ExtraMeleeMode') --Adds another set layered on top of your engaged set.
