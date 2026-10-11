@@ -514,19 +514,7 @@ function init_gear_sets()
 end
 
 function select_default_macro_book()
-	if player.sub_job == 'SCH' then
-		set_macro_page(1, 2)
-	elseif player.sub_job == 'DNC' then
-		set_macro_page(4, 2)
-	elseif player.sub_job == 'NIN' then
-		set_macro_page(5, 2)
-	elseif player.sub_job == 'BLM' then
-		set_macro_page(2, 2)
-	elseif player.sub_job == 'DRK' then
-		set_macro_page(6, 2)
-	else
-		set_macro_page(3, 2)
-	end
+
 end
 
 function user_job_buff_change(buff, gain)
@@ -536,17 +524,7 @@ function user_job_buff_change(buff, gain)
 end
 
 function user_job_lockstyle()
-	if player.sub_job == 'SCH' then
-		if state.Buff['Light Arts'] or state.Buff['Addendum: White'] then
-			windower.chat.input('/lockstyleset 001')
-		elseif state.Buff['Dark Arts'] or state.Buff['Addendum: Black'] then
-			windower.chat.input('/lockstyleset 002')
-		else
-			windower.chat.input('/lockstyleset 004')
-		end
-	elseif player.sub_job == 'NIN' or player.sub_job == 'DNC' then
-		windower.chat.input('/lockstyleset 020')
-	end
+	windower.chat.input('/lockstyleset 001')
 end
 
 --With Ullr in the range slot, a set's ammo would take the bow off and reset TP, so the ammo slot stays empty.

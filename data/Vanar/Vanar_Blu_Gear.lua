@@ -509,21 +509,7 @@ function init_gear_sets()
 end
 
 function select_default_macro_book()
-	if player.sub_job == 'DNC' then
-		set_macro_page(4, 2)
-	elseif player.sub_job == 'NIN' then
-		set_macro_page(5, 2)
-	elseif player.sub_job == 'WAR' then
-		set_macro_page(7, 2)
-	elseif player.sub_job == 'RUN' then
-		set_macro_page(3, 2)
-	elseif player.sub_job == 'THF' then
-		set_macro_page(2, 2)
-	elseif player.sub_job == 'RDM' then
-		set_macro_page(1, 2)
-	else
-		set_macro_page(6, 2)
-	end
+
 end
 
 AutoWS_List = {
@@ -713,6 +699,10 @@ end
 --Delayed: a main job change also fires this while this file is still loaded.
 function user_job_sub_job_change(newSubjob, oldSubjob)
 	queue_azure_set(5)
+end
+
+function user_job_lockstyle()
+	windower.chat.input('/lockstyleset 002')
 end
 
 function user_job_state_change(stateField, newValue, oldValue)
