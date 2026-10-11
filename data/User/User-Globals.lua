@@ -30,8 +30,8 @@ send_command('bind f7 gs c set DefenseMode Physical') --Turns your physical defe
 send_command('bind ^f7 gs c cycle PhysicalDefenseMode') --Changes your physical defense set.
 send_command('bind !f7 gs c set DefenseMode Resist') --Turns your resist defense set on.
 send_command('bind ^!f7 gs c cycle ResistDefenseMode') --Changes your resist defense set.
-send_command('bind f9 gs c cycle Weapons') --Cycle through weapons sets.
-send_command('bind ^f9 gs c cycle AutoWS') --Cycles auto-ws through OFF and the current weapon's AutoWS_List choices.
+send_command('bind f9 gs c cycle AutoWS') --Cycles auto-ws through OFF and the current weapon's AutoWS_List choices.
+send_command('bind ^f9 gs c cycle Weapons') --Cycle through weapons sets.
 send_command('bind !f9 gs c toggle UnlockWeapons') --Lets sets change main and sub out of combat; while engaged they stay put.
 send_command('bind @f9 gs c cycle RangedMode') --Changes ranged offense settings such as accuracy.
 send_command('bind f10 gs c cycle AutoBuffMode') --Automatically keeps certain buffs up, job-dependant.
