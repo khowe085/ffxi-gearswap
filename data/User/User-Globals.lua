@@ -67,7 +67,7 @@ ws_buffs = {
 }
 
 --The weaponskill being sent again. Set as that send goes out, so only it, and not a press
---spammed before it, is let through untouched.
+--spammed before it, is let through untouched; cleared once it gets past Sel's filters.
 local ws_buff_refire
 --os.clock() time until which other presses of a weaponskill are dropped while its buff and its
 --second send are pending. Ability recasts don't update until the server resolves the JA, so
@@ -98,8 +98,9 @@ function user_filter_precast(spell, spellMap, eventArgs)
 
 	--A lapsed lock means the second send never made it back here, and its token must not wave a much later press through.
 	if os.clock() >= ws_buff_lock then ws_buff_refire = nil end
+	--Kept until user_precast: Sel's own filters can still hold the second send in MiniQueue and send it once more,
+	--and that send needs the token too.
 	if ws_buff_refire == spell.english then
-		ws_buff_refire = nil
 		eventArgs.ws_buff_refiring = true
 	end
 
@@ -117,7 +118,11 @@ end
 
 --Runs after Sel's own precast filters, so the buff is never used for a weaponskill they would refuse.
 function user_precast(spell, spellMap, eventArgs)
-	if spell.type ~= 'WeaponSkill' or spell.test or not state.AutoWSBuff.value or eventArgs.ws_buff_refiring then return end
+	if eventArgs.ws_buff_refiring then
+		ws_buff_refire = nil
+		return
+	end
+	if spell.type ~= 'WeaponSkill' or spell.test or not state.AutoWSBuff.value then return end
 	if silent_check_amnesia() then return end
 	--WAR.lua pops Warcry and re-sends the weaponskill itself under AutoBuffMode; the lock below would drop that re-send.
 	if player.main_job == 'WAR' and state.AutoBuffMode.value ~= 'Off' then return end
