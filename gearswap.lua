@@ -281,7 +281,7 @@ function naked_toggle()
     if naked_holding then
         naked_holding = false
         gearswap_disabled = naked_was_disabled
-        print('GearSwap: Naked off, user file '..(naked_was_disabled and 'still disabled.' or 'enabled.'))
+        msg.addon_msg(123,'Naked off, user file '..(naked_was_disabled and 'still disabled.' or 'enabled.'))
         return
     end
     if not user_env or not sets then
@@ -300,7 +300,7 @@ function naked_toggle()
     equip_sets('equip_command',nil,set)
     naked_holding = true
     gearswap_disabled = true
-    print('GearSwap: Naked on, user file disabled until the next gs naked.')
+    msg.addon_msg(123,'Naked on, user file disabled until the next gs naked.')
 end
 
 function disenable(tab,funct,functname,pol)
