@@ -9,6 +9,7 @@ function character_user_job_setup()
 	state.ResistDefenseMode:options('MEVA')
 	state.Weapons:options('Tizona','Tizona Acc','Almace','MeleeClubs','HybridWeapons','Savage Blade','Savage Blade Acc')
 
+	state.AutoBuffMode = M { ['description'] = 'Auto Buff Mode', 'Off', 'Tizona', 'Other' }
     state.ExtraMeleeMode = M{['description']='Extra Melee Mode','None','MP','SuppaBrutal','DWEarrings','DWMax'}
 
 	state.JobMode = M{['description']='Job Mode','AoE','Melee'}
@@ -724,11 +725,17 @@ function user_job_unload()
 end
 
 buff_spell_lists = {
-	Auto = {--Options for When are: Always, Engaged, Idle, OutOfCombat, Combat
+	Tizona = {--Options for When are: Always, Engaged, Idle, OutOfCombat, Combat
 		{Name='Erratic Flutter',	Buff='Haste',			SpellID=710,	When='Always'},
-		{Name='Refresh',			Buff='Refresh',			SpellID=109,	When='Idle'},
 		{Name='Nat. Meditation',	Buff='Attack Boost',	SpellID=700,	When='Engaged'},
 		{Name='Mighty Guard',		Buff='Mighty Guard',	SpellID=750,	When='Combat'},
+	},
+
+	Other = { --Options for When are: Always, Engaged, Idle, OutOfCombat, Combat
+		{ Name = 'Erratic Flutter', Buff = 'Haste',    SpellID = 710, When = 'Always' },
+		{ Name = 'Battery Charge',  Buff = 'Refresh',  SpellID = 662, When = 'Idle' },
+		{ Name = 'Nat. Meditation', Buff = 'Attack Boost', SpellID = 700, When = 'Engaged' },
+		{ Name = 'Mighty Guard',  Buff = 'Mighty Guard', SpellID = 750, When = 'Combat' },
 	},
 
 	Default = {
