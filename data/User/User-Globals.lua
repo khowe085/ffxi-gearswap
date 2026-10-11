@@ -38,16 +38,16 @@ send_command('bind f10 gs c cycle AutoBuffMode') --Automatically keeps certain b
 send_command('bind ^f10 gs c toggle AutoFoodMode') --Turns auto-food mode on and off.
 send_command('bind !f10 gs c toggle AutoStunMode') --Turns auto-stun mode off and on.
 send_command('bind ^!f10 gs c toggle AutoNukeMode') --Turns auto-nuke mode on and off.
-send_command('bind f11 gs c toggle Kiting') --Keeps your kiting gear on..
-send_command('bind ^f11 gs c set DefenseMode Magical') --Turns your magical defense set on.
-send_command('bind !f11 gs c cycle MagicalDefenseMode') --Changes your magical defense set.
-send_command('bind ^!f11 gs c reset DefenseMode') --Turns your defensive mode off.
-send_command('bind f12 gs c cycle OffenseMode') --Changes offense settings such as accuracy.
-send_command('bind ^f12 gs c cycle HybridMode') --Changes defense settings for melee such as PDT.
-send_command('bind !f12 gs c cycle ExtraMeleeMode') --Adds another set layered on top of your engaged set.
-send_command('bind ^!f12 gs c cycle CastingMode') --Changes your castingmode options such as magic accuracy.
-send_command('bind @f12 gs c cycle IdleMode') --Changes your idle mode options such as refresh.
-send_command('bind ^@!f12 gs reload') --Reloads gearswap.
+send_command('bind f11 gs c cycle OffenseMode') --Changes offense settings such as accuracy.
+send_command('bind ^f11 gs c cycle HybridMode') --Changes defense settings for melee such as PDT.
+send_command('bind !f11 gs c cycle ExtraMeleeMode') --Adds another set layered on top of your engaged set.
+send_command('bind ^!f11 gs c cycle CastingMode') --Changes your castingmode options such as magic accuracy.
+send_command('bind @f11 gs c cycle IdleMode') --Changes your idle mode options such as refresh.
+send_command('bind ^@!f11 gs reload') --Reloads gearswap.
+send_command('bind f12 gs c toggle Kiting') --Keeps your kiting gear on..
+send_command('bind ^f12 gs c set DefenseMode Magical') --Turns your magical defense set on.
+send_command('bind !f12 gs c cycle MagicalDefenseMode') --Changes your magical defense set.
+send_command('bind ^!f12 gs c reset DefenseMode') --Turns your defensive mode off.
 send_command('bind @scrolllock gs c cycle Passive') --Changes offense settings such as accuracy.
 send_command('bind pause gs c update user') --Runs a quick check to make sure you have the right gear on and checks variables.
 send_command('bind ^@!pause gs org') --Runs organizer.
