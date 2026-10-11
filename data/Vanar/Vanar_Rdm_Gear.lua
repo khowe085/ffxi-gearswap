@@ -283,8 +283,6 @@ function init_gear_sets()
 	sets.midcast['Dia III'] = sets.midcast.Sleep
 	sets.midcast.Inundation = sets.midcast.Sleep
 
-	-- TH 4 (cap 4)
-	sets.TreasureHunter = {head="Wh. Rarab Cap +1",body="Volte Jupon",waist="Chaac Belt"}
 	sets.midcast.Dia = set_combine(sets.midcast.Sleep, sets.TreasureHunter)
 	sets.midcast.Diaga = set_combine(sets.midcast.Sleep, sets.TreasureHunter)
 

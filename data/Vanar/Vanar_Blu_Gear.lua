@@ -442,8 +442,6 @@ function init_gear_sets()
 	sets.SuppaBrutal = {ear1="Brutal Earring"}
 	sets.DWEarrings = {}
 	sets.DWMax = {legs="Carmine Cuisses +1"}	-- Dual Wield 6
-	-- TH 4 (cap 4)
-	sets.TreasureHunter = {head="Wh. Rarab Cap +1",body="Volte Jupon",waist="Chaac Belt"}
 
 	sets.weapons['Tizona Acc'] = {main="Tizona",sub="Almace"}
 	sets.weapons['Tizona'] = {main="Tizona",sub="Thibron"}
