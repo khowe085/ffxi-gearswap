@@ -163,7 +163,7 @@ windower.register_event('addon command',function (...)
     local cmd = table.remove(splitup,1):lower()
 
     -- Short words. t is gs test, GearSwap's own, so it works whatever the user file is built on.
-    cmd = ({e = 'equip', x = 'export', t = 'test'})[cmd] or cmd
+    cmd = ({e = 'equip', x = 'export', t = 'test', n = 'naked'})[cmd] or cmd
 
     if cmd == 'c' then
         if gearswap_disabled then return end
@@ -199,6 +199,8 @@ windower.register_event('addon command',function (...)
         test_command(splitup)
     elseif cmd == 'audit' then
         audit_command(splitup)
+    elseif cmd == 'naked' then
+        naked_toggle()
     elseif cmd == 'l' or cmd == 'load' then
         if splitup[1] then
             local f_name = table.concat(splitup,' ')
@@ -245,6 +247,7 @@ windower.register_event('addon command',function (...)
         print(' validate <opts> : Checks your current inventory against your item collections (or vice versa).')
         print(' test set <set>  : equips the set over a naked character and holds it for 30 seconds.')
         print(' test [precast|midcast] <action> : equips what the user file would for an action, without using it, and holds it.')
+        print(' naked / n       : equips the naked set and disables the user file until the next naked.')
         print(' audit <test args> : runs gs test, then /checkparam <me>, and appends the stats to data/audit/<name>.jsonl.')
         print(' stash <jobs> [unused] : moves the gear in those jobs\' files out of wardrobe and wardrobe2 (unused: everything else).')
         print(' pull <jobs>     : moves the gear in those jobs\' files into wardrobe and wardrobe2 from the other bags in reach.')
@@ -265,11 +268,47 @@ windower.register_event('addon command',function (...)
     end
 end)
 
+-- naked_holding marks the user file as switched off by gs naked rather than by the player or a gs test.
+-- naked_was_disabled is whether the player had it off already, which the next gs naked puts back.
+local naked_holding, naked_was_disabled = false, false
+
+-- Called by a bare gs enable or gs disable and by a user file load, which leave the file as they set it.
+function naked_hold_end()
+    naked_holding = false
+end
+
+function naked_toggle()
+    if naked_holding then
+        naked_holding = false
+        gearswap_disabled = naked_was_disabled
+        print('GearSwap: Naked off, user file '..(naked_was_disabled and 'still disabled.' or 'enabled.'))
+        return
+    end
+    if not user_env or not sets then
+        msg.addon_msg(123,'There is nothing to equip because there is no file loaded.')
+        return
+    end
+    local set = get_set_from_keys(parse_set_to_keys({'naked'}))
+    if not set then
+        msg.addon_msg(123,'Naked command cannot be completed. That set does not exist.')
+        return
+    end
+    -- Takes over from a gs test hold, whose timer would otherwise switch the file back on.
+    audit_cancel()
+    naked_was_disabled = not test_hold_end() and gearswap_disabled
+    refresh_globals()
+    equip_sets('equip_command',nil,set)
+    naked_holding = true
+    gearswap_disabled = true
+    print('GearSwap: Naked on, user file disabled until the next gs naked.')
+end
+
 function disenable(tab,funct,functname,pol)
-    -- A bare enable or disable leaves the user file as the player set it, even mid gs test.
+    -- A bare enable or disable leaves the user file as the player set it, even mid gs test or gs naked.
     if not tab[1] then
         audit_cancel()
         test_hold_end()
+        naked_hold_end()
     end
     local slot_name = ''
     local ltab = L{}
