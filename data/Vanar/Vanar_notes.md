@@ -13,6 +13,12 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
   - **(player, 2026-10-05)** The floor counts gear and food, not buffs.
   - **(player, 2026-10-08, kept 2026-10-10)** Fodder mode doesn't count toward the floor. Fodder is the first offense mode in `Vanar_Blu_Gear.lua`, so BLU starts in it.
   - **(player, 2026-10-07)** The weapon skill's first-swing +100 accuracy doesn't count toward the floor.
+  - **(player, 2026-10-10)** Above the floor, a TP-mode engaged set is weighed by TP per round, the time to the next weapon skill, against a reference target evasion of 1350. Accuracy, Double, Triple and Quadruple Attack and Store TP trade against each other this way; DT, ACC and Fodder mode are unchanged. Per hand:
+    - TP per round ∝ hit rate × expected hits × TP per hit.
+    - Hit rate = 75 + floor((accuracy − 1350) ÷ 2) %, capped at 99% in the main hand (accuracy 1398) and 95% in the off hand (1390) ([Hit rate and the accuracy cap](../../docs/ffxi-mechanics.md#hit-rate-and-the-accuracy-cap)). Accuracy past the cap is worth nothing. The accuracy is the floor-counted one: gear, food and weapon skill accuracy, no buffs.
+    - Expected hits ≈ 1 + 3 × Quadruple + 2 × Triple + Double Attack, rolled in that order, so Double Attack is worth a little less beside Triple and Quadruple ([Multi-attack](../../docs/ffxi-mechanics.md#multi-attack)).
+    - TP per hit = base TP × (100 + Store TP) ÷ 100 ([TP gain and Store TP](../../docs/ffxi-mechanics.md#tp-gain-and-store-tp)).
+    - Below the cap, 2 accuracy, 1% Double Attack and 1 Store TP are each worth roughly 1% TP per round; each one's value shrinks as the other two grow.
   - **(player, 2026-10-07)** Both jobs eat Oden or Grape Daifuku for melee, so a melee decision has to hold with either food. The job files' `Food` setting stays as it is.
   - **(player, 2026-10-07)** The ACC-mode rebuild is approved: on both jobs, `sets.OffenseMode.ACC`, `sets.WS.ACC` and every weapon skill's own `.ACC` set take the most accuracy they can, ties going to the higher-damage piece. For magical weapon skills that means magic accuracy.
   - The engine wears the TP-mode weapon skill sets in DT mode too, since neither job file has a `sets.WS.DT`. In ACC mode it adds `sets.WS.ACC`, or a weapon skill's own `.ACC` set.
