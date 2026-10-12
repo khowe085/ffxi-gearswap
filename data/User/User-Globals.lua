@@ -1,7 +1,7 @@
 --Place for your settings and custom functions that are meant to affect all of your jobs and characters.
-latency = .25
+latency = .5
 --If this is set to true it will prevent you from casting shadows when you have more up than that spell would generate.
-conserveshadows = false
+conserveshadows = true
 --Display related settings.
 
 --Options for automation.
