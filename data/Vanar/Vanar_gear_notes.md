@@ -1003,6 +1003,10 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 - Vanar's Nyame Flanchard (Path B, rank 20) beats it in all four: Accuracy 40 vs 31, Attack 55 vs 33, STR 43 vs 40 and WSD 9% vs 4%; see [rank-augments.md](../../docs/rank-augments.md#nyame-flanchard) for each rank.
 - Luh. Shalwar +4 has WSD +12% and Accuracy+50. So this copy has no use in BLU weapon skill sets ([bg-wiki](https://www.bg-wiki.com/ffxi/Nyame_Flanchard)).
 
+### Jhakri Slops +2
+
+- It is the legs of RDM's `sets.engaged` and `sets.engaged.DT`, and of the sets built on them, from 2026-10-12, under the floor-only rule ([Rules](Vanar_notes.md#rules-for-these-sets)): Store TP +9 against Leth. Fuseau +3's none, for Accuracy 45 against 63 and haste 2% against 5%. With Store TP 22 that is 7 to 8% more TP a hit, the largest gain any one owned piece gives those sets; Nyame Flanchard's Double Attack +3% gives 2.2%. It was in the Mog Case in the 2026-10-11 and 2026-10-12 exports, so it has to move to a wardrobe.
+
 ### Luh. Shalwar +4
 
 - Vanar has no Assimilation merits: Diffusion 5 and Enchainment 5 (player, 2026-10-02) fill BLU Group 2's 10 levels. So the augment gives him 0% (0 × 3%); the +15% figure below assumes 5 merits he doesn't have ([Vanar's merits and skills](Vanar_notes.md#merits)).

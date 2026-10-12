@@ -40,6 +40,11 @@ For each action Sel starts at a table and walks down its keys, taking each key t
 
 The spell map comes from Sel's own mappings and from the job file's `job_get_spell_map`. A mode's sub-table that the gear file doesn't define leaves the set above it in place, so `sets.midcast['Blue Magic'].Magical.Resistant` is worn only in the Resistant casting mode, and otherwise `sets.midcast['Blue Magic'].Magical` is.
 
+`update_combat_form` (`libs/Sel-Utility.lua`) sets `state.CombatForm`, in this order: to the weapon set's name when `sets.engaged` has a set by that name (`sets.engaged.EnspellOnly` for the `EnspellOnly` weapon set); else to `DW` when the character is dual wielding and `sets.engaged.DW` exists; else to the main weapon's name when `sets.engaged` has a set by that name.
+
+- So a set named for a weapon set takes the place of `sets.engaged` for that weapon set, dual wielding or not. The walk then goes on under it: an offense or hybrid mode it has no sub-table for leaves it in place, so it needs its own `.Acc`, `.DT` and `.Acc.DT` for those modes to change anything.
+- A dual-wielding weapon set reaches a set named for its main weapon only when there is no `sets.engaged.DW`.
+
 ### Sets laid over the chosen set
 
 After the chosen set Sel equips more sets over it, each only when the gear file defines it:

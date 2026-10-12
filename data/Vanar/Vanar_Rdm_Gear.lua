@@ -71,10 +71,10 @@ function character_user_job_setup()
 end
 
 function init_gear_sets()
-	sets.weapons.Naegling = {main="Naegling",sub="Ammurapi Shield",range=empty}
-	sets.weapons.Crocea = {main="Naegling",sub="Ammurapi Shield",range=empty}
-	sets.weapons.Maxentius = {main="Maxentius",sub="Ammurapi Shield",range=empty}
-	sets.weapons.Tauret = {main="Tauret",sub="Ammurapi Shield",range=empty}
+	sets.weapons.Naegling = {main="Naegling",sub="Forfend +1",range=empty}
+	sets.weapons.Crocea = {main="Naegling",sub="Forfend +1",range=empty}
+	sets.weapons.Maxentius = {main="Maxentius",sub="Forfend +1",range=empty}
+	sets.weapons.Tauret = {main="Tauret",sub="Forfend +1",range=empty}
 	sets.weapons['Savage Blade'] = {main="Naegling",sub="Thibron",range=empty}
 	sets.weapons['Savage Blade Acc'] = {main="Naegling",sub="Gleti's Knife",range=empty}
 	sets.weapons.DualPrime = {main="Tauret",sub="Gleti's Knife",range=empty}
@@ -82,10 +82,10 @@ function init_gear_sets()
 	sets.weapons.DualCrocea = {main="Naegling",sub="Bunzi's Rod",range=empty}
 	sets.weapons.DualAeolian = {main="Tauret",sub="Bunzi's Rod",range=empty}
 	sets.weapons.DualProcSword = {main="Pukulatmuj +1",sub="Gleti's Knife",range=empty}
-	sets.weapons.ProcSword = {main="Pukulatmuj +1",sub="Ammurapi Shield",range=empty}
-	sets.weapons.ProcDagger = {main="Gleti's Knife",sub="Ammurapi Shield",range=empty}
+	sets.weapons.ProcSword = {main="Pukulatmuj +1",sub="Forfend +1",range=empty}
+	sets.weapons.ProcDagger = {main="Gleti's Knife",sub="Forfend +1",range=empty}
 	sets.weapons.DualProcDagger = {main="Gleti's Knife",sub="Pukulatmuj +1",range=empty}
-	sets.weapons.EnspellOnly = {main="Tauret",sub="Ammurapi Shield",range=empty}
+	sets.weapons.EnspellOnly = {main="Tauret",sub="Forfend +1",range=empty}
 	sets.weapons.DualEnspellOnly = {main="Tauret",sub="Gleti's Knife",range=empty}
 	sets.weapons.DualBow = {}
 	sets.weapons.BowMacc = {}
@@ -472,10 +472,11 @@ function init_gear_sets()
 	sets.buff.Sublimation = {waist="Embla Sash"}	-- Sublimation +3
 	sets.buff.DTSublimation = {waist="Embla Sash"}
 
+	-- DA 32, Store TP 31, DT 47
 	sets.engaged = {ammo="Coiste Bodhar",
 		head="Leth. Chappel +3",neck="Asperity Necklace",ear1="Brutal Earring",ear2="Leth. Earring +1",
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Rajas Ring",
-		back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
+		back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Jhakri Slops +2",feet="Nyame Sollerets"}
 
 	-- Atrophy set (4 pieces): Acc +45
 	sets.engaged.Acc = {ammo="Coiste Bodhar",
@@ -483,11 +484,11 @@ function init_gear_sets()
 		body="Atrophy Tabard +4",hands="Atro. Gloves +4",ring1="Lehko's Ring",ring2="Jhakri Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Atro. Tights +4",feet="Leth. Houseaux +3"}
 
-	-- DT 55 (cap 50)
+	-- DT 57 (cap 50), DA 32, Store TP 26
 	sets.engaged.DT = {ammo="Coiste Bodhar",
-		head="Leth. Chappel +3",neck="Asperity Necklace",ear1="Alabaster Earring",ear2="Leth. Earring +1",
+		head="Leth. Chappel +3",neck="Asperity Necklace",ear1="Brutal Earring",ear2="Leth. Earring +1",
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Murky Ring",
-		back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
+		back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Jhakri Slops +2",feet="Nyame Sollerets"}
 
 	-- DT 55 (cap 50)
 	sets.engaged.Acc.DT = {ammo="Coiste Bodhar",
@@ -495,11 +496,13 @@ function init_gear_sets()
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Murky Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 
-	sets.engaged.DW = set_combine(sets.engaged, {})
+	-- DA 30, Store TP 31, DT 40
+	sets.engaged.DW = set_combine(sets.engaged, {feet="Leth. Houseaux +3"})
 
 	sets.engaged.DW.Acc = set_combine(sets.engaged.Acc, {})
 
-	sets.engaged.DW.DT = set_combine(sets.engaged.DT, {})
+	-- DT 55 (cap 50), DA 25, Store TP 25
+	sets.engaged.DW.DT = set_combine(sets.engaged.DT, {ear1="Alabaster Earring",feet="Leth. Houseaux +3"})
 
 	sets.engaged.DW.Acc.DT = set_combine(sets.engaged.Acc.DT, {})
 
@@ -507,9 +510,17 @@ function init_gear_sets()
 
 	sets.engaged.EnspellOnly.Acc = set_combine(sets.engaged.Acc, {})
 
+	sets.engaged.EnspellOnly.DT = set_combine(sets.engaged.DT, {})
+
+	sets.engaged.EnspellOnly.Acc.DT = set_combine(sets.engaged.Acc.DT, {})
+
 	sets.engaged.DualEnspellOnly = set_combine(sets.engaged, {})
 
 	sets.engaged.DualEnspellOnly.Acc = set_combine(sets.engaged.Acc, {})
+
+	sets.engaged.DualEnspellOnly.DT = set_combine(sets.engaged.DT, {})
+
+	sets.engaged.DualEnspellOnly.Acc.DT = set_combine(sets.engaged.Acc.DT, {})
 end
 
 function select_default_macro_book()
