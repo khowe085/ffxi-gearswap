@@ -818,6 +818,13 @@ Test("StatBook reads the export's abbreviated Triple Attack augment", () =>
 	Equal("DA 2, TA 2, STR 9, DEX 8", Read("STR+9, DEX+8, \"Dbl.Atk.\"+2, \"Triple Atk.\"+2"));
 });
 
+Test("StatBook reads Efflux's TP Bonus as Efflux, not TP Bonus", () =>
+{
+	string Read(string text) => StatBook.Describe(StatBook.Read(text));
+	Equal("Haste 5, Efflux 800", Read("Haste+5% \"Efflux\" TP Bonus +800"));
+	Equal("TPBonus 250", Read("TP Bonus +250"));
+});
+
 Test("StatBook counts the set bonuses docs/gear-notes.md gives, by the pieces worn", () =>
 {
 	string Bonus(params string[] pieces) => StatBook.Describe(StatBook.SetBonuses(pieces));
