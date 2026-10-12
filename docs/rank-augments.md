@@ -1,6 +1,6 @@
 # Rank augments
 
-Augment values at every rank for each rank-augmented item in the exports under `data/export/`. The Odyssey pieces (Nyame, Bunzi's, Gleti's and the other Sheol rewards) rank up to 30. Most other path items here rank up to 15 or 30. Every value comes from the item's own bg-wiki page, from the per-rank table under its augments (the `Augment Rank Table` template), read on 2026-10-08 and copied by script, not by hand. Items Oboro ranks up (JSE necks, Ultimate Weapons, Unity weapons) come last, at maximum rank only, because bg-wiki has no per-rank table for them. A character's own path and rank for each item are in that character's folder, in `data/<Character>/<Character>_rank_augments.md`.
+Augment values at every rank for each rank-augmented item in the exports under `data/export/`. The Odyssey pieces (Nyame, Bunzi's, Gleti's and the other Sheol rewards) rank up to 30. Most other path items here rank up to 15 or 30. Every value comes from the item's own bg-wiki page, from the per-rank table under its augments (the `Augment Rank Table` template), read on 2026-10-11 and copied by script, not by hand. Items Oboro ranks up (JSE necks, Ultimate Weapons, Unity weapons) come last, at maximum rank only, because bg-wiki has no per-rank table for them. A character's own path and rank for each item are in that character's folder, in `data/<Character>/<Character>_rank_augments.md`.
 
 - `//gs export` prints the path (`'Path: B'`) but never the rank. A copy that exports with no augments at all hasn't been ranked: it has only the base stats in its help text.
 - Ranks are cumulative: the row for a rank is the item's whole augment at that rank, not an increase over the rank before it. A blank cell means that augment line hasn't unlocked yet.
@@ -34,6 +34,7 @@ Augment values at every rank for each rank-augmented item in the exports under `
 | [Forfend +1](#forfend-1) | sub | A | 15 |
 | [Coiste Bodhar](#coiste-bodhar) | ammo | A | 30 |
 | [Alabaster Earring](#alabaster-earring) | ear | A | 30 |
+| [Beithir Ring](#beithir-ring) | ring | A | 30 |
 | [Murky Ring](#murky-ring) | ring | A | 30 |
 | [Fi Follet Cape +1](#fi-follet-cape-1) | back | A | 15 |
 | [Kentarch Belt +1](#kentarch-belt-1) | waist | A | 15 |
@@ -1395,6 +1396,43 @@ Alabaster Earring, ear. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com
 | 28 | Accuracy+15 Rng. Acc.+15 Mag. Acc.+15 | All Attr.+10 | "Store TP"+3 |
 | 29 | Accuracy+15 Rng. Acc.+15 Mag. Acc.+15 | All Attr.+10 | "Store TP"+4 |
 | 30 | Accuracy+15 Rng. Acc.+15 Mag. Acc.+15 | All Attr.+10 | "Store TP"+5 |
+
+### Beithir Ring
+
+Beithir Ring, ring. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/Beithir_Ring).
+
+| Rank | Augment 1 | Augment 2 | Augment 3 |
+|---|---|---|---|
+| 1 | Weapon Skill Acc.+1 |  |  |
+| 2 | Weapon Skill Acc.+2 |  |  |
+| 3 | Weapon Skill Acc.+3 |  |  |
+| 4 | Weapon Skill Acc.+4 |  |  |
+| 5 | Weapon Skill Acc.+5 |  |  |
+| 6 | Weapon Skill Acc.+6 |  |  |
+| 7 | Weapon Skill Acc.+7 |  |  |
+| 8 | Weapon Skill Acc.+8 |  |  |
+| 9 | Weapon Skill Acc.+9 |  |  |
+| 10 | Weapon Skill Acc.+10 |  |  |
+| 11 | Weapon Skill Acc.+11 |  |  |
+| 12 | Weapon Skill Acc.+12 |  |  |
+| 13 | Weapon Skill Acc.+13 |  |  |
+| 14 | Weapon Skill Acc.+14 |  |  |
+| 15 | Weapon Skill Acc.+15 |  |  |
+| 16 | Weapon Skill Acc.+15 | Attack+1 |  |
+| 17 | Weapon Skill Acc.+15 | Attack+2 |  |
+| 18 | Weapon Skill Acc.+15 | Attack+3 |  |
+| 19 | Weapon Skill Acc.+15 | Attack+4 |  |
+| 20 | Weapon Skill Acc.+15 | Attack+5 |  |
+| 21 | Weapon Skill Acc.+15 | Attack+6 | Skillchain dmg. +1% |
+| 22 | Weapon Skill Acc.+15 | Attack+7 | Skillchain dmg. +1% |
+| 23 | Weapon Skill Acc.+15 | Attack+8 | Skillchain dmg. +2% |
+| 24 | Weapon Skill Acc.+15 | Attack+9 | Skillchain dmg. +2% |
+| 25 | Weapon Skill Acc.+15 | Attack+10 | Skillchain dmg. +3% |
+| 26 | Weapon Skill Acc.+15 | Attack+11 | Skillchain dmg. +3% |
+| 27 | Weapon Skill Acc.+15 | Attack+12 | Skillchain dmg. +4% |
+| 28 | Weapon Skill Acc.+15 | Attack+13 | Skillchain dmg. +4% |
+| 29 | Weapon Skill Acc.+15 | Attack+14 | Skillchain dmg. +5% |
+| 30 | Weapon Skill Acc.+15 | Attack+15 | Skillchain dmg. +5% |
 
 ### Murky Ring
 

@@ -1,6 +1,6 @@
 # Vanar: rank augments
 
-Vanar's path and rank for each rank-augmented item in the export `data/export/Vanar 2026-10-08 01-37-10.lua`, with the augments that rank gives. `.claude/tools/rank-doc.cs` writes this file from the Ranks table in [Vanar_notes.md](Vanar_notes.md#ranks) and from bg-wiki's rank tables in [rank-augments.md](../../docs/rank-augments.md), which has every other rank. Don't edit it by hand: change the Ranks table and run the tool.
+Vanar's path and rank for each rank-augmented item in the export `data/export/Vanar 2026-10-11 20-45-08.lua`, with the augments that rank gives. `.claude/tools/rank-doc.cs` writes this file from the Ranks table in [Vanar_notes.md](Vanar_notes.md#ranks) and from bg-wiki's rank tables in [rank-augments.md](../../docs/rank-augments.md), which has every other rank. Don't edit it by hand: change the Ranks table and run the tool.
 
 - `//gs export` prints the path (`'Path: B'`) but never the rank, so a rank is the player's word, with the day it was given.
 - A copy that exports with no augments at all hasn't been ranked: it is rank 0, with only the base stats in its help text.
@@ -8,7 +8,7 @@ Vanar's path and rank for each rank-augmented item in the export `data/export/Va
 
 | Item | Slot | Path | Rank | Given | Augments at that rank |
 |---|---|---|---|---|---|
-| [Nyame Helm](../../docs/rank-augments.md#nyame-helm) | head | B | 14 | 2026-10-09 | Attack+19 Rng. Atk.+19, Weapon skill damage +6% |
+| [Nyame Helm](../../docs/rank-augments.md#nyame-helm) | head | B | 20 | 2026-10-12 | Attack+25 Rng. Atk.+25, Weapon skill damage +8%, "Double Attack"+2% |
 | [Nyame Mail](../../docs/rank-augments.md#nyame-mail) | body | B | 20 | 2026-10-04 | Attack+25 Rng. Atk.+25, Weapon skill damage +10%, "Double Attack"+3% |
 | [Nyame Gauntlets](../../docs/rank-augments.md#nyame-gauntlets) | hands | B | 20 | 2026-10-08 | Attack+25 Rng. Atk.+25, Weapon skill damage +8%, "Double Attack"+2% |
 | [Nyame Flanchard](../../docs/rank-augments.md#nyame-flanchard) | legs | B | 20 | 2026-10-09 | Attack+25 Rng. Atk.+25, Weapon skill damage +9%, "Double Attack"+3% |
@@ -32,6 +32,7 @@ Vanar's path and rank for each rank-augmented item in the export `data/export/Va
 | [Forfend +1](../../docs/rank-augments.md#forfend-1) | sub | A | 15 | 2026-10-04 | Accuracy+15, Mag. Acc.+15, Enha. mag. skill +10 |
 | [Coiste Bodhar](../../docs/rank-augments.md#coiste-bodhar) | ammo | A | 20 | 2026-10-04 | Attack+15, STR+5 |
 | [Alabaster Earring](../../docs/rank-augments.md#alabaster-earring) | ear | A | 2 | 2026-10-04 | Accuracy+2 Rng. Acc.+2 Mag. Acc.+2 |
+| [Beithir Ring](../../docs/rank-augments.md#beithir-ring) | ring | none | 0 |  | none (base stats only) |
 | [Murky Ring](../../docs/rank-augments.md#murky-ring) | ring | A | 2 | 2026-10-11 | Accuracy+2 Rng. Acc.+2 Mag. Acc.+2 |
 | [Fi Follet Cape +1](../../docs/rank-augments.md#fi-follet-cape-1) | back | A | 11 | 2026-10-02 | "Fast Cast" +8%, Spell Interruption Rate -3% |
 | [Kentarch Belt +1](../../docs/rank-augments.md#kentarch-belt-1) | waist | none | 0 |  | none (base stats only) |
@@ -47,5 +48,5 @@ bg-wiki gives these items' augments at maximum rank only: [rank-augments.md](../
 | Dls. Torque +1 | neck | 20 | `'Path: A'`, rank 20 (2026-10-05) |
 | Mirage Stole +2 | neck | 25 | `'Path: A'`, rank 20 (2026-10-05) |
 | Tizona | main | 15 | `'Path: A'` (so Level 119 III), rank 15 (2026-10-05) |
-| Almace | main | 15 | no augments: rank 0, stage unknown |
+| Almace | main | 15 | `'Path: A'` (so Level 119 III), rank 2 (2026-10-11) |
 | Pukulatmuj +1 | main | 15 | no augments: rank 0 |

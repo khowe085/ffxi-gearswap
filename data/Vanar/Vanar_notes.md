@@ -21,6 +21,8 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
     - Below the cap, 2 accuracy, 1% Double Attack and 1 Store TP are each worth roughly 1% TP per round; each one's value shrinks as the other two grow.
     - **(player, 2026-10-10)** A TP-mode engaged set keeps Damage taken at 36 or more. TP per round is weighed only among sets that do; a set that gains TP per round below DT 36 dies too often.
   - **(player, 2026-10-07)** Both jobs eat Oden or Grape Daifuku for melee, so a melee decision has to hold with either food. The job files' `Food` setting stays as it is.
+  - **(player, 2026-10-11)** The hybrid mode doesn't pick the weapons: any of BLU's weapon sets can be on with `sets.engaged.DT`. So BLU's DT sets are built to do well with every weapon set, not for one of them.
+  - **(player, 2026-10-11)** BLU's DEX/Crit Rosmerta's Cape (`gear.crit_jse_back`) is for weapon skills only. The TP sets, the Aftermath ones included, wear the DEX/Double Attack cape (`gear.da_jse_back`).
   - **(player, 2026-10-07)** The ACC-mode rebuild is approved: on both jobs, `sets.OffenseMode.ACC`, `sets.WS.ACC` and every weapon skill's own `.ACC` set take the most accuracy they can, ties going to the higher-damage piece. For magical weapon skills that means magic accuracy.
   - The engine wears the TP-mode weapon skill sets in DT mode too, since neither job file has a `sets.WS.DT`. In ACC mode it adds `sets.WS.ACC`, or a weapon skill's own `.ACC` set.
 - Sets the line above doesn't cover keep the earlier order: accuracy, then magic accuracy, weapon skill damage, attack, magic attack and damage taken. Skip pieces that only add a secondary stat (STR, DEX, VIT, AGI, INT, MND, CHR).
@@ -51,6 +53,7 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
 - No Enspell gear that has to stay on while meleeing; only gear for the cast.
 - **(player)** Avoid Quick Magic pieces such as Impatiens and Perimede Cape. Witful Belt is the exception, because nothing else replaces its Fast Cast.
 - Inventory: at most 160 unique pieces across BLU and RDM, ideally about 140.
+  - **(player, 2026-10-11)** The Ayanmo +2 armor on storage slip 23 stays there unless a set would gain a great deal from it. The Adhemar Wristbands come out of the Mog Case for BLU's TP sets.
 - **(player, 2026-10-09)** Comments in `Vanar_Rdm_Gear.lua` and `Vanar_Blu_Gear.lua` state only a set's stats or effects, such as "FC 44, DT 49" or "Chain Affinity +50", kept short and on one line where possible. No bags or moves, no comparisons with rejected pieces, no rationale or history, no accuracy floor workings, no rank notes and no references to the notes.
 
 ## Ranks
@@ -59,7 +62,7 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 
 | Item | Path | Rank | Given |
 |---|---|---|---|
-| Nyame Helm | B | 14 | 2026-10-09 |
+| Nyame Helm | B | 20 | 2026-10-12 |
 | Nyame Mail | B | 20 | 2026-10-04 |
 | Nyame Gauntlets | B | 20 | 2026-10-08 |
 | Nyame Flanchard | B | 20 | 2026-10-09 |
@@ -75,6 +78,7 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 | Mirage Stole +2 | A | 20 | 2026-10-05 |
 | Tizona | A | 15 | 2026-10-05 |
 | Murky Ring | A | 2 | 2026-10-11 |
+| Almace | A | 2 | 2026-10-11 |
 
 - **(player, 2026-10-04)** The Nyame Helm and Flanchard went from rank 2 to rank 11 on 2026-10-04.
 - **(player, 2026-10-04)** Every Bunzi's and Gleti's piece, `Bunzi's Rod` and `Gleti's Knife` included, and `Kentarch Belt +1` aren't augmented yet: rank 0, with base stats only. `Demers. Degen +1`, `Kustawi +1`, `Marin Staff +1` and `Tanmogayi +1` aren't used.
@@ -84,8 +88,10 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 - **(player, 2026-10-08)** The Nyame Gauntlets went from rank 17 to rank 20, and the Nyame Flanchard from rank 17 to rank 18.
 - **(player, 2026-10-09)** The Nyame Flanchard went from rank 18 to rank 20, and the Nyame Helm from rank 11 to rank 14.
 - **(player, 2026-10-02)** The other ranks aren't worth listing, because they change often. Ask the player when a set decision turns on one.
-- **(player, 2026-10-11)** `Murky Ring` is rank 2.
-- `Tizona` exports Path A, so it is Level 119 III. `Almace` and `Pukulatmuj +1` export with no augments, so they are rank 0, and Almace's stage is unknown.
+- **(player, 2026-10-11)** `Murky Ring` is rank 2. The Nyame Helm went from rank 14 to rank 18, and `Almace` is Path A rank 2.
+- **(player, 2026-10-11)** `Mirage Stole +2` at rank 20 gives STR and DEX +20, Critical hit rate +4% and Store TP +6.
+- **(player, 2026-10-12)** The Nyame Helm went from rank 18 to rank 20.
+- `Tizona` and `Almace` export Path A, so both are Level 119 III. `Pukulatmuj +1` exports with no augments, so it is rank 0.
 
 ## Jobs, Master Levels and nation
 
@@ -96,7 +102,7 @@ The ranks the player has given, under the name the export prints. `//gs export` 
   - bg-wiki gives Elvaan only starting stats (level 1: STR 9, DEX 7, VIT 7, AGI 6, INT 4, MND 6, CHR 6, against a Hume's 8, 7, 6, 7, 5, 5, 6), and no level 99 values ([Base Stats](https://www.bg-wiki.com/ffxi/Category:Base_Stats)). So the accuracy estimates in these notes and the job files use wsdist's race-less job tables, and a `/checkparam` replaces them.
 - **(player, 2026-10-07)** BLU's melee spell set gives Accuracy Bonus, Attack Bonus and Store TP; see [Blue magic: Traits from set spells](#blue-magic-traits-from-set-spells).
   - **(player, 2026-10-08)** The Accuracy Bonus is tier IV. The Attack Bonus and Store TP tiers aren't recorded.
-- The support jobs aren't recorded. The estimates assume RDM/NIN (Dual Wield for the Thibron and Gleti's Knife modes) and BLU/WAR, as bg-wiki's simulated BLU sets do.
+- The support jobs aren't recorded. The estimates assume RDM/NIN (Dual Wield for the Thibron and Gleti's Knife modes) and BLU/WAR, as bg-wiki's simulated BLU sets do. The player's `/checkparam` records of 2026-10-10 were taken as BLU/WAR and as BLU/NIN ([Skill and accuracy: Accuracy](#skill-and-accuracy-accuracy)).
 - **(player, 2026-10-11)** Vanar's THF has no Master Levels and 471 of 2,100 job points. It has learned Rudra's Storm. Its support job and merits aren't recorded.
 - **(player, 2026-10-11)** THF's sets put the 1275 accuracy floor before damage, and have no Sneak Attack or Trick Attack set of their own for now.
 
@@ -162,13 +168,14 @@ bg-wiki's simulated sets (All Jobs Gear Sets) assume stronger Odyssey copies tha
 | Nyame Mail, Sollerets | rank 25, Path B | rank 20, Path B | Each: 5 Attack, 2% WSD, 2% Double Attack, and the fourth line (Mail STR and VIT +5, Sollerets Accuracy +8) |
 | Nyame Gauntlets | rank 25, Path B | rank 20, Path B | Attack 5 (it has 25 of 30), WSD 2% (it has 8% of 10%), Double Attack 2% (it has 2% of 4%), VIT +10 |
 | Nyame Flanchard | rank 25, Path B | rank 20, Path B | Attack 5 (it has 25 of 30), WSD 2% (it has 9% of 11%), Double Attack 2% (it has 3% of 5%), STR +10 |
-| Nyame Helm | rank 25, Path B | rank 14, Path B | Attack 11 (it has 19 of 30), WSD 4% (it has 6% of 10%), Double Attack +4%, Accuracy +5 |
+| Nyame Helm | rank 25, Path B | rank 20, Path B | Attack 5 (it has 25 of 30), WSD 2% (it has 8% of 10%), Double Attack 2% (it has 2% of 4%), Accuracy +5 |
 | Bunzi's Robe | rank 30 | rank 0 | PDL +8%, Attack and Magic Damage +30, Accuracy and Magic Accuracy +15, DEX +5 |
 | Bunzi's Gloves | rank 30 | rank 0 | Magic burst damage II +6, Attack and Magic Damage +30, Accuracy and Magic Accuracy +15, MND +5 |
 | Bunzi's Hat | rank 30 | rank 0 | Store TP +8, Quadruple Attack +3%, Attack and Magic Damage +30, Accuracy and Magic Accuracy +15 |
 | Bunzi's Rod | rank 30 | rank 0 | Magic Attack Bonus +30, Accuracy and Magic Accuracy +15, DMG +11 |
 | Gleti's Cuirass, Gauntlets, Breeches, Boots | rank 30 | rank 0 | Each: Attack +30, Accuracy and Magic Accuracy +15. Plus Cuirass Double Attack +10%, Gauntlets Store TP +8 and DEX +5, Breeches Triple Attack +5%, Boots STR +5. PDL and crit rate are base stats, so Vanar's have them |
 | Gleti's Knife | rank 30 | rank 1 | DMG +10, Attack +43, Accuracy and Magic Accuracy +15, Subtle Blow II +10 |
+| Beithir Ring | rank 30 | rank 0 | Weapon Skill Accuracy +15, Attack +15, Skillchain damage +5% |
 
 Where that matters:
 
@@ -177,15 +184,16 @@ Where that matters:
 - Nyame Flanchard is in all 16 RDM physical non-crit sets and 6 of the 8 BLU ones, and Nyame Sollerets in 6 of the 8 BLU ones. Vanar's rank 20 Sollerets are 2% WSD and 5 Attack short. The rank 20 Flanchard is 2% WSD, 5 Attack and 2% Double Attack short.
 - Bunzi's Rod (RDM nukes, Sanguine Blade on both jobs) is 30 Magic Attack Bonus short. Bunzi's Gloves in the RDM magic burst set lack their magic burst damage II. Bunzi's Hat in the RDM TP set lacks its Store TP and Quadruple Attack.
 - Gleti's in the BLU sets keep their PDL at rank 0 but are 30 Attack and 15 Accuracy short each.
-- So the pages overvalue these pieces for Vanar. A substitution needs the lost values from rank-augments.md weighed against the next piece; the page totals can't be corrected by hand. The simulator has rank 0, 15, 20, 25 and 30 versions of each Nyame, Bunzi's and Gleti's piece and of Coiste Bodhar, and each Nyame path (IzaKastra/wsdist_beta, gear.py), so a run at Vanar's ranks is the clean check. It has no entry for a Nyame piece at rank 14, Vanar's Helm, and Alabaster Earring and Murky Ring (R30), Sailfi Belt +1 (R15) and Mirage Stole +2 (R25) have only their max-rank entry, so each of those needs an edited dict ([wsdist data errors](../../docs/ffxi-mechanics.md#wsdist-data-errors)). Dls. Torque +1's only entry, R20, is Vanar's rank (player, 2026-10-05).
+- Beithir Ring is in BLU's mid-buff Expiacion and Savage Blade, both Imperator sets and both Red Lotus Blade sets. Vanar's rank 0 copy has only its base STR, DEX, VIT and AGI +3 and Weapon skill damage +2%: 15 Weapon Skill Accuracy and 15 Attack short of the sims'.
+- So the pages overvalue these pieces for Vanar. A substitution needs the lost values from rank-augments.md weighed against the next piece; the page totals can't be corrected by hand. The simulator has rank 0, 15, 20, 25 and 30 versions of each Nyame, Bunzi's and Gleti's piece and of Coiste Bodhar, and each Nyame path (IzaKastra/wsdist_beta, gear.py), so a run at Vanar's ranks is the clean check. Vanar's Nyame pieces are all rank 20, which it has. Alabaster Earring and Murky Ring (R30), Sailfi Belt +1 (R15) and Mirage Stole +2 (R25) have only their max-rank entry, so each of those needs an edited dict ([wsdist data errors](../../docs/ffxi-mechanics.md#wsdist-data-errors)). Dls. Torque +1's only entry, R20, is Vanar's rank (player, 2026-10-05).
 - A data error, as one sign of the unknown quality: the simulator's rank 0 Bunzi's Rod has DMG 152 (144+8), but the item's own text says DMG 144 (IzaKastra/wsdist_beta, gear.py; bg-wiki, Bunzi's Rod; the item's help text). More under wsdist data errors.
 
 Gear in the sets that Vanar doesn't own, most-used first:
 
 - RDM: Crepuscular Pebble (every high-buff non-crit physical set), Hoxne Earring (10 weapon skills), Sroda Ring (7), Malignance Gloves (6), Sroda Tathlum (6), Malignance Earring (5), Orpheus's Sash (5), Dls. Torque +2 (4; Vanar has the +1), Metamor. Ring +1 (4). Weapons: Caliburnus, Excalibur, Mandau, Murgleis, Crocea Mors, Sequence, Daybreak, Sakpata's Sword, Crepuscular Knife.
-- BLU: Hoxne Earring (6 weapon skills), Beithir Ring (4), Crepuscular Pebble (4), Sroda Ring (3), the Sworn armor in the TP and Requiescat sets, and the Adhemar pieces. Weapons: Caliburnus, Sequence, Archduke's Sword, Ice Brand, Zantetsuken, Sakpata's Sword.
+- BLU: Hoxne Earring (6 weapon skills), Crepuscular Pebble (4), Sroda Ring (3), the Sworn armor in the TP and Requiescat sets, and the Adhemar pieces. Weapons: Caliburnus, Sequence, Archduke's Sword, Ice Brand, Zantetsuken, Sakpata's Sword.
 - Capes. Vanar's augmented Sucellos's Capes are STR/WSD, DEX/Double Attack, MND/Magic Accuracy/Haste and INT/Magic Accuracy/Magic Attack Bonus. The sims also use MND/WSD (Requiescat, Sanguine Blade, high-buff Black Halo), DEX/WSD (high-buff Imperator), INT/WSD (Aeolian Edge), DEX/crit (Chant du Cygne, Evisceration) and DEX/Store TP (TP). Vanar's Rosmerta's Capes are STR/WSD, DEX/crit, DEX/Double Attack and INT/Magic Accuracy/Magic Attack Bonus. The sims also use INT/WSD (Sanguine Blade, Red Lotus Blade), MND/Double Attack (Requiescat), DEX/WSD (high-buff Imperator), DEX/Store TP and DEX/Dual Wield (TP).
-- The pages assume upgraded relic, mythic and empyrean weapons ("Level 119 III") and stage 4 primes. Vanar's Tizona is Level 119 III like the sims', since it exports "Path: A", and rank 15, the maximum (player, 2026-10-05). The export can't show the stage of his Almace or Mpu Gandring; ask the player.
+- The pages assume upgraded relic, mythic and empyrean weapons ("Level 119 III") and stage 4 primes. Vanar's Tizona is Level 119 III like the sims', since it exports "Path: A", and rank 15, the maximum (player, 2026-10-05). His Almace exports "Path: A" too from the 2026-10-11 export on, so it is Level 119 III, at rank 2 (player, 2026-10-11). The export can't show the stage of his Mpu Gandring; ask the player.
 
 ## What the mechanics give at Vanar's values
 
@@ -209,7 +217,7 @@ Vanar's numbers under the formulas in [ffxi-mechanics.md](../../docs/ffxi-mechan
 
 ### Multi-attack
 
-- At Vanar's ranks: the Nyame Path B Sollerets (+2%) and Mail (+3%) at rank 20 give Double Attack, and so do the Gauntlets (+2%) and the Flanchard (+3%), both rank 20 **(player, 2026-10-08 and 2026-10-09)**; the Helm at rank 14 gives none, since Path B's Double Attack starts at rank 16. Every Bunzi's and Gleti's armor piece is rank 0, so Bunzi's Hat has no Quadruple Attack, Gleti's Cuirass no Double Attack and Gleti's Breeches no Triple Attack. Bunzi's Gloves (RDM) keep their base Double Attack +8%.
+- At Vanar's ranks: the Nyame Path B Sollerets (+2%) and Mail (+3%) at rank 20 give Double Attack, and so do the Gauntlets (+2%) and the Flanchard (+3%), both rank 20 **(player, 2026-10-08 and 2026-10-09)**; the Helm at rank 20 gives +2% **(player, 2026-10-12)**, Path B's Double Attack starting at rank 16. Every Bunzi's and Gleti's armor piece is rank 0, so Bunzi's Hat has no Quadruple Attack, Gleti's Cuirass no Double Attack and Gleti's Breeches no Triple Attack. Bunzi's Gloves (RDM) keep their base Double Attack +8%.
 
 ### Subtle Blow
 
@@ -221,30 +229,43 @@ Vanar's numbers under the formulas in [ffxi-mechanics.md](../../docs/ffxi-mechan
 
 ### Skill and accuracy: Sword skill past 600 (disputed)
 
-- The worked sword skill figures are Vanar's: Master Level 25 and 8/8 sword merits (player, 2026-10-02). They assume Vanar's Almace is at least Level 119, which the export doesn't show.
+- The worked sword skill figures are Vanar's: Master Level 25 and 8/8 sword merits (player, 2026-10-02). Vanar's Almace is Level 119 III, since it exports Path A from the 2026-10-11 export on (rank 2, player, 2026-10-11), so a hand holding it has Sword skill +269.
 
 ### Skill and accuracy: Accuracy
 
-Estimated main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_Blu_Gear.lua` as the 2026-10-10 floor counts it: gear, Oden (the lower of the two foods), weapon skill accuracy, base stats, job point gifts and BLU's traits, with no buffs and no first-swing bonus. They use wsdist's race-less job tables (no level 99 Elvaan values are in reach), RDM/NIN, BLU/WAR with Accuracy Bonus IV **(player, 2026-10-08)**, and Mirage Stole +2's rank 20 DEX taken as 0. Grape Daifuku adds 6 or 7. A `/checkparam` replaces each.
+Main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_Blu_Gear.lua` as the 2026-10-10 floor counts it: gear, Oden (the lower of the two foods), weapon skill accuracy, base stats, job point gifts and BLU's traits, with no buffs and no first-swing bonus. Grape Daifuku adds 6 or 7. The BLU rows, for the sets of 2026-10-11, come from the player's `/checkparam` records (next list) with Oden added. The RDM rows, for the sets of 2026-10-10, are estimates from wsdist's race-less job tables (no level 99 Elvaan values are in reach) as RDM/NIN, and a `/checkparam` replaces each.
 
-| Set (2026-10-10) | Weapons | Floor accuracy | Floor |
+| Set | Weapons | Floor accuracy | Floor |
 |---|---|---|---|
-| BLU TP (`sets.engaged`) | Tizona, Naegling, Almace + Thibron; Maxentius + Bunzi's Rod | 1383, 1387, 1390; 1347 | 1275 |
-| BLU `sets.precast.WS` (Black Halo) | Maxentius + Bunzi's Rod | 1329 | 1275 |
-| BLU Savage Blade, Expiacion | Naegling, Tizona + Thibron | 1330, 1326 | 1275 |
-| BLU Requiescat | Naegling + Thibron | 1497 | 1275 |
-| BLU Chant du Cygne | Almace + Thibron | 1451 | 1275 |
+| BLU TP (`sets.engaged`) | Tizona, Naegling, Almace + Thibron; Maxentius + Bunzi's Rod | 1490, 1494, 1498; 1454 | 1275 |
+| BLU `sets.precast.WS` (Black Halo) | Maxentius + Bunzi's Rod | 1359 | 1275 |
+| BLU Savage Blade, Expiacion | Naegling, Tizona + Thibron | 1361, 1356 | 1275 |
+| BLU Requiescat | Naegling + Thibron | 1530 | 1275 |
+| BLU Chant du Cygne | Almace + Thibron | 1484 | 1275 |
 | RDM TP (`sets.engaged`) | Naegling, Maxentius + Thibron; Naegling + Gleti's Knife | 1346, 1277; 1397 | 1250 |
 | RDM Savage Blade | Naegling + Thibron | 1256 | 1250 |
 | RDM Black Halo | Maxentius + Thibron | 1250 | 1250 |
 | RDM Requiescat | Naegling + Thibron | 1320 | 1250 |
 | RDM Chant du Cygne and Evisceration | Tauret + Gleti's Knife | 1349 | 1250 |
 
-- Each 4 DEX is about 3 accuracy. The Chant du Cygne row counts Almace's DEX+50, which the export shows for the highest stage only.
+- **The player's `/checkparam` records** ([Vanar.jsonl](../audit/Vanar.jsonl), 2026-10-10, unbuffed and unfed, as BLU/WAR and BLU/NIN) give both hands' accuracy for every BLU engaged set and weapon set. One formula gives all 54 of those records exactly, on both hands: floor(DEX × 0.75), plus the accuracy from the hand's skill ([Combat skill](../../docs/ffxi-mechanics.md#combat-skill)), plus Accuracy from gear and weapons, plus 96. What it takes:
+  - DEX 152 with no gear as BLU/WAR (153 as BLU/NIN), 32 of it from the blue magic spell set. wsdist's race-less tables give 124, without the spells.
+  - 96 accuracy from traits and job points: 12 more than Accuracy Bonus IV **(player, 2026-10-08)** and the gifts add up to (48 + 36). Accuracy Bonus V (+60) would account for it ([Traits from set spells](../../docs/ffxi-mechanics.md#traits-from-set-spells)), but the records can't say which source it is.
+  - Sword skill 465 and club skill 429 before the weapon's own skill, as in the skill table above. Sword skill on armor reaches both hands: with Tizona and Almace the two hands read the same.
+  - Tizona's Path A Accuracy +30 on both hands ([Tizona](../../docs/gear-notes.md#tizona)), and Mirage Stole +2's DEX +20 at rank 20 **(player, 2026-10-11)**.
+  - With weapons only, as BLU/WAR (main hand / off hand): Tizona + Thibron 900 / 672, Tizona + Almace 937 / 937, Almace + Thibron 907 / 679, Naegling + Thibron 904 / 693, Naegling + Almace 941 / 958, Maxentius + Bunzi's Rod 901 / 893, Naegling + Bunzi's Rod 944 / 904. A Thibron off hand, with no skill of its own, reads 211 to 228 below its main hand.
+- Each 4 DEX is about 3 accuracy. The Chant du Cygne row counts Almace's DEX+50, the Level 119 III value, which Vanar's Path A copy has.
+- **(player, 2026-10-11)** BLU's `sets.precast.WS`, and with it the Savage Blade and Expiacion sets, wear Beithir Ring in place of Karieyh Ring: Weapon Skill Accuracy 5 lower and DEX 3 higher. The figures above count Beithir Ring, 2 or 3 below Karieyh Ring's.
 - Bunzi's Rod in the off hand adds its Accuracy 40 to the main hand too ([Which hand a weapon's stats work from](../../docs/ffxi-mechanics.md#which-hand-a-weapons-stats-work-from)), and so does Gleti's Knife; Thibron and Ammurapi Shield add none, so the Thibron rows are each set's low end.
 - RDM's hit rate has Composure's +70 on top, which the floor doesn't count (Rules for these sets).
 - The 2026-10-10 weapon skill sets come from exhaustive searches over the wardrobe pieces: scratch `rdmws-search.cs` for RDM's Savage Blade, Black Halo and Requiescat, and a second model with the same formulas for the rest, which also checked those three. Each set was scored across TP, target AGI (300, 340, 400), evasion (1250, 1350) and buffs (none; attack ×1.3 + 250 and defense −10%), keeping the set with the best worst case. Modelled gains over the sets before: RDM Savage Blade +4%, Black Halo +8%, Chant du Cygne and Evisceration +3%; BLU Savage Blade +4%, Expiacion +3%, Black Halo +4.5%, Chant du Cygne +16%. Requiescat stayed on both jobs: at most 1% either way, and the two models disagree on RDM's.
 - The TP sets weren't changed by those searches: both clear their floor with every weapon pair. BLU's was changed later that day **(player, 2026-10-10)**: Nyame Mail, Gauntlets and Flanchard for the Hashishin body, hands and legs, trading 69 gear Accuracy and 31 DEX (about 92 accuracy) for Double Attack 24 to 32, and losing Refresh 4, which moved to `sets.MP`. A scratch TP model that turns TP gain into weapon skills favoured, on RDM, the Atrophy +4 set (DT 40 to 5) for its accuracy on the skill-less Thibron off hand, and on BLU, Dual Wield and multi-attack pieces, by amounts that turn on the target's evasion and the magic haste received.
+  - The `/checkparam` records show that change put a Thibron off hand at 1197 to 1219 with Oden, the 20% floor at 1350 evasion, where the Hashishin pieces had it at 1290 to 1311 (45 to 55%). The estimates of the time had it near the floor either way.
+- BLU's engaged sets were rebuilt on 2026-10-11 from the formula above, by a scratch search over the wardrobe pieces and the Adhemar Wristbands with the TP per round formulas in Rules for these sets: 1350 evasion, Oden and Grape Daifuku, BLU/WAR's Double Attack 12%, the Store TP trait at +20 and Kentarch Belt +1's Unity Store TP at +1. Each set was weighed across every weapon set it can be worn with, keeping the set whose worst weapon set gained most over the set before. Under Tizona's Aftermath Lv.3 the main hand's extra attacks come after Double Attack, so Double Attack there counts a fifth ([Multi-attack](../../docs/ffxi-mechanics.md#multi-attack)). With Oden (main hand / off hand, and the off hand's hit rate at 1350 evasion):
+  - `sets.engaged`, and `sets.engaged.AM` on it with nothing of its own: Tizona + Thibron 1490 / 1257 (28%), Almace + Thibron 1498 / 1265 (32%), Naegling + Thibron 1494 / 1278 (39%), Maxentius + Bunzi's Rod 1454 / 1446. TP per round over the sets before: +9 to +21% with a Thibron off hand, +2 to +4% with an Almace or Bunzi's Rod one; under Aftermath +13 to +15% with Thibron and +8% with Almace.
+  - `sets.engaged.DT`, and `sets.engaged.DT.AM` on it with nothing of its own: Tizona + Thibron 1544 / 1311 (55%), Almace + Thibron 1551 / 1318 (59%), Naegling + Thibron 1548 / 1332 (66%). TP per round: +4.2 to +4.9% with a Thibron off hand, +1.6% with an Almace or Bunzi's Rod one; under Aftermath +6.5 to +7.0% with Thibron and +4.7% with Almace.
+  - Every main hand and every Almace or Bunzi's Rod off hand is over its cap in these sets, so a Thibron off hand is the only hand where accuracy still counts: 2 accuracy is a point of its hit rate.
+  - The ACC-mode sets (`sets.engaged.Acc` and those on it) give less TP per round than `sets.engaged` at 1350 evasion with every weapon set but the Thibron ones, where they give 3 to 6% more. They give more with most weapon sets from about 1525 evasion and with all of them from 1550, and with Maxentius + Bunzi's Rod from about 1475.
 
 ### Attack and pDIF: Physical damage limit
 
@@ -256,7 +277,7 @@ Estimated main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` a
 
 ### Weapon skills: Weapon skill damage (WSD)
 
-- Nyame Path B's WSD at Vanar's ranks **(player, 2026-10-04; the Gauntlets 2026-10-08; the Helm and Flanchard 2026-10-09)**: Helm (rank 14) +6%, Mail (20) +10%, Gauntlets (20) +8%, Flanchard (20) +9%, Sollerets (20) +8%, 41% for the five.
+- Nyame Path B's WSD at Vanar's ranks **(player, 2026-10-04; the Gauntlets 2026-10-08; the Flanchard 2026-10-09; the Helm 2026-10-12)**: Helm (rank 20) +8%, Mail (20) +10%, Gauntlets (20) +8%, Flanchard (20) +9%, Sollerets (20) +8%, 43% for the five.
 
 ### Magic accuracy: Macc needed to cap
 
@@ -347,6 +368,7 @@ Estimated main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` a
 
 - **(player, 2026-10-07)** The melee spell set gives Accuracy Bonus, Attack Bonus and Store TP.
 - **(player, 2026-10-08)** The Accuracy Bonus is tier IV, Accuracy +48 ([Traits from set spells](../../docs/ffxi-mechanics.md#traits-from-set-spells)). The Attack Bonus and Store TP tiers aren't recorded.
+- The player's `/checkparam` records of 2026-10-10 fit 96 accuracy from traits and job points, 12 more than tier IV and the gifts give, and DEX +32 from the spell set's stat bonuses ([Skill and accuracy: Accuracy](#skill-and-accuracy-accuracy)).
 - Vanar's BLU has 2,100 job points, so both Job Trait Bonus gifts apply, and a trait the spells unlock is at least tier III: bg-wiki's table puts tier III of all three within 5 or 6 set points at 1,200 job points ([Blue Mage Job Traits](https://www.bg-wiki.com/ffxi/Blue_Mage_Job_Traits)). For the two tiers not recorded, the estimates take that lowest one: Attack +35 and Store TP +20. Each tier past III adds 12 or 13 attack, and 5 Store TP.
 - bg-wiki hedges how the gifts work ("seems to" add 8 trait points); for the Accuracy Bonus the player's tier IV settles it.
 - /WAR's Attack Bonus I (+10) doesn't add to the spells' tier; the higher applies ([Traits from set spells](../../docs/ffxi-mechanics.md#traits-from-set-spells)).

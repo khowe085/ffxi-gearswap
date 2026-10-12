@@ -101,10 +101,10 @@ function init_gear_sets()
 	sets.precast.FC['Blue Magic'] = set_combine(sets.precast.FC, {body="Hashishin Mintan +3"})
 
 
-	-- WSD 67
+	-- WSD 66
 	sets.precast.WS = {ammo="Coiste Bodhar",
 		head="Hashishin Kavuk +3",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Hashi. Earring +1",
-		body="Assim. Jubbah +4",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
+		body="Assim. Jubbah +4",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Beithir Ring",
 		back=gear.wsd_jse_back,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
 
 	-- Assimilator's set (2 pieces): Acc +15
@@ -115,13 +115,13 @@ function init_gear_sets()
 
 	sets.precast.WS.FullAcc = set_combine(sets.precast.WS.Acc, {})
 
-	-- DT 53, WSD 56
+	-- DT 53, WSD 58
 	sets.precast.WS.DT = {ammo="Coiste Bodhar",
 		head="Nyame Helm",neck="Mirage Stole +2",ear1="Alabaster Earring",ear2="Hashi. Earring +1",
 		body="Nyame Mail",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Murky Ring",
 		back=gear.wsd_jse_back,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
 
-	-- WSD 67
+	-- WSD 66
 	sets.precast.WS.Fodder = set_combine(sets.precast.WS, {legs="Nyame Flanchard"})
 
 	-- Fotia Gorget and Fotia Belt fTP +25/256 a hit each
@@ -153,7 +153,7 @@ function init_gear_sets()
 		body="Hashishin Mintan +3",hands="Hashi. Bazu. +3",ring2="Murky Ring",back=gear.da_jse_back,legs="Hashishin Tayt +3"})
 	sets.precast.WS['Chant du Cygne'].Fodder = set_combine(sets.precast.WS['Chant du Cygne'], {})
 
-	-- WSD 65
+	-- WSD 64
 	sets.precast.WS['Savage Blade'] = set_combine(sets.precast.WS, {body="Nyame Mail"})
 	sets.precast.WS['Savage Blade'].Acc = set_combine(sets.precast.WS.Acc, {})
 	sets.precast.WS['Savage Blade'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
@@ -166,7 +166,7 @@ function init_gear_sets()
 	sets.precast.WS['Vorpal Blade'].DT = sets.precast.WS['Chant du Cygne'].DT
 	sets.precast.WS['Vorpal Blade'].Fodder = sets.precast.WS['Chant du Cygne'].Fodder
 
-	-- WSD 65
+	-- WSD 64
 	sets.precast.WS['Expiacion'] = set_combine(sets.precast.WS, {body="Nyame Mail"})
 	sets.precast.WS['Expiacion'].Acc = set_combine(sets.precast.WS.Acc, {})
 	sets.precast.WS['Expiacion'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
@@ -454,10 +454,10 @@ function init_gear_sets()
 
 	sets.engaged = {main="Tizona",sub="Almace",ammo="Coiste Bodhar",
 			    head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Brutal Earring",ear2="Hashi. Earring +1",
-			    body="Nyame Mail",hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Rajas Ring",
-			    back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
+			    body="Hashishin Mintan +3",hands="Adhemar Wristbands",ring1="Lehko's Ring",ring2="Rajas Ring",
+			    back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Hashishin Tayt +3",feet="Nyame Sollerets"}
 
-	sets.engaged.AM = set_combine(sets.engaged, {back=gear.crit_jse_back,feet="Hashi. Basmak +3"})
+	sets.engaged.AM = set_combine(sets.engaged, {})
 
 
 	-- Assimilator's set (2 pieces): Acc +15
@@ -476,14 +476,14 @@ function init_gear_sets()
 
 	sets.engaged.Fodder.AM = set_combine(sets.engaged.AM, {})
 
-	-- DT 57
+	-- DT 50
 	sets.engaged.DT = {main="Tizona",sub="Almace",ammo="Coiste Bodhar",
 			    head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Brutal Earring",ear2="Hashi. Earring +1",
 			    body="Hashishin Mintan +3",hands="Hashi. Bazu. +3",ring1="Lehko's Ring",ring2="Murky Ring",
-			    back=gear.da_jse_back,waist="Kentarch Belt +1",legs="Hashishin Tayt +3",feet="Nyame Sollerets"}
+			    back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Hashishin Tayt +3",feet="Hashi. Basmak +3"}
 
-	-- DT 52
-	sets.engaged.DT.AM = set_combine(sets.engaged.DT, {back=gear.crit_jse_back})
+	-- DT 50
+	sets.engaged.DT.AM = set_combine(sets.engaged.DT, {})
 
 	-- DT 55
 	sets.engaged.Acc.DT = set_combine(sets.engaged.Acc, {body="Hashishin Mintan +3",hands="Hashi. Bazu. +3",ring2="Murky Ring"})

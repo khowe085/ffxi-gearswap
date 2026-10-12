@@ -628,6 +628,7 @@ bg-wiki's set pages show no set bonus for these, and no help text of their items
 
 - "Path: A" exists only on the Oboro-augmented iLvl 119 III Tizona (DMG 147, Delay 236, Magic Accuracy +40, Magic Damage +186, Sword skill +269, Magic Accuracy skill +255), not on the level-75 version the help text shows. ([bg-wiki](https://www.bg-wiki.com/ffxi/Tizona_%28Level_119_III%29))
 - Path A is the Ultimate Weapon (REMA) augment, and the only path. Only Level 119 III takes it, so a Tizona that exports with `'Path: A'` is Level 119 III. The export doesn't show the rank (1 to 15). At rank 15 (max) it gives DMG +18, Expiacion damage +15%, Accuracy +30 and Magic Accuracy +30, all main hand only. Below rank 15 it gives less, by amounts bg-wiki doesn't list. ([bg-wiki](https://www.bg-wiki.com/ffxi/BGWiki:Ultimate_Weapon_Augments), [rank-augments.md](rank-augments.md#oboro-rank-augments-maximum-only))
+- "Main hand only" means Tizona has to be in the main slot; the augment's Accuracy then counts for both hands, like Accuracy on any weapon. In-game `/checkparam` records (2026-10-10, rank 15) read each hand 30 above what its skill, DEX and gear give, with Thibron, Almace or Bunzi's Rod in the sub slot, in full sets and with the weapons alone. ([Which hand a weapon's stats work from](ffxi-mechanics.md#which-hand-a-weapons-stats-work-from))
 - Tizona has a hidden Expiacion damage +30% that multiplies with the rank-15 augment's +15%, for +49.5%. Both apply to every hit of Expiacion. ([bg-wiki](https://www.bg-wiki.com/ffxi/Tizona_%28Level_119_III%29))
 - The MP drain procs on about 30% of normal melee hits (not weapon skills) and returns about 10-20% of that hit's damage as MP, even against monsters with no MP. ([bg-wiki](https://www.bg-wiki.com/ffxi/Tizona_%28Level_119_III%29))
 - Expiacion Aftermath goes by actual TP only. Level 1 gives Accuracy floor(TP/50+10) (30-49) for 90 s. Level 2 gives Magic Accuracy 30-49 for 4.5 minutes. Level 3 makes attacks hit twice 40% or thrice 20% of the time for 3 minutes, and can also proc once on a physical weapon skill. ([bg-wiki](https://www.bg-wiki.com/ffxi/Mythic_Aftermath))
@@ -1864,6 +1865,15 @@ No notes beyond the help text: Councilor's Cuffs, Pursuer's Cuffs.
 *Ayanmo Ring.*
 
 - Set bonus: Ayanmo, see [Ayanmo set](#ayanmo-set) (bg-wiki: [Ayanmo Ring](https://www.bg-wiki.com/ffxi/Ayanmo_Ring), [Ambuscade Rewards](https://www.bg-wiki.com/ffxi/Category:Ambuscade_Rewards))
+
+### Beithir Ring
+
+*Beithir Ring. BLU, not RDM.*
+
+- RDM can't equip it: its jobs are WAR, MNK, THF, PLD, DRK, BST, RNG, SAM, NIN, DRG, BLU, PUP and DNC. It is Rare, so a set can hold one. ([bg-wiki](https://www.bg-wiki.com/ffxi/Beithir_Ring))
+- Its only path, Odyssey Path A, adds Weapon Skill Accuracy from rank 1 (+1 a rank, +15 at rank 15), Attack from rank 16 (+15 at rank 30) and Skillchain damage from rank 21 (+5% at rank 30). A copy that exports with no augments is rank 0 and has none of them. For each rank, see [rank-augments.md](rank-augments.md#beithir-ring) ([bg-wiki](https://www.bg-wiki.com/ffxi/Beithir_Ring)).
+- Its Weapon skill damage +2% is gear WSD, so on a physical weapon skill it raises only the first hit ([ffxi-mechanics.md](ffxi-mechanics.md#weapon-skill-damage-wsd)).
+- Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): BLU: Expiacion (Mid buff); Imperator (Mid buff, High buff); Savage Blade (Mid buff); Red Lotus Blade (Mid buff, Ice Brand enabled).
 
 ### Caliber Ring
 

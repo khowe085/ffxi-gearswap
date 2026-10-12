@@ -22,7 +22,8 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 | [Bladeborn and Steelflash](../../docs/gear-notes.md#bladeborn-and-steelflash-set) | 2 | +7% |
 | [Dudgeon and Heartseeker](../../docs/gear-notes.md#dudgeon-and-heartseeker-set) | 2 | +7% |
 | [Lifestorm and Psystorm](../../docs/gear-notes.md#lifestorm-and-psystorm-set) | 2 | +12 |
-| [Ayanmo](../../docs/gear-notes.md#ayanmo-set), [Amalric](../../docs/gear-notes.md#amalric-set), [Carmine](../../docs/gear-notes.md#carmine-set), [Adhemar](../../docs/gear-notes.md#adhemar-set), [Rubeus](../../docs/gear-notes.md#rubeus-set) | 0 or 1 | none: out of reach |
+| [Ayanmo](../../docs/gear-notes.md#ayanmo-set) | 6, five of them on slip 23 | none: the armor stays in storage |
+| [Amalric](../../docs/gear-notes.md#amalric-set), [Carmine](../../docs/gear-notes.md#carmine-set), [Adhemar](../../docs/gear-notes.md#adhemar-set), [Rubeus](../../docs/gear-notes.md#rubeus-set) | 0 or 1 | none: out of reach |
 | [Estoqueur's](../../docs/gear-notes.md#estoqueurs-set), [Regal](../../docs/gear-notes.md#regal-set) | 0 | none: Vanar owns no piece |
 
 ### Atrophy set
@@ -75,7 +76,8 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Ayanmo set
 
-- **Vanar owns:** only `Ayanmo Ring`, so the bonus never applies. The ring's own stats still count.
+- **Vanar owns:** all five +2 armor pieces (`Aya. Zucchetto +2`, `Ayanmo Corazza +2`, `Aya. Manopolas +2`, `Aya. Cosciales +2`, `Aya. Gambieras +2`), on storage slip 23, and `Ayanmo Ring`. **(player, 2026-10-11)** The armor stays in storage unless a set would gain a great deal from it, so in his sets only the ring is worn and the bonus never applies. The ring's own stats still count.
+- Against BLU's engaged sets of 2026-10-11, the most the slip pieces add is about 6 to 7% TP per round for one group of weapon sets, Thibron off hands or Almace and Bunzi's Rod ones, and each such set takes two slip pieces or costs the other group. Ayanmo Corazza +2 (Double Attack +7%, DT 6) and Aya. Zucchetto +2 (Store TP +6, DT 3) are the ones that come up.
 
 ### Amalric set
 
@@ -105,9 +107,9 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Almace
 
-- No augment shows on Vanar's copy, so it is rank 0 and lacks the REMA augment. Rank 0 says nothing about the stage.
-- The simulated sets assume Almace Level 119 III, and the export doesn't show Vanar's stage.
-- Vanar's copy has no REMA augment, so in wsdist pick the plain "Almace" and "Almace (sub)", not the R15 entries "Select all File" keeps ([gear-notes.md](../../docs/gear-notes.md#almace)).
+- Vanar's copy exports `'Path: A'` from the 2026-10-11 export on, and only Level 119 III takes the REMA augment, so it is Level 119 III, the stage the simulated sets assume. **(player, 2026-10-11)** It is rank 2 of 15. bg-wiki gives the augment at rank 15 only (main hand DMG+5, Chant du Cygne damage +10%, DEX and MND +20), so the rank 2 values have to be read off the item in game ([gear-notes.md](../../docs/gear-notes.md#almace)).
+- In the sub slot the augment does nothing, so as an off hand it has the full Level 119 III stats: DEX+50 for both hands and Sword skill +269 for its own hits ([gear-notes.md](../../docs/gear-notes.md#almace)).
+- In wsdist, the plain "Almace (sub)" fits it in the off hand. In the main hand neither entry fits: the plain "Almace" lacks the rank 2 augment and the R15 entries "Select all File" keeps overstate it ([gear-notes.md](../../docs/gear-notes.md#almace)).
 
 ### Bunzi's Rod
 
@@ -233,11 +235,13 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Thibron
 
 - Vanar's copy has TP Bonus +1000, the augment the BLU page's simulated sets use.
+- With no skill of its own, its hand reads 211 to 228 accuracy below the main hand (the player's `/checkparam`, weapons only, 2026-10-10). It is the one hand short of its cap in BLU's engaged sets: at 1350 evasion with Oden it hits 28 to 39% in `sets.engaged` and 55 to 66% in `sets.engaged.DT` as they stand on 2026-10-11 ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 
 ### Tizona
 
 - Vanar's Tizona exports with `'Path: A'`, so it is Level 119 III. **(player, 2026-10-05)** It is rank 15, the maximum: main hand DMG +18, Expiacion damage +15%, Accuracy +30 and Magic Accuracy +30 ([rank-augments.md](../../docs/rank-augments.md#oboro-rank-augments-maximum-only)).
 - The simulated sets assume Level 119 III, the stage Vanar's `'Path: A'` copy is.
+- The player's `/checkparam` records of 2026-10-10 show its Accuracy +30 on both hands: with it in the main hand, each hand reads 30 above what its skill, DEX and gear give, whether Thibron, Almace or Bunzi's Rod is in the sub slot ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy), [gear-notes.md](../../docs/gear-notes.md#tizona)).
 
 ### Twilight Knife
 
@@ -357,9 +361,10 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Nyame Helm
 
-- Vanar's copy is Path B at rank 14 **(player, 2026-10-09)**: Attack+19, Ranged Attack+19 and Weapon skill damage +6%, with no Double Attack (it starts at rank 16). It was rank 11 from 2026-10-04. The export prints the path but not the rank.
-- Vanar's copy is rank 14 Path B, so the sims overvalue it: rank 25 has 11 more Attack, 4% more Weapon skill damage, Double Attack +4% and Accuracy+5 ([rank-augments.md](../../docs/rank-augments.md#nyame-helm)).
-- At rank 14 it still loses every weapon skill head slot it competes for. On BLU, Hashishin Kavuk +3 has WSD 12 and Acc and Att 61 against its 6, 40 and 49. On RDM, the floor-built Savage Blade search kept other heads ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)). The magical weapon skills keep their MAB heads (Kavuk MAB 51, Leth. Chappel +3 MAB 56 against its 30).
+- Vanar's copy is Path B at rank 20 **(player, 2026-10-12)**: Attack+25, Ranged Attack+25, Weapon skill damage +8% and Double Attack +2% (Double Attack starts at rank 16). It was rank 18 from 2026-10-11, rank 14 from 2026-10-09 and rank 11 from 2026-10-04. The export prints the path but not the rank.
+- Vanar's copy is rank 20 Path B, so the sims overvalue it: rank 25 has 5 more Attack, 2% more Weapon skill damage and Double Attack, and Accuracy+5 ([rank-augments.md](../../docs/rank-augments.md#nyame-helm)).
+- At rank 14 it lost every weapon skill head slot it competed for. On BLU at rank 18, Hashishin Kavuk +3 still has more of each: WSD 12 and Acc and Att 61, plus Sword skill +30, against its 7, 40 and 53. RDM's weapon skill heads weren't compared again at rank 18; at rank 14 the floor-built Savage Blade search kept other heads ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)). The magical weapon skills keep their MAB heads (Kavuk MAB 51, Leth. Chappel +3 MAB 56 against its 30).
+- In BLU's engaged sets (2026-10-11) Hashishin Kavuk +3 keeps the head: its Accuracy 61, DEX 29 and Sword skill +30 against the Helm's 40 and 25 are about 48 accuracy for a Thibron off hand, the one hand short of its cap there ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 
 ### Rawhide Mask
 
@@ -418,6 +423,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Mirage Stole +2
 
 - **(player, 2026-10-05)** Vanar's copy is Path A rank 20 of 25. bg-wiki gives the augment only at rank 25 (STR and DEX +25, Store TP +7, Critical hit rate +5%), so the rank 20 values have to be read off the item in game ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:JSE_Necks)).
+- **(player, 2026-10-11)** At rank 20 it gives STR and DEX +20, Critical hit rate +4% and Store TP +6. The DEX +20 is in the player's `/checkparam` records of 2026-10-10 ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)). `set-stats.cs` can't add these values itself, since bg-wiki gives only rank 25: pass them with `--extra`.
 - **(player, 2026-10-08)** The nuke rule covers BLU's magical blue magic, so those sets keep Sanctity Necklace ([Rules](Vanar_notes.md#rules-for-these-sets)). The stole's Macc 25 and Blue magic skill 20 go to the magic accuracy, breath and stun sets and to the nukes' Resistant mode.
 
 ### Rep. Plat. Medal
@@ -607,6 +613,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's copy is Path B at rank 20 (player, 2026-10-04): Attack+25, Ranged Attack+25, Weapon skill damage +10% and Double Attack +3%. The export prints the path but not the rank.
 - Vanar's copy is rank 20 Path B, so the sims overvalue it: rank 25 has 5 more Attack, 2% more Weapon skill damage and Double Attack, and STR and VIT +5 ([rank-augments.md](../../docs/rank-augments.md#nyame-mail)).
+- It was the body of BLU's `sets.engaged` from 2026-10-10 **(player, 2026-10-10)** to 2026-10-11, when Hashishin Mintan +3 took it back: Accuracy 64, DEX 34 and Damage taken -13% against 40, 24 and 9, for the Mail's Double Attack +3%. The `/checkparam` records showed a Thibron off hand needs the accuracy ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 
 ### Telchine Chas.
 
@@ -617,6 +624,9 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Adhemar Wristbands
 
 - Its augments are Nolan Path B. Nolan gear ranks up to 15, and these are Path B's full values, so this copy is at rank 15.
+- **(player, 2026-10-11)** It comes out of the Mog Case for BLU's TP sets, where it is the best hands.
+- In BLU's `sets.engaged` (2026-10-11), against Hashi. Bazu. +3: Triple Attack +3%, Store TP +6 and DEX 10 more, for Accuracy 40 less and no Damage taken -10% (DT 37 against 47). With an Almace or Bunzi's Rod off hand, where both hands are capped, that is 7.6% more TP per round. With a Thibron off hand, whose hit rate drops 16 or 17 points, it is 3.4 to 5.1% less. Nyame Gauntlets (Double Attack +2%, DT 7) give less than the Wristbands with every weapon set, and Assim. Bazu. +3, worn without other Assimilator's pieces, never more than Hashi. Bazu. +3 ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
+- `sets.engaged.DT` keeps Hashi. Bazu. +3: without its DT 10 the set falls to DT 40.
 
 ### Asn. Armlets +2
 
@@ -674,8 +684,9 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Nyame Gauntlets
 
-- Vanar's copy is Path B at rank 20 **(player, 2026-10-08)**: Attack+25, Ranged Attack+25, Weapon skill damage +8% and Double Attack +2%. It was rank 17 from 2026-10-06. Vanar's Mail, Sollerets and Flanchard are Path B rank 20 and the Helm rank 14.
+- Vanar's copy is Path B at rank 20 **(player, 2026-10-08)**: Attack+25, Ranged Attack+25, Weapon skill damage +8% and Double Attack +2%. It was rank 17 from 2026-10-06. Vanar's Mail, Sollerets and Flanchard are Path B rank 20, and the Helm rank 20.
 - Vanar's copy is rank 20 Path B, so the sims overvalue it: rank 25 has 5 more Attack, 2% more Weapon skill damage and Double Attack, and VIT+10 ([rank-augments.md](../../docs/rank-augments.md#nyame-gauntlets)).
+- It was the hands of BLU's `sets.engaged` from 2026-10-10 **(player, 2026-10-10)** to 2026-10-11, when Adhemar Wristbands took them: see [Adhemar Wristbands](#adhemar-wristbands).
 - Against Jhakri Cuffs +2 in BLU's weapon skill set, at rank 17 (Vanar's rank from 2026-10-06 to 2026-10-08): the same WSD 7%, Attack 52 against 43, Double Attack +1%, MND 40 against 35 and DT -7%, for Accuracy 40 against 43 and INT 28 against 36. Expected damage at 2250 TP on bg-wiki's test enemy (1350 evasion, 1500 defense), from a calculation with the formulas in [ffxi-mechanics.md](../../docs/ffxi-mechanics.md), wsdist's race-less base stats, BLU/WAR, the melee spell set's Accuracy and Attack Bonus III and no buffs: Savage Blade +0.9 to +1.0%, Expiacion -0.2% with Grape Daifuku and +0.1% with Oden, Black Halo +1.2%, each for 2 to 3 less accuracy. So at rank 17 BLU wore them for Savage Blade only: Expiacion's two foods disagreed, and Black Halo's set is under the 1350 floor, where accuracy comes first.
 - At rank 20 (Attack 55, WSD 8%, Double Attack +2%) they add about 0.8 to 0.9% to Savage Blade over rank 17, and beat Jhakri Cuffs +2 by about 0.6 to 0.7% on Expiacion for 2 less accuracy, both worked out with Accuracy Bonus III. With the spells' Accuracy Bonus IV **(player, 2026-10-08)**, Expiacion's set (with the Flanchard) is at about 1,391 with Grape Daifuku and 1,385 with Oden, so [Vanar_Blu_Gear.lua](Vanar_Blu_Gear.lua) wears them for Expiacion too. Black Halo with Maxentius and Bunzi's Rod is at about 1,365 and 1,359 with them, so its weapon skill set, the default one, wears them as well ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - Against Atrophy Gloves +4 in RDM's weapon skill set they lose up to rank 21, so at rank 20 RDM keeps the gloves: WSD 9% and Accuracy 63 against 8% and 40, about 18% less Savage Blade damage on this calculation, and 5% less with Composure. From rank 22 their WSD matches or passes the gloves', with 23 less accuracy at every rank.
@@ -716,8 +727,14 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Ayanmo Ring
 
-- Vanar owns no Ayanmo armor, so the set bonus never applies.
+- Vanar's Ayanmo +2 armor stays on slip 23 **(player, 2026-10-11)**, so the set bonus never applies in his sets ([Ayanmo set](#ayanmo-set)).
 - It ties Jhakri Ring at Accuracy+6 in the ACC-mode sets; Jhakri's Attack+6 takes the slot. Lehko's Ring's DEX+10 is about 2 more accuracy than either, so RDM's Step set takes Lehko's too. Enlivened Ring (Accuracy+7, DEX+2) is in storage.
+
+### Beithir Ring
+
+- Vanar's copy first appears in the 2026-10-11 export, with no augments, so it is rank 0: STR, DEX, VIT and AGI +3 and Weapon skill damage +2%, with none of the path's Weapon Skill Accuracy, Attack or Skillchain damage ([gear-notes.md](../../docs/gear-notes.md#beithir-ring)).
+- **(player, 2026-10-11)** It replaces Karieyh Ring in BLU's physical weapon skill sets. Sanguine Blade, idle and resting keep Karieyh Ring.
+  - Against Karieyh Ring there: Weapon skill damage 2% against 3% and no Weapon Skill Accuracy against +5, for STR, DEX, VIT and AGI +3 each. The DEX is about 2 accuracy, so the sets lose about 3 accuracy.
 
 ### Dark Ring
 
@@ -814,6 +831,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 - Vanar has no Monster Correlation merits: Physical Potency 5 and Magical Accuracy 5 (player, 2026-10-02) fill BLU Group 1's 10 levels ([Vanar's merits and skills](Vanar_notes.md#merits)).
 - Every copy carries "Efflux" TP bonus +250 in its base text. Vanar_Blu_Gear.lua's Efflux overlay names the Double Attack copy, as Mytha's names her Double Attack cape **(player, 2026-10-09)**.
 - Copy `'DEX+20','Accuracy+20 Attack+20','DEX+10','Crit.hit rate+10'`: it has no Resin (fifth) augment, so unlike the Double Attack copy it has no Damage taken-5%. ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:JSE_Capes))
+- Copy `'DEX+20','Accuracy+20 Attack+20','DEX+10','Crit.hit rate+10'`: **(player, 2026-10-11)** it is for weapon skills only. The TP sets, the Aftermath ones included, wear the Double Attack copy. In BLU's `sets.engaged.AM` of 2026-10-11 it would cost 2.5 to 3.3% TP per round and DT 5, to 32.
 - Copy `'INT+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Mag.Atk.Bns."+10'`:
   - It has no Resin augment, and its Dye went to Magic Accuracy+10 instead of INT+10.
   - Its Magic Damage+20 adds to a spell's base damage (the D term) before any multiplier. ([bg-wiki](https://www.bg-wiki.com/ffxi/Magic_Damage))
@@ -881,6 +899,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Kentarch Belt +1
 
 - Vanar's copy has no augments (rank 0), so it lacks the Unity Path A augment.
+- No set wears it from 2026-10-11. Sailfi Belt +1 took its place in BLU's `sets.engaged.DT`: Double Attack +5% (rank 14), Triple Attack +2% and Haste 9% against its Accuracy 14, Double Attack +3% and Unity Store TP +1 to +5. With a Thibron off hand the Kentarch belt's accuracy is worth 1.1 to 4.3% more TP per round, as its Unity Store TP goes from +1 to +5. With an Almace or Bunzi's Rod off hand the Sailfi Belt is worth 3.0 to 0.2% more. Only with the Sailfi Belt does no weapon set fall below the set before, as long as the Unity Store TP is +3 or less. Under Tizona's Aftermath (`sets.engaged.DT.AM`, on the DT set) the Kentarch belt would be worth 2.2 to 5.2% more with Thibron, and from 1.6% less to 1.1% more with Almace ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 
 ### Obstin. Sash
 
@@ -1010,6 +1029,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
   - At tier IV the 10 accuracy leaves Savage Blade's set at about 1,395 and Expiacion's at 1,393 with Grape Daifuku, 6 less with Oden, so both wear the Flanchard. Black Halo kept the Shalwar under the 1350 floor of the time: with Maxentius, Bunzi's Rod and the Nyame Gauntlets the Flanchard would have put it at about 1,349 with Oden.
   - Under the 2026-10-10 floor (1275 with weapon skill accuracy), the default set, which Black Halo wears, takes the Flanchard too, at about 1,329 with Oden. Across the 2026-10-10 search's scenarios it beats Hashishin Tayt +3 there by about 1% on average and the Shalwar by more ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - Vanar's copy is rank 20 Path B, so the sims overvalue it: rank 25 has 5 more Attack, 2% more Weapon skill damage, 2% more Double Attack and STR+10 ([rank-augments.md](../../docs/rank-augments.md#nyame-flanchard)).
+- It was the legs of BLU's `sets.engaged` from 2026-10-10 **(player, 2026-10-10)** to 2026-10-11, when Hashishin Tayt +3 took them back: Accuracy 63, DEX 20 and Damage taken -12% against 40, none and 8, for the Flanchard's Double Attack +3% ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - wsdist has a rank 20 entry, Vanar's rank.
 
 ### Odyssean Cuisses
@@ -1074,6 +1094,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Hashi. Basmak +3
 
 - Its "Burst Affinity"+21 adds 0.21 to the WSC multiplier under Burst Affinity ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#chain-affinity-burst-affinity-efflux-and-azure-lore)). It is the magical sets' feet anyway, and the Burst Affinity overlay names it with Hashishin Tayt +3 on the legs **(player, 2026-10-10)**: +21, 2.21 in all.
+- In BLU's `sets.engaged.DT` (2026-10-11) it takes the feet from Nyame Sollerets, whose Damage taken -7% was the set's excess over 50. Its Accuracy 60 and DEX 30, against the Sollerets' Accuracy 40, DEX 26 and Double Attack +2% (rank 20), lift a Thibron off hand's hit rate by 4 or 5 points, to 55 to 66% at 1350 evasion with Oden. Keeping the Sollerets at DT 50 instead takes Ayanmo Ring for Murky Ring (DT 3 against 10). Set against that, the Basmak gives 4.1 to 5.3% more TP per round with a Thibron off hand and 1.4% less with an Almace or Bunzi's Rod off hand, where both hands are capped and the Double Attack is what counts. That holds with Kentarch Belt +1 or Sailfi Belt +1 in the waist ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 
 ### Herculean Boots
 
@@ -1106,6 +1127,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's copy is Path B at rank 20 (player, 2026-10-04): Attack+25, Ranged Attack+25, Weapon skill damage +8% and Double Attack +2%. The export prints the path but not the rank.
 - Vanar's copy is rank 20 Path B, so the sims overvalue it: rank 25 has 5 more Attack, 2% more Weapon skill damage and Double Attack, and Accuracy+8 ([rank-augments.md](../../docs/rank-augments.md#nyame-sollerets)).
+- It is BLU's TP-set feet. In `sets.engaged.DT` Hashi. Basmak +3 replaced it on 2026-10-11; [Hashi. Basmak +3](#hashi-basmak-3) has the comparison.
 
 ### Odyssean Greaves
 
@@ -1216,7 +1238,6 @@ Gear in bg-wiki's simulated sets ([Red Mage](https://www.bg-wiki.com/ffxi/All_Jo
 | Aurgelmir Orb +1 | Tizona + Thibron AM3 TP |
 | Baetyl Pendant | Red Lotus Blade |
 | Begrudging Ring | Chant du Cygne |
-| Beithir Ring | Expiacion, Imperator, Red Lotus Blade, Savage Blade |
 | Caliburnus (Level 119 II) | Caliburnus + Thibron AM1 TP, Imperator |
 | Chirich Ring +1 | Caliburnus + Thibron AM1 TP, Tizona + Thibron AM3 TP |
 | Crepuscular Pebble | Expiacion, Imperator, Requiescat, Savage Blade |
@@ -1252,6 +1273,6 @@ Gear in bg-wiki's simulated sets ([Red Mage](https://www.bg-wiki.com/ffxi/All_Jo
 | Zantetsuken | Chant du Cygne |
 
 - Capes: of the sims' Ambuscade capes, Vanar's Sucellos's Capes match only the STR, Weapon Skill Damage one (the Seraph Blade and Red Lotus Blade sims may use its Magic Accuracy and Magic Damage version) and come nearest to the INT, Magic Attack one (INT+20 and Magic Accuracy+10 where the sims' cape has INT+30). His Rosmerta's Capes match only the STR, Weapon Skill Damage and DEX, Crit Rate ones. See [Sucellos's Cape](../../docs/gear-notes.md#sucelloss-cape) and [Rosmerta's Cape](../../docs/gear-notes.md#rosmertas-cape).
-- Staged weapons: the sims use Almace Level 119 III and Mpu Gandring Level 119 II. The export doesn't show Vanar's stage of either, so neither is listed here; see [Almace](../../docs/gear-notes.md#almace) and [Mpu Gandring](../../docs/gear-notes.md#mpu-gandring). Vanar's Tizona is Level 119 III like the sims', because only that stage takes its `'Path: A'` augment.
+- Staged weapons: the sims use Almace Level 119 III and Mpu Gandring Level 119 II, so neither is listed here. Vanar's Tizona and Almace are Level 119 III like the sims', because only that stage takes their `'Path: A'` augment (Almace from the 2026-10-11 export on). The export doesn't show the stage of Vanar's Mpu Gandring; see [Mpu Gandring](../../docs/gear-notes.md#mpu-gandring).
 - Lower versions Vanar does own: `Dls. Torque +1` (the sims use the +2), the NQ `Adhemar Bonnet` and `Adhemar Wristbands` (the sims use the +1s), and the NQ `Ea Houppelande` (the sims use `Ea Houppe. +1` in RDM Casting (Magic Burst)).
 - Odyssey pieces Vanar owns at a lower rank than the sims' are in their entries, not here: every Nyame, Bunzi's and Gleti's piece the sims use.
