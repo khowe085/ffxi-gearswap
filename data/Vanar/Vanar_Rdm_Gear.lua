@@ -9,7 +9,7 @@ function character_user_job_setup()
 	state.ResistDefenseMode:options('MEVA')
 	state.BuffWeaponsMode = M{'Always','Never'}
 	state.AutoBuffMode = M{['description'] = 'Auto Buff Mode','Off','Auto','AutoMelee','AutoMage'}
-	state.Weapons:options('Almace','Naegling','Maxentius','Tauret','Enspell','Albron','Almace Acc','Naegbron','Naegling Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell')
+	state.Weapons:options('Naegling','Almace','Maxentius','Tauret','Enspell','Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell')
 	--Start with the weapons unlocked, so idle and casting sets can change main and sub out of combat. While engaged they stay put.
 	state.UnlockWeapons:set(true)
 
@@ -21,8 +21,8 @@ function character_user_job_setup()
 	state.WeaponSets:options('Default','Dual')
 
 	weapon_sets = {
-		['Default'] = {'Almace','Naegling','Maxentius','Tauret','Enspell'},
-		['Dual'] = {'Albron','Almace Acc','Naegbron','Naegling Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell'},
+		['Default'] = {'Naegling','Almace','Maxentius','Tauret','Enspell'},
+		['Dual'] = {'Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell'},
 	}
 
 	default_weapons = 'Naegling'
