@@ -95,6 +95,9 @@ function init_gear_sets()
 	sets.weapons.DualCroceaSavageBlade = {main="Naegling",sub="Thibron",range=empty}
 	sets.weapons.DualTauretCrocea = {main="Tauret",sub="Bunzi's Rod",range=empty}
 
+	sets.weapons.Idle = {main=gear.colada_refresh,sub="Archduke's Shield",range=empty}
+	sets.weapons.Idle.PDT = set_combine(sets.weapons.Idle, {sub="Forfend +1"})
+
 	sets.precast.JA['Chainspell'] = {body="Viti. Tabard +4"}	-- Chainspell +20 s
 
 	-- Atrophy set (4 pieces): Acc +45

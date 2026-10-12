@@ -188,7 +188,6 @@ function equip_weaponset()
 	sel_equip_weaponset()
 	hold_engaged_weapons()
 end
-
 --The job files' check_arts (Composure, Light Arts and the like) also fires under AutoBuffMode and gs c buffup,
 --so AutoArts alone doesn't stop it. Off means never.
 if check_arts then
@@ -406,8 +405,13 @@ function user_customize_idle_set(idleSet)
 	return idleSet
 end
 
+--With UnlockWeapons on, Sel lays the selected weapon set over the idle set just before this runs.
+--sets.weapons.Idle (or its child for the idle mode) goes on over that.
 function extra_user_customize_idle_set(idleSet)
 	restore_latent()
+	if state.UnlockWeapons.value and sets.weapons[state.Weapons.value] and sets.weapons.Idle then
+		idleSet = set_combine(idleSet, sets.weapons.Idle[state.IdleMode.value] or sets.weapons.Idle)
+	end
 	return idleSet
 end
 
