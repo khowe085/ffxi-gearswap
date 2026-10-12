@@ -21,6 +21,42 @@ function character_user_job_setup()
 	--In Tag mode nothing else wears it, melee included, and an action off the list doesn't count as tagging. Delete the line to let every action tag.
 	TH_Whitelist = S{'Glutinous Dart'}
 
+	blue_magic_maps.MagicAccuracy = S{
+		'1000 Needles','Absolute Terror','Actinic Burst','Auroral Drape','Awful Eye','Bad Breath',
+		'Blank Gaze','Blistering Roar','Blitzstrahl','Blood Drain','Blood Saber','Cesspool','Chaotic Eye',
+		'Cimicine Discharge','Cold Wave','Corrosive Ooze','Cruel Joke','Demoralizing Roar','Digest',
+		'Dream Flower','Enervation','Feather Tickle','Filamented Hold','Frightful Roar','Frost Breath',
+		'Geist Wall','Infrasonics','Jettatura','Light of Penance','Lowing','Mortal Ray','MP Drainkiss',
+		'Osmosis','Radiant Breath','Reaving Wind','Sandspin','Sandspray','Sheep Song','Soporific',
+		'Sound Blast','Stinking Gas','Temporal Shift','Thunderbolt','Venom Shell','Voracious Trunk','Yawn',
+		'Atra. Libations','Mind Blast'
+	}
+	blue_magic_maps.Physical = S{}
+	blue_magic_maps.PhysicalVit = S{
+		'Body Slam','Cannonball','Delta Thrust','Glutinous Dart','Grand Slam',
+		'Power Attack','Quad. Continuum','Sub-zero Smash'
+	}
+	blue_magic_maps.Stun = S{
+		'Barbed Crescent','Battle Dance','Benthic Typhoon','Bilgestorm',
+		'Feather Storm','Frypan','Head Butt','Hydro Shot','Pinecone Bomb','Queasyshroom',
+		'Saurian Slide','Seedspray','Spiral Spin','Sprout Smack',
+		'Sudden Lunge','Sweeping Gouge','Tail Slap','Terror Touch','Wild Oats','Whirl of Rage'
+	}
+	blue_magic_maps.MagicalMnd = S{
+		'Acrid Stream','Evryone. Grudge','Magic Hammer'
+	}
+	blue_magic_maps.MagicalVit = S{
+		'Thermal Pulse','Uproot'
+	}
+	blue_magic_maps.Magical = S{
+		'Blastbomb','Blazing Bound','Bomb Toss','Cursed Sphere','Dark Orb','Death Ray','Diffusion Ray',
+		'Droning Whirlwind','Embalming Earth','Firespit','Foul Waters','Ice Break','Leafstorm','Maelstrom',
+		'Rail Cannon','Regurgitation','Rending Deluge','Retinal Glare','Subduction','Tearing Gust',
+		'Tem. Upheaval','Water Bomb','Molting Plumage','Nectarous Deluge','Searing Tempest',
+		'Blinding Fulgor','Spectral Floe','Scouring Spate','Anvil Lightning','Silent Storm','Entomb',
+		'Tenebral Crush','Palling Salvo','Polar Roar'
+	}
+
 	gear.da_jse_back = {name="Rosmerta's Cape",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Dbl.Atk."+10','Damage taken-5%',}}
 	gear.crit_jse_back = {name="Rosmerta's Cape",augments={'DEX+20','Accuracy+20 Attack+20','DEX+10','Crit.hit rate+10',}}
 	gear.wsd_jse_back = {name="Rosmerta's Cape",augments={'STR+20','Accuracy+20 Attack+20','STR+10','Weapon skill damage +10%',}}
@@ -275,11 +311,11 @@ function init_gear_sets()
 
 	sets.midcast['Blue Magic'].Magical.Fodder = set_combine(sets.midcast['Blue Magic'].Magical, {legs="Luh. Shalwar +4"})
 
-	sets.midcast['Blue Magic'].MagicalMnd = set_combine(sets.midcast['Blue Magic'].Magical, {})
-	sets.midcast['Blue Magic'].MagicalChr = set_combine(sets.midcast['Blue Magic'].Magical, {})
-	sets.midcast['Blue Magic'].MagicalVit = set_combine(sets.midcast['Blue Magic'].Magical, {})
-	sets.midcast['Blue Magic'].MagicalDex = set_combine(sets.midcast['Blue Magic'].Magical, {})
-	sets.midcast['Blue Magic'].MagicalAgi = set_combine(sets.midcast['Blue Magic'].Magical, {})
+	sets.midcast['Blue Magic'].MagicalMnd = sets.midcast['Blue Magic'].Magical
+	sets.midcast['Blue Magic'].MagicalChr = sets.midcast['Blue Magic'].Magical
+	sets.midcast['Blue Magic'].MagicalVit = sets.midcast['Blue Magic'].Magical
+	sets.midcast['Blue Magic'].MagicalDex = sets.midcast['Blue Magic'].Magical
+	sets.midcast['Blue Magic'].MagicalAgi = sets.midcast['Blue Magic'].Magical
 
 	-- Blue magic skill 594
 	sets.midcast['Blue Magic'].MagicAccuracy = {main="Tizona",sub="Bunzi's Rod",ammo="Pemphredo Tathlum",
@@ -751,6 +787,7 @@ buff_spell_lists = {
 	Tizona = {--Options for When are: Always, Engaged, Idle, OutOfCombat, Combat
 		{Name='Erratic Flutter',	Buff='Haste',			SpellID=710,	When='Always'},
 		{Name='Nat. Meditation',	Buff='Attack Boost',	SpellID=700,	When='Engaged'},
+		{Name='Cocoon',			Buff='Defense Boost',	SpellID=547,	When='Engaged'},
 		{Name='Mighty Guard',		Buff='Mighty Guard',	SpellID=750,	When='Combat'},
 	},
 
@@ -758,6 +795,7 @@ buff_spell_lists = {
 		{ Name = 'Erratic Flutter', Buff = 'Haste',    SpellID = 710, When = 'Always' },
 		{ Name = 'Battery Charge',  Buff = 'Refresh',  SpellID = 662, When = 'Idle' },
 		{ Name = 'Nat. Meditation', Buff = 'Attack Boost', SpellID = 700, When = 'Engaged' },
+		{ Name = 'Cocoon',          Buff = 'Defense Boost', SpellID = 547, When = 'Engaged' },
 		{ Name = 'Mighty Guard',  Buff = 'Mighty Guard', SpellID = 750, When = 'Combat' },
 	},
 

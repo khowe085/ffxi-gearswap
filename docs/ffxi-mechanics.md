@@ -2277,6 +2277,8 @@ WSC     = floor(stat A × A% + stat B × B%)
 - Held TP does nothing for a physical spell except under Chain Affinity, Efflux or Azure Lore. Only then do its "varies with TP" effects (damage, accuracy, critical hit rate, effect duration) apply (bg-wiki, Sabishii guide, Efflux and Azure Lore).
 - Spells whose text says "Chance of critical varies with TP" can't land a critical hit unless Sneak Attack or Chain Affinity is up (Calculating Blue Magic Damage, outdated). The newer Efflux page says Efflux also turns on critical hit rate. Critical hit rate gear helps only those casts.
 - A physical spell's added effect, such as Sudden Lunge's stun, rolls separately from the hit. Magic accuracy and Blue Magic skill raise its chance (bg-wiki, Sudden Lunge). A spell cast for its effect needs accuracy to hit and magic accuracy to land the effect.
+  - Bilgestorm (Unbridled Learning only) adds Defense Down 25%, Attack Down 25% and Accuracy Down 10, each rolled and resisted on its own and lasting 30 to 60 seconds. Its WSC and fTP aren't known (bg-wiki, Bilgestorm).
+  - Sub-zero Smash's Paralysis is 10% for 3 minutes. Paralyze and Jubaku: Ichi overwrite it, and it doesn't overwrite them. The hit is one strike, 60% VIT, fTP 2.0 at any TP (bg-wiki, Sub-zero Smash).
 - TP Bonus gear (disputed):
   - The TP Bonus page says TP Bonus gear such as Moonshade Earring does nothing for physical blue magic, even under Chain Affinity or Azure Lore, and that Efflux is the only TP bonus that applies.
   - The Moonshade Earring page says its TP Bonus +250 can work on blue magic when an ability such as Chain Affinity consumes TP.
@@ -2308,12 +2310,16 @@ ST = WSC from the spell's stat modifiers, doubled by Burst Affinity
 | Scouring Spate | 80% MND | 4.0, dINT × 2.0 |
 | Tenebral Crush | 30% INT, MND and VIT | 4.0, dINT × 2.0 |
 | Blinding Fulgor | 30% STR, DEX and AGI | 4.0, dINT × 2.0 |
+| Uproot | 40% VIT | 4.0, dINT × 2.0 |
+| Polar Roar | 20% STR and INT | 5.0, dINT × 2.0 |
 | Rail Cannon | 40% MND | 6.0, dINT × 2.0 |
 | Diffusion Ray | 40% MND | 5.0, no dSTAT listed |
+| Mind Blast | 30% MND | 2.07 (531/256), dMND × 1.5 |
 | Magic Hammer | 30% MND | dMND × 1.0, D cap 35 |
 | Subduction | 10% STR and VIT | not recorded here |
 
-- INT adds to every nuke in the table through dINT, on top of each spell's own WSC stat. The level 99 nukes each use a different WSC stat at 80%, so one nuke set can't cover them all.
+- INT adds through dINT to every nuke in the table with a dINT term, on top of each spell's own WSC stat; Mind Blast and Magic Hammer take dMND instead (bg-wiki, Calculating Blue Magic Damage). The level 99 nukes use different WSC stats, so one nuke set can't cover them all.
+- Added effects that bear on which set a cast is for: Mind Blast's Paralysis is 20% for 1.5 minutes, Polar Roar adds Bind, and Uproot also removes every debuff from the caster. Uproot and Polar Roar need Unbridled Learning (bg-wiki, Mind Blast, Polar Roar and Uproot).
 - Self-Destruct is magical (fire). Its damage is limited by current HP, it drops you to 1 HP, and it leaves 5 minutes of weakness. Nothing else is known to affect it, so it needs no damage set (bg-wiki, Self-Destruct).
 
 ### Breath blue magic
@@ -2326,7 +2332,7 @@ ST = WSC from the spell's stat modifiers, doubled by Burst Affinity
 | Frost Breath | current HP ÷ 3 + level ÷ 0.625 |
 | Heat Breath | current HP ÷ 2 |
 | Poison Breath | current HP ÷ 10 |
-| Hecatomb Wave | current HP ÷ 4 |
+| Hecatomb Wave | current HP ÷ 4 + level ÷ 1.5 |
 | Radiant Breath | current HP ÷ 5 |
 | Flying Hip Press | current HP ÷ 3 |
 | Wind Breath | HP ÷ 4 |
