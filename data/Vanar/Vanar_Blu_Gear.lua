@@ -7,7 +7,7 @@ function character_user_job_setup()
 	state.PhysicalDefenseMode:options('PDT')
 	state.MagicalDefenseMode:options('MDT')
 	state.ResistDefenseMode:options('MEVA')
-	state.Weapons:options('Tizona','Tizona Acc','Almace','MeleeClubs','HybridWeapons','Savage Blade','Savage Blade Acc')
+	state.Weapons:options('Tizbron','Tizona Acc','Albron','Almace Acc','Naegbron','Naegling Acc','Maxbron','Maxentius Acc')
 
 	state.AutoBuffMode = M { ['description'] = 'Auto Buff Mode', 'Off', 'Tizona', 'Other' }
     state.ExtraMeleeMode = M{['description']='Extra Melee Mode','None','MP','SuppaBrutal','DWEarrings','DWMax'}
@@ -479,14 +479,14 @@ function init_gear_sets()
 	sets.DWEarrings = {}
 	sets.DWMax = {legs="Carmine Cuisses +1"}	-- Dual Wield 6
 
+	sets.weapons.Tizbron = {main="Tizona",sub="Thibron"}
 	sets.weapons['Tizona Acc'] = {main="Tizona",sub="Almace"}
-	sets.weapons['Tizona'] = {main="Tizona",sub="Thibron"}
-	sets.weapons.MeleeClubs = {main="Maxentius",sub="Bunzi's Rod"}
-	sets.weapons.Almace = {main="Almace",sub="Thibron"}
-	sets.weapons['Savage Blade'] = {main="Naegling",sub="Thibron"}
-	sets.weapons['Savage Blade Acc'] = {main="Naegling",sub="Almace"}
-	sets.weapons.MaccWeapons = {main="Tizona",sub="Bunzi's Rod"}
-	sets.weapons.HybridWeapons = {main="Naegling",sub="Bunzi's Rod"}
+	sets.weapons.Albron = {main="Almace",sub="Thibron"}
+	sets.weapons['Almace Acc'] = {main="Almace",sub="Naegling"}
+	sets.weapons.Naegbron = {main="Naegling",sub="Thibron"}
+	sets.weapons['Naegling Acc'] = {main="Naegling",sub="Almace"}
+	sets.weapons.Maxbron = {main="Maxentius",sub="Thibron"}
+	sets.weapons['Maxentius Acc'] = {main="Maxentius",sub="Bunzi's Rod"}
 
 	sets.engaged = {main="Tizona",sub="Almace",ammo="Coiste Bodhar",
 			    head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Brutal Earring",ear2="Hashi. Earring +1",
@@ -547,13 +547,14 @@ function select_default_macro_book()
 end
 
 AutoWS_List = {
-	['Tizona'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
+	['Tizbron'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 2750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
 	['Tizona Acc'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 2750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
-	['Almace'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 } },
-	['MeleeClubs'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
-	['HybridWeapons'] = { { 'Sanguine Blade', 1000 } },
-	['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
-	['Savage Blade Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+	['Albron'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 }, { 'Chant du Cygne', 'AM2' }, { 'Chant du Cygne', 'AM3' } },
+	['Almace Acc'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 }, { 'Chant du Cygne', 'AM2' }, { 'Chant du Cygne', 'AM3' } },
+	['Naegbron'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+	['Naegling Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+	['Maxbron'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
+	['Maxentius Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
 }
 
 local Unbridled_Spells = S{'Absolute Terror','Bilgestorm','Blistering Roar','Bloodrake','Carcharian Verve',

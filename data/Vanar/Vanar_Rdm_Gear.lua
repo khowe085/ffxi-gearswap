@@ -9,7 +9,7 @@ function character_user_job_setup()
 	state.ResistDefenseMode:options('MEVA')
 	state.BuffWeaponsMode = M{'Always','Never'}
 	state.AutoBuffMode = M{['description'] = 'Auto Buff Mode','Off','Auto','AutoMelee','AutoMage'}
-	state.Weapons:options('Naegling','Maxentius','Crocea','Tauret','EnspellOnly','Savage Blade','Savage Blade Acc','Black Halo','DualCrocea','Black Halo Max Acc','DualPrime','DualAeolian','DualEnspellOnly','DualProcSword')
+	state.Weapons:options('Almace','Naegling','Maxentius','Tauret','Enspell','Albron','Almace Acc','Naegbron','Naegling Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell')
 	--Start with the weapons unlocked, so idle and casting sets can change main and sub out of combat. While engaged they stay put.
 	state.UnlockWeapons:set(true)
 
@@ -18,32 +18,29 @@ function character_user_job_setup()
 	--Spells, job abilities and weaponskills that wear sets.TreasureHunter against an untagged monster, plus any ranged attack (User-Globals.lua).
 	--In Tag mode nothing else wears it, melee included, and an action off the list doesn't count as tagging. Delete the line to let every action tag.
 	TH_Whitelist = S{'Dia','Dia II','Dia III','Stonega'}
-	state.WeaponSets:options('Default','Dual','Proc','Dynamis')
+	state.WeaponSets:options('Default','Dual')
 
 	weapon_sets = {
-		['Default'] = {'Naegling','Maxentius','Crocea','Tauret','EnspellOnly'},
-		['Dual'] = {'Savage Blade','Savage Blade Acc','Black Halo','DualCrocea','Black Halo Max Acc','DualPrime','DualAeolian','DualEnspellOnly'},
-		['Dynamis'] = {'DualCroceaSavageBlade','DualCrocea','DualTauretCrocea','DualAeolian'},
-		['Proc'] = {'ProcSword','ProcDagger','DualProcSword','DualProcDagger'},
+		['Default'] = {'Almace','Naegling','Maxentius','Tauret','Enspell'},
+		['Dual'] = {'Albron','Almace Acc','Naegbron','Naegling Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell'},
 	}
 
 	default_weapons = 'Naegling'
-	default_dual_weapons = 'Savage Blade'
+	default_dual_weapons = 'Naegbron'
 
 	AutoWS_List = {
+		['Almace'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 }, { 'Chant du Cygne', 'AM2' }, { 'Chant du Cygne', 'AM3' } },
+		['Albron'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 }, { 'Chant du Cygne', 'AM2' }, { 'Chant du Cygne', 'AM3' } },
+		['Almace Acc'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 }, { 'Chant du Cygne', 'AM2' }, { 'Chant du Cygne', 'AM3' } },
 		['Naegling'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
-		['Crocea'] = { { 'Sanguine Blade', 1000 } },
+		['Naegbron'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+		['Naegling Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
 		['Maxentius'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
-		['Tauret'] = { { 'Aeolian Edge', 1000 }, { 'Aeolian Edge', 1750 }, { 'Aeolian Edge', 2750 } },
-		['Savage Blade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
-		['Savage Blade Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
-		['Black Halo'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 } },
-		['Black Halo Max Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
-		['DualCrocea'] = { { 'Sanguine Blade', 1000 } },
-		['DualPrime'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
-		['DualAeolian'] = { { 'Aeolian Edge', 1000 }, { 'Aeolian Edge', 1750 }, { 'Aeolian Edge', 2750 } },
-		['DualCroceaSavageBlade'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 } },
-		['DualTauretCrocea'] = { { 'Aeolian Edge', 1000 }, { 'Aeolian Edge', 1750 }, { 'Aeolian Edge', 2750 } },
+		['Maxbron'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
+		['Maxentius Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
+		['Tauret'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
+		['Taurbron'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
+		['Tauret Acc'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
 	}
 	trust_list = {"Joachim","Ulmia","Qultada","Yoran-Oran (UC)","Selh'teus"}
 	
@@ -71,29 +68,21 @@ function character_user_job_setup()
 end
 
 function init_gear_sets()
+	sets.weapons.Almace = {main="Almace",sub="Forfend +1",range=empty}
 	sets.weapons.Naegling = {main="Naegling",sub="Forfend +1",range=empty}
-	sets.weapons.Crocea = {main="Naegling",sub="Forfend +1",range=empty}
 	sets.weapons.Maxentius = {main="Maxentius",sub="Forfend +1",range=empty}
 	sets.weapons.Tauret = {main="Tauret",sub="Forfend +1",range=empty}
-	sets.weapons['Savage Blade'] = {main="Naegling",sub="Thibron",range=empty}
-	sets.weapons['Savage Blade Acc'] = {main="Naegling",sub="Gleti's Knife",range=empty}
-	sets.weapons.DualPrime = {main="Tauret",sub="Gleti's Knife",range=empty}
-	sets.weapons.DualEvisceration = {}
-	sets.weapons.DualCrocea = {main="Naegling",sub="Bunzi's Rod",range=empty}
-	sets.weapons.DualAeolian = {main="Tauret",sub="Bunzi's Rod",range=empty}
-	sets.weapons.DualProcSword = {main="Pukulatmuj +1",sub="Gleti's Knife",range=empty}
-	sets.weapons.ProcSword = {main="Pukulatmuj +1",sub="Forfend +1",range=empty}
-	sets.weapons.ProcDagger = {main="Gleti's Knife",sub="Forfend +1",range=empty}
-	sets.weapons.DualProcDagger = {main="Gleti's Knife",sub="Pukulatmuj +1",range=empty}
-	sets.weapons.EnspellOnly = {main="Tauret",sub="Forfend +1",range=empty}
-	sets.weapons.DualEnspellOnly = {main="Tauret",sub="Gleti's Knife",range=empty}
-	sets.weapons.DualBow = {}
-	sets.weapons.BowMacc = {}
-	sets.weapons['Black Halo'] = {main="Maxentius",sub="Thibron",range=empty}
-	sets.weapons['Black Halo Max Acc'] = {main="Maxentius",sub="Gleti's Knife",range=empty}
-
-	sets.weapons.DualCroceaSavageBlade = {main="Naegling",sub="Thibron",range=empty}
-	sets.weapons.DualTauretCrocea = {main="Tauret",sub="Bunzi's Rod",range=empty}
+	sets.weapons.Albron = {main="Almace",sub="Thibron",range=empty}
+	sets.weapons['Almace Acc'] = {main="Almace",sub="Naegling",range=empty}
+	sets.weapons.Naegbron = {main="Naegling",sub="Thibron",range=empty}
+	sets.weapons['Naegling Acc'] = {main="Naegling",sub="Almace",range=empty}
+	sets.weapons.Maxbron = {main="Maxentius",sub="Thibron",range=empty}
+	sets.weapons['Maxentius Acc'] = {main="Maxentius",sub="Bunzi's Rod",range=empty}
+	sets.weapons.Taurbron = {main="Tauret",sub="Thibron",range=empty}
+	sets.weapons['Tauret Acc'] = {main="Tauret",sub="Gleti's Knife",range=empty}
+	--A mode whose name contains 'Enspell' gets RDM.lua's enspell gear while an enspell is up: Orpheus's Sash or the element's obi, and Zodiac Ring.
+	sets.weapons.Enspell = {main="Tauret",sub="Forfend +1",range=empty}
+	sets.weapons['Dual Enspell'] = {main="Tauret",sub="Gleti's Knife",range=empty}
 
 	sets.weapons.Idle = {main=gear.colada_refresh,sub="Archduke's Shield",range=empty}
 	sets.weapons.Idle.PDT = set_combine(sets.weapons.Idle, {sub="Forfend +1"})
@@ -505,22 +494,6 @@ function init_gear_sets()
 	sets.engaged.DW.DT = set_combine(sets.engaged.DT, {ear1="Alabaster Earring",feet="Leth. Houseaux +3"})
 
 	sets.engaged.DW.Acc.DT = set_combine(sets.engaged.Acc.DT, {})
-
-	sets.engaged.EnspellOnly = set_combine(sets.engaged, {})
-
-	sets.engaged.EnspellOnly.Acc = set_combine(sets.engaged.Acc, {})
-
-	sets.engaged.EnspellOnly.DT = set_combine(sets.engaged.DT, {})
-
-	sets.engaged.EnspellOnly.Acc.DT = set_combine(sets.engaged.Acc.DT, {})
-
-	sets.engaged.DualEnspellOnly = set_combine(sets.engaged, {})
-
-	sets.engaged.DualEnspellOnly.Acc = set_combine(sets.engaged.Acc, {})
-
-	sets.engaged.DualEnspellOnly.DT = set_combine(sets.engaged.DT, {})
-
-	sets.engaged.DualEnspellOnly.Acc.DT = set_combine(sets.engaged.Acc.DT, {})
 end
 
 function select_default_macro_book()

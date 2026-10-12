@@ -9,7 +9,7 @@ function character_user_job_setup()
 	state.PhysicalDefenseMode:options('PDT')
 	state.MagicalDefenseMode:options('MDT')
 	state.ResistDefenseMode:options('MEVA')
-	state.Weapons:options('Savage','Evisceration')
+	state.Weapons:options('Naegling','Tauret')
 
 	--Weaponskills that get a buff from Auto WS Buff (User-Globals.lua) first.
 	ws_buff_list = S{'Evisceration'}
@@ -52,8 +52,8 @@ function init_gear_sets()
 	sets.Ambush = {}
 	
 	-- Weapons sets
-	sets.weapons.Savage = {main="Naegling",sub="Gleti's Knife"}
-	sets.weapons.Evisceration = {main="Tauret",sub="Gleti's Knife"}
+	sets.weapons.Naegling = {main="Naegling",sub="Gleti's Knife"}
+	sets.weapons.Tauret = {main="Tauret",sub="Gleti's Knife"}
 
 	sets.precast.Step = {ammo="Honed Tathlum",
 		head="Nyame Helm",neck="Sanctity Necklace",ear1="Alabaster Earring",ear2="Skulk. Earring +1",
@@ -283,9 +283,9 @@ function user_job_lockstyle()
 	end
 end
 
---Auto WS choices, copied verbatim from the rahvin branch's THF.lua, so the keys are rahvin's weapon mode names.
 --Moonshade Earring's TP Bonus +250, which the weapon skill set wears, turns 1750 into 2000 and 2750 into
 --3000, the cap. Evisceration's critical hit rate rises with TP.
 AutoWS_List = {
-	['Evisceration'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
+	['Naegling'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+	['Tauret'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
 }
