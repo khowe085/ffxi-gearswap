@@ -490,7 +490,7 @@ function init_gear_sets()
 
 	sets.engaged = {main="Tizona",sub="Almace",ammo="Coiste Bodhar",
 			    head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Brutal Earring",ear2="Hashi. Earring +1",
-			    body="Hashishin Mintan +3",hands="Adhemar Wristbands",ring1="Lehko's Ring",ring2="Rajas Ring",
+			    body="Hashishin Mintan +3",hands="Adhemar Wrist. +1",ring1="Lehko's Ring",ring2="Rajas Ring",
 			    back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Hashishin Tayt +3",feet="Nyame Sollerets"}
 
 	sets.engaged.AM = set_combine(sets.engaged, {})
