@@ -81,7 +81,6 @@ function job_setup()
 	state.DanceStance = M{['description']='Dance Stance','None','Saber Dance','Fan Dance'}
 
 	autows = "Rudra's Storm"
-	autofood = 'Soy Ramen'
 	checkcyclestep = os.clock()
 	autostep_engaged_only = true
 
@@ -101,7 +100,7 @@ function job_setup()
 
 	step_feet_reduction = calculate_step_feet_reduction()
 
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","AutoWSMode","AutoJumpMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","DanceStance","Passive","RuneElement","TreasureMode",})
+	init_job_states({"Capacity","AutoWSMode","AutoJumpMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","DanceStance","Passive","RuneElement","TreasureMode",})
 end
 
 -------------------------------------------------------------------------------------------------------------------

@@ -85,7 +85,6 @@ function job_setup()
 	state.Buff['Clarion Call'] = buffactive['Clarion Call'] or false
 
 	autows = "Rudra's Storm"
-	autofood = 'Pear Crepe'
 	
 	state.AutoSongMode = M(false, 'Auto Song Mode')
 	
@@ -107,7 +106,7 @@ function job_setup()
 	current_brd_buffs = 0
 	set_current_brd_buffs()
 
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","AutoSongMode","AutoDummyMode","AutoWSMode","AutoNukeMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","ExtraSongsMode","CastingMode","CarnMode","TreasureMode",})
+	init_job_states({"Capacity","AutoSongMode","AutoDummyMode","AutoWSMode","AutoNukeMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","ExtraSongsMode","CastingMode","CarnMode","TreasureMode",})
 end
 
 -------------------------------------------------------------------------------------------------------------------

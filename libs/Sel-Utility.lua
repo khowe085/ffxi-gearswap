@@ -1664,12 +1664,12 @@ function check_cleanup()
 end
 
 function check_trust()
-	if not moving and state.AutoTrustMode.value and not in_town and (buffactive['Reive Mark'] or buffactive['Elvorseal'] or not in_combat) then
+	if not moving and state.AutoTrustMode.value ~= 'Off' and not in_town and (buffactive['Reive Mark'] or buffactive['Elvorseal'] or not in_combat) then
 		local party = windower.ffxi.get_party()
 		if party.p5 ~= nil then return end
 		local spell_recasts = windower.ffxi.get_spell_recasts()
 
-		for k, trust_name in ipairs(trust_list) do
+		for k, trust_name in ipairs(trust_lists[state.AutoTrustMode.value]) do
 			local spell_id = get_spell_id_by_name(trust_name)
 			local party_name = res.spells[spell_id].party_name
 
@@ -1757,14 +1757,15 @@ function check_lockstyle()
 end
 
 function check_food()
-	if state.AutoFoodMode.value and not buffactive['Food'] and not in_town then
+	if state.AutoFoodMode.value ~= 'Off' and not buffactive['Food'] and not in_town then
+		local food = food_lists[state.AutoFoodMode.value]
 
-		if player.inventory[''..autofood..''] then
-			windower.chat.input('/item "'..autofood..'" <me>')
+		if player.inventory[food] then
+			windower.chat.input('/item "'..food..'" <me>')
 			add_tick_delay(2)
 			return true
-		elseif player.satchel[''..autofood..''] then
-			send_command('get "'..autofood..'" '..consumable_bag)
+		elseif player.satchel[food] then
+			send_command('get "'..food..'" '..consumable_bag)
 			add_tick_delay(2)
 			return true
 		else

@@ -165,14 +165,14 @@ alias asets azuresets setlist
 alias blockwarp gs c toggle BlockWarp
 alias rune gs c cycle RuneElement
 alias autows gs c toggle AutoWSMode
-alias autofood gs c toggle AutoFoodMode
+alias autofood gs c cycle AutoFoodMode
 alias deathmode gs c cycle DeathMode
 alias autotank gs c toggle AutoTankMode
 alias autonuke gs c toggle AutoNukeMode
 alias autoengage gs c toggle AutoEngageMode
 alias autostun gs c toggle AutoStunMode
 alias autodefense gs c toggle AutoDefenseMode
-alias autotrust gs c toggle AutoTrustMode
+alias autotrust gs c cycle AutoTrustMode
 alias autobuff gs c toggle AutoBuffMode
 alias autocleanup gs c toggle AutoCleanupMode
 alias autosub gs c toggle AutoSubMode

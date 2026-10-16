@@ -70,7 +70,6 @@ function job_setup()
 		'Stonega', 'Waterga', 'Aeroga', 'Firaga', 'Blizzaga', 'Thundaga'}
 
 	autows = "Savage Blade"
-	autofood = 'Grape Daifuku'
 	enspell = ''
 	
 	for _,buff in ipairs(player.buff_details) do
@@ -80,7 +79,7 @@ function job_setup()
 		end
 	end
 
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","AutoWSMode","AutoNukeMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","RecoverMode","ElementalMode","CastingMode","TreasureMode"})
+	init_job_states({"Capacity","AutoWSMode","AutoNukeMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","RecoverMode","ElementalMode","CastingMode","TreasureMode"})
 end
 
 -------------------------------------------------------------------------------------------------------------------

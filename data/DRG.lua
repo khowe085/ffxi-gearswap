@@ -60,7 +60,6 @@ function job_setup()
 	state.AutoBondMode = M(true, 'Auto Bond Mode')
 	
 	autows = 'Stardiver'
-	autofood = 'Soy Ramen'
 
 	Breath_HPP = 60
 	healing_breath_trigger_head = ''
@@ -70,7 +69,7 @@ function job_setup()
 		healing_breath_trigger_head = standardize_slot(sets.midcast.HB_Trigger.head)
 	end
 	
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","AutoWSMode","AutoJumpMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","Stance","IdleMode","Passive","RuneElement","TreasureMode",})
+	init_job_states({"Capacity","AutoWSMode","AutoJumpMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","Stance","IdleMode","Passive","RuneElement","TreasureMode",})
 end
 
 function job_precast(spell, spellMap, eventArgs)

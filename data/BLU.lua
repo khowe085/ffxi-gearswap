@@ -65,7 +65,6 @@ function job_setup()
 	state.LearningMode = M(false, 'Learning Mode')
 	state.AutoUnbridled = M(false, 'Auto Unbridled Mode')
 	autows = 'Chant Du Cygne'
-	autofood = 'Soy Ramen'
 
 	blue_magic_maps = {}
 
@@ -227,7 +226,7 @@ function job_setup()
 		'Pyric Bulwark','Tearing Gust','Thunderbolt','Tourbillion','Uproot'
 	}
 
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","AutoWSMode","AutoNukeMode","AutoShadowMode","AutoStunMode","AutoDefenseMode",},{"AutoBuffMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","LearningMode","CastingMode","TreasureMode"})
+	init_job_states({"Capacity","AutoWSMode","AutoNukeMode","AutoShadowMode","AutoStunMode","AutoDefenseMode",},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","LearningMode","CastingMode","TreasureMode"})
 end
 
 -------------------------------------------------------------------------------------------------------------------

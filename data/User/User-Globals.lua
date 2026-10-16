@@ -25,7 +25,17 @@ state.AutoWS				= M{['description']='Auto WS', 'OFF'} --Options are rebuilt from
 	~ = Shift Key
 	# = Apps Key
 ]]
-send_command('bind f6 gs c toggle AutoTrustMode') --Summons trusts automatically.
+food_lists = {
+	Attack = 'Grape Daifuku',
+	Oden = 'Oden',
+}
+state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Attack','Oden'}
+trust_lists = {
+	Default = {'Yoran-Oran (UC)','Koru-Moru','Qultada','Ulmia','Joachim'},
+	Limbus = {'Yoran-Oran (UC)','Qultada','Ulmia'},
+}
+state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus'}
+send_command('bind f6 gs c cycle AutoTrustMode') --Cycles through Off and the trust_lists entries, summoning that list's trusts automatically.
 send_command('bind f7 gs c set DefenseMode Physical') --Turns your physical defense set on.
 send_command('bind ^f7 gs c cycle PhysicalDefenseMode') --Changes your physical defense set.
 send_command('bind !f7 gs c set DefenseMode Resist') --Turns your resist defense set on.
@@ -35,7 +45,7 @@ send_command('bind ^f9 gs c cycle Weapons') --Cycle through weapons sets.
 send_command('bind !f9 gs c toggle UnlockWeapons') --Lets sets change main and sub out of combat; while engaged they stay put.
 send_command('bind @f9 gs c cycle RangedMode') --Changes ranged offense settings such as accuracy.
 send_command('bind f10 gs c cycle AutoBuffMode') --Automatically keeps certain buffs up, job-dependant.
-send_command('bind ^f10 gs c toggle AutoFoodMode') --Turns auto-food mode on and off.
+send_command('bind ^f10 gs c cycle AutoFoodMode') --Turns auto-food mode on and off.
 send_command('bind !f10 gs c toggle AutoStunMode') --Turns auto-stun mode off and on.
 send_command('bind ^!f10 gs c toggle AutoNukeMode') --Turns auto-nuke mode on and off.
 send_command('bind f11 gs c cycle OffenseMode') --Changes offense settings such as accuracy.

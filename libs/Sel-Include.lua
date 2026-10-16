@@ -137,7 +137,7 @@ function init_include()
 	state.AutoArts				= M(false, 'AutoArts Mode')
 	state.AutoCleanupMode		= M(false, 'Auto Cleanup Mode')
 	state.AutoContradanceMode	= M(true, 'Auto Contradance Mode')
-	state.AutoFoodMode			= M(false, 'Auto Food Mode')
+	state.AutoFoodMode			= M{['description'] = 'Auto Food Mode', 'Off'}
 	state.AutoHolyWaterMode		= M(true, 'Auto Holy Water Mode')
 	state.AutoJumpMode			= M(false, 'Auto Jump Mode')
 	state.AutoLockstyle			= M(false, 'AutoLockstyle Mode')
@@ -147,7 +147,7 @@ function init_include()
 	state.AutoSubMode			= M(false, 'Auto Sublimation Mode')
 	state.AutoSuperJumpMode		= M(false, 'Auto SuperJump Mode')
 	state.AutoTankMode			= M(false, 'Auto Tank Mode')
-	state.AutoTrustMode			= M(false, 'Auto Trust Mode')
+	state.AutoTrustMode			= M{['description'] = 'Auto Trust Mode', 'Off'}
 	state.AutoWSMode			= M(false, 'Auto Weaponskill Mode')
 	state.AutoWSRestore			= M(true, 'Auto Weaponskill Restore Mode')
 	state.CancelStoneskin		= M(true, 'Auto Cancel Stoneskin')
@@ -258,7 +258,6 @@ function init_include()
 	spell_latency = nil
 	time_test = false
 	in_town = false
-	trust_list = {}
 	useItem = false
 	useItemName = ''
 	useItemSlot = ''

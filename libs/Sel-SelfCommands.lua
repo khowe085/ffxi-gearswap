@@ -1213,9 +1213,11 @@ end
 function handle_autofood(cmdParams)
 	if #cmdParams == 0 then
 		add_to_chat(122,'You must specify a food to automatically eat.')
+	elseif state.AutoFoodMode.value == 'Off' then
+		add_to_chat(123,'Auto Food is Off. Cycle AutoFoodMode to an entry first.')
 	else
-		autofood = table.concat(cmdParams, ' '):ucfirst()
-		add_to_chat(122,'Your autofood item is set to '..autofood..'.')
+		food_lists[state.AutoFoodMode.value] = table.concat(cmdParams, ' '):ucfirst()
+		add_to_chat(122,'Your '..state.AutoFoodMode.value..' food is set to '..food_lists[state.AutoFoodMode.value]..'.')
 		if state.DisplayMode.value then update_job_states()	end
 	end
 end

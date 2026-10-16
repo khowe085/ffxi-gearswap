@@ -234,7 +234,6 @@ function job_setup()
 	UnleashLocked = false
 
 	autows = 'Cloudsplitter'
-	autofood = 'Akamochi'
 
 	base_chargetimer = 30
 
@@ -245,7 +244,7 @@ function job_setup()
 	base_chargetimer = base_chargetimer - (2 * windower.ffxi.get_player().merits.sic_recast)
 
 	update_pet_groups()
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","AutoCallPet","AutoFightMode","AutoRewardMode","AutoReadyMode","AutoWSMode","AutoJumpMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","PetMode","IdleMode","Passive","RuneElement","JugMode","RewardMode","TreasureMode",})
+	init_job_states({"Capacity","AutoCallPet","AutoFightMode","AutoRewardMode","AutoReadyMode","AutoWSMode","AutoJumpMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","PetMode","IdleMode","Passive","RuneElement","JugMode","RewardMode","TreasureMode",})
 end
 
 -------------------------------------------------------------------------------------------------------------------
