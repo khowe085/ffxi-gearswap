@@ -6,7 +6,7 @@ Every mode below can be changed in game with `//gs c toggle <Mode>` (on/off mode
 
 | Key | Command | Mode | Values (default first) |
 |---|---|---|---|
-| `F6` | toggle | AutoTrustMode | off, on |
+| `F6` | cycle | AutoTrustMode | Off, then the `trust_lists` entries in `User-Globals.lua` |
 | `F7` | set | DefenseMode Physical | Turns on the physical defense set |
 | `^F7` | cycle | PhysicalDefenseMode | PDT, then per job |
 | `!F7` | set | DefenseMode Resist | Turns on the resist defense set |
@@ -16,7 +16,7 @@ Every mode below can be changed in game with `//gs c toggle <Mode>` (on/off mode
 | `!F9` | toggle | UnlockWeapons | off, on (RDM starts on). Lets sets change main and sub out of combat; while engaged they stay put |
 | `@F9` | cycle | RangedMode | Set per job |
 | `F10` | cycle | AutoBuffMode | Off, Auto, then the job's other buff lists |
-| `^F10` | toggle | AutoFoodMode | off, on |
+| `^F10` | cycle | AutoFoodMode | Off, then the job's `food_lists` entries |
 | `!F10` | toggle | AutoStunMode | off, on |
 | `!^F10` | toggle | AutoNukeMode | off, on |
 | `F11` | toggle | Kiting | off, on |

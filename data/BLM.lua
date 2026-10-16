@@ -66,9 +66,10 @@ function job_setup()
 	state.AutoManawell = M(true, 'Auto Manawell Mode')
 
 	autows = 'Myrkr'
-	autofood = 'Pear Crepe'
+	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
+	food_lists = {Default = 'Pear Crepe'}
 
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","AutoWSMode","AutoNukeMode","AutoManawell","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","RecoverMode","ElementalMode","CastingMode","TreasureMode",})
+	init_job_states({"Capacity","AutoWSMode","AutoNukeMode","AutoManawell","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","RecoverMode","ElementalMode","CastingMode","TreasureMode",})
 end
 
 -------------------------------------------------------------------------------------------------------------------

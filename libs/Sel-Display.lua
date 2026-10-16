@@ -146,7 +146,7 @@ function update_job_states()
 		AutoDefenseMode = "Auto Defense",
 		AutoEngageMode = "Auto Engage",
 		AutoFightMode = "Auto Fight",
-		AutoFoodMode = "Auto Food: "..autofood.."",
+		AutoFoodMode = "Auto Food",
 		AutoJumpMode = "Auto Jump",
 		AutoManawell = "Auto Manawell",
 		AutoNukeMode = "Auto Nuke: "..autonuke.."",
@@ -306,6 +306,11 @@ function update_job_states()
 					end
 				end
 				stateBox:append(string.format("%sAuto Buff: %s%s", display.colors.White, display.colors.Yellow, state.AutoBuffMode.value))
+				stateBox:append(spc)
+			end
+		elseif n == 'AutoFoodMode' then
+			if state.AutoFoodMode.value ~= 'Off' then
+				stateBox:append(string.format("%sAuto Food: %s%s (%s)", display.colors.White, display.colors.Yellow, state.AutoFoodMode.value, food_lists[state.AutoFoodMode.value]))
 				stateBox:append(spc)
 			end
 		elseif n == 'RangedMode' then

@@ -60,7 +60,8 @@ function job_setup()
 		'Stonega', 'Waterga', 'Aeroga', 'Firaga', 'Blizzaga', 'Thundaga'}
 
 	autows = 'Realmrazer'
-	autofood = 'Miso Ramen'
+	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
+	food_lists = {Default = 'Miso Ramen'}
 	autoindi = 'Torpor'
 	autoentrust = 'Fury'
 	autoentrustee = '<p1>'
@@ -78,7 +79,7 @@ function job_setup()
 
 	indi_timer = ''
 	indi_duration = 180
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","AutoWSMode","AutoNukeMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","RecoverMode","ElementalMode","CastingMode","TreasureMode",})
+	init_job_states({"Capacity","AutoWSMode","AutoNukeMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","RecoverMode","ElementalMode","CastingMode","TreasureMode",})
 end
 
 -------------------------------------------------------------------------------------------------------------------

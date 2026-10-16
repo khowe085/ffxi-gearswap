@@ -76,12 +76,13 @@ function job_setup()
 	
 	autows = 'Leaden Salute'
 	rangedautows = 'Last Stand'
-	autofood = 'Sublime Sushi'
+	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
+	food_lists = {Default = 'Sublime Sushi'}
 	ammostock = 98
 	displayroll = true
 
 	define_roll_values()
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","LuzafRing","AutoWSMode","RngHelper","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","RangedMode","WeaponskillMode","ElementalMode","IdleMode","Passive","RuneElement","CompensatorMode","RollMode","TreasureMode",})
+	init_job_states({"Capacity","LuzafRing","AutoWSMode","RngHelper","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","RangedMode","WeaponskillMode","ElementalMode","IdleMode","Passive","RuneElement","CompensatorMode","RollMode","TreasureMode",})
 end
 
 

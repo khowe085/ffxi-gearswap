@@ -77,7 +77,8 @@ function job_setup()
 	state.PetEnmityGear	 = M(true, 'Pet Enmity Gear')
 
 	autows = "Victory Smite"
-	autofood = 'Akamochi'
+	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
+	food_lists = {Default = 'Akamochi'}
 	lastpettp = 0
 	deactivatehpp = 100
 	repairhpp = 45
@@ -86,7 +87,7 @@ function job_setup()
 	PupFlashRecast = 38
 	PupVokeRecast = 23
 
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","AutoPuppetMode","PetWSGear","AutoRepairMode","AutoWSMode","AutoJumpMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","TreasureMode","PetMode"})
+	init_job_states({"Capacity","AutoPuppetMode","PetWSGear","AutoRepairMode","AutoWSMode","AutoJumpMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","TreasureMode","PetMode"})
 end
 
 -------------------------------------------------------------------------------------------------------------------

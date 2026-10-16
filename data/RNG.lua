@@ -64,7 +64,8 @@ function job_setup()
 	
 	autows = "Last Stand"
 	rangedautows = "Last Stand"
-	autofood = 'Soy Ramen'
+	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
+	food_lists = {Default = 'Soy Ramen'}
 	statusammo = nil
 	ammostock = 98
 
@@ -100,7 +101,7 @@ function job_setup()
 						['MagicAccUnlimited'] ="Hauksbok Bolt"}
 	}
 	
-	init_job_states({"Capacity","AutoFoodMode","AutoTrustMode","AutoWSMode","RngHelper","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","RangedMode","WeaponskillMode","IdleMode","Passive","RuneElement","TreasureMode",})
+	init_job_states({"Capacity","AutoWSMode","RngHelper","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","RangedMode","WeaponskillMode","IdleMode","Passive","RuneElement","TreasureMode",})
 end
 
 -------------------------------------------------------------------------------------------------------------------
