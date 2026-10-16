@@ -64,8 +64,6 @@ function job_setup()
 	
 	autows = "Last Stand"
 	rangedautows = "Last Stand"
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Soy Ramen'}
 	statusammo = nil
 	ammostock = 98
 

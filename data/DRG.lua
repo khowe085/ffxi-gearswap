@@ -60,8 +60,6 @@ function job_setup()
 	state.AutoBondMode = M(true, 'Auto Bond Mode')
 	
 	autows = 'Stardiver'
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Soy Ramen'}
 
 	Breath_HPP = 60
 	healing_breath_trigger_head = ''

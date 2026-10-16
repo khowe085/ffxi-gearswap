@@ -76,8 +76,6 @@ function job_setup()
 	
 	autows = 'Leaden Salute'
 	rangedautows = 'Last Stand'
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Sublime Sushi'}
 	ammostock = 98
 	displayroll = true
 

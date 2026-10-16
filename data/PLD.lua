@@ -63,8 +63,6 @@ function job_setup()
 	state.AutoMajesty = M(true, 'Auto Majesty')
 	
 	autows = 'Savage Blade'
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Miso Ramen'}
 
 	init_job_states({"Capacity","AutoTankMode","AutoWSMode","AutoNukeMode","AutoJumpMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","Stance","IdleMode","Passive","RuneElement","CastingMode","PhysicalDefenseMode","MagicalDefenseMode","ResistDefenseMode","ExtraDefenseMode","TreasureMode"})
 end

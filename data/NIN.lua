@@ -61,8 +61,6 @@ function job_setup()
 	state.Stance = M{['description']='Stance','Innin','Yonin','None'}
 
 	autows = "Blade: Shun"
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Soy Ramen'}
 
 	utsusemi_ni_cancel_delay = .1
 

@@ -61,8 +61,6 @@ function job_setup()
 	state.DrainSwapWeaponMode = M{'Never','300','1000','Always'}
 
 	autows = 'Resolution'
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Soy Ramen'}
 
 	wants_dark_seal = S{
 	'Absorb-STR','Absorb-DEX','Absorb-VIT','Absorb-Attri',

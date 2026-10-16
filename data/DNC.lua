@@ -81,8 +81,6 @@ function job_setup()
 	state.DanceStance = M{['description']='Dance Stance','None','Saber Dance','Fan Dance'}
 
 	autows = "Rudra's Storm"
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Soy Ramen'}
 	checkcyclestep = os.clock()
 	autostep_engaged_only = true
 

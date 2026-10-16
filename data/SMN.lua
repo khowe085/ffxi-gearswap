@@ -152,8 +152,6 @@ function job_setup()
 	state.AutoConvert = M(true, 'Auto Convert')
 
 	autows = 'Spirit Taker'
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Akamochi'}
 	init_job_states({"Capacity","PactSpamMode","AutoNukeMode","AutoWSMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","IdleMode","Passive","RuneElement","ElementalMode","CastingMode","TreasureMode",})
 end
 

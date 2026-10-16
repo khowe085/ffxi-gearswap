@@ -60,8 +60,6 @@ function job_setup()
 		'Stonega', 'Waterga', 'Aeroga', 'Firaga', 'Blizzaga', 'Thundaga'}
 
 	autows = 'Realmrazer'
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Miso Ramen'}
 	autoindi = 'Torpor'
 	autoentrust = 'Fury'
 	autoentrustee = '<p1>'

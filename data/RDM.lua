@@ -70,8 +70,6 @@ function job_setup()
 		'Stonega', 'Waterga', 'Aeroga', 'Firaga', 'Blizzaga', 'Thundaga'}
 
 	autows = "Savage Blade"
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Grape Daifuku'}
 	enspell = ''
 	
 	for _,buff in ipairs(player.buff_details) do

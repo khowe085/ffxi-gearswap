@@ -234,8 +234,6 @@ function job_setup()
 	UnleashLocked = false
 
 	autows = 'Cloudsplitter'
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Akamochi'}
 
 	base_chargetimer = 30
 

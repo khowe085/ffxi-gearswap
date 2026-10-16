@@ -63,8 +63,6 @@ function job_setup()
 	state.Steps = M{['description']='Current Step', 'Quickstep','Box Step','Stutter Step'}
 
 	autows = 'Resolution'
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Miso Ramen'}
 
 	init_job_states({"Capacity","AutoTankMode","AutoWSMode","AutoNukeMode","AutoJumpMode","AutoShadowMode","AutoStunMode","AutoDefenseMode"},{"AutoBuffMode","AutoTrustMode","AutoFoodMode","AutoSambaMode","AutoRuneMode","Weapons","OffenseMode","WeaponskillMode","Stance","IdleMode","Passive","RuneElement","CastingMode","PhysicalDefenseMode","MagicalDefenseMode","ResistDefenseMode","ExtraDefenseMode","TreasureMode",})
 end

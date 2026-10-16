@@ -85,8 +85,6 @@ function job_setup()
 	state.Buff['Clarion Call'] = buffactive['Clarion Call'] or false
 
 	autows = "Rudra's Storm"
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Pear Crepe'}
 	
 	state.AutoSongMode = M(false, 'Auto Song Mode')
 	

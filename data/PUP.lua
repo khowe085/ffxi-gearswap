@@ -77,8 +77,6 @@ function job_setup()
 	state.PetEnmityGear	 = M(true, 'Pet Enmity Gear')
 
 	autows = "Victory Smite"
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Akamochi'}
 	lastpettp = 0
 	deactivatehpp = 100
 	repairhpp = 45

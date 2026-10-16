@@ -89,8 +89,6 @@ function job_setup()
 	update_active_stratagems()
 	
 	autows = 'Realmrazer'
-	state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Default'}
-	food_lists = {Default = 'Pear Crepe'}
 	
 	data.skillchains.scholar = {}
 	data.skillchains.scholar['1'] = {

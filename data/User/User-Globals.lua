@@ -25,6 +25,11 @@ state.AutoWS				= M{['description']='Auto WS', 'OFF'} --Options are rebuilt from
 	~ = Shift Key
 	# = Apps Key
 ]]
+food_lists = {
+	Attack = 'Grape Daifuku',
+	Oden = 'Oden',
+}
+state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Attack','Oden'}
 trust_lists = {
 	Default = {'Yoran-Oran (UC)','Koru-Moru','Qultada','Ulmia','Joachim'},
 	Limbus = {'Yoran-Oran (UC)','Qultada','Ulmia'},
