@@ -547,10 +547,10 @@ function select_default_macro_book()
 end
 
 AutoWS_List = {
-	['Tizbron'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 2750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
-	['Tizona Acc'] = { { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 2750 }, { 'Expiacion', 'AM2' }, { 'Expiacion', 'AM3' } },
-	['Albron'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 }, { 'Chant du Cygne', 'AM2' }, { 'Chant du Cygne', 'AM3' } },
-	['Almace Acc'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 }, { 'Chant du Cygne', 'AM2' }, { 'Chant du Cygne', 'AM3' } },
+	['Tizbron'] = { { 'Expiacion', 'AM3' }, { 'Expiacion', 'AM2' }, { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 2750 } },
+	['Tizona Acc'] = { { 'Expiacion', 'AM3' }, { 'Expiacion', 'AM2' }, { 'Expiacion', 1000 }, { 'Expiacion', 1750 }, { 'Expiacion', 2750 } },
+	['Albron'] = { { 'Chant du Cygne', 'AM3' }, { 'Chant du Cygne', 'AM2' }, { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 } },
+	['Almace Acc'] = { { 'Chant du Cygne', 'AM3' }, { 'Chant du Cygne', 'AM2' }, { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 } },
 	['Naegbron'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
 	['Naegling Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
 	['Maxbron'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },

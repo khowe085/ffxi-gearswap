@@ -225,8 +225,7 @@ function update_job_states()
 		return
 	end
 
-	-- Construct and append info for boolean states
-	for i,n in pairs(stateBool) do
+	local function append_bool(n)
 
 		-- Define color for modal state
 		if state[n].index then
@@ -277,9 +276,8 @@ function update_job_states()
 		-- Append basic formatted boolean state
 
 	end
-		stateBox:append(display.colors.White)
-	-- Construct and append info for modal states
-	for i,n in ipairs(stateList) do
+
+	local function append_mode(n)
 
 		-- Format total haste and delay reduction as percentages
 		if n == 'TotalHaste' or n == 'DelayReduction' then
@@ -319,17 +317,12 @@ function update_job_states()
 					stateBox:append('Ammo: '..statusammo..'    ')
 				end
 		elseif n == 'Weapons' then
+			stateBox:append(string.format("%s%s: ${%s} ", display.colors.White, labels[n], n))
 			if state.UnlockWeapons.value then
-				stateBox:append(string.format("%sUnlocked ", display.colors.LightBlue))
+				stateBox:append(string.format("%s(U)    ", display.colors.LightBlue))
 			else
-				stateBox:append(string.format("%sLocked ", display.colors.White))
+				stateBox:append(string.format("%s(L)    ", display.colors.White))
 			end
-			
-			if state.WeaponSets.value ~= 'Default' and state.WeaponSets.value ~= 'None' then
-				stateBox:append(string.format("%s%s ", display.colors.White, state.WeaponSets.value))
-			end
-			
-			stateBox:append(string.format("%s%s: ${%s}    ", display.colors.White, labels[n], n))
 		elseif n == 'OffenseMode' then
 			if state.DefenseMode.value ~= 'None' then
 				stateBox:append(string.format("%sDefense Active: ", display.colors.White))
@@ -455,6 +448,39 @@ function update_job_states()
 			stateBox:append(string.format("%s%s: ${%s}    ", display.colors.White, labels[n], n))
 		end
 	end
+
+	local leading = {'TreasureMode','OffenseMode','CastingMode'}
+	local trailing = {'AutoTrustMode','AutoFoodMode','AutoBuffMode','Weapons','AutoWSMode'}
+
+	local function lookup(names)
+		local set = {}
+		for _,n in ipairs(names) do set[n] = true end
+		return set
+	end
+
+	local isBool = lookup(stateBool)
+	local isMode = lookup(stateList)
+	local isPlaced = lookup(leading)
+	for _,n in ipairs(trailing) do isPlaced[n] = true end
+
+	local function append_state(n)
+		if isBool[n] then
+			append_bool(n)
+		elseif isMode[n] then
+			append_mode(n)
+		end
+	end
+
+	for _,n in ipairs(leading) do append_state(n) end
+	for _,n in ipairs(stateBool) do
+		if not isPlaced[n] then append_bool(n) end
+	end
+	stateBox:append(display.colors.White)
+	for _,n in ipairs(stateList) do
+		if not isPlaced[n] then append_mode(n) end
+	end
+	for _,n in ipairs(trailing) do append_state(n) end
+
 	-- Update and display current info
 	stateBox:update(info)
 	stateBox:show()
