@@ -21,7 +21,9 @@ Branch `selindrile` holds a copy of https://github.com/Selindrile/GearSwap laid 
 Re-apply these after copying in an upstream version of the file, unless upstream has made the same fix.
 
 - `data/BLU.lua`: `'Orcish Counterstance'` → `'O. Counterstance'` in `blue_magic_maps.Buff` (Windower's resources name for spell 696).
-- `libs/Sel-Display.lua`: in `update_job_states`, the `Weapons` entry shows "Locked" (white) when `state.UnlockWeapons` is off, so the HUD always shows the weapon lock state; upstream shows only "Unlocked".
+- `libs/Sel-Display.lua`: in `update_job_states`:
+  - The loop bodies are the local functions `append_bool` and `append_mode`, and the HUD line is built in a fixed order for every job: Treasure, Offense, Casting, then the remaining boolean states and the remaining modes in the job's `init_job_states` order, then Auto Trust, Auto Food, Auto Buff, Weapons and Auto WS. Upstream prints all the booleans, then all the modes, in the job's order.
+  - The `Weapons` entry reads `Weapons: <weapon> (L)` (white) or `(U)` (light blue) from `state.UnlockWeapons`, so the HUD always shows the weapon lock state. It no longer shows the `state.WeaponSets` name. Upstream prints "Unlocked", then the `WeaponSets` name, before the label, and nothing when locked.
 - `libs/Sel-Utility.lua`: in `check_recast`, the two MiniQueue branches that held a job ability or spell with under 5 seconds of recast and sent it when ready are commented out. Such a press is now refused with "waiting on recast" like a longer recast, so a held press can't go off after the player has moved on to another action.
 
 ## Pulling in later upstream commits
