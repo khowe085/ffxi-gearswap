@@ -1531,7 +1531,7 @@ Test("windower-libs writes the Windower libraries GearSwap's tests run on into d
 
 Test("windower-libs writes nothing unless Windower/Lua has every library it takes", () =>
 {
-	var upstream = Path.Combine(workDir, "windower-lua-without-strings");
+	var upstream = Path.Combine(workDir, "windower-lua-upstream-without-strings");
 	foreach (var library in Sources.WindowerLibraries.Where(library => library != "strings.lua"))
 	{
 		var file = Path.Combine(upstream, "addons", "libs", library);
@@ -2369,7 +2369,8 @@ string BustedOutput(string spec) => "a line a test printed\n" + $$$"""
 Test("LuaSpecs.Find takes every spec file under tests/, by its path in the repo, in order", () =>
 {
 	var repo = Path.Combine(workDir, "lua-specs-repo");
-	foreach (var file in new[] { "tests/sel/idle_spec.lua", "tests/gearswap/flow_spec.lua", "tests/support/harness.lua", "tests/notes_spec.md", "docs/x_spec.lua" })
+	string[] files = ["tests/sel/idle_spec.lua", "tests/gearswap/flow_spec.lua", "tests/support/harness.lua", "tests/notes_spec.md", "docs/x_spec.lua"];
+	foreach (var file in files)
 	{
 		var path = Path.Combine(repo, file);
 		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
@@ -2414,6 +2415,11 @@ Test("LuaSpecs.Report writes a line for each test and the count, and fails a run
 	Contains(report, "FAIL a set stays off (tests/x_spec.lua, 0.13 s)\n     tests/x_spec.lua:20: Expected objects to be the same.\n");
 	Contains(report, "FAIL a hook runs (tests/x_spec.lua, 0.06 s)\n     gearswap.lua:12: attempt to call nil\n     stack traceback:\n     \tgearswap.lua:12: in function 'f'\n");
 	Contains(report, "SKIP a buff comes (tests/x_spec.lua): Sel equips nothing for it yet\n");
+
+	// A pending test declared outside an it has its reason in its name, and no message.
+	written = new StringWriter();
+	LuaSpecs.Report([LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[{"name":"a ring moves: GearSwap's bug"}]}""")], null, written);
+	Contains(written.ToString().Replace("\r\n", "\n"), "SKIP a ring moves: GearSwap's bug (tests/a_spec.lua)\n");
 	Contains(report, "FAIL tests/y_spec.lua didn't run\n     lua: no such file\n");
 	True(report.EndsWith("3 of 5 tests passed, 1 pending; 1 spec file didn't run\n"), "the count comes last: " + report);
 });

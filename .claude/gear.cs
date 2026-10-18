@@ -10,9 +10,10 @@
 //
 // test runs each category of tests whose files changed since it last passed in this checkout: tools (every tool's
 // build brought up to date, then tests/run-tests.cs on the made-up character there), data (the tools' checks of each
-// character's gear files and docs), and gearswap. A pass vouches for the builds it ran on, so a build made again
-// clears every pass. --all runs every category, and a category named runs whether or not it changed. --filter runs
-// only the tools tests whose name holds the text, and counts for no pass.
+// character's gear files and docs), and gearswap (GearSwap's Lua tests under the repo's tests/, each spec file in a
+// busted process of its own, by tests/run-gearswap-tests.cs). A pass vouches for the builds it ran on, so a build
+// made again clears every pass. --all runs every category, and a category named runs whether or not it changed.
+// --filter runs only the tools or gearswap tests whose name holds the text, and counts for no pass.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -101,8 +102,8 @@ sealed class TestCommand
 				return Stop($"No test category named {arguments[i]}. Categories: {string.Join(" ", categories)}");
 			}
 		}
-		if (filter is not null && named.SequenceEqual(["tools"]) is false)
-			return Stop("--filter is for the tools tests alone: test tools --filter <text>");
+		if (filter is not null && (named.SequenceEqual(["tools"]) || named.SequenceEqual(["gearswap"])) is false)
+			return Stop("--filter is for one category of tests: test tools --filter <text> or test gearswap --filter <text>");
 		var outcome = 0;
 		foreach (var category in categories.Where(category => named.Count == 0 || named.Contains(category)))
 			outcome = Math.Max(outcome, Test(category, all || named.Count > 0, filter));
@@ -113,11 +114,6 @@ sealed class TestCommand
 	// 1 when it failed, and 2 when it couldn't run, as for a --filter no test's name holds.
 	int Test(string category, bool forced, string? filter)
 	{
-		if (category == "gearswap")
-		{
-			Console.WriteLine("gearswap: no tests yet");
-			return 0;
-		}
 		var pass = Path.Combine(passes, category);
 		var before = Files.Hash(repo, Inputs(category));
 		if (forced is false && File.Exists(pass) && File.ReadAllText(pass) == before)
@@ -126,7 +122,12 @@ sealed class TestCommand
 			return 0;
 		}
 		var watch = Stopwatch.StartNew();
-		var outcome = category == "tools" ? RunToolsTests(filter) : RunDataChecks() ? 0 : 1;
+		var outcome = category switch
+		{
+			"tools" => RunToolsTests(filter),
+			"gearswap" => RunGearSwapTests(filter),
+			_ => RunDataChecks() ? 0 : 1,
+		};
 		if (outcome == 1)
 			Console.WriteLine($"{category}: FAILED");
 		if (outcome != 0)
@@ -148,10 +149,20 @@ sealed class TestCommand
 	// The files of the checkout a category's result rests on. The tools tests run on a fixture of their own, so they
 	// rest on the tools' source and tests/ alone. The data checks rest on the data and the docs they check, and on this
 	// launcher, which says what they are; the builds they run are rested on through the build that clears their pass.
+	// GearSwap's tests rest on the GearSwap they load (its Lua, libs/ and the Lua under data/), the Windower libraries
+	// under it, the tests and their busted settings.
 	IEnumerable<string> Inputs(string category)
 	{
 		if (category == "tools")
 			return ToolSources().Concat(Files.Under(Path.Combine(toolsDir, "tests")));
+		if (category == "gearswap")
+			return Directory.GetFiles(repo, "*.lua")
+				.Concat(Files.Under(Path.Combine(repo, "libs")))
+				.Concat(Files.Under(Path.Combine(repo, "data")).Where(file => file.EndsWith(".lua", StringComparison.OrdinalIgnoreCase)))
+				.Concat(Files.Under(Path.Combine(repo, "docs", "windower", "libs")))
+				.Concat(Files.Under(Path.Combine(repo, "tests")))
+				.Concat(Files.IfThere(Path.Combine(repo, ".busted")))
+				.Append(Path.Combine(repo, ".claude", "gear.cs"));
 		return Files.Under(Path.Combine(repo, "data"))
 			.Concat(Files.Under(Path.Combine(repo, "docs")))
 			.Append(Path.Combine(repo, ".claude", "gear.cs"));
@@ -171,6 +182,17 @@ sealed class TestCommand
 			return 1;
 		string[] arguments = filter is null ? [] : [filter];
 		var exit = Apps.Run(builds.AssemblyOf(Path.Combine(toolsDir, "tests", "run-tests.cs")), arguments);
+		return exit is 0 or 2 ? exit : 1;
+	}
+
+	// The runner's build is brought up to date first. A crash, whatever code it exited with, fails the category.
+	int RunGearSwapTests(string? filter)
+	{
+		var runner = builds.Get(Path.Combine(toolsDir, "tests", "run-gearswap-tests.cs"));
+		if (runner is null)
+			return 1;
+		string[] arguments = filter is null ? [] : [filter];
+		var exit = Apps.Run(runner, arguments);
 		return exit is 0 or 2 ? exit : 1;
 	}
 

@@ -125,8 +125,7 @@ end
 -- options: res (the raw resource tables), paths (addon and windower, for the API), name, id, index, main_job,
 -- main_job_level, sub_job, sub_job_level, race, status, zone, items ({name=, bag=, extdata=, count=}, bag by its API
 -- name, inventory unless given), wearing (slot name to the item's position in items), buffs (names), spells and
--- abilities (the names known; every one the resources hold unless given).
--- tp: the character's TP, 0 unless given.
+-- abilities (the names known; every one the resources hold unless given), tp (0 unless given).
 function Game.new(options)
     local game = setmetatable({}, Game)
     game.res = options.res
