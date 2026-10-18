@@ -22,7 +22,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--char", "--export"], []);
 var exportPath = Export.Resolve(cli);
 var character = Characters.Named(cli.Option("--char") ?? Export.CharacterOf(exportPath));

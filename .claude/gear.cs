@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 var launcher = (string)AppContext.GetData("EntryPointFilePath")!;
 // The tests run the launcher on checkouts of their own, which GEAR_TOOLS_ROOT names.
@@ -199,7 +200,80 @@ sealed class TestCommand
 		}
 	}
 
-	bool RunDataChecks() => true;
+	// Reads each character's gear files into sets files, checks those against the export, the blue magic lists and
+	// the gear list, and lints the docs with the character's own. Then checks the rank documents, when this checkout's
+	// cache has bg-wiki's rank tables to check them against: those carry the day they were read, so they aren't
+	// fetched for the check.
+	bool RunDataChecks()
+	{
+		var sets = Path.Combine(Path.GetTempPath(), "gear-data-" + Guid.NewGuid().ToString("N")[..8]);
+		Directory.CreateDirectory(sets);
+		var passed = true;
+		try
+		{
+			foreach (var character in Characters())
+			{
+				var lists = new List<string>();
+				foreach (var gear in GearFiles(character))
+				{
+					var json = Path.Combine(sets, $"{character}_{gear.Job}.json");
+					passed &= Check("sel-sets", Path.GetRelativePath(repo, gear.File).Replace('\\', '/'), gear.Job, "--out", json);
+					// What sel-sets couldn't follow it notes and leaves out, so the rest is still worth checking.
+					if (File.Exists(json) is false)
+						continue;
+					lists.AddRange(["--in", json]);
+					passed &= Check("check-export", "--in", json);
+					if (gear.Job == "BLU")
+						passed &= Check("check-blu-spells", "--in", json);
+				}
+				if (lists.Count > 0)
+					passed &= Check("gear-list", [.. lists]);
+				passed &= Check("doc-lint", "--char", character);
+			}
+			if (File.Exists(Path.Combine(cache, "ranks", "ranks.json")))
+				passed &= Check("rank-doc", "--check");
+			else
+				Console.WriteLine("data: rank-doc --check skipped: this checkout's cache has no bg-wiki rank tables (rank-tables reads them)");
+		}
+		finally
+		{
+			Directory.Delete(sets, true);
+		}
+		return passed;
+	}
+
+	// Runs a tool for the data checks, and says whether it found nothing wrong.
+	bool Check(string tool, params string[] arguments)
+	{
+		Console.WriteLine($"data: {tool} {string.Join(" ", arguments.Select(argument => Path.IsPathRooted(argument) ? Path.GetFileName(argument) : argument))}");
+		var assembly = builds.Get(Path.Combine(toolsDir, tool + ".cs"));
+		return assembly is not null && Apps.Run(assembly, arguments, repo) == 0;
+	}
+
+	// The characters as lib/Characters.cs finds them: each folder under data/ that holds its notes or its gear list.
+	IEnumerable<string> Characters()
+	{
+		var data = Path.Combine(repo, "data");
+		if (Directory.Exists(data) is false)
+			return [];
+		return Directory.GetDirectories(data)
+			.Select(folder => Path.GetFileName(folder))
+			.Where(name => File.Exists(Path.Combine(data, name, name + "_notes.md")) || File.Exists(Path.Combine(data, name, name + "_gear_list.md")))
+			.Order(StringComparer.Ordinal)
+			.ToList();
+	}
+
+	// A character's Sel gear files, <Character>_<Job>_Gear.lua, as sel-sets.cs reads their names.
+	IEnumerable<GearFile> GearFiles(string character)
+	{
+		var name = new Regex("^" + Regex.Escape(character) + @"_(?<job>[A-Za-z]{3})_gear\.lua$", RegexOptions.IgnoreCase);
+		return Directory.GetFiles(Path.Combine(repo, "data", character), "*.lua")
+			.Order(StringComparer.Ordinal)
+			.Select(file => (Path: file, Found: name.Match(Path.GetFileName(file))))
+			.Where(file => file.Found.Success)
+			.Select(file => new GearFile(file.Path, file.Found.Groups["job"].Value.ToUpperInvariant()))
+			.ToList();
+	}
 
 	static IEnumerable<string> FilesUnder(string folder) => Directory.Exists(folder) ? Directory.GetFiles(folder, "*", SearchOption.AllDirectories) : [];
 
@@ -209,6 +283,19 @@ sealed class TestCommand
 	{
 		Console.Error.WriteLine(message);
 		return 2;
+	}
+}
+
+sealed class GearFile
+{
+	public string File { get; }
+
+	public string Job { get; }
+
+	public GearFile(string file, string job)
+	{
+		File = file;
+		Job = job;
 	}
 }
 

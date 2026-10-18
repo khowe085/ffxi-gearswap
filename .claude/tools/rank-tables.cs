@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using GearTools;
 
-Tool.Init();
 new Arguments(args, [], []);
 var exports = Export.Owners().Select(Export.Latest).ToList();
 var names = exports.SelectMany(Export.Read).Where(line => line.SlotKey != "item").Select(line => line.Name).Distinct().ToList();

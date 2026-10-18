@@ -14,7 +14,6 @@ using System.IO;
 using System.Net.Http;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, [], ["--refresh"]);
 var refresh = cli.Flag("--refresh");
 

@@ -20,7 +20,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--in", "--export"], ["--print", "--json"]);
 if (cli.Flag("--print") && cli.Flag("--json"))
 	Tool.Fail("--print writes a table and --json writes findings; give one of them.");

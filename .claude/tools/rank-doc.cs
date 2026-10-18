@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using System.IO;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, [], ["--check"]);
 
 // Oboro's augments (JSE necks, Ultimate Weapons, Unity weapons) rank up too, but bg-wiki gives only the maximum, not

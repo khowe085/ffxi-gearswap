@@ -23,7 +23,6 @@ using System.IO;
 using System.Text.Json;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--in", "--set", "--extra", "--export"], ["--json"]);
 var input = cli.Option("--in");
 if (input is null)

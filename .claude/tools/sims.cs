@@ -16,7 +16,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--job", "--set", "--char", "--export"], ["--counts", "--json"]);
 var job = cli.Option("--job");
 if (job is null)

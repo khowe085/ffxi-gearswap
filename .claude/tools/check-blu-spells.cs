@@ -17,7 +17,6 @@ using System.Threading.Tasks;
 using System.IO;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--in"], ["--json"]);
 var spells = Resources.BlueSpells().Distinct().ToList();
 var input = cli.Option("--in");

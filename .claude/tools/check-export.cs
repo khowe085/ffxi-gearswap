@@ -19,7 +19,6 @@ using System.Threading.Tasks;
 using System.IO;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--in", "--bags", "--export"], ["--json"]);
 var input = cli.Option("--in");
 if (input is null)

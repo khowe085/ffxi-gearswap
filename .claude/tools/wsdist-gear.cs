@@ -19,7 +19,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, [], ["--check-nyame"], takesWords: true);
 var gearPath = Tool.InCache("wsdist_beta", "gear.py");
 if (File.Exists(gearPath) is false)

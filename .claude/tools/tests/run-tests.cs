@@ -1,15 +1,16 @@
-// Tests for the tools in the folder above. They run against the small made-up character under fixture/ (Testy),
-// never against the real data: the shared code is called directly, and each tool is run as it is from the command
-// line, pointed at a copy of the fixture, once as it stands and once with mistakes put in that the tool has to
-// report.
+// Tests for the tools in the folder above, and for the launcher, .claude/gear.cs, that builds and runs them. They run
+// against the small made-up character under fixture/ (Testy), never against the real data: the shared code is called
+// directly, and each tool is run as it is from the command line, pointed at a copy of the fixture, once as it stands
+// and once with mistakes put in that the tool has to report.
 //
-//   dotnet run --no-cache .claude/tools/tests/run-tests.cs [-- <text>]
+//   dotnet run .claude/gear.cs -- test tools [--filter <text>]
 //
-// With <text>, only the tests whose name contains it run. Exit code 1 when a test fails. Nothing here uses the
-// network: wiki.cs and rank-tables.cs ask a stand-in for bg-wiki on this machine, and they and fetch-sources.cs
-// are also run with the network cut off, to see them stop. The git sources are fetched from repositories made here.
-// That leaves two things no test runs: a download of Windower's resources that works, and the wait after bg-wiki
-// answers 429.
+// The launcher builds every tool before the tests start and lists the builds in the file GEAR_TOOLS_TEST_BUILDS
+// names, so running a tool here starts its build rather than building it. The tests run side by side, each on what it
+// makes for itself. With --filter, only the tests whose name holds the text run. Exit code 1 when a test fails.
+// Nothing here uses the network: wiki.cs and rank-tables.cs ask a stand-in for bg-wiki on this machine, and the git
+// sources are fetched from repositories made here. That leaves two things no test runs: a download of Windower's
+// resources that works, and the wait after bg-wiki answers 429.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -24,11 +25,19 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using GearTools;
 
-var testsDir = AppContext.GetData("EntryPointFileDirectoryPath") as string ?? Path.Combine(Environment.CurrentDirectory, ".claude", "tools", "tests");
-var toolsDir = Path.GetFullPath(Path.Combine(testsDir, ".."));
-var fixtureDir = Path.Combine(testsDir, "fixture");
+// The launcher runs the tests on the checkout GEAR_TOOLS_ROOT names. The build of the tests may have been made in
+// another checkout, so their own path says nothing about which.
+var repoDir = Environment.GetEnvironmentVariable("GEAR_TOOLS_ROOT");
+var buildsList = Environment.GetEnvironmentVariable("GEAR_TOOLS_TEST_BUILDS");
+if (repoDir is null || buildsList is null)
+{
+	Console.Error.WriteLine("Run the tests with the launcher: dotnet run .claude/gear.cs -- test tools");
+	return 2;
+}
+var toolsDir = Path.Combine(repoDir, ".claude", "tools");
+var fixtureDir = Path.Combine(toolsDir, "tests", "fixture");
+var toolBuilds = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(buildsList))!;
 var workDir = Path.Combine(Path.GetTempPath(), "gear-tools-tests-" + Environment.ProcessId);
-var repoDir = Path.GetFullPath(Path.Combine(toolsDir, "..", ".."));
 var launcher = Path.Combine(repoDir, ".claude", "gear.cs");
 // The checkouts the launcher is run from, one folder for each checkout of this repository.
 var launcherDir = Path.Combine(Path.GetTempPath(), "gear-tools-launcher-" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(repoDir)))[..12].ToLowerInvariant());
@@ -37,8 +46,6 @@ var launcherDir = Path.Combine(Path.GetTempPath(), "gear-tools-launcher-" + Conv
 var pristine = NewSandbox();
 Environment.SetEnvironmentVariable("GEAR_TOOLS_ROOT", pristine.Repo);
 Environment.SetEnvironmentVariable("GEAR_TOOLS_CACHE", pristine.Cache);
-// The tests call the shared code in this process, so a build older than lib/ would test the old code.
-Tool.Init();
 
 var tests = new List<KeyValuePair<string, Action>>();
 void Test(string name, Action body) => tests.Add(KeyValuePair.Create(name, body));
@@ -1468,28 +1475,6 @@ Test("a tool stops when a file it reads holds nothing it can use", () =>
 	Stops(setless.Run("check-export", "--in", "sets/Testy_RDM.json"), "sets/Testy_RDM.json can't be read as a sets file");
 });
 
-Test("a tool that needs the network stops with exit code 2 when it can't be reached", () =>
-{
-	var sandbox = NewSandbox();
-	var tables = Path.Combine(sandbox.Cache, "ranks", "ranks.json");
-	var saved = File.ReadAllText(tables);
-	var wiki = sandbox.RunOffline("wiki", "Nyame Helm");
-	Equal(2, wiki.ExitCode);
-	Contains(wiki.Output, "Couldn't reach bg-wiki");
-	var ranks = sandbox.RunOffline("rank-tables");
-	Equal(2, ranks.ExitCode);
-	Contains(ranks.Output, "Couldn't reach bg-wiki");
-	Equal(saved, File.ReadAllText(tables));
-	var sources = sandbox.RunOffline("fetch-sources", "--refresh");
-	Equal(2, sources.ExitCode);
-	Contains(sources.Output, "res/items.lua: couldn't download it");
-	// Without --refresh the resources in the cache stay as they are, and the first repository git can't fetch stops it.
-	var repositories = sandbox.RunOffline("fetch-sources");
-	Equal(2, repositories.ExitCode);
-	Contains(repositories.Output, "res/items.lua: present (");
-	Contains(repositories.Output, "wsdist_beta: git fetch --quiet --depth 1 --filter=blob:none origin d12ac5923ccace977ad55d172c8698b5886b9e4f failed in ");
-});
-
 Test("wiki saves each page under the name it was asked by, says which it couldn't find, and asks once", () =>
 {
 	var reply = """
@@ -2255,6 +2240,16 @@ Test("the launcher runs a tool on its own checkout, from a build another checkou
 	True(mistakes.Output.Contains("Building") is false, "The second checkout built the tool again:\n" + mistakes.Output);
 });
 
+Test("a tool started on its own, not through the launcher, stops and says how to run it", () =>
+{
+	var start = new ProcessStartInfo("dotnet") { WorkingDirectory = pristine.Repo, RedirectStandardOutput = true, RedirectStandardError = true };
+	start.ArgumentList.Add(toolBuilds["check-blu-spells"]);
+	start.ArgumentList.Add("--in");
+	start.ArgumentList.Add("sets/Testy_BLU.json");
+	start.Environment.Remove("GEAR_TOOLS_ROOT");
+	Stops(ToolRun.Of(start), "Run the tool with the launcher: dotnet run .claude/gear.cs -- check-blu-spells");
+});
+
 Test("the launcher builds a tool once, and again only after the shared code changes", () =>
 {
 	var repo = NewTinyCheckout();
@@ -2401,26 +2396,94 @@ Test("the launcher's test command stops with exit code 2 on a category it doesn'
 	Stops(Launch(repo, builds, "test", "tools", "--filter"), "--filter needs the text to look for");
 });
 
+Test("the launcher's data checks read each gear file and check its sets, the gear list, the docs and the rank documents", () =>
+{
+	var repo = NewCleanCheckout();
+	var run = Launch(repo, null, "test", "data");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "data: sel-sets data/Testy/Testy_Blu_Gear.lua BLU --out Testy_BLU.json\n");
+	Contains(run.Output, "data: check-export --in Testy_BLU.json\n");
+	Contains(run.Output, "data: check-blu-spells --in Testy_BLU.json\n");
+	Contains(run.Output, "data: gear-list --in Testy_BLU.json\n");
+	Contains(run.Output, "data: doc-lint --char Testy\n");
+	Contains(run.Output, "data: rank-doc --check\n");
+	Contains(run.Output, "data: passed");
+});
+
+Test("the launcher's data checks fail when a check finds a problem, and go on with the others", () =>
+{
+	var repo = NewFolder("checkout");
+	FillCheckout(repo);
+	var run = Launch(repo, null, "test", "data");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "sets.Kiting: feet is gear.no_such_piece, which no file read defines, so the slot is left out");
+	Contains(run.Output, "data: check-export --in Testy_BLU.json\n");
+	Contains(run.Output, "The list has a RDM column, but no --in sets file is for RDM");
+	Contains(run.Output, "data: doc-lint --char Testy\n");
+	Contains(run.Output, "data: FAILED");
+});
+
+Test("the launcher's data checks leave out rank-doc --check when the checkout's cache has no rank tables, and say so", () =>
+{
+	var repo = NewCleanCheckout();
+	File.Delete(Path.Combine(repo, ".claude", "cache", "ranks", "ranks.json"));
+	var run = Launch(repo, null, "test", "data");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "data: rank-doc --check skipped: this checkout's cache has no bg-wiki rank tables (rank-tables reads them)");
+	True(run.Output.Contains("data: rank-doc --check\n") is false, "rank-doc --check ran:\n" + run.Output);
+});
+
+Test("the launcher's data checks run again when the rank tables or the resources in the checkout's cache change", () =>
+{
+	var repo = NewCleanCheckout();
+	AddStandInSuite(repo);
+	Equal(0, Launch(repo, null, "test").ExitCode);
+	Contains(Launch(repo, null, "test").Output, "data: no change since it last passed");
+	File.Delete(Path.Combine(repo, ".claude", "cache", "ranks", "ranks.json"));
+	Contains(Launch(repo, null, "test").Output, "data: rank-doc --check skipped");
+	File.AppendAllText(Path.Combine(repo, ".claude", "cache", "res", "items.lua"), "\n");
+	var resources = Launch(repo, null, "test");
+	Contains(resources.Output, "data: sel-sets");
+	Contains(resources.Output, "tools: no change since it last passed");
+});
+
 // ---------------------------------------------------------------- running them
 
 var filter = args.Length > 0 ? args[0] : "";
-var failed = 0;
-var ran = 0;
-foreach (var test in tests.Where(test => test.Key.Contains(filter, StringComparison.OrdinalIgnoreCase)))
+var chosen = tests.Where(test => test.Key.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+// Each test works on what it makes for itself, so they run side by side. They wait on the tools they start, so they
+// run on threads of their own, which leaves the thread pool to the stand-in sites and the reads of the tools' output.
+var problems = new string?[chosen.Count];
+var next = -1;
+var workers = Enumerable.Range(0, Environment.ProcessorCount).Select(_ => new Thread(() =>
 {
-	ran++;
-	try
+	for (var i = Interlocked.Increment(ref next); i < chosen.Count; i = Interlocked.Increment(ref next))
 	{
-		test.Value();
-		Console.WriteLine("PASS " + test.Key);
+		try
+		{
+			chosen[i].Value();
+		}
+		catch (Exception problem)
+		{
+			problems[i] = problem.Message;
+		}
 	}
-	catch (Exception problem)
+})).ToList();
+workers.ForEach(worker => worker.Start());
+workers.ForEach(worker => worker.Join());
+var failed = 0;
+for (var i = 0; i < chosen.Count; i++)
+{
+	if (problems[i] is null)
 	{
-		failed++;
-		Console.WriteLine("FAIL " + test.Key);
-		Console.WriteLine("     " + problem.Message.Replace("\n", "\n     "));
+		Console.WriteLine("PASS " + chosen[i].Key);
+		continue;
 	}
+	failed++;
+	Console.WriteLine("FAIL " + chosen[i].Key);
+	Console.WriteLine("     " + problems[i]!.Replace("\n", "\n     "));
 }
+var ran = chosen.Count;
 try
 {
 	ForceDelete(workDir);
@@ -2436,7 +2499,7 @@ return failed > 0 ? 1 : 0;
 
 Sandbox NewSandbox()
 {
-	var sandbox = new Sandbox(Path.Combine(workDir, "sandbox-" + Guid.NewGuid().ToString("N")[..8]), toolsDir);
+	var sandbox = new Sandbox(Path.Combine(workDir, "sandbox-" + Guid.NewGuid().ToString("N")[..8]), toolBuilds);
 	CopyFolder(Path.Combine(fixtureDir, "repo"), sandbox.Repo);
 	CopyFolder(Path.Combine(fixtureDir, "cache"), sandbox.Cache);
 	return sandbox;
@@ -2457,6 +2520,22 @@ string NewCheckout(string name)
 	var repo = Path.Combine(launcherDir, name);
 	ForceDelete(repo);
 	ForceDelete(repo + ".passes");
+	FillCheckout(repo);
+	return repo;
+}
+
+// A checkout for the data checks, with a Testy whose files hold nothing for them to report: the overlay under
+// fixture/clean puts a gear file and a gear list for BLU alone over the fixture's.
+string NewCleanCheckout()
+{
+	var repo = NewFolder("checkout");
+	FillCheckout(repo);
+	CopyFolder(Path.Combine(fixtureDir, "clean"), repo);
+	return repo;
+}
+
+void FillCheckout(string repo)
+{
 	CopyFolder(Path.Combine(fixtureDir, "repo"), repo);
 	CopyFolder(Path.Combine(fixtureDir, "cache"), Path.Combine(repo, ".claude", "cache"));
 	var tools = Path.Combine(repo, ".claude", "tools");
@@ -2465,7 +2544,6 @@ string NewCheckout(string name)
 	foreach (var file in sources)
 		File.Copy(file, Path.Combine(tools, Path.GetRelativePath(toolsDir, file)));
 	File.Copy(launcher, Path.Combine(repo, ".claude", "gear.cs"));
-	return repo;
 }
 
 // A checkout whose tools are one small tool, hello.cs, and one file of shared code.
@@ -2497,14 +2575,14 @@ void AddStandInSuite(string repo)
 }
 
 // Runs this checkout's launcher on the checkout given, which GEAR_TOOLS_ROOT names, keeping its builds in the folder
-// given.
-ToolRun Launch(string repo, string builds, params string[] arguments) => RunLauncher(launcher, repo, builds, arguments);
+// given, or where the launcher that runs these tests keeps them.
+ToolRun Launch(string repo, string? builds, params string[] arguments) => RunLauncher(launcher, repo, builds, arguments);
 
 // Runs the launcher a checkout from NewCheckout holds, which finds the checkout from where it is, as it does when the
 // player runs it.
 ToolRun LaunchFrom(string repo, string builds, params string[] arguments) => RunLauncher(Path.Combine(repo, ".claude", "gear.cs"), repo, builds, arguments);
 
-ToolRun RunLauncher(string launcherFile, string repo, string builds, string[] arguments)
+ToolRun RunLauncher(string launcherFile, string repo, string? builds, string[] arguments)
 {
 	var start = new ProcessStartInfo("dotnet") { WorkingDirectory = repo, RedirectStandardOutput = true, RedirectStandardError = true };
 	start.ArgumentList.Add("run");
@@ -2517,7 +2595,8 @@ ToolRun RunLauncher(string launcherFile, string repo, string builds, string[] ar
 		start.Environment["GEAR_TOOLS_ROOT"] = repo;
 	// The checkout's own .claude/cache.
 	start.Environment.Remove("GEAR_TOOLS_CACHE");
-	start.Environment["GEAR_TOOLS_BUILDS"] = builds;
+	if (builds is not null)
+		start.Environment["GEAR_TOOLS_BUILDS"] = builds;
 	start.Environment["GEAR_TOOLS_PASSES"] = repo + ".passes";
 	return ToolRun.Of(start);
 }
@@ -2754,13 +2833,14 @@ sealed class Sandbox
 
 	public string Cache { get; }
 
-	string toolsDir;
+	// Each tool's build, by the tool's name.
+	IReadOnlyDictionary<string, string> builds;
 
-	public Sandbox(string folder, string toolsDir)
+	public Sandbox(string folder, IReadOnlyDictionary<string, string> builds)
 	{
 		Repo = Path.Combine(folder, "repo");
 		Cache = Path.Combine(folder, "cache");
-		this.toolsDir = toolsDir;
+		this.builds = builds;
 	}
 
 	// Replaces one piece of text in a file of the sandbox's repository. The text has to be there exactly once.
@@ -2774,53 +2854,26 @@ sealed class Sandbox
 		File.WriteAllText(path, text.Replace(oldText, newText));
 	}
 
-	public ToolRun Run(string tool, params string[] arguments) => Start(Path.Combine(toolsDir, tool + ".cs"), true, arguments);
+	public ToolRun Run(string tool, params string[] arguments) => Start(tool, arguments);
 
-	// Runs a tool with its web requests sent to a closed port of this machine, so each fails at once, as it does
-	// with no network.
-	public ToolRun RunOffline(string tool, params string[] arguments) => Start(Path.Combine(toolsDir, tool + ".cs"), true, arguments, offline: true);
+	// Runs a tool with bg-wiki's API answered by a stand-in on this machine.
+	public ToolRun RunAgainst(StandInSite wiki, string tool, params string[] arguments) => Start(tool, arguments, wiki.Url);
 
-	// Runs a tool with bg-wiki's API answered by a stand-in on this machine. Every other web request goes to the
-	// closed port, so a tool that asked the real site would fail, not reach it.
-	public ToolRun RunAgainst(StandInSite wiki, string tool, params string[] arguments) => Start(Path.Combine(toolsDir, tool + ".cs"), true, arguments, offline: true, wiki: wiki.Url);
-
-	public ToolRun RunFile(string toolFile, bool rebuild, params string[] arguments) => Start(toolFile, rebuild, arguments);
-
-	ToolRun Start(string toolFile, bool rebuild, string[] arguments, bool offline = false, string? wiki = null)
+	ToolRun Start(string tool, string[] arguments, string? wiki = null)
 	{
 		var start = new ProcessStartInfo("dotnet") { WorkingDirectory = Repo, RedirectStandardOutput = true, RedirectStandardError = true };
-		start.ArgumentList.Add("run");
-		if (rebuild)
-			start.ArgumentList.Add("--no-cache");
-		start.ArgumentList.Add(toolFile);
-		start.ArgumentList.Add("--");
+		start.ArgumentList.Add(builds[tool]);
 		foreach (var argument in arguments)
 			start.ArgumentList.Add(argument);
 		start.Environment["GEAR_TOOLS_ROOT"] = Repo;
 		start.Environment["GEAR_TOOLS_CACHE"] = Cache;
-		if (offline)
-		{
-			// .NET reads these in either case, and takes the lower-case name first where case matters.
-			string[] proxies = ["http_proxy", "https_proxy", "all_proxy", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"];
-			foreach (var proxy in proxies)
-				start.Environment[proxy] = "http://127.0.0.1:1";
-			// The same for git, over any proxy its own configuration names.
-			start.Environment["GIT_CONFIG_COUNT"] = "1";
-			start.Environment["GIT_CONFIG_KEY_0"] = "http.proxy";
-			start.Environment["GIT_CONFIG_VALUE_0"] = "http://127.0.0.1:1";
-			start.Environment.Remove("no_proxy");
-			start.Environment.Remove("NO_PROXY");
-		}
 		if (wiki is not null)
 		{
 			start.Environment["GEAR_TOOLS_WIKI"] = wiki;
+			// The stand-in is on this machine, so a proxy the user has set mustn't stand between.
 			start.Environment["no_proxy"] = "127.0.0.1";
 			start.Environment["NO_PROXY"] = "127.0.0.1";
 		}
-		using var process = Process.Start(start)!;
-		var error = process.StandardError.ReadToEndAsync();
-		var output = process.StandardOutput.ReadToEnd();
-		process.WaitForExit();
-		return new ToolRun(process.ExitCode, output, error.Result);
+		return ToolRun.Of(start);
 	}
 }

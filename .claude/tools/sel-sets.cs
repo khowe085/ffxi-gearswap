@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 using System.IO;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--out"], [], takesWords: true);
 if (cli.Words.Count != 2)
 	Tool.Fail("Give the gear file and the job: sel-sets.cs -- <gear file> <JOB> [--out <sets.json>]");

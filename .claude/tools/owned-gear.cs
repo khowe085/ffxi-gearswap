@@ -25,7 +25,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--job", "--slot", "--grep", "--sets", "--char", "--export"], ["--json", "--findings"]);
 if (cli.Flag("--json") && cli.Flag("--findings"))
 	Tool.Fail("--json writes the pieces and --findings writes findings; give one of them.");
