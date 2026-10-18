@@ -1502,6 +1502,53 @@ Test("simulated-sets writes each job's simulated sets from bg_job_guides at its 
 	Contains(run.Output, "2 jobs' simulated sets from bg_job_guides at " + guides.Commit[..7]);
 });
 
+Test("windower-libs writes the Windower libraries GearSwap's tests run on into docs/windower/libs, from Windower/Lua at its commit, and drops one no longer taken", () =>
+{
+	// Windower/Lua keeps the libraries under addons/libs, beside each addon's own folder.
+	var upstream = Path.Combine(workDir, "windower-lua-upstream");
+	foreach (var library in Sources.WindowerLibraries)
+	{
+		var file = Path.Combine(upstream, "addons", "libs", library);
+		Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+		File.WriteAllText(file, $"-- {library}\n");
+	}
+	File.WriteAllText(Path.Combine(upstream, "addons", "libs", "timeit.lua"), "-- a library GearSwap doesn't load\n");
+	Directory.CreateDirectory(Path.Combine(upstream, "addons", "GearSwap"));
+	File.WriteAllText(Path.Combine(upstream, "addons", "GearSwap", "gearswap.lua"), "-- an addon\n");
+	var lua = NewGitRepo("windower-lua-for-docs", upstream);
+	var sandbox = NewSandbox();
+	var libs = Path.Combine(sandbox.Repo, "docs", "windower", "libs");
+	Directory.CreateDirectory(libs);
+	File.WriteAllText(Path.Combine(libs, "vectors.lua"), "-- a library no longer taken\n");
+	var run = sandbox.RunWithRepo("windower_lua", lua, "windower-libs");
+	Equal(0, run.ExitCode);
+	var written = Directory.GetFiles(libs, "*", SearchOption.AllDirectories).Select(file => Path.GetRelativePath(libs, file).Replace('\\', '/'));
+	Equal(string.Join(" ", Sources.WindowerLibraries.Order(StringComparer.Ordinal)), string.Join(" ", written.Order(StringComparer.Ordinal)));
+	Equal("-- packets/fields.lua\n", File.ReadAllText(Path.Combine(libs, "packets", "fields.lua")));
+	Contains(run.Output, $"{Sources.WindowerLibraries.Count} Windower libraries from Windower/Lua at {lua.Commit[..7]} in docs/windower/libs");
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
+Test("windower-libs writes nothing unless Windower/Lua has every library it takes", () =>
+{
+	var upstream = Path.Combine(workDir, "windower-lua-without-strings");
+	foreach (var library in Sources.WindowerLibraries.Where(library => library != "strings.lua"))
+	{
+		var file = Path.Combine(upstream, "addons", "libs", library);
+		Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+		File.WriteAllText(file, $"-- {library}\n");
+	}
+	var lua = NewGitRepo("windower-lua-without-strings", upstream);
+	var sandbox = NewSandbox();
+	var libs = Path.Combine(sandbox.Repo, "docs", "windower", "libs");
+	Directory.CreateDirectory(libs);
+	File.WriteAllText(Path.Combine(libs, "strings.lua"), "-- as it was\n");
+	Stops(sandbox.RunWithRepo("windower_lua", lua, "windower-libs"), "Windower/Lua has no addons/libs/strings.lua at " + lua.Commit[..7]);
+	Equal("strings.lua", string.Join(" ", Directory.GetFiles(libs).Select(Path.GetFileName)));
+	Equal("-- as it was\n", File.ReadAllText(Path.Combine(libs, "strings.lua")));
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
 Test("a tool stops, and says what is missing, when the repository lacks a folder or a file it reads", () =>
 {
 	var noExports = NewSandbox();

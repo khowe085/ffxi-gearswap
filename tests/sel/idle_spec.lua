@@ -1,0 +1,13 @@
+local harness = require('harness')
+local testy = require('testy')
+
+describe('Sel\'s idle set', function()
+    it('is the one for the idle mode', function()
+        local gs = harness.boot(testy.rdm())
+        gs:console('gs c update')
+        assert.same(testy.worn_by(testy.rdm_idle), gs:worn())
+        gs:console('gs c cycle IdleMode')
+        assert.equal('DT', gs.user.state.IdleMode.value)
+        assert.same(testy.worn_by(testy.rdm_idle, {head = 'Malignance Chapeau', body = 'Malignance Tabard'}), gs:worn())
+    end)
+end)
