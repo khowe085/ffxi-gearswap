@@ -16,8 +16,9 @@ static class Sources
 {
 	public static IReadOnlyList<string> ResourceFiles { get; }
 
-	// The Windower libraries GearSwap, Sel and the libraries they load require, by their paths under Windower/Lua's
-	// addons/libs. GearSwap's tests run on these, from docs/windower/libs.
+	// The Windower libraries GearSwap, Sel and the libraries they load require, and logger.xml, the settings logger.lua
+	// reads as it loads, by their paths under Windower/Lua's addons/libs. GearSwap's tests run on these, from
+	// docs/windower/libs.
 	public static IReadOnlyList<string> WindowerLibraries { get; }
 
 	// Windower's resources follow the live game, so they are taken from the branch head, not pinned. The tests point
@@ -29,8 +30,8 @@ static class Sources
 	static Sources()
 	{
 		ResourceFiles = ["items.lua", "item_descriptions.lua", "spells.lua"];
-		WindowerLibraries = ["actions.lua", "chat.lua", "chat/chars.lua", "chat/colors.lua", "chat/controls.lua", "config.lua",
-			"extdata.lua", "files.lua", "functions.lua", "json.lua", "lists.lua", "logger.lua", "maths.lua", "packets.lua",
+		WindowerLibraries = ["actions.lua", "chat.lua", "chat/colors.lua", "chat/controls.lua", "config.lua",
+			"extdata.lua", "files.lua", "functions.lua", "json.lua", "lists.lua", "logger.lua", "logger.xml", "maths.lua", "packets.lua",
 			"packets/data.lua", "packets/fields.lua", "queues.lua", "resources.lua", "sets.lua", "slips.lua", "strings.lua",
 			"tables.lua", "texts.lua", "xml.lua"];
 		// docs/ffxi-mechanics.md quotes the first two by file and line, so a different commit would make its references

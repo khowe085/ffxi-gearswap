@@ -105,12 +105,21 @@ end
 
 local tree
 
+-- The temp folders of the copies this run made. busted loads this module again for each spec file, so the list is
+-- kept in the Lua registry, which every copy of the module shares, for the cleanup at the end to find them all.
+local function made_trees()
+    local registry = debug.getregistry()
+    registry.gearswap_test_trees = registry.gearswap_test_trees or {}
+    return registry.gearswap_test_trees
+end
+
 -- The copy of a Windower install GearSwap runs from, made on first use.
 function harness.tree()
     if tree then
         return tree
     end
     local root = temp_folder()
+    table.insert(made_trees(), root)
     local windower = join(root, 'Windower') .. '/'
     local addon = join(root, 'Windower', 'addons', 'GearSwap') .. '/'
     local repo = harness.repo
@@ -142,12 +151,13 @@ function harness.tree()
     return tree
 end
 
--- Removes the copy of the Windower install, if this run made one.
+-- Removes every copy of the Windower install this run made.
 function harness.cleanup()
-    if tree then
-        remove_tree(tree.root)
-        tree = nil
+    local trees = made_trees()
+    while #trees > 0 do
+        remove_tree(table.remove(trees))
     end
+    tree = nil
 end
 
 -- The repo's own path for each path into the copy that the text mentions.

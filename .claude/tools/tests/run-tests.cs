@@ -2354,6 +2354,90 @@ Test("search-fast-recast stops with its usage line on a --hidden file that isn't
 	Stops(pristine.Run("search-fast-recast", pieces, "--job", "BLU", "--hidden", broken), "Give the file owned-gear.cs --json wrote");
 });
 
+// ---------------------------------------------------------------- GearSwap's tests
+
+// What busted -o json writes for a spec file, after whatever its tests printed.
+string BustedOutput(string spec) => "a line a test printed\n" + $$$"""
+	{"successes":[{"name":"a set goes on","element":{"duration":0.25,"trace":{"currentline":12,"short_src":"{{{spec}}}"}},"trace":{"currentline":12}},
+	{"name":"an earlier test","element":{"duration":0.5,"trace":{"currentline":3,"short_src":"{{{spec}}}"}},"trace":{"currentline":3}}],
+	"failures":[{"name":"a set stays off","message":"{{{spec}}}:20: Expected objects to be the same.","element":{"duration":0.125,"trace":{"currentline":18}},"trace":{"currentline":18,"traceback":"\nstack traceback:\n\t{{{spec}}}:20: in function"}}],
+	"errors":[{"name":"a hook runs","message":"gearswap.lua:12: attempt to call nil","isError":true,"element":{"duration":0.0625,"trace":{"currentline":30}},"trace":{"currentline":30,"traceback":"\nstack traceback:\n\tgearswap.lua:12: in function 'f'"}}],
+	"pendings":[{"name":"a buff comes","message":"Sel equips nothing for it yet","element":{"trace":{"currentline":40}},"trace":{"currentline":40}}],
+	"duration":1.5}
+	""".ReplaceLineEndings("") + "\n";
+
+Test("LuaSpecs.Find takes every spec file under tests/, by its path in the repo, in order", () =>
+{
+	var repo = Path.Combine(workDir, "lua-specs-repo");
+	foreach (var file in new[] { "tests/sel/idle_spec.lua", "tests/gearswap/flow_spec.lua", "tests/support/harness.lua", "tests/notes_spec.md", "docs/x_spec.lua" })
+	{
+		var path = Path.Combine(repo, file);
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+		File.WriteAllText(path, "");
+	}
+	Equal("tests/gearswap/flow_spec.lua tests/sel/idle_spec.lua", string.Join(" ", LuaSpecs.Find(repo)));
+	Equal(0, LuaSpecs.Find(Path.Combine(workDir, "lua-specs-no-repo")).Count);
+});
+
+Test("LuaSpecs.Read gives each test of a spec file its outcome, message and time, in the file's order", () =>
+{
+	var run = LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"));
+	Equal("tests/x_spec.lua", run.Spec);
+	Equal(true, run.Ran);
+	Equal("an earlier test|a set goes on|a set stays off|a hook runs|a buff comes", string.Join("|", run.Tests.Select(test => test.Name)));
+	Equal("Passed Passed Failed Failed Pending", string.Join(" ", run.Tests.Select(test => test.Result)));
+	Equal("tests/x_spec.lua:20: Expected objects to be the same.", run.Tests[2].Message);
+	// An error's traceback says where it came from, which a failed assertion's message already does.
+	Equal("gearswap.lua:12: attempt to call nil\nstack traceback:\n\tgearswap.lua:12: in function 'f'", run.Tests[3].Message);
+	Equal("Sel equips nothing for it yet", run.Tests[4].Message);
+	Equal(0.5, run.Tests[0].Seconds);
+});
+
+Test("LuaSpecs.Read takes output without busted's JSON as a spec file that didn't run, and keeps it", () =>
+{
+	var run = LuaSpecs.Read("tests/x_spec.lua", "lua: tests/x_spec.lua:3: ')' expected near ':'\n");
+	Equal(false, run.Ran);
+	Equal(0, run.Tests.Count);
+	Equal("lua: tests/x_spec.lua:3: ')' expected near ':'", run.Output);
+});
+
+Test("LuaSpecs.Report writes a line for each test and the count, and fails a run with a failed test or a file that didn't run", () =>
+{
+	var passing = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""");
+	var written = new StringWriter();
+	Equal(0, LuaSpecs.Report([passing], null, written));
+	Equal("PASS it works (tests/a_spec.lua, 0.25 s)\n1 of 1 tests passed\n", written.ToString().Replace("\r\n", "\n"));
+
+	written = new StringWriter();
+	Equal(1, LuaSpecs.Report([passing, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua")), LuaSpecs.Read("tests/y_spec.lua", "lua: no such file\n")], null, written));
+	var report = written.ToString().Replace("\r\n", "\n");
+	Contains(report, "FAIL a set stays off (tests/x_spec.lua, 0.13 s)\n     tests/x_spec.lua:20: Expected objects to be the same.\n");
+	Contains(report, "FAIL a hook runs (tests/x_spec.lua, 0.06 s)\n     gearswap.lua:12: attempt to call nil\n     stack traceback:\n     \tgearswap.lua:12: in function 'f'\n");
+	Contains(report, "SKIP a buff comes (tests/x_spec.lua): Sel equips nothing for it yet\n");
+	Contains(report, "FAIL tests/y_spec.lua didn't run\n     lua: no such file\n");
+	True(report.EndsWith("3 of 5 tests passed, 1 pending; 1 spec file didn't run\n"), "the count comes last: " + report);
+});
+
+Test("LuaSpecs.Report says so, with exit code 2, when no test ran, as for a filter no test's name holds", () =>
+{
+	var none = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[]}""");
+	var written = new StringWriter();
+	Equal(2, LuaSpecs.Report([none], "nothing like this", written));
+	Equal("No gearswap test's name holds \"nothing like this\".\n", written.ToString().Replace("\r\n", "\n"));
+	written = new StringWriter();
+	Equal(2, LuaSpecs.Report([], null, written));
+	Equal("No spec files under tests/.\n", written.ToString().Replace("\r\n", "\n"));
+});
+
+Test("run-gearswap-tests stops, and says what to install, when it can't run busted", () =>
+{
+	var sandbox = NewSandbox();
+	Directory.CreateDirectory(Path.Combine(sandbox.Repo, "tests"));
+	File.WriteAllText(Path.Combine(sandbox.Repo, "tests", "a_spec.lua"), "it('runs', function() end)\n");
+	Stops(sandbox.RunWithoutGit("run-gearswap-tests"), "Couldn't run busted, which GearSwap's tests run on. Install Lua 5.1, LuaRocks and busted: luarocks --lua-version 5.1 install busted");
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
 // ---------------------------------------------------------------- running them
 
 var filter = args.Length > 0 ? args[0] : "";

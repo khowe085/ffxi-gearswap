@@ -294,10 +294,13 @@ sealed class Builds
 	// writing the compiler's errors.
 	public string? Get(string source) => Current(source) ? AssemblyOf(source) : null;
 
-	// Brings the builds of every tool and of the tools tests up to date, side by side. False when one doesn't build.
+	// Brings the builds of every tool and of the two test runners up to date, side by side. False when one doesn't build.
 	public bool BuildAll()
 	{
-		var apps = Directory.GetFiles(toolsDir, "*.cs").Append(Path.Combine(toolsDir, "tests", "run-tests.cs")).ToList();
+		var apps = Directory.GetFiles(toolsDir, "*.cs")
+			.Append(Path.Combine(toolsDir, "tests", "run-tests.cs"))
+			.Append(Path.Combine(toolsDir, "tests", "run-gearswap-tests.cs"))
+			.ToList();
 		var current = new bool[apps.Count];
 		Parallel.For(0, apps.Count, i => current[i] = Current(apps[i]));
 		return current.All(done => done);

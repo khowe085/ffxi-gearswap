@@ -59,6 +59,7 @@ What the tools take from outside the repo seldom changes, so it is checked in un
 | Path under `docs/` | What | Written by |
 |---|---|---|
 | `windower/` | Windower's `items.lua`, `item_descriptions.lua` and `spells.lua`: every item's id, jobs, slots and help text | `fetch-sources.cs`, from Windower/Resources at its branch head |
+| `windower/libs/` | The Windower libraries GearSwap and Sel load, which GearSwap's tests run on | `windower-libs.cs`, from Windower/Lua at `5a35aef` |
 | `wsdist/gear.py` | The item data of Kastra's damage simulator | `fetch-sources.cs`, from IzaKastra/wsdist_beta at `d12ac59` |
 | `wiki/rank-tables.json` | bg-wiki's rank-by-rank augment tables for the items in every character's newest export, with the day they were read, which `docs/rank-augments.md` prints | `rank-tables.cs` |
 | `wiki/simulated-sets/` | The wikitext of bg-wiki's simulated gear sets, one file a job | `simulated-sets.cs`, from IzaKastra/bg_job_guides at `f264ae4` |
@@ -80,6 +81,7 @@ wsdist_beta and bg_job_guides are pinned to the commits `docs/ffxi-mechanics.md`
 | `gear-list.cs` | Checks `<Character>_gear_list.md` against the character's sets files, one `--in` for each job, and reports a job the list has no column for. It reads only the tables under the `## <Slot> (<count>)` headings of the list. `--print` writes the table the sets call for, with a column for every job; `--json` writes findings. | After every change to a set. |
 | `set-stats.cs` | Totals each set's stats, laid over its base: help text, the copy's augments, a path piece's augments at the character's rank from `<Character>_rank_augments.md` (an item Oboro ranks up at its maximum rank only, from `docs/rank-augments.md`), and the extra values `--extra <stats.json>` gives for what none of those show. It warns of a piece the resources don't know, whose augments no exported copy has, or whose path's rank the player hasn't given, since those stats are missing. `--set` picks sets by regex; `--json` for another tool. | To compare two versions of a set, and to report how far a set is from a target. |
 | `simulated-sets.cs` | Writes bg-wiki's simulated sets into `docs/wiki/simulated-sets/`, one file a job, from IzaKastra/bg_job_guides at its pinned commit, over what is there. | When the bg_job_guides pin moves. |
+| `windower-libs.cs` | Writes the Windower libraries `lib/Sources.cs` lists into `docs/windower/libs/`, from Windower/Lua at its pinned commit, and drops one no longer listed. It writes nothing unless the commit has every one. | When the Windower/Lua pin moves, or GearSwap or Sel loads a library the list lacks. |
 | `sims.cs` | Shows bg-wiki's simulated sets for a job, from `docs/wiki/simulated-sets/`, marks what the character owns, and counts how often each piece fills a slot. | For a reference set to start from. |
 | `wsdist-gear.cs` | Looks an item up in wsdist's gear data, `docs/wsdist/gear.py`. `--check-nyame` compares its Nyame entries with `docs/rank-augments.md`; at the pinned commit it finds one difference, the Nyame Flanchard error `docs/ffxi-mechanics.md` lists, and so exits with 1. | For a second opinion on an item's stats, and to see which rank entries the simulator has. |
 | `wiki.cs` | Saves bg-wiki pages as wikitext into `docs/wiki/pages/`, many to a request, and adds their titles to `docs/wiki/page-titles.txt`. A page already saved is left alone unless `--refresh` is given. | Before relying on a mechanic or an item detail the docs don't cover. |
@@ -152,12 +154,12 @@ dotnet run .claude/gear.cs -- test
 |---|---|---|
 | `tools` | Every tool's build brought up to date, then `tests/run-tests.cs`: the shared code and each tool, on a small made-up character | The tools' source (each tool's file, `lib/` and `Directory.Build.props`), `tests/` and the launcher |
 | `data` | The tools' checks of each character, a folder under `data/` with its notes or gear list: `sel-sets.cs` on each of its gear files, then `check-export.cs` on each sets file, `check-blu-spells.cs` on the BLU one, `gear-list.cs` on them all, and `doc-lint.cs`. Then `rank-doc --check` | `data/` and `docs/`, the outside data in it too, the launcher, which says what the checks are, and the builds it runs (see below) |
-| `gearswap` | No tests yet | |
+| `gearswap` | `tests/run-gearswap-tests.cs`: GearSwap's Lua tests in the repo's `tests/` (see `tests/README.md`), each spec file in a busted process of its own, side by side. They need Lua 5.1, LuaRocks and busted | GearSwap's Lua at the repo root, `libs/`, the Lua under `data/`, `docs/windower/libs/`, the repo's `tests/` and `.busted`, and the launcher |
 
 - The hash of a category's files when it last passed is kept in the checkout's `.claude/cache/passes`. A run that fails, one with `--filter`, or one during which the files changed keeps no pass.
 - A pass vouches for the builds it ran on, so a build made again clears every pass.
 - `--all` runs every category, and `test tools` (or `data`) runs that one whether or not it changed.
-- `test tools --filter gear-list` runs only the tools tests whose name holds the text.
+- `test tools --filter gear-list` runs only the tools tests whose name holds the text, and `test gearswap --filter <text>` the GearSwap tests'.
 - Exit code 0 when every category that ran passed, 1 when one failed, 2 for an option or a category it doesn't know, or a `--filter` no test's name holds.
 
 `tests/run-tests.cs` runs against Testy, whose repository is `tests/fixture/repo/`: its export, notes and gear list, a small Sel gear file (`data/Testy/Testy_Blu_Gear.lua`), sets files under `sets/`, clean and with mistakes put in, and small copies of the outside data under `docs/`. The tests never read the real data and never use the network.
