@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 namespace GearTools;
 
 // bg-wiki's simulated gear sets (All Jobs Gear Sets), read from the wikitext IzaKastra/bg_job_guides keeps for
-// each job. fetch-sources.cs puts that repo in the cache.
+// each job. Sources fetches that repo into the cache when it lacks it.
 static class Sims
 {
 	// The slots of an Equipment Set template, in the order the wiki draws them.
@@ -26,9 +26,10 @@ static class Sims
 	// Every simulated set on a job's page. One set name usually has several, one for each buff level.
 	public static List<SimSet> Load(string job)
 	{
+		Sources.FillRepo("bg_job_guides");
 		var path = Tool.InCache("bg_job_guides", job.ToLowerInvariant() + ".md");
 		if (File.Exists(path) is false)
-			Tool.Fail($"No simulated sets for {job} in .claude/cache/bg_job_guides. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
+			Tool.Fail($"No simulated sets for {job} in .claude/cache/bg_job_guides.");
 		var sets = new List<SimSet>();
 		var section = "";
 		var setName = "";

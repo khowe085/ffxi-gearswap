@@ -9,8 +9,8 @@ using System.Text.RegularExpressions;
 
 namespace GearTools;
 
-// Windower's resource files, which fetch-sources.cs puts in the cache. They hold what //gs export leaves out:
-// each item's id, jobs, slots, level and help text.
+// Windower's resource files, which Sources fetches into the cache when it lacks them. They hold what //gs export
+// leaves out: each item's id, jobs, slots, level and help text.
 sealed class Resources
 {
 	// Indexed by the bit each job has in an item's jobs number. Bit 0 is unused.
@@ -34,10 +34,9 @@ sealed class Resources
 
 	public static Resources Load()
 	{
+		Sources.FillResources();
 		var itemsPath = Tool.InCache("res", "items.lua");
 		var descriptionsPath = Tool.InCache("res", "item_descriptions.lua");
-		if (File.Exists(itemsPath) is false || File.Exists(descriptionsPath) is false)
-			Tool.Fail("Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
 
 		var text = "(?:[^\"\\\\]|\\\\.)*";
 		var descriptionLine = new Regex("^\\s*\\[(\\d+)\\] = \\{id=\\d+,en=\"(" + text + ")\"");
@@ -73,21 +72,20 @@ sealed class Resources
 			}
 		}
 		if (byName.Count == 0)
-			Tool.Fail(".claude/cache/res/items.lua holds no weapon or armor. Fetch it again: dotnet run --no-cache .claude/tools/fetch-sources.cs -- --refresh");
+			Tool.Fail(".claude/cache/res/items.lua holds no weapon or armor. Fetch it again: dotnet run .claude/gear.cs -- fetch-sources --refresh");
 		return new Resources(byName);
 	}
 
 	public static List<string> BlueSpells()
 	{
+		Sources.FillResources();
 		var path = Tool.InCache("res", "spells.lua");
-		if (File.Exists(path) is false)
-			Tool.Fail("Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
 		var spells = File.ReadLines(path)
 			.Where(line => line.Contains("type=\"BlueMagic\""))
 			.Select(line => Unescape(Regex.Match(line, "\\ben=\"((?:[^\"\\\\]|\\\\.)*)\"").Groups[1].Value))
 			.ToList();
 		if (spells.Count == 0)
-			Tool.Fail(".claude/cache/res/spells.lua holds no blue spell. Fetch it again: dotnet run --no-cache .claude/tools/fetch-sources.cs -- --refresh");
+			Tool.Fail(".claude/cache/res/spells.lua holds no blue spell. Fetch it again: dotnet run .claude/gear.cs -- fetch-sources --refresh");
 		return spells;
 	}
 

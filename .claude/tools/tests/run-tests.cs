@@ -1383,11 +1383,11 @@ Test("a tool stops on a value it can't use: a character, an export, a slot, a jo
 	Stops(pristine.Run("owned-gear", "--slot", "bogus"), "bogus isn't a slot. Slots: main sub range ammo head neck ear body hands ring back waist legs feet");
 	Stops(pristine.Run("owned-gear", "--job", "XYZ"), "XYZ isn't a job. Jobs: WAR MNK");
 	Stops(pristine.Run("sims"), "Name the job: --job rdm");
-	Stops(pristine.Run("sims", "--job", "nope"), "No simulated sets for nope in .claude/cache/bg_job_guides. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
+	Stops(pristine.Run("sims", "--job", "nope"), "No simulated sets for nope in .claude/cache/bg_job_guides.");
 	Stops(pristine.Run("sims", "--job", "rdm", "--set", "zzzz"), "No set on the rdm page has \"zzzz\" in its name.");
 	Stops(pristine.Run("wsdist-gear"), "Give one regex to match item names against, or --check-nyame.");
 	Stops(pristine.Run("wsdist-gear", "nyame", "helm"), "Give one regex to match item names against, or --check-nyame.");
-	Stops(pristine.Run("wiki"), "Name at least one page: dotnet run --no-cache .claude/tools/wiki.cs -- \"Nyame Helm\"");
+	Stops(pristine.Run("wiki"), "Name at least one page: dotnet run .claude/gear.cs -- wiki \"Nyame Helm\"");
 	// With exports for two characters, a tool has to be told whose to read. A sets file says whose it is.
 	var two = NewSandbox();
 	File.Copy(Path.Combine(two.Repo, "data", "export", "Testy 2026-01-02 08-00-00.lua"), Path.Combine(two.Repo, "data", "export", "Ghost 2026-02-01 08-00-00.lua"));
@@ -1408,22 +1408,49 @@ Test("a tool stops when the file it checks isn't there or isn't named, or holds 
 	Stops(sandbox.Run("check-export"), "Name the sets file to check: --in <sets.json>");
 });
 
-Test("a tool that finds part of the cache missing names the command that fills it", () =>
+Test("a tool fetches the resource files the cache lacks before it reads them, and only those", () =>
+{
+	using var site = ResourceSite();
+	var sandbox = NewSandbox();
+	var spells = Path.Combine(sandbox.Cache, "res", "spells.lua");
+	var expected = File.ReadAllText(spells);
+	File.Delete(spells);
+	var run = sandbox.RunWithResources(site, "check-blu-spells", "--in", "sets/Testy_BLU.json");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "res/spells.lua: downloaded");
+	Contains(run.Output, "problems: 0");
+	Equal(expected, File.ReadAllText(spells));
+	Equal("/res/spells.lua", string.Join(" ", site.Requests));
+});
+
+Test("a tool stops when it can't fetch a resource file the cache lacks", () =>
+{
+	using var site = new StandInSite(request => new StandInReply(404, ""));
+	var sandbox = NewSandbox();
+	var items = Path.Combine(sandbox.Cache, "res", "items.lua");
+	File.Delete(items);
+	Stops(sandbox.RunWithResources(site, "owned-gear"), "res/items.lua: couldn't download it.");
+	True(File.Exists(items) is false, "A download that failed left res/items.lua behind");
+});
+
+Test("rank-doc names the command that reads bg-wiki's rank tables when the cache has none, since a tool doesn't fetch them on its own", () =>
 {
 	var sandbox = NewSandbox();
-	File.Delete(Path.Combine(sandbox.Cache, "res", "spells.lua"));
-	Stops(sandbox.Run("check-blu-spells"), "Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
-	File.Delete(Path.Combine(sandbox.Cache, "res", "items.lua"));
-	Stops(sandbox.Run("owned-gear"), "Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
 	Directory.Delete(Path.Combine(sandbox.Cache, "ranks"), true);
-	Stops(sandbox.Run("rank-doc", "--check"), "bg-wiki's rank tables aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/rank-tables.cs");
-	Directory.Delete(Path.Combine(sandbox.Cache, "wsdist_beta"), true);
-	Stops(sandbox.Run("wsdist-gear", "nyame"), "wsdist isn't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
-	// doc-lint goes on without the simulated sets, and says so.
-	Directory.Delete(Path.Combine(sandbox.Cache, "bg_job_guides"), true);
-	var lint = sandbox.Run("doc-lint");
-	Equal(0, lint.ExitCode);
-	Contains(lint.Output, "Simulated sets not checked: .claude/cache/bg_job_guides is missing. Run fetch-sources.cs.");
+	Stops(sandbox.Run("rank-doc", "--check"), "bg-wiki's rank tables aren't in .claude/cache. Run: dotnet run .claude/gear.cs -- rank-tables");
+});
+
+Test("Sources.FillRepoFolder fetches a repository the cache lacks at its commit, and reads a folder put there without git as it is", () =>
+{
+	var source = NewGitRepo("source-three");
+	var fetched = Path.Combine(workDir, "fill-three");
+	Contains(Sources.FillRepoFolder(fetched, source.Path, source.Commit), "fetched");
+	Equal("hello", File.ReadAllText(Path.Combine(fetched, "file.txt")).Trim());
+	var placed = Path.Combine(workDir, "placed-three");
+	Directory.CreateDirectory(placed);
+	File.WriteAllText(Path.Combine(placed, "file.txt"), "by hand\n");
+	Equal("put there by hand", Sources.FillRepoFolder(placed, source.Path, source.Commit));
+	Equal("by hand\n", File.ReadAllText(Path.Combine(placed, "file.txt")));
 });
 
 Test("a tool stops, and says what is missing, when the repository lacks a folder or a file it reads", () =>
@@ -2629,6 +2656,13 @@ void ForceDelete(string folder)
 	Directory.Delete(folder, true);
 }
 
+// Serves the fixture's resource files under /res/, as Windower's Resources repository serves them.
+StandInSite ResourceSite() => new StandInSite(request =>
+{
+	var file = Path.Combine(fixtureDir, "cache", "res", Path.GetFileName(request));
+	return request.StartsWith("/res/") && File.Exists(file) ? new StandInReply(200, File.ReadAllText(file).Replace("\r\n", "\n")) : new StandInReply(404, "");
+});
+
 // A small repository with one commit, to fetch from without the network.
 GitRepo NewGitRepo(string name)
 {
@@ -2760,6 +2794,9 @@ sealed class StandInSite : IDisposable
 {
 	public string Url { get; }
 
+	// The site's address with no path: http://127.0.0.1:<port>/.
+	public string Root { get; }
+
 	// The path and query of each request, unescaped, in the order they came.
 	public List<string> Requests { get; }
 
@@ -2773,7 +2810,8 @@ sealed class StandInSite : IDisposable
 		// Port 0 leaves the choice of a free port to the system.
 		listener = new TcpListener(IPAddress.Loopback, 0);
 		listener.Start();
-		Url = $"http://127.0.0.1:{((IPEndPoint)listener.LocalEndpoint).Port}/api.php";
+		Root = $"http://127.0.0.1:{((IPEndPoint)listener.LocalEndpoint).Port}/";
+		Url = Root + "api.php";
 		Task.Run(Serve);
 	}
 
@@ -2857,9 +2895,12 @@ sealed class Sandbox
 	public ToolRun Run(string tool, params string[] arguments) => Start(tool, arguments);
 
 	// Runs a tool with bg-wiki's API answered by a stand-in on this machine.
-	public ToolRun RunAgainst(StandInSite wiki, string tool, params string[] arguments) => Start(tool, arguments, wiki.Url);
+	public ToolRun RunAgainst(StandInSite wiki, string tool, params string[] arguments) => Start(tool, arguments, wiki: wiki.Url);
 
-	ToolRun Start(string tool, string[] arguments, string? wiki = null)
+	// Runs a tool with Windower's resource files served by a stand-in on this machine.
+	public ToolRun RunWithResources(StandInSite resources, string tool, params string[] arguments) => Start(tool, arguments, resources: resources.Root + "res/");
+
+	ToolRun Start(string tool, string[] arguments, string? wiki = null, string? resources = null)
 	{
 		var start = new ProcessStartInfo("dotnet") { WorkingDirectory = Repo, RedirectStandardOutput = true, RedirectStandardError = true };
 		start.ArgumentList.Add(builds[tool]);
@@ -2868,8 +2909,11 @@ sealed class Sandbox
 		start.Environment["GEAR_TOOLS_ROOT"] = Repo;
 		start.Environment["GEAR_TOOLS_CACHE"] = Cache;
 		if (wiki is not null)
-		{
 			start.Environment["GEAR_TOOLS_WIKI"] = wiki;
+		if (resources is not null)
+			start.Environment["GEAR_TOOLS_RESOURCES"] = resources;
+		if (wiki is not null || resources is not null)
+		{
 			// The stand-in is on this machine, so a proxy the user has set mustn't stand between.
 			start.Environment["no_proxy"] = "127.0.0.1";
 			start.Environment["NO_PROXY"] = "127.0.0.1";

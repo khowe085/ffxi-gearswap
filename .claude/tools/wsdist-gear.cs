@@ -20,9 +20,10 @@ using System.Text.RegularExpressions;
 using GearTools;
 
 var cli = new Arguments(args, [], ["--check-nyame"], takesWords: true);
+Sources.FillRepo("wsdist_beta");
 var gearPath = Tool.InCache("wsdist_beta", "gear.py");
 if (File.Exists(gearPath) is false)
-	Tool.Fail("wsdist isn't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
+	Tool.Fail(".claude/cache/wsdist_beta has no gear.py. Delete that folder, and the next run fetches it again.");
 
 var entries = new List<GearEntry>();
 var lines = File.ReadAllLines(gearPath);
@@ -33,7 +34,7 @@ for (var i = 0; i < lines.Length; i++)
 		entries.Add(new GearEntry(i + 1, entry.Groups[1].Value, Fields(entry.Groups[2].Value)));
 }
 if (entries.Count == 0)
-	Tool.Fail("gear.py in .claude/cache/wsdist_beta holds no item entry this tool can read. Delete that folder and run fetch-sources.cs again.");
+	Tool.Fail("gear.py in .claude/cache/wsdist_beta holds no item entry this tool can read. Delete that folder, and the next run fetches it again.");
 
 if (cli.Flag("--check-nyame"))
 	return CheckNyame();
@@ -131,7 +132,7 @@ int CheckNyame()
 	string? path = null;
 	var docPath = Tool.InRepo("docs", "rank-augments.md");
 	if (File.Exists(docPath) is false)
-		Tool.Fail("docs/rank-augments.md is missing. Write it with: dotnet run --no-cache .claude/tools/rank-doc.cs");
+		Tool.Fail("docs/rank-augments.md is missing. Write it with: dotnet run .claude/gear.cs -- rank-doc");
 	foreach (var line in File.ReadLines(docPath))
 	{
 		var heading = Regex.Match(line, @"^### (.+)$");

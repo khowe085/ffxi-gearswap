@@ -16,7 +16,7 @@ using GearTools;
 
 var cli = new Arguments(args, [], ["--refresh"], takesWords: true);
 if (cli.Words.Count == 0)
-	Tool.Fail("Name at least one page: dotnet run --no-cache .claude/tools/wiki.cs -- \"Nyame Helm\"");
+	Tool.Fail("Name at least one page: dotnet run .claude/gear.cs -- wiki \"Nyame Helm\"");
 var dir = Tool.InCache("wiki");
 Directory.CreateDirectory(dir);
 

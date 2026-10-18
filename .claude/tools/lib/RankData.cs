@@ -31,7 +31,7 @@ sealed class RankTables
 	public static RankTables Load()
 	{
 		if (File.Exists(FilePath) is false)
-			Tool.Fail("bg-wiki's rank tables aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/rank-tables.cs");
+			Tool.Fail("bg-wiki's rank tables aren't in .claude/cache. Run: dotnet run .claude/gear.cs -- rank-tables");
 		FileJson? file = null;
 		try
 		{
@@ -42,7 +42,7 @@ sealed class RankTables
 			// Stops below, as a file that holds nothing does.
 		}
 		if (file is null)
-			Tool.Fail("The rank tables in .claude/cache/ranks/ranks.json can't be read. Write them again: dotnet run --no-cache .claude/tools/rank-tables.cs");
+			Tool.Fail("The rank tables in .claude/cache/ranks/ranks.json can't be read. Write them again: dotnet run .claude/gear.cs -- rank-tables");
 		return new RankTables(file.Fetched, file.Items.Select(item => new RankedItem(item.Name, item.Title, item.RankMax,
 			item.Paths.Select(path => new RankPath(path.Path, path.Ranks.Select(row => new RankRow(row.Rank, row.Augments)).ToList())).ToList())).ToList());
 	}

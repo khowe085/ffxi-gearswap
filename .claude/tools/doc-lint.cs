@@ -153,11 +153,9 @@ foreach (var doc in docs.Where(doc => doc.Key.StartsWith("docs/")))
 }
 
 var wearable = export.Where(line => line.SlotKey != "item").ToList();
-var haveSets = Directory.Exists(Tool.InCache("bg_job_guides"));
-// Windower's item names, read once, and only when the simulated sets are there to hold the notes to.
+Sources.FillRepo("bg_job_guides");
+// Windower's item names, read once, and only when a check of the simulated sets needs them.
 Resources? itemNames = null;
-if (haveSets is false)
-	Console.WriteLine("Simulated sets not checked: .claude/cache/bg_job_guides is missing. Run fetch-sources.cs.");
 
 // The generic notes' entries: items, and a few headings that aren't items, such as the armor sets.
 var noted = new HashSet<string>();
@@ -189,8 +187,7 @@ if (docs.TryGetValue(notesPath, out var notes))
 	if (onSlips > 0)
 		Console.WriteLine($"No notes for {onSlips} pieces on storage slips. Read a piece's bg-wiki page before a set takes one.");
 
-	if (haveSets)
-		CheckSimulatedSetBullets(entries);
+	CheckSimulatedSetBullets(entries);
 }
 
 if (docs.TryGetValue(ownNotesPath, out var ownNotes))
@@ -201,8 +198,7 @@ if (docs.TryGetValue(ownNotesPath, out var ownNotes))
 		Problem($"{ownNotesPath}:{heading.Number}: {heading.Text[4..].Trim()} has an entry, but it is neither in the export nor an entry of {notesPath}");
 	// Reading the entries reports an item that has two.
 	Entries(ownNotesPath, ownNotes);
-	if (haveSets)
-		CheckPiecesLacking(ownNotes);
+	CheckPiecesLacking(ownNotes);
 }
 
 Console.WriteLine($"{docs.Count} docs, {docs.Values.Sum(lines => lines.Length)} lines; problems: {problems}");
