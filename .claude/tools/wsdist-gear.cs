@@ -2,8 +2,8 @@
 // produced bg-wiki's simulated sets). Use it as a second opinion on an item's stats, and to see which rank and path
 // entries the simulator has. docs/ffxi-mechanics.md lists where wsdist's formulas and item data are wrong.
 //
-//   dotnet run --no-cache .claude/tools/wsdist-gear.cs -- "<regex>"       entries whose Name or Name2 matches
-//   dotnet run --no-cache .claude/tools/wsdist-gear.cs -- --check-nyame   Nyame's entries against docs/rank-augments.md
+//   dotnet run .claude/gear.cs -- wsdist-gear "<regex>"       entries whose Name or Name2 matches
+//   dotnet run .claude/gear.cs -- wsdist-gear --check-nyame   Nyame's entries against docs/rank-augments.md
 //
 // It reads the one-line item dicts. Ambuscade capes and Linos are built by loops in gear.py (lines 440-447 and
 // 1159-1225) and aren't found here. Exit code 1 when --check-nyame finds a difference. At the pinned commit it

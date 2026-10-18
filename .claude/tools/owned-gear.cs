@@ -3,9 +3,9 @@
 // (lib/Dto.cs) given with --sets. This is the pool a set is chosen from. Gear stored on a storage slip is listed
 // too, under the bag name slip<N>.
 //
-//   dotnet run --no-cache .claude/tools/owned-gear.cs [-- --job RDM,BLU] [--slot legs] [--grep <regex>]
-//                                                       [--json | --findings] [--sets <sets.json> ...]
-//                                                       [--char <name>] [--export <path>]
+//   dotnet run .claude/gear.cs -- owned-gear [--job RDM,BLU] [--slot legs] [--grep <regex>]
+//                                            [--json | --findings] [--sets <sets.json> ...]
+//                                            [--char <name>] [--export <path>]
 //
 // --json writes the pieces, in the shape search-fast-recast.cs reads. --findings writes what the other checkers'
 // --json writes (lib/Dto.cs): here, each piece in the export that Windower's resources don't know as gear. The two

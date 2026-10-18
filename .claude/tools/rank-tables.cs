@@ -1,7 +1,7 @@
 // Reads bg-wiki's rank-by-rank augment tables ({{Augment Rank Table}}) for every item in the newest export of each
 // character, and saves them to .claude/cache/ranks/ranks.json for rank-doc.cs.
 //
-//   dotnet run --no-cache .claude/tools/rank-tables.cs
+//   dotnet run .claude/gear.cs -- rank-tables
 //
 // Run it after an export that adds a rank-augmented item, or to pick up a change on bg-wiki. It replaces the saved
 // tables and stamps them with today's date, which rank-doc.cs then prints as the day they were read.

@@ -4,8 +4,8 @@
 // has to come back from a porter moogle before a set can wear it. Each set's own slots are checked, so a piece a base
 // set wears is checked once, where that set names it.
 //
-//   dotnet run --no-cache .claude/tools/check-export.cs -- --in <sets.json> [--bags wardrobe,wardrobe2] [--json]
-//                                                         [--export <path>]
+//   dotnet run .claude/gear.cs -- check-export --in <sets.json> [--bags wardrobe,wardrobe2] [--json]
+//                                             [--export <path>]
 //
 // Without --export it reads the newest export of the sets file's character. The text output gives each problem once,
 // with every set and slot it is in; --json writes one finding for each set and slot instead.

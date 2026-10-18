@@ -2,10 +2,10 @@
 // pieces the character owns. The sets assume Odyssey gear at rank 30 and Nyame Path B at rank 25, so a piece owned
 // at a lower rank is worth less than its place in a set suggests (docs/ffxi-mechanics.md, Simulated sets).
 //
-//   dotnet run --no-cache .claude/tools/sims.cs -- --job rdm                        the sets on the page
-//   dotnet run --no-cache .claude/tools/sims.cs -- --job rdm --set "savage blade"   those sets, slot by slot
-//   dotnet run --no-cache .claude/tools/sims.cs -- --job rdm --counts [--set ...]   how often each piece fills a slot
-//   dotnet run --no-cache .claude/tools/sims.cs -- --job rdm --json                 everything, for another tool
+//   dotnet run .claude/gear.cs -- sims --job rdm                        the sets on the page
+//   dotnet run .claude/gear.cs -- sims --job rdm --set "savage blade"   those sets, slot by slot
+//   dotnet run .claude/gear.cs -- sims --job rdm --counts [--set ...]   how often each piece fills a slot
+//   dotnet run .claude/gear.cs -- sims --job rdm --json                 everything, for another tool
 //
 // --set matches any set whose name contains the text, ignoring case. Also takes --char <name> and --export <path>.
 using System;

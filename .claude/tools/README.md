@@ -4,17 +4,18 @@
 
 ## Running one
 
-From the repo root, with the .NET 10 SDK:
+From the repo root, with the .NET 10 SDK, through the launcher, `.claude/gear.cs`:
 
 ```bash
-dotnet run --no-cache .claude/tools/check-export.cs -- --in blu.json
+dotnet run .claude/gear.cs -- check-export --in blu.json
 ```
 
-- Options go after `--`. Each tool's opening comment lists its own.
-- Always pass `--no-cache`. Every tool also compiles the shared code in `lib/` (through `Directory.Build.props`), and `dotnet run` only rebuilds when the tool's own file changes. Without `--no-cache`, a tool built before an edit under `lib/` stops and says so, rather than run the old code.
+- After `--` comes the tool's name, without `.cs`, then its own options. Each tool's opening comment lists them.
+- The launcher builds a tool only when no build of its source is kept. Its source is its own file, `lib/` (every tool compiles the shared code there, through `Directory.Build.props`), `Directory.Build.props`, and the launcher itself, which says how it is built. Builds are kept by the content of that source in `~/.cache/ffxi-gearswap/builds` (`%LOCALAPPDATA%\ffxi-gearswap\builds` on Windows): an edit to any of it brings a new build, and every checkout with the same source shares one. A tool's builds unused for 30 days go when it is built again.
+- A tool started any other way, as with `dotnet run` on its own file, stops and says to use the launcher: `dotnet run` would go on using a build older than `lib/`.
 - A tool that takes a sets file reads the newest export of that file's character, by the date in the export's file name, unless `--export <path>` names another. The tools that take no sets file take `--char <name>` and `--export <path>`, and without them use the newest export and the character it is named for.
-- Exit code 0 means nothing wrong was found, 1 means the tool found a problem, 2 means it couldn't run (a bad option, a missing or unreadable file, an empty cache, a site it cannot reach).
-- Nothing is built into the repo: `dotnet run` keeps its output under the user's temp folder. Write sets files to a scratch folder, not into the repo.
+- Exit code 0 means nothing wrong was found, 1 means the tool found a problem, 2 means it couldn't run (a bad option, a missing or unreadable file, a site it cannot reach, or a tool the launcher doesn't know or can't build).
+- Nothing is built into the repo. Write sets files to a scratch folder, not into the repo.
 
 ## Sets files
 
@@ -49,7 +50,7 @@ All carry `"schemaVersion": 1`. The classes are in `lib/Dto.cs`; property names 
 
 ## The cache
 
-`.claude/cache/` is git-ignored. `fetch-sources.cs` fills it, and the tools that need it say so when it is empty.
+`.claude/cache/` is git-ignored, and each checkout has its own. A tool fetches what it reads the first time the cache lacks it, and says so on standard error: Windower's resource files, and the two pinned repos. bg-wiki's rank tables are the exception. They carry the day they were read, which `docs/rank-augments.md` prints, so only `rank-tables.cs` reads them, and the data checks ([Tests](#tests)) leave out `rank-doc.cs`'s check without them. `fetch-sources.cs -- --refresh` downloads the resources again.
 
 | Folder | What | From |
 |---|---|---|
@@ -65,7 +66,7 @@ The two repos are pinned to the commits `docs/ffxi-mechanics.md` cites file and 
 
 | Tool | What it does | Run it |
 |---|---|---|
-| `fetch-sources.cs` | Fills the cache: resources and the two pinned repos. `--refresh` fetches again. | Once on a new checkout, and after a game update for fresh resources. |
+| `fetch-sources.cs` | Fills the cache: resources and the two pinned repos. `--refresh` downloads the resources again. The other tools fetch what the cache lacks themselves. | After a game update, with `--refresh`, for fresh resources. |
 | `sel-sets.cs` | Reads a Selindrile gear file, `data/<Character>/<Character>_<Job>_Gear.lua`, into a sets file (`--out`, or standard output). Gear entries, blue magic lists and top-level sets also come from the files Sel loads first. What it can't follow it leaves out and notes, with exit code 1; so it does for a dropped set and a set defined twice in one file. A set defined again on itself (`sets.x = set_combine(sets.x, {...})`) is printed as information and leaves the exit code 0. `docs/frameworks/sel.md` says how it reads the file. | Before any check of a Sel character's sets, and again after the gear file changes. |
 | `owned-gear.cs` | Lists the weapons and armor in the export with slot, jobs, bag and help text, and with `--sets <sets.json>` (repeatable) the sets that already wear each piece. Filters: `--job`, `--slot`, `--grep`; `--json` for another tool; `--findings` for the export's pieces the resources don't know as gear. | To see what a slot can choose from, before picking a piece. |
 | `check-export.cs` | Checks every piece a sets file names: a real item, owned with those augments, wearable by the job, right for the slot, and in a bag GearSwap can equip from. `--bags wardrobe,wardrobe2` holds every piece to those bags. `--json` writes findings. | After every change to a set, and when a new export arrives. |
@@ -85,35 +86,35 @@ The two repos are pinned to the commits `docs/ffxi-mechanics.md` cites file and 
 A Sel character's BLU sets changed:
 
 ```bash
-dotnet run --no-cache .claude/tools/sel-sets.cs -- data/Vanar/Vanar_Blu_Gear.lua BLU --out <scratch>/blu.json
+dotnet run .claude/gear.cs -- sel-sets data/Vanar/Vanar_Blu_Gear.lua BLU --out <scratch>/blu.json
 ```
 
 ```bash
-dotnet run --no-cache .claude/tools/check-export.cs -- --in <scratch>/blu.json
+dotnet run .claude/gear.cs -- check-export --in <scratch>/blu.json
 ```
 
 ```bash
-dotnet run --no-cache .claude/tools/check-blu-spells.cs -- --in <scratch>/blu.json
+dotnet run .claude/gear.cs -- check-blu-spells --in <scratch>/blu.json
 ```
 
 ```bash
-dotnet run --no-cache .claude/tools/gear-list.cs -- --in <scratch>/blu.json --in <scratch>/rdm.json
+dotnet run .claude/gear.cs -- gear-list --in <scratch>/blu.json --in <scratch>/rdm.json
 ```
 
 What can RDM wear on its legs, and which pieces have Fast Cast:
 
 ```bash
-dotnet run --no-cache .claude/tools/owned-gear.cs -- --job RDM --slot legs --sets <scratch>/rdm.json
+dotnet run .claude/gear.cs -- owned-gear --job RDM --slot legs --sets <scratch>/rdm.json
 ```
 
 ```bash
-dotnet run --no-cache .claude/tools/owned-gear.cs -- --job RDM --grep "fast cast"
+dotnet run .claude/gear.cs -- owned-gear --job RDM --grep "fast cast"
 ```
 
 How a set's totals stand:
 
 ```bash
-dotnet run --no-cache .claude/tools/set-stats.cs -- --in <scratch>/blu.json --set "^precast\.FC" --extra <scratch>/extra.json
+dotnet run .claude/gear.cs -- set-stats --in <scratch>/blu.json --set "^precast\.FC" --extra <scratch>/extra.json
 ```
 
 A new export arrived: read each job's sets file again, run `check-export.cs` and `gear-list.cs`, fix what they report, then update the export named in the gear list's first sentence and in the root `README.md`. `gear-list.cs` says when the list's sentence still names an older export; nothing checks the root `README.md`. Then run `rank-tables.cs` and `rank-doc.cs` so the two rank documents follow the new export.
@@ -121,7 +122,7 @@ A new export arrived: read each job's sets file again, run `check-export.cs` and
 The player reported a rank: change its row in the Ranks table of `data/<Character>/<Character>_notes.md`, then
 
 ```bash
-dotnet run --no-cache .claude/tools/rank-doc.cs
+dotnet run .claude/gear.cs -- rank-doc
 ```
 
 ## What the checks rest on
@@ -134,24 +135,32 @@ dotnet run --no-cache .claude/tools/rank-doc.cs
 
 ## Tests
 
-`tests/run-tests.cs` checks the shared code and runs each tool against a small made-up character, Testy, whose repository and cache are under `tests/fixture/`: its export, notes and gear list, a small Sel gear file (`data/Testy/Testy_Blu_Gear.lua`), and sets files under `sets/`, clean and with mistakes put in. It never reads the real data and never uses the network.
+The repo's tests fall in three categories, and the launcher's `test` runs each one whose files changed since it last passed:
 
 ```bash
-dotnet run --no-cache .claude/tools/tests/run-tests.cs
+dotnet run .claude/gear.cs -- test
 ```
 
-```bash
-dotnet run --no-cache .claude/tools/tests/run-tests.cs -- gear-list
-```
+| Category | What runs | The files it rests on |
+|---|---|---|
+| `tools` | `tests/run-tests.cs`: the shared code, each tool and the launcher, on a small made-up character | The tools' source (each tool's file, `lib/` and `Directory.Build.props`), `tests/` and the launcher |
+| `data` | The tools' checks of each character, a folder under `data/` with its notes or gear list: `sel-sets.cs` on each of its gear files, then `check-export.cs` on each sets file, `check-blu-spells.cs` on the BLU one, `gear-list.cs` on them all, and `doc-lint.cs`. Then `rank-doc.cs -- --check`, when the checkout's cache has bg-wiki's rank tables | `data/`, `docs/`, the tools' source and the launcher, and the resources and rank tables in the checkout's cache |
+| `gearswap` | No tests yet | |
 
-- A word after `--` runs only the tests whose name contains it.
-- A test that needs a mistake copies the fixture to the temp folder, breaks the copy and runs the tool on it. Three environment variables point the tools at what a test made: `GEAR_TOOLS_ROOT` at its repository, `GEAR_TOOLS_CACHE` at its cache, and `GEAR_TOOLS_WIKI` at a stand-in for bg-wiki's API that the test runs on its own machine. Nothing else should set them.
-- The whole run takes about three minutes, because each tool run is a build.
+- A pass is kept under the hash of the category's files, beside the builds, so a checkout with the same files skips the category too. A run that fails, or one with `--filter`, keeps no pass.
+- `--all` runs every category, and `test tools` (or `data`) runs that one whether or not it changed.
+- `test tools --filter gear-list` runs only the tools tests whose name holds the text.
+- Exit code 0 when every category that ran passed, 1 when one failed, 2 for an option or a category it doesn't know.
+
+`tests/run-tests.cs` runs against Testy, whose repository and cache are under `tests/fixture/`: its export, notes and gear list, a small Sel gear file (`data/Testy/Testy_Blu_Gear.lua`), and sets files under `sets/`, clean and with mistakes put in. `clean/` holds a gear file and a gear list for BLU alone that the data checks find nothing wrong with. The tests never read the real data and never use the network.
+
+- The launcher builds every tool before the tests start and lists the builds in the file `GEAR_TOOLS_TEST_BUILDS` names, so a test that runs a tool starts its build. The tests run side by side, each on what it makes for itself. A run takes about ten seconds, most of it building what changed.
+- A test that needs a mistake copies the fixture to the temp folder, breaks the copy and runs the tool on it. Environment variables point the tools at what a test made: `GEAR_TOOLS_ROOT` at its repository (the launcher sets it for every tool it runs), `GEAR_TOOLS_CACHE` at its cache, and `GEAR_TOOLS_WIKI` and `GEAR_TOOLS_RESOURCES` at stand-ins for bg-wiki's API and Windower's resource files that the test runs on its own machine. `GEAR_TOOLS_BUILDS` and `GEAR_TOOLS_PASSES` give the launcher folders of the test's own for its builds and passes. Nothing else should set them.
 
 ## Adding or changing a tool
 
 - Start with a test in `tests/run-tests.cs` that fails for the reason the change is needed, with the fixture extended to show it.
-- A tool is one `.cs` file here, with top-level statements, starting with `Tool.Init()`. Code two tools need goes in `lib/`.
+- A tool is one `.cs` file here, with top-level statements. Code two tools need goes in `lib/`.
 - A checker takes sets files, not a framework's Lua. Support for another framework is a reader like `sel-sets.cs` that writes a SetsDto, and a page under `docs/frameworks/`.
 - Keep a tool's usage in its opening comment and its row in the table above.
-- `search-fast-recast.cs` is the exception to both: it must keep running as a lone copy, so it uses nothing from `lib/`.
+- `search-fast-recast.cs` must keep running as a lone copy, so it uses nothing from `lib/`.

@@ -39,8 +39,8 @@ var fixtureDir = Path.Combine(toolsDir, "tests", "fixture");
 var toolBuilds = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(buildsList))!;
 var workDir = Path.Combine(Path.GetTempPath(), "gear-tools-tests-" + Environment.ProcessId);
 var launcher = Path.Combine(repoDir, ".claude", "gear.cs");
-// The checkouts the launcher is run from, one folder for each checkout of this repository.
-var launcherDir = Path.Combine(Path.GetTempPath(), "gear-tools-launcher-" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(repoDir)))[..12].ToLowerInvariant());
+// The checkouts the launcher's tests make, in one folder for each checkout of this repository.
+var checkoutsDir = Path.Combine(Path.GetTempPath(), "gear-tools-checkouts-" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(repoDir)))[..12].ToLowerInvariant());
 
 // The shared code reads the repo and the cache named here, so set them before anything touches it.
 var pristine = NewSandbox();
@@ -2279,7 +2279,7 @@ Test("a tool started on its own, not through the launcher, stops and says how to
 
 Test("the launcher builds a tool once, and again only after the shared code changes", () =>
 {
-	var repo = NewTinyCheckout();
+	var repo = NewTinyCheckout("builds-once");
 	var builds = NewFolder("builds");
 	var first = Launch(repo, builds, "hello", "world");
 	Equal(0, first.ExitCode);
@@ -2294,15 +2294,22 @@ Test("the launcher builds a tool once, and again only after the shared code chan
 	Contains(changed.Output, "two world");
 });
 
-Test("the launcher builds a tool again when the tool's own file or Directory.Build.props changes", () =>
+Test("the launcher builds a tool again when the tool's own file changes", () =>
 {
-	var repo = NewTinyCheckout();
+	var repo = NewTinyCheckout("builds-again");
 	var builds = NewFolder("builds");
 	Contains(Launch(repo, builds, "hello").Output, "Building hello");
 	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "hello.cs"), "System.Console.WriteLine(Greeting.Text + \", \" + string.Join(\" \", args));\n");
 	var tool = Launch(repo, builds, "hello", "world");
 	Contains(tool.Output, "Building hello");
 	Contains(tool.Output, "one, world");
+});
+
+Test("the launcher builds a tool again when Directory.Build.props changes", () =>
+{
+	var repo = NewTinyCheckout("builds-props");
+	var builds = NewFolder("builds");
+	Contains(Launch(repo, builds, "hello").Output, "Building hello");
 	var props = Path.Combine(repo, ".claude", "tools", "Directory.Build.props");
 	File.WriteAllText(props, File.ReadAllText(props).Replace("</Project>", "  <PropertyGroup>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>"));
 	Contains(Launch(repo, builds, "hello").Output, "Building hello");
@@ -2310,7 +2317,7 @@ Test("the launcher builds a tool again when the tool's own file or Directory.Bui
 
 Test("the launcher stops with exit code 2 on a tool it doesn't know or that doesn't build, and keeps no build of it", () =>
 {
-	var repo = NewTinyCheckout();
+	var repo = NewTinyCheckout("stops");
 	var builds = NewFolder("builds");
 	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "broken.cs"), "System.Console.WriteLine(\"no semicolon\")\n");
 	Stops(Launch(repo, builds), "Usage: dotnet run .claude/gear.cs -- <tool> [<option>...]");
@@ -2323,12 +2330,12 @@ Test("the launcher stops with exit code 2 on a tool it doesn't know or that does
 
 Test("the launcher removes a tool's builds unused for 30 days when it builds the tool again", () =>
 {
-	var repo = NewTinyCheckout();
+	var repo = NewTinyCheckout("removes-unused");
 	var builds = NewFolder("builds");
 	Launch(repo, builds, "hello");
 	var used = Directory.GetDirectories(builds, "hello-*").Single();
-	var stale = Path.Combine(builds, "hello-stale");
-	var recent = Path.Combine(builds, "hello-recent");
+	var stale = Path.Combine(builds, "hello-" + new string('a', 32));
+	var recent = Path.Combine(builds, "hello-" + new string('b', 32));
 	Directory.CreateDirectory(stale);
 	Directory.CreateDirectory(recent);
 	Directory.SetLastWriteTimeUtc(stale, DateTime.UtcNow.AddDays(-31));
@@ -2342,11 +2349,22 @@ Test("the launcher removes a tool's builds unused for 30 days when it builds the
 	True(Directory.Exists(used), "The build used just before was removed");
 });
 
+Test("the launcher removes no build of another tool whose name starts with the one it builds", () =>
+{
+	var repo = NewTinyCheckout("removes-own");
+	var builds = NewFolder("builds");
+	var other = Path.Combine(builds, "hello-world-" + new string('a', 32));
+	Directory.CreateDirectory(other);
+	Directory.SetLastWriteTimeUtc(other, DateTime.UtcNow.AddDays(-31));
+	Contains(Launch(repo, builds, "hello").Output, "Building hello");
+	True(Directory.Exists(other), "The launcher removed hello-world's build");
+});
+
 // ---------------------------------------------------------------- the launcher's test command
 
 Test("the launcher's test command runs each category whose files changed since it last passed, and skips the others", () =>
 {
-	var repo = NewTinyCheckout();
+	var repo = NewTinyCheckout("test-changed");
 	AddStandInSuite(repo);
 	var builds = NewFolder("builds");
 	var first = Launch(repo, builds, "test");
@@ -2360,6 +2378,10 @@ Test("the launcher's test command runs each category whose files changed since i
 	Contains(again.Output, "tools: no change since it last passed");
 	Contains(again.Output, "data: no change since it last passed");
 	True(again.Output.Contains("stand-in tests ran") is false, "The tools tests ran again:\n" + again.Output);
+	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "README.md"), "# Tools\n");
+	var readme = Launch(repo, builds, "test");
+	Contains(readme.Output, "tools: no change since it last passed");
+	Contains(readme.Output, "data: no change since it last passed");
 	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "tests", "notes.txt"), "Notes on the tests.\n");
 	var tools = Launch(repo, builds, "test");
 	Contains(tools.Output, "stand-in tests ran");
@@ -2378,7 +2400,7 @@ Test("the launcher's test command runs each category whose files changed since i
 
 Test("the launcher's test command runs every category with --all, and a category it is given whether or not it changed", () =>
 {
-	var repo = NewTinyCheckout();
+	var repo = NewTinyCheckout("test-all");
 	AddStandInSuite(repo);
 	var builds = NewFolder("builds");
 	Equal(0, Launch(repo, builds, "test").ExitCode);
@@ -2393,7 +2415,7 @@ Test("the launcher's test command runs every category with --all, and a category
 
 Test("the launcher's test command records no pass for a category that failed or ran with a filter", () =>
 {
-	var repo = NewTinyCheckout();
+	var repo = NewTinyCheckout("test-no-pass");
 	AddStandInSuite(repo);
 	var builds = NewFolder("builds");
 	File.WriteAllText(Path.Combine(repo, "fail"), "");
@@ -2416,7 +2438,7 @@ Test("the launcher's test command records no pass for a category that failed or 
 
 Test("the launcher's test command stops with exit code 2 on a category it doesn't know, and on a filter for anything but the tools tests", () =>
 {
-	var repo = NewTinyCheckout();
+	var repo = NewTinyCheckout("test-stops");
 	var builds = NewFolder("builds");
 	Stops(Launch(repo, builds, "test", "bogus"), "No test category named bogus. Categories: tools data gearswap");
 	Stops(Launch(repo, builds, "test", "data", "--filter", "x"), "--filter is for the tools tests alone: test tools --filter <text>");
@@ -2425,7 +2447,7 @@ Test("the launcher's test command stops with exit code 2 on a category it doesn'
 
 Test("the launcher's data checks read each gear file and check its sets, the gear list, the docs and the rank documents", () =>
 {
-	var repo = NewCleanCheckout();
+	var repo = NewCleanCheckout("data-clean");
 	var run = Launch(repo, null, "test", "data");
 	Equal(0, run.ExitCode);
 	Contains(run.Output, "data: sel-sets data/Testy/Testy_Blu_Gear.lua BLU --out Testy_BLU.json\n");
@@ -2439,8 +2461,7 @@ Test("the launcher's data checks read each gear file and check its sets, the gea
 
 Test("the launcher's data checks fail when a check finds a problem, and go on with the others", () =>
 {
-	var repo = NewFolder("checkout");
-	FillCheckout(repo);
+	var repo = NewCheckout("data-failing");
 	var run = Launch(repo, null, "test", "data");
 	Equal(1, run.ExitCode);
 	Contains(run.Output, "sets.Kiting: feet is gear.no_such_piece, which no file read defines, so the slot is left out");
@@ -2452,7 +2473,7 @@ Test("the launcher's data checks fail when a check finds a problem, and go on wi
 
 Test("the launcher's data checks leave out rank-doc --check when the checkout's cache has no rank tables, and say so", () =>
 {
-	var repo = NewCleanCheckout();
+	var repo = NewCleanCheckout("data-no-ranks");
 	File.Delete(Path.Combine(repo, ".claude", "cache", "ranks", "ranks.json"));
 	var run = Launch(repo, null, "test", "data");
 	Equal(0, run.ExitCode);
@@ -2462,7 +2483,7 @@ Test("the launcher's data checks leave out rank-doc --check when the checkout's 
 
 Test("the launcher's data checks run again when the rank tables or the resources in the checkout's cache change", () =>
 {
-	var repo = NewCleanCheckout();
+	var repo = NewCleanCheckout("data-cache-changes");
 	AddStandInSuite(repo);
 	Equal(0, Launch(repo, null, "test").ExitCode);
 	Contains(Launch(repo, null, "test").Output, "data: no change since it last passed");
@@ -2539,30 +2560,22 @@ string NewFolder(string name)
 	return folder;
 }
 
-// A checkout for the launcher to run from: the fixture's repository with its cache in .claude/cache, and copies of
-// the tools and of the launcher. dotnet keeps a build of the launcher for each path it is run from, so a checkout of
-// a given name is made in the same folder on every run.
-string NewCheckout(string name)
+// An empty folder for a checkout of the given name, and none for its passes. dotnet keeps a little for each path it
+// builds or runs an app from, so a checkout of a given name is made in the same folder on every run.
+string CheckoutFolder(string name)
 {
-	var repo = Path.Combine(launcherDir, name);
+	var repo = Path.Combine(checkoutsDir, name);
 	ForceDelete(repo);
 	ForceDelete(repo + ".passes");
-	FillCheckout(repo);
 	return repo;
 }
 
-// A checkout for the data checks, with a Testy whose files hold nothing for them to report: the overlay under
-// fixture/clean puts a gear file and a gear list for BLU alone over the fixture's.
-string NewCleanCheckout()
+// A checkout for the launcher to run from: the fixture's repository with its cache in .claude/cache, and copies of
+// the tools and of the launcher.
+string NewCheckout(string name)
 {
-	var repo = NewFolder("checkout");
-	FillCheckout(repo);
-	CopyFolder(Path.Combine(fixtureDir, "clean"), repo);
-	return repo;
-}
-
-void FillCheckout(string repo)
-{
+	var repo = CheckoutFolder(name);
+	CopyFolder(Path.Combine(fixtureDir, "repo"), repo);
 	CopyFolder(Path.Combine(fixtureDir, "repo"), repo);
 	CopyFolder(Path.Combine(fixtureDir, "cache"), Path.Combine(repo, ".claude", "cache"));
 	var tools = Path.Combine(repo, ".claude", "tools");
@@ -2571,12 +2584,22 @@ void FillCheckout(string repo)
 	foreach (var file in sources)
 		File.Copy(file, Path.Combine(tools, Path.GetRelativePath(toolsDir, file)));
 	File.Copy(launcher, Path.Combine(repo, ".claude", "gear.cs"));
+	return repo;
+}
+
+// A checkout for the data checks, with a Testy whose files hold nothing for them to report: the overlay under
+// fixture/clean puts a gear file and a gear list for BLU alone over the fixture's.
+string NewCleanCheckout(string name)
+{
+	var repo = NewCheckout(name);
+	CopyFolder(Path.Combine(fixtureDir, "clean"), repo);
+	return repo;
 }
 
 // A checkout whose tools are one small tool, hello.cs, and one file of shared code.
-string NewTinyCheckout()
+string NewTinyCheckout(string name)
 {
-	var repo = NewFolder("tiny");
+	var repo = CheckoutFolder(name);
 	var tools = Path.Combine(repo, ".claude", "tools");
 	Directory.CreateDirectory(Path.Combine(tools, "lib"));
 	File.WriteAllText(Path.Combine(tools, "Directory.Build.props"), "<Project>\n  <ItemGroup>\n    <Compile Include=\"$(MSBuildThisFileDirectory)lib/*.cs\" />\n  </ItemGroup>\n</Project>\n");

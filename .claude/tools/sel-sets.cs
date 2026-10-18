@@ -5,7 +5,7 @@
 // data/User/User-<JOB>.lua), for gear entries, blue magic lists and the sets assigned outside any function, then every
 // set in the gear file. A set_combine becomes a set with a base and the slots it puts over it.
 //
-//   dotnet run --no-cache .claude/tools/sel-sets.cs -- <gear file> <JOB> [--out <sets.json>]
+//   dotnet run .claude/gear.cs -- sel-sets <gear file> <JOB> [--out <sets.json>]
 //
 // Without --out the sets file goes to standard output. What the reader couldn't follow (a gear entry no file read
 // defines, a base no file read defines, a value it can't read), a set dropped by its parent's redefinition, and a set

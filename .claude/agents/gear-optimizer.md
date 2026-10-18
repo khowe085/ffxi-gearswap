@@ -69,15 +69,15 @@ When you read a page for something the docs lack and a later decision would need
 
 ## The tools
 
-Run them from the repository root. Always pass `--no-cache`; options go after `--`. Write every sets file you make to your scratchpad.
+Run them from the repository root, through the launcher: the tool's name without `.cs` after `--`, then its options. Write every sets file you make to your scratchpad.
 
 ```bash
-dotnet run --no-cache .claude/tools/owned-gear.cs -- --job RDM --slot legs --sets <scratch>/sets.json
+dotnet run .claude/gear.cs -- owned-gear --job RDM --slot legs --sets <scratch>/sets.json
 ```
 
 | Tool | Use it to |
 |---|---|
-| `fetch-sources.cs` | Fill `.claude/cache/` when another tool says it is empty. |
+| `fetch-sources.cs` | Download Windower's resources again after a game update, with `--refresh`. The other tools fetch what `.claude/cache/` lacks themselves. |
 | `owned-gear.cs` | See what a slot can choose from: every owned piece the job can wear, with bag and help text, and with `--sets` the sets that already wear it. `--grep` searches the help text, `--json` feeds a script. |
 | `check-export.cs` | Check a sets file against the export: each piece a real item, owned with those augments, wearable by the job, right for the slot, and in a bag GearSwap can equip from. Pass the request's `bags` as `--bags`. |
 | `set-stats.cs` | Total each set's stats over its base. It adds path pieces at the character's rank from the character's rank augments file itself, and an item Oboro ranks up at its maximum rank, so don't give those again. Give it what the help text hides with `--extra`: the values from `docs/gear-notes.md`. A path piece it warns of has no rank to count: ask the player for it. The totals behind every shortfall come from here. |
@@ -86,7 +86,7 @@ dotnet run --no-cache .claude/tools/owned-gear.cs -- --job RDM --slot legs --set
 | `sims.cs` | Read bg-wiki's simulated sets for a job as a starting point, with what the character owns marked. |
 | `wsdist-gear.cs` | Look an item up in the simulator's data, as a second opinion. |
 | `wiki.cs` | Save bg-wiki pages as wikitext under `.claude/cache/wiki/`, then read or grep them. Don't fetch bg-wiki page by page another way: it rate limits quickly. |
-| `rank-tables.cs`, `rank-doc.cs` | Regenerate `docs/rank-augments.md` and the character's rank augments file after a new export or a newly reported rank. `rank-doc.cs -- --check` says whether both are current. |
+| `rank-tables.cs`, `rank-doc.cs` | Regenerate `docs/rank-augments.md` and the character's rank augments file after a new export or a newly reported rank. `rank-doc --check` says whether both are current. |
 | `doc-lint.cs` | Check the docs and the character's own files after editing any of them. |
 | `search-fast-recast.cs` | The pattern for a set chosen by search. Copy it to your scratchpad and adapt it. |
 

@@ -1,6 +1,6 @@
 // Runs the gear tools in .claude/tools, and the repo's tests, from builds kept for the content of their source: an
-// app's own file, lib/ and Directory.Build.props. An app is built only when no build of that source is kept, so an
-// edit to any of them brings a new build, and every checkout with the same source shares one.
+// app's own file, lib/, Directory.Build.props and this launcher. An app is built only when no build of that source is
+// kept, so an edit to any of them brings a new build, and every checkout with the same source shares one.
 //
 //   dotnet run .claude/gear.cs -- <tool> [<option>...]
 //   dotnet run .claude/gear.cs -- test [--all] [<category>...] [--filter <text>]
@@ -153,22 +153,25 @@ sealed class TestCommand
 		return true;
 	}
 
-	// The files a category's result rests on. The tools tests run on a fixture of their own, so only the tools'
-	// folder counts for them. The data checks rest on the data and the docs they check, the tools' source, and what of
-	// the cache can differ between checkouts: Windower's resources and bg-wiki's rank tables.
+	// The files a category's result rests on. The tools tests run on a fixture of their own, so they rest on the
+	// tools' source and tests/ alone. The data checks rest on the data and the docs they check, the tools' source, and
+	// what of the cache can differ between checkouts: Windower's resources and bg-wiki's rank tables.
 	IEnumerable<string> Inputs(string category)
 	{
 		if (category == "tools")
-			return FilesUnder(toolsDir).Append(launcher);
+			return ToolSources().Concat(FilesUnder(Path.Combine(toolsDir, "tests")));
 		return FilesUnder(Path.Combine(repo, "data"))
 			.Concat(FilesUnder(Path.Combine(repo, "docs")))
-			.Concat(Directory.GetFiles(toolsDir, "*.cs"))
-			.Concat(FilesUnder(Path.Combine(toolsDir, "lib")))
-			.Concat(IfThere(Path.Combine(toolsDir, "Directory.Build.props")))
-			.Append(launcher)
+			.Concat(ToolSources())
 			.Concat(FilesUnder(Path.Combine(cache, "res")))
 			.Concat(IfThere(Path.Combine(cache, "ranks", "ranks.json")));
 	}
+
+	// Each tool's file, the shared code they compile, and this launcher, which builds them.
+	IEnumerable<string> ToolSources() => Directory.GetFiles(toolsDir, "*.cs")
+		.Concat(FilesUnder(Path.Combine(toolsDir, "lib")))
+		.Concat(IfThere(Path.Combine(toolsDir, "Directory.Build.props")))
+		.Append(launcher);
 
 	// Builds every tool and the tests, and runs the tests with a file that says where each tool's build is, so they
 	// run the tools without building them.
@@ -362,7 +365,9 @@ sealed class Builds
 	void RemoveUnused(string name, string kept)
 	{
 		var unused = DateTime.UtcNow.AddDays(-30);
-		foreach (var old in Directory.GetDirectories(folder, name + "-*").Where(dir => dir != kept && Directory.GetLastWriteTimeUtc(dir) < unused))
+		// The hash's length tells this app's builds from those of an app whose name starts with its own.
+		var build = new Regex("^" + Regex.Escape(name) + "-[0-9a-f]{32}$");
+		foreach (var old in Directory.GetDirectories(folder).Where(dir => dir != kept && build.IsMatch(Path.GetFileName(dir)) && Directory.GetLastWriteTimeUtc(dir) < unused))
 		{
 			try
 			{

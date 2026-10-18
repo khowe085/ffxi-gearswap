@@ -1,6 +1,6 @@
 // Saves bg-wiki pages as wikitext under .claude/cache/wiki, one file a page, to read or grep afterwards.
 //
-//   dotnet run --no-cache .claude/tools/wiki.cs -- [--refresh] "<Title>" ["<Title>" ...]
+//   dotnet run .claude/gear.cs -- wiki [--refresh] "<Title>" ["<Title>" ...]
 //
 // A title is the page name as in its URL or with spaces: "Nyame_Helm" or "Nyame Helm", "Category:Enspell".
 // A page already saved is left alone unless --refresh is given. Exit code 1 when a page doesn't exist.

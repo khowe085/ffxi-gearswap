@@ -1,7 +1,7 @@
 // Checks the docs after an edit: the ones under docs/ and its folders, which hold for any character, and a
 // character's own in data/<Character>/.
 //
-//   dotnet run --no-cache .claude/tools/doc-lint.cs [-- --char <name>] [--export <path>]
+//   dotnet run .claude/gear.cs -- doc-lint [--char <name>] [--export <path>]
 //
 // Every doc: links and anchors resolve, tables keep one column count and have a delimiter row and a blank line
 // above, no raw HTML-like tag or pair of tildes sits outside code (both change how the page renders), and every
