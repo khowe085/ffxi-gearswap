@@ -1,18 +1,16 @@
-// Tests for the tools in the folder above, and for the launcher, .claude/gear.cs, that builds and runs them. They run
-// against the small made-up character under fixture/ (Testy), never against the real data: the shared code is called
-// directly, and each tool is run as it is from the command line, pointed at a copy of the fixture, once as it stands
-// and once with mistakes put in that the tool has to report.
+// Tests for the tools in the folder above. They run against the small made-up character under fixture/ (Testy), never
+// against the real data: the shared code is called directly, and each tool is run as it is from the command line,
+// pointed at a copy of the fixture, once as it stands and once with mistakes put in that the tool has to report.
 //
 //   dotnet run .claude/gear.cs -- test tools [--filter <text>]
 //
-// The launcher builds every tool before the tests start and lists the builds in the file GEAR_TOOLS_TEST_BUILDS
-// names, so running a tool here starts its build rather than building it; GEAR_TOOLS_LAUNCHER names the launcher's
-// own build, which the launcher's tests start the same way. The tests run side by side, each on what it makes for
-// itself, the slowest first; the few that change what the others read run after them, one at a time. With --filter,
-// only the tests whose name holds the text run. Exit code 1 when a test fails. Nothing here uses the network: wiki.cs
-// and rank-tables.cs ask a stand-in for bg-wiki on this machine, Windower's resource files come from a stand-in too,
-// and the git sources are fetched from repositories made here. Cutting the network off to see a tool stop on a site it
-// can't reach isn't worth a test's time, so no test does, and none waits out bg-wiki's 429.
+// The launcher builds every tool again before the tests start, so running a tool here starts its build in the
+// checkout's .claude/cache/builds rather than building it. The tests run side by side, each on what it makes for
+// itself; the few that change what the others read run after them, one at a time. With --filter, only the tests whose
+// name holds the text run. Exit code 1 when a test fails. Nothing here uses the network: wiki.cs and rank-tables.cs ask
+// a stand-in for bg-wiki on this machine, Windower's resource files come from a stand-in too, and the git sources are
+// fetched from repositories made here. No test cuts the network off to see a tool stop on a site it can't reach, and
+// none waits out bg-wiki's 429.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -23,32 +21,24 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Text.Json;
 using GearTools;
 
-// The launcher runs the tests on the checkout GEAR_TOOLS_ROOT names. The build of the tests may have been made in
-// another checkout, so their own path says nothing about which.
-var repoDir = Environment.GetEnvironmentVariable("GEAR_TOOLS_ROOT");
-var buildsList = Environment.GetEnvironmentVariable("GEAR_TOOLS_TEST_BUILDS");
-var launcherBuild = Environment.GetEnvironmentVariable("GEAR_TOOLS_LAUNCHER");
-if (repoDir is null || buildsList is null || launcherBuild is null)
+var testsDir = AppContext.GetData("EntryPointFileDirectoryPath") as string ?? Path.Combine(Environment.CurrentDirectory, ".claude", "tools", "tests");
+var toolsDir = Path.GetFullPath(Path.Combine(testsDir, ".."));
+var fixtureDir = Path.Combine(testsDir, "fixture");
+var buildsDir = Path.GetFullPath(Path.Combine(toolsDir, "..", "cache", "builds"));
+var workDir = Path.Combine(Path.GetTempPath(), "gear-tools-tests-" + Environment.ProcessId);
+var unbuilt = Directory.GetFiles(toolsDir, "*.cs").Select(Path.GetFileNameWithoutExtension).Where(tool => File.Exists(Path.Combine(buildsDir, tool!, tool + ".dll")) is false).ToList();
+if (unbuilt.Count > 0)
 {
-	Console.Error.WriteLine("Run the tests with the launcher: dotnet run .claude/gear.cs -- test tools");
+	Console.Error.WriteLine($"No build of {string.Join(", ", unbuilt)}. Build the tools first: dotnet run .claude/gear.cs -- build");
 	return 2;
 }
-var toolsDir = Path.Combine(repoDir, ".claude", "tools");
-var fixtureDir = Path.Combine(toolsDir, "tests", "fixture");
-var toolBuilds = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(buildsList))!;
-var workDir = Path.Combine(Path.GetTempPath(), "gear-tools-tests-" + Environment.ProcessId);
-var launcher = Path.Combine(repoDir, ".claude", "gear.cs");
-// The checkouts the launcher's tests make, in one folder for each checkout of this repository.
-var checkoutsDir = Path.Combine(Path.GetTempPath(), "gear-tools-checkouts-" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(repoDir)))[..12].ToLowerInvariant());
 
-// The shared code reads the repo and the cache named here, so set them before anything touches it.
+// The shared code reads the repo named here, so set it before anything touches it.
 var pristine = NewSandbox();
 Environment.SetEnvironmentVariable("GEAR_TOOLS_ROOT", pristine.Repo);
-Environment.SetEnvironmentVariable("GEAR_TOOLS_CACHE", pristine.Cache);
 
 var tests = new List<KeyValuePair<string, Action>>();
 // The tests that change what the others read, which run after them, one at a time.
@@ -63,426 +53,6 @@ void TestAlone(string name, Action body)
 
 // The sets files Testy_gear_list.md is written from.
 string[] testySets = ["--in", "sets/Testy_BLU.json", "--in", "sets/Testy_RDM.json"];
-
-// ---------------------------------------------------------------- the launcher, .claude/gear.cs
-
-Test("the launcher runs a tool on its own checkout, from a build another checkout made, with the tool's arguments, output and exit code", () =>
-{
-	var builds = NewFolder("builds");
-	var first = NewCheckout("first");
-	var second = NewCheckout("second");
-	File.Copy(Path.Combine(second, "sets", "Testy_BLU_mistakes.json"), Path.Combine(second, "sets", "Testy_BLU.json"), true);
-	var clean = LaunchFrom(first, builds, "check-blu-spells", "--in", "sets/Testy_BLU.json");
-	Equal(0, clean.ExitCode);
-	Contains(clean.Output, "Building check-blu-spells");
-	Contains(clean.Output, "problems: 0");
-	var mistakes = LaunchFrom(second, builds, "check-blu-spells", "--in", "sets/Testy_BLU.json");
-	Equal(1, mistakes.ExitCode);
-	Contains(mistakes.Output, "Cocoon: in no list");
-	True(mistakes.Output.Contains("Building") is false, "The second checkout built the tool again:\n" + mistakes.Output);
-});
-
-Test("a tool started on its own, not through the launcher, stops and says how to run it", () =>
-{
-	var start = new ProcessStartInfo("dotnet") { WorkingDirectory = pristine.Repo, RedirectStandardOutput = true, RedirectStandardError = true };
-	start.ArgumentList.Add(toolBuilds["check-blu-spells"]);
-	start.ArgumentList.Add("--in");
-	start.ArgumentList.Add("sets/Testy_BLU.json");
-	start.Environment.Remove("GEAR_TOOLS_ROOT");
-	Stops(ToolRun.Of(start), "Run the tool with the launcher: dotnet run .claude/gear.cs -- check-blu-spells");
-});
-
-Test("the launcher builds a tool once, and again only after the shared code changes", () =>
-{
-	var repo = NewTinyCheckout("builds-once");
-	var builds = NewFolder("builds");
-	var first = Launch(repo, builds, "hello", "world");
-	Equal(0, first.ExitCode);
-	Contains(first.Output, "Building hello");
-	Contains(first.Output, "one world");
-	var again = Launch(repo, builds, "hello", "again");
-	Contains(again.Output, "one again");
-	True(again.Output.Contains("Building") is false, "The launcher built the tool again:\n" + again.Output);
-	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "lib", "Greeting.cs"), "static class Greeting\n{\n\tpublic const string Text = \"two\";\n}\n");
-	var changed = Launch(repo, builds, "hello", "world");
-	Contains(changed.Output, "Building hello");
-	Contains(changed.Output, "two world");
-});
-
-Test("the launcher builds a tool again when the tool's own file changes", () =>
-{
-	var repo = NewTinyCheckout("builds-again");
-	var builds = NewFolder("builds");
-	Contains(Launch(repo, builds, "hello").Output, "Building hello");
-	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "hello.cs"), "System.Console.WriteLine(Greeting.Text + \", \" + string.Join(\" \", args));\n");
-	var tool = Launch(repo, builds, "hello", "world");
-	Contains(tool.Output, "Building hello");
-	Contains(tool.Output, "one, world");
-});
-
-Test("the launcher builds a tool again when Directory.Build.props changes", () =>
-{
-	var repo = NewTinyCheckout("builds-props");
-	var builds = NewFolder("builds");
-	Contains(Launch(repo, builds, "hello").Output, "Building hello");
-	var props = Path.Combine(repo, ".claude", "tools", "Directory.Build.props");
-	File.WriteAllText(props, File.ReadAllText(props).Replace("</Project>", "  <PropertyGroup>\n    <Nullable>enable</Nullable>\n  </PropertyGroup>\n</Project>"));
-	Contains(Launch(repo, builds, "hello").Output, "Building hello");
-});
-
-Test("the launcher stops with exit code 2 on a tool it doesn't know or that doesn't build, and keeps no build of it", () =>
-{
-	var repo = NewTinyCheckout("stops");
-	AddStandInSuite(repo);
-	var builds = NewFolder("builds");
-	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "broken.cs"), "System.Console.WriteLine(\"no semicolon\")\n");
-	Stops(Launch(repo, builds), "Usage: dotnet run .claude/gear.cs -- <tool> [<option>...]");
-	Stops(Launch(repo, builds, "nope"), "No tool named nope in .claude/tools. Tools: broken hello");
-	Stops(Launch(repo, builds, "tests/run-tests"), "No tool named tests/run-tests in .claude/tools.");
-	var broken = Launch(repo, builds, "broken");
-	Stops(broken, "broken.cs doesn't build:");
-	Contains(broken.Output, "error CS1002");
-	Equal(0, Directory.GetDirectories(builds, "broken*").Length);
-});
-
-Test("the launcher builds a tool again when its kept build has lost its assembly", () =>
-{
-	var repo = NewTinyCheckout("builds-lost");
-	var builds = NewFolder("builds");
-	Launch(repo, builds, "hello");
-	File.Delete(Path.Combine(Directory.GetDirectories(builds, "hello-*").Single(), "hello.dll"));
-	var again = Launch(repo, builds, "hello", "world");
-	Contains(again.Output, "Building hello");
-	Contains(again.Output, "one world");
-});
-
-Test("the launcher keeps no build of a tool whose source changed while it was building", () =>
-{
-	var repo = NewTinyCheckout("builds-while-editing");
-	var builds = NewFolder("builds");
-	var tools = Path.Combine(repo, ".claude", "tools");
-	// A target that rewrites the shared code partway through the build, as an edit made then would.
-	File.WriteAllText(Path.Combine(tools, "Directory.Build.props"), """
-		<Project>
-		  <ItemGroup>
-		    <Compile Include="$(MSBuildThisFileDirectory)lib/*.cs" />
-		  </ItemGroup>
-		  <Target Name="EditWhileBuilding" BeforeTargets="CoreCompile" Condition="Exists('$(MSBuildThisFileDirectory)edit-while-building')">
-		    <WriteLinesToFile File="$(MSBuildThisFileDirectory)lib/Greeting.cs" Lines="static class Greeting { public const string Text = &quot;edited&quot;%3B }" Overwrite="true" />
-		  </Target>
-		</Project>
-		""");
-	File.WriteAllText(Path.Combine(tools, "edit-while-building"), "");
-	Stops(Launch(repo, builds, "hello"), "hello.cs changed while it was building");
-	Equal(0, Directory.GetDirectories(builds, "hello-*").Length);
-});
-
-Test("a change to the launcher builds the tools again and runs every category again", () =>
-{
-	var repo = NewTinyCheckout("launcher-changes");
-	AddStandInSuite(repo);
-	var copy = Path.Combine(repo, ".claude", "gear.cs");
-	File.Copy(launcher, copy);
-	var builds = NewFolder("builds");
-	Equal(0, LaunchFrom(repo, builds, "test").ExitCode);
-	Contains(LaunchFrom(repo, builds, "test").Output, "tools: no change since it last passed");
-	File.AppendAllText(copy, "// A change to the launcher.\n");
-	var changed = LaunchFrom(repo, builds, "test");
-	Contains(changed.Output, "Building hello");
-	Contains(changed.Output, "stand-in tests ran");
-	Contains(changed.Output, "data: passed");
-});
-
-Test("the launcher removes a tool's builds unused for 30 days when it builds the tool again", () =>
-{
-	var repo = NewTinyCheckout("removes-unused");
-	var builds = NewFolder("builds");
-	Launch(repo, builds, "hello");
-	var used = Directory.GetDirectories(builds, "hello-*").Single();
-	var stale = Path.Combine(builds, "hello-" + new string('a', 32));
-	var recent = Path.Combine(builds, "hello-" + new string('b', 32));
-	Directory.CreateDirectory(stale);
-	Directory.CreateDirectory(recent);
-	Directory.SetLastWriteTimeUtc(stale, DateTime.UtcNow.AddDays(-31));
-	Directory.SetLastWriteTimeUtc(recent, DateTime.UtcNow.AddDays(-29));
-	Directory.SetLastWriteTimeUtc(used, DateTime.UtcNow.AddDays(-31));
-	Launch(repo, builds, "hello");
-	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "lib", "Greeting.cs"), "static class Greeting\n{\n\tpublic const string Text = \"two\";\n}\n");
-	Contains(Launch(repo, builds, "hello").Output, "Building hello");
-	True(Directory.Exists(stale) is false, "The build unused for 31 days is still there");
-	True(Directory.Exists(recent), "The build unused for 29 days was removed");
-	True(Directory.Exists(used), "The build used just before was removed");
-});
-
-Test("the launcher removes no build of another tool whose name starts with the one it builds", () =>
-{
-	var repo = NewTinyCheckout("removes-own");
-	var builds = NewFolder("builds");
-	var other = Path.Combine(builds, "hello-world-" + new string('a', 32));
-	Directory.CreateDirectory(other);
-	Directory.SetLastWriteTimeUtc(other, DateTime.UtcNow.AddDays(-31));
-	Contains(Launch(repo, builds, "hello").Output, "Building hello");
-	True(Directory.Exists(other), "The launcher removed hello-world's build");
-});
-
-// ---------------------------------------------------------------- the launcher's test command
-
-Test("the launcher's test command runs each category whose files changed since it last passed, and skips the others", () =>
-{
-	var repo = NewTinyCheckout("test-changed");
-	AddStandInSuite(repo);
-	var builds = NewFolder("builds");
-	var first = Launch(repo, builds, "test");
-	Equal(0, first.ExitCode);
-	Contains(first.Output, "stand-in tests ran with [], builds of hello");
-	Contains(first.Output, "tools: passed");
-	Contains(first.Output, "data: passed");
-	Contains(first.Output, "gearswap: no tests yet");
-	var again = Launch(repo, builds, "test");
-	Equal(0, again.ExitCode);
-	Contains(again.Output, "tools: no change since it last passed");
-	Contains(again.Output, "data: no change since it last passed");
-	True(again.Output.Contains("stand-in tests ran") is false, "The tools tests ran again:\n" + again.Output);
-	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "README.md"), "# Tools\n");
-	var readme = Launch(repo, builds, "test");
-	Contains(readme.Output, "tools: no change since it last passed");
-	Contains(readme.Output, "data: no change since it last passed");
-	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "tests", "notes.txt"), "Notes on the tests.\n");
-	var tools = Launch(repo, builds, "test");
-	Contains(tools.Output, "stand-in tests ran");
-	Contains(tools.Output, "data: no change since it last passed");
-	Directory.CreateDirectory(Path.Combine(repo, "docs"));
-	File.WriteAllText(Path.Combine(repo, "docs", "notes.md"), "# Notes\n");
-	var data = Launch(repo, builds, "test");
-	Contains(data.Output, "tools: no change since it last passed");
-	Contains(data.Output, "data: passed");
-	// The data checks run the tools, so a change to a tool's source runs both.
-	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "hello.cs"), "System.Console.WriteLine(Greeting.Text);\n");
-	var source = Launch(repo, builds, "test");
-	Contains(source.Output, "stand-in tests ran");
-	Contains(source.Output, "data: passed");
-});
-
-Test("the launcher's test command runs every category with --all, and a category it is given whether or not it changed", () =>
-{
-	var repo = NewTinyCheckout("test-all");
-	AddStandInSuite(repo);
-	var builds = NewFolder("builds");
-	Equal(0, Launch(repo, builds, "test").ExitCode);
-	var all = Launch(repo, builds, "test", "--all");
-	Contains(all.Output, "stand-in tests ran");
-	Contains(all.Output, "data: passed");
-	Contains(all.Output, "gearswap: no tests yet");
-	var named = Launch(repo, builds, "test", "data");
-	Contains(named.Output, "data: passed");
-	True(named.Output.Contains("tools:") is false, "test data ran the tools tests too:\n" + named.Output);
-});
-
-Test("the launcher's test command records no pass for a category that failed or ran with a filter", () =>
-{
-	var repo = NewTinyCheckout("test-no-pass");
-	AddStandInSuite(repo);
-	var builds = NewFolder("builds");
-	File.WriteAllText(Path.Combine(repo, "fail"), "");
-	var failed = Launch(repo, builds, "test", "tools");
-	Equal(1, failed.ExitCode);
-	Contains(failed.Output, "tools: FAILED");
-	File.Delete(Path.Combine(repo, "fail"));
-	Contains(Launch(repo, builds, "test").Output, "stand-in tests ran");
-	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "tests", "notes.txt"), "Notes on the tests.\n");
-	var filtered = Launch(repo, builds, "test", "tools", "--filter", "gear-list");
-	Equal(0, filtered.ExitCode);
-	Contains(filtered.Output, "stand-in tests ran with [gear-list]");
-	Contains(Launch(repo, builds, "test").Output, "stand-in tests ran with []");
-	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "broken.cs"), "System.Console.WriteLine(\"no semicolon\")\n");
-	var broken = Launch(repo, builds, "test", "tools");
-	Equal(1, broken.ExitCode);
-	Contains(broken.Output, "broken.cs doesn't build:");
-	Contains(broken.Output, "tools: FAILED");
-});
-
-Test("the launcher's test command stops with exit code 2 on a category it doesn't know, and on a filter for anything but the tools tests", () =>
-{
-	var repo = NewTinyCheckout("test-stops");
-	var builds = NewFolder("builds");
-	Stops(Launch(repo, builds, "test", "bogus"), "No test category named bogus. Categories: tools data gearswap");
-	Stops(Launch(repo, builds, "test", "data", "--filter", "x"), "--filter is for the tools tests alone: test tools --filter <text>");
-	Stops(Launch(repo, builds, "test", "tools", "--filter"), "--filter needs the text to look for");
-});
-
-Test("the launcher's test command keeps no pass when the category's files change while it runs", () =>
-{
-	var repo = NewTinyCheckout("test-edited-while-running");
-	AddStandInSuite(repo);
-	var builds = NewFolder("builds");
-	File.WriteAllText(Path.Combine(repo, "edit-while-running"), "");
-	var first = Launch(repo, builds, "test", "tools");
-	Equal(0, first.ExitCode);
-	Contains(first.Output, "tools: passed");
-	Contains(first.Output, "tools: no pass kept, since its files changed while it ran");
-	File.Delete(Path.Combine(repo, "edit-while-running"));
-	Contains(Launch(repo, builds, "test").Output, "stand-in tests ran");
-});
-
-Test("the launcher's data checks read each gear file and check its sets, the gear list, the docs and the rank documents", () =>
-{
-	var repo = NewCleanCheckout("data-clean");
-	var run = Launch(repo, null, "test", "data");
-	Equal(0, run.ExitCode);
-	Contains(run.Output, "data: sel-sets data/Testy/Testy_Blu_Gear.lua BLU --out Testy_BLU.json\n");
-	Contains(run.Output, "data: check-export --in Testy_BLU.json\n");
-	Contains(run.Output, "data: check-blu-spells --in Testy_BLU.json\n");
-	Contains(run.Output, "data: gear-list --in Testy_BLU.json\n");
-	Contains(run.Output, "data: doc-lint --char Testy\n");
-	Contains(run.Output, "data: rank-doc --check\n");
-	Contains(run.Output, "data: passed");
-});
-
-Test("the launcher's data checks fail when a check finds a problem, and go on with the others", () =>
-{
-	var repo = NewCheckout("data-failing");
-	var run = Launch(repo, null, "test", "data");
-	Equal(1, run.ExitCode);
-	Contains(run.Output, "sets.Kiting: feet is gear.no_such_piece, which no file read defines, so the slot is left out");
-	Contains(run.Output, "data: check-export --in Testy_BLU.json\n");
-	Contains(run.Output, "The list has a RDM column, but no --in sets file is for RDM");
-	Contains(run.Output, "data: doc-lint --char Testy\n");
-	Contains(run.Output, "data: FAILED");
-});
-
-Test("the launcher's data checks leave out rank-doc --check when the checkout's cache has no rank tables, and say so", () =>
-{
-	var repo = NewCleanCheckout("data-no-ranks");
-	File.Delete(Path.Combine(repo, ".claude", "cache", "ranks", "ranks.json"));
-	var run = Launch(repo, null, "test", "data");
-	Equal(0, run.ExitCode);
-	Contains(run.Output, "data: rank-doc --check skipped: this checkout's cache has no bg-wiki rank tables (rank-tables reads them)");
-	True(run.Output.Contains("data: rank-doc --check\n") is false, "rank-doc --check ran:\n" + run.Output);
-});
-
-Test("the launcher's data checks run again when the rank tables or the resources in the checkout's cache change", () =>
-{
-	var repo = NewCleanCheckout("data-cache-changes");
-	AddStandInSuite(repo);
-	Equal(0, Launch(repo, null, "test").ExitCode);
-	Contains(Launch(repo, null, "test").Output, "data: no change since it last passed");
-	File.Delete(Path.Combine(repo, ".claude", "cache", "ranks", "ranks.json"));
-	Contains(Launch(repo, null, "test").Output, "data: rank-doc --check skipped");
-	File.AppendAllText(Path.Combine(repo, ".claude", "cache", "res", "items.lua"), "\n");
-	var resources = Launch(repo, null, "test");
-	Contains(resources.Output, "data: sel-sets");
-	Contains(resources.Output, "tools: no change since it last passed");
-});
-
-Test("the launcher's data checks keep their pass under the cache as they left it, with what they fetched into it", () =>
-{
-	using var site = ResourceSite();
-	var repo = NewCleanCheckout("data-fetched");
-	AddStandInSuite(repo);
-	File.Delete(Path.Combine(repo, ".claude", "cache", "res", "spells.lua"));
-	var first = LaunchWithResources(site, repo, "test");
-	Equal(0, first.ExitCode);
-	Contains(first.Output, "res/spells.lua: downloaded");
-	Contains(LaunchWithResources(site, repo, "test").Output, "data: no change since it last passed");
-});
-
-Test("the launcher's data checks run the same from a folder inside the checkout", () =>
-{
-	var repo = NewCleanCheckout("data-from-inside");
-	var start = LauncherStart(repo, "test", "data");
-	start.WorkingDirectory = Path.Combine(repo, "data", "Testy");
-	var run = RunLauncher(start, repo, null);
-	Equal(0, run.ExitCode);
-	Contains(run.Output, "data: passed");
-});
-
-Test("the launcher's data checks read only the files sel-sets reads as gear files", () =>
-{
-	var repo = NewCleanCheckout("data-gear-names");
-	File.Move(Path.Combine(repo, "data", "Testy", "Testy_Blu_Gear.lua"), Path.Combine(repo, "data", "Testy", "Testy_Blu_GEAR.lua"));
-	var run = Launch(repo, null, "test", "data");
-	Equal(0, run.ExitCode);
-	True(run.Output.Contains("Testy_Blu_GEAR.lua") is false, "The data checks read Testy_Blu_GEAR.lua:\n" + run.Output);
-});
-
-Test("the launcher's data checks check the blue magic lists of the BLU gear file alone, and read no gear file named for another character", () =>
-{
-	var repo = NewCheckout("data-gear-files");
-	var testy = Path.Combine(repo, "data", "Testy");
-	File.Copy(Path.Combine(testy, "Testy_Blu_Gear.lua"), Path.Combine(testy, "Testy_Rdm_Gear.lua"));
-	File.Copy(Path.Combine(testy, "Testy_Blu_Gear.lua"), Path.Combine(testy, "Other_Blu_Gear.lua"));
-	var run = Launch(repo, null, "test", "data");
-	Contains(run.Output, "data: check-blu-spells --in Testy_BLU.json\n");
-	Contains(run.Output, "data: check-export --in Testy_RDM.json\n");
-	True(run.Output.Contains("check-blu-spells --in Testy_RDM.json") is false, "The data checks checked RDM's blue magic lists:\n" + run.Output);
-	True(run.Output.Contains("Other_Blu_Gear.lua") is false, "The data checks read Other_Blu_Gear.lua:\n" + run.Output);
-});
-
-Test("the launcher tries to build a tool that doesn't build once in a run, however many checks need it", () =>
-{
-	var repo = NewTinyCheckout("builds-broken-once");
-	AddStandInSuite(repo);
-	var tools = Path.Combine(repo, ".claude", "tools");
-	File.WriteAllText(Path.Combine(tools, "lib", "Greeting.cs"), "static class Greeting\n{\n\tpublic const string Text = \"one\"\n}\n");
-	File.WriteAllText(Path.Combine(tools, "sel-sets.cs"), "System.Console.WriteLine(Greeting.Text);\n");
-	var testy = Path.Combine(repo, "data", "Testy");
-	Directory.CreateDirectory(testy);
-	File.WriteAllText(Path.Combine(testy, "Testy_notes.md"), "# Testy\n");
-	File.WriteAllText(Path.Combine(testy, "Testy_Blu_Gear.lua"), "");
-	File.WriteAllText(Path.Combine(testy, "Testy_Rdm_Gear.lua"), "");
-	var run = Launch(repo, NewFolder("builds"), "test");
-	Equal(1, run.ExitCode);
-	Equal(1, run.Output.Split("sel-sets.cs doesn't build").Length - 1);
-});
-
-Test("the launcher removes passes unused for 30 days when it keeps a new one", () =>
-{
-	var repo = NewTinyCheckout("removes-passes");
-	AddStandInSuite(repo);
-	var builds = NewFolder("builds");
-	Equal(0, Launch(repo, builds, "test").ExitCode);
-	var passes = repo + ".passes";
-	var used = Directory.GetFiles(passes);
-	var stale = Path.Combine(passes, "tools-" + new string('a', 32));
-	File.WriteAllText(stale, "");
-	foreach (var pass in used.Append(stale))
-		File.SetLastWriteTimeUtc(pass, DateTime.UtcNow.AddDays(-31));
-	Contains(Launch(repo, builds, "test").Output, "tools: no change since it last passed");
-	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "tests", "notes.txt"), "Notes on the tests.\n");
-	Contains(Launch(repo, builds, "test").Output, "tools: passed");
-	True(File.Exists(stale) is false, "The pass unused for 31 days is still there");
-	True(used.All(File.Exists), "A pass used just before was removed");
-});
-
-Test("two launchers that build the same tool at once make one build of it, and both run it", () =>
-{
-	var repo = NewTinyCheckout("builds-at-once");
-	var builds = NewFolder("builds");
-	string[] words = ["first", "second"];
-	var runs = words.AsParallel().AsOrdered().Select(word => Launch(repo, builds, "hello", word)).ToList();
-	Contains(runs[0].Output, "one first");
-	Contains(runs[1].Output, "one second");
-	Equal(1, runs.Sum(run => run.Output.Split("Building hello").Length - 1));
-	Equal(1, Directory.GetDirectories(builds, "hello-*").Length);
-});
-
-Test("fetch-sources fetches what the cache lacks, and Windower's resources again with --refresh", () =>
-{
-	using var site = ResourceSite();
-	var sandbox = NewSandbox();
-	File.Delete(Path.Combine(sandbox.Cache, "res", "items.lua"));
-	var missing = sandbox.RunWithResources(site, "fetch-sources");
-	Equal(0, missing.ExitCode);
-	Contains(missing.Output, "res/items.lua: downloaded");
-	Contains(missing.Output, "res/spells.lua: present (");
-	Contains(missing.Output, "wsdist_beta: put there by hand");
-	Contains(missing.Output, "bg_job_guides: put there by hand");
-	Equal("/res/items.lua", string.Join(" ", site.Requests));
-	var refresh = sandbox.RunWithResources(site, "fetch-sources", "--refresh");
-	Equal(0, refresh.ExitCode);
-	Contains(refresh.Output, "res/spells.lua: downloaded");
-	Equal(4, site.Requests.Count);
-});
 
 // ---------------------------------------------------------------- the shared code
 
@@ -1814,7 +1384,7 @@ Test("a tool stops on a value it can't use: a character, an export, a slot, a jo
 	Stops(pristine.Run("owned-gear", "--slot", "bogus"), "bogus isn't a slot. Slots: main sub range ammo head neck ear body hands ring back waist legs feet");
 	Stops(pristine.Run("owned-gear", "--job", "XYZ"), "XYZ isn't a job. Jobs: WAR MNK");
 	Stops(pristine.Run("sims"), "Name the job: --job rdm");
-	Stops(pristine.Run("sims", "--job", "nope"), "No simulated sets for nope in .claude/cache/bg_job_guides.");
+	Stops(pristine.Run("sims", "--job", "nope"), "No simulated sets for nope in docs/wiki/simulated-sets.");
 	Stops(pristine.Run("sims", "--job", "rdm", "--set", "zzzz"), "No set on the rdm page has \"zzzz\" in its name.");
 	Stops(pristine.Run("wsdist-gear"), "Give one regex to match item names against, or --check-nyame.");
 	Stops(pristine.Run("wsdist-gear", "nyame", "helm"), "Give one regex to match item names against, or --check-nyame.");
@@ -1839,95 +1409,97 @@ Test("a tool stops when the file it checks isn't there or isn't named, or holds 
 	Stops(sandbox.Run("check-export"), "Name the sets file to check: --in <sets.json>");
 });
 
-Test("a tool fetches the resource files the cache lacks before it reads them, and only those", () =>
+Test("a tool names the command that writes what docs/windower or docs/wsdist lacks", () =>
+{
+	var sandbox = NewSandbox();
+	File.Delete(Path.Combine(sandbox.Repo, "docs", "windower", "spells.lua"));
+	Stops(sandbox.Run("check-blu-spells", "--in", "sets/Testy_BLU.json"), "Windower's spells.lua isn't in docs/windower. Run: dotnet run .claude/gear.cs -- fetch-sources");
+	File.Delete(Path.Combine(sandbox.Repo, "docs", "windower", "items.lua"));
+	Stops(sandbox.Run("owned-gear"), "Windower's items.lua isn't in docs/windower. Run: dotnet run .claude/gear.cs -- fetch-sources");
+	File.Delete(Path.Combine(sandbox.Repo, "docs", "wsdist", "gear.py"));
+	Stops(sandbox.Run("wsdist-gear", "nyame"), "wsdist's gear.py isn't in docs/wsdist. Run: dotnet run .claude/gear.cs -- fetch-sources");
+});
+
+Test("fetch-sources writes Windower's resources into docs/windower, and wsdist's gear data at its pinned commit into docs/wsdist", () =>
 {
 	using var site = ResourceSite();
+	var fixtureDocs = Path.Combine(fixtureDir, "repo", "docs");
+	var wsdist = NewGitRepo("wsdist-for-docs", Path.Combine(fixtureDocs, "wsdist"));
 	var sandbox = NewSandbox();
-	var spells = Path.Combine(sandbox.Cache, "res", "spells.lua");
-	var expected = File.ReadAllText(spells);
-	File.Delete(spells);
-	var run = sandbox.RunWithResources(site, "check-blu-spells", "--in", "sets/Testy_BLU.json");
+	var windower = Path.Combine(sandbox.Repo, "docs", "windower");
+	foreach (var file in Directory.GetFiles(windower))
+		File.WriteAllText(file, "stale\n");
+	var gear = Path.Combine(sandbox.Repo, "docs", "wsdist", "gear.py");
+	File.WriteAllText(gear, "stale\n");
+	var run = sandbox.RunWithSources(site, wsdist, "fetch-sources");
 	Equal(0, run.ExitCode);
-	Contains(run.Output, "res/spells.lua: downloaded");
-	Contains(run.Output, "problems: 0");
-	Equal(expected, File.ReadAllText(spells));
-	Equal("/res/spells.lua", string.Join(" ", site.Requests));
+	Contains(run.Output, "docs/windower/items.lua: downloaded (");
+	Contains(run.Output, "docs/wsdist/gear.py: from wsdist_beta at " + wsdist.Commit[..7]);
+	string Text(string path) => File.ReadAllText(path).Replace("\r\n", "\n");
+	foreach (var file in Directory.GetFiles(windower))
+		Equal(Text(Path.Combine(fixtureDocs, "windower", Path.GetFileName(file))), Text(file));
+	Equal(Text(Path.Combine(fixtureDocs, "wsdist", "gear.py")), Text(gear));
+	Equal("/res/items.lua /res/item_descriptions.lua /res/spells.lua", string.Join(" ", site.Requests));
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
 });
 
-Test("a tool stops when it can't fetch a resource file the cache lacks", () =>
-{
-	using var site = new StandInSite(request => new StandInReply(404, ""));
-	var sandbox = NewSandbox();
-	var items = Path.Combine(sandbox.Cache, "res", "items.lua");
-	File.Delete(items);
-	Stops(sandbox.RunWithResources(site, "owned-gear"), "res/items.lua: couldn't download it.");
-	True(File.Exists(items) is false, "A download that failed left res/items.lua behind");
-});
-
-Test("rank-doc names the command that reads bg-wiki's rank tables when the cache has none, since a tool doesn't fetch them on its own", () =>
+Test("fetch-sources writes nothing unless it gets every file", () =>
 {
 	var sandbox = NewSandbox();
-	Directory.Delete(Path.Combine(sandbox.Cache, "ranks"), true);
-	Stops(sandbox.Run("rank-doc", "--check"), "bg-wiki's rank tables aren't in .claude/cache. Run: dotnet run .claude/gear.cs -- rank-tables");
+	string Docs() => string.Join("|", Directory.GetFiles(Path.Combine(sandbox.Repo, "docs"), "*", SearchOption.AllDirectories)
+		.Order(StringComparer.Ordinal)
+		.Select(file => Path.GetRelativePath(sandbox.Repo, file) + ":" + File.ReadAllText(file)));
+	var before = Docs();
+	using var noSpells = new StandInSite(request => request.EndsWith("/spells.lua") ? new StandInReply(404, "") : new StandInReply(200, "downloaded\n"));
+	var wsdist = NewGitRepo("wsdist-not-written", Path.Combine(fixtureDir, "repo", "docs", "wsdist"));
+	Stops(sandbox.RunWithSources(noSpells, wsdist, "fetch-sources"), "spells.lua: couldn't download it.");
+	Equal(before, Docs());
+	using var everyFile = new StandInSite(request => new StandInReply(200, "downloaded\n"));
+	var noGear = NewGitRepo("wsdist-without-gear");
+	Stops(sandbox.RunWithSources(everyFile, noGear, "fetch-sources"), "wsdist_beta has no gear.py at " + noGear.Commit[..7]);
+	Equal(before, Docs());
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
 });
 
-Test("Sources.FillRepoFolder fetches a repository the cache lacks at its commit, and reads a folder put there without git as it is", () =>
+Test("simulated-sets leaves no checkout behind when it stops", () =>
 {
-	var source = NewGitRepo("source-three");
-	var fetched = Path.Combine(workDir, "fill-three");
-	Contains(Sources.FillRepoFolder(fetched, source.Path, source.Commit), "fetched");
-	Equal("hello", File.ReadAllText(Path.Combine(fetched, "file.txt")).Trim());
-	var placed = Path.Combine(workDir, "placed-three");
-	Directory.CreateDirectory(placed);
-	File.WriteAllText(Path.Combine(placed, "file.txt"), "by hand\n");
-	Equal("put there by hand", Sources.FillRepoFolder(placed, source.Path, source.Commit));
-	Equal("by hand\n", File.ReadAllText(Path.Combine(placed, "file.txt")));
+	var upstream = Path.Combine(workDir, "bg-job-guides-without-jobs");
+	Directory.CreateDirectory(upstream);
+	File.WriteAllText(Path.Combine(upstream, "README.md"), "# Backups\n");
+	var guides = NewGitRepo("guides-without-jobs", upstream);
+	var sandbox = NewSandbox();
+	Stops(sandbox.RunWithRepo("bg_job_guides", guides, "simulated-sets"), "bg_job_guides has no job's page at " + guides.Commit[..7]);
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+	Stops(sandbox.RunWithoutGit("simulated-sets"), "bg_job_guides: couldn't run git");
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
 });
 
-Test("Sources.FillRepoFolder reads a repository it fetched once without git from then on", () =>
-{
-	var source = NewGitRepo("source-four");
-	var fetched = Path.Combine(workDir, "fill-four");
-	Contains(Sources.FillRepoFolder(fetched, source.Path, source.Commit), "fetched");
-	// Without its HEAD, git can't say which commit the folder holds.
-	File.Delete(Path.Combine(fetched, ".git", "HEAD"));
-	Contains(Sources.FillRepoFolder(fetched, source.Path, source.Commit), "present");
-});
-
-Test("Sources.FillRepoFolder fetches into an empty folder, as a fetch that failed can leave one", () =>
-{
-	var source = NewGitRepo("source-five");
-	var empty = Path.Combine(workDir, "fill-five");
-	Directory.CreateDirectory(empty);
-	Contains(Sources.FillRepoFolder(empty, source.Path, source.Commit), "fetched");
-	Equal("hello", File.ReadAllText(Path.Combine(empty, "file.txt")).Trim());
-});
-
-Test("doc-lint, sims and wsdist-gear fetch the pinned repository they read when the cache lacks it", () =>
-{
-	var guides = NewGitRepo("job guides", Path.Combine(fixtureDir, "cache", "bg_job_guides"));
-	var wsdist = NewGitRepo("wsdist", Path.Combine(fixtureDir, "cache", "wsdist_beta"));
-	(string Tool, string[] Arguments, string Pin, GitRepo Repo, string Output)[] runs =
-	[
-		("doc-lint", [], "bg_job_guides", guides, "problems: 0"),
-		("sims", ["--job", "rdm"], "bg_job_guides", guides, "Savage Blade: Mid buff (54330 damage)"),
-		("wsdist-gear", ["nyame helm r15"], "wsdist_beta", wsdist, "2 of 4 entries"),
-	];
-	foreach (var run in runs)
-	{
-		var sandbox = NewSandbox();
-		Directory.Delete(Path.Combine(sandbox.Cache, run.Pin), true);
-		var result = sandbox.RunWithRepo(run.Pin, run.Repo, run.Tool, run.Arguments);
-		Contains(result.Output, $"{run.Pin}: fetched");
-		Contains(result.Output, run.Output);
-	}
-});
-
-Test("a tool that has to fetch a pinned repository stops with exit code 2, and says why, when it can't run git", () =>
+Test("rank-doc names the command that reads bg-wiki's rank tables when docs/wiki has none", () =>
 {
 	var sandbox = NewSandbox();
-	Directory.Delete(Path.Combine(sandbox.Cache, "bg_job_guides"), true);
-	Stops(sandbox.RunWithoutGit("sims", "--job", "rdm"), "bg_job_guides: couldn't run git");
+	File.Delete(Path.Combine(sandbox.Repo, "docs", "wiki", "rank-tables.json"));
+	Stops(sandbox.Run("rank-doc", "--check"), "bg-wiki's rank tables aren't in docs/wiki. Run: dotnet run .claude/gear.cs -- rank-tables");
+});
+
+Test("simulated-sets writes each job's simulated sets from bg_job_guides at its commit into docs/wiki, and drops a job's that is gone", () =>
+{
+	// The repository keeps a page for each job, named for it, and a README and a main page beside them.
+	var upstream = Path.Combine(workDir, "bg-job-guides-upstream");
+	Directory.CreateDirectory(upstream);
+	File.WriteAllText(Path.Combine(upstream, "rdm.md"), "rdm sets\n");
+	File.WriteAllText(Path.Combine(upstream, "blu.md"), "blu sets\n");
+	File.WriteAllText(Path.Combine(upstream, "README.md"), "# Backups\n");
+	File.WriteAllText(Path.Combine(upstream, "main_page.md"), "All Jobs Gear Sets\n");
+	var guides = NewGitRepo("guides-for-docs", upstream);
+	var sandbox = NewSandbox();
+	var sets = Path.Combine(sandbox.Repo, "docs", "wiki", "simulated-sets");
+	Directory.CreateDirectory(sets);
+	File.WriteAllText(Path.Combine(sets, "war.txt"), "a job the repository no longer has");
+	var run = sandbox.RunWithRepo("bg_job_guides", guides, "simulated-sets");
+	Equal(0, run.ExitCode);
+	Equal("blu.txt rdm.txt", string.Join(" ", Directory.GetFiles(sets).Select(Path.GetFileName).Order(StringComparer.Ordinal)));
+	Equal("rdm sets\n", File.ReadAllText(Path.Combine(sets, "rdm.txt")));
+	Contains(run.Output, "2 jobs' simulated sets from bg_job_guides at " + guides.Commit[..7]);
 });
 
 Test("a tool stops, and says what is missing, when the repository lacks a folder or a file it reads", () =>
@@ -1937,15 +1509,16 @@ Test("a tool stops, and says what is missing, when the repository lacks a folder
 	var export = noExports.Run("check-export", "--in", "sets/Testy_RDM.json");
 	Equal(2, export.ExitCode);
 	Contains(export.Output, "data/export holds no //gs export");
+	// The docs go, and what docs/wiki holds from bg-wiki stays.
 	var noDocs = NewSandbox();
-	Directory.Delete(Path.Combine(noDocs.Repo, "docs"), true);
+	foreach (var doc in Directory.GetFiles(Path.Combine(noDocs.Repo, "docs"), "*.md", SearchOption.AllDirectories))
+		File.Delete(doc);
 	var lint = noDocs.Run("doc-lint");
 	Equal(1, lint.ExitCode);
 	Contains(lint.Output, "link to a missing file, ../../docs/rank-augments.md");
 	var nyame = noDocs.Run("wsdist-gear", "--check-nyame");
 	Equal(2, nyame.ExitCode);
 	Contains(nyame.Output, "docs/rank-augments.md is missing");
-	// rank-doc makes the folder its document goes in.
 	Equal(0, noDocs.Run("rank-doc").ExitCode);
 	True(File.Exists(Path.Combine(noDocs.Repo, "docs", "rank-augments.md")), "rank-doc didn't write docs/rank-augments.md");
 });
@@ -1953,23 +1526,23 @@ Test("a tool stops, and says what is missing, when the repository lacks a folder
 Test("a tool stops when a file it reads holds nothing it can use", () =>
 {
 	var ranks = NewSandbox();
-	File.WriteAllText(Path.Combine(ranks.Cache, "ranks", "ranks.json"), "{ not json");
-	Stops(ranks.Run("rank-doc", "--check"), "ranks.json can't be read");
-	File.WriteAllText(Path.Combine(ranks.Cache, "ranks", "ranks.json"), "null");
-	Stops(ranks.Run("rank-doc", "--check"), "ranks.json can't be read");
+	File.WriteAllText(Path.Combine(ranks.Repo, "docs", "wiki", "rank-tables.json"), "{ not json");
+	Stops(ranks.Run("rank-doc", "--check"), "rank-tables.json can't be read");
+	File.WriteAllText(Path.Combine(ranks.Repo, "docs", "wiki", "rank-tables.json"), "null");
+	Stops(ranks.Run("rank-doc", "--check"), "rank-tables.json can't be read");
 	var items = NewSandbox();
-	File.WriteAllText(Path.Combine(items.Cache, "res", "items.lua"), "");
-	Stops(items.Run("owned-gear"), "res/items.lua holds no weapon or armor");
+	File.WriteAllText(Path.Combine(items.Repo, "docs", "windower", "items.lua"), "");
+	Stops(items.Run("owned-gear"), "docs/windower/items.lua holds no weapon or armor");
 	var spells = NewSandbox();
-	File.WriteAllText(Path.Combine(spells.Cache, "res", "spells.lua"), "");
-	Stops(spells.Run("check-blu-spells"), "res/spells.lua holds no blue spell");
+	File.WriteAllText(Path.Combine(spells.Repo, "docs", "windower", "spells.lua"), "");
+	Stops(spells.Run("check-blu-spells"), "docs/windower/spells.lua holds no blue spell");
 	var wsdist = NewSandbox();
-	File.WriteAllText(Path.Combine(wsdist.Cache, "wsdist_beta", "gear.py"), "Naegling = {\"Name\":\"Naegling\", \"DMG\":166}\n");
+	File.WriteAllText(Path.Combine(wsdist.Repo, "docs", "wsdist", "gear.py"), "Naegling = {\"Name\":\"Naegling\", \"DMG\":166}\n");
 	Stops(wsdist.Run("wsdist-gear", "--check-nyame"), "gear.py has no ranked Nyame entry");
-	File.WriteAllText(Path.Combine(wsdist.Cache, "wsdist_beta", "gear.py"), "");
-	Stops(wsdist.Run("wsdist-gear", "nyame"), "wsdist_beta holds no item entry");
+	File.WriteAllText(Path.Combine(wsdist.Repo, "docs", "wsdist", "gear.py"), "");
+	Stops(wsdist.Run("wsdist-gear", "nyame"), "docs/wsdist/gear.py holds no item entry");
 	var page = NewSandbox();
-	File.WriteAllText(Path.Combine(page.Cache, "bg_job_guides", "rdm.md"), "");
+	File.WriteAllText(Path.Combine(page.Repo, "docs", "wiki", "simulated-sets", "rdm.txt"), "");
 	Stops(page.Run("sims", "--job", "rdm"), "holds no simulated set");
 	var export = NewSandbox();
 	File.WriteAllText(Path.Combine(export.Repo, "data", "export", "Testy 2026-01-02 08-00-00.lua"), "garbage");
@@ -1993,20 +1566,24 @@ Test("wiki saves each page under the name it was asked by, says which it couldn'
 	var sandbox = NewSandbox();
 	var run = sandbox.RunAgainst(site, "wiki", "Nyame Helm", "Obstinate Sash", "Category:Enspell", "No Such Page");
 	Equal(1, run.ExitCode);
-	Contains(run.Output, "saved   ../cache/wiki/Nyame_Helm.txt (9 chars)\n");
-	Contains(run.Output, "saved   ../cache/wiki/Obstinate_Sash.txt (9 chars) (the page is \"Obstin. Sash\")");
-	Contains(run.Output, "saved   ../cache/wiki/Category_Enspell.txt (12 chars)");
+	Contains(run.Output, "saved   docs/wiki/pages/Nyame_Helm.txt (9 chars)\n");
+	Contains(run.Output, "saved   docs/wiki/pages/Obstinate_Sash.txt (9 chars) (the page is \"Obstin. Sash\")");
+	Contains(run.Output, "saved   docs/wiki/pages/Category_Enspell.txt (12 chars)");
 	Contains(run.Output, "MISSING No Such Page: bg-wiki has no page by that name");
-	Equal("sash text", File.ReadAllText(Path.Combine(sandbox.Cache, "wiki", "Obstinate_Sash.txt")));
+	var pages = Path.Combine(sandbox.Repo, "docs", "wiki", "pages");
+	Equal("sash text", File.ReadAllText(Path.Combine(pages, "Obstinate_Sash.txt")));
+	// The titles the pages were saved under, which their file names can't all be read back as.
+	Equal("Category:Enspell\nNyame Helm\nObstinate Sash\n", File.ReadAllText(Path.Combine(pages, "titles.txt")).Replace("\r", ""));
 	Equal(1, site.Requests.Count);
 	Contains(site.Requests[0], "titles=Nyame Helm|Obstinate Sash|Category:Enspell|No Such Page");
 	// A page already saved is asked for again only with --refresh.
 	var again = sandbox.RunAgainst(site, "wiki", "Category:Enspell");
 	Equal(0, again.ExitCode);
-	Contains(again.Output, "cached  ../cache/wiki/Category_Enspell.txt (12 bytes, from ");
+	Contains(again.Output, "cached  docs/wiki/pages/Category_Enspell.txt (12 bytes, from ");
 	Equal(1, site.Requests.Count);
 	Equal(0, sandbox.RunAgainst(site, "wiki", "--refresh", "Category:Enspell").ExitCode);
 	Equal(2, site.Requests.Count);
+	Equal("Category:Enspell\nNyame Helm\nObstinate Sash\n", File.ReadAllText(Path.Combine(pages, "titles.txt")).Replace("\r", ""));
 });
 
 Test("wiki stops when bg-wiki answers with an error, in HTTP or in its reply", () =>
@@ -2016,7 +1593,7 @@ Test("wiki stops when bg-wiki answers with an error, in HTTP or in its reply", (
 	Stops(sandbox.RunAgainst(busy, "wiki", "Nyame Helm"), "bg-wiki answered 503 for http://127.0.0.1:");
 	using var refusing = new StandInSite(request => new StandInReply(200, """{"error":{"code":"maxlag","info":"Waiting for a database server"}}"""));
 	Stops(sandbox.RunAgainst(refusing, "wiki", "Nyame Helm"), "bg-wiki's API answered with an error, maxlag: Waiting for a database server");
-	Equal(0, Directory.GetFiles(Path.Combine(sandbox.Cache, "wiki")).Length);
+	Equal(0, Directory.GetFiles(Path.Combine(sandbox.Repo, "docs", "wiki", "pages")).Length);
 });
 
 Test("rank-tables saves the rank table of every exported item whose page has one", () =>
@@ -2033,7 +1610,7 @@ Test("rank-tables saves the rank table of every exported item whose page has one
 	Contains(run.Output, "No bg-wiki page under the export's name for: Rumination Sash, Almace, Ammurapi Shield, ");
 	Equal(1, site.Requests.Count);
 	Contains(site.Requests[0], "titles=Rumination Sash|Naegling|Almace|");
-	var path = Path.Combine(sandbox.Cache, "ranks", "ranks.json");
+	var path = Path.Combine(sandbox.Repo, "docs", "wiki", "rank-tables.json");
 	using var saved = JsonDocument.Parse(File.ReadAllText(path));
 	Equal(DateTime.Today.ToString("yyyy-MM-dd"), saved.RootElement.GetProperty("Fetched").GetString());
 	var items = saved.RootElement.GetProperty("Items");
@@ -2584,7 +2161,7 @@ Test("doc-lint counts a pipe inside a code span as a cell, as the page does", ()
 Test("doc-lint knows an owned piece that a simulated set names by its long name", () =>
 {
 	var sandbox = NewSandbox();
-	var page = Path.Combine(sandbox.Cache, "bg_job_guides", "blu.md");
+	var page = Path.Combine(sandbox.Repo, "docs", "wiki", "simulated-sets", "blu.txt");
 	File.WriteAllText(page, File.ReadAllText(page).Replace("|Head = Nyame Helm", "|Head = Nyame Helm\n            |Hands = Hashishin Bazubands +3"));
 	var run = sandbox.Run("doc-lint");
 	Equal(1, run.ExitCode);
@@ -2661,7 +2238,7 @@ Test("wsdist-gear finds an item's entries, and checks Nyame's against the rank d
 	Equal(0, clean.ExitCode);
 	Contains(clean.Output, "2 ranked Nyame entries checked; differences: 0");
 	var sandbox = NewSandbox();
-	File.WriteAllText(Path.Combine(sandbox.Cache, "wsdist_beta", "gear.py"), File.ReadAllText(Path.Combine(sandbox.Cache, "wsdist_beta", "gear.py")).Replace("\"Attack\":30+20", "\"Attack\":30+19"));
+	File.WriteAllText(Path.Combine(sandbox.Repo, "docs", "wsdist", "gear.py"), File.ReadAllText(Path.Combine(sandbox.Repo, "docs", "wsdist", "gear.py")).Replace("\"Attack\":30+20", "\"Attack\":30+19"));
 	var wrong = sandbox.Run("wsdist-gear", "--check-nyame");
 	Equal(1, wrong.ExitCode);
 	Contains(wrong.Output, "gear.py:8 Nyame Helm R15B: wsdist adds Attack 19, Ranged Attack 20, Weapon Skill Damage 7 | bg-wiki Attack 20, Ranged Attack 20, Weapon Skill Damage 7");
@@ -2671,7 +2248,7 @@ Test("wsdist-gear finds an item's entries, and checks Nyame's against the rank d
 Test("wsdist-gear --check-nyame says what it can't compare and what it can't read", () =>
 {
 	var sandbox = NewSandbox();
-	File.AppendAllText(Path.Combine(sandbox.Cache, "wsdist_beta", "gear.py"), "Nyame_Mail15B = {\"Name\":\"Nyame Mail\", \"Name2\":\"Nyame Mail R15B\", \"Rank\":15, \"Accuracy\":40}\n");
+	File.AppendAllText(Path.Combine(sandbox.Repo, "docs", "wsdist", "gear.py"), "Nyame_Mail15B = {\"Name\":\"Nyame Mail\", \"Name2\":\"Nyame Mail R15B\", \"Rank\":15, \"Accuracy\":40}\n");
 	sandbox.Edit("docs/rank-augments.md", "| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +7% |", "| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage up 7% |");
 	sandbox.Edit("docs/rank-augments.md", "| 15 | \"Mag. Atk. Bns.\"+20 | INT/MND/CHR+5 |", "| 15 | \"Mag. Atk. Bns.\"+20 | Enmity+5 |");
 	var run = sandbox.Run("wsdist-gear", "--check-nyame");
@@ -2730,6 +2307,13 @@ Test("search-fast-recast stops with its usage line on a --hidden file that isn't
 
 var filter = args.Length > 0 ? args[0] : "";
 var chosen = tests.Where(test => test.Key.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+// A filter that matches nothing is a mistake, not a run with nothing wrong.
+if (chosen.Count == 0)
+{
+	Console.Error.WriteLine($"No test's name holds \"{filter}\".");
+	RemoveWorkDir();
+	return 2;
+}
 // Each test works on what it makes for itself, so they run side by side. They wait on the tools they start, so they
 // run on threads of their own, which leaves the thread pool to the stand-in sites and the reads of the tools' output.
 var problems = new string?[chosen.Count];
@@ -2760,18 +2344,23 @@ for (var i = 0; i < chosen.Count; i++)
 	Console.WriteLine("     " + problems[i]!.Replace("\n", "\n     "));
 }
 var ran = chosen.Count;
-try
-{
-	ForceDelete(workDir);
-}
-catch (IOException)
-{
-	// A folder git or dotnet still holds open is left for the system to clear with the rest of the temp folder.
-}
+RemoveWorkDir();
 Console.WriteLine($"{ran - failed} of {ran} tests passed");
 return failed > 0 ? 1 : 0;
 
 // ---------------------------------------------------------------- helpers
+
+void RemoveWorkDir()
+{
+	try
+	{
+		ForceDelete(workDir);
+	}
+	catch (IOException)
+	{
+		// A folder git or dotnet still holds open is left for the system to clear with the rest of the temp folder.
+	}
+}
 
 // Runs one of the chosen tests, and keeps what went wrong and how long it took.
 void RunTest(int i)
@@ -2790,132 +2379,10 @@ void RunTest(int i)
 
 Sandbox NewSandbox()
 {
-	var sandbox = new Sandbox(Path.Combine(workDir, "sandbox-" + Guid.NewGuid().ToString("N")[..8]), toolBuilds);
+	var sandbox = new Sandbox(Path.Combine(workDir, "sandbox-" + Guid.NewGuid().ToString("N")[..8]), buildsDir);
 	CopyFolder(Path.Combine(fixtureDir, "repo"), sandbox.Repo);
-	CopyFolder(Path.Combine(fixtureDir, "cache"), sandbox.Cache);
+	Directory.CreateDirectory(sandbox.Temp);
 	return sandbox;
-}
-
-string NewFolder(string name)
-{
-	var folder = Path.Combine(workDir, name + "-" + Guid.NewGuid().ToString("N")[..8]);
-	Directory.CreateDirectory(folder);
-	return folder;
-}
-
-// An empty folder for a checkout of the given name, and none for its passes. dotnet keeps a little for each path it
-// builds or runs an app from, so a checkout of a given name is made in the same folder on every run.
-string CheckoutFolder(string name)
-{
-	var repo = Path.Combine(checkoutsDir, name);
-	ForceDelete(repo);
-	ForceDelete(repo + ".passes");
-	return repo;
-}
-
-// A checkout for the launcher to run from: the fixture's repository with its cache in .claude/cache, and copies of
-// the tools and of the launcher.
-string NewCheckout(string name)
-{
-	var repo = CheckoutFolder(name);
-	CopyFolder(Path.Combine(fixtureDir, "repo"), repo);
-	CopyFolder(Path.Combine(fixtureDir, "cache"), Path.Combine(repo, ".claude", "cache"));
-	var tools = Path.Combine(repo, ".claude", "tools");
-	Directory.CreateDirectory(Path.Combine(tools, "lib"));
-	var sources = Directory.GetFiles(toolsDir, "*.cs").Concat(Directory.GetFiles(Path.Combine(toolsDir, "lib"), "*.cs")).Append(Path.Combine(toolsDir, "Directory.Build.props"));
-	foreach (var file in sources)
-		File.Copy(file, Path.Combine(tools, Path.GetRelativePath(toolsDir, file)));
-	File.Copy(launcher, Path.Combine(repo, ".claude", "gear.cs"));
-	return repo;
-}
-
-// A checkout for the data checks, with a Testy whose files hold nothing for them to report: the overlay under
-// fixture/clean puts a gear file and a gear list for BLU alone over the fixture's.
-string NewCleanCheckout(string name)
-{
-	var repo = NewCheckout(name);
-	CopyFolder(Path.Combine(fixtureDir, "clean"), repo);
-	return repo;
-}
-
-// A checkout whose tools are one small tool, hello.cs, and one file of shared code.
-string NewTinyCheckout(string name)
-{
-	var repo = CheckoutFolder(name);
-	var tools = Path.Combine(repo, ".claude", "tools");
-	Directory.CreateDirectory(Path.Combine(tools, "lib"));
-	File.WriteAllText(Path.Combine(tools, "Directory.Build.props"), "<Project>\n  <ItemGroup>\n    <Compile Include=\"$(MSBuildThisFileDirectory)lib/*.cs\" />\n  </ItemGroup>\n</Project>\n");
-	File.WriteAllText(Path.Combine(tools, "lib", "Greeting.cs"), "static class Greeting\n{\n\tpublic const string Text = \"one\";\n}\n");
-	File.WriteAllText(Path.Combine(tools, "hello.cs"), "System.Console.WriteLine(Greeting.Text + \" \" + string.Join(\" \", args));\n");
-	return repo;
-}
-
-// Puts a stand-in for the tools tests in a checkout from NewTinyCheckout. It writes what it was given and the tools it
-// was given builds of, and passes unless the checkout holds a file named fail. When it holds one named
-// edit-while-running, it changes a file of the tools tests while it runs.
-void AddStandInSuite(string repo)
-{
-	var tests = Path.Combine(repo, ".claude", "tools", "tests");
-	Directory.CreateDirectory(tests);
-	File.WriteAllText(Path.Combine(tests, "run-tests.cs"), """
-		using System.Linq;
-		var root = System.Environment.GetEnvironmentVariable("GEAR_TOOLS_ROOT")!;
-		using var builds = System.Text.Json.JsonDocument.Parse(System.IO.File.ReadAllText(System.Environment.GetEnvironmentVariable("GEAR_TOOLS_TEST_BUILDS")!));
-		var names = builds.RootElement.EnumerateObject().Select(build => build.Name).Order();
-		System.Console.WriteLine($"stand-in tests ran with [{string.Join(" ", args)}], builds of {string.Join(" ", names)}");
-		if (System.IO.File.Exists(System.IO.Path.Combine(root, "edit-while-running")))
-			System.IO.File.AppendAllText(System.IO.Path.Combine(root, ".claude", "tools", "tests", "notes.txt"), "An edit made while the tests ran.\n");
-		return System.IO.File.Exists(System.IO.Path.Combine(root, "fail")) ? 1 : 0;
-		""");
-}
-
-// Runs this checkout's launcher, from the build of it that runs these tests, on the checkout given, which
-// GEAR_TOOLS_ROOT names. It keeps its builds in the folder given, or where the launcher that runs these tests keeps
-// them.
-ToolRun Launch(string repo, string? builds, params string[] arguments) => RunLauncher(LauncherStart(repo, arguments), repo, builds);
-
-// As Launch, with Windower's resource files served by a stand-in on this machine to the tools the launcher runs.
-ToolRun LaunchWithResources(StandInSite resources, string repo, params string[] arguments)
-{
-	var start = LauncherStart(repo, arguments);
-	start.Environment["GEAR_TOOLS_RESOURCES"] = resources.Root + "res/";
-	start.Environment["no_proxy"] = "127.0.0.1";
-	start.Environment["NO_PROXY"] = "127.0.0.1";
-	return RunLauncher(start, repo, null);
-}
-
-ProcessStartInfo LauncherStart(string repo, params string[] arguments)
-{
-	var start = new ProcessStartInfo("dotnet") { WorkingDirectory = repo, RedirectStandardOutput = true, RedirectStandardError = true };
-	start.ArgumentList.Add(launcherBuild);
-	foreach (var argument in arguments)
-		start.ArgumentList.Add(argument);
-	start.Environment["GEAR_TOOLS_ROOT"] = repo;
-	return start;
-}
-
-// Runs the launcher a checkout from NewCheckout holds, which finds the checkout from where it is, as it does when the
-// player runs it.
-ToolRun LaunchFrom(string repo, string builds, params string[] arguments)
-{
-	var start = new ProcessStartInfo("dotnet") { WorkingDirectory = repo, RedirectStandardOutput = true, RedirectStandardError = true };
-	start.ArgumentList.Add("run");
-	start.ArgumentList.Add(Path.Combine(repo, ".claude", "gear.cs"));
-	start.ArgumentList.Add("--");
-	foreach (var argument in arguments)
-		start.ArgumentList.Add(argument);
-	start.Environment.Remove("GEAR_TOOLS_ROOT");
-	return RunLauncher(start, repo, builds);
-}
-
-ToolRun RunLauncher(ProcessStartInfo start, string repo, string? builds)
-{
-	// The checkout's own .claude/cache.
-	start.Environment.Remove("GEAR_TOOLS_CACHE");
-	if (builds is not null)
-		start.Environment["GEAR_TOOLS_BUILDS"] = builds;
-	start.Environment["GEAR_TOOLS_PASSES"] = repo + ".passes";
-	return ToolRun.Of(start);
 }
 
 void CopyFolder(string from, string to)
@@ -2925,7 +2392,7 @@ void CopyFolder(string from, string to)
 		var target = Path.Combine(to, Path.GetRelativePath(from, file));
 		Directory.CreateDirectory(Path.GetDirectoryName(target)!);
 		// Git may check the fixture out with either line ending; the tests are written against "\n".
-		if (Path.GetExtension(file) is ".lua" or ".md" or ".py" or ".json")
+		if (Path.GetExtension(file) is ".lua" or ".md" or ".py" or ".json" or ".txt")
 		{
 			File.WriteAllText(target, File.ReadAllText(file).Replace("\r\n", "\n"));
 		}
@@ -2949,7 +2416,7 @@ void ForceDelete(string folder)
 // Serves the fixture's resource files under /res/, as Windower's Resources repository serves them.
 StandInSite ResourceSite() => new StandInSite(request =>
 {
-	var file = Path.Combine(fixtureDir, "cache", "res", Path.GetFileName(request));
+	var file = Path.Combine(fixtureDir, "repo", "docs", "windower", Path.GetFileName(request));
 	return request.StartsWith("/res/") && File.Exists(file) ? new StandInReply(200, File.ReadAllText(file).Replace("\r\n", "\n")) : new StandInReply(404, "");
 });
 
@@ -3161,20 +2628,21 @@ sealed class StandInReply
 	}
 }
 
-// A copy of the fixture for one test to read or to break: a small repository and the cache beside it.
+// A copy of the fixture for one test to read or to break: a small repository, and the temp folder of the tools it runs.
 sealed class Sandbox
 {
 	public string Repo { get; }
 
-	public string Cache { get; }
+	// The temp folder of every tool run here, where a test can see what a tool left behind.
+	public string Temp { get; }
 
-	// Each tool's build, by the tool's name.
-	IReadOnlyDictionary<string, string> builds;
+	// Where the launcher keeps a build of each tool, in a folder named for it.
+	string builds;
 
-	public Sandbox(string folder, IReadOnlyDictionary<string, string> builds)
+	public Sandbox(string folder, string builds)
 	{
 		Repo = Path.Combine(folder, "repo");
-		Cache = Path.Combine(folder, "cache");
+		Temp = Path.Combine(folder, "temp");
 		this.builds = builds;
 	}
 
@@ -3194,12 +2662,14 @@ sealed class Sandbox
 	// Runs a tool with bg-wiki's API answered by a stand-in on this machine.
 	public ToolRun RunAgainst(StandInSite wiki, string tool, params string[] arguments) => Start(tool, arguments, wiki: wiki.Url);
 
-	// Runs a tool with Windower's resource files served by a stand-in on this machine.
-	public ToolRun RunWithResources(StandInSite resources, string tool, params string[] arguments) => Start(tool, arguments, resources: resources.Root + "res/");
-
 	// Runs a tool with a pinned repository fetched from one made on this machine, at its commit.
 	public ToolRun RunWithRepo(string pin, GitRepo repo, string tool, params string[] arguments) =>
 		Start(tool, arguments, adjust: start => start.Environment["GEAR_TOOLS_REPO_" + pin.ToUpperInvariant()] = $"{repo.Path} {repo.Commit}");
+
+	// Runs a tool with Windower's resource files served by a stand-in, and wsdist_beta fetched from a repository made
+	// on this machine.
+	public ToolRun RunWithSources(StandInSite resources, GitRepo wsdist, string tool, params string[] arguments) =>
+		Start(tool, arguments, resources: resources.Root + "res/", adjust: start => start.Environment["GEAR_TOOLS_REPO_WSDIST_BETA"] = $"{wsdist.Path} {wsdist.Commit}");
 
 	// Runs a tool with nothing on its PATH, so it can't find git.
 	public ToolRun RunWithoutGit(string tool, params string[] arguments) => Start(tool, arguments, adjust: start =>
@@ -3211,11 +2681,13 @@ sealed class Sandbox
 	ToolRun Start(string tool, string[] arguments, string? wiki = null, string? resources = null, Action<ProcessStartInfo>? adjust = null)
 	{
 		var start = new ProcessStartInfo("dotnet") { WorkingDirectory = Repo, RedirectStandardOutput = true, RedirectStandardError = true };
-		start.ArgumentList.Add(builds[tool]);
+		start.ArgumentList.Add(Path.Combine(builds, tool, tool + ".dll"));
 		foreach (var argument in arguments)
 			start.ArgumentList.Add(argument);
 		start.Environment["GEAR_TOOLS_ROOT"] = Repo;
-		start.Environment["GEAR_TOOLS_CACHE"] = Cache;
+		start.Environment["TMPDIR"] = Temp;
+		start.Environment["TMP"] = Temp;
+		start.Environment["TEMP"] = Temp;
 		if (wiki is not null)
 			start.Environment["GEAR_TOOLS_WIKI"] = wiki;
 		if (resources is not null)

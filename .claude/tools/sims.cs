@@ -22,7 +22,7 @@ if (job is null)
 	Tool.Fail("Name the job: --job rdm");
 var sets = Sims.Load(job);
 if (sets.Count == 0)
-	Tool.Fail($"The {job} page in .claude/cache/bg_job_guides holds no simulated set.");
+	Tool.Fail($"The {job} page in docs/wiki/simulated-sets holds no simulated set.");
 var filter = cli.Option("--set");
 if (filter is not null)
 	sets = sets.Where(set => set.Name.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();

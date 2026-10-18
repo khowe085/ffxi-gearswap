@@ -8,7 +8,7 @@
 // code fence is closed.
 // docs/: no doc names a character, since what holds for one character goes in that character's folder.
 // docs/gear-notes.md: no item has two entries, no item is both in a "No notes" list and given an entry, and every
-// "Simulated sets" bullet agrees with the sets in bg_job_guides.
+// "Simulated sets" bullet agrees with the sets in docs/wiki/simulated-sets.
 // <Character>_gear_notes.md: every entry is for a piece in the export or for an entry of docs/gear-notes.md, once,
 // and the table of pieces the simulated sets wear that the character lacks agrees with the sets.
 // Exit code 1 when it finds a problem.
@@ -153,7 +153,6 @@ foreach (var doc in docs.Where(doc => doc.Key.StartsWith("docs/")))
 }
 
 var wearable = export.Where(line => line.SlotKey != "item").ToList();
-Sources.FillRepo("bg_job_guides");
 // Windower's item names, read once, and only when a check of the simulated sets needs them.
 Resources? itemNames = null;
 

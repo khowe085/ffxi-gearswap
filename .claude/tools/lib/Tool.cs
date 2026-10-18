@@ -6,33 +6,28 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace GearTools;
 
-// What every tool in this folder shares: where the repo and the cache are, and how a tool stops.
+// What every tool in this folder shares: where the repo is, and how a tool stops.
 static class Tool
 {
 	public static string RepoRoot { get; }
 
-	public static string CacheDir { get; }
-
 	static Tool()
 	{
-		// The launcher (.claude/gear.cs) names the checkout to work on, since one build of a tool serves every checkout
-		// with the same source. A tool started any other way may be a build older than its source.
-		var root = Environment.GetEnvironmentVariable("GEAR_TOOLS_ROOT");
-		if (root is null)
-			Fail($"Run the tool with the launcher: dotnet run .claude/gear.cs -- {Assembly.GetEntryAssembly()?.GetName().Name}");
-		RepoRoot = root;
-		// The tests (tests/run-tests.cs) point the tools at a cache of their own.
-		CacheDir = Environment.GetEnvironmentVariable("GEAR_TOOLS_CACHE") ?? Path.Combine(RepoRoot, ".claude", "cache");
+		// A build doesn't sit beside its source, so the assembly's own path says nothing about the repo. dotnet passes
+		// the app's source folder here instead: this folder, or tests/ under it.
+		var entryDir = AppContext.GetData("EntryPointFileDirectoryPath") as string;
+		var tools = ToolsFolderFrom(entryDir, "") ?? ToolsFolderFrom(Environment.CurrentDirectory, Path.Combine(".claude", "tools"));
+		if (tools is null)
+			Fail("Can't find .claude/tools: run the tool from inside the repo.");
+		// The tests (tests/run-tests.cs) point the tools at a made-up repo with this variable.
+		RepoRoot = Environment.GetEnvironmentVariable("GEAR_TOOLS_ROOT") ?? Path.GetFullPath(Path.Combine(tools, "..", ".."));
 	}
 
 	public static string InRepo(params string[] parts) => Path.Combine([RepoRoot, .. parts]);
-
-	public static string InCache(params string[] parts) => Path.Combine([CacheDir, .. parts]);
 
 	// A path as the docs write it: relative to the repo, with forward slashes.
 	public static string RepoRelative(string path) => Path.GetRelativePath(RepoRoot, path).Replace('\\', '/');
@@ -57,6 +52,18 @@ static class Tool
 	{
 		Console.Error.WriteLine(message);
 		Environment.Exit(2);
+	}
+
+	// The tools folder, found by walking up from a folder: the first one that has lib/Tool.cs under the given path.
+	static string? ToolsFolderFrom(string? start, string below)
+	{
+		for (var dir = start is null ? null : new DirectoryInfo(start); dir is not null; dir = dir.Parent)
+		{
+			var candidate = Path.Combine(dir.FullName, below);
+			if (File.Exists(Path.Combine(candidate, "lib", "Tool.cs")))
+				return Path.GetFullPath(candidate);
+		}
+		return null;
 	}
 }
 

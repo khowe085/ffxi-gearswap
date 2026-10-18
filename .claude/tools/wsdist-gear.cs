@@ -1,5 +1,5 @@
-// Looks items up in wsdist's gear data, gear.py in .claude/cache/wsdist_beta (IzaKastra's damage simulator, which
-// produced bg-wiki's simulated sets). Use it as a second opinion on an item's stats, and to see which rank and path
+// Looks items up in wsdist's gear data, docs/wsdist/gear.py, which fetch-sources.cs copies from IzaKastra/wsdist_beta
+// (the damage simulator that produced bg-wiki's simulated sets). Use it as a second opinion on an item's stats, and to see which rank and path
 // entries the simulator has. docs/ffxi-mechanics.md lists where wsdist's formulas and item data are wrong.
 //
 //   dotnet run .claude/gear.cs -- wsdist-gear "<regex>"       entries whose Name or Name2 matches
@@ -20,10 +20,9 @@ using System.Text.RegularExpressions;
 using GearTools;
 
 var cli = new Arguments(args, [], ["--check-nyame"], takesWords: true);
-Sources.FillRepo("wsdist_beta");
-var gearPath = Tool.InCache("wsdist_beta", "gear.py");
+var gearPath = Tool.InRepo("docs", "wsdist", "gear.py");
 if (File.Exists(gearPath) is false)
-	Tool.Fail(".claude/cache/wsdist_beta has no gear.py. Delete that folder, and the next run fetches it again.");
+	Tool.Fail("wsdist's gear.py isn't in docs/wsdist. Run: dotnet run .claude/gear.cs -- fetch-sources");
 
 var entries = new List<GearEntry>();
 var lines = File.ReadAllLines(gearPath);
@@ -34,7 +33,7 @@ for (var i = 0; i < lines.Length; i++)
 		entries.Add(new GearEntry(i + 1, entry.Groups[1].Value, Fields(entry.Groups[2].Value)));
 }
 if (entries.Count == 0)
-	Tool.Fail("gear.py in .claude/cache/wsdist_beta holds no item entry this tool can read. Delete that folder, and the next run fetches it again.");
+	Tool.Fail("docs/wsdist/gear.py holds no item entry this tool can read. Write it again: dotnet run .claude/gear.cs -- fetch-sources");
 
 if (cli.Flag("--check-nyame"))
 	return CheckNyame();

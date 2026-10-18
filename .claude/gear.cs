@@ -1,21 +1,18 @@
-// Runs the gear tools in .claude/tools, and the repo's tests, from builds kept for the content of their source: an
-// app's own file, lib/, Directory.Build.props and this launcher. An app is built only when no build of that source is
-// kept, so an edit to any of them brings a new build, and every checkout with the same source shares one.
+// Runs the gear tools in .claude/tools, builds them, and runs the repo's tests.
 //
 //   dotnet run .claude/gear.cs -- <tool> [<option>...]
+//   dotnet run .claude/gear.cs -- build
 //   dotnet run .claude/gear.cs -- test [--all] [<category>...] [--filter <text>]
 //
-// <tool> is the tool's file name without .cs, as check-export, and the options after it are the tool's own. The tool
-// works on this checkout.
+// <tool> is the tool's file name without .cs, as check-export, and the options after it are the tool's own. A tool runs
+// from its build in this checkout's .claude/cache/builds, made the first time it runs. build makes every tool's build
+// again: run it after changing a tool, lib/ or Directory.Build.props, since a tool goes on running the build it has.
 //
-// test runs each category of tests whose files changed since it last passed, in this checkout or any other: tools
-// (tests/run-tests.cs, on the made-up character there), data (the tools' checks of each character's gear files and
-// docs), and gearswap. --all runs every category, and a category named runs whether or not it changed. --filter runs
-// only the tools tests whose name holds the text, and counts for no pass.
-//
-// Builds and passes are kept in ~/.cache/ffxi-gearswap (%LOCALAPPDATA%\ffxi-gearswap on Windows), and a tool's builds
-// unused for 30 days are removed when it is built again. GEAR_TOOLS_BUILDS and GEAR_TOOLS_PASSES keep them elsewhere,
-// for the tests.
+// test runs each category of tests whose files changed since it last passed in this checkout: tools (every tool built
+// again, then tests/run-tests.cs on the made-up character there), data (the tools' checks of each character's gear
+// files and docs), and gearswap. A pass vouches for the builds it ran on, so any build clears every pass. --all runs
+// every category, and a category named runs whether or not it changed. --filter runs only the tools tests whose name
+// holds the text, and counts for no pass.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -25,21 +22,23 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 
-var launcher = (string)AppContext.GetData("EntryPointFilePath")!;
-// The tests run the launcher on checkouts of their own, which GEAR_TOOLS_ROOT names.
-var repo = Environment.GetEnvironmentVariable("GEAR_TOOLS_ROOT") ?? Path.GetFullPath(Path.Combine(Path.GetDirectoryName(launcher)!, ".."));
+var repo = Path.GetFullPath(Path.Combine(Path.GetDirectoryName((string)AppContext.GetData("EntryPointFilePath")!)!, ".."));
 var toolsDir = Path.Combine(repo, ".claude", "tools");
-var builds = new Builds(Environment.GetEnvironmentVariable("GEAR_TOOLS_BUILDS") ?? Path.Combine(SharedFolder(), "builds"), toolsDir, launcher);
+var builds = new Builds(repo);
 
 if (args.Length == 0)
+{
 	return Stop("Usage: dotnet run .claude/gear.cs -- <tool> [<option>...]\n"
+		+ "       dotnet run .claude/gear.cs -- build\n"
 		+ "       dotnet run .claude/gear.cs -- test [--all] [<category>...] [--filter <text>]\n"
 		+ $"Tools: {ToolNames()}");
+}
+if (args[0] == "build")
+	return builds.BuildAll() ? 0 : 2;
 if (args[0] == "test")
-	return new TestCommand(repo, builds, Environment.GetEnvironmentVariable("GEAR_TOOLS_PASSES") ?? Path.Combine(SharedFolder(), "passes"), launcher).Run(args[1..]);
+	return new TestCommand(repo, builds).Run(args[1..]);
 var source = Path.Combine(toolsDir, args[0] + ".cs");
 // A name with a folder in it would reach past the tools, as tests/run-tests or ../gear would.
 if (args[0].IndexOfAny(['/', '\\']) >= 0 || File.Exists(source) is false)
@@ -47,7 +46,7 @@ if (args[0].IndexOfAny(['/', '\\']) >= 0 || File.Exists(source) is false)
 var assembly = builds.Get(source);
 if (assembly is null)
 	return 2;
-return Apps.Run(assembly, args[1..], repo);
+return Apps.Run(assembly, args[1..]);
 
 string ToolNames() => string.Join(" ", Directory.GetFiles(toolsDir, "*.cs").Select(Path.GetFileNameWithoutExtension).Order(StringComparer.Ordinal));
 
@@ -57,32 +56,22 @@ static int Stop(string message)
 	return 2;
 }
 
-// Kept for every checkout: ~/.cache/ffxi-gearswap, or %LOCALAPPDATA%\ffxi-gearswap on Windows.
-static string SharedFolder() => OperatingSystem.IsWindows()
-	? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ffxi-gearswap")
-	: Path.Combine(Environment.GetEnvironmentVariable("XDG_CACHE_HOME") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cache"), "ffxi-gearswap");
-
-// The test command. Each category runs when the files its result rests on changed since it last passed: a pass is
-// kept under the hash of those files, so a checkout with the same files doesn't run it again either.
+// The test command. Each category runs when the files its result rests on changed since it last passed: the hash of
+// those files when it last passed is kept in the checkout's .claude/cache/passes.
 sealed class TestCommand
 {
 	string repo;
 	string toolsDir;
-	string cache;
-	Builds builds;
 	string passes;
-	string launcher;
+	Builds builds;
 	string[] categories;
 
-	public TestCommand(string repo, Builds builds, string passes, string launcher)
+	public TestCommand(string repo, Builds builds)
 	{
 		this.repo = repo;
 		this.builds = builds;
-		this.passes = passes;
-		this.launcher = launcher;
 		toolsDir = Path.Combine(repo, ".claude", "tools");
-		// The tools find the cache the same way (lib/Tool.cs).
-		cache = Environment.GetEnvironmentVariable("GEAR_TOOLS_CACHE") ?? Path.Combine(repo, ".claude", "cache");
+		passes = Path.Combine(repo, ".claude", "cache", "passes");
 		categories = ["tools", "data", "gearswap"];
 	}
 
@@ -114,134 +103,78 @@ sealed class TestCommand
 		}
 		if (filter is not null && named.SequenceEqual(["tools"]) is false)
 			return Stop("--filter is for the tools tests alone: test tools --filter <text>");
-		var failed = false;
+		var outcome = 0;
 		foreach (var category in categories.Where(category => named.Count == 0 || named.Contains(category)))
-		{
-			if (Test(category, all || named.Count > 0, filter) is false)
-				failed = true;
-		}
-		return failed ? 1 : 0;
+			outcome = Math.Max(outcome, Test(category, all || named.Count > 0, filter));
+		return outcome;
 	}
 
-	// Runs a category, unless it passed with these files and isn't forced to run, and says how it went. False when it
-	// failed.
-	bool Test(string category, bool forced, string? filter)
+	// Runs a category, unless it passed with these files and isn't forced to run, and says how it went. The exit code:
+	// 1 when it failed, and 2 when it couldn't run, as for a --filter no test's name holds.
+	int Test(string category, bool forced, string? filter)
 	{
 		if (category == "gearswap")
 		{
 			Console.WriteLine("gearswap: no tests yet");
-			return true;
+			return 0;
 		}
-		var pass = PassOf(category);
-		if (forced is false && File.Exists(pass))
+		var pass = Path.Combine(passes, category);
+		var before = Hash(Inputs(category));
+		if (forced is false && File.Exists(pass) && File.ReadAllText(pass) == before)
 		{
-			// The pass's time is when it was last used, which decides when it is removed.
-			File.SetLastWriteTimeUtc(pass, DateTime.UtcNow);
 			Console.WriteLine($"{category}: no change since it last passed");
-			return true;
+			return 0;
 		}
-		var before = Hash(SourceInputs(category));
 		var watch = Stopwatch.StartNew();
-		if ((category == "tools" ? RunToolsTests(filter) : RunDataChecks()) is false)
-		{
+		var outcome = category == "tools" ? RunToolsTests(filter) : RunDataChecks() ? 0 : 1;
+		if (outcome == 1)
 			Console.WriteLine($"{category}: FAILED");
-			return false;
-		}
+		if (outcome != 0)
+			return outcome;
 		Console.WriteLine($"{category}: passed in {watch.Elapsed.TotalSeconds:0.0} s");
-		// A filtered run tested only some of the files.
-		if (filter is null)
-			KeepPass(category, before);
-		return true;
-	}
-
-	// A pass is kept for the files as the run read them, so not when they changed while it ran. The data checks fill
-	// the cache, which counts among their files, so the pass is kept under the cache as they left it.
-	void KeepPass(string category, string before)
-	{
-		if (Hash(SourceInputs(category)) != before)
+		// A filtered run tested only some of the files, and a run during which they changed tested what they were.
+		if (filter is not null)
+			return 0;
+		if (Hash(Inputs(category)) != before)
 		{
 			Console.WriteLine($"{category}: no pass kept, since its files changed while it ran");
-			return;
+			return 0;
 		}
 		Directory.CreateDirectory(passes);
-		File.WriteAllText(PassOf(category), "");
-		RemoveUnusedPasses();
-	}
-
-	string PassOf(string category) => Path.Combine(passes, category + "-" + Hash(SourceInputs(category).Concat(CacheInputs(category))));
-
-	string Hash(IEnumerable<string> files) => Fingerprint.Of(files.Select(file => (Path.GetRelativePath(repo, file).Replace('\\', '/'), file)));
-
-	void RemoveUnusedPasses()
-	{
-		var unused = DateTime.UtcNow.AddDays(-30);
-		foreach (var pass in Directory.GetFiles(passes).Where(pass => File.GetLastWriteTimeUtc(pass) < unused))
-			File.Delete(pass);
+		File.WriteAllText(pass, before);
+		return 0;
 	}
 
 	// The files of the checkout a category's result rests on. The tools tests run on a fixture of their own, so they
-	// rest on the tools' source and tests/ alone. The data checks rest on the data and the docs they check, and the
-	// tools' source.
-	IEnumerable<string> SourceInputs(string category)
+	// rest on the tools' source and tests/ alone. The data checks rest on the data and the docs they check; the builds
+	// they run are rested on through the build that clears their pass.
+	IEnumerable<string> Inputs(string category)
 	{
 		if (category == "tools")
 			return ToolSources().Concat(FilesUnder(Path.Combine(toolsDir, "tests")));
-		return FilesUnder(Path.Combine(repo, "data"))
-			.Concat(FilesUnder(Path.Combine(repo, "docs")))
-			.Concat(ToolSources());
+		return FilesUnder(Path.Combine(repo, "data")).Concat(FilesUnder(Path.Combine(repo, "docs")));
 	}
 
-	// What else of the checkout's cache a category's result rests on, as it can differ between checkouts: for the data
-	// checks, Windower's resources and bg-wiki's rank tables.
-	IEnumerable<string> CacheInputs(string category) => category == "data"
-		? FilesUnder(Path.Combine(cache, "res")).Concat(IfThere(Path.Combine(cache, "ranks", "ranks.json")))
-		: [];
-
-	// Each tool's file, the shared code they compile, and this launcher, which builds them.
+	// Each tool's file, the shared code they compile, and this launcher, which builds and runs them.
 	IEnumerable<string> ToolSources() => Directory.GetFiles(toolsDir, "*.cs")
 		.Concat(FilesUnder(Path.Combine(toolsDir, "lib")))
 		.Concat(IfThere(Path.Combine(toolsDir, "Directory.Build.props")))
-		.Append(launcher);
+		.Append(Path.Combine(repo, ".claude", "gear.cs"));
 
-	// Builds every tool and the tests, and runs the tests with a file that says where each tool's build is, so they
-	// run the tools without building them, and with this launcher's own build, so they start it the same way.
-	bool RunToolsTests(string? filter)
+	// The tools tests run because the tools' source changed, so every tool is built again first. A tool that doesn't
+	// build fails the category, and so does a run that crashed, whatever code it exited with.
+	int RunToolsTests(string? filter)
 	{
-		var tools = Directory.GetFiles(toolsDir, "*.cs").Order(StringComparer.Ordinal).ToList();
-		var apps = tools.Append(Path.Combine(toolsDir, "tests", "run-tests.cs")).ToList();
-		var assemblies = new string?[apps.Count];
-		Parallel.For(0, apps.Count, i => assemblies[i] = builds.Get(apps[i]));
-		if (assemblies.Contains(null))
-			return false;
-		var manifest = Path.Combine(Path.GetTempPath(), "gear-test-builds-" + Guid.NewGuid().ToString("N")[..8] + ".json");
-		using (var file = File.Create(manifest))
-		using (var json = new Utf8JsonWriter(file, new JsonWriterOptions { Indented = true }))
-		{
-			json.WriteStartObject();
-			for (var i = 0; i < tools.Count; i++)
-				json.WriteString(Path.GetFileNameWithoutExtension(tools[i]), assemblies[i]);
-			json.WriteEndObject();
-		}
-		try
-		{
-			string[] arguments = filter is null ? [] : [filter];
-			var environment = new Dictionary<string, string>
-			{
-				["GEAR_TOOLS_TEST_BUILDS"] = manifest,
-				["GEAR_TOOLS_LAUNCHER"] = typeof(TestCommand).Assembly.Location,
-			};
-			return Apps.Run(assemblies[^1]!, arguments, repo, environment) == 0;
-		}
-		finally
-		{
-			File.Delete(manifest);
-		}
+		if (builds.BuildAll() is false)
+			return 1;
+		string[] arguments = filter is null ? [] : [filter];
+		var exit = Apps.Run(builds.AssemblyOf(Path.Combine(toolsDir, "tests", "run-tests.cs")), arguments);
+		return exit is 0 or 2 ? exit : 1;
 	}
 
 	// Reads each character's gear files into sets files, checks those against the export, the blue magic lists and
-	// the gear list, and lints the docs with the character's own. Then checks the rank documents, when this checkout's
-	// cache has bg-wiki's rank tables to check them against: those carry the day they were read, so they aren't
-	// fetched for the check.
+	// the gear list, and lints the docs with the character's own. Then checks the rank documents against bg-wiki's rank
+	// tables in docs/wiki.
 	bool RunDataChecks()
 	{
 		var sets = Path.Combine(Path.GetTempPath(), "gear-data-" + Guid.NewGuid().ToString("N")[..8]);
@@ -268,14 +201,11 @@ sealed class TestCommand
 					passed &= Check("gear-list", [.. lists]);
 				passed &= Check("doc-lint", "--char", character);
 			}
-			if (File.Exists(Path.Combine(cache, "ranks", "ranks.json")))
-				passed &= Check("rank-doc", "--check");
-			else
-				Console.WriteLine("data: rank-doc --check skipped: this checkout's cache has no bg-wiki rank tables (rank-tables reads them)");
+			passed &= Check("rank-doc", "--check");
 		}
 		finally
 		{
-			Directory.Delete(sets, true);
+			Folders.TryDelete(sets);
 		}
 		return passed;
 	}
@@ -286,7 +216,7 @@ sealed class TestCommand
 		Console.WriteLine($"data: {tool} {string.Join(" ", arguments.Select(argument => Path.IsPathRooted(argument) ? Path.GetFileName(argument) : argument))}");
 		var assembly = builds.Get(Path.Combine(toolsDir, tool + ".cs"));
 		// The paths given are the repo's, wherever the launcher was run from.
-		return assembly is not null && Apps.Run(assembly, arguments, repo, workingDirectory: repo) == 0;
+		return assembly is not null && Apps.Run(assembly, arguments, workingDirectory: repo) == 0;
 	}
 
 	// The characters as lib/Characters.cs finds them: each folder under data/ that holds its notes or its gear list.
@@ -314,6 +244,18 @@ sealed class TestCommand
 			.ToList();
 	}
 
+	// The hash of files by their path in the repo and their content, as 32 hex digits.
+	string Hash(IEnumerable<string> files)
+	{
+		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+		foreach (var file in files.Select(file => (Name: Path.GetRelativePath(repo, file).Replace('\\', '/'), Path: file)).OrderBy(file => file.Name, StringComparer.Ordinal))
+		{
+			hash.AppendData(Encoding.UTF8.GetBytes(file.Name + "\n"));
+			hash.AppendData(SHA256.HashData(File.ReadAllBytes(file.Path)));
+		}
+		return Convert.ToHexString(hash.GetHashAndReset())[..32].ToLowerInvariant();
+	}
+
 	static IEnumerable<string> FilesUnder(string folder) => Directory.Exists(folder) ? Directory.GetFiles(folder, "*", SearchOption.AllDirectories) : [];
 
 	static IEnumerable<string> IfThere(string file) => File.Exists(file) ? [file] : [];
@@ -338,171 +280,124 @@ sealed class GearFile
 	}
 }
 
-// The kept builds of the apps in .claude/tools, each in a folder named for the app and the hash of its source.
+// The tools' builds in the checkout's .claude/cache/builds, a folder each, and the tools tests' beside them.
 sealed class Builds
 {
 	string folder;
 	string toolsDir;
-	string launcher;
-	// The builds that failed in this run, which aren't tried again in it.
-	HashSet<string> failed;
+	string passes;
 
-	public Builds(string folder, string toolsDir, string launcher)
+	public Builds(string repo)
 	{
-		this.folder = folder;
-		this.toolsDir = toolsDir;
-		this.launcher = launcher;
-		failed = [];
+		folder = Path.Combine(repo, ".claude", "cache", "builds");
+		toolsDir = Path.Combine(repo, ".claude", "tools");
+		passes = Path.Combine(repo, ".claude", "cache", "passes");
 	}
 
-	// The app's assembly, built first when no build of its source is kept. Null when it doesn't build, after writing
-	// the compiler's errors.
-	public string? Get(string source)
+	public string AssemblyOf(string source)
 	{
 		var name = Path.GetFileNameWithoutExtension(source);
-		var hash = Hash(source);
-		var kept = Path.Combine(folder, name + "-" + hash);
-		var assembly = Path.Combine(kept, name + ".dll");
-		lock (failed)
-		{
-			if (failed.Contains(kept))
-				return null;
-		}
-		if (File.Exists(assembly) is false && Build(source, name, hash, kept) is false)
-		{
-			lock (failed)
-				failed.Add(kept);
-			return null;
-		}
-		// The folder's time is when the build was last used, which decides when it is removed.
-		Directory.SetLastWriteTimeUtc(kept, DateTime.UtcNow);
-		return assembly;
+		return Path.Combine(folder, name, name + ".dll");
 	}
 
-	bool Build(string source, string name, string hash, string kept)
+	// The app's build, made first when it has none. Null when it doesn't build, after writing the compiler's errors.
+	public string? Get(string source)
 	{
-		// Another run may be building the same source: one builds it, and the others wait for it and take its build.
-		using var held = Lock(Path.Combine(folder, "locks", Path.GetFileName(kept)));
-		if (File.Exists(Path.Combine(kept, name + ".dll")))
-			return true;
-		// A build that has lost its assembly, as a removal that failed partway can leave, is built again.
-		Delete(kept);
+		if (File.Exists(AssemblyOf(source)))
+			return AssemblyOf(source);
+		ClearPasses();
+		return Build(source, replace: false) ? AssemblyOf(source) : null;
+	}
+
+	// Builds every tool and the tools tests again, side by side. False when one doesn't build.
+	public bool BuildAll()
+	{
+		ClearPasses();
+		var apps = Directory.GetFiles(toolsDir, "*.cs").Append(Path.Combine(toolsDir, "tests", "run-tests.cs")).ToList();
+		var built = new bool[apps.Count];
+		Parallel.For(0, apps.Count, i => built[i] = Build(apps[i], replace: true));
+		return built.All(done => done);
+	}
+
+	// Builds the app, over the build it has when replace is true. Without it, a build another run made meanwhile
+	// stays, since that run may be starting from it.
+	bool Build(string source, bool replace)
+	{
+		var name = Path.GetFileNameWithoutExtension(source);
 		Console.Error.WriteLine($"Building {name}");
-		// The build's own files go to the temp folder, not to the dotnet folder that keeps a build of each app by path.
-		var work = Path.Combine(Path.GetTempPath(), "gear-build-" + Guid.NewGuid().ToString("N")[..8]);
-		var output = kept + ".partial";
+		// The build's own files go to the temp folder, not to the dotnet folder that keeps a build of each app by path,
+		// and its output beside the build it replaces, so the one can be moved over the other.
+		var suffix = Guid.NewGuid().ToString("N")[..8];
+		var work = Path.Combine(Path.GetTempPath(), "gear-build-" + suffix);
+		var output = Path.Combine(folder, $"{name}.new-{suffix}");
+		var replaced = Path.Combine(folder, $"{name}.old-{suffix}");
 		try
 		{
-			Delete(output);
 			var build = Finished.Run("dotnet", "build", source, "--artifacts-path", work, "-o", output, "--nologo", "-v", "q");
 			if (build.ExitCode != 0)
 			{
 				Console.Error.WriteLine($"{name}.cs doesn't build:\n{build.Output.Trim()}");
 				return false;
 			}
-			// An edit made while it built may or may not be in the build, so it is kept under neither hash.
-			if (Hash(source) != hash)
-			{
-				Console.Error.WriteLine($"{name}.cs changed while it was building. Run it again.");
-				return false;
-			}
+			var kept = Path.Combine(folder, name);
+			// Moved aside rather than deleted where it is, since a tool may be running from it: a move takes the whole
+			// build or none of it, where a delete on Windows can leave part of it behind.
+			if (replace && Directory.Exists(kept))
+				Directory.Move(kept, replaced);
 			Directory.Move(output, kept);
+			return true;
+		}
+		catch (IOException) when (replace is false && File.Exists(AssemblyOf(source)))
+		{
+			return true;
+		}
+		catch (Exception problem) when (problem is IOException or UnauthorizedAccessException)
+		{
+			Console.Error.WriteLine($"{name}'s build couldn't be replaced: {problem.Message} Build again once nothing runs it.");
+			return false;
 		}
 		finally
 		{
-			Delete(work);
-			Delete(output);
-		}
-		RemoveUnused(name, kept);
-		return true;
-	}
-
-	void RemoveUnused(string name, string kept)
-	{
-		var unused = DateTime.UtcNow.AddDays(-30);
-		// The hash's length tells this app's builds from those of an app whose name starts with its own.
-		var build = new Regex("^" + Regex.Escape(name) + "-[0-9a-f]{32}$");
-		foreach (var old in Directory.GetDirectories(folder).Where(dir => dir != kept && build.IsMatch(Path.GetFileName(dir)) && Directory.GetLastWriteTimeUtc(dir) < unused))
-		{
-			try
-			{
-				Delete(old);
-				File.Delete(Path.Combine(folder, "locks", Path.GetFileName(old)));
-			}
-			catch (Exception problem) when (problem is IOException or UnauthorizedAccessException)
-			{
-				// Windows keeps a running build's files open; it goes when the tool is next built.
-			}
+			Folders.TryDelete(work);
+			Folders.TryDelete(output);
+			Folders.TryDelete(replaced);
 		}
 	}
 
-	// The app's file, lib/ and Directory.Build.props, which every app here compiles with it, and this launcher, which
-	// says how they are built.
-	string Hash(string source)
+	// A test's pass vouches for the builds it ran on, which a build replaces.
+	void ClearPasses()
 	{
-		var lib = Path.Combine(toolsDir, "lib");
-		var shared = Directory.Exists(lib) ? Directory.GetFiles(lib, "*.cs") : [];
-		return Fingerprint.Of(shared.Prepend(source).Append(Path.Combine(toolsDir, "Directory.Build.props"))
-			.Select(file => (Path.GetRelativePath(toolsDir, file).Replace('\\', '/'), file))
-			.Append(("launcher", launcher)));
+		foreach (var pass in Directory.Exists(passes) ? Directory.GetFiles(passes) : [])
+			File.Delete(pass);
 	}
 
-	// Waits while another run holds the lock, but not past what a build can take, so a lock that can't be had for some
-	// other reason doesn't wait forever.
-	static FileStream Lock(string path)
-	{
-		var waited = Stopwatch.StartNew();
-		while (true)
-		{
-			Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-			try
-			{
-				return new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-			}
-			catch (IOException) when (waited.Elapsed < TimeSpan.FromMinutes(10))
-			{
-				Thread.Sleep(100);
-			}
-		}
-	}
-
-	static void Delete(string folder)
-	{
-		if (Directory.Exists(folder))
-			Directory.Delete(folder, true);
-	}
 }
 
-// What a set of files holds, as 32 hex digits: each file's name and content, and the runtime, since what is built for
-// one runtime may not run on the next.
-static class Fingerprint
+static class Folders
 {
-	public static string Of(IEnumerable<(string Name, string Path)> files)
+	// For a folder nothing reads again, which a virus scanner or a tool still running may hold for a while.
+	public static void TryDelete(string folder)
 	{
-		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-		foreach (var file in files.OrderBy(file => file.Name, StringComparer.Ordinal))
+		try
 		{
-			hash.AppendData(Encoding.UTF8.GetBytes(file.Name + "\n"));
-			hash.AppendData(SHA256.HashData(File.Exists(file.Path) ? File.ReadAllBytes(file.Path) : []));
+			if (Directory.Exists(folder))
+				Directory.Delete(folder, true);
 		}
-		hash.AppendData(Encoding.UTF8.GetBytes(Environment.Version.ToString()));
-		return Convert.ToHexString(hash.GetHashAndReset())[..32].ToLowerInvariant();
+		catch (Exception problem) when (problem is IOException or UnauthorizedAccessException)
+		{
+		}
 	}
 }
 
-// Runs a built app with this launcher's input and output, on the checkout given.
+// Runs a built app with this launcher's input and output.
 static class Apps
 {
-	public static int Run(string assembly, IEnumerable<string> arguments, string repo, IReadOnlyDictionary<string, string>? environment = null, string? workingDirectory = null)
+	public static int Run(string assembly, IEnumerable<string> arguments, string? workingDirectory = null)
 	{
 		var start = new ProcessStartInfo("dotnet") { WorkingDirectory = workingDirectory ?? "" };
 		start.ArgumentList.Add(assembly);
 		foreach (var argument in arguments)
 			start.ArgumentList.Add(argument);
-		// The build may have been made in another checkout, and knows only that one's path.
-		start.Environment["GEAR_TOOLS_ROOT"] = repo;
-		foreach (var variable in environment ?? new Dictionary<string, string>())
-			start.Environment[variable.Key] = variable.Value;
 		using var process = Process.Start(start)!;
 		process.WaitForExit();
 		return process.ExitCode;

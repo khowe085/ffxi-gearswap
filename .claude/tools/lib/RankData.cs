@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 namespace GearTools;
 
 // bg-wiki's rank-by-rank augment tables for the rank-augmented items in the exports. rank-tables.cs writes them to
-// .claude/cache/ranks/ranks.json and rank-doc.cs renders the rank documents from that file.
+// docs/wiki/rank-tables.json and rank-doc.cs renders the rank documents from that file.
 sealed class RankTables
 {
 	// The day the tables were read from bg-wiki, as yyyy-MM-dd.
@@ -20,7 +20,7 @@ sealed class RankTables
 
 	public IReadOnlyList<RankedItem> Items { get; }
 
-	static string FilePath => Tool.InCache("ranks", "ranks.json");
+	static string FilePath => Tool.InRepo("docs", "wiki", "rank-tables.json");
 
 	public RankTables(string fetched, IReadOnlyList<RankedItem> items)
 	{
@@ -31,7 +31,7 @@ sealed class RankTables
 	public static RankTables Load()
 	{
 		if (File.Exists(FilePath) is false)
-			Tool.Fail("bg-wiki's rank tables aren't in .claude/cache. Run: dotnet run .claude/gear.cs -- rank-tables");
+			Tool.Fail("bg-wiki's rank tables aren't in docs/wiki. Run: dotnet run .claude/gear.cs -- rank-tables");
 		FileJson? file = null;
 		try
 		{
@@ -42,7 +42,7 @@ sealed class RankTables
 			// Stops below, as a file that holds nothing does.
 		}
 		if (file is null)
-			Tool.Fail("The rank tables in .claude/cache/ranks/ranks.json can't be read. Write them again: dotnet run .claude/gear.cs -- rank-tables");
+			Tool.Fail("The rank tables in docs/wiki/rank-tables.json can't be read. Write them again: dotnet run .claude/gear.cs -- rank-tables");
 		return new RankTables(file.Fetched, file.Items.Select(item => new RankedItem(item.Name, item.Title, item.RankMax,
 			item.Paths.Select(path => new RankPath(path.Path, path.Ranks.Select(row => new RankRow(row.Rank, row.Augments)).ToList())).ToList())).ToList());
 	}
