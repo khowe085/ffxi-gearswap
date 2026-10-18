@@ -89,7 +89,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Adhemar set
 
-- **Vanar owns:** `Adhemar Bonnet`, `Adhemar Jacket` and `Adhemar Wristbands`, all NQ, so the bonus never applies. These NQ pieces can't be worn on RDM anyway.
+- **Vanar owns:** `Adhemar Bonnet`, `Adhemar Jacket` and `Adhemar Wristbands`, all NQ, and `Adhemar Wrist. +1` **(player, 2026-10-18)**. Only +1 pieces count and the bonus needs two, so it never applies. None of them can be worn on RDM.
 
 ### Rubeus set
 
@@ -450,8 +450,8 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Alabaster Earring
 
-- **(player, 2026-10-04)** Vanar's copy is rank 2: Accuracy, Ranged Accuracy and Magic Accuracy +2, and none of the attribute or Store TP augments.
-- In both jobs' ACC-mode sets, where accuracy comes first **(player, 2026-10-07)**, it takes the left ear: Accuracy+2 is the most of any earring in Vanar's wardrobes that fits the left ear. Heartseeker and Steelflash Earrings (Accuracy+8) and Assuage Earring (Accuracy+7) are in the Mog Safe 2.
+- **(player, 2026-10-18)** Vanar's copy is rank 7: Accuracy, Ranged Accuracy and Magic Accuracy +7, and none of the attribute or Store TP augments. It was rank 2 from 2026-10-04.
+- In both jobs' ACC-mode sets, where accuracy comes first **(player, 2026-10-07)**, it takes the left ear: Accuracy+7 is the most of any earring in Vanar's wardrobes that fits the left ear. Heartseeker and Steelflash Earrings (Accuracy+8) and Assuage Earring (Accuracy+7) are in the Mog Safe 2.
 
 ### Arbatel Earring +1
 
@@ -625,6 +625,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Its augments are Nolan Path B. Nolan gear ranks up to 15, and these are Path B's full values, so this copy is at rank 15.
 - **(player, 2026-10-11)** It comes out of the Mog Case for BLU's TP sets, where it is the best hands.
+- **(player, 2026-10-18)** Adhemar Wrist. +1 has replaced it, and it is now in the Mog Safe 2.
 - In BLU's `sets.engaged` (2026-10-11), against Hashi. Bazu. +3: Triple Attack +3%, Store TP +6 and DEX 10 more, for Accuracy 40 less and no Damage taken -10% (DT 37 against 47). With an Almace or Bunzi's Rod off hand, where both hands are capped, that is 7.6% more TP per round. With a Thibron off hand, whose hit rate drops 16 or 17 points, it is 3.4 to 5.1% less. Nyame Gauntlets (Double Attack +2%, DT 7) give less than the Wristbands with every weapon set, and Assim. Bazu. +3, worn without other Assimilator's pieces, never more than Hashi. Bazu. +3 ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - `sets.engaged.DT` keeps Hashi. Bazu. +3: without its DT 10 the set falls to DT 40.
 

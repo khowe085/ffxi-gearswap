@@ -55,6 +55,7 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
 - **(player)** Avoid Quick Magic pieces such as Impatiens and Perimede Cape. Witful Belt is the exception, because nothing else replaces its Fast Cast.
 - Inventory: at most 160 unique pieces across BLU and RDM, ideally about 140.
   - **(player, 2026-10-11)** The Ayanmo +2 armor on storage slip 23 stays there unless a set would gain a great deal from it. The Adhemar Wristbands come out of the Mog Case for BLU's TP sets.
+  - **(player, 2026-10-18)** Adhemar Wrist. +1 has replaced the Adhemar Wristbands, which are now in the Mog Safe 2.
 - **(player, 2026-10-09)** Comments in `Vanar_Rdm_Gear.lua` and `Vanar_Blu_Gear.lua` state only a set's stats or effects, such as "FC 44, DT 49" or "Chain Affinity +50", kept short and on one line where possible. No bags or moves, no comparisons with rejected pieces, no rationale or history, no accuracy floor workings, no rank notes and no references to the notes.
 
 ## Ranks
@@ -71,14 +72,14 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 | Gleti's Knife | A | 1 | 2026-10-05 |
 | Forfend +1 | A | 15 | 2026-10-04 |
 | Coiste Bodhar | A | 20 | 2026-10-04 |
-| Alabaster Earring | A | 2 | 2026-10-04 |
+| Alabaster Earring | A | 7 | 2026-10-18 |
 | Fi Follet Cape +1 | A | 11 | 2026-10-02 |
 | Obstin. Sash | A | 17 | 2026-10-06 |
 | Sailfi Belt +1 | A | 14 | 2026-10-04 |
 | Dls. Torque +1 | A | 20 | 2026-10-05 |
 | Mirage Stole +2 | A | 20 | 2026-10-05 |
 | Tizona | A | 15 | 2026-10-05 |
-| Murky Ring | A | 2 | 2026-10-11 |
+| Murky Ring | A | 7 | 2026-10-18 |
 | Almace | A | 2 | 2026-10-11 |
 
 - **(player, 2026-10-04)** The Nyame Helm and Flanchard went from rank 2 to rank 11 on 2026-10-04.
@@ -92,6 +93,7 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 - **(player, 2026-10-11)** `Murky Ring` is rank 2. The Nyame Helm went from rank 14 to rank 18, and `Almace` is Path A rank 2.
 - **(player, 2026-10-11)** `Mirage Stole +2` at rank 20 gives STR and DEX +20, Critical hit rate +4% and Store TP +6.
 - **(player, 2026-10-12)** The Nyame Helm went from rank 18 to rank 20.
+- **(player, 2026-10-18)** `Murky Ring` and `Alabaster Earring` both went from rank 2 to rank 7.
 - `Tizona` and `Almace` export Path A, so both are Level 119 III. `Pukulatmuj +1` exports with no augments, so it is rank 0.
 
 ## Jobs, Master Levels and nation
@@ -299,7 +301,7 @@ Main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_
 
 ### Magic accuracy: Odyssey augments below rank 30
 
-- Three of Vanar's Odyssey pieces have augment macc at the ranks the player gave: Forfend +1 (rank 15, **player, 2026-10-04**) has Mag. Acc.+15, Obstin. Sash (rank 17, **player, 2026-10-06**) Mag. Acc.+15, and Alabaster Earring (rank 2, **player, 2026-10-04**) Mag. Acc.+2. No other Odyssey piece of known rank in [Vanar_rank_augments.md](Vanar_rank_augments.md) has any: the Nyame pieces are Path B, Gleti's Knife is rank 1 (its Mag. Acc. starts at rank 16), and every other Bunzi's and Gleti's piece is rank 0. The one unknown is Murky Ring (Mag. Acc. from rank 1), whose rank isn't recorded.
+- Four of Vanar's Odyssey pieces have augment macc at the ranks the player gave: Forfend +1 (rank 15, **player, 2026-10-04**) has Mag. Acc.+15, Obstin. Sash (rank 17, **player, 2026-10-06**) Mag. Acc.+15, and Alabaster Earring and Murky Ring (rank 7, **player, 2026-10-18**) Mag. Acc.+7 each. No other Odyssey piece of known rank in [Vanar_rank_augments.md](Vanar_rank_augments.md) has any: the Nyame pieces are Path B, Gleti's Knife is rank 1 (its Mag. Acc. starts at rank 16), and every other Bunzi's and Gleti's piece is rank 0.
 - Of the items Oboro ranks up, Tizona at rank 15 adds Magic Accuracy +30 in the main hand (player, 2026-10-05); Dls. Torque +1's and Mirage Stole +2's augments have none.
 
 ### Enhancing magic: Enhancing skill
