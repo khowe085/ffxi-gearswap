@@ -344,12 +344,15 @@ sealed class Builds
 	string folder;
 	string toolsDir;
 	string launcher;
+	// The builds that failed in this run, which aren't tried again in it.
+	HashSet<string> failed;
 
 	public Builds(string folder, string toolsDir, string launcher)
 	{
 		this.folder = folder;
 		this.toolsDir = toolsDir;
 		this.launcher = launcher;
+		failed = [];
 	}
 
 	// The app's assembly, built first when no build of its source is kept. Null when it doesn't build, after writing
@@ -360,8 +363,17 @@ sealed class Builds
 		var hash = Hash(source);
 		var kept = Path.Combine(folder, name + "-" + hash);
 		var assembly = Path.Combine(kept, name + ".dll");
+		lock (failed)
+		{
+			if (failed.Contains(kept))
+				return null;
+		}
 		if (File.Exists(assembly) is false && Build(source, name, hash, kept) is false)
+		{
+			lock (failed)
+				failed.Add(kept);
 			return null;
+		}
 		// The folder's time is when the build was last used, which decides when it is removed.
 		Directory.SetLastWriteTimeUtc(kept, DateTime.UtcNow);
 		return assembly;

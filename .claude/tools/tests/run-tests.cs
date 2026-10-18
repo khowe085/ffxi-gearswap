@@ -11,9 +11,8 @@
 // itself, the slowest first; the few that change what the others read run after them, one at a time. With --filter,
 // only the tests whose name holds the text run. Exit code 1 when a test fails. Nothing here uses the network: wiki.cs
 // and rank-tables.cs ask a stand-in for bg-wiki on this machine, Windower's resource files come from a stand-in too,
-// and the git sources are fetched from repositories made here. No test cuts the network off to see a tool stop on a
-// site it can't reach: the player had those tests taken out as not worth their time. Nor does any test wait out
-// bg-wiki's 429.
+// and the git sources are fetched from repositories made here. Cutting the network off to see a tool stop on a site it
+// can't reach isn't worth a test's time, so no test does, and none waits out bg-wiki's 429.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -406,6 +405,36 @@ Test("the launcher's data checks read only the files sel-sets reads as gear file
 	True(run.Output.Contains("Testy_Blu_GEAR.lua") is false, "The data checks read Testy_Blu_GEAR.lua:\n" + run.Output);
 });
 
+Test("the launcher's data checks check the blue magic lists of the BLU gear file alone, and read no gear file named for another character", () =>
+{
+	var repo = NewCheckout("data-gear-files");
+	var testy = Path.Combine(repo, "data", "Testy");
+	File.Copy(Path.Combine(testy, "Testy_Blu_Gear.lua"), Path.Combine(testy, "Testy_Rdm_Gear.lua"));
+	File.Copy(Path.Combine(testy, "Testy_Blu_Gear.lua"), Path.Combine(testy, "Other_Blu_Gear.lua"));
+	var run = Launch(repo, null, "test", "data");
+	Contains(run.Output, "data: check-blu-spells --in Testy_BLU.json\n");
+	Contains(run.Output, "data: check-export --in Testy_RDM.json\n");
+	True(run.Output.Contains("check-blu-spells --in Testy_RDM.json") is false, "The data checks checked RDM's blue magic lists:\n" + run.Output);
+	True(run.Output.Contains("Other_Blu_Gear.lua") is false, "The data checks read Other_Blu_Gear.lua:\n" + run.Output);
+});
+
+Test("the launcher tries to build a tool that doesn't build once in a run, however many checks need it", () =>
+{
+	var repo = NewTinyCheckout("builds-broken-once");
+	AddStandInSuite(repo);
+	var tools = Path.Combine(repo, ".claude", "tools");
+	File.WriteAllText(Path.Combine(tools, "lib", "Greeting.cs"), "static class Greeting\n{\n\tpublic const string Text = \"one\"\n}\n");
+	File.WriteAllText(Path.Combine(tools, "sel-sets.cs"), "System.Console.WriteLine(Greeting.Text);\n");
+	var testy = Path.Combine(repo, "data", "Testy");
+	Directory.CreateDirectory(testy);
+	File.WriteAllText(Path.Combine(testy, "Testy_notes.md"), "# Testy\n");
+	File.WriteAllText(Path.Combine(testy, "Testy_Blu_Gear.lua"), "");
+	File.WriteAllText(Path.Combine(testy, "Testy_Rdm_Gear.lua"), "");
+	var run = Launch(repo, NewFolder("builds"), "test");
+	Equal(1, run.ExitCode);
+	Equal(1, run.Output.Split("sel-sets.cs doesn't build").Length - 1);
+});
+
 Test("the launcher removes passes unused for 30 days when it keeps a new one", () =>
 {
 	var repo = NewTinyCheckout("removes-passes");
@@ -429,7 +458,8 @@ Test("two launchers that build the same tool at once make one build of it, and b
 {
 	var repo = NewTinyCheckout("builds-at-once");
 	var builds = NewFolder("builds");
-	var runs = new[] { "first", "second" }.AsParallel().Select(word => Launch(repo, builds, "hello", word)).ToList();
+	string[] words = ["first", "second"];
+	var runs = words.AsParallel().AsOrdered().Select(word => Launch(repo, builds, "hello", word)).ToList();
 	Contains(runs[0].Output, "one first");
 	Contains(runs[1].Output, "one second");
 	Equal(1, runs.Sum(run => run.Output.Split("Building hello").Length - 1));
@@ -1875,7 +1905,7 @@ Test("Sources.FillRepoFolder fetches into an empty folder, as a fetch that faile
 
 Test("doc-lint, sims and wsdist-gear fetch the pinned repository they read when the cache lacks it", () =>
 {
-	var guides = NewGitRepo("guides", Path.Combine(fixtureDir, "cache", "bg_job_guides"));
+	var guides = NewGitRepo("job guides", Path.Combine(fixtureDir, "cache", "bg_job_guides"));
 	var wsdist = NewGitRepo("wsdist", Path.Combine(fixtureDir, "cache", "wsdist_beta"));
 	(string Tool, string[] Arguments, string Pin, GitRepo Repo, string Output)[] runs =
 	[

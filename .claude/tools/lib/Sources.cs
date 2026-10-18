@@ -71,7 +71,7 @@ static class Sources
 		{
 			File.Move(partial, path, true);
 		}
-		catch (IOException problem)
+		catch (Exception problem) when (problem is IOException or UnauthorizedAccessException)
 		{
 			File.Delete(partial);
 			Tool.Fail($"res/{file}: couldn't put the download in place. {problem.Message}");
@@ -96,10 +96,11 @@ static class Sources
 	public static string FetchRepo(string name)
 	{
 		var (url, commit) = repos[name];
-		// The tests point a repo at one they make on their own machine: GEAR_TOOLS_REPO_<NAME> is "<url> <commit>".
-		var standIn = Environment.GetEnvironmentVariable("GEAR_TOOLS_REPO_" + name.ToUpperInvariant())?.Split(' ', 2);
-		if (standIn is { Length: 2 })
-			(url, commit) = (standIn[0], standIn[1]);
+		// The tests point a repo at one they make on their own machine: GEAR_TOOLS_REPO_<NAME> is "<url> <commit>". The
+		// commit has no space in it, and the url may.
+		var standIn = Environment.GetEnvironmentVariable("GEAR_TOOLS_REPO_" + name.ToUpperInvariant());
+		if (standIn?.LastIndexOf(' ') is > 0 and var space)
+			(url, commit) = (standIn[..space], standIn[(space + 1)..]);
 		try
 		{
 			return FillRepoFolder(Tool.InCache(name), url, commit);
