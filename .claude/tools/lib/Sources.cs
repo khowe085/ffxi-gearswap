@@ -62,10 +62,19 @@ static class Sources
 			throw;
 		}
 		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-		// Another tool may be reading the file, so the download takes its place whole.
+		// The download takes the file's place whole, so no tool reads half of one. Windows won't replace a file another
+		// tool has open, and says so.
 		var partial = $"{path}.{Environment.ProcessId}.partial";
 		File.WriteAllBytes(partial, bytes);
-		File.Move(partial, path, true);
+		try
+		{
+			File.Move(partial, path, true);
+		}
+		catch (IOException problem)
+		{
+			File.Delete(partial);
+			Tool.Fail($"res/{file}: couldn't put the download in place. {problem.Message}");
+		}
 		return $"res/{file}: downloaded ({bytes.Length / 1024} KB)";
 	}
 
@@ -97,8 +106,18 @@ static class Sources
 		}
 	}
 
-	// GitSource.Fetch, except for a folder without .git: it was put there by hand, as the tests' fixture is, and is
-	// read as it is.
-	public static string FillRepoFolder(string folder, string url, string commit) =>
-		Directory.Exists(folder) && Directory.Exists(Path.Combine(folder, ".git")) is false ? handPlaced : GitSource.Fetch(folder, url, commit);
+	// GitSource.Fetch, with two ways round it. A folder that holds files and no .git was put there by hand, as the
+	// tests' fixture is, and is read as it is. A fetch that finishes leaves the commit it fetched in a file beside the
+	// folder, so a tool that finds the folder at the pinned commit needs no git.
+	public static string FillRepoFolder(string folder, string url, string commit)
+	{
+		if (Directory.Exists(folder) && Directory.Exists(Path.Combine(folder, ".git")) is false && Directory.EnumerateFileSystemEntries(folder).Any())
+			return handPlaced;
+		var fetched = folder + ".commit";
+		if (Directory.Exists(folder) && File.Exists(fetched) && File.ReadAllText(fetched).Trim() == commit)
+			return $"present at {commit[..7]}";
+		var outcome = GitSource.Fetch(folder, url, commit);
+		File.WriteAllText(fetched, commit + "\n");
+		return outcome;
+	}
 }

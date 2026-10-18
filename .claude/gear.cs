@@ -131,9 +131,11 @@ sealed class TestCommand
 			Console.WriteLine("gearswap: no tests yet");
 			return true;
 		}
-		var pass = Path.Combine(passes, category + "-" + Fingerprint.Of(Inputs(category).Select(file => (Path.GetRelativePath(repo, file).Replace('\\', '/'), file))));
+		var pass = PassOf(category);
 		if (forced is false && File.Exists(pass))
 		{
+			// The pass's time is when it was last used, which decides when it is removed.
+			File.SetLastWriteTimeUtc(pass, DateTime.UtcNow);
 			Console.WriteLine($"{category}: no change since it last passed");
 			return true;
 		}
@@ -148,9 +150,21 @@ sealed class TestCommand
 		if (filter is null)
 		{
 			Directory.CreateDirectory(passes);
-			File.WriteAllText(pass, "");
+			// Taken again, since the data checks fill the cache, which counts among their files.
+			File.WriteAllText(PassOf(category), "");
+			RemoveUnusedPasses();
 		}
 		return true;
+	}
+
+	string PassOf(string category) =>
+		Path.Combine(passes, category + "-" + Fingerprint.Of(Inputs(category).Select(file => (Path.GetRelativePath(repo, file).Replace('\\', '/'), file))));
+
+	void RemoveUnusedPasses()
+	{
+		var unused = DateTime.UtcNow.AddDays(-30);
+		foreach (var pass in Directory.GetFiles(passes).Where(pass => File.GetLastWriteTimeUtc(pass) < unused))
+			File.Delete(pass);
 	}
 
 	// The files a category's result rests on. The tools tests run on a fixture of their own, so they rest on the
@@ -255,7 +269,8 @@ sealed class TestCommand
 	{
 		Console.WriteLine($"data: {tool} {string.Join(" ", arguments.Select(argument => Path.IsPathRooted(argument) ? Path.GetFileName(argument) : argument))}");
 		var assembly = builds.Get(Path.Combine(toolsDir, tool + ".cs"));
-		return assembly is not null && Apps.Run(assembly, arguments, repo) == 0;
+		// The paths given are the repo's, wherever the launcher was run from.
+		return assembly is not null && Apps.Run(assembly, arguments, repo, workingDirectory: repo) == 0;
 	}
 
 	// The characters as lib/Characters.cs finds them: each folder under data/ that holds its notes or its gear list.
@@ -271,14 +286,14 @@ sealed class TestCommand
 			.ToList();
 	}
 
-	// A character's Sel gear files, <Character>_<Job>_Gear.lua, as sel-sets.cs reads their names.
+	// A character's Sel gear files, <Character>_<Job>_Gear.lua, named as SelReader.NameOf reads them.
 	IEnumerable<GearFile> GearFiles(string character)
 	{
-		var name = new Regex("^" + Regex.Escape(character) + @"_(?<job>[A-Za-z]{3})_gear\.lua$", RegexOptions.IgnoreCase);
+		var name = new Regex(@"^(?<who>[^_]+)_(?<job>[A-Za-z]{3})_[Gg]ear\.lua$");
 		return Directory.GetFiles(Path.Combine(repo, "data", character), "*.lua")
 			.Order(StringComparer.Ordinal)
 			.Select(file => (Path: file, Found: name.Match(Path.GetFileName(file))))
-			.Where(file => file.Found.Success)
+			.Where(file => file.Found.Success && file.Found.Groups["who"].Value.Equals(character, StringComparison.OrdinalIgnoreCase))
 			.Select(file => new GearFile(file.Path, file.Found.Groups["job"].Value.ToUpperInvariant()))
 			.ToList();
 	}
@@ -337,10 +352,8 @@ sealed class Builds
 
 	bool Build(string source, string name, string kept)
 	{
-		var locks = Path.Combine(folder, "locks");
-		Directory.CreateDirectory(locks);
 		// Another run may be building the same source: one builds it, and the others wait for it and take its build.
-		using var held = Lock(Path.Combine(locks, Path.GetFileName(kept)));
+		using var held = Lock(Path.Combine(folder, "locks", Path.GetFileName(kept)));
 		if (Directory.Exists(kept))
 			return true;
 		Console.Error.WriteLine($"Building {name}");
@@ -397,15 +410,19 @@ sealed class Builds
 			.Append(("launcher", launcher)));
 	}
 
+	// Waits while another run holds the lock, but not past what a build can take, so a lock that can't be had for some
+	// other reason doesn't wait forever.
 	static FileStream Lock(string path)
 	{
+		var waited = Stopwatch.StartNew();
 		while (true)
 		{
+			Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 			try
 			{
 				return new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
 			}
-			catch (IOException)
+			catch (IOException) when (waited.Elapsed < TimeSpan.FromMinutes(10))
 			{
 				Thread.Sleep(100);
 			}
@@ -439,9 +456,9 @@ static class Fingerprint
 // Runs a built app with this launcher's input and output, on the checkout given.
 static class Apps
 {
-	public static int Run(string assembly, IEnumerable<string> arguments, string repo, IReadOnlyDictionary<string, string>? environment = null)
+	public static int Run(string assembly, IEnumerable<string> arguments, string repo, IReadOnlyDictionary<string, string>? environment = null, string? workingDirectory = null)
 	{
-		var start = new ProcessStartInfo("dotnet");
+		var start = new ProcessStartInfo("dotnet") { WorkingDirectory = workingDirectory ?? "" };
 		start.ArgumentList.Add(assembly);
 		foreach (var argument in arguments)
 			start.ArgumentList.Add(argument);

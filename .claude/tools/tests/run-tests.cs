@@ -8,10 +8,11 @@
 // The launcher builds every tool before the tests start and lists the builds in the file GEAR_TOOLS_TEST_BUILDS
 // names, so running a tool here starts its build rather than building it; GEAR_TOOLS_LAUNCHER names the launcher's
 // own build, which the launcher's tests start the same way. The tests run side by side, each on what it makes for
-// itself, the slowest first. With --filter, only the tests whose name holds the text run. Exit code 1 when a test
-// fails. Nothing here uses the network: wiki.cs and rank-tables.cs ask a stand-in for bg-wiki on this machine,
-// Windower's resource files come from a stand-in too, and the git sources are fetched from repositories made here.
-// That leaves one thing no test runs: the wait after bg-wiki answers 429.
+// itself, the slowest first; the few that change what the others read run after them, one at a time. With --filter,
+// only the tests whose name holds the text run. Exit code 1 when a test fails. Nothing here uses the network: wiki.cs
+// and rank-tables.cs ask a stand-in for bg-wiki on this machine, Windower's resource files come from a stand-in too,
+// and the git sources are fetched from repositories made here. So no test sees a tool stop on a site it can't reach,
+// or wait out bg-wiki's 429.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -50,7 +51,15 @@ Environment.SetEnvironmentVariable("GEAR_TOOLS_ROOT", pristine.Repo);
 Environment.SetEnvironmentVariable("GEAR_TOOLS_CACHE", pristine.Cache);
 
 var tests = new List<KeyValuePair<string, Action>>();
+// The tests that change what the others read, which run after them, one at a time.
+var alone = new HashSet<string>();
 void Test(string name, Action body) => tests.Add(KeyValuePair.Create(name, body));
+
+void TestAlone(string name, Action body)
+{
+	Test(name, body);
+	alone.Add(name);
+}
 
 // The sets files Testy_gear_list.md is written from.
 string[] testySets = ["--in", "sets/Testy_BLU.json", "--in", "sets/Testy_RDM.json"];
@@ -299,6 +308,85 @@ Test("the launcher's data checks run again when the rank tables or the resources
 	var resources = Launch(repo, null, "test");
 	Contains(resources.Output, "data: sel-sets");
 	Contains(resources.Output, "tools: no change since it last passed");
+});
+
+Test("the launcher's data checks keep their pass under the cache as they left it, with what they fetched into it", () =>
+{
+	using var site = ResourceSite();
+	var repo = NewCleanCheckout("data-fetched");
+	AddStandInSuite(repo);
+	File.Delete(Path.Combine(repo, ".claude", "cache", "res", "spells.lua"));
+	var first = LaunchWithResources(site, repo, "test");
+	Equal(0, first.ExitCode);
+	Contains(first.Output, "res/spells.lua: downloaded");
+	Contains(LaunchWithResources(site, repo, "test").Output, "data: no change since it last passed");
+});
+
+Test("the launcher's data checks run the same from a folder inside the checkout", () =>
+{
+	var repo = NewCleanCheckout("data-from-inside");
+	var start = LauncherStart(repo, "test", "data");
+	start.WorkingDirectory = Path.Combine(repo, "data", "Testy");
+	var run = RunLauncher(start, repo, null);
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "data: passed");
+});
+
+Test("the launcher's data checks read only the files sel-sets reads as gear files", () =>
+{
+	var repo = NewCleanCheckout("data-gear-names");
+	File.Copy(Path.Combine(repo, "data", "Testy", "Testy_Blu_Gear.lua"), Path.Combine(repo, "data", "Testy", "Testy_Blu_GEAR.lua"));
+	var run = Launch(repo, null, "test", "data");
+	Equal(0, run.ExitCode);
+	True(run.Output.Contains("Testy_Blu_GEAR.lua") is false, "The data checks read Testy_Blu_GEAR.lua:\n" + run.Output);
+});
+
+Test("the launcher removes passes unused for 30 days when it keeps a new one", () =>
+{
+	var repo = NewTinyCheckout("removes-passes");
+	AddStandInSuite(repo);
+	var builds = NewFolder("builds");
+	Equal(0, Launch(repo, builds, "test").ExitCode);
+	var passes = repo + ".passes";
+	var used = Directory.GetFiles(passes);
+	var stale = Path.Combine(passes, "tools-" + new string('a', 32));
+	File.WriteAllText(stale, "");
+	foreach (var pass in used.Append(stale))
+		File.SetLastWriteTimeUtc(pass, DateTime.UtcNow.AddDays(-31));
+	Contains(Launch(repo, builds, "test").Output, "tools: no change since it last passed");
+	File.WriteAllText(Path.Combine(repo, ".claude", "tools", "tests", "notes.txt"), "Notes on the tests.\n");
+	Contains(Launch(repo, builds, "test").Output, "tools: passed");
+	True(File.Exists(stale) is false, "The pass unused for 31 days is still there");
+	True(used.All(File.Exists), "A pass used just before was removed");
+});
+
+Test("two launchers that build the same tool at once make one build of it, and both run it", () =>
+{
+	var repo = NewTinyCheckout("builds-at-once");
+	var builds = NewFolder("builds");
+	var runs = new[] { "first", "second" }.AsParallel().Select(word => Launch(repo, builds, "hello", word)).ToList();
+	Contains(runs[0].Output, "one first");
+	Contains(runs[1].Output, "one second");
+	Equal(1, runs.Sum(run => run.Output.Split("Building hello").Length - 1));
+	Equal(1, Directory.GetDirectories(builds, "hello-*").Length);
+});
+
+Test("fetch-sources fetches what the cache lacks, and Windower's resources again with --refresh", () =>
+{
+	using var site = ResourceSite();
+	var sandbox = NewSandbox();
+	File.Delete(Path.Combine(sandbox.Cache, "res", "items.lua"));
+	var missing = sandbox.RunWithResources(site, "fetch-sources");
+	Equal(0, missing.ExitCode);
+	Contains(missing.Output, "res/items.lua: downloaded");
+	Contains(missing.Output, "res/spells.lua: present (");
+	Contains(missing.Output, "wsdist_beta: put there by hand");
+	Contains(missing.Output, "bg_job_guides: put there by hand");
+	Equal("/res/items.lua", string.Join(" ", site.Requests));
+	var refresh = sandbox.RunWithResources(site, "fetch-sources", "--refresh");
+	Equal(0, refresh.ExitCode);
+	Contains(refresh.Output, "res/spells.lua: downloaded");
+	Equal(4, site.Requests.Count);
 });
 
 // ---------------------------------------------------------------- the shared code
@@ -919,7 +1007,7 @@ Test("sel-sets stops on a gear file it can't find or doesn't know the character 
 	Stops(pristine.Run("sel-sets", "data/Testy/Testy-Globals.lua", "BLU"), "Testy-Globals.lua isn't named like a Sel gear file (<Character>_<Job>_Gear.lua).");
 	Stops(pristine.Run("sel-sets", "data/Testy/Testy_Blu_Gear.lua", "XYZ"), "XYZ isn't a job.");
 	Stops(pristine.Run("sel-sets", "data/Testy/Testy_Blu_Gear.lua", "RDM"), "Testy_Blu_Gear.lua is a BLU gear file, not RDM.");
-	Stops(pristine.Run("sel-sets", "data/Testy/Testy_Blu_Gear.lua"), "Give the gear file and the job: sel-sets.cs -- <gear file> <JOB> [--out <sets.json>]");
+	Stops(pristine.Run("sel-sets", "data/Testy/Testy_Blu_Gear.lua"), "Give the gear file and the job: dotnet run .claude/gear.cs -- sel-sets <gear file> <JOB> [--out <sets.json>]");
 });
 
 Test("StatBook totals a set's stats from the help text, the copy's augments and the values it is given", () =>
@@ -1219,7 +1307,7 @@ Test("set-stats adds what the character's rank file gives, and warns of a rank t
 	}
 });
 
-Test("Characters finds each folder that holds a character's notes or gear list, and names its documents", () =>
+TestAlone("Characters finds each folder that holds a character's notes or gear list, and names its documents", () =>
 {
 	Equal("Testy", string.Join(" ", Characters.All()));
 	// A folder of Lua files alone, as data/User is, holds no character's documents.
@@ -1699,6 +1787,25 @@ Test("Sources.FillRepoFolder fetches a repository the cache lacks at its commit,
 	File.WriteAllText(Path.Combine(placed, "file.txt"), "by hand\n");
 	Equal("put there by hand", Sources.FillRepoFolder(placed, source.Path, source.Commit));
 	Equal("by hand\n", File.ReadAllText(Path.Combine(placed, "file.txt")));
+});
+
+Test("Sources.FillRepoFolder reads a repository it fetched once without git from then on", () =>
+{
+	var source = NewGitRepo("source-four");
+	var fetched = Path.Combine(workDir, "fill-four");
+	Contains(Sources.FillRepoFolder(fetched, source.Path, source.Commit), "fetched");
+	// Without its HEAD, git can't say which commit the folder holds.
+	File.Delete(Path.Combine(fetched, ".git", "HEAD"));
+	Contains(Sources.FillRepoFolder(fetched, source.Path, source.Commit), "present");
+});
+
+Test("Sources.FillRepoFolder fetches into an empty folder, as a fetch that failed can leave one", () =>
+{
+	var source = NewGitRepo("source-five");
+	var empty = Path.Combine(workDir, "fill-five");
+	Directory.CreateDirectory(empty);
+	Contains(Sources.FillRepoFolder(empty, source.Path, source.Commit), "fetched");
+	Equal("hello", File.ReadAllText(Path.Combine(empty, "file.txt")).Trim());
 });
 
 Test("a tool stops, and says what is missing, when the repository lacks a folder or a file it reads", () =>
@@ -2505,25 +2612,17 @@ var chosen = tests.Where(test => test.Key.Contains(filter, StringComparison.Ordi
 // run on threads of their own, which leaves the thread pool to the stand-in sites and the reads of the tools' output.
 var problems = new string?[chosen.Count];
 var took = new TimeSpan[chosen.Count];
+var together = Enumerable.Range(0, chosen.Count).Where(i => alone.Contains(chosen[i].Key) is false).ToList();
 var next = -1;
 var workers = Enumerable.Range(0, Environment.ProcessorCount).Select(_ => new Thread(() =>
 {
-	for (var i = Interlocked.Increment(ref next); i < chosen.Count; i = Interlocked.Increment(ref next))
-	{
-		var watch = Stopwatch.StartNew();
-		try
-		{
-			chosen[i].Value();
-		}
-		catch (Exception problem)
-		{
-			problems[i] = problem.Message;
-		}
-		took[i] = watch.Elapsed;
-	}
+	for (var n = Interlocked.Increment(ref next); n < together.Count; n = Interlocked.Increment(ref next))
+		RunTest(together[n]);
 })).ToList();
 workers.ForEach(worker => worker.Start());
 workers.ForEach(worker => worker.Join());
+foreach (var i in Enumerable.Range(0, chosen.Count).Except(together))
+	RunTest(i);
 var failed = 0;
 for (var i = 0; i < chosen.Count; i++)
 {
@@ -2551,6 +2650,21 @@ Console.WriteLine($"{ran - failed} of {ran} tests passed");
 return failed > 0 ? 1 : 0;
 
 // ---------------------------------------------------------------- helpers
+
+// Runs one of the chosen tests, and keeps what went wrong and how long it took.
+void RunTest(int i)
+{
+	var watch = Stopwatch.StartNew();
+	try
+	{
+		chosen[i].Value();
+	}
+	catch (Exception problem)
+	{
+		problems[i] = problem.Message;
+	}
+	took[i] = watch.Elapsed;
+}
 
 Sandbox NewSandbox()
 {
@@ -2582,7 +2696,6 @@ string CheckoutFolder(string name)
 string NewCheckout(string name)
 {
 	var repo = CheckoutFolder(name);
-	CopyFolder(Path.Combine(fixtureDir, "repo"), repo);
 	CopyFolder(Path.Combine(fixtureDir, "repo"), repo);
 	CopyFolder(Path.Combine(fixtureDir, "cache"), Path.Combine(repo, ".claude", "cache"));
 	var tools = Path.Combine(repo, ".claude", "tools");
@@ -2634,14 +2747,26 @@ void AddStandInSuite(string repo)
 // Runs this checkout's launcher, from the build of it that runs these tests, on the checkout given, which
 // GEAR_TOOLS_ROOT names. It keeps its builds in the folder given, or where the launcher that runs these tests keeps
 // them.
-ToolRun Launch(string repo, string? builds, params string[] arguments)
+ToolRun Launch(string repo, string? builds, params string[] arguments) => RunLauncher(LauncherStart(repo, arguments), repo, builds);
+
+// As Launch, with Windower's resource files served by a stand-in on this machine to the tools the launcher runs.
+ToolRun LaunchWithResources(StandInSite resources, string repo, params string[] arguments)
+{
+	var start = LauncherStart(repo, arguments);
+	start.Environment["GEAR_TOOLS_RESOURCES"] = resources.Root + "res/";
+	start.Environment["no_proxy"] = "127.0.0.1";
+	start.Environment["NO_PROXY"] = "127.0.0.1";
+	return RunLauncher(start, repo, null);
+}
+
+ProcessStartInfo LauncherStart(string repo, params string[] arguments)
 {
 	var start = new ProcessStartInfo("dotnet") { WorkingDirectory = repo, RedirectStandardOutput = true, RedirectStandardError = true };
 	start.ArgumentList.Add(launcherBuild);
 	foreach (var argument in arguments)
 		start.ArgumentList.Add(argument);
 	start.Environment["GEAR_TOOLS_ROOT"] = repo;
-	return RunLauncher(start, repo, builds);
+	return start;
 }
 
 // Runs the launcher a checkout from NewCheckout holds, which finds the checkout from where it is, as it does when the

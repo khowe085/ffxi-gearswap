@@ -23,7 +23,7 @@ using GearTools;
 
 var cli = new Arguments(args, ["--out"], [], takesWords: true);
 if (cli.Words.Count != 2)
-	Tool.Fail("Give the gear file and the job: sel-sets.cs -- <gear file> <JOB> [--out <sets.json>]");
+	Tool.Fail("Give the gear file and the job: dotnet run .claude/gear.cs -- sel-sets <gear file> <JOB> [--out <sets.json>]");
 var gearFile = cli.Words[0];
 var job = cli.Words[1].ToUpperInvariant();
 if (File.Exists(gearFile) is false)

@@ -50,7 +50,7 @@ All carry `"schemaVersion": 1`. The classes are in `lib/Dto.cs`; property names 
 
 ## The cache
 
-`.claude/cache/` is git-ignored, and each checkout has its own. A tool fetches what it reads the first time the cache lacks it, and says so on standard error: Windower's resource files, and the two pinned repos. bg-wiki's rank tables are the exception. They carry the day they were read, which `docs/rank-augments.md` prints, so only `rank-tables.cs` reads them, and the data checks ([Tests](#tests)) leave out `rank-doc.cs`'s check without them. `fetch-sources.cs -- --refresh` downloads the resources again.
+`.claude/cache/` is git-ignored, and each checkout has its own. A tool fetches what it reads the first time the cache lacks it, and says so on standard error: Windower's resource files, and the two pinned repos. bg-wiki's rank tables are the exception. They carry the day they were read, which `docs/rank-augments.md` prints, so only `rank-tables.cs` reads them, and the data checks ([Tests](#tests)) leave out `rank-doc.cs`'s check without them. `fetch-sources --refresh` downloads the resources again. A pinned repo that finished fetching has its commit noted beside its folder, so the tools need git only to fetch.
 
 | Folder | What | From |
 |---|---|---|
@@ -144,7 +144,7 @@ dotnet run .claude/gear.cs -- test
 | Category | What runs | The files it rests on |
 |---|---|---|
 | `tools` | `tests/run-tests.cs`: the shared code, each tool and the launcher, on a small made-up character | The tools' source (each tool's file, `lib/` and `Directory.Build.props`), `tests/` and the launcher |
-| `data` | The tools' checks of each character, a folder under `data/` with its notes or gear list: `sel-sets.cs` on each of its gear files, then `check-export.cs` on each sets file, `check-blu-spells.cs` on the BLU one, `gear-list.cs` on them all, and `doc-lint.cs`. Then `rank-doc.cs -- --check`, when the checkout's cache has bg-wiki's rank tables | `data/`, `docs/`, the tools' source and the launcher, and the resources and rank tables in the checkout's cache |
+| `data` | The tools' checks of each character, a folder under `data/` with its notes or gear list: `sel-sets.cs` on each of its gear files, then `check-export.cs` on each sets file, `check-blu-spells.cs` on the BLU one, `gear-list.cs` on them all, and `doc-lint.cs`. Then `rank-doc --check`, when the checkout's cache has bg-wiki's rank tables | `data/`, `docs/`, the tools' source and the launcher, and the resources and rank tables in the checkout's cache |
 | `gearswap` | No tests yet | |
 
 - A pass is kept under the hash of the category's files, beside the builds, so a checkout with the same files skips the category too. A run that fails, or one with `--filter`, keeps no pass.
