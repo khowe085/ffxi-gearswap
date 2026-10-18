@@ -8,6 +8,14 @@ local function calls(gs)
     return list
 end
 
+local function events(list)
+    local names = {}
+    for i, entry in ipairs(list) do
+        names[i] = entry.event
+    end
+    return names
+end
+
 describe('a spell typed in the chat', function()
     local gs
     before_each(function()
@@ -34,6 +42,40 @@ describe('a spell typed in the chat', function()
             got[i].event = nil
             assert.same(expected, got[i])
         end
+    end)
+
+    it('runs precast and midcast on the typed line, before the server has answered', function()
+        gs:type('/ma "Cure III" <me>')
+        assert.same({'pretarget', 'precast', 'midcast'}, events(calls(gs)))
+        assert.equal(1, #gs.game.actions)
+        assert.same(testy.worn_by(testy.whm_idle, {head = 'Kaykaus Mitra +1', ring1 = 'Kishar Ring'}), gs:worn())
+    end)
+
+    it('aimed at the monster with <t> has the monster as its target', function()
+        gs:type('/ma "Dia II" <t>')
+        assert.same({
+            {equip = {head = "Bunzi's Hat", left_ring = 'Kishar Ring'}},
+            {action = 'Dia II', target = 'Apex Toad'},
+        }, gs:traffic())
+        local got = calls(gs)
+        assert.same({'pretarget', 'precast', 'midcast'}, events(got))
+        assert.same({'Apex Toad', 'Apex Toad', 'Apex Toad'}, {got[1].target, got[2].target, got[3].target})
+    end)
+
+    it('is in midaction from the typed line until its aftercast', function()
+        assert.is_false(gs.user.midaction())
+        gs:type('/ma "Cure III" <me>')
+        local midaction, spell = gs.user.midaction()
+        assert.is_true(midaction)
+        assert.equal('Cure III', spell.english)
+        gs:finish_action()
+        assert.is_false(gs.user.midaction())
+    end)
+
+    it('is no longer in midaction once it is interrupted', function()
+        gs:type('/ma "Cure III" <me>')
+        gs:interrupt_action()
+        assert.is_false(gs.user.midaction())
     end)
 
     it('doesn\'t send a piece the set names that is already on', function()
@@ -103,6 +145,24 @@ describe('a weapon skill or job ability typed in the chat', function()
             {action = 'Divine Seal', target = 'Testy'},
         }, gs:traffic())
     end)
+
+    it('gets the aftercast set once the server says the weapon skill is done', function()
+        gs:type('/ws "Black Halo" <t>')
+        calls(gs)
+        gs:finish_action()
+        local got = calls(gs)
+        assert.same({'aftercast', 'Black Halo', 'WeaponSkill', 'Apex Toad'}, {got[1].event, got[1].name, got[1].type, got[1].target})
+        assert.same(testy.worn_by(testy.whm_idle), gs:worn())
+    end)
+
+    it('gets the aftercast set once the server says the job ability is done', function()
+        gs:type('/ja "Divine Seal" <me>')
+        calls(gs)
+        gs:finish_action()
+        local got = calls(gs)
+        assert.same({'aftercast', 'Divine Seal', 'JobAbility', 'Testy'}, {got[1].event, got[1].name, got[1].type, got[1].target})
+        assert.same(testy.worn_by(testy.whm_idle), gs:worn())
+    end)
 end)
 
 describe('a line GearSwap has no action for', function()
@@ -138,15 +198,37 @@ describe('a buff', function()
 end)
 
 describe('a GearSwap command', function()
-    it('gs c passes the rest of the line to self_command', function()
-        local gs = harness.boot(testy.whm())
+    local gs
+    before_each(function()
+        gs = harness.boot(testy.whm())
         calls(gs)
+    end)
+
+    it('gs c passes the rest of the line to self_command', function()
         gs:console('gs c some words here')
         assert.same({event = 'self_command', extra = 'some words here'}, calls(gs)[1])
     end)
 
+    it('gs equip wears the set it names, without calling a hook', function()
+        gs:console('gs equip sets.engaged')
+        assert.same({{equip = {main = "Bunzi's Rod"}}}, gs:traffic())
+        assert.equal("Bunzi's Rod", gs:worn().main)
+        assert.same({}, calls(gs))
+    end)
+
+    it('gs equip finds a set nested in another', function()
+        gs:console('gs equip sets.precast.FastCast')
+        assert.same({{equip = {head = "Bunzi's Hat", left_ring = 'Kishar Ring'}}}, gs:traffic())
+    end)
+
+    it('gs equip of a set that isn\'t there changes nothing and says so', function()
+        gs:console('gs equip sets.nothing')
+        assert.same({}, gs:traffic())
+        assert.same(testy.worn_by(testy.whm_idle), gs:worn())
+        assert.matches('That set does not exist', gs:log())
+    end)
+
     it('gs disable keeps a slot as it is until gs enable', function()
-        local gs = harness.boot(testy.whm())
         gs:console('gs disable head')
         gs:type('/ma "Cure III" <me>')
         assert.same({
