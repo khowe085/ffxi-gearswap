@@ -374,6 +374,18 @@ function Game:get_party()
     }
 end
 
+-- The recast of each job ability the character knows, by recast id, in seconds: every one ready.
+function Game:ability_recasts()
+    local recasts = {}
+    for _, id in ipairs(self.job_abilities) do
+        local ability = self.res.job_abilities[id]
+        if ability.recast_id then
+            recasts[ability.recast_id] = 0
+        end
+    end
+    return recasts
+end
+
 -------------------------------------------------------------------------------------------------------------------
 -- Events, the queue and the clock.
 -------------------------------------------------------------------------------------------------------------------
@@ -815,7 +827,7 @@ function Game:make_windower(paths)
                 for id in pairs(game.res.spells) do recasts[id] = 0 end
                 return recasts
             end,
-            get_ability_recasts = function() return {} end,
+            get_ability_recasts = function() return game:ability_recasts() end,
             get_mjob_data = function() return {} end,
             get_sjob_data = function() return {} end,
             get_key_items = function() return {} end,
