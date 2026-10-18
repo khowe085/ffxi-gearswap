@@ -1,14 +1,14 @@
 // Checks the docs after an edit: the ones under docs/ and its folders, which hold for any character, and a
 // character's own in data/<Character>/.
 //
-//   dotnet run --no-cache .claude/tools/doc-lint.cs [-- --char <name>] [--export <path>]
+//   dotnet run .claude/gear.cs -- doc-lint [--char <name>] [--export <path>]
 //
 // Every doc: links and anchors resolve, tables keep one column count and have a delimiter row and a blank line
 // above, no raw HTML-like tag or pair of tildes sits outside code (both change how the page renders), and every
 // code fence is closed.
 // docs/: no doc names a character, since what holds for one character goes in that character's folder.
 // docs/gear-notes.md: no item has two entries, no item is both in a "No notes" list and given an entry, and every
-// "Simulated sets" bullet agrees with the sets in bg_job_guides.
+// "Simulated sets" bullet agrees with the sets in docs/wiki/simulated-sets.
 // <Character>_gear_notes.md: every entry is for a piece in the export or for an entry of docs/gear-notes.md, once,
 // and the table of pieces the simulated sets wear that the character lacks agrees with the sets.
 // Exit code 1 when it finds a problem.
@@ -22,7 +22,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--char", "--export"], []);
 var exportPath = Export.Resolve(cli);
 var character = Characters.Named(cli.Option("--char") ?? Export.CharacterOf(exportPath));
@@ -154,11 +153,8 @@ foreach (var doc in docs.Where(doc => doc.Key.StartsWith("docs/")))
 }
 
 var wearable = export.Where(line => line.SlotKey != "item").ToList();
-var haveSets = Directory.Exists(Tool.InCache("bg_job_guides"));
-// Windower's item names, read once, and only when the simulated sets are there to hold the notes to.
+// Windower's item names, read once, and only when a check of the simulated sets needs them.
 Resources? itemNames = null;
-if (haveSets is false)
-	Console.WriteLine("Simulated sets not checked: .claude/cache/bg_job_guides is missing. Run fetch-sources.cs.");
 
 // The generic notes' entries: items, and a few headings that aren't items, such as the armor sets.
 var noted = new HashSet<string>();
@@ -190,8 +186,7 @@ if (docs.TryGetValue(notesPath, out var notes))
 	if (onSlips > 0)
 		Console.WriteLine($"No notes for {onSlips} pieces on storage slips. Read a piece's bg-wiki page before a set takes one.");
 
-	if (haveSets)
-		CheckSimulatedSetBullets(entries);
+	CheckSimulatedSetBullets(entries);
 }
 
 if (docs.TryGetValue(ownNotesPath, out var ownNotes))
@@ -202,8 +197,7 @@ if (docs.TryGetValue(ownNotesPath, out var ownNotes))
 		Problem($"{ownNotesPath}:{heading.Number}: {heading.Text[4..].Trim()} has an entry, but it is neither in the export nor an entry of {notesPath}");
 	// Reading the entries reports an item that has two.
 	Entries(ownNotesPath, ownNotes);
-	if (haveSets)
-		CheckPiecesLacking(ownNotes);
+	CheckPiecesLacking(ownNotes);
 }
 
 Console.WriteLine($"{docs.Count} docs, {docs.Values.Sum(lines => lines.Length)} lines; problems: {problems}");

@@ -98,7 +98,7 @@ static class RankDoc
 		var untabled = character.Owned.Where(copy => copy.Augments.Any(augment => augment.StartsWith("Path: ")) && named.Contains(copy.Name) is false)
 			.Select(copy => copy.Name).Distinct().ToList();
 		if (untabled.Count > 0)
-			throw new InvalidOperationException($"{character.Export} prints a path for {Listed(untabled)}, and no rank table goes by that name. Run rank-tables.cs to read bg-wiki's table. An item bg-wiki has no table for needs a row among the items Oboro ranks up, in rank-doc.cs.");
+			throw new InvalidOperationException($"{character.Export} prints a path for {Listed(untabled)}, and no rank table goes by that name. Run rank-tables (dotnet run .claude/gear.cs -- rank-tables) to read bg-wiki's table. An item bg-wiki has no table for needs a row among the items Oboro ranks up, in rank-doc.cs.");
 
 		var who = character.Character;
 		List<ExportItem> CopiesOf(string name) => character.Owned.Where(copy => copy.Name == name).ToList();

@@ -9,7 +9,7 @@ using System.IO;
 
 namespace GearTools;
 
-// Keeps a folder of the cache at one commit of a git repository, for the sources the docs cite by file and line.
+// Fetches one commit of a git repository into a folder, for the sources the docs cite by file and line.
 static class GitSource
 {
 	// Checks the commit out into the folder unless it is there already, and says which happened. It throws when

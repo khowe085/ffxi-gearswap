@@ -4,7 +4,7 @@
 // list's set the framework happens to try first; a spell in none wears no list's set; a misspelled name places
 // nothing.
 //
-//   dotnet run --no-cache .claude/tools/check-blu-spells.cs -- --in <sets.json> [--json]
+//   dotnet run .claude/gear.cs -- check-blu-spells --in <sets.json> [--json]
 //
 // --json writes the problems as findings (lib/Dto.cs): the spell as the item, and the lists that name it as the set.
 // Exit code 1 when a spell is in no list or in two, or a list names something that isn't a blue spell.
@@ -17,7 +17,6 @@ using System.Threading.Tasks;
 using System.IO;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--in"], ["--json"]);
 var spells = Resources.BlueSpells().Distinct().ToList();
 var input = cli.Option("--in");
