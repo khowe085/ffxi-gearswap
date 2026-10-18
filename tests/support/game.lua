@@ -126,6 +126,7 @@ end
 -- main_job_level, sub_job, sub_job_level, race, status, zone, items ({name=, bag=, extdata=, count=}, bag by its API
 -- name, inventory unless given), wearing (slot name to the item's position in items), buffs (names), spells and
 -- abilities (the names known; every one the resources hold unless given).
+-- tp: the character's TP, 0 unless given.
 function Game.new(options)
     local game = setmetatable({}, Game)
     game.res = options.res
@@ -185,7 +186,7 @@ function Game.new(options)
         race = options.race or 1,
         status = options.status or 0,
         nation = 0,
-        vitals = {hp = 1500, mp = 1000, max_hp = 1500, max_mp = 1000, hpp = 100, mpp = 100, tp = 0},
+        vitals = {hp = 1500, mp = 1000, max_hp = 1500, max_mp = 1000, hpp = 100, mpp = 100, tp = options.tp or 0},
         buffs = {},
         skills = {},
         merits = {},
@@ -372,6 +373,25 @@ function Game:get_party()
             tp = player.vitals.tp, hpp = player.vitals.hpp, mpp = player.vitals.mpp, zone = self.zone},
         party1_leader = player.id, party1_count = 1, party2_count = 0, party3_count = 0,
     }
+end
+
+-- What get_mjob_data reports. A blue mage's spells are its 20 set slots, by spell id, 512 in an empty one: here
+-- the blue magic it knows, the lowest ids first.
+function Game:mjob_data()
+    if self.res.jobs[self.player.main_job_id].ens ~= 'BLU' then
+        return {}
+    end
+    local set = {}
+    for id in pairs(self.spells) do
+        if self.res.spells[id] and self.res.spells[id].type == 'BlueMagic' then
+            set[#set + 1] = id
+        end
+    end
+    table.sort(set)
+    for slot = 1, 20 do
+        set[slot] = set[slot] or 512
+    end
+    return {spells = {unpack(set, 1, 20)}}
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -816,7 +836,7 @@ function Game:make_windower(paths)
                 return recasts
             end,
             get_ability_recasts = function() return {} end,
-            get_mjob_data = function() return {} end,
+            get_mjob_data = function() return game:mjob_data() end,
             get_sjob_data = function() return {} end,
             get_key_items = function() return {} end,
             get_position = function() return '(?-?)' end,
