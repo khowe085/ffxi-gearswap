@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.ComponentModel;
 using System.IO;
 using System.Net.Http;
 
@@ -95,6 +96,10 @@ static class Sources
 	public static string FetchRepo(string name)
 	{
 		var (url, commit) = repos[name];
+		// The tests point a repo at one they make on their own machine: GEAR_TOOLS_REPO_<NAME> is "<url> <commit>".
+		var standIn = Environment.GetEnvironmentVariable("GEAR_TOOLS_REPO_" + name.ToUpperInvariant())?.Split(' ', 2);
+		if (standIn is { Length: 2 })
+			(url, commit) = (standIn[0], standIn[1]);
 		try
 		{
 			return FillRepoFolder(Tool.InCache(name), url, commit);
@@ -102,6 +107,11 @@ static class Sources
 		catch (InvalidOperationException problem)
 		{
 			Tool.Fail($"{name}: {problem.Message}");
+			throw;
+		}
+		catch (Win32Exception problem)
+		{
+			Tool.Fail($"{name}: couldn't run git, which fetching it takes. {problem.Message}");
 			throw;
 		}
 	}

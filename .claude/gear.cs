@@ -41,7 +41,8 @@ if (args.Length == 0)
 if (args[0] == "test")
 	return new TestCommand(repo, builds, Environment.GetEnvironmentVariable("GEAR_TOOLS_PASSES") ?? Path.Combine(SharedFolder(), "passes"), launcher).Run(args[1..]);
 var source = Path.Combine(toolsDir, args[0] + ".cs");
-if (File.Exists(source) is false)
+// A name with a folder in it would reach past the tools, as tests/run-tests or ../gear would.
+if (args[0].IndexOfAny(['/', '\\']) >= 0 || File.Exists(source) is false)
 	return Stop($"No tool named {args[0]} in .claude/tools. Tools: {ToolNames()}");
 var assembly = builds.Get(source);
 if (assembly is null)
@@ -139,6 +140,7 @@ sealed class TestCommand
 			Console.WriteLine($"{category}: no change since it last passed");
 			return true;
 		}
+		var before = Hash(SourceInputs(category));
 		var watch = Stopwatch.StartNew();
 		if ((category == "tools" ? RunToolsTests(filter) : RunDataChecks()) is false)
 		{
@@ -148,17 +150,27 @@ sealed class TestCommand
 		Console.WriteLine($"{category}: passed in {watch.Elapsed.TotalSeconds:0.0} s");
 		// A filtered run tested only some of the files.
 		if (filter is null)
-		{
-			Directory.CreateDirectory(passes);
-			// Taken again, since the data checks fill the cache, which counts among their files.
-			File.WriteAllText(PassOf(category), "");
-			RemoveUnusedPasses();
-		}
+			KeepPass(category, before);
 		return true;
 	}
 
-	string PassOf(string category) =>
-		Path.Combine(passes, category + "-" + Fingerprint.Of(Inputs(category).Select(file => (Path.GetRelativePath(repo, file).Replace('\\', '/'), file))));
+	// A pass is kept for the files as the run read them, so not when they changed while it ran. The data checks fill
+	// the cache, which counts among their files, so the pass is kept under the cache as they left it.
+	void KeepPass(string category, string before)
+	{
+		if (Hash(SourceInputs(category)) != before)
+		{
+			Console.WriteLine($"{category}: no pass kept, since its files changed while it ran");
+			return;
+		}
+		Directory.CreateDirectory(passes);
+		File.WriteAllText(PassOf(category), "");
+		RemoveUnusedPasses();
+	}
+
+	string PassOf(string category) => Path.Combine(passes, category + "-" + Hash(SourceInputs(category).Concat(CacheInputs(category))));
+
+	string Hash(IEnumerable<string> files) => Fingerprint.Of(files.Select(file => (Path.GetRelativePath(repo, file).Replace('\\', '/'), file)));
 
 	void RemoveUnusedPasses()
 	{
@@ -167,19 +179,23 @@ sealed class TestCommand
 			File.Delete(pass);
 	}
 
-	// The files a category's result rests on. The tools tests run on a fixture of their own, so they rest on the
-	// tools' source and tests/ alone. The data checks rest on the data and the docs they check, the tools' source, and
-	// what of the cache can differ between checkouts: Windower's resources and bg-wiki's rank tables.
-	IEnumerable<string> Inputs(string category)
+	// The files of the checkout a category's result rests on. The tools tests run on a fixture of their own, so they
+	// rest on the tools' source and tests/ alone. The data checks rest on the data and the docs they check, and the
+	// tools' source.
+	IEnumerable<string> SourceInputs(string category)
 	{
 		if (category == "tools")
 			return ToolSources().Concat(FilesUnder(Path.Combine(toolsDir, "tests")));
 		return FilesUnder(Path.Combine(repo, "data"))
 			.Concat(FilesUnder(Path.Combine(repo, "docs")))
-			.Concat(ToolSources())
-			.Concat(FilesUnder(Path.Combine(cache, "res")))
-			.Concat(IfThere(Path.Combine(cache, "ranks", "ranks.json")));
+			.Concat(ToolSources());
 	}
+
+	// What else of the checkout's cache a category's result rests on, as it can differ between checkouts: for the data
+	// checks, Windower's resources and bg-wiki's rank tables.
+	IEnumerable<string> CacheInputs(string category) => category == "data"
+		? FilesUnder(Path.Combine(cache, "res")).Concat(IfThere(Path.Combine(cache, "ranks", "ranks.json")))
+		: [];
 
 	// Each tool's file, the shared code they compile, and this launcher, which builds them.
 	IEnumerable<string> ToolSources() => Directory.GetFiles(toolsDir, "*.cs")
@@ -341,21 +357,24 @@ sealed class Builds
 	public string? Get(string source)
 	{
 		var name = Path.GetFileNameWithoutExtension(source);
-		var kept = Path.Combine(folder, name + "-" + Hash(source));
+		var hash = Hash(source);
+		var kept = Path.Combine(folder, name + "-" + hash);
 		var assembly = Path.Combine(kept, name + ".dll");
-		if (File.Exists(assembly) is false && Build(source, name, kept) is false)
+		if (File.Exists(assembly) is false && Build(source, name, hash, kept) is false)
 			return null;
 		// The folder's time is when the build was last used, which decides when it is removed.
 		Directory.SetLastWriteTimeUtc(kept, DateTime.UtcNow);
 		return assembly;
 	}
 
-	bool Build(string source, string name, string kept)
+	bool Build(string source, string name, string hash, string kept)
 	{
 		// Another run may be building the same source: one builds it, and the others wait for it and take its build.
 		using var held = Lock(Path.Combine(folder, "locks", Path.GetFileName(kept)));
-		if (Directory.Exists(kept))
+		if (File.Exists(Path.Combine(kept, name + ".dll")))
 			return true;
+		// A build that has lost its assembly, as a removal that failed partway can leave, is built again.
+		Delete(kept);
 		Console.Error.WriteLine($"Building {name}");
 		// The build's own files go to the temp folder, not to the dotnet folder that keeps a build of each app by path.
 		var work = Path.Combine(Path.GetTempPath(), "gear-build-" + Guid.NewGuid().ToString("N")[..8]);
@@ -367,6 +386,12 @@ sealed class Builds
 			if (build.ExitCode != 0)
 			{
 				Console.Error.WriteLine($"{name}.cs doesn't build:\n{build.Output.Trim()}");
+				return false;
+			}
+			// An edit made while it built may or may not be in the build, so it is kept under neither hash.
+			if (Hash(source) != hash)
+			{
+				Console.Error.WriteLine($"{name}.cs changed while it was building. Run it again.");
 				return false;
 			}
 			Directory.Move(output, kept);
