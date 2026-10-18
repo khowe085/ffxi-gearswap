@@ -1,0 +1,80 @@
+local harness = require('harness')
+local testy = require('testy')
+
+-- Testy as a red mage with the idle set on.
+local function boot()
+    local gs = harness.boot(testy.rdm())
+    gs:console('gs c update')
+    gs:traffic()
+    return gs
+end
+
+-- The Cure III midcast set over its precast set over the idle set, with these weapons in hand.
+local function curing_with(main)
+    return testy.worn_by(testy.rdm_idle, {main = main, head = 'Kaykaus Mitra +1', body = 'Malignance Tabard',
+        ring1 = 'Kishar Ring'})
+end
+
+describe('Sel\'s weapon lock', function()
+    local gs
+    before_each(function()
+        gs = boot()
+    end)
+
+    it('puts the weapon set\'s main and sub on over the idle set\'s', function()
+        gs:console('gs c set Weapons Naegling')
+        assert.same(testy.worn_by(testy.rdm_idle, {main = 'Naegling'}), gs:worn())
+    end)
+
+    it('keeps the weapon set\'s main and sub on when a spell\'s set names other weapons', function()
+        gs:console('gs c set Weapons Naegling')
+        gs:type('/ma "Cure III" <me>')
+        assert.same(curing_with('Naegling'), gs:worn())
+        gs:finish_action()
+        assert.same(testy.worn_by(testy.rdm_idle, {main = 'Naegling'}), gs:worn())
+    end)
+
+    it('swaps to another weapon set\'s main and sub when the weapon set changes', function()
+        gs:console('gs c set Weapons Naegling')
+        gs:console('gs c set Weapons Crocea')
+        assert.same(testy.worn_by(testy.rdm_idle, {main = 'Crocea Mors'}), gs:worn())
+    end)
+
+    it('locks nothing with Weapons None, so each set\'s weapons go on', function()
+        assert.equal('None', gs.user.state.Weapons.value)
+        gs:type('/ma "Cure III" <me>')
+        assert.same(curing_with("Bunzi's Rod"), gs:worn())
+        gs:finish_action()
+        assert.same(testy.worn_by(testy.rdm_idle), gs:worn())
+    end)
+
+    it('lets the idle set\'s weapons back on when Weapons goes back to None', function()
+        gs:console('gs c set Weapons Naegling')
+        gs:console('gs c set Weapons None')
+        assert.same(testy.worn_by(testy.rdm_idle), gs:worn())
+    end)
+
+    pending('lets each set\'s weapons go on while engaged with Weapons None, as docs/frameworks/sel.md says: '
+        .. 'data/User/User-Globals.lua holds the weapons in hand while engaged (hold_engaged_weapons)')
+end)
+
+describe('Sel\'s weapon set with UnlockWeapons on', function()
+    local gs
+    before_each(function()
+        gs = boot()
+        gs:console('gs c set Weapons Naegling')
+        gs:console('gs c toggle UnlockWeapons')
+        assert.is_true(gs.user.state.UnlockWeapons.value)
+    end)
+
+    it('is laid over the idle set', function()
+        assert.same(testy.worn_by(testy.rdm_idle, {main = 'Naegling'}), gs:worn())
+    end)
+
+    it('lets a spell\'s set change the weapons, and comes back after', function()
+        gs:type('/ma "Cure III" <me>')
+        assert.same(curing_with("Bunzi's Rod"), gs:worn())
+        gs:finish_action()
+        assert.same(testy.worn_by(testy.rdm_idle, {main = 'Naegling'}), gs:worn())
+    end)
+end)
