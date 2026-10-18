@@ -4,8 +4,8 @@
 //
 //   dotnet run .claude/gear.cs -- test tools [--filter <text>]
 //
-// The launcher builds every tool again before the tests start, so running a tool here starts its build in the
-// checkout's .claude/cache/builds rather than building it. The tests run side by side, each on what it makes for
+// The launcher brings every tool's build up to date before the tests start, so running a tool here starts its build in
+// the checkout's .claude/cache/builds rather than building it. The tests run side by side, each on what it makes for
 // itself; the few that change what the others read run after them, one at a time. With --filter, only the tests whose
 // name holds the text run. Exit code 1 when a test fails. Nothing here uses the network: wiki.cs and rank-tables.cs ask
 // a stand-in for bg-wiki on this machine, Windower's resource files come from a stand-in too, and the git sources are
@@ -1560,11 +1560,12 @@ Test("wiki saves each page under the name it was asked by, says which it couldn'
 		"pages":[{"title":"Nyame Helm","revisions":[{"slots":{"main":{"content":"helm text"}}}]},
 		{"title":"Obstin. Sash","revisions":[{"slots":{"main":{"content":"sash text"}}}]},
 		{"title":"Category:Enspell","revisions":[{"slots":{"main":{"content":"enspell text"}}}]},
+		{"title":"titles","revisions":[{"slots":{"main":{"content":"titles page"}}}]},
 		{"title":"No Such Page","missing":true}]}}
 		""";
 	using var site = new StandInSite(request => new StandInReply(200, reply));
 	var sandbox = NewSandbox();
-	var run = sandbox.RunAgainst(site, "wiki", "Nyame Helm", "Obstinate Sash", "Category:Enspell", "No Such Page");
+	var run = sandbox.RunAgainst(site, "wiki", "Nyame Helm", "Obstinate Sash", "Category:Enspell", "titles", "No Such Page");
 	Equal(1, run.ExitCode);
 	Contains(run.Output, "saved   docs/wiki/pages/Nyame_Helm.txt (9 chars)\n");
 	Contains(run.Output, "saved   docs/wiki/pages/Obstinate_Sash.txt (9 chars) (the page is \"Obstin. Sash\")");
@@ -1572,18 +1573,21 @@ Test("wiki saves each page under the name it was asked by, says which it couldn'
 	Contains(run.Output, "MISSING No Such Page: bg-wiki has no page by that name");
 	var pages = Path.Combine(sandbox.Repo, "docs", "wiki", "pages");
 	Equal("sash text", File.ReadAllText(Path.Combine(pages, "Obstinate_Sash.txt")));
+	Equal("titles page", File.ReadAllText(Path.Combine(pages, "titles.txt")));
 	// The titles the pages were saved under, which their file names can't all be read back as.
-	Equal("Category:Enspell\nNyame Helm\nObstinate Sash\n", File.ReadAllText(Path.Combine(pages, "titles.txt")).Replace("\r", ""));
+	var index = Path.Combine(sandbox.Repo, "docs", "wiki", "page-titles.txt");
+	Equal("Category:Enspell\nNyame Helm\nObstinate Sash\ntitles\n", File.ReadAllText(index).Replace("\r", ""));
 	Equal(1, site.Requests.Count);
-	Contains(site.Requests[0], "titles=Nyame Helm|Obstinate Sash|Category:Enspell|No Such Page");
-	// A page already saved is asked for again only with --refresh.
+	Contains(site.Requests[0], "titles=Nyame Helm|Obstinate Sash|Category:Enspell|titles|No Such Page");
+	// A page already saved is asked for again only with --refresh. Its file's date is when git checked it out, so
+	// none is given.
 	var again = sandbox.RunAgainst(site, "wiki", "Category:Enspell");
 	Equal(0, again.ExitCode);
-	Contains(again.Output, "cached  docs/wiki/pages/Category_Enspell.txt (12 bytes, from ");
+	Contains(again.Output, "cached  docs/wiki/pages/Category_Enspell.txt (12 bytes)\n");
 	Equal(1, site.Requests.Count);
 	Equal(0, sandbox.RunAgainst(site, "wiki", "--refresh", "Category:Enspell").ExitCode);
 	Equal(2, site.Requests.Count);
-	Equal("Category:Enspell\nNyame Helm\nObstinate Sash\n", File.ReadAllText(Path.Combine(pages, "titles.txt")).Replace("\r", ""));
+	Equal("Category:Enspell\nNyame Helm\nObstinate Sash\ntitles\n", File.ReadAllText(index).Replace("\r", ""));
 });
 
 Test("wiki stops when bg-wiki answers with an error, in HTTP or in its reply", () =>

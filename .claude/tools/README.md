@@ -11,7 +11,7 @@ dotnet run .claude/gear.cs -- check-export --in blu.json
 ```
 
 - After `--` comes the tool's name, without `.cs`, then its own options. Each tool's opening comment lists them.
-- A tool runs from its build in the checkout's `.claude/cache/builds`, which git ignores; the first run of a tool makes it. After changing a tool, `lib/` (the shared code every tool compiles, through `Directory.Build.props`) or `Directory.Build.props`, build them again, since a tool goes on running the build it has:
+- A tool runs from its build in the checkout's `.claude/cache/builds`, which git ignores. A run makes the build again first when the tool's source changed since: its file, `lib/` (the shared code every tool compiles, through `Directory.Build.props`) or `Directory.Build.props`, whether by an edit, a pull or a branch switch. `build` brings every tool's build up to date at once:
 
   ```bash
   dotnet run .claude/gear.cs -- build
@@ -62,7 +62,7 @@ What the tools take from outside the repo seldom changes, so it is checked in un
 | `wsdist/gear.py` | The item data of Kastra's damage simulator | `fetch-sources.cs`, from IzaKastra/wsdist_beta at `d12ac59` |
 | `wiki/rank-tables.json` | bg-wiki's rank-by-rank augment tables for the items in every character's newest export, with the day they were read, which `docs/rank-augments.md` prints | `rank-tables.cs` |
 | `wiki/simulated-sets/` | The wikitext of bg-wiki's simulated gear sets, one file a job | `simulated-sets.cs`, from IzaKastra/bg_job_guides at `f264ae4` |
-| `wiki/pages/` | bg-wiki pages saved as wikitext, and in `titles.txt` the title each was saved under | `wiki.cs` |
+| `wiki/pages/`, `wiki/page-titles.txt` | bg-wiki pages saved as wikitext, and the title each was saved under | `wiki.cs` |
 
 wsdist_beta and bg_job_guides are pinned to the commits `docs/ffxi-mechanics.md` cites file and line numbers from. Move a pin only together with those references.
 
@@ -82,7 +82,7 @@ wsdist_beta and bg_job_guides are pinned to the commits `docs/ffxi-mechanics.md`
 | `simulated-sets.cs` | Writes bg-wiki's simulated sets into `docs/wiki/simulated-sets/`, one file a job, from IzaKastra/bg_job_guides at its pinned commit, over what is there. | When the bg_job_guides pin moves. |
 | `sims.cs` | Shows bg-wiki's simulated sets for a job, from `docs/wiki/simulated-sets/`, marks what the character owns, and counts how often each piece fills a slot. | For a reference set to start from. |
 | `wsdist-gear.cs` | Looks an item up in wsdist's gear data, `docs/wsdist/gear.py`. `--check-nyame` compares its Nyame entries with `docs/rank-augments.md`; at the pinned commit it finds one difference, the Nyame Flanchard error `docs/ffxi-mechanics.md` lists, and so exits with 1. | For a second opinion on an item's stats, and to see which rank entries the simulator has. |
-| `wiki.cs` | Saves bg-wiki pages as wikitext into `docs/wiki/pages/`, many to a request, and adds their titles to `titles.txt` there. A page already saved is left alone unless `--refresh` is given. | Before relying on a mechanic or an item detail the docs don't cover. |
+| `wiki.cs` | Saves bg-wiki pages as wikitext into `docs/wiki/pages/`, many to a request, and adds their titles to `docs/wiki/page-titles.txt`. A page already saved is left alone unless `--refresh` is given. | Before relying on a mechanic or an item detail the docs don't cover. |
 | `rank-tables.cs` | Reads bg-wiki's rank tables into `docs/wiki/rank-tables.json`, for the items in every character's newest export. | After an export that adds a rank-augmented item. |
 | `rank-doc.cs` | Writes the two rank documents from those tables: `docs/rank-augments.md`, the tables themselves, and each character's `<Character>_rank_augments.md`, that character's path and rank for each item, from the newest export and the Ranks table in `<Character>_notes.md`. It stops, writing nothing, on a Ranks row it can't hold to the tables and the export: an unknown item, a path the item lacks, a rank its table lacks, or a path other than the one the export prints. It stops the same way on an exported item that prints a path and has neither a rank table nor a row among the items Oboro ranks up. `--check` writes nothing and exits with 1 when a document isn't what it would write. | After the player reports a new rank (change its row in the Ranks table first), and after a new export. |
 | `doc-lint.cs` | Checks the docs under `docs/` (its folders too) and the character's own files: links, anchors, tables and code fences; that no doc under `docs/` names a character; `docs/gear-notes.md` against the simulated sets; and the character's gear notes against the export and the sets. Also lists owned pieces the notes don't cover. | After any edit under `docs/` or to a character's notes. |
@@ -150,12 +150,12 @@ dotnet run .claude/gear.cs -- test
 
 | Category | What runs | The files it rests on |
 |---|---|---|
-| `tools` | Every tool built again, then `tests/run-tests.cs`: the shared code and each tool, on a small made-up character | The tools' source (each tool's file, `lib/` and `Directory.Build.props`), `tests/` and the launcher |
+| `tools` | Every tool's build brought up to date, then `tests/run-tests.cs`: the shared code and each tool, on a small made-up character | The tools' source (each tool's file, `lib/` and `Directory.Build.props`), `tests/` and the launcher |
 | `data` | The tools' checks of each character, a folder under `data/` with its notes or gear list: `sel-sets.cs` on each of its gear files, then `check-export.cs` on each sets file, `check-blu-spells.cs` on the BLU one, `gear-list.cs` on them all, and `doc-lint.cs`. Then `rank-doc --check` | `data/` and `docs/`, the outside data in it too, and the builds it runs (see below) |
 | `gearswap` | No tests yet | |
 
 - The hash of a category's files when it last passed is kept in the checkout's `.claude/cache/passes`. A run that fails, one with `--filter`, or one during which the files changed keeps no pass.
-- A pass vouches for the builds it ran on, so any build clears every pass: `build`, the tools tests' own build, and a tool's first build.
+- A pass vouches for the builds it ran on, so a build made again clears every pass.
 - `--all` runs every category, and `test tools` (or `data`) runs that one whether or not it changed.
 - `test tools --filter gear-list` runs only the tools tests whose name holds the text.
 - Exit code 0 when every category that ran passed, 1 when one failed, 2 for an option or a category it doesn't know, or a `--filter` no test's name holds.

@@ -5,14 +5,14 @@
 //   dotnet run .claude/gear.cs -- test [--all] [<category>...] [--filter <text>]
 //
 // <tool> is the tool's file name without .cs, as check-export, and the options after it are the tool's own. A tool runs
-// from its build in this checkout's .claude/cache/builds, made the first time it runs. build makes every tool's build
-// again: run it after changing a tool, lib/ or Directory.Build.props, since a tool goes on running the build it has.
+// from its build in this checkout's .claude/cache/builds, made again first whenever its source (its file, lib/ or
+// Directory.Build.props) changed since. build brings every tool's build up to date at once.
 //
-// test runs each category of tests whose files changed since it last passed in this checkout: tools (every tool built
-// again, then tests/run-tests.cs on the made-up character there), data (the tools' checks of each character's gear
-// files and docs), and gearswap. A pass vouches for the builds it ran on, so any build clears every pass. --all runs
-// every category, and a category named runs whether or not it changed. --filter runs only the tools tests whose name
-// holds the text, and counts for no pass.
+// test runs each category of tests whose files changed since it last passed in this checkout: tools (every tool's
+// build brought up to date, then tests/run-tests.cs on the made-up character there), data (the tools' checks of each
+// character's gear files and docs), and gearswap. A pass vouches for the builds it ran on, so a build made again
+// clears every pass. --all runs every category, and a category named runs whether or not it changed. --filter runs
+// only the tools tests whose name holds the text, and counts for no pass.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -119,7 +119,7 @@ sealed class TestCommand
 			return 0;
 		}
 		var pass = Path.Combine(passes, category);
-		var before = Hash(Inputs(category));
+		var before = Files.Hash(repo, Inputs(category));
 		if (forced is false && File.Exists(pass) && File.ReadAllText(pass) == before)
 		{
 			Console.WriteLine($"{category}: no change since it last passed");
@@ -135,7 +135,7 @@ sealed class TestCommand
 		// A filtered run tested only some of the files, and a run during which they changed tested what they were.
 		if (filter is not null)
 			return 0;
-		if (Hash(Inputs(category)) != before)
+		if (Files.Hash(repo, Inputs(category)) != before)
 		{
 			Console.WriteLine($"{category}: no pass kept, since its files changed while it ran");
 			return 0;
@@ -151,18 +151,18 @@ sealed class TestCommand
 	IEnumerable<string> Inputs(string category)
 	{
 		if (category == "tools")
-			return ToolSources().Concat(FilesUnder(Path.Combine(toolsDir, "tests")));
-		return FilesUnder(Path.Combine(repo, "data")).Concat(FilesUnder(Path.Combine(repo, "docs")));
+			return ToolSources().Concat(Files.Under(Path.Combine(toolsDir, "tests")));
+		return Files.Under(Path.Combine(repo, "data")).Concat(Files.Under(Path.Combine(repo, "docs")));
 	}
 
 	// Each tool's file, the shared code they compile, and this launcher, which builds and runs them.
 	IEnumerable<string> ToolSources() => Directory.GetFiles(toolsDir, "*.cs")
-		.Concat(FilesUnder(Path.Combine(toolsDir, "lib")))
-		.Concat(IfThere(Path.Combine(toolsDir, "Directory.Build.props")))
+		.Concat(Files.Under(Path.Combine(toolsDir, "lib")))
+		.Concat(Files.IfThere(Path.Combine(toolsDir, "Directory.Build.props")))
 		.Append(Path.Combine(repo, ".claude", "gear.cs"));
 
-	// The tools tests run because the tools' source changed, so every tool is built again first. A tool that doesn't
-	// build fails the category, and so does a run that crashed, whatever code it exited with.
+	// Every build is brought up to date first. A tool that doesn't build fails the category, and so does a run that
+	// crashed, whatever code it exited with.
 	int RunToolsTests(string? filter)
 	{
 		if (builds.BuildAll() is false)
@@ -205,7 +205,7 @@ sealed class TestCommand
 		}
 		finally
 		{
-			Folders.TryDelete(sets);
+			Files.TryDeleteFolder(sets);
 		}
 		return passed;
 	}
@@ -244,22 +244,6 @@ sealed class TestCommand
 			.ToList();
 	}
 
-	// The hash of files by their path in the repo and their content, as 32 hex digits.
-	string Hash(IEnumerable<string> files)
-	{
-		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-		foreach (var file in files.Select(file => (Name: Path.GetRelativePath(repo, file).Replace('\\', '/'), Path: file)).OrderBy(file => file.Name, StringComparer.Ordinal))
-		{
-			hash.AppendData(Encoding.UTF8.GetBytes(file.Name + "\n"));
-			hash.AppendData(SHA256.HashData(File.ReadAllBytes(file.Path)));
-		}
-		return Convert.ToHexString(hash.GetHashAndReset())[..32].ToLowerInvariant();
-	}
-
-	static IEnumerable<string> FilesUnder(string folder) => Directory.Exists(folder) ? Directory.GetFiles(folder, "*", SearchOption.AllDirectories) : [];
-
-	static IEnumerable<string> IfThere(string file) => File.Exists(file) ? [file] : [];
-
 	static int Stop(string message)
 	{
 		Console.Error.WriteLine(message);
@@ -280,15 +264,19 @@ sealed class GearFile
 	}
 }
 
-// The tools' builds in the checkout's .claude/cache/builds, a folder each, and the tools tests' beside them.
+// The tools' builds in the checkout's .claude/cache/builds, a folder each, and the tools tests' beside them. A build
+// notes the hash of the source it was made from, so one whose source changed since, by an edit, a pull or a branch
+// switch, is made again before it runs.
 sealed class Builds
 {
+	string repo;
 	string folder;
 	string toolsDir;
 	string passes;
 
 	public Builds(string repo)
 	{
+		this.repo = repo;
 		folder = Path.Combine(repo, ".claude", "cache", "builds");
 		toolsDir = Path.Combine(repo, ".claude", "tools");
 		passes = Path.Combine(repo, ".claude", "cache", "passes");
@@ -300,28 +288,50 @@ sealed class Builds
 		return Path.Combine(folder, name, name + ".dll");
 	}
 
-	// The app's build, made first when it has none. Null when it doesn't build, after writing the compiler's errors.
-	public string? Get(string source)
-	{
-		if (File.Exists(AssemblyOf(source)))
-			return AssemblyOf(source);
-		ClearPasses();
-		return Build(source, replace: false) ? AssemblyOf(source) : null;
-	}
+	// The app's build, made again first when it is missing or its source changed. Null when it doesn't build, after
+	// writing the compiler's errors.
+	public string? Get(string source) => Current(source) ? AssemblyOf(source) : null;
 
-	// Builds every tool and the tools tests again, side by side. False when one doesn't build.
+	// Brings the builds of every tool and of the tools tests up to date, side by side. False when one doesn't build.
 	public bool BuildAll()
 	{
-		ClearPasses();
 		var apps = Directory.GetFiles(toolsDir, "*.cs").Append(Path.Combine(toolsDir, "tests", "run-tests.cs")).ToList();
-		var built = new bool[apps.Count];
-		Parallel.For(0, apps.Count, i => built[i] = Build(apps[i], replace: true));
-		return built.All(done => done);
+		var current = new bool[apps.Count];
+		Parallel.For(0, apps.Count, i => current[i] = Current(apps[i]));
+		return current.All(done => done);
 	}
 
-	// Builds the app, over the build it has when replace is true. Without it, a build another run made meanwhile
-	// stays, since that run may be starting from it.
-	bool Build(string source, bool replace)
+	// Runs started at once take turns at a build, and one whose turn comes after another made it finds it current.
+	bool Current(string source)
+	{
+		var made = SourceHash(source);
+		if (MadeFrom(source) == made)
+			return true;
+		using var turn = Turn(Path.Combine(folder, Path.GetFileNameWithoutExtension(source) + ".lock"));
+		return MadeFrom(source) == made || Build(source, made);
+	}
+
+	// What an app's build is made from: its own file, the shared code and the build settings.
+	string SourceHash(string source) => Files.Hash(repo, Files.Under(Path.Combine(toolsDir, "lib"))
+		.Concat(Files.IfThere(Path.Combine(toolsDir, "Directory.Build.props")))
+		.Append(source));
+
+	// The hash the app's build notes, or null when it has no build or no note.
+	string? MadeFrom(string source)
+	{
+		try
+		{
+			return File.Exists(AssemblyOf(source)) ? File.ReadAllText(Path.Combine(Path.GetDirectoryName(AssemblyOf(source))!, "source.hash")) : null;
+		}
+		catch (Exception problem) when (problem is FileNotFoundException or DirectoryNotFoundException)
+		{
+			// Another run may be replacing the build.
+			return null;
+		}
+	}
+
+	// Builds the app over the build it has, and notes in it the hash of the source it was made from.
+	bool Build(string source, string made)
 	{
 		var name = Path.GetFileNameWithoutExtension(source);
 		Console.Error.WriteLine($"Building {name}");
@@ -339,16 +349,16 @@ sealed class Builds
 				Console.Error.WriteLine($"{name}.cs doesn't build:\n{build.Output.Trim()}");
 				return false;
 			}
+			File.WriteAllText(Path.Combine(output, "source.hash"), made);
+			// A test's pass vouches for the builds it ran on.
+			foreach (var pass in Directory.Exists(passes) ? Directory.GetFiles(passes) : [])
+				File.Delete(pass);
 			var kept = Path.Combine(folder, name);
 			// Moved aside rather than deleted where it is, since a tool may be running from it: a move takes the whole
 			// build or none of it, where a delete on Windows can leave part of it behind.
-			if (replace && Directory.Exists(kept))
+			if (Directory.Exists(kept))
 				Directory.Move(kept, replaced);
 			Directory.Move(output, kept);
-			return true;
-		}
-		catch (IOException) when (replace is false && File.Exists(AssemblyOf(source)))
-		{
 			return true;
 		}
 		catch (Exception problem) when (problem is IOException or UnauthorizedAccessException)
@@ -358,25 +368,51 @@ sealed class Builds
 		}
 		finally
 		{
-			Folders.TryDelete(work);
-			Folders.TryDelete(output);
-			Folders.TryDelete(replaced);
+			Files.TryDeleteFolder(work);
+			Files.TryDeleteFolder(output);
+			Files.TryDeleteFolder(replaced);
 		}
 	}
 
-	// A test's pass vouches for the builds it ran on, which a build replaces.
-	void ClearPasses()
+	// Waits while another run holds the lock, but not past what a build can take.
+	static FileStream Turn(string path)
 	{
-		foreach (var pass in Directory.Exists(passes) ? Directory.GetFiles(passes) : [])
-			File.Delete(pass);
+		var waited = Stopwatch.StartNew();
+		while (true)
+		{
+			Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+			try
+			{
+				return new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+			}
+			catch (IOException) when (waited.Elapsed < TimeSpan.FromMinutes(5))
+			{
+				Thread.Sleep(100);
+			}
+		}
 	}
-
 }
 
-static class Folders
+static class Files
 {
+	public static IEnumerable<string> Under(string folder) => Directory.Exists(folder) ? Directory.GetFiles(folder, "*", SearchOption.AllDirectories) : [];
+
+	public static IEnumerable<string> IfThere(string file) => File.Exists(file) ? [file] : [];
+
+	// The hash of files by their path in the repo and their content, as 32 hex digits.
+	public static string Hash(string repo, IEnumerable<string> files)
+	{
+		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+		foreach (var file in files.Select(file => (Name: Path.GetRelativePath(repo, file).Replace('\\', '/'), Path: file)).OrderBy(file => file.Name, StringComparer.Ordinal))
+		{
+			hash.AppendData(Encoding.UTF8.GetBytes(file.Name + "\n"));
+			hash.AppendData(SHA256.HashData(File.ReadAllBytes(file.Path)));
+		}
+		return Convert.ToHexString(hash.GetHashAndReset())[..32].ToLowerInvariant();
+	}
+
 	// For a folder nothing reads again, which a virus scanner or a tool still running may hold for a while.
-	public static void TryDelete(string folder)
+	public static void TryDeleteFolder(string folder)
 	{
 		try
 		{

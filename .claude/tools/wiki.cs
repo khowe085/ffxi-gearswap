@@ -1,5 +1,5 @@
 // Saves bg-wiki pages as wikitext under docs/wiki/pages, one file a page, to read or grep afterwards, and keeps the
-// title each was saved under in titles.txt there, since a file's name can't always be read back as its title.
+// title each was saved under in docs/wiki/page-titles.txt, since a file's name can't always be read back as its title.
 //
 //   dotnet run .claude/gear.cs -- wiki [--refresh] "<Title>" ["<Title>" ...]
 //
@@ -20,7 +20,8 @@ if (cli.Words.Count == 0)
 	Tool.Fail("Name at least one page: dotnet run .claude/gear.cs -- wiki \"Nyame Helm\"");
 var dir = Tool.InRepo("docs", "wiki", "pages");
 Directory.CreateDirectory(dir);
-var titlesFile = Path.Combine(dir, "titles.txt");
+// Beside the pages rather than among them, where a page's own file could take its name.
+var titlesFile = Tool.InRepo("docs", "wiki", "page-titles.txt");
 var titles = new SortedSet<string>(File.Exists(titlesFile) ? File.ReadAllLines(titlesFile).Where(line => line.Length > 0) : [], StringComparer.Ordinal);
 
 // Characters Windows won't take in a file name, and the space, become underscores.
@@ -46,7 +47,7 @@ foreach (var title in cli.Words)
 	}
 	else
 	{
-		Console.WriteLine($"cached  {Tool.RepoRelative(file)} ({new FileInfo(file).Length} bytes, from {File.GetLastWriteTime(file):yyyy-MM-dd})");
+		Console.WriteLine($"cached  {Tool.RepoRelative(file)} ({new FileInfo(file).Length} bytes)");
 	}
 }
 if (titles.Count > 0)

@@ -23,7 +23,7 @@ Run every step unless the request names some, then only those.
 1. **Windower's resources and wsdist's gear data.** `dotnet run .claude/gear.cs -- fetch-sources` downloads Windower's `items.lua`, `item_descriptions.lua` and `spells.lua` into `docs/windower/`, and copies `gear.py` from IzaKastra/wsdist_beta, at the commit `docs/ffxi-mechanics.md` cites, into `docs/wsdist/`.
 2. **Rank tables.** `dotnet run .claude/gear.cs -- rank-tables` reads bg-wiki's rank tables for every item in each character's newest export into `docs/wiki/rank-tables.json`. bg-wiki rate limits, and the tool waits and asks again on its own, so allow it up to 10 minutes.
 3. **Simulated sets.** `dotnet run .claude/gear.cs -- simulated-sets` copies each job's simulated sets from IzaKastra/bg_job_guides, at the commit `docs/ffxi-mechanics.md` cites, into `docs/wiki/simulated-sets/`.
-4. **Saved pages.** When `docs/wiki/pages/titles.txt` exists, run `dotnet run .claude/gear.cs -- wiki --refresh` with every line of it as a title, each in double quotes.
+4. **Saved pages.** When `docs/wiki/page-titles.txt` exists, run `dotnet run .claude/gear.cs -- wiki --refresh` with every line of it as a title, each in double quotes.
 5. **Rank documents.** `dotnet run .claude/gear.cs -- rank-doc` rewrites `docs/rank-augments.md` and each character's `<Character>_rank_augments.md` from the tables.
 6. **Checks.** `dotnet run .claude/gear.cs -- test data` runs the data checks.
 
