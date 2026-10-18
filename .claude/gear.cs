@@ -174,7 +174,7 @@ sealed class TestCommand
 		.Append(launcher);
 
 	// Builds every tool and the tests, and runs the tests with a file that says where each tool's build is, so they
-	// run the tools without building them.
+	// run the tools without building them, and with this launcher's own build, so they start it the same way.
 	bool RunToolsTests(string? filter)
 	{
 		var tools = Directory.GetFiles(toolsDir, "*.cs").Order(StringComparer.Ordinal).ToList();
@@ -195,7 +195,12 @@ sealed class TestCommand
 		try
 		{
 			string[] arguments = filter is null ? [] : [filter];
-			return Apps.Run(assemblies[^1]!, arguments, repo, new Dictionary<string, string> { ["GEAR_TOOLS_TEST_BUILDS"] = manifest }) == 0;
+			var environment = new Dictionary<string, string>
+			{
+				["GEAR_TOOLS_TEST_BUILDS"] = manifest,
+				["GEAR_TOOLS_LAUNCHER"] = typeof(TestCommand).Assembly.Location,
+			};
+			return Apps.Run(assemblies[^1]!, arguments, repo, environment) == 0;
 		}
 		finally
 		{
