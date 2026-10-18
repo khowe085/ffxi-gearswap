@@ -382,6 +382,7 @@ local beginning_category = {[3] = 8, [7] = 7, [16] = 12}
 -- options, all of them optional:
 --   character      the character's name, Testy unless given
 --   main_job, sub_job, main_job_level, sub_job_level
+--   tp             the character's TP, 0 unless given
 --   items          {name=, bag=, augments=} for each piece the character has; bag is the API name ('wardrobe2')
 --   wearing        slot name to the name of an item in items, worn when GearSwap loads
 --   buffs          the names of the buffs up when GearSwap loads
@@ -410,7 +411,7 @@ function harness.boot(options)
         res = res, paths = {addon = paths.addon, windower = paths.windower},
         name = options.character or 'Testy',
         main_job = options.main_job or 'WHM', sub_job = options.sub_job or 'RDM',
-        main_job_level = options.main_job_level, sub_job_level = options.sub_job_level,
+        main_job_level = options.main_job_level, sub_job_level = options.sub_job_level, tp = options.tp,
         items = items, wearing = wearing, buffs = options.buffs,
         spells = options.spells, abilities = options.abilities and (function()
             local known = {}

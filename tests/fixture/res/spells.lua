@@ -18,6 +18,7 @@ return {
     [109] = {id=109,en="Refresh",ja="リフレシュ",cast_time=5,duration=150,element=6,icon_id=188,icon_id_nq=6,levels={[5]=41,[22]=62},mp_cost=40,prefix="/magic",range=12,recast=18,recast_id=109,requirements=1,skill=34,status=43,targets=5,type="WhiteMagic"},
     [146] = {id=146,en="Fire III",ja="ファイアIII",cast_time=3,element=0,icon_id=242,icon_id_nq=8,levels={[4]=62,[5]=71,[8]=88,[20]=63,[21]=67},mp_cost=63,prefix="/magic",range=12,recast=15,recast_id=146,requirements=0,skill=36,targets=32,type="BlackMagic"},
     [166] = {id=166,en="Thunder III",ja="サンダーIII",cast_time=3,element=4,icon_id=262,icon_id_nq=12,levels={[4]=66,[5]=75,[8]=96,[20]=69,[21]=73},mp_cost=91,prefix="/magic",range=12,recast=15,recast_id=166,requirements=0,skill=36,targets=32,type="BlackMagic"},
+    [708] = {id=708,en="Subduction",ja="サブダックション",blu_points=6,cast_time=1,element=2,icon_id=-1,icon_id_nq=58,levels={[16]=99},mp_cost=27,prefix="/magic",range=8,recast=5,recast_id=708,requirements=0,skill=43,targets=32,type="BlueMagic"},
     [841] = {id=841,en="Distract",ja="ディストラ",cast_time=3,duration=300,element=1,icon_id=571,icon_id_nq=9,levels={[5]=35},mp_cost=32,prefix="/magic",range=12,recast=10,recast_id=841,requirements=2,skill=35,status=148,targets=32,type="BlackMagic"},
 }, {"id", "en", "ja", "cast_time", "element", "icon_id", "icon_id_nq", "levels", "mp_cost", "prefix", "range", "recast", "recast_id", "requirements", "skill", "targets", "type", "duration", "status", "overwrites", "unlearnable", "blu_points", "model", "party_name"}
 --[[

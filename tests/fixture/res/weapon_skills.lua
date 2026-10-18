@@ -1,6 +1,7 @@
 -- The entries GearSwap's tests use, cut from Windower/Resources at 5f22f38.
 -- Automatically generated file: Weapon Skills
 return {
+    [31] = {id=31,en="Rudra's Storm",ja="ルドラストーム",element=2,icon_id=595,prefix="/weaponskill",range=2,skill=2,skillchain_a="Darkness",skillchain_b="Distortion",skillchain_c="",targets=32},
     [37] = {id=37,en="Seraph Blade",ja="セラフブレード",element=6,icon_id=598,prefix="/weaponskill",range=2,skill=3,skillchain_a="Scission",skillchain_b="",skillchain_c="",targets=32},
     [42] = {id=42,en="Savage Blade",ja="サベッジブレード",element=6,icon_id=598,prefix="/weaponskill",range=2,skill=3,skillchain_a="Fragmentation",skillchain_b="Scission",skillchain_c="",targets=32},
     [47] = {id=47,en="Sanguine Blade",ja="サンギンブレード",element=7,icon_id=601,prefix="/weaponskill",range=2,skill=3,skillchain_a="",skillchain_b="",skillchain_c="",targets=32},
