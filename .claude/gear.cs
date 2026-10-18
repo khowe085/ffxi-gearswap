@@ -146,13 +146,15 @@ sealed class TestCommand
 	}
 
 	// The files of the checkout a category's result rests on. The tools tests run on a fixture of their own, so they
-	// rest on the tools' source and tests/ alone. The data checks rest on the data and the docs they check; the builds
-	// they run are rested on through the build that clears their pass.
+	// rest on the tools' source and tests/ alone. The data checks rest on the data and the docs they check, and on this
+	// launcher, which says what they are; the builds they run are rested on through the build that clears their pass.
 	IEnumerable<string> Inputs(string category)
 	{
 		if (category == "tools")
 			return ToolSources().Concat(Files.Under(Path.Combine(toolsDir, "tests")));
-		return Files.Under(Path.Combine(repo, "data")).Concat(Files.Under(Path.Combine(repo, "docs")));
+		return Files.Under(Path.Combine(repo, "data"))
+			.Concat(Files.Under(Path.Combine(repo, "docs")))
+			.Append(Path.Combine(repo, ".claude", "gear.cs"));
 	}
 
 	// Each tool's file, the shared code they compile, and this launcher, which builds and runs them.

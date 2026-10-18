@@ -77,7 +77,7 @@ dotnet run .claude/gear.cs -- owned-gear --job RDM --slot legs --sets <scratch>/
 
 | Tool | Use it to |
 |---|---|
-| `fetch-sources.cs` | Write Windower's resources and wsdist's item data into `docs/` again after a game update. |
+| `fetch-sources.cs` | Don't run it: it rewrites the outside data checked in under `docs/`. After a game update, the caller refreshes that data with the `update-ext-data` skill. |
 | `owned-gear.cs` | See what a slot can choose from: every owned piece the job can wear, with bag and help text, and with `--sets` the sets that already wear it. `--grep` searches the help text, `--json` feeds a script. |
 | `check-export.cs` | Check a sets file against the export: each piece a real item, owned with those augments, wearable by the job, right for the slot, and in a bag GearSwap can equip from. Pass the request's `bags` as `--bags`. |
 | `set-stats.cs` | Total each set's stats over its base. It adds path pieces at the character's rank from the character's rank augments file itself, and an item Oboro ranks up at its maximum rank, so don't give those again. Give it what the help text hides with `--extra`: the values from `docs/gear-notes.md`. A path piece it warns of has no rank to count: ask the player for it. The totals behind every shortfall come from here. |
