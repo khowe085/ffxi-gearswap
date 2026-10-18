@@ -3,6 +3,7 @@
 return {
     [13566] = {id=13566,en="Defending Ring",ja="守りの指輪",enl="defending ring",jal="守りの指輪",category="Armor",flags=63568,jobs=8388606,level=70,races=510,slots=24576,stack=1,targets=0,type=5},
     [14812] = {id=14812,en="Loquac. Earring",ja="ロケイシャスピアス",enl="loquacious earring",jal="ロケイシャスピアス",category="Armor",flags=63572,jobs=8388606,level=75,races=510,slots=6144,stack=1,targets=0,type=5},
+    [17174] = {id=17174,en="Judge's Bow",ja="ジャッジボウ",enl="Judge's bow",jal="ジャッジボウ",category="Weapon",damage=100,delay=540,flags=63586,jobs=8388606,level=1,races=510,range_type="Bow",skill=25,slots=4,stack=1,targets=0,type=4},
     [21621] = {id=21621,en="Naegling",ja="ネイグリング",enl="Naegling",jal="ネイグリング",category="Weapon",damage=166,delay=240,flags=63552,item_level=119,jobs=4419554,level=99,races=510,skill=3,slots=3,stack=1,targets=0,type=4},
     [21627] = {id=21627,en="Crocea Mors",ja="クロセアモース",enl="Crocea Mors",jal="クロセアモース",category="Weapon",damage=180,delay=260,flags=2080,item_level=119,jobs=32,level=99,races=510,skill=3,slots=3,stack=1,targets=0,type=4},
     [22040] = {id=22040,en="Daybreak",ja="デイブレイクワンド",enl="Daybreak",jal="デイブレイクワンド",category="Weapon",damage=150,delay=216,flags=63568,item_level=119,jobs=3179576,level=99,races=510,skill=11,slots=3,stack=1,targets=0,type=4},
