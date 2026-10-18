@@ -1,6 +1,6 @@
 # Vanar: gear notes
 
-Notes on Vanar's own copies, for agents that build gear sets from Vanar's `//gs export`. They were written from [`data/export/Vanar 2026-10-01 22-41-03.lua`](../export/Vanar%202026-10-01%2022-41-03.lua). What holds for any copy of an item (hidden values, set bonuses, conditions, slot and hand restrictions) is in [gear-notes.md](../../docs/gear-notes.md), under the same headings, so read both. The entries here add what each augmented copy is for, each path item's rank, the pieces that another piece Vanar owns beats, and what Vanar lacks.
+Notes on Vanar's own copies, for agents that build gear sets from Vanar's `//gs export`. They were written from `data/export/Vanar 2026-10-01 22-41-03.lua`. What holds for any copy of an item (hidden values, set bonuses, conditions, slot and hand restrictions) is in [gear-notes.md](../../docs/gear-notes.md), under the same headings, so read both. The entries here add what each augmented copy is for, each path item's rank, the pieces that another piece Vanar owns beats, and what Vanar lacks.
 
 - **Coverage.** An entry is here only when there is something to say of Vanar's copy. Gear on storage slips, which exports list in `slip<N>` tables from 2026-10-04 on, has no entries yet, so read a slip piece's bg-wiki page before putting it in a set.
 - **Reading an entry.** A note that starts with `Copy` applies only to the copy with the augments it quotes, or to the copy with none. "It" is the item the entry is named for.
@@ -767,7 +767,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's two unaugmented copies are both in the same bag (wardrobe) in both 2026-10-01 exports.
 - If one fails to equip, pinning them with `{ bag = "wardrobe" }` and `{ bag = "wardrobe2" }` only works after one copy is moved to wardrobe 2.
-- Until then, swap them as a pair. A set may wear one copy, but a set wearing both should not directly follow a set wearing one: GearSwap's copy matching can then pick the copy already worn for the other slot. ([export](../export/Vanar%202026-10-01%2022-41-03.lua))
+- Until then, swap them as a pair. A set may wear one copy, but a set wearing both should not directly follow a set wearing one: GearSwap's copy matching can then pick the copy already worn for the other slot. (export `Vanar 2026-10-01 22-41-03.lua`)
 
 ## Back
 
@@ -959,7 +959,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Atro. Tights +4
 
-- Its Enhancing magic skill +22 is the most of any legs Vanar owns. Carmine Cuisses +1 has +18, Portent Pants +15 and Rawhide Trousers +10 (help text, with augments from the [export](../export/Vanar%202026-10-01%2022-41-03.lua)).
+- Its Enhancing magic skill +22 is the most of any legs Vanar owns. Carmine Cuisses +1 has +18, Portent Pants +15 and Rawhide Trousers +10 (help text, with augments from the export `Vanar 2026-10-01 22-41-03.lua`).
 
 ### Bunzi's Pants
 
@@ -977,7 +977,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 - MND+12 is in the base-stat roll, which caps at +10 (+15 with Taupe Stones).
 - It has no special-stat augment. That slot rolls one stat, such as Cure potency, Cure spellcasting time or Fast Cast (Fern Stone caps: +11%, -11% and +7) ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Escha_Rewards/Arcane_Glyptics_Inscription)).
 - Totals are Magic Accuracy+48, MND+41 and Enfeebling skill +13.
-- Leth. Fuseau +3 (Magic Accuracy 63, MND 43) and Atro. Tights +4 (Magic Accuracy 59 plus the Atrophy set, MND 44) beat it on both. Its only case for enfeebling is its skill (help text, with augments from the [export](../export/Vanar%202026-10-01%2022-41-03.lua)).
+- Leth. Fuseau +3 (Magic Accuracy 63, MND 43) and Atro. Tights +4 (Magic Accuracy 59 plus the Atrophy set, MND 44) beat it on both. Its only case for enfeebling is its skill (help text, with augments from the export `Vanar 2026-10-01 22-41-03.lua`).
 
 ### Crimson Cuisses
 
@@ -1018,9 +1018,9 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 - Copy `'Mag. Acc.+25 "Mag.Atk.Bns."+25','Magic burst dmg.+1%','INT+7','Mag. Acc.+11','"Mag.Atk.Bns."+13'`:
   - This is a nuking copy. Its Mag. Acc.+25 MAB+25 is at the combined slot's cap.
   - Its Magic burst damage +1% is the bottom of a roll that goes up to +10% (+11% with Fern Stones), so it is weak for bursting ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Escha_Rewards/Arcane_Glyptics_Inscription)).
-  - Leth. Fuseau +3 beats it on every nuke and burst stat except INT (48 vs 50) and Enmity: Magic Accuracy 63 vs 56, MAB 58 vs 53, Magic Damage 33 vs 13, Magic burst damage 15 vs 1 (help text, with augments from the [export](../export/Vanar%202026-10-01%2022-41-03.lua)).
+  - Leth. Fuseau +3 beats it on every nuke and burst stat except INT (48 vs 50) and Enmity: Magic Accuracy 63 vs 56, MAB 58 vs 53, Magic Damage 33 vs 13, Magic burst damage 15 vs 1 (help text, with augments from the export `Vanar 2026-10-01 22-41-03.lua`).
 - Copy with no augments:
-  - The augmented copy has the same base stats plus Magic Accuracy+36, MAB+38, INT+7 and Magic burst damage +1%. So it strictly beats this one (help text, with augments from the [export](../export/Vanar%202026-10-01%2022-41-03.lua)).
+  - The augmented copy has the same base stats plus Magic Accuracy+36, MAB+38, INT+7 and Magic burst damage +1%. So it strictly beats this one (help text, with augments from the export `Vanar 2026-10-01 22-41-03.lua`).
 
 ### Nyame Flanchard
 
@@ -1045,12 +1045,12 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's copy lacks the optional MP+60 augment.
 - On BLU, Enif Cosciales (Fast Cast 8%) beats it.
-- On RDM it is the best Fast Cast legs Vanar owns. The only other is Crimson Cuisses, at +1 (help text, with augments from the [export](../export/Vanar%202026-10-01%2022-41-03.lua)).
+- On RDM it is the best Fast Cast legs Vanar owns. The only other is Crimson Cuisses, at +1 (help text, with augments from the export `Vanar 2026-10-01 22-41-03.lua`).
 
 ### Portent Pants
 
 - Its Enhancing skill +15 is below Atro. Tights +4 (+22) and Carmine Cuisses +1 (+18).
-- Its Enfeebling skill +15 is the most of any legs Vanar owns (Chironic Hose has +13), but it has no magic accuracy (help text, with augments from the [export](../export/Vanar%202026-10-01%2022-41-03.lua)).
+- Its Enfeebling skill +15 is the most of any legs Vanar owns (Chironic Hose has +13), but it has no magic accuracy (help text, with augments from the export `Vanar 2026-10-01 22-41-03.lua`).
 
 ### Rawhide Trousers
 
@@ -1065,11 +1065,11 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Its Accuracy+18 Attack+18 is near its cap of 20, and its Dual Wield+5 is at its cap of 5 ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:Alluvion_Skirmish_Armor)).
 - As a dual-wield TP piece, Carmine Cuisses +1 (Path D) beats it: DW+6 vs +5, Accuracy+55 vs +25, Attack+47 vs +18.
-- Taeon only adds Triple Attack +2% (help text, with augments from the [export](../export/Vanar%202026-10-01%2022-41-03.lua)).
+- Taeon only adds Triple Attack +2% (help text, with augments from the export `Vanar 2026-10-01 22-41-03.lua`).
 
 ### Tatsu. Sitagoromo
 
-- Leth. Fuseau +3 beats it in every stat: Haste+5% vs +3%, Accuracy+63 vs +7, INT/MND/CHR 48/43/30 vs 2 each. So it has no use for RDM (help text, with augments from the [export](../export/Vanar%202026-10-01%2022-41-03.lua)).
+- Leth. Fuseau +3 beats it in every stat: Haste+5% vs +3%, Accuracy+63 vs +7, INT/MND/CHR 48/43/30 vs 2 each. So it has no use for RDM (help text, with augments from the export `Vanar 2026-10-01 22-41-03.lua`).
 
 ### Telchine Braconi
 
