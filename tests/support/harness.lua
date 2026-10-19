@@ -533,8 +533,15 @@ function Session:console(line)
     end)
 end
 
+-- Moves the clock on without a frame: only timers run, so Sel's tick doesn't.
 function Session:advance(seconds)
     self:run(function() self.game:advance(seconds) end)
+end
+
+-- Plays the game for a while, frame by frame, so Sel's tick runs and its automatic actions (AutoWS, AutoBuffMode
+-- and the rest) can act.
+function Session:play(seconds)
+    self:run(function() self.game:play(seconds) end)
 end
 
 -- The name of the item in each slot, by Windower's slot names.

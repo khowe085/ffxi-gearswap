@@ -516,6 +516,17 @@ function Game:advance(seconds)
     self:settle()
 end
 
+-- Moves the clock on as the game does, a frame at a time, each frame a tenth of a second: the timers due run, then
+-- the prerender handlers, which Sel's tick and its checks of movement hang on, then the game settles.
+function Game:play(seconds)
+    local frames = math.floor((seconds or 0) * 10 + 0.5)
+    for _ = 1, frames do
+        self:advance(0.1)
+        self:fire('prerender')
+        self:settle()
+    end
+end
+
 -------------------------------------------------------------------------------------------------------------------
 -- Commands and chat input.
 -------------------------------------------------------------------------------------------------------------------
