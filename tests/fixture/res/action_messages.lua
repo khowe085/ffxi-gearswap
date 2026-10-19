@@ -12,10 +12,13 @@ return {
     [78] = {id=78,en="${target} is too far away.",color=122},
     [84] = {id=84,en="${actor} is paralyzed.",color=122},
     [100] = {id=100,en="${actor} uses ${ability}.",color=101},
+    [110] = {id=110,en="${actor} uses ${ability}.${lb}${target} takes ${number} points of damage.",color="D"},
     [185] = {id=185,en="${actor} uses ${weapon_skill}.${lb}${target} takes ${number} points of damage.",color="D"},
     [230] = {id=230,en="${actor} casts ${spell}.${lb}${target} gains the effect of ${status}.",color=56},
     [236] = {id=236,en="${actor} casts ${spell}.${lb}${target} is ${status}.",color=57},
     [303] = {id=303,en="${actor} uses Divine Seal.",color=101},
+    [326] = {id=326,en="${actor} readies ${ability}.",color=100},
+    [327] = {id=327,en="${actor} starts casting ${spell} on ${target}.",color=50},
 }, {"id", "en", "color", "suffix", "prefix"}
 --[[
 Copyright 2013-2026 Windower

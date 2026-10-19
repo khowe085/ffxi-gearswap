@@ -125,7 +125,8 @@ end
 -- options: res (the raw resource tables), paths (addon and windower, for the API), name, id, index, main_job,
 -- main_job_level, sub_job, sub_job_level, race, status, zone, items ({name=, bag=, extdata=, count=}, bag by its API
 -- name, inventory unless given), wearing (slot name to the item's position in items), buffs (names), spells and
--- abilities (the names known; every one the resources hold unless given), tp (0 unless given).
+-- abilities (the names known; every one the resources hold unless given), tp (0 unless given), merits (the player's
+-- merit levels by name, none unless given).
 function Game.new(options)
     local game = setmetatable({}, Game)
     game.res = options.res
@@ -188,7 +189,7 @@ function Game.new(options)
         vitals = {hp = 1500, mp = 1000, max_hp = 1500, max_mp = 1000, hpp = 100, mpp = 100, tp = options.tp or 0},
         buffs = {},
         skills = {},
-        merits = {},
+        merits = options.merits or {},
     }
     for _, name in ipairs(options.buffs or {}) do
         game.player.buffs[#game.player.buffs + 1] = (find_by_name(res.buffs, name, 'buff'))
@@ -273,6 +274,7 @@ function Game:get_player()
         player.sub_job_id, player.sub_job_level = nil, nil
     end
     player.target_index = self.target_index
+    player.pet_index = self.pet and self.pet.index
     player.in_combat = self.player.status == 1
     return player
 end
@@ -1196,10 +1198,10 @@ function Game:send_pet_info(tp)
     }))
 end
 
--- Gives the player a pet and tells the addon, as the server does: the character update, then the pet's info, whose
--- packet is the one the addon acts on the pet's arrival with. fields over the defaults: id, index, name, hpp, mpp,
--- tp (3000 is full), status (0 idle, 1 engaged), distance (squared, as Windower gives it), x, y.
-function Game:give_pet(fields)
+-- Puts a pet at the player's side, with no packet to tell of it, as one already out when GearSwap loads. fields over
+-- the defaults: id, index, name, hpp, mpp, tp (3000 is full), status (0 idle, 1 engaged), distance (squared, as
+-- Windower gives it), x, y, model_size.
+function Game:place_pet(fields)
     local pet = {
         id = 0x1069100, index = 0x402, name = 'Pet', is_npc = true, spawn_type = 16, race = 0, status = 0, hpp = 100,
         mpp = 100, distance = 4, x = 1, y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, model_size = 1,
@@ -1209,8 +1211,14 @@ function Game:give_pet(fields)
         pet[key] = value
     end
     self.pet = pet
+end
+
+-- Gives the player a pet (fields as place_pet) and tells the addon, as the server does: the character update, then
+-- the pet's info, whose packet is the one the addon acts on the pet's arrival with.
+function Game:give_pet(fields)
+    self:place_pet(fields)
     self:send_character_update()
-    self:send_pet_info(pet.tp)
+    self:send_pet_info(self.pet.tp)
     self:settle()
 end
 

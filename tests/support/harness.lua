@@ -444,6 +444,8 @@ local beginning_category = {[3] = 8, [7] = 7, [16] = 12}
 --   buffs          the names of the buffs up when GearSwap loads
 --   zone           the id of the zone the character is in, Escha - Zi'Tah (288) unless given
 --   spells, abilities   the names the character knows; every one the test resources hold unless given
+--   merits         the character's merit levels by name, none unless given
+--   pet            the fields of a pet at the character's side when GearSwap loads (see Game:place_pet)
 --   expect_file    the user file GearSwap should load, by its name in data/
 function harness.boot(options)
     options = options or {}
@@ -478,6 +480,7 @@ function harness.boot(options)
         name = options.character or 'Testy',
         main_job = options.main_job or 'WHM', sub_job = options.sub_job or 'RDM',
         main_job_level = options.main_job_level, sub_job_level = options.sub_job_level, tp = options.tp,
+        merits = options.merits,
         items = items, wearing = wearing, buffs = options.buffs,
         zone = options.zone,
         spells = options.spells, abilities = options.abilities and (function()
@@ -486,6 +489,9 @@ function harness.boot(options)
             return known
         end)(),
     })
+    if options.pet then
+        game:place_pet(options.pet)
+    end
     local env = harness.environment(game, paths)
     game.invoke = function(name, ...)
         local fn = env[name]
@@ -714,6 +720,69 @@ end
 -- The player's indicolure changes (see Game:set_indi), or ends when given no fields.
 function Session:set_indi(fields)
     self:run(function() self.game:set_indi(fields) end)
+end
+
+-- Another player joins the character's party (see Game:add_party_member for the fields); GearSwap looks again at
+-- the party at once.
+function Session:add_party_member(fields)
+    return self:run(function()
+        local member = self.game:add_party_member(fields)
+        self.game:settle()
+        self.env.refresh_globals()
+        return member
+    end)
+end
+
+-- The kinds of move a pet makes, by the resource each is in and how the server sends it: a ready move of a
+-- beastmaster's pet (a monster's skill, readied with message 43 and done in category 11), a blood pact or breath (a
+-- job ability, readied with message 326 and done in category 13) and a spell a spirit casts (readied in category 8 and
+-- done in category 4).
+local pet_moves = {
+    monster = {resource = 'monster_abilities', ready = {category = 7, message = 43},
+        finish = {category = 11, message = 185}},
+    ability = {resource = 'job_abilities', ready = {category = 7, message = 326},
+        finish = {category = 13, message = 110}},
+    spell = {resource = 'spells', ready = {category = 8, message = 327}, finish = {category = 4, message = 2}},
+}
+
+local function pet_move_id(kind, name)
+    local found_id
+    for id, move in pairs(harness.resources()[kind.resource]) do
+        if type(move) == 'table' and move.en == name and (not found_id or id < found_id) then
+            found_id = id
+        end
+    end
+    return assert(found_id, ('the test resources have no %s named %q'):format(kind.resource, name))
+end
+
+-- fields: category and message of the packet, target ('monster', or 'player') for who it is aimed at.
+function Session:pet_acts(name, kind, phase, fields)
+    kind = pet_moves[kind or 'monster']
+    fields = fields or {}
+    local move = pet_move_id(kind, name)
+    local packet = kind[phase]
+    local game = self.game
+    self:run(function()
+        local target = fields.target == 'player' and game.player or game.monster
+        local action = {message = fields.message or packet.message, param = phase == 'ready' and move or 100,
+            reaction = 0, animation = 0, effect = 0, stagger = 0}
+        game:send_action_packet({
+            actor_id = game.pet.id, category = fields.category or packet.category,
+            param = phase == 'finish' and move or 0,
+            targets = {{id = target.id, actions = {action}}},
+        })
+        game:settle()
+    end)
+end
+
+-- The pet readies a move of its own, as kind says ('monster', the default, 'ability' or 'spell'), on the monster.
+function Session:pet_readies(name, kind, fields)
+    self:pet_acts(name, kind, 'ready', fields)
+end
+
+-- The pet's move takes effect.
+function Session:pet_finishes(name, kind, fields)
+    self:pet_acts(name, kind, 'finish', fields)
 end
 
 return harness

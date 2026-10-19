@@ -1,0 +1,623 @@
+local harness = require('harness')
+local testy = require('testy')
+
+local idle = {main = 'Pitchfork +1', head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets',
+    legs = 'Nyame Flanchard', feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt',
+    ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring', ring1 = 'Defending Ring', ring2 = 'Stikini Ring +1',
+    back = 'Mecisto. Mantle'}
+
+local pieces = {'Pitchfork +1', 'Nyame Helm', 'Nyame Mail', 'Nyame Gauntlets', 'Nyame Flanchard', 'Nyame Sollerets',
+    'Loricate Torque +1', 'Plat. Mog. Belt', 'Etiolation Earring', 'Loquac. Earring', 'Defending Ring',
+    'Stikini Ring +1', 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Sapphire Platemail',
+    'Jadeite Cuirie', 'Diamond Haramaki', 'Sapphire Leggings', 'Sapphire Gauntlets', 'Jadeite Gloves',
+    'Diamond Kote', 'Sapphire Trousers', 'Jadeite Chausses', 'Diamond Hiza.', "Orunmila's Torque",
+    'Moonshade Earring', 'Ishvara Earring', 'Brutal Earring', 'Aptitude Mantle'}
+
+-- What is worn with these changes over the idle set.
+local function worn(changes)
+    return testy.worn_by(idle, changes)
+end
+
+-- Jobby as a dragoon with the idle set on, over a sub job of WAR unless told otherwise.
+local function boot(overrides)
+    overrides = overrides or {}
+    local update = overrides.update ~= false
+    overrides.update = nil
+    local items = {}
+    for i, name in ipairs(pieces) do
+        items[i] = {name = name}
+    end
+    local options = {character = 'Jobby', main_job = 'DRG', sub_job = 'WAR', expect_file = 'DRG.lua', items = items,
+        wearing = testy.worn_by(idle)}
+    for k, v in pairs(overrides) do
+        options[k] = v
+    end
+    local gs = harness.boot(options)
+    if update then
+        gs:console('gs c update')
+    end
+    gs:traffic()
+    return gs
+end
+
+-- The ability is on recast for these seconds from now on, whatever recast was asked before.
+local function put_on_recast(gs, recast_id, seconds)
+    local before = gs.game.ability_recasts
+    gs.game.ability_recasts = function(game)
+        local recasts = before(game)
+        recasts[recast_id] = seconds
+        return recasts
+    end
+end
+
+-- The names of the actions among what GearSwap sent.
+local function actions(gs)
+    local names = {}
+    for _, entry in ipairs(gs:traffic()) do
+        if entry.action then
+            names[#names + 1] = entry.action
+        end
+    end
+    return names
+end
+
+-- The monster hits Jobby, which puts Jobby in combat.
+local function in_combat(gs)
+    gs.game:send_action_packet({
+        actor_id = gs.game.monster.id, category = 1,
+        targets = {{id = gs.game.player.id, actions = {{message = 1, param = 10, reaction = 0, animation = 0,
+            effect = 0, stagger = 0}}}},
+    })
+    gs.game:settle()
+    gs:traffic()
+end
+
+describe('data/DRG.lua', function()
+    it('takes Hasso as the stance, and a breath at 60% HP', function()
+        local gs = boot({update = false})
+        assert.equal('Hasso', gs.user.state.Stance.value)
+        assert.equal(60, gs.user.Breath_HPP)
+    end)
+
+    it('drops the stance on an update unless the sub job is SAM', function()
+        local gs = boot()
+        assert.equal('None', gs.user.state.Stance.value)
+    end)
+
+    it('keeps the stance on an update with a sub job of SAM', function()
+        local gs = boot({sub_job = 'SAM'})
+        assert.equal('Hasso', gs.user.state.Stance.value)
+    end)
+end)
+
+describe('DRG\'s breath trigger', function()
+    local function breath_hpp(sub_job, head)
+        local gs = boot({update = false, sub_job = sub_job})
+        gs.user.healing_breath_trigger_head = head or ''
+        gs:console('gs c update')
+        return gs.user.Breath_HPP
+    end
+
+    for _, sub_job in ipairs({'WHM', 'BLM', 'RDM', 'SMN', 'BLU', 'SCH', 'GEO'}) do
+        it('is 45% HP with a sub job of ' .. sub_job .. ', and 65% with a Vishap or Drachen head to trigger it', function()
+            assert.equal(45, breath_hpp(sub_job))
+            assert.equal(65, breath_hpp(sub_job, 'Vishap Armet +3'))
+            assert.equal(65, breath_hpp(sub_job, 'Drachen Armet'))
+        end)
+    end
+
+    for _, sub_job in ipairs({'PLD', 'DRK', 'BRD', 'NIN', 'RUN'}) do
+        it('is 35% HP with a sub job of ' .. sub_job .. ', and 45% with a Vishap or Drachen head to trigger it', function()
+            assert.equal(35, breath_hpp(sub_job))
+            assert.equal(45, breath_hpp(sub_job, 'Vishap Armet +3'))
+            assert.equal(45, breath_hpp(sub_job, 'Drachen Armet'))
+        end)
+    end
+
+    it('stays 60% HP with a sub job that doesn\'t say otherwise', function()
+        assert.equal(60, breath_hpp('WAR'))
+        assert.equal(60, breath_hpp('SAM', 'Vishap Armet +3'))
+    end)
+end)
+
+describe('DRG\'s weapon skill with a sub job of SAM and AutoBuffMode on', function()
+    local gs
+    before_each(function()
+        gs = boot({sub_job = 'SAM'})
+        gs:console('gs c set AutoBuffMode Auto')
+        gs:traffic()
+    end)
+
+    it('is held back for Sekkanoki with more than 1850 TP', function()
+        gs.game.player.vitals.tp = 1851
+        assert.is_true(gs:type('/ws "Stardiver" <t>'))
+        assert.same({'Sekkanoki'}, actions(gs))
+    end)
+
+    it('is held back for Meditate with 1850 TP or less', function()
+        gs.game.player.vitals.tp = 1850
+        gs:type('/ws "Stardiver" <t>')
+        assert.same({'Meditate'}, actions(gs))
+    end)
+
+    it('is held back for Meditate when Sekkanoki is on recast', function()
+        gs.game.player.vitals.tp = 3000
+        put_on_recast(gs, 140, 60)
+        gs:type('/ws "Stardiver" <t>')
+        assert.same({'Meditate'}, actions(gs))
+    end)
+
+    it('goes out when Sekkanoki and Meditate are on recast', function()
+        gs.game.player.vitals.tp = 3000
+        put_on_recast(gs, 140, 60)
+        put_on_recast(gs, 134, 60)
+        gs:type('/ws "Stardiver" <t>')
+        assert.same({'Stardiver'}, actions(gs))
+    end)
+
+    it('goes out under SJ Restriction', function()
+        gs:gain_buff('SJ Restriction')
+        gs.game.player.vitals.tp = 3000
+        gs:type('/ws "Stardiver" <t>')
+        assert.same({'Stardiver'}, actions(gs))
+    end)
+
+    it('goes out with AutoBuffMode off', function()
+        gs:console('gs c set AutoBuffMode Off')
+        gs.game.player.vitals.tp = 3000
+        gs:type('/ws "Stardiver" <t>')
+        assert.same({'Stardiver'}, actions(gs))
+    end)
+end)
+
+describe('DRG\'s weapon skill with a sub job of WAR and AutoBuffMode on', function()
+    it('goes out whatever the TP, with no Sekkanoki or Meditate to hold it back', function()
+        local gs = boot()
+        gs:console('gs c set AutoBuffMode Auto')
+        gs.game.player.vitals.tp = 3000
+        gs:type('/ws "Stardiver" <t>')
+        assert.same({'Stardiver'}, actions(gs))
+    end)
+end)
+
+-- What is worn once the weapon skill is out, with the TP Jobby has.
+local function weaponskill(gs, name, tp)
+    gs.game.player.vitals.tp = tp
+    gs:type('/ws "' .. name .. '" <t>')
+    return gs:worn()
+end
+
+describe('DRG\'s weapon skill set with Moonshade Earring in it', function()
+    local gs
+    before_each(function()
+        gs = boot()
+    end)
+
+    it('keeps Moonshade at 3200 TP with its bonus', function()
+        assert.same(worn({head = "Theia's Hairpin", ear1 = 'Moonshade Earring', ear2 = 'Etiolation Earring'}),
+            weaponskill(gs, 'Stardiver', 2950))
+    end)
+
+    it('gives way to sets.MaxTP above that', function()
+        assert.same(worn({head = "Theia's Hairpin", ear1 = 'Ishvara Earring', ear2 = 'Etiolation Earring'}),
+            weaponskill(gs, 'Stardiver', 2951))
+    end)
+
+    it('gives way to sets.AccMaxTP above that in an accuracy mode', function()
+        gs:console('gs c set OffenseMode Acc')
+        assert.same(worn({head = "Theia's Hairpin", ear1 = 'Brutal Earring', ear2 = 'Etiolation Earring'}),
+            weaponskill(gs, 'Stardiver', 3000))
+    end)
+end)
+
+describe('DRG\'s jumps', function()
+    local gs
+    before_each(function()
+        gs = boot()
+    end)
+
+    it('wear their own set', function()
+        gs:type('/ja "High Jump" <t>')
+        assert.same(worn({legs = 'Sapphire Trousers'}), gs:worn())
+    end)
+
+    it('wear the set for the offense mode over it, in a mode it has one for', function()
+        gs:console('gs c set OffenseMode Acc')
+        gs:type('/ja "Jump" <t>')
+        assert.same(worn({hands = 'Jadeite Gloves'}), gs:worn())
+    end)
+
+    it('wear their own set in a mode they have none for', function()
+        gs:type('/ja "Jump" <t>')
+        assert.same(worn({hands = 'Sapphire Gauntlets'}), gs:worn())
+    end)
+
+    it('wear their own set in an offense mode they have no set for', function()
+        gs:console('gs c set OffenseMode Acc')
+        gs:type('/ja "High Jump" <t>')
+        assert.same(worn({legs = 'Sapphire Trousers'}), gs:worn())
+    end)
+
+    it('are the Spirit Jump set, with the offense mode\'s over it', function()
+        gs:console('gs c set OffenseMode Acc')
+        gs:type('/ja "Spirit Jump" <t>')
+        assert.same(worn({hands = 'Diamond Kote', legs = 'Jadeite Chausses'}), gs:worn())
+    end)
+
+    it('have the offense mode\'s set over theirs, which Spirit Link doesn\'t, for it is no jump', function()
+        gs:console('gs c set OffenseMode Acc')
+        gs:type('/ja "Spirit Link" <me>')
+        assert.same(worn({legs = 'Diamond Hiza.'}), gs:worn())
+    end)
+
+    it('give way to the idle set once done', function()
+        gs:type('/ja "Jump" <t>')
+        gs:finish_action()
+        assert.same(worn(), gs:worn())
+    end)
+end)
+
+describe('DRG\'s casting with a wyvern out and its HP low', function()
+    local gs
+    before_each(function()
+        gs = boot({sub_job = 'WHM'})
+        gs:give_pet({name = 'Wyvern'})
+        gs.game.player.vitals.hpp = 40
+        gs:traffic()
+    end)
+
+    it('wears sets.midcast.HB_Trigger over the midcast set', function()
+        gs:type('/ma "Cure III" <me>')
+        assert.same(worn({head = "Theia's Hairpin"}), gs:worn())
+    end)
+
+    it('goes on wearing the trigger and the healing breath set when the spell is done, rather than the idle set', function()
+        gs:type('/ma "Cure III" <me>')
+        gs:finish_action()
+        assert.same(worn({head = "Theia's Hairpin", neck = "Orunmila's Torque"}), gs:worn())
+    end)
+
+    it('goes back to the idle set once the wyvern is done with its breath', function()
+        gs:type('/ma "Cure III" <me>')
+        gs:finish_action()
+        gs:pet_readies('Restoring Breath', 'ability', {target = 'player'})
+        gs:pet_finishes('Restoring Breath', 'ability', {category = 6, message = 100, target = 'player'})
+        assert.same(worn(), gs:worn())
+    end)
+
+    it('wears no trigger at 25% HP or less', function()
+        gs.game.player.vitals.hpp = 25
+        gs:type('/ma "Cure III" <me>')
+        assert.same(worn(), gs:worn())
+    end)
+
+    it('wears no trigger at 45% HP, where Breath_HPP is not met with a sub job of WHM', function()
+        gs.game.player.vitals.hpp = 45
+        gs:type('/ma "Cure III" <me>')
+        assert.same(worn(), gs:worn())
+    end)
+
+    it('wears no trigger and goes back to the idle set with no wyvern out', function()
+        gs:take_pet()
+        gs:type('/ma "Cure III" <me>')
+        gs:finish_action()
+        assert.same(worn(), gs:worn())
+    end)
+end)
+
+describe('DRG\'s Steady Wing and breaths with a wyvern out', function()
+    local gs
+    before_each(function()
+        gs = boot()
+        gs:give_pet({name = 'Wyvern'})
+        gs:traffic()
+    end)
+
+    it('go on wearing sets.HealingBreath after Steady Wing', function()
+        gs:type('/pet "Steady Wing" <me>')
+        gs:finish_action()
+        assert.same(worn({neck = "Orunmila's Torque"}), gs:worn())
+    end)
+
+    it('go on wearing sets.HealingBreath after Restoring Breath', function()
+        gs:type('/pet "Restoring Breath" <me>')
+        gs:finish_action()
+        assert.same(worn({neck = "Orunmila's Torque"}), gs:worn())
+    end)
+
+    it('go on wearing sets.SmitingBreath after Smiting Breath', function()
+        gs:type('/pet "Smiting Breath" <t>')
+        gs:finish_action()
+        assert.same(worn({back = 'Aptitude Mantle'}), gs:worn())
+    end)
+
+    it('go back to the idle set once the wyvern is done', function()
+        gs:type('/pet "Smiting Breath" <t>')
+        gs:finish_action()
+        gs:pet_readies('Smiting Breath', 'ability')
+        gs:pet_finishes('Smiting Breath', 'ability', {category = 6, message = 100})
+        assert.same(worn(), gs:worn())
+    end)
+
+    it('wear no breath set when Steady Wing was used with no wyvern out', function()
+        gs:take_pet()
+        gs:traffic()
+        gs:type('/pet "Steady Wing" <me>')
+        gs:finish_action()
+        assert.same(worn(), gs:worn())
+    end)
+end)
+
+describe('DRG\'s engaged set', function()
+    local gs
+    before_each(function()
+        gs = boot()
+    end)
+
+    it('is sets.engaged with no wyvern out', function()
+        gs:engage()
+        assert.same(worn({head = "Bendis's Hairpin", body = 'Sapphire Platemail'}), gs:worn())
+    end)
+
+    it('is sets.engaged.Pet with a wyvern that was out when GearSwap loaded', function()
+        gs = boot({pet = {name = 'Wyvern'}})
+        gs:engage()
+        assert.same(worn({head = "Bendis's Hairpin", body = 'Jadeite Cuirie'}), gs:worn())
+    end)
+
+    it('is sets.engaged.Pet with a wyvern called, once a buff has changed', function()
+        gs:give_pet({name = 'Wyvern'})
+        gs:gain_buff('Haste')
+        gs:engage()
+        assert.same(worn({head = "Bendis's Hairpin", body = 'Jadeite Cuirie'}), gs:worn())
+    end)
+
+    pending('is sets.engaged.Pet as soon as a wyvern is called: Sel updates the melee groups, where DRG\'s Pet group is '
+        .. 'added, only at load and on a buff change, not on pet_change or on gs c update')
+
+    it('is sets.engaged.SpiritSurge while Spirit Surge is up', function()
+        gs:gain_buff('Spirit Surge')
+        gs:engage()
+        assert.same(worn({head = "Bendis's Hairpin", body = 'Sapphire Platemail', feet = 'Sapphire Leggings'}), gs:worn())
+    end)
+
+    it('is sets.engaged.Pet.SpiritSurge with a wyvern out and Spirit Surge up', function()
+        gs:give_pet({name = 'Wyvern'})
+        gs:gain_buff('Spirit Surge')
+        gs:engage()
+        assert.same(worn({head = "Bendis's Hairpin", body = 'Diamond Haramaki'}), gs:worn())
+    end)
+
+    it('goes without sets.engaged.SpiritSurge when Spirit Surge wears off', function()
+        gs:gain_buff('Spirit Surge')
+        gs:engage()
+        gs:lose_buff('Spirit Surge')
+        assert.same(worn({head = "Bendis's Hairpin", body = 'Sapphire Platemail'}), gs:worn())
+    end)
+end)
+
+describe('DRG\'s Restoring Breath with a wyvern hurt', function()
+    local gs
+    before_each(function()
+        gs = boot()
+        gs:give_pet({name = 'Wyvern', hpp = 74})
+        gs:traffic()
+    end)
+
+    it('is held back for Spirit Bond', function()
+        assert.is_true(gs:type('/pet "Restoring Breath" <me>'))
+        assert.same({'Spirit Bond'}, actions(gs))
+    end)
+
+    it('is typed again 1.1 seconds after Spirit Bond goes out, and then goes out', function()
+        gs:type('/pet "Restoring Breath" <me>')
+        put_on_recast(gs, 149, 60)
+        gs:finish_action()
+        gs:traffic()
+        gs:advance(1.2)
+        assert.same({'Restoring Breath'}, actions(gs))
+    end)
+
+    it('goes out without Spirit Bond when the wyvern has 75% HP or more', function()
+        gs.game.pet.hpp = 75
+        gs.env.refresh_globals()
+        gs:type('/pet "Restoring Breath" <me>')
+        assert.same({'Restoring Breath'}, actions(gs))
+    end)
+
+    it('goes out without Spirit Bond when that is on recast', function()
+        put_on_recast(gs, 149, 60)
+        gs:type('/pet "Restoring Breath" <me>')
+        assert.same({'Restoring Breath'}, actions(gs))
+    end)
+
+    it('goes out without Spirit Bond when the target has 44% HP or less', function()
+        gs.game.player.vitals.hpp = 44
+        gs:type('/pet "Restoring Breath" <me>')
+        assert.same({'Restoring Breath'}, actions(gs))
+    end)
+
+    it('goes out without Spirit Bond when AutoBondMode is off', function()
+        gs:console('gs c toggle AutoBondMode')
+        gs:type('/pet "Restoring Breath" <me>')
+        assert.same({'Restoring Breath'}, actions(gs))
+    end)
+
+    it('goes out without Spirit Bond when the wyvern is gone', function()
+        gs:take_pet()
+        gs:traffic()
+        gs:type('/pet "Restoring Breath" <me>')
+        assert.same({'Restoring Breath'}, actions(gs))
+    end)
+end)
+
+describe('DRG once the wyvern has done Restoring Breath', function()
+    local gs
+    before_each(function()
+        gs = boot()
+        gs:give_pet({name = 'Wyvern'})
+        gs:type('/pet "Restoring Breath" <me>')
+        gs.game.commands = {}
+    end)
+
+    local function cancelled_bond()
+        for _, command in ipairs(gs.game.commands) do
+            if command == 'cancel spirit bond' then
+                return true
+            end
+        end
+        return false
+    end
+
+    it('cancels Spirit Bond', function()
+        gs:pet_finishes('Restoring Breath', 'ability', {category = 6, message = 100, target = 'player'})
+        assert.is_true(cancelled_bond())
+    end)
+
+    it('leaves Spirit Bond when AutoBondMode is off', function()
+        gs:console('gs c toggle AutoBondMode')
+        gs.game.commands = {}
+        gs:pet_finishes('Restoring Breath', 'ability', {category = 6, message = 100, target = 'player'})
+        assert.is_false(cancelled_bond())
+    end)
+end)
+
+describe('DRG\'s Hasso, kept by the tick with a sub job of SAM', function()
+    local gs
+    before_each(function()
+        gs = boot({sub_job = 'SAM'})
+        gs:engage()
+        gs:traffic()
+    end)
+
+    it('is put up when engaged with a two-handed weapon', function()
+        gs:play(5.5)
+        assert.same({'Hasso'}, actions(gs))
+    end)
+
+    it('is Seigan in the Seigan stance', function()
+        gs:console('gs c set Stance Seigan')
+        gs:play(5.5)
+        assert.same({'Seigan'}, actions(gs))
+    end)
+
+    it('is nothing in the None stance', function()
+        gs:console('gs c set Stance None')
+        gs:play(5.5)
+        assert.same({}, actions(gs))
+    end)
+
+    it('waits while Hasso is up', function()
+        gs:gain_buff('Hasso')
+        gs:traffic()
+        gs:play(5.5)
+        assert.same({}, actions(gs))
+    end)
+
+    it('waits under SJ Restriction', function()
+        gs:gain_buff('SJ Restriction')
+        gs:traffic()
+        gs:play(5.5)
+        assert.same({}, actions(gs))
+    end)
+
+    it('waits while Hasso is on recast', function()
+        put_on_recast(gs, 138, 30)
+        gs:play(5.5)
+        assert.same({}, actions(gs))
+    end)
+end)
+
+describe('DRG\'s Hasso, kept by the tick with another sub job', function()
+    it('is never put up', function()
+        local gs = boot()
+        gs:engage()
+        gs:traffic()
+        gs:console('gs c set Stance Hasso')
+        gs:play(5.5)
+        assert.same({}, actions(gs))
+    end)
+end)
+
+describe('DRG\'s jumps, kept by the tick under AutoJumpMode', function()
+    pending('are Spirit Jump, Soul Jump, Jump and High Jump, then Spirit Link, as check_jump in data/DRG.lua means: '
+        .. 'Sel-Utility.lua, which get_sets loads after the job file, defines check_jump again, and its version only '
+        .. 'jumps with a sub job of DRG, Jump and High Jump alone')
+end)
+
+describe('DRG\'s buffs kept by the tick under AutoBuffMode', function()
+    local gs
+    before_each(function()
+        gs = boot()
+        gs:console('gs c set AutoBuffMode Auto')
+        gs:console('gs c set Stance None')
+    end)
+
+    it('are Call Wyvern first, with no wyvern out', function()
+        in_combat(gs)
+        gs:play(5.5)
+        assert.same({'Call Wyvern'}, actions(gs))
+    end)
+
+    it('are nothing out of combat', function()
+        gs:play(5.5)
+        assert.same({}, actions(gs))
+    end)
+
+    it('are Berserk with a wyvern out and a sub job of WAR', function()
+        gs:give_pet({name = 'Wyvern'})
+        in_combat(gs)
+        gs:play(5.5)
+        assert.same({'Berserk'}, actions(gs))
+    end)
+
+    it('are Aggressor once Berserk is up', function()
+        gs:give_pet({name = 'Wyvern'})
+        in_combat(gs)
+        gs:gain_buff('Berserk')
+        gs:traffic()
+        gs:play(5.5)
+        assert.same({'Aggressor'}, actions(gs))
+    end)
+
+    it('are Berserk, and not Call Wyvern, when Call Wyvern is on recast', function()
+        put_on_recast(gs, 163, 60)
+        in_combat(gs)
+        gs:play(5.5)
+        assert.same({'Berserk'}, actions(gs))
+    end)
+
+    it('are nothing under SJ Restriction once the wyvern is out', function()
+        gs:give_pet({name = 'Wyvern'})
+        gs:gain_buff('SJ Restriction')
+        in_combat(gs)
+        gs:play(5.5)
+        assert.same({}, actions(gs))
+    end)
+
+    it('are Call Wyvern even under SJ Restriction', function()
+        gs:gain_buff('SJ Restriction')
+        in_combat(gs)
+        gs:play(5.5)
+        assert.same({'Call Wyvern'}, actions(gs))
+    end)
+
+    it('are nothing with AutoBuffMode off', function()
+        gs:console('gs c set AutoBuffMode Off')
+        in_combat(gs)
+        gs:play(5.5)
+        assert.same({}, actions(gs))
+    end)
+end)
+
+describe('DRG\'s buffs kept by the tick with a sub job of DRK', function()
+    it('are Last Resort once the wyvern is out', function()
+        local gs = boot({sub_job = 'DRK'})
+        gs:console('gs c set AutoBuffMode Auto')
+        gs:console('gs c set Stance None')
+        gs:give_pet({name = 'Wyvern'})
+        in_combat(gs)
+        gs:play(5.5)
+        assert.same({'Last Resort'}, actions(gs))
+    end)
+end)

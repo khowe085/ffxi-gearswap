@@ -86,7 +86,14 @@ describe('a beast pet command typed as /bstpet and a number', function()
 
     it('with a number past the last is left to the game', function()
         local gs = boot()
-        assert.equal('/bstpet 9 <t>', gs:type('/bstpet 9 <t>'))
+        local range, known = gs.env.bstpet_range, 0
+        for _, id in ipairs(gs.game.windower.ffxi.get_abilities().job_abilities) do
+            if id >= range.min and id <= range.max then
+                known = known + 1
+            end
+        end
+        local line = ('/bstpet %d <t>'):format(known + 1)
+        assert.equal(line, gs:type(line))
         assert.same({}, calls(gs))
     end)
 end)
