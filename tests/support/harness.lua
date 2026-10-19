@@ -693,4 +693,27 @@ function Session:monster_hits()
     end)
 end
 
+-- The player's pet arrives, as the server tells it (see Game:give_pet for the fields), goes away, changes status
+-- (0 idle, 1 engaged) or gains TP.
+function Session:give_pet(fields)
+    self:run(function() self.game:give_pet(fields) end)
+end
+
+function Session:take_pet()
+    self:run(function() self.game:take_pet() end)
+end
+
+function Session:set_pet_status(status)
+    self:run(function() self.game:set_pet_status(status) end)
+end
+
+function Session:set_pet_tp(tp)
+    self:run(function() self.game:set_pet_tp(tp) end)
+end
+
+-- The player's indicolure changes (see Game:set_indi), or ends when given no fields.
+function Session:set_indi(fields)
+    self:run(function() self.game:set_indi(fields) end)
+end
+
 return harness
