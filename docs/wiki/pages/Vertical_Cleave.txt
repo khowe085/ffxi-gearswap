@@ -1,0 +1,62 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=1
+|desc=Damage varies with TP.
+|mp=86 MP
+|blupoint=3
+|cast=0.5 seconds
+|recast=37.25 seconds
+|target=Single
+|range=
+|stats=[[VIT]] +1 [[HP]] -5 [[MP]] +5
+|effects=
+|duration=
+|trait=Defense Bonus
+|level=75
+|mtype=Luminian
+|family=Euvhi
+|wsc=50% STR 
+|ftp=
+|ftp0=3.0
+|ftp150=3.0
+|ftp300=3.0
+|ftp350=3.0
+|scprop={{Gravitation}} [[Gravitation]]
+|ve=
+|ce=
+}}
+==Notes==
+* This spell ignores Utsusemi shadows.
+* Additional TP during [[Chain Affinity]] does not directly increase [[fTP]]. It is possible that TP increases [[attack]].
+==Spell Obtainment==
+'''The flower form of the Euvhi have an open and closed state, which changes during combat. Vertical Cleave is only used when the Euvhi is in the open flower state.'''
+{{Learning Blue Magic Table
+|Learned From=Euvhi
+|Spell Level=75
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Eo'euvhi
+|Level=74-76
+|Zone=Grand Palace of Hu'Xzoi
+|SpawnCondition=
+|Map=Grand Palace of Hu'Xzoi-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Aw'euvhi
+|Level=78-80
+|Zone=The Garden of Ru'Hmet
+|SpawnCondition=
+|Map=The Garden of Ru'Hmet-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Eschan Euvhi
+|Level=115-119
+|Zone=Escha - Ru'Aun
+|SpawnCondition=#12
+|Map=Escha Ru'Aun marked.png
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

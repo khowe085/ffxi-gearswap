@@ -1,0 +1,52 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=1
+|desc=Accuracy varies with TP.
+|mp=61 MP
+|blupoint=4
+|cast=0.5 seconds
+|recast=28.5 seconds
+|target=Single
+|range=~9'
+|stats=[[VIT]] +2 [[INT]] +1 [[MND]] +1
+|effects=
+|duration=
+|trait=Attack Bonus
+|level=63
+|family=Qutrub
+|mtype=Undead
+|wsc=30% [[STR]]
+|ftp=
+|ftp0=3.0
+|ftp150=3.0
+|ftp300=3.0
+|ftp350=3.0
+|scprop={{Scission}} [[Scission]] / {{Detonation}} [[Detonation]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+*'''Qutrubs can only use this TP ability when their sword is broken (from critical hits), their dagger is sheathed behind them, and they are fighting using hand-to-hand.'''
+{{Learning Blue Magic Table
+|Learned From=Qutrub
+|Spell Level=63
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Qutrub
+|Level=73-74
+|Zone=Arrapago Reef
+|SpawnCondition=Located around E-10
+|Map=Arrapago Reef-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Lamia Idolater
+|Level=79-81
+|Zone=Caedarva Mire
+|SpawnCondition=Located near [[Dvucca Isle Staging Point]]
+|Map=Caedarva Mire-map2.jpg
+}}
+}}
+[[category:Blue Magic]]
+[[Category:Spells]]

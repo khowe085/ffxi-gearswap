@@ -1,0 +1,47 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Piercing
+|nohits=1
+|desc=Additional Effect: Paralysis. Damage varies with TP.
+|mp=44 MP
+|blupoint=4
+|cast=1 second
+|recast=30 seconds
+|target=AoE (Conal)
+|range=5'
+|stats=[[HP]] +10 [[VIT]] +3
+|effects=[[Paralyze (Status)|Paralyze]]
+|duration=3 minutes
+|trait=Fast Cast
+|level=72
+|mtype=Aquans
+|family=Ruszor
+|wsc=60% [[VIT]] 
+|ftp=
+|ftp0=2.0
+|ftp150=2.0
+|ftp300=2.0
+|ftp350=2.0
+|scprop={{Fragmentation}} [[Fragmentation]]
+|ve=
+|ce=
+}}
+==Notes==
+*[[Paralyze]] potency is 10%
+*Overwritten by, but does not overwrite [[Paralyze]] or [[Jubaku: Ichi]]
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Ruszor
+|Spell Level=72
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Ruszor
+|Level=78-81
+|Zone=Beaucedine Glacier (S) 
+|SpawnCondition= I-9 / G-10 / J-8
+|Map=Beaucedine Glacier (S)-map.jpg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

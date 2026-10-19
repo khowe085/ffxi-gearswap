@@ -1,0 +1,72 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=1
+|desc=Damage varies with TP.
+|mp=51 MP
+|blupoint=5
+|cast=0.5 seconds
+|recast=24.5 seconds
+|target=Single
+|range=
+|stats=[[MND]] +2, [[CHR]] +2, [[HP]] +5
+|effects=
+|duration=
+|trait=Attack Bonus
+|level=60
+|mtype=Vermin
+|family=Scorpion
+|wsc=60% [[STR]]
+|ftp=
+|ftp0=1.5
+|ftp150=2.75
+|ftp300=3.25
+|ftp350=3.296875
+|scprop={{Compression}} [[Compression]] / {{Reverberation}} [[Reverberation]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Scorpion
+|Spell Level=60
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Maze Scorpion
+|Level=25-28
+|Zone=Maze of Shakhrami
+|SpawnCondition=
+|Map=Maze of Shakhrami-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Labyrinth Scorpion
+|Level=30-33
+|Zone=Maze of Shakhrami
+|SpawnCondition=
+|Map=Maze of Shakhrami-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Doom Scorpion
+|Level=44-47
+|Zone=Eastern Altepa Desert
+|SpawnCondition=
+|Map=Eastern Altepa Desert - Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Tulwar Scorpion
+|Level=53-56
+|Zone=Western Altepa Desert
+|SpawnCondition=
+|Map=Western Altepa Desert.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Akrab
+|Level=85-100
+|Zone=Abyssea - Altepa
+|SpawnCondition=Conflux #03
+|Map=Abyssea - Altepa-Map.jpg
+}}
+}}
+[[category:Blue Magic]]
+[[Category:Spells]]

@@ -1,0 +1,87 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Blunt
+|nohits=1
+|desc=Damage varies with TP.
+|mp=32 MP
+|blupoint=2
+|cast=1 second
+|recast=30 seconds
+|target=Single
+|range=~5'
+|stats=[[STR]] +2
+|effects=
+|duration=
+|trait=Double Attack
+|trait2=Triple Attack
+
+|level=92
+|mtype=Arcana
+|family=Golem
+|wsc=50% [[STR]] 
+|ftp=
+|ftp0=2.25
+|ftp150=3.5
+|ftp300=4.0
+|ftp350={{Information Needed}}
+|scprop={{Fragmentation}} [[Fragmentation]] / {{Transfixion}} [[Transfixion]]
+|ve=
+|ce=
+}}
+==Notes==
+*Automatic critical hit.
+*Stacks with +Crit Damage equipment
+*Possesses a huge accuracy penalty (-100+)
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Golem
+|Spell Level=92
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Stone Golem
+|Level=40-42
+|Zone=Beaucedine Glacier
+|SpawnCondition=
+|Map=Beaucedine Glacier-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Ore Golem
+|Level=43-45
+|Zone=Fei'Yin
+|SpawnCondition=
+|Map=Fei'Yin-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Colossus
+|Level=56-58
+|Zone=Fei'Yin
+|SpawnCondition=
+|Map=Fei'Yin-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Aura Statue
+|Level=79-84
+|Zone=The Shrine of Ru'Avitau
+|SpawnCondition=(H-9)
+|Map=The Shrine of Ru'Avitau-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Verglas Golem
+|Level=85-100
+|Zone=Abyssea - Uleguerand
+|SpawnCondition=Conflux #07
+|Map=Abyssea - Uleguerand-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Awoken Hrungnir
+|Level=119
+|Zone=Aydeewa Subterrane
+|SpawnCondition= Peculiar Foes VI Map 2 (E-7)
+|Map=Aydeewa_Subterrane-map2.jpg
+}}
+}}
+
+== Related Links ==
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4765255&viewfull=1#post4765255 Prothescar's original testing: BGForums]
+[[Category:Blue Magic]][[Category:Spells]]

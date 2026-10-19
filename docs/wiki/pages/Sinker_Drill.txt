@@ -1,0 +1,55 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Piercing
+|nohits=5
+|desc=Delivers a fivefold attack. Damage varies with TP.
+|mp=91 MP
+|blupoint=6
+|cast= 1 second
+|recast=20 seconds
+|target=Single
+|range=
+|stats=[[STR]] +4 [[DEX]] +4 [[VIT]] +4 
+|effects=
+|duration=
+|trait=Critical Attack Bonus
+|level=99
+|mtype=Arcana
+|family=Acrolith
+|wsc=50% [[STR]] 50%  [[VIT]]
+|ftp=
+|ftp0=1.0
+|ftp150={{Information Needed}}
+|ftp300={{Information Needed}}
+|ftp350={{Information Needed}}
+|scprop={{Gravitation}} [[Gravitation]] / {{Reverberation}} [[Reverberation]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Acrolith
+|Spell Level=99
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Mechanical Menace 
+|Level=75-90
+|Zone=Abyssea - Uleguerand
+|SpawnCondition=Conflux #07
+|Map=Abyssea - Uleguerand-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Boompadu
+|Level=
+|Zone=Alzadaal Undersea Ruins
+|SpawnCondition=N from nyzul staging point
+|Map=Alzap5.jpg
+|NM=NM
+}}
+}}
+
+==References==
+* [http://www.ffxiah.com/forum/topic/30626/the-beast-within-a-guide-to-blue-mage/277/#3078729 fTP/WSC Testing (Nightfyre, FFXIAH)]
+
+[[Category:Blue Magic]][[Category:Spells]]
