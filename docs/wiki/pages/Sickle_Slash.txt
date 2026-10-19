@@ -1,0 +1,86 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=H2H
+|nohits=1
+|desc=Deals critical damage. Chance of critical hit varies with TP.
+|mp=41 MP
+|blupoint=4
+|cast=0.5 seconds
+|recast=20 seconds
+|target=Single
+|range=4.5
+|stats=[[HP]] -5 [[MP]] +15
+|effects=
+|duration=
+|trait=Store TP
+|level=48
+|mtype=Vermin
+|family=Spider
+|wsc=50% [[DEX]]
+|ftp=
+|ftp0=1.5
+|ftp150=1.5
+|ftp300=1.5
+|ftp350=1.5
+|scprop={{Compression}} [[Compression]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Spider
+|Spell Level=48
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Giant Spider
+|Level=30-34
+|Zone=Eastern Altepa Desert
+|SpawnCondition=
+|Map=Eastern Altepa Desert - Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Desert Spider
+|Level=40-44
+|Zone=Western Altepa Desert
+|SpawnCondition=
+|Map=Western Altepa Desert.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Recluse Spider
+|Level=63-66
+|Zone=Kuftal Tunnel
+|SpawnCondition=
+|Map=Kuftal Tunnel-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Shore Spider
+|Level=80-95
+|Zone=Abyssea - Misareaux
+|SpawnCondition=Conflux #00
+|Map=Abyssea - Misareaux-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Spitting Spider
+|Level=80-95
+|Zone=Abyssea - Vunkerl
+|SpawnCondition=Conflux #05
+|Map=Abyssea - Vunkerl-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Skittering Spider
+|Level=100-102
+|Zone=Rala Waterways
+|SpawnCondition=
+|Map=Rala Waterways Map.png
+}}
+{{Learning Blue Magic Row
+|Monster=Shade-speckled Spider
+|Level=114+
+|Zone=Yorcia Weald
+|SpawnCondition=(H-9) 
+|Map=Updated_marked_map_yorcia_weald.jpeg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

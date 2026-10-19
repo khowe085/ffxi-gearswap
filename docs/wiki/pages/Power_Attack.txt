@@ -1,0 +1,93 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=
+|desc=Deals critical damage. Chance of critical varies with TP.
+|mp=5
+|blupoint=1
+|cast=0.5 seconds
+|recast=7.25 seconds
+|target=Single
+|range=4.5
+|stats=[[MND]] +1
+|trait=
+|effects=
+|duration=
+|level=4
+|mtype=Vermin
+|family=Beetle
+|wsc=10% [[STR]] 10% [[VIT]]
+|ftp=
+|ftp0=1.125
+|ftp150=1.125
+|ftp300=1.125
+|ftp350=1.125
+|scprop={{Reverberation}} [[Reverberation]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Beetle
+|Spell Level=4
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Scarab Beetle
+|Level=3-6
+|Zone=West Ronfaure
+|SpawnCondition=
+|Map=West Ronfaure.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Copper Beetle
+|Level=9-12
+|Zone=Palborough Mines
+|SpawnCondition=
+|Map=Palborough Mines-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Beady Beetle
+|Level=11-16
+|Zone=Outer Horutoto Ruins
+|SpawnCondition=
+|Map=Outer Horutoto Ruins-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Beady Beetle
+|Level=15-18
+|Zone=Carpenters' Landing
+|SpawnCondition=
+|Map=Carpenters Landing-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Stag Beetle
+|Level=20-23
+|Zone=Carpenters' Landing
+|SpawnCondition=
+|Map=Carpenters Landing-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Stag Beetle
+|Level=20-23
+|Zone=Jugner Forest
+|SpawnCondition=
+|Map=Jugner Forest.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Stag Beetle
+|Level=20-23
+|Zone=Meriphataud Mountains
+|SpawnCondition=
+|Map=Meriphataud Mountains-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Canopycrusher Beetle
+|Level=100-101
+|Zone=Yahse Hunting Grounds
+|SpawnCondition=
+|Map=Yahse Hunting Grounds Map.png
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

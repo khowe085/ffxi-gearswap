@@ -1,0 +1,54 @@
+{{disambiguation|Hysteric Assault}}{{Blue Magic
+|class=damage
+|type=Physical
+|damage=H2H
+|nohits=5
+|desc=Delivers a fivefold attack. Damage varies with TP.
+|mp=61 MP
+|blupoint=5
+|cast=0.5 seconds
+|recast=28.5 seconds
+|target=Single
+|range=
+|stats=[[DEX]] +2 [[AGI]] +1
+|effects=
+|duration=
+|trait=Evasion Bonus
+|level=69
+|mtype=Beastmen
+|family=Lamiae
+|wsc=30% [[DEX]]
+|ftp=
+|ftp0=1.25
+|ftp150=1.625
+|ftp300=1.75
+|ftp350=1.875
+|scprop={{Detonation}} [[Detonation]]
+|ve=
+|ce=
+}}
+==Notes==
+* Possess a -10% attack penalty
+==Spell Obtainment==
+'''While Merrows may perform this ability it is only able to be learned from [[:Category:Lamiae|Lamiae]] which only use it after their main weapon has broken from a critical hit.'''
+{{Learning Blue Magic Table
+|Learned From=Lamiae
+|Spell Level=69
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Lamiae
+|Level=71-75
+|Zone=Caedarva Mire
+|SpawnCondition=
+|Map=Caedarva Mire-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Lamiae
+|Level=72-75
+|Zone=Arrapago Reef
+|SpawnCondition=
+|Map=Arrapago Reef-map1.jpg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

@@ -2279,6 +2279,11 @@ WSC     = floor(stat A × A% + stat B × B%)
 - A physical spell's added effect, such as Sudden Lunge's stun, rolls separately from the hit. Magic accuracy and Blue Magic skill raise its chance (bg-wiki, Sudden Lunge). A spell cast for its effect needs accuracy to hit and magic accuracy to land the effect.
   - Bilgestorm (Unbridled Learning only) adds Defense Down 25%, Attack Down 25% and Accuracy Down 10, each rolled and resisted on its own and lasting 30 to 60 seconds. Its WSC and fTP aren't known (bg-wiki, Bilgestorm).
   - Sub-zero Smash's Paralysis is 10% for 3 minutes. Paralyze and Jubaku: Ichi overwrite it, and it doesn't overwrite them. The hit is one strike, 60% VIT, fTP 2.0 at any TP (bg-wiki, Sub-zero Smash).
+  - Paralyzing Triad: three hits at fTP 1.125, and Paralysis at 20% potency for 60 seconds (bg-wiki, Paralyzing Triad).
+  - Disseverment: five hits at fTP 1.5 at any TP, with an attack penalty of 10%, and Poison of level ÷ 5 + 3 HP a tick, at most 22, for 3 minutes (bg-wiki, Disseverment).
+  - Delta Thrust: three hits at fTP 1.09375 (20% STR, 50% VIT), and Plague, −6 MP and −100 TP a tick, for 40 to 60 seconds (bg-wiki, Delta Thrust).
+  - Tourbillion (Unbridled Learning only): one area hit at fTP 4.0 (25% STR, 25% MND), and Defense Down of about 33% for 60 to 120 seconds, longer with TP. Magic accuracy and Blue Magic skill raise its chance. It doesn't stack with other Defense Down effects such as Sweeping Gouge or Tenebral Crush, but does with Dia, Box Step and Geo-Frailty (bg-wiki, Tourbillion).
+  - Bloodrake (Unbridled Learning only): three hits that absorb 100% of the damage dealt as HP, except from undead, so its drain rises with its damage (bg-wiki, Bloodrake). Ram Charge and Helldive add only knockback (bg-wiki, Ram Charge and Helldive).
 - TP Bonus gear (disputed):
   - The TP Bonus page says TP Bonus gear such as Moonshade Earring does nothing for physical blue magic, even under Chain Affinity or Azure Lore, and that Efflux is the only TP bonus that applies.
   - The Moonshade Earring page says its TP Bonus +250 can work on blue magic when an ability such as Chain Affinity consumes TP.

@@ -1,0 +1,84 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Blunt
+|nohits=3
+|desc=Delivers a threefold attack. Damage varies with TP.
+|mp=61 MP
+|blupoint=3
+|cast=0.5 seconds
+|recast=28.5 seconds
+|target=Single
+|range=
+|stats=[[INT]] +1
+|effects=
+|duration=
+|trait=Accuracy Bonus
+|level=63
+|mtype=Demons
+|family=Imp
+|wsc=20% [[STR]] 20% [[DEX]]
+|ftp=
+|ftp0=1.359375
+|ftp150=2.0703125
+|ftp300=2.359375
+|ftp350=2.609375
+|scprop={{Induration}} [[Induration]]
+|ve=
+|ce=
+}}
+==Notes==
+*Possesses an attack bonus.
+==Spell Obtainment==
+*'''This spell can only be learned once an Imp's instrumental horn has been broken via critical hits.'''
+**An imp will regain it's horn after a short amount of time.
+*Clammy Imps in Abyssea - Vunkerl seem to use Frenetic Rip even when their horns are intact, making it an ideal area to learn as Blue Mage.
+{{Learning Blue Magic Table
+|Learned From=Imp
+|Spell Level=63
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Imp
+|Level=55-57
+|Zone=Ferry - Nashmau/Al Zahbi
+|SpawnCondition= Nighttime only
+|Map=Ferry - Nashmau Al Zahbi -Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Orderly Imp
+|Level=63-68
+|Zone=Caedarva Mire
+|SpawnCondition=
+|Map=Caedarva Mire-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Bukki
+|Level=70
+|Zone=Arrapago Reef
+|SpawnCondition=Spawned by the quest [[The Die is Cast]].
+|Map=Arrapago Reef-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Seneschal Imp
+|Level=77-79
+|Zone=La Vaule (S)
+|SpawnCondition=
+|Map=La_Vaule_(S)-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Ruly Imp
+|Level=81
+|Zone=Xarcabard (S)
+|SpawnCondition=
+|Map=Xarcabard (S)-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Clammy Imp
+|Level=75-90
+|Zone=Abyssea - Vunkerl
+|SpawnCondition=Conflux #07
+|Map=Abyssea - Vunkerl-map.jpg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

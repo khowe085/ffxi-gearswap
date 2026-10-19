@@ -1,0 +1,1243 @@
+{{Category Page Header
+|ToC=y
+|Float=left
+|Image=Nolan.jpg
+|Image Size=200
+|Image Link=
+|Intro Text=
+'''Nolan''', located in [[Norg]] at (I-7); offers the service of upgrading certain equipment and weapons obtained from [[Escha]], a process called "mezzotinting". The armor and weapons are gradually upgraded through fifteen ranks with increasing and expanding stats by applying [[Eschalixir|Eschalixirs]]. The initial cost of starting the augment process is 100 [[Escha Silt]]. Thereafter, the cost is 1 Silt per level.
+
+Augment paths may be switched without losing current rank progression, at a cost of 3,000 Silt.
+
+* Nolan will exchange [[Escha Bead|Escha Beads]] for [[Eschalixir|Eschalixirs]] for  at the following rate:
+**1 [[File:Eschalixir icon.png|25px|link=]] [[Eschalixir]] = 10 Beads
+**1 [[File:Eschalixir +1 icon.png|25px|link=]] [[Eschalixir +1]] = 50 Beads
+**1 [[File:Eschalixir +2 icon.png|25px|link=]] [[Eschalixir +2]] = 2,000 Beads
+
+* [[Zurim]] sells 1 [[File:Eschalixir +2 icon.png|25px|link=]] [[Eschalixir +2]] for 10 [[Domain Points]].
+
+* There are four upgrade paths for each armor and weapon to choose from. Paths A, B, and C are the same for each set of armor, with Path D being different between the head/body/hands/legs/feet.
+
+* Escha gear requires '''5,980''' RP to upgrade fully to Rank 15.
+** 1 [[File:Eschalixir icon.png|25px|link=]] [[Eschalixir]] = 10 RP
+** 1 [[File:Eschalixir +1 icon.png|25px|link=]] [[Eschalixir +1]] = 50 RP
+** 1 [[File:Eschalixir +2 icon.png|25px|link=]] [[Eschalixir +2]] = 2,000 RP
+
+To begin the process, trade the item by itself to Nolan and select the desired augment path.  You will be charged 100 silt (to activate the first path) or 3000 silt (to change paths) upon trading.  Next, trade the item and the desired number of eschalixirs at the same time to Nolan in order to add rank points to the item; each trade costs 1 silt.
+
+Augment progress may be checked by looking at the item's info box in the inventory or equipment screen.  An extra line will be added which looks like so:
+
+<Type:X/Rank:Y/RP:Z>
+
+Where X is the augment path chosen (A-D), Y is the current strength of the augment (Rank 1 - Rank 15), and Z is the number of rank points required for the next rank.  The number decreases as more eschalixirs are traded; when the number hits 0, a rank is gained on the item.
+
+Equipment that may be augmented and their max rank augments are found below.
+
+{{color|red|Note!}} All of the equipment below has the "AugSendable" tag. This means that they can be sent to alternate characters on the same PlayOnline account, even after they are augmented!
+}}
+= Weapons =
+<hr align="center" width=100%>
+== [[Escha - Zi'Tah]] ==
+{| class="Standard C-Highlight R1-White sortable mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f"
+! style="width:40%" | Weapon
+! style="width:15%" class="unsortable"| Path A
+! style="width:15%" class="unsortable"| Path B
+! style="width:15%" class="unsortable"| Path C
+! style="width:15%" class="unsortable"| Path D
+|- style="background: #e8e8e8"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Mijin</span>[[File:Mijin description.png|link=Mijin]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Mijin}}}|Mijin|
+{{!}} Attack+15<br />Accuracy+15<br />Ranged Accuracy+15
+{{!}} Accuracy+15<br />Ranged Accuracy+15<br />"Store TP"+5
+{{!}} INT+7<br />Magic Accuracy+15<br />"Magic Attack Bonus"+15
+{{!}} Evasion+20<br />Magic Evasion+20<br />Enmity+4
+}}</onlyinclude>
+|- style="background: #efeeee"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Blade</span>[[File:Nibiru Blade description.png|link=Nibiru Blade]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Blade}}}|Nibiru Blade|
+{{!}} DEX+10<br />Accuracy+20<br />Magic Accuracy+15
+{{!}} STR+10<br />Attack+20<br />"Store TP"+3
+{{!}} Magic Accuracy+15<br />"Magic Attack Bonus"+15<br />Magic Evasion+20
+{{!}} HP+50<br />"Double Attack"+3<br />"Fast Cast"+5
+}}</onlyinclude>
+|- style="background: #e8e8e8"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Bow</span>[[File:Nibiru Bow description.png|link=Nibiru Bow]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Bow}}}|Nibiru Bow|
+{{!}} AGI+10<br />Ranged Accuracy+25<br />Enmity-6
+{{!}} HP+50<br />Ranged Attack+25<br />Rapid Shot+10
+{{!}} AGI+10<br />Ranged Accuracy+15<br />Ranged Attack +15
+{{!}} Ranged Attack+20<br />Recycle+15<br />"Store TP"+5
+}}</onlyinclude>
+|- style="background: #efeeee"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Chopper</span>[[File:Nibiru Chopper description.png|link=Nibiru Chopper]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Chopper}}}|Nibiru Chopper|
+{{!}} HP+50<br />STR+10<br />Accuracy+25
+{{!}} Attack+20<br />Enmity+4<br />"Double Attack"+3%
+{{!}} VIT+10<br />Evasion+20<br />Counter+3
+{{!}} HP+80<br />Enmity+7<br />Physical Damage Taken -3%
+}}</onlyinclude>
+|- style="background: #e8e8e8"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Cudgel</span>[[File:Nibiru Cudgel description.png|link=Nibiru Cudgel]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Cudgel}}}|Nibiru Cudgel|
+{{!}} MND+10<br />Magic Accuracy+15<br />"Cure Potency"+15
+{{!}} MP+50<br />INT+10<br />"Magic Attack Bonus"+15
+{{!}} Accuracy+15<br />Magic Accuracy+15<br />"Fast Cast"+3
+{{!}} MP+50<br />Pet: Damage Taken-3%<br />Pet: Regen+2
+}}</onlyinclude>
+|- style="background: #efeeee"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Faussar</span>[[File:Nibiru Faussar description.png|link=Nibiru Faussar]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Faussar}}}|Nibiru Faussar|
+{{!}} STR+10<br />Attack+25<br />Magic Accuracy+15
+{{!}} Accuracy+10<br />Attack+15<br />"Store TP"+5
+{{!}} Evasion+20<br />Magic Evasion+20<br />"Fast Cast"+5%
+{{!}} VIT+10<br />Accuracy+25<br />Physical Damage Taken -4%
+}}</onlyinclude>
+|- style="background: #e8e8e8"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Gun</span>[[File:Nibiru Gun description.png|link=Nibiru Gun]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Gun}}}|Nibiru Gun|
+{{!}} STR+10<br />Ranged Accuracy+15<br />"Store TP"+3
+{{!}} HP+50<br />AGI+10<br />Ranged Accuracy +20
+{{!}} STR+10<br />Ranged Accuracy+15<br />Ranged Attack +15
+{{!}} STR+15<br />AGI+7<br />"Store TP"+5
+}}</onlyinclude>
+|- style="background: #efeeee"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Harp</span>[[File:Nibiru Harp description.png|link=Nibiru Harp]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Harp}}}|Nibiru Harp|
+{{!}} MP+50<br />Magic Accuracy+10<br />All songs +2
+{{!}} HP+50<br />CHR+10<br />All songs +2
+{{!}} MP+50<br />Cure Potency+5%<br />All songs +2
+{{!}} Magic Evasion+20<br />PDT -3%<br />MDT-3%
+}}</onlyinclude>
+|- style="background: #e8e8e8"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Knife</span>[[File:Nibiru Knife description.png|link=Nibiru Knife]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Knife}}}|Nibiru Knife|
+{{!}} Accuracy+20<br />Attack+15<br />Evasion+20
+{{!}} DEX+7<br />Attack+20<br />"Store TP"+3
+{{!}} STR+15<br />DEX+10<br />CHR+10
+{{!}} MP+50<br />Mag. Evasion+20<br />"Fast Cast"+5
+}}</onlyinclude>
+|- style="background: #efeeee"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Lance</span>[[File:Nibiru Lance description.png|link=Nibiru Lance]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Lance}}}|Nibiru Lance|
+{{!}} STR+10<br />Accuracy+20<br />"Double Attack"+3
+{{!}} HP+50<br />Accuracy+15<br />Attack+15
+{{!}} Pet: HP+100<br />Pet: Accuracy+20<br />Pet: Attack+20
+{{!}} Accuracy+20<br />Pet: Accuracy+20<br />"Store TP"+5
+}}</onlyinclude>
+|- style="background: #e8e8e8"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Sainti</span>[[File:Nibiru Sainti description.png|link=Nibiru Sainti]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Sainti}}}|Nibiru Sainti|
+{{!}} Accuracy+25<br />Strength+7<br />"Subtle Blow"+7
+{{!}} HP+50<br />Attack+20<br />"Store TP"+3
+{{!}} Evasion+20<br />Enmity+7<br />Physical Damage Taken-3%
+{{!}} Automaton Melee Skill+20<br />Automaton Ranged Skill+20<br />Automaton Magic Skill+20
+}}</onlyinclude>
+|- style="background: #efeeee"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Shield</span>[[File:Nibiru Shield description.png|link=Nibiru Shield]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Shield}}}|Nibiru Shield|
+{{!}} HP+80<br />Enmity+7<br />Physical Damage Taken-5%
+{{!}} HP+80<br />MP+80<br />"Fast Cast"+7
+{{!}} MND+15<br />"Cure" Potency+5%<br />Potency of "Cure" effect received+5%
+{{!}} Accuracy+15<br />Attack+15<br />"Store TP"+5
+}}</onlyinclude>
+|- style="background: #e8e8e8"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Sickle</span>[[File:Nibiru Sickle description.png|link=Nibiru Sickle]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Sickle}}}|Nibiru Sickle|
+{{!}} STR+10<br />Attack+25<br />INT+7
+{{!}} Attack+20<br />"Magic Attack Bonus"+25<br />"Fast Cast"+5
+{{!}} Accuracy+20<br />Attack+15<br />"Store TP"+3
+{{!}} Magic Accuracy+20<br />"Magic Attack Bonus+15<br />Refresh+1
+}}</onlyinclude>
+|- style="background: #efeeee"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Staff</span>[[File:Nibiru Staff description.png|link=Nibiru Staff]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Staff}}}|Nibiru Staff|
+{{!}} MP+80<br />"Magic Attack Bonus"+25<br />Enmity-5
+{{!}} Magic Dmg. Taken -3%<br />MND+10<br />Magic Accuracy+25
+{{!}} Pet: Regen +2<br />Pet: Magic Accuracy+20<br />Pet: "Magic Atk. Bonus"+25
+{{!}} Pet: Accuracy+20<br />Pet: Attack+20<br />Pet: Double Attack+3%
+}}</onlyinclude>
+|- style="background: #e8e8e8"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nibiru Tabar</span>[[File:Nibiru Tabar description.png|link=Nibiru Tabar]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nibiru Tabar}}}|Nibiru Tabar|
+{{!}} STR+10<br />Attack+20<br />Pet: Attack+20
+{{!}} Accuracy+15<br />Attack+15<br />STP+5
+{{!}} Pet: Attack+25<br />Pet: "Magic Attack Bonus"+15<br />Pet: Enmity+7
+{{!}} CHR+15<br />Pet: Haste+3%<br />Pet: "Double Attack"+3
+}}</onlyinclude>
+|- style="background: #efeeee"
+| style="background: #ececec" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Sensui</span>[[File:Sensui description.png|link=Sensui]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Sensui}}}|Sensui|
+{{!}} DEX+7<br />Accuracy+20<br />"Store TP"+5
+{{!}} Attack+15<br />"Subtle Blow"+7<br />"Double Attack"+3
+{{!}} AGI+10<br />Ranged Accuracy+15<br />Ranged Attack+20
+{{!}} Evasion+20<br />Magic Evasion+20<br />Physical damage taken -3%
+}}</onlyinclude>
+|}
+
+== [[Escha - Ru'Aun]] ==
+{| class="Standard C-Highlight R1-White sortable mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Weapon
+! style="width: 15%;" class="unsortable"| Path A
+! style="width: 15%;" class="unsortable"| Path B
+! style="width: 15%;" class="unsortable"| Path C
+! style="width: 15%;" class="unsortable"| Path D
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Aizushintogo</span>[[File:Aizushintogo description.png|link=Aizushintogo]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Aizushintogo}}}|Aizushintogo|
+{{!}} DMG+15<br />STR+15<br />Attack+15
+{{!}} DMG+15<br />STR+15<br />Accuracy+10
+{{!}} DMG+15<br />Accuracy+15<br />Attack+15
+{{!}} DMG+17<br />Accuracy+15<br />Ranged Accuracy+15
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Akademos</span>[[File:Akademos description.png|link=Akademos]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Akademos}}}|Akademos|
+{{!}} MP+80<br />INT+20<br />"Magic Attack Bonus"+20
+{{!}} MND+20<br />Magic Accuracy+20<br />"Cure Potency"+10
+{{!}} INT+15<br />"Magic Attack Bonus"+15<br />Magic Accuracy+15
+{{!}} Magic Accuracy+20<br />"Enhancing Magic Skill"+15<br />"Enfeebling Magic Skill"+15
+}}</onlyinclude>
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Bidenhander</span>[[File:Bidenhander_description.png|link=Bidenhander]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Bidenhander}}}|Bidenhander|
+{{!}} DMG+30<br />STR+20<br />Attack+20
+{{!}} DMG+30<br />Accuracy+20<br />Attack+20
+{{!}} DMG+30<br />Attack+20<br />Enmity+7
+{{!}} DMG+32<br />"Store TP"+7<br />Enmity+7
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Compensator</span>[[File:Compensator description.png|link=Compensator]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Compensator}}}|Compensator|
+{{!}} DMG+15<br />AGI+15<br />Ranged Attack+15
+{{!}} DMG+15<br />AGI+15<br />Ranged Accuracy+15
+{{!}} DMG+15<br />Ranged Accuracy+15<br />Ranged Attack+15
+{{!}} DMG+15<br />Ranged Attack+15<br />"Magic Attack Bonus"+15
+}}</onlyinclude>
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Deathbane</span>[[File:Deathbane description.png|link=Deathbane]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Deathbane}}}|Deathbane|
+{{!}} DMG+30<br />STR+20<br />Attack+20
+{{!}} DMG+30<br />Attack+20<br />"Store TP"+3
+{{!}} DMG+30<br />Attack+20<br />"Dark Magic Skill"+15
+{{!}} DMG+32<br />MP+80<br />STR+20
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Emissary</span>[[File:Emissary description.png|link=Emissary]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Emissary}}}|Emissary|
+{{!}} DMG+15<br />Accuracy+15<br />Attack+15
+{{!}} DMG+15<br />Accuracy+15<br />Magic Accuracy+15
+{{!}} DMG+15<br />Magic Accuracy+15<br />"Magic Attack Bonus"+15
+{{!}} Magic Accuracy+15<br />"Magic Attack Bonus"+20<br />Refresh+1
+}}</onlyinclude>
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Enchufla</span>[[File:Enchufla description.png|link=Enchufla]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Enchufla}}}|Enchufla|
+{{!}} DMG+15<br />STR+15<br />Attack+15
+{{!}} DMG+15<br />STR+15<br />Accuracy+10
+{{!}} DMG+15<br />DEX+15<br />"Subtle Blow"+7
+{{!}} DMG+17<br />Evasion+15<br />Magic Evasion+15
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Espiritus</span>[[File:Espiritus description.png|link=Espiritus]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Espiritus}}}|Espiritus|
+{{!}} Enmity-6<br />Pet: "Magic Attack Bonus"+30<br />Pet: Damage Taken-4%
+{{!}} "Summoning Magic Skill"+15<br />Pet: Magic Accuracy+30<br />Pet: Damage Taken-4%
+{{!}} MP+50<br />Pet: "Magic Attack Bonus"+20<br />Pet: Magic Accuracy+20
+{{!}} Pet: STR+15<br />Pet: Attack+25<br />Pet: "Double Attack"+4
+}}</onlyinclude>
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Hammerfists</span>[[File:Hammerfists description.png|link=Hammerfists]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Hammerfists}}}|Hammerfists|
+{{!}} DMG+15<br />STR+20<br />Attack+20
+{{!}} DMG+15<br />STR+20<br />Accuracy+15
+{{!}} DMG+15<br />Attack+20<br />Enmity-5
+{{!}} DMG+17<br />HP+80<br />VIT+15
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Ichigohitofuri</span>[[File:Ichigohitofuri description.png|link=Ichigohitofuri]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Ichigohitofuri}}}|Ichigohitofuri|
+{{!}} DMG+30<br />STR+20<br />Attack+20
+{{!}} DMG+30<br />STR+20<br />Accuracy+15
+{{!}} DMG+30<br />Attack+20<br />Accuracy+20
+{{!}} AGI+20<br />Rng.Acc+25<br />Recycle+15
+}}</onlyinclude>
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Instigator</span>[[File:Instigator description.png|link=Instigator]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Instigator}}}|Instigator|
+{{!}} DMG+30<br />STR+20<br />Attack+20
+{{!}} DMG+30<br />STR+20<br />Accuracy+15
+{{!}} DMG+30<br />Attack+20<br />Accuracy+20
+{{!}} DMG+32<br />STR+15<br />VIT+15
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Iris</span>[[File:Iris description.png|link=Iris]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Iris}}}|Iris|
+{{!}} DMG+15<br />STR+15<br />Attack+15
+{{!}} DMG+15<br />STR+15<br />Accuracy+15
+{{!}} DMG+15<br />Attack+15<br />"Magic Attack Bonus"+15
+{{!}} "Blue Magic Skill"+15<br /> Magic Accuracy+15<br />"Magic Attack Bonus"+15
+}}</onlyinclude>
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Kali</span>[[File:Kali description.png|link=Kali]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Kali}}}|Kali|
+{{!}} DMG+15<br />CHR+15<br />Magic Accuracy+15
+{{!}} DMG+15<br />CHR+15<br />Enmity-5
+{{!}} MP+60<br />Magic Accuracy+20<br />Refresh+1
+{{!}} Magic Accuracy+15<br />"String Instrument Skill"+10<br />"Wind Instrument Skill"+10
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Lathi</span>[[File:Lathi description.png|link=Lathi]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Lathi}}}|Lathi|
+{{!}} MP+80<br />INT+20<br />"Magic Attack Bonus"+20
+{{!}} MP+80<br />Magic Accuracy+20<br />"Fast Cast"+5
+{{!}} INT+15<br />"Magic Attack Bonus"+15<br />Magic Accuracy+15
+{{!}} Magic Accuracy+20<br />"Enfeebling Magic Skill"+15<br />"Dark Magic Skill"+15
+}}</onlyinclude>
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Midnights</span>[[File:Midnights description.png|link=Midnights]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Midnights}}}|Midnights|
+{{!}} DMG+15<br />STR+20<br />Attack+20
+{{!}} DMG+15<br />STR+20<br />Accuracy+20
+{{!}} DMG+15<br />Pet: Attack+25<br />Pet: Haste+3%
+{{!}} Pet: Attack+25<br />Pet: Accuracy+25<br />Pet: Damage Taken-3%
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Nixxer</span>[[File:Nixxer description.png|link=Nixxer]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Nixxer}}}|Nixxer|
+{{!}} DMG+15<br />STR+15<br />Attack+15
+{{!}} DMG+15<br />STR+15<br />Accuracy+10
+{{!}} DMG+15<br />Accuracy+15<br />Attack+15
+{{!}} DMG+17<br />STR+15<br />VIT+15
+}}</onlyinclude>
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Queller Rod</span>[[File:Queller Rod description.png|link=Queller Rod]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Queller Rod}}}|Queller Rod|
+{{!}} MP+80<br />"Cure Potency"+15%<br />Enmity-5
+{{!}} MND+15<br />Magic Accuracy+15<br />"Cure Potency"+15%
+{{!}} "Magic Attack Bonus"+15<br />Magic Accuracy+15<br />"Cure Potency"+15%
+{{!}} "Healing Magic Skill"+15<br />"Cure Potency"+10%<br />Cure Spellcasting Time-7%
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Rhomphaia</span>[[File:Rhomphaia description.png|link=Rhomphaia]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Rhomphaia}}}|Rhomphaia|
+{{!}} DMG+30<br />STR+20<br />Attack+20
+{{!}} DMG+30<br />STR+20<br />Accuracy+15
+{{!}} DMG+30<br />VIT+15<br />Attack+20
+{{!}} DMG+32<br />Attack+20<br />Enmity-5
+}}</onlyinclude>
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Shijo</span>[[File:Shijo description.png|link=Shijo]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Shijo}}}|Shijo|
+{{!}} DMG+15<br />STR+15<br />Attack+15
+{{!}} DMG+15<br />STR+15<br />Accuracy+10
+{{!}} DMG+15<br />Accuracy+15<br />Attack+15
+{{!}} "Triple Attack"+2<br />"Dual Wield"+5<br />DEX+15
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Skullrender</span>[[File:Skullrender description.png|link=Skullrender]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Skullrender}}}|Skullrender|
+{{!}} DMG+15<br />STR+15<br />Attack+15
+{{!}} DMG+15<br />STR+15<br />Accuracy+15
+{{!}} DMG+15<br />Pet: Accuracy+20<br />Pet: Attack+20
+{{!}} DMG+15<br />Pet: MAB+15<br />Pet: Regen+2
+}}</onlyinclude>
+|- style="background: #e8e8e8;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Solstice</span>[[File:Solstice description.png|link=Solstice]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Solstice}}}|Solstice|
+{{!}} MP+60<br />INT+15<br />"Magic Attack Bonus"+15
+{{!}} MP+60<br />INT+15<br />Magic Accuracy+15
+{{!}} INT+15<br />"Magic Attack Bonus"+10<br />Refresh+1
+{{!}} Magic Accuracy+20<br />Pet: Damage Taken-4%<br />"Fast Cast"+5
+}}</onlyinclude>
+|- style="background: #efeeee;"
+| style="background: #ececec;" | <span style="padding-left: 200px; position:absolute; opacity:0.8; color:#383838;">Vijaya Bow</span>[[File:Vijaya Bow description.png|link=Vijaya Bow]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Vijaya Bow}}}|Vijaya Bow|
+{{!}} DMG+15<br />AGI+15<br />Ranged Attack+15
+{{!}} DMG+15<br />AGI+15<br />Ranged Accuracy+15
+{{!}} DMG+15<br />Ranged Accuracy+15<br />Ranged Attack+15
+{{!}} DMG+15<br />Ranged Attack+15<br />Critical Hit Rate+3%
+}}</onlyinclude>
+|}
+
+= Armor =
+<hr align="center" width=100%>
+
+== [[Escha - Zi'Tah]] ==
+
+=== [[Despair Armor Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%:" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Despair Helm description.png|link=Despair Helm]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Despair Set A B C}}}|Despair Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />VIT+10<br />Potency of "Cure" effect received+5%
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} STR+12<br />VIT+7<br />Haste+2%
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+10<br />Pet: VIT+7<br />Pet: Damage Taken-3%
+}}</onlyinclude>
+| STR+15<br />Enmity+7<br />"Store TP"+3
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Despair Mail description.png|link=Despair Mail]]
+| Attack+25<br />Magic Evasion+20<br />"Double Attack"+3
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Despair Fin. Gaunt. description.png|link=Despair Finger Gauntlets]]
+| Ranged Accuracy+25<br />Ranged Attack+20<br />"Recycle"+10
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Despair Cuisses description.png|link=Despair Cuisses]]
+| AGI+10<br />Evasion+20<br />Subtle Blow+7
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Despair Greaves description.png|link=Despair Greaves]]
+| DEX+10<br />STR+7<br />Physical Damage Taken-3%
+|}
+
+=== [[Eschite Armor Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Eschite Helm description.png|link=Eschite Helm]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Eschite Set A B C}}}|Eschite Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+80<br />Enmity+7<br />Physical Damage Taken-4%
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+80<br />Accuracy+10<br />Enmity+7
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Magic Evasion+15<br />Spell Interruption Rate-15%<br />Enmity+7
+}}</onlyinclude>
+| STR+9<br />VIT+7<br />"Cure" Potency+7%
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Eschite Breast. description.png|link=Eschite Breastplate]]
+| Attack+15<br />VIT+7<br />Damage Taken-4%
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Eschite Gauntlets description.png|link=Eschite Gauntlets]]
+| Accuracy+20<br />"Double Attack"+4<br />Enmity+7
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Eschite Cuisses description.png|link=Eschite Cuisses]]
+| "Magic Attack Bonus"+25<br />Conserve MP+6<br />"Fast Cast"+5
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Eschite Greaves description.png|link=Eschite Greaves]]
+| STR+15<br />HP+50<br />"Store TP"+5
+|}
+
+=== [[Naga Garb Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Naga Somen description.png|link=Naga Somen]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Naga Set A B C}}}|Naga Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} STR+10<br />Accuracy+15<br />Subtle Blow+7
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />VIT+10<br />Evasion+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Pet: MP+80<br />Automaton "Cure Potency"+4<br />Automaton "Fast Cast"+3
+}}</onlyinclude>
+| Accuracy+15<br />Ranged Accuracy+25<br />Enmity-6
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Naga Samue description.png|link=Naga Samue]]
+| HP+80<br />DEX+10<br />Attack+20
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Naga Tekko description.png|link=Naga Tekko]]
+| Pet: MP+80<br />Pet: "Magic Attack Bonus"+20<br />Pet: Magic Accuracy+20
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Naga Hakama description.png|link=Naga Hakama]]
+| Attack+20<br />Ranged Attack+25<br />Critical Hit Rate+4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Naga Kyahan description.png|link=Naga Kyahan]]
+| Pet: HP+100<br />Pet: Accuracy+25<br />Pet: Attack+25 <br />
+|}
+
+=== [[Psycloth Attire Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Psycloth Tiara description.png|link=Psycloth Tiara]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Psycloth Set A B C}}}|Psycloth Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+50<br />INT+7<br />Conserve MP+6
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Magic Accuracy+10<br />Spell Interruption Rate-15%<br />MND+7
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Pet: Attack +25<br />Pet: "Magic Attack Bonus"+15<br />Pet: Enmity+7
+}}</onlyinclude>
+| Magic Accuracy+20<br />"Fast Cast"+10<br />INT+7
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Psycloth Vest description.png|link=Psycloth Vest]]
+| Elemental Magic Skill+20<br />INT+7<br />Enmity-6
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Psycloth Manillas description.png|link=Psycloth Manillas]]
+| MP+80<br />Blood Boon+4<br />Pet: "Magic Attack Bonus"+25
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Psycloth Lappas description.png|link=Psycloth Lappas]]
+| MP+80<br />Magic Accuracy+15<br />"Fast Cast"+7
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Psycloth Boots description.png|link=Psycloth Boots]]
+| Pet: Magic Accuracy+20<br />Pet: "Magic Attack Bonus"+20<br />Pet: Enmity+7
+|}
+
+=== [[Pursuer's Attire Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Pursuer's Beret description.png|link=Pursuer's Beret]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Pursuer Set A B C}}}|Pursuer Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} AGI+10<br />Rapid Shot+10<br />Subtle Blow+7
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} DEX+7<br />AGI+10<br />Recycle+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />Accuracy+20<br />Attack+15
+}}</onlyinclude>
+| Ranged Attack+15<br />Enmity-6<br />Subtle Blow+7
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Pursuer's Doublet description.png|link=Pursuer's Doublet]]
+| HP+50<br />Critical Hit Rate+4%<br />Snapshot+6
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Pursuer's Cuffs description.png|link=Pursuer's Cuffs]]
+| Ranged Attack+15<br />STR+7<br />Physical Damage Taken-4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Pursuer's Pants description.png|link=Pursuer's Pants]]
+| DEX+7<br />AGI+10<br />STR+7
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Pursuer's Gaiters description.png|link=Pursuer's Gaiters]]
+| Ranged Accuracy+10<br />Rapid Shot+10<br />Recycle+15
+|}
+
+=== [[Rawhide Armor Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Rawhide Mask description.png|link=Rawhide Mask]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Rawhide Set A B C}}}|Rawhide Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} DEX+10<br />STR+7<br />INT+7
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />Accuracy+15<br />Evasion+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+15<br />Pet: Accuracy+15<br />Pet: "Double Attack"+3
+}}</onlyinclude>
+| Attack+15<br />Pet: Magic Accuracy +20<br />Pet: "Magic Attack Bonus"+15
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Rawhide Vest description.png|link=Rawhide Vest]]
+| HP+50<br />Subtle Blow+7<br />Triple Attack+2
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Rawhide Gloves description.png|link=Rawhide Gloves]]
+| Magic Accuracy+15<br />INT+7<br />MND+7
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Rawhide Trousers description.png|link=Rawhide Trousers]]
+| MP+50<br />Fast Cast+5<br />Refresh+1
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Rawhide Boots description.png|link=Rawhide Boots]]
+| STR+10<br />Attack+15<br />"Store TP"+5
+|}
+
+=== [[Vanya Attire Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Vanya Hood description.png|link=Vanya Hood]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Vanya Set A B C}}}|Vanya Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+50<br />"Cure" Potency+7%<br />Enmity -6
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Healing Magic Skill +20<br />"Cure" spellcasting time-7%<br />Magic Damage Taken -3%
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MND+10<br />Spell Interruption rate-15%<br />Conserve MP+6
+}}</onlyinclude>
+| MP+50<br />"Fast Cast"+10%<br />Haste+2%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Vanya Robe description.png|link=Vanya Robe]]
+| HP+50<br />MP+50<br />Refresh+2
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Vanya Cuffs description.png|link=Vanya Cuffs]]
+| CHR+10<br />String Skill+10<br />Magic Accuracy+20
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Vanya Slops description.png|link=Vanya Slops]]
+| HP+50<br />Magic Evasion+15<br />Physical Damage Taken-3%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Vanya Clogs description.png|link=Vanya Clogs]]
+| "Cure" Potency+5%<br />"Cure" spellcasting time-15%<br />Conserve MP+6
+|}
+
+== Normal Quality Abjuratory ==
+
+=== [[Adhemar Attire Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Adhemar Bonnet description.png|link=Adhemar Bonnet]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Adhemar Set A B C}}}|Adhemar Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} AGI+10<br />DEX+10<br />Accuracy+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} STR+10<br />DEX+10<br />Attack+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} AGI+10<br />Ranged Accuracy+15<br />Ranged Attack+15
+}}</onlyinclude>
+| HP+80<br />Attack+10<br />Physical Damage Taken-3%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Adhemar Jacket description.png|link=Adhemar Jacket]]
+| HP+80<br />"Fast Cast"+7%<br />Magic Damage Taken-3%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Adhemar Wristbands description.png|link=Adhemar Wristbands]]
+| Accuracy+15<br />Attack+15<br />"Subtle Blow"+7
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Adhemar Kecks description.png|link=Adhemar Kecks]]
+| AGI+10<br />"Rapid Shot"+10<br />Enmity-5
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Adhemar Gamashes description.png|link=Adhemar Gamashes]]
+| HP+50<br />"Store TP"+6<br />Snapshot+8
+|}
+
+=== [[Amalric Attire Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Amalric Coif description.png|link=Amalric Coif]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Amalric Set A B C}}}|Amalric Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+60<br />Magic Accuracy+15<br />"Magic Attack Bonus"+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+60<br />INT+10<br />Enmity-5
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} INT+10<br />"Elemental Magic Skill"+15<br />"Dark Magic Skill"+15
+}}</onlyinclude>
+| INT+10<br />Magic Accuracy+20<br />Enmity-5
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Amalric Doublet description.png|link=Amalric Doublet]]
+| MP+60<br />"Magic Attack Bonus"+20<br />"Fast Cast"+3
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Amalric Gages description.png|link=Amalric Gages]]
+| INT+10<br />Magic Accuracy+15<br />"Magic Attack Bonus"+15
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Amalric Slops description.png|link=Amalric Slops]]
+| MP+60<br />"Magic Attack Bonus"+20<br />Enmity-5
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Amalric Nails description.png|link=Amalric Nails]]
+| Magic Accuracy+15<br />"Magic Attack Bonus"+15<br />Conserve MP+6
+|}
+
+=== [[Apogee Attire Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Apogee Crown description.png|link=Apogee Crown]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Apogee Set A B C}}}|Apogee Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+60<br />Pet: "Magic Attack Bonus"+30<br />Blood Pact Damage+7
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+60<br />Pet: Attack+30<br />Blood Pact Damage+7
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Pet: Attack+20<br />Pet: "Magic Attack Bonus"+20<br />Blood Pact Damage+7
+}}</onlyinclude>
+| Pet: Accuracy+20<br />Avatar Perpetuation Cost-5<br />Pet: Damage Taken-3%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Apogee Dalmatica description.png|link=Apogee Dalmatica]]
+| "Summoning Magic Skill"+15<br />Enmity-5<br />Pet: Damage Taken-3%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Apogee Mitts description.png|link=Apogee Mitts]]
+| Pet: Magic Accuracy+20<br />"Blood Pact" ability delay-5<br />"Blood Pact" Damage+7
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Apogee Slacks description.png|link=Apogee Slacks]]
+| Pet: STR+15<br />Blood Pact Damage+13<br />Pet: "Double Attack"+3
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Apogee Pumps description.png|link=Apogee Pumps]]
+| MP+70<br />"Summoning Magic Skill"+15<br />"Blood Pact" Damage+7
+|}
+
+=== [[Argosy Armor Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Argosy Celata description.png|link=Argosy Celata]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Argosy Set A B C}}}|Argosy Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} STR+10<br />DEX+10<br />Attack+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />Accuracy+10<br />Attack+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />STR+12<br />Physical Damage Taken-3%
+}}</onlyinclude>
+| DEX+10<br />Accuracy+15<br />"Double Attack"+2%
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Argosy Hauberk description.png|link=Argosy Hauberk]]
+| STR+10<br />Attack+15<br />"Store TP"+5
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Argosy Mufflers description.png|link=Argosy Mufflers]]
+| STR+15<br />"Double Attack"+2<br />Haste+2
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Argosy Breeches description.png|link=Argosy Breeches]]
+| STR+10<br />Attack+20<br />"Store TP"+5
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Argosy Sollerets description.png|link=Argosy Sollerets]]
+| HP+60<br />Double Attack+2%<br />"Store TP"+3
+|}
+
+=== [[Carmine Armor Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Carmine Mask description.png|link=Carmine Mask]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Carmine Set A B C}}}|Carmine Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+60<br />STR+10<br />INT+10
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+10<br />DEX+10<br />MND+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+60<br />INT+10<br />MND+10
+}}</onlyinclude>
+| Accuracy+15<br />Mag. Acc.+10<br />Fast Cast +3
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Carm. Scale Mail description.png|link=Carmine Scale Mail]]
+| Attack+15<br />"Magic Attack Bonus"+10<br />"Double Attack"+2%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Carmine_Fin._Ga. description.png|link=Carmine Finger Gauntlets]]
+| Ranged Attack+15<br />"Magic Attack Bonus"+10<br />"Store TP"+5
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Carmine Cuisses description.png|link=Carmine Cuisses]]
+| Accuracy+15<br />Attack+10<br />"Dual Wield"+5
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Carmine Greaves description.png|link=Carmine Greaves]]
+| HP+60<br />MP+60<br />Physical Damage Taken -3%
+|}
+
+=== [[Emicho Armor Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Emicho Coronet description.png|link=Emicho Coronet]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Emicho Set A B C}}}|Emicho Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />STR+10<br />Attack+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />DEX+10<br />Accuracy+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Pet: Accuracy+15<br />Pet: Attack+15<br />Pet: "Double Attack"+3
+}}</onlyinclude>
+| Attack+20<br />"Store TP"+6<br />Pet: STR+15
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Emicho Haubert description.png|link=Emicho Haubert]]
+| Pet: HP+100<br />Pet: INT+15<br />Pet: "Regen"+2
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Emicho Gauntlets description.png|link=Emicho Gauntlets]]
+| Accuracy+20<br />"Dual Wield"+5<br />Pet: Accuracy+20
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Emicho Hose description.png|link=Emicho Hose]]
+| STR+10<br />Accuracy+20<br />Attack+20
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Emicho Gambieras description.png|link=Emicho Gambieras]]
+| Attack+20<br />"Subtle Blow"+4<br />Pet: Attack+25
+|}
+
+=== [[Kaykaus Attire Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Kaykaus Mitra description.png|link=Kaykaus Mitra]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Kaykaus Set A B C}}}|Kaykaus Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+60<br />MND+10<br />Magic Accuracy+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+60<br />"Cure" Spellcasting Time-5%<br />Enmity-5
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+60<br />Spell Interruption Rate-10%<br />"Cure" Spellcasting Time-5%
+}}</onlyinclude>
+| MND+10<br />Magic Accuracy+15<br />"Magic Attack Bonus"+15
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Kaykaus Bliaut description.png|link=Kaykaus Bliaut]]
+| MP+60<br />"Cure Potency"+5%<br />"Conserve MP"+6
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Kaykaus Cuffs description.png|link=Kaykaus Cuffs]]
+| MP+60<br />"Conserve MP"+6<br />"Fast Cast"+3
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Kaykaus Tights description.png|link=Kaykaus Tights]]
+| INT+10<br />"Magic Attack Bonus"+15<br />Enmity-5
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Kaykaus Boots description.png|link=Kaykaus Boots]]
+| Magic Accuracy+15<br />"Cure Potency"+5%<br />"Fast Cast"+3
+|}
+
+=== [[Lustratio Armor Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Lustratio Cap description.png|link=Lustratio Cap]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Lustratio Set A B C}}}|Lustratio Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Attack+15<br />STR+5<br />"Double Attack"+2
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+15<br />DEX+5<br />"Critical Hit Rate"+2
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+8<br />"Store TP"+4<br />Attack+8
+}}</onlyinclude>
+| INT+30<br />STR+5<br />DEX+5
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Lustratio Harness description.png|link=Lustratio Harness]]
+| Accuracy+8<br />Attack+10<br />"Double Attack"+2
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Lustratio Mittens description.png|link=Lustratio Mittens]]
+| Accuracy+25<br />VIT+10<br />DEX+7
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Lustratio Subligar description.png|link=Lustratio Subligar]]
+| HP+50<br />Attack+25<br />Enmity-5
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Lustratio Leggings description.png|link=Lustratio Leggings]]
+| HP+50<br />STR+10<br />DEX+10
+|}
+
+=== [[Rao Armor Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Rao Kabuto description.png|link=Rao Kabuto]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Rao Set A B C}}}|Rao Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+10<br />Attack+10<br />Evasion+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} STR+10<br />DEX+10<br />Attack+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Pet: HP+100<br />Pet: Accuracy+15<br />Pet: Damage Taken-3%
+}}</onlyinclude>
+| VIT+10<br />Attack+20<br />Counter+3
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Rao Togi description.png|link=Rao Togi]]
+| Attack+15<br />"Subtle Blow"+7<br />Physical Damage Taken-3%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Rao Kote description.png|link=Rao Kote]]
+| MND+10<br />Mag. Evasion+15<br />Magic dmg. taken -3%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Rao Haidate description.png|link=Rao Haidate]]
+| Accuracy+20<br />"Double Attack"+3<br />Pet: Accuracy+20
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Rao Sune-Ate description.png|link=Rao Sune-Ate]]
+| HP+50<br />"Critical Hit Rate"+3<br />"Double Attack"+2
+|}
+
+=== [[Ryuo Armor Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#efeeee"
+| BGCOLOR="#ececec" | [[File:Ryuo Somen description.png|link=Ryuo Somen]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Ryuo Set A B C}}}|Ryuo Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} STR+10<br />DEX+10<br />Accuracy+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />Accuracy+15<br />Attack+15
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />"Store TP"+4<br />"Subtle Blow"+7
+}}</onlyinclude>
+| "Ninjutsu Skill"+15<br />Magic Accuracy+20<br />"Magic Attack Bonus"+20
+|- BGCOLOR="#efeeee"
+| BGCOLOR="#ececec" | [[File:Ryuo Domaru description.png|link=Ryuo Domaru]]
+| HP+50<br />"Store TP"+5<br />"Double Attack"+2
+|- BGCOLOR="#efeeee"
+| BGCOLOR="#e8e8e8" | [[File:Ryuo Tekko description.png|link=Ryuo Tekko]]
+| DEX+10<br />Accuracy+20<br />"Double Attack"+3
+|- BGCOLOR="#efeeee"
+| BGCOLOR="#ececec" | [[File:Ryuo Hakama description.png|link=Ryuo Hakama]]
+| Accuracy+20<br />"Store TP"+4<br />Physical Damage Taken -3%
+|- BGCOLOR="#efeeee"
+| BGCOLOR="#ececec" | [[File:Ryuo Sune-Ate description.png|link=Ryuo Sune-Ate]]
+| STR+10<br />Attack+20<br />Critical Hit Rate+3%
+|}
+
+=== [[Souveran Armor Set]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Souveran Schaller description.png|link=Souveran Schaller]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Souveran Set A B C}}}|Souveran Set A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+10<br />Attack+10<br />Enmity+4
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+50<br />STR+10<br />Accuracy+10
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+80<br />Enmity+7<br />"Cure" effect received+10%
+}}</onlyinclude>
+| HP+80<br />VIT+10<br />Physical Damage Taken-3%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Souveran Cuirass description.png|link=Souveran Cuirass]]
+| VIT+10<br />Attack+20<br />Refresh+2
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Souv. Handschuhs description.png|link=Souveran Handschuhs]]
+| HP+50 Shield skill+10 Physical damage taken -3%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Souveran Diechlings description.png|link=Souveran Diechlings]]
+| STR+10<br />VIT+10<br />Accuracy+15
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Souveran Schuhs description.png|link=Souveran Schuhs]]
+| HP+50<br />Attack+20<br />Magic Damage Taken-3%
+|}
+
+== High Quality Abjuratory ==
+
+=== [[Adhemar Attire Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Adhemar Bonnet +1 description.png|link=Adhemar Bonnet +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Adhemar Set +1 A B C}}}|Adhemar Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} DEX+12<br />AGI+12<br />Accuracy+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} STR+12<br />DEX+12<br />Attack+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} AGI+12<br />Ranged Accuracy+20<br />Ranged Attack+20
+}}</onlyinclude>
+| HP+105<br />Attack+13<br />Phys. dmg. taken -4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Adhemar Jacket +1 description.png|link=Adhemar Jacket +1]]
+| HP+105<br />"Fast Cast"+10<br />Magic dmg. taken -4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Adhemar Wrist. +1 description.png|link=Adhemar Wristbands +1]]
+| Accuracy+20<br />Attack+20<br />"Subtle Blow"+8
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Adhemar Kecks +1 description.png|link=Adhemar Kecks +1]]
+| AGI+12<br />"Rapid Shot"+13<br />"Enmity"-6
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Adhe. Gamashes +1 description.png|link=Adhemar Gamashes +1]]
+| HP+65<br />"Store TP"+7<br />Snapshot+10
+|}
+
+=== [[Amalric Attire Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Amalric Coif +1 description.png|link=Amalric Coif +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Amalric Set +1 A B C}}}|Amalric Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+80<br />Magic Accuracy+20<br />"Magic Attack Bonus"+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+80<br />INT+12<br />Enmity-6
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} INT+12<br />"Elemental Magic Skill"+20<br />"Dark Magic Skill"+20
+}}</onlyinclude>
+| INT+12<br />Magic Accuracy+25<br />Enmity-6
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Amalric Doublet +1 description.png|link=Amalric Doublet +1]]
+| MP+80<br />"Magic Attack Bonus"+25<br />"Fast Cast"+4
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Amalric Gages +1 description.png|link=Amalric Gages +1]]
+| INT+12<br />Magic Accuracy+20<br />"Magic Attack Bonus"+20
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Amalric Slops +1 description.png|link=Amalric Slops +1]]
+| MP+80<br />"Magic Attack Bonus"+25<br />Enmity-6
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Amalric Nails +1 description.png|link=Amalric Nails +1]]
+| Magic Accuracy+20<br />"Magic Attack Bonus"+20<br />"Conserve MP"+7
+|}
+
+=== [[Apogee Attire Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Apogee Crown +1 description.png|link=Apogee Crown +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Apogee Set +1 A B C}}}|Apogee Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+80<br />Pet: "Magic Attack Bonus"+35<br />Blood Pact Damage+8
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+80<br />Pet: Attack+35<br />Blood Pact Damage+8
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Pet: Attack+25<br />Pet: "Magic Attack Bonus"+25<br />Blood Pact Damage+8
+}}</onlyinclude>
+| Pet: Accuracy+25<br />Perpetuation Cost-7<br />Pet: Damage Taken-4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Apo. Dalmatica +1 description.png|link=Apogee Dalmatica +1]]
+| "Summon Magic Skill"+20<br />Enmity-6<br />Pet: Damage Taken-4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Apogee Mitts +1 description.png|link=Apogee Mitts +1]]
+| Pet: Magic Accuracy+25<br />BP Delay -7<br />Blood Pact Damage+8
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Apogee Slacks +1 description.png|link=Apogee Slacks +1]]
+| Pet: STR+20<br />Blood Pact Damage+14<br />Pet: "Double Attack"+4
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Apogee Pumps +1 description.png|link=Apogee Pumps +1]]
+| MP+80<br />"Summoning Magic Skill"+20<br />Blood Pact Damage+8
+|}
+
+=== [[Argosy Armor Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Argosy Celata +1 description.png|link=Argosy Celata +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Argosy Set +1 A B C}}}|Argosy Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} STR+12<br />DEX+12<br />Attack+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+65<br />Accuracy+13<br />Attack+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+65<br />STR+15<br />Physical Damage Taken-4%
+}}</onlyinclude>
+| DEX+12<br />Accuracy+20<br />"Double Attack"+3%
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Argosy Hauberk +1 description.png|link=Argosy Hauberk +1]]
+| STR+12<br />Attack+20<br />"Store TP"+6
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Argosy Mufflers +1 description.png|link=Argosy Mufflers +1]]
+| STR+20<br />Double Attack+3%<br />Haste+3%
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Argosy Breeches +1 description.png|link=Argosy Breeches +1]]
+| STR+12<br />Attack+25<br />"Store TP"+6
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Argosy Sollerets +1 description.png|link=Argosy Sollerets +1]]
+| HP+65<br />Double Attack+3%<br />"Store TP"+5
+|}
+
+=== [[Carmine Armor Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Carmine Mask +1 description.png|link=Carmine Mask +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Carmine Set +1 A B C}}}|Carmine Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+80<br />STR+12<br />INT+12
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+12<br />DEX+12<br />MND+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+80<br />INT+12<br />MND+12
+}}</onlyinclude>
+| Accuracy+20<br />Mag. Acc.+12<br />"Fast Cast"+4
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Carm. Sc. Mail +1 description.png|link=Carmine Scale Mail +1]]
+| "Magic Attack Bonus"+12<br />Attack+20<br />"Double Attack"+4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Carmine Fin. Ga. +1 description.png|link=Carmine Finger Gauntlets +1]]
+| "Ranged Attack"+20<br />"Magic Attack Bonus"+12<br />"Store TP"+6
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Carmine Cuisses +1 description.png|link=Carmine Cuisses +1]]
+| Accuracy+20<br />Attack+12<br />"Dual Wield"+6
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Carmine Greaves +1 description.png|link=Carmine Greaves +1]]
+| HP+80<br />MP+80<br />Physical Damage Taken-4%
+|}
+
+=== [[Emicho Armor Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Emicho Coronet +1 description.png|link=Emicho Coronet +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Emicho Set +1 A B C}}}|Emicho Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+65<br />STR+12<br />Attack+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+65<br />DEX+12<br />Accuracy+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Pet: Accuracy+20<br />Pet: Attack+20<br />Pet: "Double Attack"+4
+}}</onlyinclude>
+| Attack+25<br />"Store TP"+7<br />Pet: STR+20
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Emicho Haubert +1 description.png|link=Emicho Haubert +1]]
+| Pet: HP+125<br />Pet: INT+20<br />Pet: "Regen"+3
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Emi. Gauntlets +1 description.png|link=Emicho Gauntlets +1]]
+| Accuracy+25<br />"Dual Wield"+6<br />Pet: Accuracy+25
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Emicho Hose +1 description.png|link=Emicho Hose +1]]
+| STR+12<br />Accuracy+25<br />Attack+25
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Emi. Gambieras +1 description.png|link=Emicho Gambieras +1]]
+| Attack+25<br />"Subtle Blow"+5<br />Pet: Attack+30
+|}
+
+=== [[Kaykaus Attire Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Kaykaus Mitra +1 description.png|link=Kaykaus Mitra +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Kaykaus Set +1 A B C}}}|Kaykaus Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+80<br />MND+12<br />"Magic Accuracy"+20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+80<br />"Cure" spellcasting time-7%<br />Enmity-6
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} MP+80<br />Spell interruption rate-12%<br />"Cure" spellcasting time-7%
+}}</onlyinclude>
+| MND+12<br />"Mag. Acc."+20<br />"Mag. Atk. Bns."+20
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Kaykaus Bliaut +1 description.png|link=Kaykaus Bliaut +1]]
+| MP+80<br />"Cure" Potency+6%<br />"Conserve MP"+7
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Kaykaus Cuffs +1 description.png|link=Kaykaus Cuffs +1]]
+| MP+80<br />"Conserve MP"+7<br />"Fast Cast"+4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Kaykaus Tights +1 description.png|link=Kaykaus Tights +1]]
+| INT+12<br />"Mag. Atk. Bns."+20<br />Enmity-6
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Kaykaus Boots +1 description.png|link=Kaykaus Boots +1]]
+| "Mag. Acc."+20<br />"Cure" Potency+6%<br />"Fast Cast"+4%
+|}
+
+=== [[Lustratio Armor Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Lustratio Cap +1 description.png|link=Lustratio Cap +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Lustratio Set +1 A B C}}}|Lustratio Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Attack+20<br />STR+8<br />"Double Attack"+3
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+20<br />DEX+8<br />Critical Hit Rate+3%
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+10<br />"Store TP"+5<br />Attack+10
+}}</onlyinclude>
+| STR+8<br />DEX+8<br />INT+35
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Lustr. Harness +1 description.png|link=Lustratio Harness +1]]
+| Accuracy+10<br />Attack+13<br />"Double Attack"+4%
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Lustr. Mittens +1 description.png|link=Lustratio Mittens +1]]
+| Accuracy+30<br />VIT+13<br />DEX+10
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Lustr. Subligar +1 description.png|link=Lustratio Subligar +1]]
+| HP+65<br />Attack+30<br />Enmity-6
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Lustra. Leggings +1 description.png|link=Lustratio Leggings +1]]
+| HP+65<br />STR+15<br />DEX+15
+|}
+
+=== [[Rao Armor Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Rao Kabuto +1 description.png|link=Rao Kabuto +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Rao Set +1 A B C}}}|Rao Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy +12<br />Attack +12<br />Evasion +20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} STR +12<br />DEX +12<br />Attack +20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Pet: HP +125<br />Pet: Accuracy +20<br />Pet: Damage Taken -4%
+}}</onlyinclude>
+| VIT+12<br />Attack+25<br />Counter+4
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Rao Togi +1 description.png|link=Rao Togi +1]]
+| Attack+20<br />"Subtle Blow"+8<br />Physical Damage Taken-4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Rao Kote +1 description.png|link=Rao Kote +1]]
+| MND+12<br />Magic Evasion+20<br />Magic Damage Taken-5%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Rao Haidate +1 description.png|link=Rao Haidate +1]]
+| Accuracy+25<br />"Double Attack"+4%<br />Pet: Accuracy+25
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Rao Sune-Ate +1 description.png|link=Rao Sune-Ate +1]]
+| HP+65<br />Critical Hit Rate+4%<br />"Double Attack"+4%
+|}
+
+=== [[Ryuo Armor Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Ryuo Somen +1 description.png|link=Ryuo Somen +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Ryuo Set +1 A B C}}}|Ryuo Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} STR+12<br />DEX+12<br />Accuracy +20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+65<br />Accuracy +20<br />Attack +20
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+65<br />Store TP +5<br />Subtle Blow +8
+}}</onlyinclude>
+| Ninjutsu skill +20<br />Mag. Acc.+25<br />"Mag. Atk. Bns."+25
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Ryuo Domaru +1 description.png|link=Ryuo Domaru +1]]
+| HP+65<br />Store TP+8<br />Double Attack+4%
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Ryuo Tekko +1 description.png|link=Ryuo Tekko +1]]
+| DEX+12<br />Accuracy +25<br />Double Attack +4%
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Ryuo Hakama +1 description.png|link=Ryuo Hakama +1]]
+| Accuracy+25<br />Store TP+5<br />Physical Damage Taken-4%
+|- BGCOLOR="#e8e8e8"
+| BGCOLOR="#e8e8e8" | [[File:Ryuo Sune-Ate +1 description.png|link=Ryuo Sune-Ate +1]]
+| STR+12<br />Attack+25<br />Critical Hit Rate+4%
+|}
+
+=== [[Souveran Armor Set +1]] ===
+{| class="Standard C-Highlight R1-White mw-collapsible mw-collapsed" style="background: #ececec; text-align: center; min-width: 450px;"
+|- style="background: #4b4d4f;"
+! style="width: 40%;" | Armor
+! style="width: 15%;" | Path A
+! style="width: 15%;" | Path B
+! style="width: 15%;" | Path C
+! style="width: 15%;" | Path D
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Souv. Schaller +1 description.png|link=Souveran Schaller +1]]
+<onlyinclude>{{#ifeq:{{{transcludesection|Souveran Set +1 A B C}}}|Souveran Set +1 A B C|
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} Accuracy+13<br />Attack+12<br />Enmity+5
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+65<br />STR+12<br />Accuracy+13
+<noinclude>{{!}} rowspan=5 </noinclude>{{!}} HP+105<br />Enmity+9<br />"Cure" effect received +15%
+}}</onlyinclude>
+| HP+105<br />VIT+12<br />Physical Damage Taken-4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Souv. Cuirass +1 description.png|link=Souveran Cuirass +1]]
+| VIT+12<br />Attack+25<br />Refresh+3
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Souv. Handsch. +1 description.png|link=Souveran Handschuhs +1]]
+| HP+65<br />Shield Skill +15<br />Physical Damage Taken-4%
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Souv. Diechlings +1 description.png|link=Souveran Diechlings +1]]
+| STR+12<br />VIT+12<br />Accuracy+20
+|- style="background: #efeeee;"
+| style="background: #ececec;" | [[File:Souveran Schuhs +1 description.png|link=Souveran Schuhs +1]]
+| HP+65<br />Attack+25<br />Magic Damage Taken-4%
+|}
+
+[[Category:Escha]]

@@ -1,0 +1,74 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Piercing
+|nohits=1
+|desc=Deals critical damage. Chance of critical hit varies with TP.
+|mp=21 MP
+|blupoint=3
+|cast=0.5 seconds
+|recast=14 seconds
+|target=Single
+|range=4.5
+|stats=[[VIT]] +1 [[CHR]] +1 [[HP]] +10
+|effects=
+|duration=
+|trait=Evasion Bonus
+|level=26
+|mtype=Aquan
+|family=Pugil
+|wsc=20% [[STR]] 20% [[MND]]
+|ftp=
+|ftp0=1.375
+|ftp150=1.375
+|ftp300=1.375
+|ftp350=1.375
+|scprop={{Transfixion}} [[Transfixion]] / {{Scission}} [[Scission]]
+|ve=
+|ce=
+}}
+==Notes==
+Jagil will not use this move.
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Pugil
+|Spell Level=26
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Land Pugil
+|Level=17-19
+|Zone=Carpenters' Landing
+|SpawnCondition=Enter from [[Northern San d'Oria]] (F-5)
+|Map=Carpenters Landing-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Beach Pugil
+|Level=23-26
+|Zone=Valkurm Dunes
+|SpawnCondition=
+|Map=Valkurm Dunes.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Spinous Pugil
+|Level=29-31
+|Zone=Carpenters' Landing
+|SpawnCondition=
+|Map=Carpenters_Landing-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=La Vaule Pugil
+|Level=72-75
+|Zone=La Vaule (S)
+|SpawnCondition=
+|Map=La Vaule (S)-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Demonic Pugil
+|Level=73-77
+|Zone=Den of Rancor
+|SpawnCondition=Right beside Cloister of Tides. (Den of Rancor Homepoint #2)
+|Map=Den of Rancor-map6.jpg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

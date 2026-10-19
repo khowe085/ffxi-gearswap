@@ -1,0 +1,93 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=1
+|desc=Damage varies with TP.
+|mp=38 MP
+|blupoint=2
+|cast=0.5 seconds
+|recast=19.25 seconds
+|target=Single
+|range=
+|stats=[[INT]] +1
+|effects=
+|duration=
+|trait=Plantoid Killer
+|level=44
+|mtype=Vermin
+|family=Antlion
+|wsc=20% [[STR]] 20% [[INT]]
+|ftp=
+|ftp0=2.0
+|ftp150=2.0
+|ftp300=2.0
+|ftp350=2.0
+|scprop={{Induration}} [[Induration]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Antlion
+|Spell Level=44
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Tracer Antlion
+|Level=37-40
+|Zone=Attohwa Chasm
+|SpawnCondition=
+|Map=Attohwa Chasm-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Burrow Antlion
+|Level=40-44
+|Zone=Attohwa Chasm
+|SpawnCondition=
+|Map=Attohwa Chasm-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Hunter Antlion
+|Level=45-47
+|Zone=Attohwa Chasm
+|SpawnCondition=
+|Map=Attohwa Chasm-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Pit Antlion
+|Level=49-52
+|Zone=Attohwa Chasm
+|SpawnCondition=
+|Map=Attohwa Chasm-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Trench Antlion
+|Level=70-72
+|Zone=Attohwa Chasm
+|SpawnCondition=
+|Map=Attohwa Chasm-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Tracker Antlion
+|Level=70-73
+|Zone=Attohwa Chasm
+|SpawnCondition=
+|Map=Attohwa Chasm-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Cave Antlion
+|Level=77-79
+|Zone=Attohwa Chasm
+|SpawnCondition=
+|Map=Attohwa Chasm-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Funnel Antlion
+|Level=80-95
+|Zone=Abyssea - Attohwa
+|SpawnCondition=Conflux #04
+|Map=Abyssea - Attohwa-Map.jpg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

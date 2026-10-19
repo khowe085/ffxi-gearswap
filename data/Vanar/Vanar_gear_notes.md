@@ -452,6 +452,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - **(player, 2026-10-18)** Vanar's copy is rank 7: Accuracy, Ranged Accuracy and Magic Accuracy +7, and none of the attribute or Store TP augments. It was rank 2 from 2026-10-04.
 - In both jobs' ACC-mode sets, where accuracy comes first **(player, 2026-10-07)**, it takes the left ear: Accuracy+7 is the most of any earring in Vanar's wardrobes that fits the left ear. Heartseeker and Steelflash Earrings (Accuracy+8) and Assuage Earring (Accuracy+7) are in the Mog Safe 2.
+- On BLU from 2026-10-18 it also takes the left ear of `sets.engaged.DT.AM` (for Brutal Earring; see [Adhemar Wrist. +1](#adhemar-wrist-1)), of `midcast['Blue Magic'].Stun.Resistant` (Accuracy and Magic Accuracy +7 for Njordr Earring's Blue magic skill +10, as that set already trades skill for accuracy in its ammo, rings and back) and of `midcast['Elemental Magic'].Resistant` (Magic Accuracy +7 for Friomisi Earring's MAB +10, as `Magical.Resistant` takes Njordr Earring's skill for Friomisi). `sets.engaged` keeps Brutal Earring: Alabaster there gives 1.0 to 3.8% less TP per round.
 
 ### Arbatel Earring +1
 
@@ -621,6 +622,14 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ## Hands
 
+### Adhemar Wrist. +1
+
+- Its augments are Nolan Path D: Accuracy+20, Attack+20 and "Subtle Blow"+8, Path D's rank 15 values, so this copy is at rank 15 ([gear-notes.md](../../docs/gear-notes.md#adhemar-wrist-1)). It is in wardrobe 2.
+- **(player, 2026-10-18)** It replaced the NQ [Adhemar Wristbands](#adhemar-wristbands), which are in the Mog Safe 2. It went into BLU's `sets.engaged` by hand on 2026-10-12.
+- In BLU's `sets.engaged`, a search of 2026-10-18 over the wardrobe pieces by the TP-per-round rule ([Rules for these sets](Vanar_notes.md#rules-for-these-sets)) keeps it and the rest of the set: no other set at DT 36 or more gives as much TP per round with every weapon set. Against the NQ Wristbands it has Accuracy 52 against 22, Triple Attack +4% against +3% and Store TP +7 against +6, for DEX 44 against 53: 10.4 to 11.3% more TP per round with a Thibron off hand and 1.7% more with an Almace, Naegling or Bunzi's Rod one, at 1350 evasion with Oden or Grape Daifuku. Hashi. Bazu. +3 (Accuracy 62, DT 10) in its place gives 5.3 to 6.2% less with a Thibron off hand and 8.6% less with the others; Nyame Gauntlets 11.6 to 12.1% and 7.4% less ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
+- In `sets.engaged.DT.AM` (2026-10-18) it takes the hands from Hashi. Bazu. +3, with Alabaster Earring, Honed Tathlum and Nyame Sollerets, at DT 52: 0.9% more TP per round with Tizona + Thibron and 3.4% more with Tizona + Almace under Aftermath Lv.3, where the main hand's Double Attack counts about a fifth. `sets.engaged.DT` keeps Hashi. Bazu. +3: the same four pieces there give 0.3 to 1.0% less with a Thibron off hand, for 2.7% more with the others.
+- The weapon skill sets keep their hands. In `sets.precast.WS` and the Savage Blade and Expiacion sets it would cost Nyame Gauntlets' Weapon skill damage +8% and 35 Attack; in Requiescat, Hashi. Bazu. +3's MND 50 against 30 and 42 Attack. In Chant du Cygne, Accuracy +12 and Triple Attack +4% against Nyame's Weapon skill damage +8% and 35 Attack come out about even by a hand estimate, ahead with a Thibron off hand and behind with Naegling in the sub slot, so Nyame Gauntlets stay.
+
 ### Adhemar Wristbands
 
 - Its augments are Nolan Path B. Nolan gear ranks up to 15, and these are Path B's full values, so this copy is at rank 15.
@@ -730,6 +739,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's Ayanmo +2 armor stays on slip 23 **(player, 2026-10-11)**, so the set bonus never applies in his sets ([Ayanmo set](#ayanmo-set)).
 - It ties Jhakri Ring at Accuracy+6 in the ACC-mode sets; Jhakri's Attack+6 takes the slot. Lehko's Ring's DEX+10 is about 2 more accuracy than either, so RDM's Step set takes Lehko's too. Enlivened Ring (Accuracy+7, DEX+2) is in storage.
+- On BLU from 2026-10-18, Murky Ring at rank 7 (Accuracy+7) takes that slot from Jhakri Ring, and this ring's place in `Stun.Resistant`; see [Murky Ring](#murky-ring).
 
 ### Beithir Ring
 
@@ -747,6 +757,14 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Fencer's Ring
 
 - The player's rule against Enspell gear that has to stay on while meleeing rules it out. ([ffxi-mechanics.md](Vanar_notes.md#rules-for-these-sets))
+
+### Murky Ring
+
+- **(player, 2026-10-18)** Vanar's copy is Path A rank 7: Accuracy, Ranged Accuracy and Magic Accuracy +7, with none of the later ranks' Evasion or Critical hit rate ([Vanar_rank_augments.md](Vanar_rank_augments.md)). It was rank 2 from 2026-10-11.
+- On BLU it now has more Accuracy and Magic Accuracy than Jhakri Ring and Ayanmo Ring (+6 each), and Damage taken -10% besides. From 2026-10-18 it takes Jhakri Ring's slot in `sets.engaged.Acc`, `sets.precast.WS.Acc`, `sets.precast.Step` and `midcast['Blue Magic'].Physical.Resistant`, where accuracy comes first, and Ayanmo Ring's in `midcast['Blue Magic'].Stun.Resistant`. Each gains Accuracy and Magic Accuracy 1 and DT 7 or 10; those that drop Jhakri Ring lose its Attack+6.
+- `midcast['Blue Magic'].Physical` keeps Ayanmo Ring for now: that set's accuracy is past the 95% cap at 1350 evasion with every weapon set, so the swap would add only Magic Accuracy 1 and DT 7.
+- In `sets.engaged` it loses to Rajas Ring: 1.9 to 3.3% less TP per round, Accuracy 7 against Store TP 5 and DEX 5 (search of 2026-10-18; see [Adhemar Wrist. +1](#adhemar-wrist-1)).
+- Stikini Ring (Magic Accuracy+8 and all magic skills +5) still takes the rings where magic accuracy alone is wanted.
 
 ### Novennial Ring
 
@@ -1133,6 +1151,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 - Vanar's copy is Path B at rank 20 (player, 2026-10-04): Attack+25, Ranged Attack+25, Weapon skill damage +8% and Double Attack +2%. The export prints the path but not the rank.
 - Vanar's copy is rank 20 Path B, so the sims overvalue it: rank 25 has 5 more Attack, 2% more Weapon skill damage and Double Attack, and Accuracy+8 ([rank-augments.md](../../docs/rank-augments.md#nyame-sollerets)).
 - It is BLU's TP-set feet. In `sets.engaged.DT` Hashi. Basmak +3 replaced it on 2026-10-11; [Hashi. Basmak +3](#hashi-basmak-3) has the comparison.
+- From 2026-10-18 it is also the feet of `sets.engaged.DT.AM`, where its Damage taken -7% keeps the set at DT 52 with Adhemar Wrist. +1 on the hands ([Adhemar Wrist. +1](#adhemar-wrist-1)).
 
 ### Odyssean Greaves
 
@@ -1234,7 +1253,6 @@ Gear in bg-wiki's simulated sets ([Red Mage](https://www.bg-wiki.com/ffxi/All_Jo
 | Piece | Sets that use it |
 |---|---|
 | Adhemar Bonnet +1 [Path B] | Chant du Cygne |
-| Adhemar Wrist. +1 | Tizona + Thibron AM3 TP |
 | Adhemar Wrist. +1 [Path A] | Caliburnus + Thibron AM1 TP |
 | Adhemar Wrist. +1 [Path B] | Chant du Cygne |
 | Alabaster Mantle | Imperator |
@@ -1279,5 +1297,6 @@ Gear in bg-wiki's simulated sets ([Red Mage](https://www.bg-wiki.com/ffxi/All_Jo
 
 - Capes: of the sims' Ambuscade capes, Vanar's Sucellos's Capes match only the STR, Weapon Skill Damage one (the Seraph Blade and Red Lotus Blade sims may use its Magic Accuracy and Magic Damage version) and come nearest to the INT, Magic Attack one (INT+20 and Magic Accuracy+10 where the sims' cape has INT+30). His Rosmerta's Capes match only the STR, Weapon Skill Damage and DEX, Crit Rate ones. See [Sucellos's Cape](../../docs/gear-notes.md#sucelloss-cape) and [Rosmerta's Cape](../../docs/gear-notes.md#rosmertas-cape).
 - Staged weapons: the sims use Almace Level 119 III and Mpu Gandring Level 119 II, so neither is listed here. Vanar's Tizona and Almace are Level 119 III like the sims', because only that stage takes their `'Path: A'` augment (Almace from the 2026-10-11 export on). The export doesn't show the stage of Vanar's Mpu Gandring; see [Mpu Gandring](../../docs/gear-notes.md#mpu-gandring).
-- Lower versions Vanar does own: `Dls. Torque +1` (the sims use the +2), the NQ `Adhemar Bonnet` and `Adhemar Wristbands` (the sims use the +1s), and the NQ `Ea Houppelande` (the sims use `Ea Houppe. +1` in RDM Casting (Magic Burst)).
+- Lower versions Vanar does own: `Dls. Torque +1` (the sims use the +2), the NQ `Adhemar Bonnet` (the sims use the +1), and the NQ `Ea Houppelande` (the sims use `Ea Houppe. +1` in RDM Casting (Magic Burst)).
+- `Adhemar Wrist. +1`: Vanar owns it on Path D **(player, 2026-10-18)**, so the Tizona + Thibron AM3 TP set, which names no path, is left out above. The Path A and Path B rows stay, since his copy is on neither ([Adhemar Wrist. +1](#adhemar-wrist-1)).
 - Odyssey pieces Vanar owns at a lower rank than the sims' are in their entries, not here: every Nyame, Bunzi's and Gleti's piece the sims use.
