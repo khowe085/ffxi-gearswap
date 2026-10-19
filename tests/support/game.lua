@@ -164,6 +164,7 @@ function Game.new(options)
     game.typed = {}
     game.commands = {}
     game.chat_log = {}
+    game.turns = {}
     game.last_packets = {incoming = {}, outgoing = {}}
     game.action_tables = {}
     game.info = {}
@@ -229,7 +230,7 @@ function Game.new(options)
             game.spells[id] = true
         end
     end
-    game.job_abilities, game.weapon_skills = {}, {}
+    game.job_abilities, game.weapon_skills, game.job_traits = {}, {}, {}
     local abilities = options.abilities
     for id, ability in pairs(res.job_abilities) do
         if type(ability) == 'table' and (not abilities or abilities[ability.en]) then
@@ -281,7 +282,12 @@ function Game:job_names(id)
     return job and job.ens or 'NON', job and job.en or 'None'
 end
 
+-- What get_player reports: nothing while the game is still loading the character (loading = 'player'), and the
+-- player without a main job id while it is still loading the job (loading = 'job'), as when the game has just started.
 function Game:get_player()
+    if self.loading == 'player' then
+        return nil
+    end
     local player = copy(self.player)
     player.main_job, player.main_job_full = self:job_names(player.main_job_id)
     if player.sub_job_id ~= 0 then
@@ -292,6 +298,9 @@ function Game:get_player()
     player.target_index = self.target_index
     player.pet_index = self.pet and self.pet.index
     player.in_combat = self.player.status == 1
+    if self.loading == 'job' then
+        player.main_job_id = nil
+    end
     return player
 end
 
@@ -749,8 +758,11 @@ function Game:wearable(bag_id, bag_slot, slot_id)
 end
 
 -- Carries out one equip request, as four bytes: bag slot, equipment slot, bag. Returns the bytes to confirm it
--- with, or nil when the server refuses it.
+-- with, or nil when the server refuses it, as it refuses every one in a game with refuse_equips set.
 function Game:equip_chunk(chunk)
+    if self.refuse_equips then
+        return nil
+    end
     local bag_slot, slot_id, bag_id = chunk:byte(1), chunk:byte(2), chunk:byte(3)
     local current = self.equipment[slot_id]
     if bag_slot == 0 then
@@ -1044,7 +1056,8 @@ function Game:make_windower(paths)
             get_party = function() return game:get_party() end,
             get_spells = function() return copy(game.spells) end,
             get_abilities = function()
-                return {job_abilities = copy(game.job_abilities), weapon_skills = copy(game.weapon_skills), job_traits = {}}
+                return {job_abilities = copy(game.job_abilities), weapon_skills = copy(game.weapon_skills),
+                    job_traits = copy(game.job_traits)}
             end,
             get_spell_recasts = function()
                 local recasts = {}
@@ -1056,7 +1069,8 @@ function Game:make_windower(paths)
             get_sjob_data = function() return {} end,
             get_key_items = function() return {} end,
             get_position = function() return '(?-?)' end,
-            turn = noop, run = noop, follow = noop, toggle_walk = noop,
+            turn = function(angle) game.turns[#game.turns + 1] = angle end,
+            run = noop, follow = noop, toggle_walk = noop,
         },
     }
     for name in pairs({set_text = true, set_location = true, set_visibility = true, set_color = true,
@@ -1135,6 +1149,14 @@ function Game:start_ability_recast(name, seconds)
     local _, ability = find_by_name(self.res.job_abilities, name, 'job ability')
     self.abilities_ready_at = self.abilities_ready_at or {}
     self.abilities_ready_at[ability.recast_id] = self.clock + seconds
+end
+
+-- The job traits the character has from now on, by name, as get_abilities reports them; none unless set.
+function Game:set_job_traits(names)
+    self.job_traits = {}
+    for i, name in ipairs(names) do
+        self.job_traits[i] = (find_by_name(self.res.job_traits, name, 'job trait'))
+    end
 end
 
 -- Puts the spell on recast for that many seconds, as the server does once it is cast.

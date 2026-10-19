@@ -35,27 +35,6 @@ local function boot(overrides)
     return gs
 end
 
--- The ability is on recast for these seconds from now on, whatever recast was asked before.
-local function put_on_recast(gs, recast_id, seconds)
-    local before = gs.game.ability_recasts
-    gs.game.ability_recasts = function(game)
-        local recasts = before(game)
-        recasts[recast_id] = seconds
-        return recasts
-    end
-end
-
--- The spell is on recast for these seconds from now on.
-local function put_spell_on_recast(gs, spell_id, seconds)
-    local ffxi = gs.game.windower.ffxi
-    local before = ffxi.get_spell_recasts
-    ffxi.get_spell_recasts = function()
-        local recasts = before()
-        recasts[spell_id] = seconds * 60
-        return recasts
-    end
-end
-
 -- The names of the actions among what GearSwap sent.
 local function actions(gs)
     local names = {}
@@ -69,13 +48,7 @@ end
 
 -- Jobby has the Dual Wield trait from now on, as Sel finds out when it looks.
 local function can_dual_wield(gs)
-    local ffxi = gs.game.windower.ffxi
-    local before = ffxi.get_abilities
-    ffxi.get_abilities = function()
-        local abilities = before()
-        abilities.job_traits = {18}
-        return abilities
-    end
+    gs.game:set_job_traits({'Dual Wield'})
     gs.user.set_dual_wield()
     gs.game:settle()
     gs:traffic()
@@ -347,7 +320,7 @@ describe('BRD\'s song on a party member', function()
     end)
 
     it('is held back for Pianissimo only when the song itself is ready, and waits on its recast when not', function()
-        put_spell_on_recast(gs, 386, 60)
+        gs.game:start_spell_recast("Mage's Ballad", 60)
         gs:type('/ma "Mage\'s Ballad" Friend')
         assert.same({}, actions(gs))
     end)
@@ -528,18 +501,6 @@ describe('BRD\'s Carnwenhan, with the weapons locked to a sword', function()
     end)
 end)
 
--- The day and the weather are these, as the game says from now on.
-local function sky(gs, day, weather)
-    local before = gs.game.get_info
-    gs.game.get_info = function(game)
-        local info = before(game)
-        info.day = day or info.day
-        info.weather = weather or info.weather
-        return info
-    end
-    gs.env.refresh_globals()
-end
-
 describe('BRD\'s cures', function()
     local gs
     before_each(function()
@@ -556,28 +517,29 @@ describe('BRD\'s cures', function()
     end)
 
     it('take sets.midcast.LightWeatherCure in light weather', function()
-        sky(gs, nil, 16)
+        gs:set_weather(16)
         assert.equal('Jadeite Gloves', cure_hands())
     end)
 
     it('take sets.midcast.LightDayCure on a Lightsday', function()
-        sky(gs, 6)
+        gs:set_day(6)
         assert.equal('Diamond Kote', cure_hands())
     end)
 
     it('take the light weather\'s set rather than the light day\'s when both are light', function()
-        sky(gs, 6, 16)
+        gs:set_day(6)
+        gs:set_weather(16)
         assert.equal('Jadeite Gloves', cure_hands())
     end)
 
     it('take the light weather\'s set for a Curaga too', function()
-        sky(gs, nil, 16)
+        gs:set_weather(16)
         gs:type('/ma "Curaga" <me>')
         assert.equal('Jadeite Gloves', gs:worn().hands)
     end)
 
     it('take sets.midcast.Cure in the weather of another element', function()
-        sky(gs, nil, 18)
+        gs:set_weather(18)
         assert.equal('Sapphire Gauntlets', cure_hands())
     end)
 end)

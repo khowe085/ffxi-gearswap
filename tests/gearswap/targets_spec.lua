@@ -32,6 +32,22 @@ local function sent_since(gs, mark, id)
     return found
 end
 
+-- Notes each axis of the target arrow GearSwap reads from get_info, whose answers stay the game's. Returns the list.
+local function watch_arrow(gs)
+    local reads = {}
+    local get_info = gs.game.get_info
+    gs.game.get_info = function(game)
+        local info = get_info(game)
+        local arrow = info.target_arrow
+        info.target_arrow = setmetatable({}, {__index = function(_, axis)
+            reads[#reads + 1] = axis
+            return arrow[axis]
+        end})
+        return info
+    end
+    return reads
+end
+
 local function error_of(fn, ...)
     local ok, err = pcall(fn, ...)
     assert.is_false(ok, 'expected an error')
@@ -93,6 +109,26 @@ describe('an action aimed at a target typed as', function()
         local gs = boot()
         gs:type('/ma "Dia II" ' .. gs.game.monster.id)
         assert.same({{equip = precast_gear}, {action = 'Dia II', target = 'Apex Toad'}, {equip = midcast_gear}}, gs:traffic())
+    end)
+
+    it('its id has GearSwap read the target arrow, and goes at the target with no offset in its packet: precast '
+        .. 'builds the packet again without it', function()
+        local gs = boot()
+        gs.game:set_info({target_arrow = {x = 5, y = 2, z = 1}})
+        local reads = watch_arrow(gs)
+        local mark = #gs.game.sent
+        gs:type('/ma "Dia II" ' .. gs.game.monster.id)
+        assert.is_true(#reads > 0)
+        assert.same({action = 'Dia II', target = 'Apex Toad'}, gs:traffic()[2])
+        assert.same({0, 0, 0}, {sent_since(gs, mark, 0x1A)[1].data:unpack('fff', 17)})
+    end)
+
+    it('<t> has GearSwap leave the target arrow alone for a spell with no Ge in its name', function()
+        local gs = boot()
+        local reads = watch_arrow(gs)
+        gs:type('/ma "Dia II" <t>')
+        assert.same({}, reads)
+        assert.same({action = 'Dia II', target = 'Apex Toad'}, gs:traffic()[2])
     end)
 
     it('an id nobody has is left to the game', function()
@@ -364,6 +400,10 @@ describe('move_spell_target', function()
         gs:type('/ma "Geo-Frailty" <t>')
         assert.same({9, 7, 8}, {sent_since(gs, mark, 0x1A)[1].data:unpack('fff', 17)})
     end)
+
+    pending('is none for an action that is no geomancy spell, such as Tachi: Gekko, when the target arrow is away from '
+        .. 'the target: equip_sets in flow.lua looks for \'Geo-\' in the name as a Lua pattern, in which - repeats '
+        .. 'the o it follows, so any name with Ge in it takes the offset')
 
     it('with something that is not a table of numbers is an error', function()
         local gs = boot()

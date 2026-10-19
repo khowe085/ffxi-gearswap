@@ -686,10 +686,25 @@ function Session:change_zone(zone_id)
     end)
 end
 
--- The main job changes, as at a Moogle (see Game:change_main_job).
+-- The client leaves its zone (see Game:leave_zone).
+function Session:leave_zone()
+    self:run(function()
+        self.game:leave_zone()
+        self.game:settle()
+    end)
+end
+
+-- The main job or the sub job changes, as at a Moogle (see Game:change_main_job and Game:change_sub_job).
 function Session:change_main_job(short, level)
     self:run(function()
         self.game:change_main_job(short, level)
+        self.game:settle()
+    end)
+end
+
+function Session:change_sub_job(short, level)
+    self:run(function()
+        self.game:change_sub_job(short, level)
         self.game:settle()
     end)
 end

@@ -8,14 +8,10 @@ local function boot()
     return gs
 end
 
-local function refuse_equips(gs)
-    gs.game.equip_chunk = function() return nil end
-end
-
 describe('an equip request the server doesn\'t answer', function()
     it('is taken as worn for a while, and the piece is not sent again', function()
         local gs = boot()
-        refuse_equips(gs)
+        gs.game.refuse_equips = true
         gs:console('gs equip sets.precast.FastCast')
         assert.same({{equip = fast_cast}}, gs:traffic())
         gs:advance(1)
@@ -25,7 +21,7 @@ describe('an equip request the server doesn\'t answer', function()
 
     it('is taken as worn in what the user file sees of the gear', function()
         local gs = boot()
-        refuse_equips(gs)
+        gs.game.refuse_equips = true
         gs:console('gs equip sets.precast.FastCast')
         gs:console('gs c anything')
         assert.equal("Bunzi's Hat", gs.user.player.equipment.head)
@@ -33,7 +29,7 @@ describe('an equip request the server doesn\'t answer', function()
 
     it('is dropped after three seconds, and the piece is sent again', function()
         local gs = boot()
-        refuse_equips(gs)
+        gs.game.refuse_equips = true
         gs:console('gs equip sets.precast.FastCast')
         gs:traffic()
         gs:advance(3.1)
@@ -43,7 +39,7 @@ describe('an equip request the server doesn\'t answer', function()
 
     it('is dropped from what the user file sees of the gear too', function()
         local gs = boot()
-        refuse_equips(gs)
+        gs.game.refuse_equips = true
         gs:console('gs equip sets.precast.FastCast')
         gs:advance(3.1)
         gs:console('gs c anything')
@@ -52,7 +48,7 @@ describe('an equip request the server doesn\'t answer', function()
 
     it('is dropped slot by slot: another slot\'s request, newer, is kept', function()
         local gs = boot()
-        refuse_equips(gs)
+        gs.game.refuse_equips = true
         gs:console('gs equip sets.precast.FastCast')
         gs:advance(2)
         gs:console('gs equip sets.engaged')

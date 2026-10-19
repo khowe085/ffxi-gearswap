@@ -53,11 +53,6 @@ function jobby.layer(...)
     return merged
 end
 
--- The equip request GearSwap sends for the sets laid one over another.
-function jobby.request(...)
-    return jobby.layer(...)
-end
-
 -- Forgets what was sent, typed, run and said so far.
 local function forget(gs)
     gs:traffic()

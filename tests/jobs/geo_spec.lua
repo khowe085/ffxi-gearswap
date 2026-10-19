@@ -495,7 +495,7 @@ describe('the set of a geomancer\'s nuke', function()
         gs:console('gs c set CastingMode Proc')
         gs:traffic()
         gs:type('/ma "Stone" <t>')
-        assert.same(jobby.request(sets_of(gs).precast.FC.Proc), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.FC.Proc), gs:traffic()[1].equip)
     end)
 end)
 

@@ -45,16 +45,6 @@ local function boot(overrides)
     return gs
 end
 
--- The ability is on recast for these seconds from now on, whatever recast was asked before.
-local function put_on_recast(gs, recast_id, seconds)
-    local before = gs.game.ability_recasts
-    gs.game.ability_recasts = function(game)
-        local recasts = before(game)
-        recasts[recast_id] = seconds
-        return recasts
-    end
-end
-
 -- The names of the actions among what GearSwap sent.
 local function actions(gs)
     local names = {}
@@ -68,13 +58,7 @@ end
 
 -- Jobby has the Dual Wield trait from now on, as Sel finds out when it looks.
 local function can_dual_wield(gs)
-    local ffxi = gs.game.windower.ffxi
-    local before = ffxi.get_abilities
-    ffxi.get_abilities = function()
-        local abilities = before()
-        abilities.job_traits = {18}
-        return abilities
-    end
+    gs.game:set_job_traits({'Dual Wield'})
     gs.user.set_dual_wield()
     gs.game:settle()
     gs:traffic()
@@ -125,37 +109,37 @@ describe('BST\'s ready charges', function()
     end)
 
     it('come back one a charge timer, 19 seconds here', function()
-        put_on_recast(gs, 102, 19)
+        gs.game:start_ability_recast('Sic', 19)
         assert.equal(2, charges())
     end)
 
     it('are none when the recast is all three timers', function()
-        put_on_recast(gs, 102, 57)
+        gs.game:start_ability_recast('Sic', 57)
         assert.equal(0, charges())
     end)
 
     it('take 5 seconds less a timer with Charmer\'s Merlin in the ready recast set', function()
         gs.user.sets.midcast.Pet.ReadyRecast.main = "Charmer's Merlin"
-        put_on_recast(gs, 102, 14)
+        gs.game:start_ability_recast('Sic', 14)
         assert.equal(2, charges())
     end)
 
     it('take 5 seconds less a timer with Desultor Tassets in the ready recast set', function()
         gs.user.sets.midcast.Pet.ReadyRecast.legs = 'Desultor Tassets'
-        put_on_recast(gs, 102, 14)
+        gs.game:start_ability_recast('Sic', 14)
         assert.equal(2, charges())
     end)
 
     it('take 5 seconds less a timer with Gleti\'s Breeches in the ready recast set', function()
         gs.user.sets.midcast.Pet.ReadyRecast.legs = "Gleti's Breeches"
-        put_on_recast(gs, 102, 14)
+        gs.game:start_ability_recast('Sic', 14)
         assert.equal(2, charges())
     end)
 
     it('take no less than 10 seconds a timer', function()
         gs.user.sets.midcast.Pet.ReadyRecast.main = "Charmer's Merlin"
         gs.user.sets.midcast.Pet.ReadyRecast.legs = 'Desultor Tassets'
-        put_on_recast(gs, 102, 10)
+        gs.game:start_ability_recast('Sic', 10)
         assert.equal(2, charges())
     end)
 end)
@@ -254,7 +238,7 @@ end)
 describe('BST\'s Bestial Loyalty while it is on recast', function()
     it('is Call Beast, and Bestial Loyalty is held back', function()
         local gs = boot()
-        put_on_recast(gs, 94, 60)
+        gs.game:start_ability_recast('Bestial Loyalty', 60)
         assert.is_true(gs:type('/ja "Bestial Loyalty" <me>'))
         assert.same({'Call Beast'}, actions(gs))
     end)
@@ -524,7 +508,7 @@ describe('BST\'s ready command', function()
 
     it('is turned down with no charges', function()
         local gs = booted('DroopyDortwin')
-        put_on_recast(gs, 102, 57)
+        gs.game:start_ability_recast('Sic', 57)
         gs:console('gs c ready')
         assert.is_true(said(gs, 'Abort: No pet charges!'))
         assert.same({}, actions(gs))
@@ -686,7 +670,7 @@ describe('BST\'s Reward, kept by the tick', function()
     end)
 
     it('waits while Reward is on recast', function()
-        put_on_recast(gs, 103, 30)
+        gs.game:start_ability_recast('Reward', 30)
         gs:play(5.5)
         assert.same({}, actions(gs))
     end)
@@ -740,14 +724,14 @@ describe('BST\'s pet, called by the tick under AutoCallPet', function()
     end)
 
     it('is called with Call Beast when Bestial Loyalty is on recast', function()
-        put_on_recast(gs, 94, 60)
+        gs.game:start_ability_recast('Bestial Loyalty', 60)
         gs:play(5.5)
         assert.same({'Call Beast'}, actions(gs))
     end)
 
     it('is not called when both are on recast', function()
-        put_on_recast(gs, 94, 60)
-        put_on_recast(gs, 104, 60)
+        gs.game:start_ability_recast('Bestial Loyalty', 60)
+        gs.game:start_ability_recast('Call Beast', 60)
         gs:play(5.5)
         assert.same({}, actions(gs))
     end)
@@ -788,7 +772,7 @@ describe('BST\'s ready moves, kept by the tick under AutoReadyMode', function()
 
     it('are none for an engaged pet with no charge', function()
         gs:give_pet({name = 'DroopyDortwin', status = 1})
-        put_on_recast(gs, 102, 57)
+        gs.game:start_ability_recast('Sic', 57)
         gs:traffic()
         gs:play(5.5)
         assert.same({}, actions(gs))
@@ -858,8 +842,7 @@ describe('BST\'s weapon skill sets', function()
     end)
 
     it('keep Lugra Earring at night', function()
-        gs.game:fire('time change', 22 * 60, 0)
-        gs.game:settle()
+        gs:set_time(22 * 60)
         local set = weaponskill(gs, 'Cloudsplitter', 1000)
         assert.same({'Lugra Earring +1', 'Etiolation Earring'}, {set.left_ear, set.right_ear})
     end)

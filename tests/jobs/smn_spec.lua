@@ -36,16 +36,6 @@ local function boot(overrides)
     return gs
 end
 
--- The ability is on recast for these seconds from now on, whatever recast was asked before.
-local function put_on_recast(gs, recast_id, seconds)
-    local before = gs.game.ability_recasts
-    gs.game.ability_recasts = function(game)
-        local recasts = before(game)
-        recasts[recast_id] = seconds
-        return recasts
-    end
-end
-
 -- The names of the actions among what GearSwap sent.
 local function actions(gs)
     local names = {}
@@ -155,7 +145,7 @@ describe('SMN\'s summoning with Astral Conduit up and not enough MP for a pact',
     end)
 
     it('is the pact itself when Convert is on recast', function()
-        put_on_recast(gs, 49, 60)
+        gs.game:start_ability_recast('Convert', 60)
         gs:type('/pet "Flaming Crush" <t>')
         assert.same({'Flaming Crush'}, actions(gs))
     end)
@@ -166,17 +156,6 @@ describe('SMN\'s summoning with Astral Conduit up and not enough MP for a pact',
         assert.same({'Flaming Crush'}, actions(gs))
     end)
 end)
-
--- The day is this one, as the game says from now on: 4 is an Iceday, with no fire in it for Ifrit's perpetuation.
-local function day(gs, id)
-    local before = gs.game.get_info
-    gs.game.get_info = function(game)
-        local info = before(game)
-        info.day = id
-        return info
-    end
-    gs.env.refresh_globals()
-end
 
 -- What Jobby wears with Ifrit out on an Iceday: the avatar set of the pet idle sets, which is the deepest of them, and
 -- the perpetuation set of Ifrit over it.
@@ -197,7 +176,7 @@ describe('SMN\'s blood pacts, once the pact is done', function()
     local gs
     before_each(function()
         gs = boot()
-        day(gs, 4)
+        gs:set_day(4)
         gs:give_pet({name = 'Ifrit'})
         gs:traffic()
     end)
@@ -280,7 +259,7 @@ describe('SMN\'s Astral Conduit', function()
     local gs
     before_each(function()
         gs = boot()
-        day(gs, 4)
+        gs:set_day(4)
         gs:give_pet({name = 'Ifrit'})
         gs:gain_buff('Astral Conduit')
         gs:traffic()
@@ -338,7 +317,7 @@ describe('SMN\'s spirits', function()
     local gs
     before_each(function()
         gs = boot()
-        day(gs, 4)
+        gs:set_day(4)
         gs:give_pet({name = 'FireSpirit'})
         gs:traffic()
     end)
@@ -368,7 +347,7 @@ end)
 describe('SMN\'s avatars', function()
     it('have no pet midcast set on while their pact is being readied', function()
         local gs = boot()
-        day(gs, 4)
+        gs:set_day(4)
         gs:give_pet({name = 'Ifrit'})
         gs:traffic()
         gs:pet_readies('Flaming Crush', 'ability')
@@ -393,7 +372,7 @@ describe('SMN\'s Pact Spam Mode', function()
     end)
 
     it('waits for the pact recast', function()
-        put_on_recast(gs, 173, 30)
+        gs.game:start_ability_recast('Poison Nails', 30)
         gs:pet_readies('Poison Nails', 'ability')
         gs:pet_finishes('Poison Nails', 'ability')
         assert.same({}, actions(gs))
@@ -417,7 +396,7 @@ describe('SMN\'s idle set with an avatar out', function()
     local gs
     before_each(function()
         gs = boot()
-        day(gs, 4)
+        gs:set_day(4)
         gs:give_pet({name = 'Ifrit'})
         gs:traffic()
     end)
@@ -428,7 +407,7 @@ describe('SMN\'s idle set with an avatar out', function()
     end)
 
     it('has sets.perp.Day over it when the avatar\'s element is the day\'s', function()
-        day(gs, 0)
+        gs:set_day(0)
         gs:console('gs c update')
         assert.equal("Bendis's Hairpin", gs:worn().head)
     end)
@@ -438,12 +417,7 @@ describe('SMN\'s idle set with an avatar out', function()
     end)
 
     it('has sets.perp.Weather over it when the avatar\'s element is the weather\'s', function()
-        local before = gs.game.get_info
-        gs.game.get_info = function(game)
-            local info = before(game)
-            info.weather = 4
-            return info
-        end
+        gs:set_weather(4)
         gs:console('gs c update')
         assert.equal("Tyrant's Ring", gs:worn().left_ring)
     end)
@@ -664,7 +638,7 @@ describe('SMN\'s siphon command', function()
     end)
 
     it('waits on the recast of Elemental Siphon', function()
-        put_on_recast(gs, 175, 30)
+        gs.game:start_ability_recast('Elemental Siphon', 30)
         gs:console('gs c siphon')
         assert.is_truthy(gs:log():find('Abort: [Elemental Siphon] waiting on recast.', 1, true))
         assert.same({}, actions(gs))
@@ -694,7 +668,7 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
 
     it('is left alone while it is on recast', function()
         gs:give_pet({name = 'Ifrit'})
-        put_on_recast(gs, 176, 30)
+        gs.game:start_ability_recast("Avatar's Favor", 30)
         gs:traffic()
         gs:play(5.5)
         assert.same({}, actions(gs))

@@ -202,6 +202,10 @@ describe('the outgoing job change packet (0x100)', function()
         gs:send_from_client(0x100, string.char(0, 5, 0, 0))
         assert.equal(user, gs.env.user_env)
     end)
+
+    pending('leaves the user file as it is while the user file is disabled, as the zone-in packet does: the handler '
+        .. 'in packet_parsing.lua loads the new job\'s file, which enables it again, before it looks at '
+        .. 'gearswap_disabled')
 end)
 
 describe('the system message packet (0x053)', function()

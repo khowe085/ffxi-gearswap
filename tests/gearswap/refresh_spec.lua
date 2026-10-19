@@ -221,10 +221,9 @@ describe('refresh_player', function()
 
     it('is not done when the game has no player: the tables stay as they were', function()
         local gs = boot()
-        local game_player = gs.game.get_player
-        gs.game.get_player = function() return nil end
+        gs.game.loading = 'player'
         assert.has_no.errors(function() refresh(gs) end)
-        gs.game.get_player = game_player
+        gs.game.loading = nil
         assert.equal('Testy', gs.user.player.name)
     end)
 end)
@@ -404,15 +403,10 @@ describe('reloading the user file', function()
     it('waits a second and tries again when the player has no job yet, as when the game has just started', function()
         local gs = boot()
         local old = gs.env.user_env
-        local get_player = gs.game.get_player
-        gs.game.get_player = function()
-            local player = get_player(gs.game)
-            player.main_job_id = nil
-            return player
-        end
+        gs.game.loading = 'job'
         gs:console('gs reload')
         assert.equal(old, gs.env.user_env)
-        gs.game.get_player = get_player
+        gs.game.loading = nil
         gs:advance(0.9)
         assert.equal(old, gs.env.user_env)
         gs:advance(0.2)

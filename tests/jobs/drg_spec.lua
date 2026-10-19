@@ -40,16 +40,6 @@ local function boot(overrides)
     return gs
 end
 
--- The ability is on recast for these seconds from now on, whatever recast was asked before.
-local function put_on_recast(gs, recast_id, seconds)
-    local before = gs.game.ability_recasts
-    gs.game.ability_recasts = function(game)
-        local recasts = before(game)
-        recasts[recast_id] = seconds
-        return recasts
-    end
-end
-
 -- The names of the actions among what GearSwap sent.
 local function actions(gs)
     local names = {}
@@ -59,17 +49,6 @@ local function actions(gs)
         end
     end
     return names
-end
-
--- The monster hits Jobby, which puts Jobby in combat.
-local function in_combat(gs)
-    gs.game:send_action_packet({
-        actor_id = gs.game.monster.id, category = 1,
-        targets = {{id = gs.game.player.id, actions = {{message = 1, param = 10, reaction = 0, animation = 0,
-            effect = 0, stagger = 0}}}},
-    })
-    gs.game:settle()
-    gs:traffic()
 end
 
 describe('data/DRG.lua', function()
@@ -142,15 +121,15 @@ describe('DRG\'s weapon skill with a sub job of SAM and AutoBuffMode on', functi
 
     it('is held back for Meditate when Sekkanoki is on recast', function()
         gs.game.player.vitals.tp = 3000
-        put_on_recast(gs, 140, 60)
+        gs.game:start_ability_recast('Sekkanoki', 60)
         gs:type('/ws "Stardiver" <t>')
         assert.same({'Meditate'}, actions(gs))
     end)
 
     it('goes out when Sekkanoki and Meditate are on recast', function()
         gs.game.player.vitals.tp = 3000
-        put_on_recast(gs, 140, 60)
-        put_on_recast(gs, 134, 60)
+        gs.game:start_ability_recast('Sekkanoki', 60)
+        gs.game:start_ability_recast('Meditate', 60)
         gs:type('/ws "Stardiver" <t>')
         assert.same({'Stardiver'}, actions(gs))
     end)
@@ -411,7 +390,7 @@ describe('DRG\'s Restoring Breath with a wyvern hurt', function()
 
     it('is typed again 1.1 seconds after Spirit Bond goes out, and then goes out', function()
         gs:type('/pet "Restoring Breath" <me>')
-        put_on_recast(gs, 149, 60)
+        gs.game:start_ability_recast('Spirit Bond', 60)
         gs:finish_action()
         gs:traffic()
         gs:advance(1.2)
@@ -426,7 +405,7 @@ describe('DRG\'s Restoring Breath with a wyvern hurt', function()
     end)
 
     it('goes out without Spirit Bond when that is on recast', function()
-        put_on_recast(gs, 149, 60)
+        gs.game:start_ability_recast('Spirit Bond', 60)
         gs:type('/pet "Restoring Breath" <me>')
         assert.same({'Restoring Breath'}, actions(gs))
     end)
@@ -522,7 +501,7 @@ describe('DRG\'s Hasso, kept by the tick with a sub job of SAM', function()
     end)
 
     it('waits while Hasso is on recast', function()
-        put_on_recast(gs, 138, 30)
+        gs.game:start_ability_recast('Hasso', 30)
         gs:play(5.5)
         assert.same({}, actions(gs))
     end)
@@ -554,7 +533,7 @@ describe('DRG\'s buffs kept by the tick under AutoBuffMode', function()
     end)
 
     it('are Call Wyvern first, with no wyvern out', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({'Call Wyvern'}, actions(gs))
     end)
@@ -566,14 +545,14 @@ describe('DRG\'s buffs kept by the tick under AutoBuffMode', function()
 
     it('are Berserk with a wyvern out and a sub job of WAR', function()
         gs:give_pet({name = 'Wyvern'})
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({'Berserk'}, actions(gs))
     end)
 
     it('are Aggressor once Berserk is up', function()
         gs:give_pet({name = 'Wyvern'})
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Berserk')
         gs:traffic()
         gs:play(5.5)
@@ -581,8 +560,8 @@ describe('DRG\'s buffs kept by the tick under AutoBuffMode', function()
     end)
 
     it('are Berserk, and not Call Wyvern, when Call Wyvern is on recast', function()
-        put_on_recast(gs, 163, 60)
-        in_combat(gs)
+        gs.game:start_ability_recast('Call Wyvern', 60)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({'Berserk'}, actions(gs))
     end)
@@ -590,21 +569,21 @@ describe('DRG\'s buffs kept by the tick under AutoBuffMode', function()
     it('are nothing under SJ Restriction once the wyvern is out', function()
         gs:give_pet({name = 'Wyvern'})
         gs:gain_buff('SJ Restriction')
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({}, actions(gs))
     end)
 
     it('are Call Wyvern even under SJ Restriction', function()
         gs:gain_buff('SJ Restriction')
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({'Call Wyvern'}, actions(gs))
     end)
 
     it('are nothing with AutoBuffMode off', function()
         gs:console('gs c set AutoBuffMode Off')
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({}, actions(gs))
     end)
@@ -616,7 +595,7 @@ describe('DRG\'s buffs kept by the tick with a sub job of DRK', function()
         gs:console('gs c set AutoBuffMode Auto')
         gs:console('gs c set Stance None')
         gs:give_pet({name = 'Wyvern'})
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({'Last Resort'}, actions(gs))
     end)

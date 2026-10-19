@@ -83,8 +83,8 @@ describe('a ranged attack', function()
     it('wears sets.precast.RA[the gun] ahead of it, then sets.midcast.RA', function()
         local gs = boot()
         gs:type('/ra <t>')
-        assert.same({jobby.request(sets_of(gs).precast.RA['Death Penalty']), 'category 16',
-            jobby.request(sets_of(gs).midcast.RA)}, equips(gs))
+        assert.same({jobby.layer(sets_of(gs).precast.RA['Death Penalty']), 'category 16',
+            jobby.layer(sets_of(gs).midcast.RA)}, equips(gs))
     end)
 
     it('wears sets.midcast.RA.Acc in the Acc ranged mode', function()
@@ -106,7 +106,7 @@ describe('a ranged attack', function()
         gs:gain_buff('Flurry')
         gs:traffic()
         gs:type('/ra <t>')
-        assert.same(jobby.request(sets_of(gs).precast.RA['Death Penalty'], sets_of(gs).precast.RA.Flurry),
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty'], sets_of(gs).precast.RA.Flurry),
             gs:traffic()[1].equip)
     end)
 
@@ -116,14 +116,14 @@ describe('a ranged attack', function()
         gs.user.lastflurry = 2
         gs:traffic()
         gs:type('/ra <t>')
-        assert.same(jobby.request(sets_of(gs).precast.RA['Death Penalty'], sets_of(gs).precast.RA.Flurry2),
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty'], sets_of(gs).precast.RA.Flurry2),
             gs:traffic()[1].equip)
     end)
 
     it('wears neither Flurry set without the buff', function()
         local gs = boot()
         gs:type('/ra <t>')
-        assert.same(jobby.request(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
     end)
 
     it('wears sets.buff["Triple Shot"] over the midcast set under Triple Shot', function()
@@ -188,7 +188,7 @@ describe('a ranged attack', function()
         gs:gain_buff('Aftermath: Lv.3')
         gs:traffic()
         gs:type('/ra <t>')
-        assert.same(jobby.request(sets_of(gs).precast.RA['Death Penalty'].AM), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty'].AM), gs:traffic()[1].equip)
     end)
 
     it('wears no AM set under another level of Aftermath', function()
@@ -196,7 +196,7 @@ describe('a ranged attack', function()
         gs:gain_buff('Aftermath: Lv.1')
         gs:traffic()
         gs:type('/ra <t>')
-        assert.same(jobby.request(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
     end)
 
     it('wears the AM set no more once Aftermath is gone', function()
@@ -205,7 +205,7 @@ describe('a ranged attack', function()
         gs:lose_buff('Aftermath: Lv.3')
         gs:traffic()
         gs:type('/ra <t>')
-        assert.same(jobby.request(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
     end)
 
     it('puts the default bullet back on afterwards', function()
@@ -228,13 +228,13 @@ describe('a Quick Draw shot', function()
     it('wears sets.precast.CorsairShot', function()
         local gs = boot()
         gs:type('/ja "Fire Shot" <t>')
-        assert.same({jobby.request(sets_of(gs).precast.CorsairShot), 'Fire Shot'}, equips(gs))
+        assert.same({jobby.layer(sets_of(gs).precast.CorsairShot), 'Fire Shot'}, equips(gs))
     end)
 
     it('wears the set of the shot, Light Shot, when there is one', function()
         local gs = boot()
         gs:type('/ja "Light Shot" <t>')
-        assert.same({jobby.request(sets_of(gs).precast.CorsairShot['Light Shot']), 'Light Shot'}, equips(gs))
+        assert.same({jobby.layer(sets_of(gs).precast.CorsairShot['Light Shot']), 'Light Shot'}, equips(gs))
     end)
 
     it('wears sets.precast.CorsairShot.Proc in the Proc casting mode', function()
@@ -242,7 +242,7 @@ describe('a Quick Draw shot', function()
         gs:console('gs c set CastingMode Proc')
         gs:traffic()
         gs:type('/ja "Fire Shot" <t>')
-        assert.same(jobby.request(sets_of(gs).precast.CorsairShot.Proc), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairShot.Proc), gs:traffic()[1].equip)
     end)
 
     it('wears sets.precast.CorsairShot.Proc in the Proc weapon skill mode', function()
@@ -250,7 +250,7 @@ describe('a Quick Draw shot', function()
         gs:console('gs c set WeaponskillMode Proc')
         gs:traffic()
         gs:type('/ja "Fire Shot" <t>')
-        assert.same(jobby.request(sets_of(gs).precast.CorsairShot.Proc), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairShot.Proc), gs:traffic()[1].equip)
     end)
 
     it('wears sets.precast.CorsairShot.Damage in the Fodder casting mode', function()
@@ -258,7 +258,7 @@ describe('a Quick Draw shot', function()
         gs:console('gs c set CastingMode Fodder')
         gs:traffic()
         gs:type('/ja "Fire Shot" <t>')
-        assert.same(jobby.request(sets_of(gs).precast.CorsairShot.Damage), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairShot.Damage), gs:traffic()[1].equip)
     end)
 
     it('wears the shot\'s own set, not the Proc one, for Light Shot even in the Proc mode', function()
@@ -266,7 +266,7 @@ describe('a Quick Draw shot', function()
         gs:console('gs c set CastingMode Proc')
         gs:traffic()
         gs:type('/ja "Light Shot" <t>')
-        assert.same(jobby.request(sets_of(gs).precast.CorsairShot['Light Shot']), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairShot['Light Shot']), gs:traffic()[1].equip)
     end)
 
     it('is cast by gs c elemental quickdraw in the element chosen', function()
@@ -395,14 +395,14 @@ describe('a Corsair roll', function()
     it('wears sets.precast.CorsairRoll and Luzaf\'s Ring over the idle set', function()
         local gs = boot()
         gs:type('/ja "Chaos Roll" <me>')
-        assert.same({jobby.request(sets_of(gs).precast.CorsairRoll, sets_of(gs).precast.LuzafRing), 'Chaos Roll'},
+        assert.same({jobby.layer(sets_of(gs).precast.CorsairRoll, sets_of(gs).precast.LuzafRing), 'Chaos Roll'},
             equips(gs))
     end)
 
     it('wears the set of the roll, Fighter\'s Roll, when there is one', function()
         local gs = boot()
         gs:type('/ja "Fighter\'s Roll" <me>')
-        assert.same(jobby.request(sets_of(gs).precast.CorsairRoll["Fighter's Roll"], sets_of(gs).precast.LuzafRing),
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairRoll["Fighter's Roll"], sets_of(gs).precast.LuzafRing),
             gs:traffic()[1].equip)
     end)
 
@@ -411,13 +411,13 @@ describe('a Corsair roll', function()
         gs:console('gs c toggle LuzafRing')
         gs:traffic()
         gs:type('/ja "Chaos Roll" <me>')
-        assert.same(jobby.request(sets_of(gs).precast.CorsairRoll), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairRoll), gs:traffic()[1].equip)
     end)
 
     it('is followed by Luzaf\'s Ring alone for Double-Up', function()
         local gs = boot()
         gs:type('/ja "Double-Up" <me>')
-        assert.same(jobby.request(sets_of(gs).precast.LuzafRing), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.LuzafRing), gs:traffic()[1].equip)
     end)
 
     it('wears sets.precast.CorsairRoll.Recast in the Recast roll mode', function()
@@ -425,7 +425,7 @@ describe('a Corsair roll', function()
         gs:console('gs c set RollMode Recast')
         gs:traffic()
         gs:type('/ja "Chaos Roll" <me>')
-        assert.same(jobby.request(sets_of(gs).precast.CorsairRoll, sets_of(gs).precast.LuzafRing,
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairRoll, sets_of(gs).precast.LuzafRing,
             sets_of(gs).precast.CorsairRoll.Recast), gs:traffic()[1].equip)
     end)
 
@@ -434,7 +434,7 @@ describe('a Corsair roll', function()
         gs:console('gs c set RollMode WeakLock')
         gs:traffic()
         gs:type('/ja "Chaos Roll" <me>')
-        assert.same(jobby.request(sets_of(gs).precast.CorsairRoll, sets_of(gs).precast.LuzafRing,
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairRoll, sets_of(gs).precast.LuzafRing,
             sets_of(gs).precast.CorsairRoll.Weak), gs:traffic()[1].equip)
     end)
 
@@ -513,7 +513,7 @@ describe('Fold', function()
         gs:gain_buff('Bust')
         gs:traffic()
         gs:type('/ja "Fold" <me>')
-        assert.same(jobby.request(sets_of(gs).precast.FoldDoubleBust), gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.FoldDoubleBust), gs:traffic()[1].equip)
     end)
 
     it('wears nothing of the sort under one bust', function()
