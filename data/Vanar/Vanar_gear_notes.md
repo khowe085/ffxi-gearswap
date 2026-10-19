@@ -729,7 +729,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Ayanmo Ring
 
 - Vanar's Ayanmo +2 armor stays on slip 23 **(player, 2026-10-11)**, so the set bonus never applies in his sets ([Ayanmo set](#ayanmo-set)).
-- It ties Jhakri Ring at Accuracy+6 in the ACC-mode sets; Jhakri's Attack+6 takes the slot. Lehko's Ring's DEX+10 is about 2 more accuracy than either, so RDM's Step set takes Lehko's too. Enlivened Ring (Accuracy+7, DEX+2) is in storage.
+- It ties Jhakri Ring at Accuracy+6, and Jhakri's Attack+6 breaks the tie. RDM's ACC-mode sets (`sets.precast.Step`, `sets.engaged.Acc` and the sets built on them) wear neither from 2026-10-18: Lehko's Ring's DEX+10 (7 or 8 accuracy) and Murky Ring's Accuracy+7 at rank 7 are the two most. Enlivened Ring (Accuracy+7, DEX+2) is in storage.
 
 ### Beithir Ring
 
