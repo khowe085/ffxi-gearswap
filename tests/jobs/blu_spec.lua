@@ -322,7 +322,7 @@ describe('a blue healing spell', function()
 
     it('wears the unlocked set but no sets.Self_Healing for a spell on someone else', function()
         local gs = boot({'Magic Fruit'})
-        gs.game:add_other_player({name = 'Friend'})
+        gs.game:add_party_member({name = 'Friend'})
         assert.same(blue_over_fast_cast(gs, blue(gs, 'Healing'), blue(gs, 'UnlockedHealing')),
             midcast_worn(gs, '/ma "Magic Fruit" Friend'))
     end)

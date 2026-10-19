@@ -386,11 +386,6 @@ function Game:get_party()
             tp = player.vitals.tp, hpp = player.vitals.hpp, mpp = player.vitals.mpp, zone = self.zone},
         party1_leader = player.id, party1_count = 1, party2_count = 0, party3_count = 0,
     }
-    for _, name in ipairs(self.party_members or {}) do
-        party.party1_count = party.party1_count + 1
-        party['p' .. (party.party1_count - 1)] = {name = name, hp = 1000, mp = 0, tp = 0, hpp = 100, mpp = 100,
-            zone = self.zone}
-    end
     for _, other in ipairs(self.others or {}) do
         if other.in_party then
             party.party1_count = party.party1_count + 1
@@ -1084,12 +1079,6 @@ function Game:stand()
     self.walking_since = nil
 end
 
--- Someone joins the party, as a trust does once called: get_party lists them from p1 on, in the order they joined.
-function Game:join_party(name)
-    self.party_members = self.party_members or {}
-    table.insert(self.party_members, name)
-end
-
 -- The monster begins readying a TP move at the character: the action packet the server sends for it.
 function Game:monster_readies(name)
     local id = find_by_name(self.res.monster_abilities, name, 'monster ability')
@@ -1286,7 +1275,7 @@ end
 -- Another player near the character: a member of the party (p1, p2 in the order they are added) unless in_party is
 -- false. fields over the defaults: name, id, index, hp (of the 1000 they have), distance (squared, as Windower gives
 -- it), x, y.
-function Game:add_other_player(fields)
+function Game:add_party_member(fields)
     self.others = self.others or {}
     local number = #self.others + 1
     local other = {

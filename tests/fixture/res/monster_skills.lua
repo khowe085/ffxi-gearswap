@@ -1,6 +1,10 @@
 -- The entries GearSwap's tests use, cut from Windower/Resources at 5f22f38.
 -- Automatically generated file: Monster Skills
 return {
+    [257] = {id=257,en="Foot Kick",ja="フットキック",element=6,icon_id=46,monster_level=1,prefix="/monsterskill",range=2,targets=32,tp_cost=1000},
+    [258] = {id=258,en="Dust Cloud",ja="土煙",element=3,icon_id=43,monster_level=10,prefix="/monsterskill",range=2,targets=32,tp_cost=800},
+    [259] = {id=259,en="Whirl Claws",ja="爪旋風脚",element=6,icon_id=46,monster_level=20,prefix="/monsterskill",range=8,targets=32,tp_cost=1800},
+    [314] = {id=314,en="Wild Carrot",ja="ワイルドカロット",element=6,icon_id=46,monster_level=30,prefix="/monsterskill",range=0,targets=1,tp_cost=1000},
 }, {"id", "en", "ja", "element", "icon_id", "monster_level", "prefix", "range", "targets", "tp_cost"}
 --[[
 Copyright 2013-2026 Windower

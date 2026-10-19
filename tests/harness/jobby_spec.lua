@@ -33,7 +33,7 @@ end)
 describe('another player near the character', function()
     it('is the first member of the party, by p1, by name among the mobs and in GearSwap\'s alliance', function()
         local gs = harness.boot(testy.whm())
-        gs.game:add_other_player({name = 'Friend'})
+        gs.game:add_party_member({name = 'Friend'})
         local ffxi = gs.game.windower.ffxi
         assert.equal('Friend', ffxi.get_party().p1.name)
         assert.equal('Friend', ffxi.get_mob_by_target('<p1>').name)
@@ -45,7 +45,7 @@ describe('another player near the character', function()
 
     it('is no member of the party with in_party false, but a mob that is found', function()
         local gs = harness.boot(testy.whm())
-        gs.game:add_other_player({name = 'Stranger', in_party = false})
+        gs.game:add_party_member({name = 'Stranger', in_party = false})
         local ffxi = gs.game.windower.ffxi
         assert.is_nil(ffxi.get_party().p1)
         assert.is_nil(ffxi.get_mob_by_target('<p1>'))
@@ -54,13 +54,13 @@ describe('another player near the character', function()
 
     it('has the HP percent of the HP it has', function()
         local gs = harness.boot(testy.whm())
-        local friend = gs.game:add_other_player({hp = 250})
+        local friend = gs.game:add_party_member({hp = 250})
         assert.equal(25, friend.hpp)
     end)
 
     it('is the target of a spell by name', function()
         local gs = harness.boot(testy.whm())
-        gs.game:add_other_player({name = 'Friend'})
+        gs.game:add_party_member({name = 'Friend'})
         gs:type('/ma "Cure III" Friend')
         local sent = {}
         for _, entry in ipairs(gs:traffic()) do

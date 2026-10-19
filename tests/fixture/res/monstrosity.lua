@@ -1,6 +1,7 @@
 -- The entries GearSwap's tests use, cut from Windower/Resources at 5f22f38.
 -- Automatically generated file: Monstrosity
 return {
+    [1] = {id=1,en="Rabbit",ja="ウサギ族",tp_moves={[257]=1,[258]=10,[259]=20,[314]=30}},
 }, {"id", "en", "ja", "tp_moves", "unlearnable"}
 --[[
 Copyright 2013-2026 Windower

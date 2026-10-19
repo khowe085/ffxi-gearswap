@@ -197,6 +197,7 @@ local function writer()
     end
 
     function self.raw(text, length)
+        text = tostring(text)
         for i = 1, length do
             bytes[cursor / 8 + 1] = text:byte(i) or 0
             cursor = cursor + 8

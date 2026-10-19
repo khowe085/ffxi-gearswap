@@ -1,0 +1,207 @@
+local plain = require('plain')
+local world = require('world')
+
+local function refresh(gs)
+    gs:console('gs c refresh')
+    if gs.user.events then
+        plain.events(gs)
+    end
+end
+
+describe('a pet', function()
+    it('coming is told to the user file with the packet after the one that says so', function()
+        local gs = plain.boot('Testy_Events.lua')
+        local pet = gs.game:summon_pet({name = 'Carbuncle'})
+        world.send(gs, 0x037, {['Pet Index'] = pet.index})
+        assert.same({}, plain.events(gs))
+        world.next_packet(gs)
+        assert.same({{event = 'pet_change', name = 'Carbuncle', gain = true}}, plain.events(gs))
+    end)
+
+    it('coming is told once', function()
+        local gs = plain.boot('Testy_Events.lua')
+        local pet = gs.game:summon_pet({name = 'Carbuncle'})
+        world.send(gs, 0x037, {['Pet Index'] = pet.index})
+        world.next_packet(gs)
+        plain.events(gs)
+        world.next_packet(gs)
+        assert.same({}, plain.events(gs))
+    end)
+
+    it('going is told with the pet as it was', function()
+        local gs = plain.boot('Testy_Events.lua')
+        local pet = gs.game:summon_pet({name = 'Carbuncle'})
+        world.send(gs, 0x037, {['Pet Index'] = pet.index})
+        world.next_packet(gs)
+        plain.events(gs)
+        world.send(gs, 0x037, {['Pet Index'] = 0})
+        gs.game:dismiss_pet()
+        world.next_packet(gs)
+        assert.same({{event = 'pet_change', name = 'Carbuncle', gain = false}}, plain.events(gs))
+        assert.is_false(gs.env.pet.isvalid)
+    end)
+
+    it('is told of when the pet is already known, not at all', function()
+        local gs = plain.boot('Testy_Events.lua')
+        local pet = gs.game:summon_pet({name = 'Carbuncle'})
+        refresh(gs)
+        world.send(gs, 0x037, {['Pet Index'] = pet.index})
+        world.next_packet(gs)
+        assert.same({}, plain.events(gs))
+    end)
+
+    it('coming or going is not told while the user file is disabled', function()
+        local gs = plain.boot('Testy_Events.lua')
+        gs:console('gs disable')
+        local pet = gs.game:summon_pet({name = 'Carbuncle'})
+        world.send(gs, 0x037, {['Pet Index'] = pet.index})
+        world.next_packet(gs)
+        assert.same({}, plain.events(gs))
+    end)
+
+    it('is in the pet table once GearSwap refreshes: its name, id, index, health and whether it is there', function()
+        local gs = plain.boot()
+        local pet = gs.game:summon_pet({name = 'Ifrit', hpp = 80, mpp = 70})
+        refresh(gs)
+        local table_of_pet = gs.user.pet
+        assert.same({'Ifrit', pet.id, pet.index, 80, 70, true, 'Idle'}, {table_of_pet.name, table_of_pet.id,
+            table_of_pet.index, table_of_pet.hpp, table_of_pet.mpp, table_of_pet.isvalid, table_of_pet.status})
+    end)
+
+    it('has the element of an avatar, and physical for what is not one', function()
+        local gs = plain.boot()
+        gs.game:summon_pet({name = 'Ifrit'})
+        refresh(gs)
+        assert.equal('Fire', gs.user.pet.element)
+        gs.game:dismiss_pet()
+        gs.game:summon_pet({name = 'Funguar'})
+        refresh(gs)
+        assert.equal('Physical', gs.user.pet.element)
+    end)
+
+    it('is not valid when the player has none', function()
+        local gs = plain.boot()
+        refresh(gs)
+        assert.is_false(gs.user.pet.isvalid)
+        assert.is_nil(gs.user.pet.name)
+    end)
+
+    it('is not valid once it is gone, and nothing of it is left', function()
+        local gs = plain.boot()
+        gs.game:summon_pet({name = 'Ifrit'})
+        refresh(gs)
+        gs.game:dismiss_pet()
+        refresh(gs)
+        assert.is_false(gs.user.pet.isvalid)
+        assert.is_nil(gs.user.pet.name)
+    end)
+
+    it('is the target of <pet>, in a spell aimed at it', function()
+        local gs = plain.boot()
+        gs.game:summon_pet({name = 'Carbuncle'})
+        gs:type('/ma "Cure III" <pet>')
+        assert.same({
+            {equip = {head = "Bunzi's Hat", left_ring = 'Kishar Ring'}},
+            {action = 'Cure III', target = 'Carbuncle'},
+            {equip = {head = 'Kaykaus Mitra +1'}},
+        }, gs:traffic())
+    end)
+end)
+
+describe('the pet\'s status in an NPC update (0x00E)', function()
+    local function boot_with_pet()
+        local gs = plain.boot('Testy_Events.lua')
+        local pet = gs.game:summon_pet({name = 'Carbuncle'})
+        refresh(gs)
+        return gs, pet
+    end
+
+    local function update(gs, pet, status, mask)
+        gs.game.extra_mobs[pet.index].status = status
+        world.send(gs, 0x00E, {['NPC'] = pet.id, ['Index'] = pet.index, ['Mask'] = mask or 4, ['Status'] = status})
+        world.next_packet(gs)
+    end
+
+    it('tells the user file the pet engaged, with its new status and the old', function()
+        local gs, pet = boot_with_pet()
+        update(gs, pet, 1)
+        assert.same({{event = 'pet_status_change', new = 'Engaged', old = 'Idle'}}, plain.events(gs))
+    end)
+
+    it('tells it the pet stopped, from Engaged to Idle', function()
+        local gs, pet = boot_with_pet()
+        update(gs, pet, 1)
+        plain.events(gs)
+        update(gs, pet, 0)
+        assert.same({{event = 'pet_status_change', new = 'Idle', old = 'Engaged'}}, plain.events(gs))
+    end)
+
+    it('tells it the pet is resting', function()
+        local gs, pet = boot_with_pet()
+        update(gs, pet, 33)
+        assert.same({{event = 'pet_status_change', new = 'Resting', old = 'Idle'}}, plain.events(gs))
+    end)
+
+    it('says nothing of a status that is none of those', function()
+        local gs, pet = boot_with_pet()
+        update(gs, pet, 5)
+        assert.same({}, plain.events(gs))
+    end)
+
+    it('says nothing when the status is the pet\'s own', function()
+        local gs, pet = boot_with_pet()
+        update(gs, pet, 0)
+        assert.same({}, plain.events(gs))
+    end)
+
+    it('says nothing when the update has no status in it', function()
+        local gs, pet = boot_with_pet()
+        update(gs, pet, 1, 1)
+        assert.same({}, plain.events(gs))
+    end)
+
+    it('says nothing of another NPC', function()
+        local gs, pet = boot_with_pet()
+        world.send(gs, 0x00E, {['NPC'] = pet.id + 1, ['Index'] = pet.index + 1, ['Mask'] = 4, ['Status'] = 1})
+        world.next_packet(gs)
+        assert.same({}, plain.events(gs))
+    end)
+end)
+
+describe('the pet\'s TP', function()
+    local function boot_with_pet()
+        local gs = plain.boot()
+        local pet = gs.game:summon_pet({name = 'Carbuncle'})
+        return gs, pet
+    end
+
+    it('comes with the pet info packet (0x067)', function()
+        local gs = boot_with_pet()
+        world.send(gs, 0x067, {['Owner Index'] = gs.env.player.index, ['Pet TP'] = 1500})
+        refresh(gs)
+        assert.equal(1500, gs.user.pet.tp)
+    end)
+
+    it('comes with the pet status packet (0x068)', function()
+        local gs = boot_with_pet()
+        world.send(gs, 0x068, {['Owner Index'] = gs.env.player.index, ['Pet TP'] = 2200})
+        refresh(gs)
+        assert.equal(2200, gs.user.pet.tp)
+    end)
+
+    it('is not the TP of someone else\'s pet', function()
+        local gs = boot_with_pet()
+        world.send(gs, 0x067, {['Owner Index'] = gs.env.player.index + 1, ['Pet TP'] = 1500})
+        world.send(gs, 0x068, {['Owner Index'] = gs.env.player.index + 1, ['Pet TP'] = 1700})
+        refresh(gs)
+        assert.is_nil(gs.user.pet.tp)
+    end)
+
+    it('is 0 once a pet has come', function()
+        local gs, pet = boot_with_pet()
+        world.send(gs, 0x067, {['Owner Index'] = gs.env.player.index, ['Pet TP'] = 1500})
+        world.send(gs, 0x037, {['Pet Index'] = pet.index})
+        refresh(gs)
+        assert.equal(0, gs.user.pet.tp)
+    end)
+end)

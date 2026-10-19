@@ -1,0 +1,240 @@
+local plain = require('plain')
+local world = require('world')
+
+local function refresh(gs)
+    gs:console('gs c refresh')
+    if gs.user.events then
+        plain.events(gs)
+    end
+end
+
+describe('the buff packet (0x063)', function()
+    it('tells the user file a buff came, with its name and id', function()
+        local gs = plain.boot('Testy_Events.lua')
+        gs:gain_buff('Haste')
+        assert.same({{event = 'buff_change', name = 'Haste', gain = true, id = 33}}, plain.events(gs))
+    end)
+
+    it('tells the user file a buff went', function()
+        local gs = plain.boot('Testy_Events.lua')
+        gs:gain_buff('Haste')
+        plain.events(gs)
+        gs:lose_buff('Haste')
+        assert.same({{event = 'buff_change', name = 'Haste', gain = false, id = 33}}, plain.events(gs))
+    end)
+
+    it('says nothing of a buff that stays', function()
+        local gs = plain.boot('Testy_Events.lua')
+        local expires = gs.game.clock + 300
+        world.send_buffs(gs, {{name = 'Haste', expires = expires}})
+        plain.events(gs)
+        world.send_buffs(gs, {{name = 'Haste', expires = expires}, {name = 'Protect', expires = expires}})
+        assert.same({{event = 'buff_change', name = 'Protect', gain = true, id = 40}}, plain.events(gs))
+    end)
+
+    it('says a buff was refreshed when it comes again with a new time', function()
+        local gs = plain.boot('Testy_Events.lua')
+        local expires = gs.game.clock + 300
+        world.send_buffs(gs, {{name = 'Haste', expires = expires}})
+        plain.events(gs)
+        world.send_buffs(gs, {{name = 'Haste', expires = expires + 30}})
+        assert.same({{event = 'buff_refresh', name = 'Haste', id = 33}}, plain.events(gs))
+    end)
+
+    it('says a buff was refreshed when it comes in another slot with a new time', function()
+        local gs = plain.boot('Testy_Events.lua')
+        local expires = gs.game.clock + 300
+        world.send_buffs(gs, {{name = 'Protect', expires = expires}, {name = 'Haste', expires = expires}})
+        plain.events(gs)
+        world.send_buffs(gs, {{name = 'Haste', expires = expires + 30}, {name = 'Protect', expires = expires}})
+        assert.same({{event = 'buff_refresh', name = 'Haste', id = 33}}, plain.events(gs))
+    end)
+
+    it('tells of every buff that came and went in one packet', function()
+        local gs = plain.boot('Testy_Events.lua')
+        world.send_buffs(gs, {{name = 'Haste'}, {name = 'Protect'}})
+        plain.events(gs)
+        world.send_buffs(gs, {{name = 'Shell'}, {name = 'Haste', expires = gs.game.clock + 900}})
+        local got = plain.events(gs)
+        table.sort(got, function(a, b) return a.name < b.name end)
+        assert.same({
+            {event = 'buff_refresh', name = 'Haste', id = 33},
+            {event = 'buff_change', name = 'Protect', gain = false, id = 40},
+            {event = 'buff_change', name = 'Shell', gain = true, id = 41},
+        }, got)
+    end)
+
+    it('of another kind than the list of buffs is left alone', function()
+        local gs = plain.boot('Testy_Events.lua')
+        gs:gain_buff('Haste')
+        plain.events(gs)
+        world.send_raw(gs, 0x063, string.char(2, 0, 0, 0) .. ('\0'):rep(0x4C))
+        assert.same({}, plain.events(gs))
+        assert.equal(33, gs.env.player.buffs[1])
+    end)
+
+    it('says nothing while the user file is disabled, and still notes the buffs', function()
+        local gs = plain.boot('Testy_Events.lua')
+        gs:console('gs disable')
+        gs:gain_buff('Haste')
+        assert.same({}, plain.events(gs))
+        assert.equal(33, gs.env.player.buffs[1])
+    end)
+
+    it('is in buffactive by name, in any case, and by id', function()
+        local gs = plain.boot()
+        gs:gain_buff('Haste')
+        refresh(gs)
+        local buffactive = gs.user.buffactive
+        assert.same({1, 1, 1}, {buffactive.haste, buffactive.Haste, buffactive[33]})
+    end)
+
+    it('counts two buffs of one kind in buffactive', function()
+        local gs = plain.boot()
+        world.send_buffs(gs, {{name = 'Haste'}, {name = 'Haste'}})
+        refresh(gs)
+        assert.equal(2, gs.user.buffactive.haste)
+    end)
+
+    it('is gone from buffactive once the buff goes', function()
+        local gs = plain.boot()
+        gs:gain_buff('Haste')
+        gs:lose_buff('Haste')
+        refresh(gs)
+        assert.is_nil(gs.user.buffactive.haste)
+    end)
+
+    it('puts the buff in the slot the packet gives it', function()
+        local gs = plain.boot()
+        world.send_buffs(gs, {{name = 'Protect'}, {name = 'Haste'}})
+        assert.same({40, 33}, {gs.env.player.buffs[1], gs.env.player.buffs[2]})
+        assert.is_nil(gs.env.player.buffs[3])
+    end)
+
+    it('keeps the buffs\' details: name, id and when they wear off', function()
+        local gs = plain.boot()
+        local expires = gs.game.clock + 300
+        world.send_buffs(gs, {{name = 'Haste', expires = expires}})
+        local details = gs.env._ExtraData.player.buff_details[1]
+        assert.same({'Haste', 33, expires}, {details.name, details.id, details.time})
+    end)
+
+    it('ends an action in progress when the player falls asleep', function()
+        local gs = plain.boot()
+        gs:type('/ma "Cure III" <me>')
+        assert.is_true((gs.user.midaction()))
+        gs:gain_buff('sleep')
+        assert.is_false(gs.user.midaction())
+    end)
+
+    it('leaves an action in progress when another buff comes', function()
+        local gs = plain.boot()
+        gs:type('/ma "Cure III" <me>')
+        gs:gain_buff('Haste')
+        assert.is_true((gs.user.midaction()))
+    end)
+
+    describe('right after zoning', function()
+        it('is blank, and a blank buff packet is not taken to mean the buffs went', function()
+            local gs = plain.boot('Testy_Events.lua')
+            gs:gain_buff('Haste')
+            plain.events(gs)
+            world.zone_in(gs)
+            world.send_buffs(gs, {})
+            assert.same({}, plain.events(gs))
+            assert.equal(33, gs.env.player.buffs[1])
+        end)
+
+        it('is blank only once: the next blank packet does take the buffs away', function()
+            local gs = plain.boot('Testy_Events.lua')
+            gs:gain_buff('Haste')
+            plain.events(gs)
+            world.zone_in(gs)
+            world.send_buffs(gs, {})
+            world.send_buffs(gs, {})
+            assert.same({{event = 'buff_change', name = 'Haste', gain = false, id = 33}}, plain.events(gs))
+        end)
+
+        it('is taken as it is when it has buffs in it', function()
+            local gs = plain.boot('Testy_Events.lua')
+            world.zone_in(gs)
+            gs:gain_buff('Haste')
+            assert.same({{event = 'buff_change', name = 'Haste', gain = true, id = 33}}, plain.events(gs))
+        end)
+    end)
+end)
+
+describe('the party buff packet (0x076)', function()
+    local function party_with_member(file)
+        local gs = plain.boot(file)
+        local member = gs.game:add_party_member({name = 'Alice', id = 0x100777})
+        refresh(gs)
+        return gs, member
+    end
+
+    it('tells the user file a party member\'s buff came, with the member, buff and its id', function()
+        local gs, member = party_with_member('Testy_Events.lua')
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {}}})
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {33}}})
+        assert.same({{event = 'party_buff_change', member = 'Alice', name = 'Haste', gain = true, id = 33}}, plain.events(gs))
+    end)
+
+    it('tells the user file a party member\'s buff went', function()
+        local gs, member = party_with_member('Testy_Events.lua')
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {33, 40}}})
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {40}}})
+        assert.same({{event = 'party_buff_change', member = 'Alice', name = 'Haste', gain = false, id = 33}}, plain.events(gs))
+    end)
+
+    it('says nothing the first time it hears of a member\'s buffs, for the member may only have come', function()
+        local gs, member = party_with_member('Testy_Events.lua')
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {33}}})
+        assert.same({}, plain.events(gs))
+    end)
+
+    it('says nothing when the buffs are the same', function()
+        local gs, member = party_with_member('Testy_Events.lua')
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {33}}})
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {33}}})
+        assert.same({}, plain.events(gs))
+    end)
+
+    it('puts the member\'s buffs in the party, by name and id', function()
+        local gs, member = party_with_member()
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {33, 40, 40}}})
+        refresh(gs)
+        local buffactive = gs.user.party[2].buffactive
+        assert.same({1, 2, 2}, {buffactive.haste, buffactive.protect, buffactive[40]})
+        assert.equal('Haste', gs.user.party[2].buff_details[1].name)
+    end)
+
+    it('tells of a buff above 255, in the bits the packet keeps apart', function()
+        local gs, member = party_with_member('Testy_Events.lua')
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {}}})
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {419}}})
+        assert.same({{event = 'party_buff_change', member = 'Alice', name = 'Composure', gain = true, id = 419}}, plain.events(gs))
+    end)
+
+    it('tells of the second member\'s buff when the first member\'s did not change', function()
+        local gs = plain.boot('Testy_Events.lua')
+        local alice = gs.game:add_party_member({name = 'Alice'})
+        local bob = gs.game:add_party_member({name = 'Bob'})
+        refresh(gs)
+        world.send_party_buffs(gs, {{id = alice.id, index = alice.index, buffs = {33}}, {id = bob.id, index = bob.index, buffs = {}}})
+        plain.events(gs)
+        world.send_party_buffs(gs, {{id = alice.id, index = alice.index, buffs = {33}}, {id = bob.id, index = bob.index, buffs = {40}}})
+        assert.same({{event = 'party_buff_change', member = 'Bob', name = 'Protect', gain = true, id = 40}}, plain.events(gs))
+    end)
+
+    pending('tells of both members\' buffs when both changed in one packet: the first member\'s event refreshes the '
+        .. 'party before the second member\'s buffs are stored, so the second member has no buffs to compare and its '
+        .. 'change goes unreported')
+
+    it('says nothing when the user file has no party_buff_change', function()
+        local gs, member = party_with_member()
+        world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {}}})
+        assert.has_no.errors(function()
+            world.send_party_buffs(gs, {{id = member.id, index = member.index, buffs = {33}}})
+        end)
+    end)
+end)

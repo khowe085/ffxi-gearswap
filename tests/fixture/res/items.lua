@@ -2,8 +2,11 @@
 -- Automatically generated file: Items
 return {
     [1179] = {id=1179,en="Shihei",ja="紙兵",enl="shihei",jal="紙兵",category="General",flags=4,stack=99,targets=0,type=1},
+    [2972] = {id=2972,en="Shikanofuda",ja="鹿ノ札",enl="shikanofuda",jal="鹿ノ札",category="General",flags=4,stack=99,targets=0,type=1},
     [2974] = {id=2974,en="Trump Card",ja="エレメントカード",enl="trump card",jal="エレメントカード",category="General",flags=4,stack=99,targets=0,type=1},
+    [4112] = {id=4112,en="Potion",ja="ポーション",enl="potion",jal="ポーション",cast_time=1,category="Usable",flags=1540,stack=1,targets=1,type=7},
     [4154] = {id=4154,en="Holy Water",ja="聖水",enl="flask of holy water",jal="聖水",cast_time=1,category="Usable",flags=1540,stack=12,targets=1,type=7},
+    [4155] = {id=4155,en="Remedy",ja="万能薬",enl="remedy",jal="万能薬",cast_time=1,category="Usable",flags=1540,stack=12,targets=1,type=7},
     [4164] = {id=4164,en="Prism Powder",ja="プリズムパウダー",enl="pinch of prism powder",jal="プリズムパウダー",cast_time=1,category="Usable",flags=1540,stack=12,targets=1,type=7},
     [4165] = {id=4165,en="Silent Oil",ja="サイレントオイル",enl="pot of silent oil",jal="サイレントオイル",cast_time=1,category="Usable",flags=1540,stack=12,targets=1,type=7},
     [5306] = {id=5306,en="Hallowed Water",ja="祝聖水",enl="bottle of hallowed water",jal="祝聖水",cast_time=1,category="Usable",flags=1540,stack=12,targets=1,type=7},

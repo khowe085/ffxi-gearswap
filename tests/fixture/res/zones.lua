@@ -1,6 +1,7 @@
 -- The entries GearSwap's tests use, cut from Windower/Resources at 5f22f38.
 -- Automatically generated file: Zones
 return {
+    [100] = {id=100,en="West Ronfaure",ja="西ロンフォール",can_invite_cross_zone=true,can_mount=true,can_nexus=true,can_pet=true,search="WRonfaure"},
     [129] = {id=129,en="Ghoyu's Reverie",ja="ゴユの空洞",can_pet=true,is_layered=true,search="GhoyusRev"},
     [132] = {id=132,en="Abyssea - La Theine",ja="アビセア-ラテーヌ",can_invite_cross_zone=true,can_pet=true,search="AbysLaThein"},
     [230] = {id=230,en="Southern San d'Oria",ja="南サンドリア",can_invite_cross_zone=true,can_nexus=true,search="SSandOria"},

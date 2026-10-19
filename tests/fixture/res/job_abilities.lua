@@ -18,6 +18,7 @@ return {
     [74] = {id=74,en="Divine Seal",ja="女神の印",duration=60,element=6,icon_id=381,mp_cost=0,prefix="/jobability",range=0,recast_id=26,status=78,targets=1,tp_cost=0,type="JobAbility"},
     [77] = {id=77,en="Weapon Bash",ja="ウェポンバッシュ",element=4,icon_id=419,mp_cost=0,prefix="/jobability",range=2,recast_id=88,targets=32,tp_cost=0,type="JobAbility"},
     [83] = {id=83,en="Convert",ja="コンバート",element=7,icon_id=391,mp_cost=0,prefix="/jobability",range=0,recast_id=49,targets=1,tp_cost=0,type="JobAbility"},
+    [88] = {id=88,en="Assault",ja="神獣の攻撃",element=6,icon_id=473,mp_cost=0,prefix="/pet",range=12,recast_id=170,targets=32,tp_cost=0,type="PetCommand"},
     [93] = {id=93,en="Azure Lore",ja="アジュールロー",duration=30,element=6,icon_id=81,mp_cost=0,prefix="/jobability",range=0,recast_id=0,status=163,targets=1,tp_cost=0,type="JobAbility"},
     [94] = {id=94,en="Chain Affinity",ja="ブルーチェーン",duration=30,element=6,icon_id=481,mp_cost=0,prefix="/jobability",range=0,recast_id=181,status=164,targets=1,tp_cost=0,type="JobAbility"},
     [95] = {id=95,en="Burst Affinity",ja="ブルーバースト",duration=30,element=6,icon_id=481,mp_cost=0,prefix="/jobability",range=0,recast_id=182,status=165,targets=1,tp_cost=0,type="JobAbility"},
@@ -141,6 +142,8 @@ return {
     [383] = {id=383,en="Vivacious Pulse",ja="ビベイシャス",element=6,icon_id=46,mp_cost=0,prefix="/jobability",range=0,recast_id=242,targets=1,tp_cost=0,type="JobAbility"},
     [384] = {id=384,en="Contradance",ja="コントラダンス",duration=60,element=6,icon_id=46,mp_cost=0,prefix="/jobability",range=0,recast_id=229,status=582,targets=1,tp_cost=0,type="JobAbility"},
     [386] = {id=386,en="Entrust",ja="エントラスト",duration=60,element=6,icon_id=46,mp_cost=0,prefix="/jobability",range=0,recast_id=93,status=584,targets=1,tp_cost=0,type="JobAbility"},
+    [672] = {id=672,en="Foot Kick",ja="フットキック",element=6,icon_id=46,mp_cost=1,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},
+    [673] = {id=673,en="Dust Cloud",ja="土煙",element=3,icon_id=43,mp_cost=1,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},
 }, {"id", "en", "ja", "duration", "element", "icon_id", "mp_cost", "prefix", "range", "recast_id", "status", "targets", "tp_cost", "type", "skillchain_a", "skillchain_b", "skillchain_c"}
 --[[
 Copyright 2013-2026 Windower

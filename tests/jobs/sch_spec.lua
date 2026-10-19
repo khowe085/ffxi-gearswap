@@ -20,10 +20,10 @@ local function boot(options)
         gs.game.player.vitals.mpp = math.floor(options.mp / 10)
     end
     if options.friend then
-        gs.game:add_other_player({name = 'Friend'})
+        gs.game:add_party_member({name = 'Friend'})
     end
     if options.stranger then
-        gs.game:add_other_player({name = 'Stranger', in_party = false,
+        gs.game:add_party_member({name = 'Stranger', in_party = false,
             distance = type(options.stranger) == 'number' and options.stranger or 16})
     end
     gs:console('gs c update')
