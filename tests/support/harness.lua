@@ -148,12 +148,17 @@ function harness.tree()
         addon = addon,
         -- Where each part of the copy came from, the more specific first.
         sources = {
-            {join(addon, 'data', 'Testy') .. '/', 'tests/fixture/data/Testy/'},
             {join(windower, 'addons', 'libs') .. '/', 'docs/windower/libs/'},
             {join(windower, 'res') .. '/', 'tests/fixture/res/'},
             {addon, ''},
         },
     }
+    -- Each fixture character's folder, ahead of the addon's own, which it lies under.
+    for entry in lfs.dir(join(repo, 'tests', 'fixture', 'data')) do
+        if entry ~= '.' and entry ~= '..' and is_directory(join(repo, 'tests', 'fixture', 'data', entry)) then
+            table.insert(tree.sources, 1, {join(addon, 'data', entry) .. '/', 'tests/fixture/data/' .. entry .. '/'})
+        end
+    end
     return tree
 end
 
@@ -437,6 +442,7 @@ local beginning_category = {[3] = 8, [7] = 7, [16] = 12}
 --   items          {name=, bag=, augments=} for each piece the character has; bag is the API name ('wardrobe2')
 --   wearing        slot name to the name of an item in items, worn when GearSwap loads
 --   buffs          the names of the buffs up when GearSwap loads
+--   zone           the id of the zone the character is in, Escha - Zi'Tah (288) unless given
 --   spells, abilities   the names the character knows; every one the test resources hold unless given
 --   expect_file    the user file GearSwap should load, by its name in data/
 function harness.boot(options)
@@ -473,6 +479,7 @@ function harness.boot(options)
         main_job = options.main_job or 'WHM', sub_job = options.sub_job or 'RDM',
         main_job_level = options.main_job_level, sub_job_level = options.sub_job_level, tp = options.tp,
         items = items, wearing = wearing, buffs = options.buffs,
+        zone = options.zone,
         spells = options.spells, abilities = options.abilities and (function()
             local known = {}
             for _, name in ipairs(options.abilities) do known[name] = true end
@@ -654,6 +661,34 @@ end
 function Session:lose_buff(name)
     self:run(function()
         self.game:lose_buff(name)
+        self.game:settle()
+    end)
+end
+
+function Session:set_tp(tp)
+    self:run(function()
+        self.game:set_tp(tp)
+        self.game:settle()
+    end)
+end
+
+function Session:change_zone(zone_id)
+    self:run(function()
+        self.game:change_zone(zone_id)
+        self.game:settle()
+    end)
+end
+
+function Session:monster_readies(name)
+    self:run(function()
+        self.game:monster_readies(name)
+        self.game:settle()
+    end)
+end
+
+function Session:monster_hits()
+    self:run(function()
+        self.game:monster_hits()
         self.game:settle()
     end)
 end

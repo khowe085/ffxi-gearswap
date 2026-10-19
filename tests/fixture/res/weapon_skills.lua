@@ -1,12 +1,16 @@
 -- The entries GearSwap's tests use, cut from Windower/Resources at 5f22f38.
 -- Automatically generated file: Weapon Skills
 return {
+    [25] = {id=25,en="Evisceration",ja="エヴィサレーション",element=6,icon_id=597,prefix="/weaponskill",range=2,skill=2,skillchain_a="Gravitation",skillchain_b="Transfixion",skillchain_c="",targets=32},
+    [30] = {id=30,en="Aeolian Edge",ja="イオリアンエッジ",element=2,icon_id=595,prefix="/weaponskill",range=2,skill=2,skillchain_a="Scission",skillchain_b="Detonation",skillchain_c="Impaction",targets=32},
     [31] = {id=31,en="Rudra's Storm",ja="ルドラストーム",element=2,icon_id=595,prefix="/weaponskill",range=2,skill=2,skillchain_a="Darkness",skillchain_b="Distortion",skillchain_c="",targets=32},
     [37] = {id=37,en="Seraph Blade",ja="セラフブレード",element=6,icon_id=598,prefix="/weaponskill",range=2,skill=3,skillchain_a="Scission",skillchain_b="",skillchain_c="",targets=32},
     [42] = {id=42,en="Savage Blade",ja="サベッジブレード",element=6,icon_id=598,prefix="/weaponskill",range=2,skill=3,skillchain_a="Fragmentation",skillchain_b="Scission",skillchain_c="",targets=32},
     [47] = {id=47,en="Sanguine Blade",ja="サンギンブレード",element=7,icon_id=601,prefix="/weaponskill",range=2,skill=3,skillchain_a="",skillchain_b="",skillchain_c="",targets=32},
     [169] = {id=169,en="Black Halo",ja="ブラックヘイロー",element=6,icon_id=628,prefix="/weaponskill",range=2,skill=11,skillchain_a="Fragmentation",skillchain_b="Compression",skillchain_c="",targets=32},
+    [171] = {id=171,en="Mystic Boon",ja="ミスティックブーン",element=6,icon_id=628,prefix="/weaponskill",range=2,skill=11,skillchain_a="",skillchain_b="",skillchain_c="",targets=32},
     [174] = {id=174,en="Realmrazer",ja="レルムレイザー",element=6,icon_id=628,prefix="/weaponskill",range=2,skill=11,skillchain_a="Fusion",skillchain_b="Impaction",skillchain_c="",targets=32},
+    [192] = {id=192,en="Flaming Arrow",ja="フレイミングアロー",element=0,icon_id=635,prefix="/weaponskill",range=12,skill=25,skillchain_a="Liquefaction",skillchain_b="Transfixion",skillchain_c="",targets=32},
     [226] = {id=226,en="Requiescat",ja="レクイエスカット",element=6,icon_id=644,prefix="/weaponskill",range=2,skill=3,skillchain_a="Gravitation",skillchain_b="Scission",skillchain_c="",targets=32},
 }, {"id", "en", "ja", "element", "icon_id", "prefix", "range", "skill", "skillchain_a", "skillchain_b", "skillchain_c", "targets"}
 --[[

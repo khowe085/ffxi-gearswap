@@ -282,7 +282,7 @@ function Game:player_mob()
     return {
         id = player.id, index = player.index, name = player.name, is_npc = false, spawn_type = 13, race = player.race,
         status = player.status, hpp = player.vitals.hpp, mpp = player.vitals.mpp, tp = player.vitals.tp,
-        distance = 0, x = 0, y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, in_party = true,
+        distance = 0, x = self:player_x(), y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, in_party = true,
         in_alliance = true, model_size = 1, target_index = self.target_index or 0,
     }
 end
@@ -343,6 +343,7 @@ function Game:get_items(bag, index)
     local all = {equipment = {}, gil = 0}
     for id, data in pairs(self.bags) do
         all[data.api] = self:items_of(id)
+        all['count_' .. data.api], all['max_' .. data.api], all['enabled_' .. data.api] = #data.items, data.max, true
     end
     for id, name in pairs(slot_names) do
         local spot = self.equipment[id]
@@ -362,16 +363,22 @@ end
 
 function Game:get_info()
     return {logged_in = true, zone = self.zone, server = 1, language = 'English', weather = 0, day = 0, moon = 50,
-        moon_phase = 0, time = 720, mog_house = false, menu_open = false, chat_open = false}
+        moon_phase = 0, time = 720, mog_house = false, menu_open = false, chat_open = false,
+        target_arrow = {x = 0, y = 0, z = 0}}
 end
 
 function Game:get_party()
     local player = self.player
-    return {
+    local party = {
         p0 = {name = player.name, mob = self:player_mob(), hp = player.vitals.hp, mp = player.vitals.mp,
             tp = player.vitals.tp, hpp = player.vitals.hpp, mpp = player.vitals.mpp, zone = self.zone},
         party1_leader = player.id, party1_count = 1, party2_count = 0, party3_count = 0,
     }
+    for i, name in ipairs(self.party_members or {}) do
+        party['p' .. i] = {name = name, hp = 1000, mp = 0, tp = 0, hpp = 100, mpp = 100, zone = self.zone}
+        party.party1_count = i + 1
+    end
+    return party
 end
 
 -- What get_mjob_data reports. A blue mage's spells are its 20 set slots, by spell id, 512 in an empty one: here
@@ -399,10 +406,50 @@ function Game:ability_recasts()
     for _, id in ipairs(self.job_abilities) do
         local ability = self.res.job_abilities[id]
         if ability.recast_id then
-            recasts[ability.recast_id] = 0
+            recasts[ability.recast_id] = self:ability_recast(ability.recast_id)
         end
     end
     return recasts
+end
+
+-- Seconds left on the recast of the abilities with that recast id: 0 once they are ready again.
+function Game:ability_recast(recast_id)
+    local ready = self.abilities_ready_at and self.abilities_ready_at[recast_id]
+    return ready and math.max(0, ready - self.clock) or 0
+end
+
+-- What get_spell_recasts reports for the spell: the time left on its recast in 60ths of a second, as Windower
+-- counts it, 0 once it is ready again.
+function Game:spell_recast(spell_id)
+    local ready = self.spells_ready_at and self.spells_ready_at[spell_id]
+    return ready and math.max(0, ready - self.clock) * 60 or 0
+end
+
+-- Where the character stands along x: walking (walk()) moves it on five yalms a second.
+function Game:player_x()
+    local x = self.walked or 0
+    if self.walking_since then
+        x = x + 5 * (self.clock - self.walking_since)
+    end
+    return x
+end
+
+-- Lays these fields over what get_info reports from here on: time (minutes past midnight), day and weather (by id)
+-- and the like. The game takes a get_info of its own that lays them over Game.get_info's.
+function Game:change_info(fields)
+    if not rawget(self, 'info_changes') then
+        self.info_changes = {}
+        self.get_info = function(game)
+            local info = Game.get_info(game)
+            for k, v in pairs(game.info_changes) do
+                info[k] = v
+            end
+            return info
+        end
+    end
+    for k, v in pairs(fields) do
+        self.info_changes[k] = v
+    end
 end
 
 -------------------------------------------------------------------------------------------------------------------
@@ -754,6 +801,44 @@ function Game:send_buffs()
     return self:receive(0x063, string.char(9, 0, 0, 0) .. table.concat(ids) .. table.concat(times))
 end
 
+-- A packet the client sends of its own: the outgoing chunk handlers see it as it goes, not as injected.
+function Game:send_from_client(id, body)
+    local size = 4 + #body
+    local data = pad(packet_header(id, size, self:next_sequence()) .. body, 4 * math.ceil(size / 4))
+    self.last_packets.outgoing[id] = {data, self.clock}
+    self:fire('outgoing chunk', id, data, data, false, false)
+    return data
+end
+
+-- Writes bytes into a packet's body at a position counted, as GearSwap counts it, from the packet's first byte.
+local function put(body, position, bytes)
+    return body:sub(1, position - 5) .. bytes .. body:sub(position - 4 + #bytes)
+end
+
+-- The zone-in packet (0x00A) for the character and zone as the game holds them, in the bytes GearSwap reads.
+function Game:send_zone_in()
+    local player = self.player
+    local body = string.char(0):rep(0x100)
+    body = put(body, 0x05, u32(player.id))
+    body = put(body, 0x09, u16(player.index))
+    body = put(body, 0x31, u16(self.zone))
+    body = put(body, 0x69, string.char(self:get_info().weather))
+    body = put(body, 0x85, player.name)
+    body = put(body, 0xB5, string.char(player.main_job_id))
+    body = put(body, 0xB8, string.char(player.sub_job_id))
+    body = put(body, 0xE9, u32(player.vitals.max_hp) .. u32(player.vitals.max_mp))
+    return self:receive(0x00A, body)
+end
+
+-- The char stats packet (0x061), in the bytes GearSwap reads: maximum HP and MP, and the jobs and their levels.
+function Game:send_char_stats()
+    local player = self.player
+    local body = string.char(0):rep(0x50)
+    body = put(body, 0x05, u32(player.vitals.max_hp) .. u32(player.vitals.max_mp))
+    body = put(body, 0x0D, string.char(player.main_job_id, player.main_job_level, player.sub_job_id, player.sub_job_level))
+    return self:receive(0x061, body)
+end
+
 -------------------------------------------------------------------------------------------------------------------
 -- The Windower API.
 -------------------------------------------------------------------------------------------------------------------
@@ -861,7 +946,7 @@ function Game:make_windower(paths)
             end,
             get_spell_recasts = function()
                 local recasts = {}
-                for id in pairs(game.res.spells) do recasts[id] = 0 end
+                for id in pairs(game.res.spells) do recasts[id] = game:spell_recast(id) end
                 return recasts
             end,
             get_ability_recasts = function() return game:ability_recasts() end,
@@ -941,6 +1026,125 @@ function Game:set_status(status)
     local old = self.player.status
     self.player.status = status
     self:fire('status change', status, old)
+end
+
+-- Puts the job ability on recast for that many seconds, as the server does once it is used.
+function Game:start_ability_recast(name, seconds)
+    local _, ability = find_by_name(self.res.job_abilities, name, 'job ability')
+    self.abilities_ready_at = self.abilities_ready_at or {}
+    self.abilities_ready_at[ability.recast_id] = self.clock + seconds
+end
+
+-- Puts the spell on recast for that many seconds, as the server does once it is cast.
+function Game:start_spell_recast(name, seconds)
+    local id = find_by_name(self.res.spells, name, 'spell')
+    self.spells_ready_at = self.spells_ready_at or {}
+    self.spells_ready_at[id] = self.clock + seconds
+end
+
+-- The character's TP changes, as it does with each hit and weapon skill, and Windower's tp change event follows.
+function Game:set_tp(tp)
+    local old = self.player.vitals.tp
+    self.player.vitals.tp = tp
+    self:fire('tp change', tp, old)
+end
+
+-- The character starts walking, and moves on until it stands again.
+function Game:walk()
+    self.walked = self:player_x()
+    self.walking_since = self.clock
+end
+
+function Game:stand()
+    self.walked = self:player_x()
+    self.walking_since = nil
+end
+
+-- Someone joins the party, as a trust does once called: get_party lists them from p1 on, in the order they joined.
+function Game:join_party(name)
+    self.party_members = self.party_members or {}
+    table.insert(self.party_members, name)
+end
+
+-- The monster begins readying a TP move at the character: the action packet the server sends for it.
+function Game:monster_readies(name)
+    local id = find_by_name(self.res.monster_abilities, name, 'monster ability')
+    return self:send_action_packet({actor_id = self.monster.id, category = 7, param = 24931,
+        targets = {{id = self.player.id, actions = {{message = 43, param = id, reaction = 0, animation = 0,
+            effect = 0, stagger = 0}}}}})
+end
+
+-- The items the addon used (the use item packet, 0x037), in order, as {item = name, target = name}.
+function Game:items_used()
+    local used = {}
+    for _, packet in ipairs(self.sent) do
+        if packet.id == 0x037 then
+            local bag = self.bags[packet.data:byte(17)]
+            local item = bag and bag.items[packet.data:byte(15)]
+            local target = self:mob_by_id(read_u32(packet.data, 5))
+            used[#used + 1] = {item = item and self.res.items[item.id].en, target = target and target.name}
+        end
+    end
+    return used
+end
+
+-- The monster hits the character with a melee swing.
+function Game:monster_hits()
+    return self:send_action_packet({actor_id = self.monster.id, category = 1, param = 0,
+        targets = {{id = self.player.id, actions = {{message = 1, param = 50, reaction = 0, animation = 0,
+            effect = 0, stagger = 0}}}}})
+end
+
+-- Moves Vana'diel's clock to minutes past midnight, and fires the event that says so.
+function Game:set_time(minutes)
+    local old = self:get_info().time
+    self:change_info({time = minutes})
+    self:fire('time change', minutes, old)
+end
+
+-- Makes it the day of that id (res.days), and fires the event that says so.
+function Game:set_day(id)
+    local old = self:get_info().day
+    self:change_info({day = id})
+    self:fire('day change', id, old)
+end
+
+-- Makes the weather that of that id (res.weather), and fires the event that says so.
+function Game:set_weather(id)
+    local old = self:get_info().weather
+    self:change_info({weather = id})
+    self:fire('weather change', id, old)
+end
+
+-- The client leaving its zone, as on zoning or logging out: its leave-zone packet (0x00D).
+function Game:leave_zone()
+    self:send_from_client(0x00D, string.char(0):rep(4))
+end
+
+-- Zones the character into the zone of that id as the game does: the leave-zone packet out, the zone-out answer
+-- (0x00B), the zone-in packet (0x00A) and the buff packet after it in, then the zone change event.
+function Game:change_zone(zone_id)
+    local old = self.zone
+    self:leave_zone()
+    self:receive(0x00B, string.char(0):rep(0x18))
+    self.zone = zone_id
+    self:send_zone_in()
+    self:send_buffs()
+    self:settle()
+    self:fire('zone change', zone_id, old)
+end
+
+-- Changes the character's sub job (by its short name) and its level, as at a Moogle, with the char stats packet
+-- that tells of it.
+function Game:change_sub_job(short, level)
+    for id, job in pairs(self.res.jobs) do
+        if type(job) == 'table' and job.ens == short then
+            self.player.sub_job_id = id
+        end
+    end
+    self.player.sub_job_level = level or 49
+    self.player.jobs[short] = self.player.sub_job_level
+    self:send_char_stats()
 end
 
 return Game

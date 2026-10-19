@@ -1,0 +1,45 @@
+local commy = require('commy')
+
+-- Types the line as the player does, and returns what Sel typed in its place and what it said.
+local function try(gs, line)
+    local typed = commy.record_input(gs)
+    gs:type(line)
+    return typed, commy.chat(gs)
+end
+
+describe('Sel, for a spell Commy can\'t cast', function()
+    it('uses Prism Powder for Invisible when Commy has some', function()
+        local gs = commy.boot_thf({extra_items = {{name = 'Prism Powder', count = 12}}})
+        local typed, said = try(gs, '/ma "Invisible" <me>')
+        assert.same({'/item "Prism Powder" <me>'}, typed)
+        assert.same({'You can\'t cast Invisible, attempting to use Prism Powder instead.'}, said)
+    end)
+
+    it('uses Silent Oil for Sneak when Commy has some', function()
+        local gs = commy.boot_thf({extra_items = {{name = 'Silent Oil', count = 12}}})
+        local typed, said = try(gs, '/ma "Sneak" <me>')
+        assert.same({'/item "Silent Oil" <me>'}, typed)
+        assert.same({'You can\'t cast Sneak, attempting to use Silent Oil instead.'}, said)
+    end)
+
+    it('says so when Commy has no other way to Invisible or Sneak', function()
+        local gs = commy.boot_thf()
+        assert.same({'All attempts to use [Invisible] failed.'}, select(2, try(gs, '/ma "Invisible" <me>')))
+        assert.same({'All attempts to use [Sneak] failed.'}, select(2, try(gs, '/ma "Sneak" <me>')))
+    end)
+
+    it('sets the Warp Ring to be used for Warp', function()
+        local gs = commy.boot_thf()
+        local typed, said = try(gs, '/ma "Warp" <me>')
+        assert.same({}, typed)
+        assert.same({'You can\'t cast warp, attempting to use Warp Ring instead, /heal to cancel.'}, said)
+        assert.same({true, 'Warp Ring', 'ring2'}, {gs.user.useItem, gs.user.useItemName, gs.user.useItemSlot})
+    end)
+
+    it('sends none of them to the game', function()
+        local gs = commy.boot_thf()
+        assert.is_true(gs:type('/ma "Warp" <me>'))
+        assert.same({}, gs:traffic())
+        assert.same({}, gs.game.typed)
+    end)
+end)
