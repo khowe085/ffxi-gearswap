@@ -284,6 +284,7 @@ function Game:player_mob()
         status = player.status, hpp = player.vitals.hpp, mpp = player.vitals.mpp, tp = player.vitals.tp,
         distance = 0, x = 0, y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, in_party = true,
         in_alliance = true, model_size = 1, target_index = self.target_index or 0,
+        pet_index = self.pet and self.pet.index,
     }
 end
 
@@ -291,6 +292,9 @@ function Game:mobs()
     local mobs = {[self.player.index] = self:player_mob()}
     if self.monster then
         mobs[self.monster.index] = copy(self.monster)
+    end
+    if self.pet then
+        mobs[self.pet.index] = copy(self.pet)
     end
     return mobs
 end
@@ -301,6 +305,8 @@ function Game:mob_by_target(target)
         return self:player_mob()
     elseif (target == 't' or target == 'bt') and self.target_index then
         return self:mobs()[self.target_index]
+    elseif target == 'pet' and self.pet then
+        return copy(self.pet)
     end
 end
 
@@ -375,9 +381,13 @@ function Game:get_party()
 end
 
 -- What get_mjob_data reports. A blue mage's spells are its 20 set slots, by spell id, 512 in an empty one: here
--- the blue magic it knows, the lowest ids first.
+-- the blue magic it knows, the lowest ids first, all of it even past 20 so a spell added to the resources never falls
+-- out of the set; a test that wants a spell out of it leaves it unknown. A puppetmaster's is its automaton.
 function Game:mjob_data()
-    if self.res.jobs[self.player.main_job_id].ens ~= 'BLU' then
+    local job = self.res.jobs[self.player.main_job_id].ens
+    if job == 'PUP' then
+        return self:automaton_data()
+    elseif job ~= 'BLU' then
         return {}
     end
     local set = {}
@@ -390,7 +400,7 @@ function Game:mjob_data()
     for slot = 1, 20 do
         set[slot] = set[slot] or 512
     end
-    return {spells = {unpack(set, 1, 20)}}
+    return {spells = set}
 end
 
 -- The recast of each job ability the character knows, by recast id, in seconds: every one ready.
@@ -575,7 +585,7 @@ Game.split_words = split_words
 function Game:run_command(line)
     local commands = split_commands(line)
     for i, command in ipairs(commands) do
-        command = command:gsub('^%s+', ''):gsub('%s+$', ''):gsub('^@', '')
+        command = command:gsub('^%s+', ''):gsub('%s+$', ''):gsub('^@+', '')
         local words = split_words(command)
         local verb = words[1] and words[1]:lower()
         if verb == 'wait' then
@@ -941,6 +951,130 @@ function Game:set_status(status)
     local old = self.player.status
     self.player.status = status
     self:fire('status change', status, old)
+end
+
+-------------------------------------------------------------------------------------------------------------------
+-- A pet of the player's (a puppetmaster's automaton, a geomancer's luopan) and the geomancer's indicolure. A pet is a
+-- mob the player's mob names by its pet_index. The addon learns of the pet from the character update (0x037), which
+-- also carries the indicolure, and acts on it with the packet after; of its status from 0x00E and of its TP from
+-- 0x068.
+-------------------------------------------------------------------------------------------------------------------
+
+-- The body of a packet of that many bytes, zeros but for the bytes put at the 1-based positions the packets library
+-- reads them from.
+local function packet_body(size, bytes)
+    local body = {}
+    for position = 5, size do
+        body[position - 4] = bytes[position] or 0
+    end
+    return string.char(unpack(body))
+end
+
+-- The character update the server sends when the player's pet or indicolure changes: the player's status, the
+-- pet's index (times 8) and the indicolure's byte.
+function Game:send_character_update(pet_index)
+    pet_index = pet_index or self.pet and self.pet.index * 8 or 0
+    return self:receive(0x037, packet_body(0x68, {
+        [0x31] = self.player.status, [0x35] = pet_index % 256, [0x36] = math.floor(pet_index / 256),
+        [0x59] = self.indi_byte or 0,
+    }))
+end
+
+-- The pet's info packet: the TP of the pet of the player at that index.
+function Game:send_pet_info(tp)
+    local owner = self.player.index
+    tp = tp or self.pet and self.pet.tp or 0
+    return self:receive(0x068, packet_body(0x28, {
+        [0x07] = owner % 256, [0x08] = math.floor(owner / 256), [0x11] = tp % 256, [0x12] = math.floor(tp / 256),
+    }))
+end
+
+-- Gives the player a pet and tells the addon, as the server does: the character update, then the pet's info, whose
+-- packet is the one the addon acts on the pet's arrival with. fields over the defaults: id, index, name, hpp, mpp,
+-- tp (3000 is full), status (0 idle, 1 engaged), distance (squared, as Windower gives it), x, y.
+function Game:give_pet(fields)
+    local pet = {
+        id = 0x1069100, index = 0x402, name = 'Pet', is_npc = true, spawn_type = 16, race = 0, status = 0, hpp = 100,
+        mpp = 100, distance = 4, x = 1, y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, model_size = 1,
+        target_index = 0, tp = 0,
+    }
+    for key, value in pairs(fields or {}) do
+        pet[key] = value
+    end
+    self.pet = pet
+    self:send_character_update()
+    self:send_pet_info(pet.tp)
+    self:settle()
+end
+
+-- Takes the player's pet away, as the server tells: the character update without a pet index while the pet is
+-- still there to be seen, then the pet gone and another packet.
+function Game:take_pet()
+    self:send_character_update(0)
+    self:settle()
+    self.pet = nil
+    self:send_pet_info(0)
+    self:settle()
+end
+
+-- The pet's status changes (0 idle, 1 engaged), and the addon is told in the packet for that and the one after.
+function Game:set_pet_status(status)
+    local index = self.pet.index
+    self.pet.status = status
+    self:receive(0x00E, packet_body(0x30, {
+        [9] = index % 256, [10] = math.floor(index / 256), [11] = 4, [32] = status,
+    }))
+    self:send_pet_info()
+    self:settle()
+end
+
+-- The pet's TP changes.
+function Game:set_pet_tp(tp)
+    self.pet.tp = tp
+    self:send_pet_info(tp)
+    self:settle()
+end
+
+-- The automaton a puppetmaster has, as get_mjob_data tells it: heads, frames and attachments by item name, the
+-- ones fitted and, as the pet's MP, how much it has.
+function Game:set_automaton(fields)
+    fields = fields or {}
+    self.automaton = {
+        name = fields.name or 'Automaton', head = fields.head, frame = fields.frame,
+        attachments = fields.attachments or {}, mp = fields.mp or 0, max_mp = fields.max_mp or 0,
+    }
+end
+
+function Game:automaton_data()
+    local automaton = self.automaton
+    if not automaton then
+        return {}
+    end
+    local function ids(names)
+        local result = {}
+        for _, name in ipairs(names) do
+            result[#result + 1] = (find_by_name(self.res.items, name, 'item'))
+        end
+        return result
+    end
+    return {
+        name = automaton.name, head = ids({automaton.head})[1], frame = ids({automaton.frame})[1],
+        attachments = ids(automaton.attachments), available_heads = ids({automaton.head}),
+        available_frames = ids({automaton.frame}), available_attachments = ids(automaton.attachments),
+        mp = automaton.mp, max_mp = automaton.max_mp, hp = 100, max_hp = 100,
+    }
+end
+
+-- The indicolure the player has, as the character update tells it: the element (by its id in the resources), the
+-- size (1 to 4) and whether it works on enemies; none when no fields are given.
+function Game:set_indi(fields)
+    if fields then
+        self.indi_byte = 64 + 16 * ((fields.size or 1) - 1) + (fields.enemy and 8 or 0) + fields.element
+    else
+        self.indi_byte = nil
+    end
+    self:send_character_update()
+    self:settle()
 end
 
 return Game
