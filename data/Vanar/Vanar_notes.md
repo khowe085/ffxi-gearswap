@@ -28,6 +28,8 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
   - The engine wears the TP-mode weapon skill sets in DT mode too, since neither job file has a `sets.WS.DT`. In ACC mode it adds `sets.WS.ACC`, or a weapon skill's own `.ACC` set.
 - Sets the line above doesn't cover keep the earlier order: accuracy, then magic accuracy, weapon skill damage, attack, magic attack and damage taken. Skip pieces that only add a secondary stat (STR, DEX, VIT, AGI, INT, MND, CHR).
   - **(player, 2026-10-02)** Optimizing for INT and MND is fine; just don't bring in dedicated pieces for it.
+  - **(player, 2026-10-18)** Violent Flourish's stun is resisted more often than its hit misses, so both jobs' Violent Flourish sets keep magic accuracy over accuracy.
+  - **(player, 2026-10-18)** RDM's TP-mode magical weapon skill sets (Sanguine Blade and those built on it) keep their damage pieces over Murky Ring's and Alabaster Earring's Mag. Acc.+7, and the Proc set keeps Prolix Ring over Murky Ring.
   - **(player, 2026-10-07)** Nuke sets are an exception: magic accuracy doesn't strictly come before magic attack there. Their waist and neck stay Eschan Stone and Sanctity Necklace. The magic accuracy margin wanted for nukes isn't recorded.
   - **(player, 2026-10-08)** MAB raises BLU's magical blue magic, and the rule above covers those nukes too.
   - **(player, 2026-10-10)** The rule covers the magic burst sets too: their neck and waist stay Sanctity Necklace and Eschan Stone.
@@ -108,6 +110,8 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 - The support jobs aren't recorded. The estimates assume RDM/NIN (Dual Wield for the Thibron and Gleti's Knife modes) and BLU/WAR, as bg-wiki's simulated BLU sets do. The player's `/checkparam` records of 2026-10-10 were taken as BLU/WAR and as BLU/NIN ([Skill and accuracy: Accuracy](#skill-and-accuracy-accuracy)).
 - **(player, 2026-10-11)** Vanar's THF has no Master Levels and 471 of 2,100 job points. It has learned Rudra's Storm. Its support job and merits aren't recorded.
 - **(player, 2026-10-11)** THF's sets put the 1275 accuracy floor before damage, and have no Sneak Attack or Trick Attack set of their own for now.
+  - **(player, 2026-10-18)** THF's Savage Blade set is the exception: it keeps Nyame Gauntlets and Karieyh Ring for damage, since a Naegling main hand can't reach the floor on THF (Skill and accuracy, below).
+  - **(player, 2026-10-18)** THF's DT sets keep Nyame Gauntlets. Elite Royal Collar stays in the Mog Safe 2 rather than come out to make room for Adhemar Wrist. +1.
 
 ## Merits
 
@@ -277,7 +281,7 @@ Main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_
   - Every main hand and every Almace or Bunzi's Rod off hand is over its cap in these sets, so a Thibron off hand is the only hand where accuracy still counts: 2 accuracy is a point of its hit rate.
   - The ACC-mode sets (`sets.engaged.Acc` and those on it) give less TP per round than `sets.engaged` at 1350 evasion with every weapon set but the Thibron ones, where they give 3 to 6% more. They give more with most weapon sets from about 1525 evasion and with all of them from 1550, and with Maxentius + Bunzi's Rod from about 1475.
 - Vanar's THF, by the same formula: its job point gifts add 13 (5 + 8, taking the 471 as spent) and it has no accuracy trait ([Combat skill](#skill-and-accuracy-combat-skill) has its hands' skill). Neither a `/checkparam` record nor its base DEX is recorded, so for the sets of 2026-10-18 these are the base DEX the 1275 floor (gear, food and weapon skill accuracy) needs, with Gleti's Knife in the off hand, with Oden (Grape Daifuku):
-  - A Naegling main hand doesn't reach it: `sets.engaged` needs base DEX 160 (151) and Savage Blade's set 157 (148), where Vanar's BLU/WAR has 120 with no gear at Master Level 25 (above).
+  - A Naegling main hand doesn't reach it: `sets.engaged` needs base DEX 160 (151), and Savage Blade's set would need 157 (148) even with Adhemar Wrist. +1 and Murky Ring, where Vanar's BLU/WAR has 120 with no gear at Master Level 25 (above).
   - With Tauret, `sets.engaged` needs 52 (43) and Evisceration's set 65 (56). `sets.precast.WS`, which Rudra's Storm wears, needs 98 (90), so whether it clears the floor waits on a `/checkparam`.
 
 ### Attack and pDIF: Physical damage limit
