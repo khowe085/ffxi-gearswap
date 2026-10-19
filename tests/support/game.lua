@@ -362,7 +362,8 @@ end
 
 function Game:get_info()
     return {logged_in = true, zone = self.zone, server = 1, language = 'English', weather = 0, day = 0, moon = 50,
-        moon_phase = 0, time = 720, mog_house = false, menu_open = false, chat_open = false}
+        moon_phase = 0, time = 720, mog_house = false, menu_open = false, chat_open = false,
+        target_arrow = {x = 0, y = 0, z = 0}}
 end
 
 function Game:get_party()
@@ -575,7 +576,7 @@ Game.split_words = split_words
 function Game:run_command(line)
     local commands = split_commands(line)
     for i, command in ipairs(commands) do
-        command = command:gsub('^%s+', ''):gsub('%s+$', ''):gsub('^@', '')
+        command = command:gsub('^%s+', ''):gsub('%s+$', ''):gsub('^@+', '')
         local words = split_words(command)
         local verb = words[1] and words[1]:lower()
         if verb == 'wait' then

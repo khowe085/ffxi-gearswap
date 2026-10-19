@@ -20,9 +20,11 @@ They run on Linux or WSL, not on Windows, and need Lua 5.1, LuaRocks and busted:
 |---|---|
 | `gearswap/` | GearSwap with no framework: the order of an action's precast, midcast and aftercast, what the hooks are handed, commands, status and buff events, and how a set becomes equip requests (names, augments, bags, `empty`, slot names, `set_combine`). |
 | `sel/` | How Sel picks and lays sets, as `docs/frameworks/sel.md` describes: idle, engaged, precast, midcast, weapon skills, abilities, the weapon lock, defense and kiting, and the hooks a gear file may define. |
+| `jobs/` | What each job file in `data/` does on top of Sel, played by Jobby, a made-up character with a small gear file per job: the sets its hooks pick, what it sends on its tick (Auto Buff Mode, Hasso, Majesty and the rest), its commands, and the states it keeps. One spec file per job; `support/jobby_jobs_1_8.lua` has Jobby's idle set and the helpers (a fight, recasts, the weather). |
 | `data/` | Every character's real gear file loads under GearSwap and Sel, builds its sets and gets through a status change and an action without an error. It finds the gear files itself, so a new one is tested without an edit here. |
 | `harness/` | Tests of the stand-ins below. |
 | `support/` | The harness. |
+| `fixture/data/Jobby/` | Jobby's gear files, `Jobby_<Job>_Gear.lua` for WAR, MNK, WHM, BLM, RDM, THF, PLD and DRK, which the real job files in `data/` load. Each set wears pieces that tell it apart from the others. |
 | `fixture/data/Testy/` | Testy's user files: `Testy_WHM.lua`, a plain GearSwap file whose hooks note what they were handed; `Testy_Rdm_Gear.lua`, a small Sel gear file the real `data/RDM.lua` loads; and the other files the tests load by name. |
 | `fixture/res/` | Small cuts of Windower's resource files: only the entries the tests use, each line as Windower/Resources has it. Add an entry by copying its line from there. |
 
