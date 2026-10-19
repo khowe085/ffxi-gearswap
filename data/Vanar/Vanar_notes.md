@@ -34,6 +34,7 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
   - **(player, 2026-10-07)** Nuke sets are an exception: magic accuracy doesn't strictly come before magic attack there. Their waist and neck stay Eschan Stone and Sanctity Necklace. The magic accuracy margin wanted for nukes isn't recorded.
   - **(player, 2026-10-08)** MAB raises BLU's magical blue magic, and the rule above covers those nukes too.
   - **(player, 2026-10-18)** BLU's `midcast['Blue Magic'].Physical` and the stat sets built on it are for damage (Sinker Drill under Chain Affinity and the like). Physical spells cast for their added effect go in the Stun list, whose set takes magic accuracy and Blue magic skill.
+    - **(player, 2026-10-19)** Tourbillion moved into Stun for its Defense Down, with Disseverment, Paralyzing Triad and Sub-zero Smash, which a check of the damage lists the player asked for found. Delta Thrust stays a damage spell.
   - **(player, 2026-10-10)** The rule covers the magic burst sets too: their neck and waist stay Sanctity Necklace and Eschan Stone.
   - **(player, 2026-10-10)** A Resistant burst adds the pieces that raise both magic accuracy and burst damage, through `sets.ResistantMagicBurst`: Atro. Chapeau +4 on RDM.
   - **(player, 2026-10-10)** On BLU with the weapons free, a burst outside Resistant, FullMacc and Proc takes Maxentius in the main hand and Bunzi's Rod in the sub, through the job file's `user_job_post_midcast`. Nothing changes the weapons while engaged or held by the weapon lock.
