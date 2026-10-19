@@ -1,4 +1,4 @@
-local jobby = require('jobby_jobs_1_8')
+local jobby = require('jobby')
 
 local gear = {"Terra's Staff", 'Daybreak', 'Ammurapi Shield', 'Kupo Shield', 'Volte Cap', 'Null Masque',
     'Amin Turban', 'Ischkur Turban', 'Azimuth Turban', 'Blistering Sallet', 'Blistering Sallet +1', 'Alhazen Hat',
@@ -26,7 +26,7 @@ end
 -- What is worn with the idle set on and these changes over it, as Jobby's gear file has Terra's Staff in it.
 local function idle_with(changes)
     changes.main = changes.main or "Terra's Staff"
-    return jobby.idle_with(changes)
+    return jobby.worn_by(changes, jobby.full_idle)
 end
 
 local light_day, light_weather = 6, 16
@@ -66,7 +66,8 @@ describe('WHM\'s cure sets', function()
             if setup.solace then
                 gs:gain_buff('Afflatus Solace')
             end
-            jobby.set_world(gs, {weather = setup.weather and light_weather or 0, day = setup.day and light_day or 0})
+            gs:set_weather(setup.weather and light_weather or 0)
+            gs:set_day(setup.day and light_day or 0)
             if setup.weapons then
                 gs:console('gs c set Weapons Daybreak')
             end
@@ -82,7 +83,8 @@ describe('WHM\'s curaga sets', function()
     -- Curaga II rather than Curaga, since Sel picks a set by the spell's name ahead of its map.
     local function curaga_head(weather, day)
         local gs = boot()
-        jobby.set_world(gs, {weather = weather and light_weather or 0, day = day and light_day or 0})
+        gs:set_weather(weather and light_weather or 0)
+        gs:set_day(day and light_day or 0)
         return head_after(gs, '/ma "Curaga II" <me>')
     end
 
@@ -104,7 +106,7 @@ describe('WHM\'s curaga sets', function()
 
     it('is the spell\'s own set for the spell the gear file names', function()
         local gs = boot()
-        jobby.set_world(gs, {weather = light_weather})
+        gs:set_weather(light_weather)
         assert.equal('Pixie Hairpin +1', head_after(gs, '/ma "Curaga" <me>'))
     end)
 end)
@@ -132,7 +134,7 @@ describe('WHM\'s status removal', function()
         gs:type('/ma "Poisona" <me>')
         gs:traffic()
         gs:finish_action()
-        jobby.set_ability_recasts(gs, {[32] = 60})
+        gs.game:start_ability_recast('Divine Caress', 60)
         gs:gain_buff('Divine Caress')
         gs:advance(0.95)
         assert.same({}, actions_of(gs:traffic()))
@@ -143,7 +145,7 @@ describe('WHM\'s status removal', function()
     end)
 
     it('goes out at once, with the status removal midcast set alone, without Divine Caress up and on recast', function()
-        jobby.set_ability_recasts(gs, {[32] = 60})
+        gs.game:start_ability_recast('Divine Caress', 60)
         gs:type('/ma "Poisona" <me>')
         assert.same({'Poisona'}, actions_of(gs:traffic()))
         assert.same(idle_with({neck = 'Fotia Gorget', hands = 'Volte Bracers', feet = 'Volte Boots'}), gs:worn())
@@ -226,7 +228,7 @@ describe('WHM\'s Raise III and Arise', function()
     end)
 
     it('goes out at once with no stratagem left', function()
-        jobby.set_ability_recasts(gs, {[231] = 165})
+        gs.game:start_ability_recast('Penury', 165)
         gs:type('/ma "Arise" <me>')
         assert.same({'Arise'}, actions_of(gs:traffic()))
     end)
@@ -511,14 +513,14 @@ describe('WHM\'s Auto Arts', function()
 
     it('uses no Afflatus Solace while it is on recast', function()
         local gs = arts({buffs = buffed}, true, true)
-        jobby.set_ability_recasts(gs, {[29] = 60})
+        gs.game:start_ability_recast('Afflatus Solace', 60)
         gs:play(3)
         assert.same({}, actions_of(gs:traffic()))
     end)
 
     it('uses Afflatus Solace in a fight with Auto Arts on and Auto Buff Mode off', function()
         local gs = arts({}, true, false)
-        jobby.fight(gs)
+        gs:monster_hits()
         assert.same({'Afflatus Solace'}, actions_of(jobby.until_action(gs)))
     end)
 
@@ -562,14 +564,14 @@ describe('WHM\'s Auto Buff Mode', function()
 
     it('skips a spell on recast', function()
         local gs = buffing()
-        jobby.set_spell_recasts(gs, {[848] = 600})
+        gs.game:start_spell_recast('Reraise IV', 10)
         assert.same({'Haste'}, actions_of(jobby.until_action(gs)))
     end)
 
     it('skips Haste while it is on recast', function()
         local gs = buffing()
         gs:gain_buff('Reraise')
-        jobby.set_spell_recasts(gs, {[57] = 600})
+        gs.game:start_spell_recast('Haste', 10)
         assert.same({'Refresh'}, actions_of(jobby.until_action(gs)))
     end)
 
@@ -639,7 +641,9 @@ describe('WHM\'s elemental commands', function()
         local gs = boot_ticking({sub_job = 'BLM'})
         gs:console('gs c set ElementalMode ' .. mode)
         if options and options.recasts then
-            jobby.set_spell_recasts(gs, options.recasts)
+            for spell, seconds in pairs(options.recasts) do
+                gs.game:start_spell_recast(spell, seconds)
+            end
         end
         gs:console('gs c elemental ' .. command)
         return jobby.actions(gs), gs
@@ -650,11 +654,11 @@ describe('WHM\'s elemental commands', function()
     end)
 
     it('goes down to Holy when Holy II is on recast', function()
-        assert.same({'Holy'}, (nuke('Light', 'nuke', {recasts = {[22] = 600}})))
+        assert.same({'Holy'}, (nuke('Light', 'nuke', {recasts = {['Holy II'] = 10}})))
     end)
 
     it('goes down to Banish III when Holy II and Holy are on recast', function()
-        assert.same({'Banish III'}, (nuke('Light', 'nuke', {recasts = {[22] = 600, [21] = 600}})))
+        assert.same({'Banish III'}, (nuke('Light', 'nuke', {recasts = {['Holy II'] = 10, ['Holy'] = 10}})))
     end)
 
     it('smallnuke uses Banish II in the Light mode', function()
@@ -662,7 +666,7 @@ describe('WHM\'s elemental commands', function()
     end)
 
     it('smallnuke goes down to Banish when Banish II is on recast', function()
-        assert.same({'Banish'}, (nuke('Light', 'smallnuke', {recasts = {[29] = 600}})))
+        assert.same({'Banish'}, (nuke('Light', 'smallnuke', {recasts = {['Banish II'] = 10}})))
     end)
 
     it('nukes with the highest tier Jobby can cast in another mode: Fire II from a level 49 Black Mage sub job', function()
@@ -670,7 +674,7 @@ describe('WHM\'s elemental commands', function()
     end)
 
     it('goes down a tier when that one is on recast', function()
-        assert.same({'Fire'}, (nuke('Fire', 'nuke', {recasts = {[145] = 600}})))
+        assert.same({'Fire'}, (nuke('Fire', 'nuke', {recasts = {['Fire II'] = 10}})))
     end)
 
     it('smallnuke uses Fire II in another mode', function()
@@ -680,7 +684,11 @@ describe('WHM\'s elemental commands', function()
     it('casts nothing, and says nothing, when every light nuke is on recast', function()
         local gs = boot_ticking({sub_job = 'BLM'})
         gs:console('gs c set ElementalMode Light')
-        jobby.set_spell_recasts(gs, {[22] = 600, [21] = 600, [30] = 600, [29] = 600, [28] = 600})
+        gs.game:start_spell_recast('Holy II', 10)
+        gs.game:start_spell_recast('Holy', 10)
+        gs.game:start_spell_recast('Banish III', 10)
+        gs.game:start_spell_recast('Banish II', 10)
+        gs.game:start_spell_recast('Banish', 10)
         jobby.chat(gs)
         gs:console('gs c elemental nuke')
         assert.same({}, jobby.actions(gs))
@@ -697,7 +705,8 @@ describe('WHM\'s elemental commands', function()
     it('says so when every tier is on recast', function()
         local gs = boot_ticking({sub_job = 'BLM'})
         gs:console('gs c set ElementalMode Fire')
-        jobby.set_spell_recasts(gs, {[145] = 600, [144] = 600})
+        gs.game:start_spell_recast('Fire II', 10)
+        gs.game:start_spell_recast('Fire', 10)
         jobby.chat(gs)
         gs:console('gs c elemental nuke')
         assert.same({}, jobby.actions(gs))
@@ -714,7 +723,9 @@ describe('WHM\'s smart cure', function()
     local function smartcure(hp, hpp, recasts)
         gs.game.player.vitals.hp, gs.game.player.vitals.hpp = hp, hpp
         if recasts then
-            jobby.set_spell_recasts(gs, recasts)
+            for spell, seconds in pairs(recasts) do
+                gs.game:start_spell_recast(spell, seconds)
+            end
         end
         gs:console('gs c smartcure me')
         return jobby.actions(gs)
@@ -737,12 +748,12 @@ describe('WHM\'s smart cure', function()
     end)
 
     it('casts Cure II when Cure is on recast', function()
-        assert.same({'Cure II'}, smartcure(1500, 100, {[1] = 600}))
+        assert.same({'Cure II'}, smartcure(1500, 100, {['Cure'] = 10}))
     end)
 
     it('says so when the cures it would use are all on recast', function()
         jobby.chat(gs)
-        assert.same({}, smartcure(1500, 100, {[1] = 600, [2] = 600}))
+        assert.same({}, smartcure(1500, 100, {['Cure'] = 10, ['Cure II'] = 10}))
         assert.same({'Abort: Appropriate cures are on cooldown.'}, jobby.chat(gs))
     end)
 
@@ -775,11 +786,11 @@ describe('WHM\'s smart cure', function()
 
     for _, row in ipairs(rows) do
         local hp_missing, busy, cure = row[1], row[2], row[3]
+        local names = {'Cure', 'Cure II', 'Cure III', 'Cure IV', 'Cure V', 'Cure VI'}
         local recasts = {}
         for _, id in ipairs(busy) do
-            recasts[id] = 600
+            recasts[names[id]] = 10
         end
-        local names = {'Cure', 'Cure II', 'Cure III', 'Cure IV', 'Cure V', 'Cure VI'}
         local busy_names = {}
         for _, id in ipairs(busy) do
             busy_names[#busy_names + 1] = names[id]
@@ -811,9 +822,7 @@ describe('WHM\'s smart cure', function()
 
     describe('on a target', function()
         local function pal(hpp)
-            jobby.target_a_player(gs)
-            gs.game.monster.hpp = hpp
-            gs.game.monster.is_valid = true
+            return jobby.target_a_player(gs, {hpp = hpp, is_valid = true})
         end
 
         it('given by its id', function()
@@ -867,8 +876,7 @@ describe('WHM\'s smart cure', function()
         end)
 
         it('who is dead, which is raised with Arise', function()
-            pal(0)
-            gs.game.monster.status = 2
+            pal(0).status = 2
             gs:console('gs c smartcure t')
             assert.same({{action = 'Arise', target = 'Pal'}}, jobby.action_entries(gs))
         end)

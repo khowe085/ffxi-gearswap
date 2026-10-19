@@ -6,7 +6,6 @@
 local assert = require('luassert')
 local harness = require('harness')
 local testy = require('testy')
-require('world')
 
 local plain = {}
 

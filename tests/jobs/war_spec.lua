@@ -1,4 +1,4 @@
-local jobby = require('jobby_jobs_1_8')
+local jobby = require('jobby')
 
 local gear = {'Naegling', 'Conqueror', 'Volte Cap', 'Null Masque', 'Volte Jupon', 'Adamantite Armor',
     'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget', 'Null Belt', 'Moonshade Earring', 'Brutal Earring',
@@ -22,7 +22,7 @@ end
 local function boot_buffing(options)
     local gs = boot_ticking(options)
     gs:console('gs c set AutoBuffMode Auto')
-    jobby.fight(gs)
+    gs:monster_hits()
     return gs
 end
 
@@ -43,7 +43,7 @@ local function weaponskill(gs, line)
 end
 
 local function with_ws(changes)
-    return jobby.idle_with(changes)
+    return jobby.worn_by(changes, jobby.full_idle)
 end
 
 describe('WAR\'s weapon skill filter', function()
@@ -116,7 +116,7 @@ describe('WAR\'s Berserk', function()
     it('puts the weapon set\'s main back once Berserk is done', function()
         local gs = berserk(0)
         gs:finish_action()
-        assert.same(jobby.idle_with({main = 'Naegling'}), gs:worn())
+        assert.same(jobby.worn_by({main = 'Naegling'}, jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -158,7 +158,7 @@ describe('WAR\'s weapon skill under Auto Buff Mode', function()
     end)
 
     it('goes out at once while Warcry is on recast', function()
-        jobby.set_ability_recasts(gs, {[2] = 60})
+        gs.game:start_ability_recast('Warcry', 60)
         gs:type('/ws "Resolution" <t>')
         assert.same({'Resolution'}, actions_of(gs:traffic()))
     end)
@@ -195,7 +195,7 @@ describe('WAR\'s weapon skill under Auto Buff Mode with Samurai as the sub job',
     end)
 
     it('is held for Meditate when Sekkanoki is on recast', function()
-        jobby.set_ability_recasts(gs, {[140] = 60})
+        gs.game:start_ability_recast('Sekkanoki', 60)
         gs:type('/ws "Resolution" <t>')
         assert.same({'Meditate'}, actions_of(gs:traffic()))
     end)
@@ -208,7 +208,8 @@ describe('WAR\'s weapon skill under Auto Buff Mode with Samurai as the sub job',
     end)
 
     it('goes out when Sekkanoki and Meditate are both on recast', function()
-        jobby.set_ability_recasts(gs, {[140] = 60, [134] = 60})
+        gs.game:start_ability_recast('Sekkanoki', 60)
+        gs.game:start_ability_recast('Meditate', 60)
         gs:type('/ws "Resolution" <t>')
         assert.same({'Resolution'}, actions_of(gs:traffic()))
     end)
@@ -236,62 +237,67 @@ describe('WAR\'s melee set', function()
     end)
 
     it('is sets.engaged', function()
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon'}, jobby.full_idle), gs:worn())
     end)
 
     it('has sets.buff.Retaliation laid over it while Retaliation is up', function()
         gs:gain_buff('Retaliation')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', waist = 'Null Belt'},
+            jobby.full_idle), gs:worn())
         gs:lose_buff('Retaliation')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon'}, jobby.full_idle), gs:worn())
     end)
 
     it('has sets.buff.Restraint laid over it while Restraint is up', function()
         gs:gain_buff('Restraint')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', ring1 = 'Karieyh Ring'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', ring1 = 'Karieyh Ring'},
+            jobby.full_idle), gs:worn())
     end)
 
     it('has both laid over it with both buffs up', function()
         gs:gain_buff('Retaliation')
         gs:gain_buff('Restraint')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', waist = 'Null Belt',
-            ring1 = 'Karieyh Ring'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', waist = 'Null Belt',
+            ring1 = 'Karieyh Ring'}, jobby.full_idle), gs:worn())
     end)
 
     it('leaves the buff sets off in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Retaliation')
         gs:gain_buff('Restraint')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Adamantite Armor'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Adamantite Armor'}, jobby.full_idle), gs:worn())
     end)
 
     it('leaves the buff sets off in a hybrid mode', function()
         gs:console('gs c set HybridMode DT')
         gs:gain_buff('Retaliation')
         gs:gain_buff('Restraint')
-        assert.same(jobby.idle_with({head = 'Null Masque', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Null Masque', body = 'Volte Jupon'}, jobby.full_idle), gs:worn())
     end)
 
     it('is sets.engaged.Charge with Brazen Rush up', function()
         gs:gain_buff('Brazen Rush')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', hands = 'Volte Bracers'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', hands = 'Volte Bracers'},
+            jobby.full_idle), gs:worn())
     end)
 
     it('is sets.engaged.Charge with Warrior\'s Charge up', function()
         gs:gain_buff('Warrior\'s Charge')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', hands = 'Volte Bracers'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', hands = 'Volte Bracers'},
+            jobby.full_idle), gs:worn())
     end)
 
     it('is sets.engaged.Mighty with Mighty Strikes up', function()
         gs:gain_buff('Mighty Strikes')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', legs = 'Volte Hose'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', legs = 'Volte Hose'},
+            jobby.full_idle), gs:worn())
     end)
 
     it('is sets.engaged.Charge.Mighty with both up', function()
         gs:gain_buff('Brazen Rush')
         gs:gain_buff('Mighty Strikes')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', hands = 'Volte Bracers',
-            feet = 'Volte Boots'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', hands = 'Volte Bracers',
+            feet = 'Volte Boots'}, jobby.full_idle), gs:worn())
     end)
 
     it('goes back to sets.engaged when the buffs end', function()
@@ -299,7 +305,7 @@ describe('WAR\'s melee set', function()
         gs:gain_buff('Mighty Strikes')
         gs:lose_buff('Brazen Rush')
         gs:lose_buff('Mighty Strikes')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon'}, jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -311,15 +317,15 @@ describe('WAR\'s weapon skill set', function()
     end)
 
     it('is sets.precast.WS[name] with no cap TP, Moonshade Earring in it', function()
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
-            ear1 = 'Moonshade Earring', ear2 = 'Brutal Earring', hands = 'Volte Bracers'}),
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
+            ear1 = 'Moonshade Earring', ear2 = 'Brutal Earring', hands = 'Volte Bracers'}, jobby.full_idle),
             weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 
     it('swaps Moonshade Earring for sets.DayMaxTPWSEars by day when TP, with Moonshade\'s 250, is over 3200', function()
         gs.game.player.vitals.tp = 2951
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
-            ear1 = 'Cessance Earring', ear2 = 'Brutal Earring', hands = 'Volte Bracers'}),
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
+            ear1 = 'Cessance Earring', ear2 = 'Brutal Earring', hands = 'Volte Bracers'}, jobby.full_idle),
             weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 
@@ -329,7 +335,7 @@ describe('WAR\'s weapon skill set', function()
     end)
 
     it('swaps Moonshade Earring for sets.MaxTP at night', function()
-        jobby.set_hour(gs, 22)
+        gs:set_time(22 * 60)
         gs.game.player.vitals.tp = 3000
         assert.equal('Lugra Earring', weaponskill(gs, '/ws "Resolution" <t>').left_ear)
     end)
@@ -343,7 +349,7 @@ describe('WAR\'s weapon skill set', function()
     end)
 
     it('swaps in sets.AccMaxTP at night when the offense mode is an accuracy one', function()
-        jobby.set_hour(gs, 22)
+        gs:set_time(22 * 60)
         gs:console('gs c set OffenseMode Acc')
         gs.game.player.vitals.tp = 3000
         local worn = weaponskill(gs, '/ws "Resolution" <t>')
@@ -364,7 +370,7 @@ describe('WAR\'s weapon skill set', function()
     end)
 
     it('keeps Lugra Earring on at night', function()
-        jobby.set_hour(gs, 22)
+        gs:set_time(22 * 60)
         assert.equal('Lugra Earring', weaponskill(gs, '/ws "Ground Strike" <t>').left_ear)
     end)
 
@@ -380,7 +386,7 @@ describe('WAR\'s weapon skill set', function()
     end)
 
     it('keeps Moonshade Earring on below the cap at night, with Lugra Earring in the set', function()
-        jobby.set_hour(gs, 22)
+        gs:set_time(22 * 60)
         local worn = weaponskill(gs, '/ws "Upheaval" <t>')
         assert.equal('Moonshade Earring', worn.left_ear)
         assert.equal('Lugra Earring', worn.right_ear)
@@ -452,7 +458,7 @@ describe('WAR\'s tick with Samurai as the sub job', function()
 
     it('uses nothing while Hasso is on recast', function()
         local gs = boot_hasso()
-        jobby.set_ability_recasts(gs, {[138] = 30})
+        gs.game:start_ability_recast('Hasso', 30)
         gs:play(3)
         assert.same({}, actions_of(gs:traffic()))
     end)
@@ -555,7 +561,7 @@ describe('WAR\'s Auto Buff Mode in a fight', function()
 
     it('passes over an ability on recast', function()
         local gs = boot_buffing()
-        jobby.set_ability_recasts(gs, {[8] = 20})
+        gs.game:start_ability_recast('Retaliation', 20)
         assert.same({'Restraint'}, actions_of(jobby.until_action(gs)))
     end)
 
@@ -587,19 +593,19 @@ describe('WAR\'s Warcry bookkeeping', function()
     end)
 
     it('notes Jobby when Warcry comes up with its recast just started', function()
-        jobby.set_ability_recasts(gs, {[2] = 298})
+        gs.game:start_ability_recast('Warcry', 298)
         gs:gain_buff('Warcry')
         assert.equal('Jobby', gs.user.lastwarcry)
     end)
 
     it('notes nobody when Warcry comes up from another\'s use', function()
-        jobby.set_ability_recasts(gs, {[2] = 297})
+        gs.game:start_ability_recast('Warcry', 297)
         gs:gain_buff('Warcry')
         assert.equal('', gs.user.lastwarcry)
     end)
 
     it('notes nobody when Warcry ends', function()
-        jobby.set_ability_recasts(gs, {[2] = 298})
+        gs.game:start_ability_recast('Warcry', 298)
         gs:gain_buff('Warcry')
         gs:lose_buff('Warcry')
         assert.equal('', gs.user.lastwarcry)

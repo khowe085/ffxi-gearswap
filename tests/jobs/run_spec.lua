@@ -19,15 +19,8 @@ local function boot(options)
     if options.obi then
         items[#items + 1] = 'Hachirin-no-Obi'
     end
-    local wearing = {}
-    for slot, name in pairs(jobby.idle) do
-        wearing[slot] = name
-    end
-    if options.wielding then
-        wearing.main = 'Epeolatry'
-    end
-    local gs = jobby.boot('RUN', items, {sub_job = options.sub_job or 'NIN', tp = options.tp, buffs = options.buffs,
-        wearing = wearing})
+    local gs = jobby.boot('RUN', {items = items, sub_job = options.sub_job or 'NIN', tp = options.tp,
+        buffs = options.buffs, wearing = options.wielding and {main = 'Epeolatry'} or nil})
     if options.hp then
         gs.game.player.vitals.hp = options.hp
         gs.game.player.vitals.hpp = math.floor(options.hp / 15)
@@ -85,14 +78,15 @@ describe('Valiance', function()
 
     it('is turned to Vallation while it is on recast and Vallation is ready', function()
         local gs = boot()
-        jobby.set_recasts(gs, {abilities = {[113] = 100}})
+        gs.game:start_ability_recast('Valiance', 100)
         gs:type('/ja "Valiance" <me>')
         assert.same({'Vallation'}, actions(gs))
     end)
 
     it('is refused while it is on recast and Vallation is too', function()
         local gs = boot()
-        jobby.set_recasts(gs, {abilities = {[113] = 100, [23] = 100}})
+        gs.game:start_ability_recast('Valiance', 100)
+        gs.game:start_ability_recast('Vallation', 100)
         gs:type('/ja "Valiance" <me>')
         assert.same({}, actions(gs))
         assert.is_true(said(gs, 'Abort: [Valiance] waiting on recast.'))
@@ -100,7 +94,7 @@ describe('Valiance', function()
 
     it('is not turned to Vallation with Valiance up', function()
         local gs = boot({buffs = {'Valiance'}})
-        jobby.set_recasts(gs, {abilities = {[113] = 100}})
+        gs.game:start_ability_recast('Valiance', 100)
         gs:type('/ja "Valiance" <me>')
         assert.same({}, actions(gs))
     end)
@@ -113,7 +107,7 @@ describe('Valiance', function()
 
     it('wears sets.precast.JA.Vallation when turned to Vallation', function()
         local gs = boot()
-        jobby.set_recasts(gs, {abilities = {[113] = 100}})
+        gs.game:start_ability_recast('Valiance', 100)
         gs:type('/ja "Valiance" <me>')
         assert.same(jobby.request(sets_of(gs).precast.JA.Vallation), gs:traffic()[1].equip)
     end)
@@ -160,7 +154,7 @@ describe('an effusion', function()
 
     it('wears them with the Hachirin-no-Obi when a rune of the weather\'s element is up', function()
         local gs = boot({engaged = true, obi = true, buffs = {'Lux'}})
-        jobby.set_world(gs, {weather = 16})
+        gs:set_weather(16)
         gs:type('/ja "Lunge" <t>')
         assert.same(jobby.request(sets_of(gs).precast.Effusion, sets_of(gs).element.Light, {waist = 'Hachirin-no-Obi'}),
             gs:traffic()[1].equip)
@@ -168,21 +162,21 @@ describe('an effusion', function()
 
     it('wears them with the Hachirin-no-Obi when a rune of the day\'s element is up', function()
         local gs = boot({engaged = true, obi = true, buffs = {'Lux'}})
-        jobby.set_world(gs, {day = 6})
+        gs:set_day(6)
         gs:type('/ja "Lunge" <t>')
         assert.equal('Hachirin-no-Obi', jobby.layer(gs:worn()).waist)
     end)
 
     it('wears them without the Hachirin-no-Obi when no rune matches', function()
         local gs = boot({engaged = true, obi = true, buffs = {'Gelus'}})
-        jobby.set_world(gs, {weather = 16})
+        gs:set_weather(16)
         gs:type('/ja "Lunge" <t>')
         assert.same(jobby.request(sets_of(gs).precast.Effusion, sets_of(gs).element.Light), gs:traffic()[1].equip)
     end)
 
     it('wears them without the Hachirin-no-Obi when there is none among the gear', function()
         local gs = boot({engaged = true, buffs = {'Lux'}})
-        jobby.set_world(gs, {weather = 16})
+        gs:set_weather(16)
         gs:type('/ja "Lunge" <t>')
         assert.same(jobby.request(sets_of(gs).precast.Effusion, sets_of(gs).element.Light), gs:traffic()[1].equip)
     end)
@@ -195,14 +189,15 @@ describe('an effusion', function()
 
     it('is turned to Swipe while Lunge is on recast and Swipe is ready', function()
         local gs = boot({engaged = true})
-        jobby.set_recasts(gs, {abilities = {[25] = 60}})
+        gs.game:start_ability_recast('Lunge', 60)
         gs:type('/ja "Lunge" <t>')
         assert.same({'Swipe'}, actions(gs))
     end)
 
     it('is refused while Lunge and Swipe are on recast', function()
         local gs = boot({engaged = true})
-        jobby.set_recasts(gs, {abilities = {[25] = 60, [241] = 60}})
+        gs.game:start_ability_recast('Lunge', 60)
+        gs.game:start_ability_recast('Swipe', 60)
         gs:type('/ja "Lunge" <t>')
         assert.same({}, actions(gs))
     end)
@@ -408,7 +403,8 @@ describe('a weapon skill under AutoBuffMode with the sub job Samurai', function(
 
     it('goes out when neither is ready', function()
         local gs = buffer(1900)
-        jobby.set_recasts(gs, {abilities = {[140] = 30, [134] = 30}})
+        gs.game:start_ability_recast('Sekkanoki', 30)
+        gs.game:start_ability_recast('Meditate', 30)
         gs:type('/ws "Resolution" <t>')
         assert.same({'Resolution'}, actions(gs))
     end)
@@ -473,7 +469,7 @@ describe('the tick of a rune fencer', function()
 
         it('takes none up while it is on recast', function()
             local gs = stance('Hasso')
-            jobby.set_recasts(gs, {abilities = {[138] = 30}})
+            gs.game:start_ability_recast('Hasso', 30)
             assert.same({}, first_actions(gs))
         end)
 
@@ -552,7 +548,7 @@ describe('the tick of a rune fencer', function()
 
         it('goes on to Foil while Flash is on recast', function()
             local gs = tank()
-            jobby.set_recasts(gs, {spells = {[112] = 6000}})
+            gs.game:start_spell_recast('Flash', 100)
             assert.same({'Foil'}, first_actions(gs))
         end)
 
@@ -601,7 +597,7 @@ describe('AutoRuneMode', function()
 
     it('takes none while the runes are on recast', function()
         local gs = runer('Runes')
-        jobby.set_recasts(gs, {abilities = {[10] = 30}})
+        gs.game:start_ability_recast('Ignis', 30)
         assert.same({}, first_actions(gs))
     end)
 
@@ -651,7 +647,7 @@ describe('AutoRuneMode', function()
         it('uses Vallation in combat while Valiance is on recast', function()
             local gs = full({buffs = {'Pflug'}})
             gs.user.in_combat = true
-            jobby.set_recasts(gs, {abilities = {[113] = 100}})
+            gs.game:start_ability_recast('Valiance', 100)
             assert.same({'Vallation'}, first_actions(gs))
         end)
 

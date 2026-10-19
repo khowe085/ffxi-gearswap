@@ -11,7 +11,8 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
 --   friend   true for a party member, Friend, and stranger for another player near him, Stranger, not in the party
 local function boot(options)
     options = options or {}
-    local gs = jobby.boot('GEO', pieces, {sub_job = options.sub_job or 'WHM', tp = options.tp, buffs = options.buffs})
+    local gs = jobby.boot('GEO', {items = pieces, sub_job = options.sub_job or 'WHM', tp = options.tp,
+        buffs = options.buffs})
     if options.mp then
         gs.game.player.vitals.mp = options.mp
         gs.game.player.vitals.mpp = math.floor(options.mp / 10)
@@ -153,7 +154,7 @@ describe('an indicolure spell on a party member', function()
 
         it('is refused while Entrust is on recast, saying so', function()
             local gs = auto_entrust()
-            jobby.set_recasts(gs, {abilities = {[93] = 60}})
+            gs.game:start_ability_recast('Entrust', 60)
             gs:type('/ma "Indi-Fury" Friend')
             assert.same({}, actions(gs))
             assert.is_true(said(gs, 'Abort: [Entrust] waiting on recast. (0:01:00)'))
@@ -161,7 +162,7 @@ describe('an indicolure spell on a party member', function()
 
         it('is refused while the spell is on recast, saying so', function()
             local gs = auto_entrust()
-            jobby.set_recasts(gs, {spells = {[779] = 600}})
+            gs.game:start_spell_recast('Indi-Fury', 10)
             gs:type('/ma "Indi-Fury" Friend')
             assert.same({}, actions(gs))
             assert.is_true(said(gs, 'Abort: [Indi-Fury] waiting on recast. (0:00:10)'))
@@ -431,13 +432,13 @@ describe('a cure by a geomancer', function()
 
     it('wears sets.midcast.LightWeatherCure in light weather', function()
         local gs = boot()
-        jobby.set_world(gs, {weather = 16})
+        gs:set_weather(16)
         assert.same(fast_cast(gs, sets_of(gs).midcast.LightWeatherCure), cure(gs))
     end)
 
     it('wears sets.midcast.LightDayCure on a Lightsday', function()
         local gs = boot()
-        jobby.set_world(gs, {day = 6})
+        gs:set_day(6)
         assert.same(fast_cast(gs, sets_of(gs).midcast.LightDayCure), cure(gs))
     end)
 end)
@@ -642,7 +643,7 @@ describe('gs c elemental on a geomancer\'s nukes', function()
 
     it('casts the next tier down while that is on recast', function()
         local gs = boot()
-        jobby.set_recasts(gs, {spells = {[148] = 6000}})
+        gs.game:start_spell_recast('Fire V', 100)
         assert.same({'Fire IV Apex Toad'}, nuke(gs))
     end)
 
@@ -672,7 +673,8 @@ describe('gs c elemental on a geomancer\'s nukes', function()
     it('says so in the Light element when neither Banish is ready', function()
         local gs = boot()
         gs:console('gs c set ElementalMode Light')
-        jobby.set_recasts(gs, {spells = {[29] = 6000, [28] = 6000}})
+        gs.game:start_spell_recast('Banish II', 100)
+        gs.game:start_spell_recast('Banish', 100)
         gs:traffic()
         assert.same({}, nuke(gs))
         assert.is_true(said(gs, 'Abort: Banishes on cooldown or not enough MP.'))

@@ -507,6 +507,7 @@ function harness.boot(options)
     session:run(function()
         local chunk = assert(env.loadfile(paths.addon .. 'gearswap.lua'))
         chunk()
+        game.packets = env.packets
         game:fire('load')
         game:send_buffs()
         game:settle()
@@ -681,6 +682,91 @@ end
 function Session:change_zone(zone_id)
     self:run(function()
         self.game:change_zone(zone_id)
+        self.game:settle()
+    end)
+end
+
+-- The main job changes, as at a Moogle (see Game:change_main_job).
+function Session:change_main_job(short, level)
+    self:run(function()
+        self.game:change_main_job(short, level)
+        self.game:settle()
+    end)
+end
+
+-- Vana'diel's time (minutes past midnight), day or weather (by id) changes, with the event that says so.
+function Session:set_time(minutes)
+    self:run(function()
+        self.game:set_time(minutes)
+        self.game:settle()
+    end)
+end
+
+function Session:set_day(id)
+    self:run(function()
+        self.game:set_day(id)
+        self.game:settle()
+    end)
+end
+
+function Session:set_weather(id)
+    self:run(function()
+        self.game:set_weather(id)
+        self.game:settle()
+    end)
+end
+
+-- The server sends a packet: built from its fields by label (send), or as the bytes after its header (receive).
+function Session:send(id, fields)
+    self:run(function()
+        self.game:send(id, fields)
+        self.game:settle()
+    end)
+end
+
+function Session:receive(id, body)
+    self:run(function()
+        self.game:receive(id, body)
+        self.game:settle()
+    end)
+end
+
+-- A packet GearSwap has no handler for (see Game:next_packet).
+function Session:next_packet()
+    self:run(function()
+        self.game:next_packet()
+        self.game:settle()
+    end)
+end
+
+-- The zone-in packet, with fields by label laid over it (see Game:send_zone_in).
+function Session:send_zone_in(fields)
+    self:run(function()
+        self.game:send_zone_in(fields)
+        self.game:settle()
+    end)
+end
+
+-- The buff packet for these buffs, which become the player's (see Game:send_buffs).
+function Session:send_buffs(buffs)
+    self:run(function()
+        self.game:send_buffs(buffs)
+        self.game:settle()
+    end)
+end
+
+-- The party buff packet (see Game:send_party_buffs).
+function Session:send_party_buffs(members)
+    self:run(function()
+        self.game:send_party_buffs(members)
+        self.game:settle()
+    end)
+end
+
+-- A packet the client sends of its own, as the bytes after its header (see Game:send_from_client).
+function Session:send_from_client(id, body)
+    self:run(function()
+        self.game:send_from_client(id, body)
         self.game:settle()
     end)
 end

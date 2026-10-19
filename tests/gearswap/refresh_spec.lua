@@ -2,7 +2,6 @@ local harness = require('harness')
 local lfs = require('lfs')
 local plain = require('plain')
 local testy = require('testy')
-local world = require('world')
 
 local function refresh(gs)
     gs:console('gs c refresh')
@@ -234,9 +233,9 @@ describe('a puppetmaster\'s automaton', function()
     local function boot_puppetmaster()
         local gs = plain.boot()
         gs.game.player.main_job_id = 18
-        gs.game:summon_pet({name = 'Automaton'})
-        gs.game.automaton = {name = 'Faustus', hp = 800, mp = 300, max_hp = 1200, max_mp = 600, head = 4112, frame = 4155,
-            available_heads = {4112}, available_frames = {4155}, available_attachments = {13566, 14812}, attachments = {13566}}
+        gs.game:place_pet({name = 'Automaton'})
+        gs.game:set_automaton({name = 'Faustus', hp = 800, mp = 300, max_hp = 1200, max_mp = 600, head = 'Potion',
+            frame = 'Remedy', attachments = {'Defending Ring'}, available_attachments = {'Defending Ring', 'Loquac. Earring'}})
         refresh(gs)
         return gs
     end
@@ -388,7 +387,6 @@ describe('the party and the alliance', function()
         local gs = boot()
         local member = gs.game:add_party_member({name = 'Alice'})
         refresh(gs)
-        gs.game.party_members = {}
         gs.game:remove_mob(member.index)
         refresh(gs)
         assert.same({1, nil}, {gs.user.party.count, gs.user.party[2]})

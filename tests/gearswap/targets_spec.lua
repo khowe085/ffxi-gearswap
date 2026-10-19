@@ -1,6 +1,5 @@
 local plain = require('plain')
 local testy = require('testy')
-local world = require('world')
 
 local function calls(gs)
     local list = gs.user.calls
@@ -59,7 +58,7 @@ describe('an action aimed at a target typed as', function()
 
     it('a name is a player who is no party member, with no flag for the party', function()
         local gs = boot()
-        gs.game:add_mob({name = 'Bob', is_npc = false, spawn_type = 1, id = 0x100999})
+        gs.game:add_party_member({name = 'Bob', in_party = false})
         gs:type('/ma "Cure III" Bob')
         local got = calls(gs)
         assert.same({'Bob', false}, {got[1].target, got[1].party or false})
@@ -104,7 +103,7 @@ describe('an action aimed at a target typed as', function()
 
     it('<pet> goes at the pet', function()
         local gs = boot()
-        gs.game:summon_pet({name = 'Carbuncle'})
+        gs.game:place_pet({name = 'Carbuncle'})
         gs:type('/ma "Cure III" <pet>')
         assert.same({'Carbuncle'}, {gs:traffic()[2].target})
     end)
@@ -469,7 +468,7 @@ describe('an action the player can\'t use', function()
 
     it('in the Mog House goes to the game, after filtered_action', function()
         local gs = boot()
-        world.zone_in(gs, {['_unknown7'] = ('\0'):rep(20) .. '\1'})
+        gs:send_zone_in({['_unknown7'] = ('\0'):rep(20) .. '\1'})
         calls(gs)
         gs:type('/ma "Cure III" <me>')
         assert.same({'filtered_action'}, events(calls(gs)))
@@ -600,7 +599,7 @@ describe('an item typed in the chat', function()
 
         it('sends the trade packet (0x036) for an NPC that is near', function()
             local gs = with_remedy()
-            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = 4})
+            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = 4 ^ 2})
             local mark = #gs.game.sent
             gs:type('/item "Remedy" ' .. npc.id)
             assert.equal(npc.id, sent_since(gs, mark, 0x36)[1].data:unpack('I', 5))
@@ -608,7 +607,7 @@ describe('an item typed in the chat', function()
 
         it('tells the player an NPC is too far away, and goes nowhere', function()
             local gs = with_remedy()
-            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = 10})
+            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = 10 ^ 2})
             local mark = #gs.game.sent
             assert.is_true(gs:type('/item "Remedy" ' .. npc.id))
             assert.same({}, sent_since(gs, mark, 0x36))
@@ -623,9 +622,9 @@ describe('an item typed in the chat', function()
     end)
 
     describe('given to an NPC', function()
-        local function with_npc(distance)
+        local function with_npc(yalms)
             local gs = with_remedy()
-            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = distance})
+            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = yalms ^ 2})
             gs.game:target(npc.index)
             return gs, npc
         end

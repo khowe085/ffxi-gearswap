@@ -1,4 +1,4 @@
-local jobby = require('jobby_jobs_1_8')
+local jobby = require('jobby')
 
 local gear = {'Ragnarok', 'Naegling', 'Apocalypse', 'Volte Cap', 'Null Masque', 'Volte Jupon', 'Adamantite Armor',
     'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget', "Combatant's Torque", 'Null Belt',
@@ -34,7 +34,7 @@ local function engaged_with(changes)
     for slot, item in pairs(changes or {}) do
         set[slot] = item
     end
-    return jobby.idle_with(set)
+    return jobby.worn_by(set, jobby.full_idle)
 end
 
 describe('DRK\'s weapon skill under Auto Buff Mode', function()
@@ -53,7 +53,7 @@ describe('DRK\'s weapon skill under Auto Buff Mode', function()
         gs:type('/ws "Entropy" <t>')
         gs:traffic()
         gs:finish_action()
-        jobby.set_ability_recasts(gs, {[95] = 60})
+        gs.game:start_ability_recast('Consume Mana', 60)
         gs:advance(1.05)
         assert.same({}, actions_of(gs:traffic()))
         gs:advance(0.1)
@@ -61,7 +61,7 @@ describe('DRK\'s weapon skill under Auto Buff Mode', function()
     end)
 
     it('goes out at once while Consume Mana is on recast', function()
-        jobby.set_ability_recasts(gs, {[95] = 60})
+        gs.game:start_ability_recast('Consume Mana', 60)
         gs:type('/ws "Entropy" <t>')
         assert.same({'Entropy'}, actions_of(gs:traffic()))
     end)
@@ -103,7 +103,7 @@ describe('DRK\'s weapon skill under Auto Buff Mode with Samurai as the sub job',
     end)
 
     it('is held for Meditate when Sekkanoki is on recast', function()
-        jobby.set_ability_recasts(gs, {[140] = 60})
+        gs.game:start_ability_recast('Sekkanoki', 60)
         gs:type('/ws "Torcleaver" <t>')
         assert.same({'Meditate'}, actions_of(gs:traffic()))
     end)
@@ -121,7 +121,8 @@ describe('DRK\'s weapon skill under Auto Buff Mode with Samurai as the sub job',
     end)
 
     it('goes out when Sekkanoki and Meditate are both on recast', function()
-        jobby.set_ability_recasts(gs, {[140] = 60, [134] = 60})
+        gs.game:start_ability_recast('Sekkanoki', 60)
+        gs.game:start_ability_recast('Meditate', 60)
         gs:type('/ws "Torcleaver" <t>')
         assert.same({'Torcleaver'}, actions_of(gs:traffic()))
     end)
@@ -150,7 +151,7 @@ describe('DRK\'s weapon skill in the gear file\'s Auto WS Buff list', function()
         gs:type('/ws "Resolution" <t>')
         gs:traffic()
         gs:finish_action()
-        jobby.set_ability_recasts(gs, {[87] = 60})
+        gs.game:start_ability_recast('Last Resort', 60)
         gs:gain_buff('Last Resort')
         gs:advance(1.2)
         assert.same({'Resolution'}, actions_of(gs:traffic()))
@@ -302,7 +303,7 @@ describe('DRK\'s weapon skill set', function()
     end
 
     local function at_night(gs)
-        jobby.set_hour(gs, 22)
+        gs:set_time(22 * 60)
     end
 
     it('is sets.precast.WS[name] with no cap TP, Moonshade Earring in it', function()
@@ -419,20 +420,20 @@ describe('DRK\'s idle set', function()
     it('has sets.latent_refresh over it under 51% MP', function()
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
         gs:console('gs c update')
-        assert.same(jobby.idle_with({waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by({waist = 'Null Belt'}, jobby.full_idle), gs:worn())
     end)
 
     it('has no latent refresh set over it at 51% MP', function()
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 510, 51
         gs:console('gs c update')
-        assert.same(jobby.idle_with({}), gs:worn())
+        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
     end)
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
         gs:console('gs c update')
-        assert.same(jobby.idle_with({}), gs:worn())
+        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -513,7 +514,7 @@ describe('DRK\'s tick with Samurai as the sub job', function()
 
     it('uses nothing while Hasso is on recast', function()
         local gs = boot_hasso()
-        jobby.set_ability_recasts(gs, {[138] = 30})
+        gs.game:start_ability_recast('Hasso', 30)
         gs:play(3)
         assert.same({}, actions_of(gs:traffic()))
     end)
@@ -551,7 +552,7 @@ describe('DRK\'s Auto Buff Mode in a fight', function()
             gs.user.ws_buff_list = nil
         end
         gs:console('gs c set AutoBuffMode Auto')
-        jobby.fight(gs)
+        gs:monster_hits()
         return gs
     end
 
@@ -593,7 +594,7 @@ describe('DRK\'s Auto Buff Mode in a fight', function()
 
     it('passes over Last Resort while it is on recast', function()
         local gs = buffing({buffs = buffed})
-        jobby.set_ability_recasts(gs, {[87] = 60})
+        gs.game:start_ability_recast('Last Resort', 60)
         assert.same({'Scarlet Delirium'}, actions_of(jobby.until_action(gs)))
     end)
 
@@ -628,7 +629,7 @@ describe('DRK\'s buff spells', function()
     it('Auto Buff Mode casts Dread Spikes in a fight', function()
         local gs = boot_ticking({buffs = {'Last Resort', 'Scarlet Delirium'}})
         gs:console('gs c set AutoBuffMode Auto')
-        jobby.fight(gs)
+        gs:monster_hits()
         assert.same({'Dread Spikes'}, actions_of(jobby.until_action(gs)))
     end)
 

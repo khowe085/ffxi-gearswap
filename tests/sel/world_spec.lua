@@ -194,7 +194,7 @@ describe('Sel on Asura', function()
 
     it('stops a tell to Mytha that names a third-party tool, and says why', function()
         local gs = commy.boot_war()
-        gs.game:change_info({server = 31})
+        gs.game:set_info({server = 31})
         tell(gs, 'Mytha', 'is there an addon for this?')
         assert.same({'Message Aborted: Please do not message me about anything third party ingame. -50DKP',
             'Contact me on Discord: KalesAndRancor#5410 or https://discord.gg/ug6xtvQ'}, commy.chat(gs))
@@ -202,7 +202,7 @@ describe('Sel on Asura', function()
 
     it('lets any other tell go', function()
         local gs = commy.boot_war()
-        gs.game:change_info({server = 31})
+        gs.game:set_info({server = 31})
         tell(gs, 'Mytha', 'hello')
         tell(gs, 'Vanar', 'is there an addon for this?')
         assert.same({}, commy.chat(gs))

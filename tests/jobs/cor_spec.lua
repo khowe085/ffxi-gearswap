@@ -26,14 +26,9 @@ local function boot(options)
         end
     end
     options.wearing = {range = 'Death Penalty', ammo = options.ammo or 'Eminent Bullet'}
-    for slot, item in pairs(jobby.idle) do
-        options.wearing[slot] = item
-    end
-    options.bullets, options.ammo, options.items = nil, nil, nil
-    local gs = jobby.boot('COR', items, options)
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
+    options.bullets, options.ammo, options.items = nil, nil, items
+    options.sub_job = options.sub_job or 'NIN'
+    return jobby.boot('COR', options)
 end
 
 local function sets_of(gs)

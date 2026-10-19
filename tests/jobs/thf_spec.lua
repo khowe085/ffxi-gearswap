@@ -1,4 +1,4 @@
-local jobby = require('jobby_jobs_1_8')
+local jobby = require('jobby')
 
 local gear = {'Volte Cap', 'Null Masque', 'Volte Jupon', 'Adamantite Armor', 'Volte Bracers', 'Volte Hose',
     'Volte Boots', 'Fotia Gorget', "Combatant's Torque", 'Null Belt', 'Fotia Belt', 'Moonshade Earring',
@@ -28,7 +28,7 @@ local function engaged_with(changes)
     for slot, item in pairs(changes or {}) do
         set[slot] = item
     end
-    return jobby.idle_with(set)
+    return jobby.worn_by(set, jobby.full_idle)
 end
 
 -- The monster has been hit before, so Sel puts no treasure hunter gear on for it.
@@ -241,14 +241,14 @@ describe('THF\'s ranged attack', function()
     it('wears the treasure hunter set at midcast in the Tag mode', function()
         local gs = boot()
         gs:type('/ra <t>')
-        assert.same(jobby.idle_with(th), gs:worn())
+        assert.same(jobby.worn_by(th, jobby.full_idle), gs:worn())
     end)
 
     it('wears no treasure hunter set in the None mode', function()
         local gs = boot()
         gs:console('gs c set TreasureMode None')
         gs:type('/ra <t>')
-        assert.same(jobby.idle_with({}), gs:worn())
+        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -343,7 +343,7 @@ describe('THF\'s Sneak Attack and Trick Attack gear', function()
     it('is on out of combat too, over the idle set', function()
         gs:disengage()
         gs:gain_buff('Sneak Attack')
-        assert.same(jobby.idle_with({body = 'Adamantite Armor'}), gs:worn())
+        assert.same(jobby.worn_by({body = 'Adamantite Armor'}, jobby.full_idle), gs:worn())
     end)
 
     it('keeps the engaged set from changing while Sneak Attack is up', function()
@@ -408,7 +408,7 @@ describe('THF\'s Feint gear', function()
         gs:gain_buff('Feint')
         gs:type('/ja "Provoke" <t>')
         gs:finish_action()
-        assert.same(jobby.idle_with({legs = 'Volte Hose'}), gs:worn())
+        assert.same(jobby.worn_by({legs = 'Volte Hose'}, jobby.full_idle), gs:worn())
     end)
 
     it('is not worn after an ability without Feint', function()
@@ -416,7 +416,7 @@ describe('THF\'s Feint gear', function()
         gs:console('gs c set TreasureMode None')
         gs:type('/ja "Provoke" <t>')
         gs:finish_action()
-        assert.same(jobby.idle_with({}), gs:worn())
+        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
     end)
 
     it('has the treasure hunter set over it in the SATA mode', function()
@@ -425,7 +425,8 @@ describe('THF\'s Feint gear', function()
         gs:gain_buff('Feint')
         gs:type('/ja "Provoke" <t>')
         gs:finish_action()
-        assert.same(jobby.idle_with({legs = 'Volte Hose', head = 'Null Masque', waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by({legs = 'Volte Hose', head = 'Null Masque', waist = 'Null Belt'},
+            jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -468,7 +469,7 @@ describe('THF\'s Auto Buff Mode with Warrior as the sub job', function()
         local gs = boot_ticking({sub_job = sub_job})
         gs:console('gs c set TreasureMode None')
         gs:console('gs c set AutoBuffMode Auto')
-        jobby.fight(gs)
+        gs:monster_hits()
         return gs
     end
 
@@ -492,7 +493,7 @@ describe('THF\'s Auto Buff Mode with Warrior as the sub job', function()
 
     it('passes over Berserk while it is on recast', function()
         local gs = buffing('WAR')
-        jobby.set_ability_recasts(gs, {[1] = 60})
+        gs.game:start_ability_recast('Berserk', 60)
         assert.same({'Aggressor'}, actions_of(jobby.until_action(gs)))
     end)
 

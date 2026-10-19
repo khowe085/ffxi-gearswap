@@ -1,6 +1,5 @@
 local plain = require('plain')
 local testy = require('testy')
-local world = require('world')
 
 local chat, texts = plain.chat, plain.texts
 
@@ -240,7 +239,7 @@ describe('gs stash', function()
             local gs = boot()
             gs.game.bags[7].max = 1
             gs.game.bags[6].max = 1
-            gs.game:add_mob({name = 'Nomad Moogle', distance = 3})
+            gs.game:add_mob({name = 'Nomad Moogle', distance = 3 ^ 2})
             local lines = run(gs, 'gs stash whm')
             assert.equal('GearSwap: stash moved 4 pieces: 1 to case, 1 to sack and 2 to safe.', lines[#lines])
             assert.equal(2, #gs.game:bag_names('safe'))
@@ -248,7 +247,7 @@ describe('gs stash', function()
 
         it('talks to the moogle first, and the moogle is a Pilgrim Moogle just the same', function()
             local gs = boot()
-            gs.game:add_mob({name = 'Pilgrim Moogle', distance = 3})
+            gs.game:add_mob({name = 'Pilgrim Moogle', distance = 3 ^ 2})
             local mark = #gs.game.sent
             run(gs, 'gs stash whm')
             assert.is_true(gs.game.moogle_menu)
@@ -260,7 +259,7 @@ describe('gs stash', function()
             for _, id in ipairs({7, 6, 1, 9, 4}) do
                 gs.game.bags[id].max = 0
             end
-            gs.game:add_mob({name = 'Nomad Moogle', distance = 3})
+            gs.game:add_mob({name = 'Nomad Moogle', distance = 3 ^ 2})
             local lines = run(gs, 'gs stash whm')
             assert.same({}, gs.game:bag_names('storage'))
             assert.matches('stopped: case, sack, safe, safe2 and locker are full, and storage is out of reach%.', lines[#lines])
@@ -270,7 +269,7 @@ describe('gs stash', function()
             local gs = boot()
             gs.game.bags[7].max = 1
             gs.game.bags[6].max = 1
-            gs.game:add_mob({name = 'Nomad Moogle', distance = 10})
+            gs.game:add_mob({name = 'Nomad Moogle', distance = 10 ^ 2})
             local mark = #gs.game.sent
             local lines = run(gs, 'gs stash whm')
             assert.same({}, gs.game:bag_names('safe'))
@@ -296,7 +295,7 @@ describe('gs stash', function()
         it('doesn\'t talk to a moogle', function()
             local gs = boot()
             gs.game:set_info({mog_house = true})
-            gs.game:add_mob({name = 'Nomad Moogle', distance = 3})
+            gs.game:add_mob({name = 'Nomad Moogle', distance = 3 ^ 2})
             run(gs, 'gs stash whm')
             assert.is_nil(gs.game.moogle_menu)
         end)
@@ -392,7 +391,7 @@ describe('gs pull', function()
 
     it('takes from the safe at a moogle that is within reach', function()
         local gs = boot(nil, {['Kishar Ring'] = 'safe'})
-        gs.game:add_mob({name = 'Nomad Moogle', distance = 3})
+        gs.game:add_mob({name = 'Nomad Moogle', distance = 3 ^ 2})
         run(gs, 'gs pull whm')
         assert.is_not_nil(gs.game:find_item('wardrobe', 'Kishar Ring'))
     end)

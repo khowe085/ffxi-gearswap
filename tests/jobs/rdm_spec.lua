@@ -1,4 +1,4 @@
-local jobby = require('jobby_jobs_1_8')
+local jobby = require('jobby')
 
 local gear = {'Naegling', 'Crocea Mors', 'Murgleis', 'Regal Gem', 'Ullr', 'Zodiac Ring', "Orpheus's Sash",
     'Karin Obi', 'Hachirin-no-Obi', "Terra's Staff", 'Kupo Shield', 'Ammurapi Shield', 'Volte Cap', 'Null Masque',
@@ -470,14 +470,14 @@ describe('RDM\'s enhancing spells', function()
     it('have the spell\'s SIRD set laid over them in the SIRD casting mode in a fight', function()
         local gs = boot()
         gs:console('gs c set CastingMode SIRD')
-        jobby.fight(gs)
+        gs:monster_hits()
         assert.equal('Adamantite Armor', worn_after(gs, '/ma "Haste" <me>').body)
     end)
 
     it('have the spell map\'s SIRD set laid over them when the spell has none', function()
         local gs = boot()
         gs:console('gs c set CastingMode SIRD')
-        jobby.fight(gs)
+        gs:monster_hits()
         assert.equal('Adamantite Armor', worn_after(gs, '/ma "Enfire" <me>').body)
     end)
 
@@ -489,7 +489,7 @@ describe('RDM\'s enhancing spells', function()
 
     it('have no SIRD set laid over them in another casting mode', function()
         local gs = boot()
-        jobby.fight(gs)
+        gs:monster_hits()
         assert.equal('Volte Jupon', worn_after(gs, '/ma "Haste" <me>').body)
     end)
 
@@ -525,7 +525,8 @@ end)
 describe('RDM\'s cure sets', function()
     local function cure_head(setup, spell)
         local gs = boot()
-        jobby.set_world(gs, {weather = setup.weather and light_weather or 0, day = setup.day and light_day or 0})
+        gs:set_weather(setup.weather and light_weather or 0)
+        gs:set_day(setup.day and light_day or 0)
         if setup.weapons then
             gs:console('gs c set Weapons Naegling')
         end
@@ -593,28 +594,30 @@ describe('RDM\'s idle set', function()
 
     it('has sets.latent_refresh over it under 51% MP', function()
         low_mp()
-        assert.same(jobby.idle_with({waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by({waist = 'Null Belt'}, jobby.full_idle), gs:worn())
     end)
 
     it('has sets.latent_refresh and the grip over the Sphere idle set under 51% MP, its main being a staff', function()
         gs:console('gs c set IdleMode Sphere')
         low_mp()
-        assert.same(jobby.idle_with({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'}), gs:worn())
+        assert.same(jobby.worn_by({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'},
+            jobby.full_idle), gs:worn())
     end)
 
     it('has sets.TPEat over it too with more than 10 TP', function()
         gs:console('gs c set IdleMode Sphere')
         gs.game.player.vitals.tp = 11
         low_mp()
-        assert.same(jobby.idle_with({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield',
-            ear1 = 'Cessance Earring'}), gs:worn())
+        assert.same(jobby.worn_by({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield',
+            ear1 = 'Cessance Earring'}, jobby.full_idle), gs:worn())
     end)
 
     it('has no sets.TPEat over it with 10 TP', function()
         gs:console('gs c set IdleMode Sphere')
         gs.game.player.vitals.tp = 10
         low_mp()
-        assert.same(jobby.idle_with({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'}), gs:worn())
+        assert.same(jobby.worn_by({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'},
+            jobby.full_idle), gs:worn())
     end)
 
     it('has no grip or sets.TPEat over it with the weapons locked', function()
@@ -622,24 +625,25 @@ describe('RDM\'s idle set', function()
         gs:console('gs c set Weapons Naegling')
         gs.game.player.vitals.tp = 300
         low_mp()
-        assert.same(jobby.idle_with({main = 'Naegling', waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by({main = 'Naegling', waist = 'Null Belt'}, jobby.full_idle), gs:worn())
     end)
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')
         low_mp()
-        assert.same(jobby.idle_with({head = 'Null Masque'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Null Masque'}, jobby.full_idle), gs:worn())
     end)
 
     it('has sets.buff.Sublimation over it while Sublimation charges', function()
         gs:gain_buff('Sublimation: Activated')
-        assert.same(jobby.idle_with({back = 'Null Shawl'}), gs:worn())
+        assert.same(jobby.worn_by({back = 'Null Shawl'}, jobby.full_idle), gs:worn())
     end)
 
     it('has sets.buff.DTSublimation over the DT idle set while Sublimation charges', function()
         gs:console('gs c set IdleMode DT')
         gs:gain_buff('Sublimation: Activated')
-        assert.same(jobby.idle_with({head = 'Null Masque', back = 'Null Shawl', ring1 = 'Karieyh Ring'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Null Masque', back = 'Null Shawl', ring1 = 'Karieyh Ring'},
+            jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -691,20 +695,22 @@ describe('RDM\'s enspell', function()
     it('puts the melee set of the Enspell group on, engaged', function()
         gs:engage()
         gs:gain_buff('Enfire')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', legs = 'Volte Hose'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', legs = 'Volte Hose'},
+            jobby.full_idle), gs:worn())
     end)
 
     it('puts the melee set of the Enspell2 group on for an enspell II, engaged', function()
         gs:engage()
         gs:gain_buff('Enfire II')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', feet = 'Volte Boots'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', feet = 'Volte Boots'},
+            jobby.full_idle), gs:worn())
     end)
 
     it('takes the group off again when the enspell ends', function()
         gs:engage()
         gs:gain_buff('Enfire')
         gs:lose_buff('Enfire')
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon'}, jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -716,8 +722,11 @@ describe('RDM\'s melee set with an enspell up and an Enspell weapon set', functi
         if options.offense then
             gs:console('gs c set OffenseMode ' .. options.offense)
         end
-        if options.world then
-            jobby.set_world(gs, options.world)
+        if options.weather then
+            gs:set_weather(options.weather)
+        end
+        if options.day then
+            gs:set_day(options.day)
         end
         gs:engage()
         gs:gain_buff(options.enspell or 'Enfire')
@@ -748,7 +757,7 @@ describe('RDM\'s melee set with an enspell up and an Enspell weapon set', functi
     end)
 
     it('has the element\'s obi laid over it in that element\'s weather', function()
-        local worn = engaged({items = without(gear, {["Orpheus's Sash"] = true}), world = {weather = 4, day = 1}})
+        local worn = engaged({items = without(gear, {["Orpheus's Sash"] = true}), weather = 4, day = 1})
         assert.equal('Karin Obi', worn.waist)
     end)
 
@@ -759,14 +768,14 @@ describe('RDM\'s melee set with an enspell up and an Enspell weapon set', functi
 
     it('has Hachirin-no-Obi laid over it in that element\'s weather, without the sash or the obi', function()
         local worn = engaged({items = without(gear, {["Orpheus's Sash"] = true, ['Karin Obi'] = true}),
-            world = {weather = 4, day = 1}})
+            weather = 4, day = 1})
         assert.equal('Hachirin-no-Obi', worn.waist)
     end)
 
     it('has no waist piece laid over it on another day in another weather', function()
-        local worn = engaged({world = {weather = 0, day = 1}})
+        local worn = engaged({weather = 0, day = 1})
         assert.equal("Orpheus's Sash", worn.waist)
-        local plain = engaged({items = without(gear, {["Orpheus's Sash"] = true}), world = {weather = 0, day = 1}})
+        local plain = engaged({items = without(gear, {["Orpheus's Sash"] = true}), weather = 0, day = 1})
         assert.equal('Plat. Mog. Belt', plain.waist)
     end)
 
@@ -779,7 +788,7 @@ describe('RDM\'s melee set with an enspell up and an Enspell weapon set', functi
     end)
 
     it('has no Zodiac Ring laid over it on another day', function()
-        assert.equal('Stikini Ring +1', engaged({world = {day = 1}}).right_ring)
+        assert.equal('Stikini Ring +1', engaged({day = 1}).right_ring)
     end)
 
     it('has none of it without an Enspell weapon set', function()
@@ -801,7 +810,9 @@ describe('RDM\'s elemental commands', function()
         local gs = boot_ticking({sub_job = sub_job})
         gs:console('gs c set ElementalMode ' .. mode)
         if recasts then
-            jobby.set_spell_recasts(gs, recasts)
+            for spell, seconds in pairs(recasts) do
+                gs.game:start_spell_recast(spell, seconds)
+            end
         end
         gs:console('gs c elemental ' .. name)
         return jobby.actions(gs), gs
@@ -843,7 +854,7 @@ describe('RDM\'s elemental commands', function()
     end)
 
     it('nuke goes down a tier when that one is on recast', function()
-        assert.same({'Fire IV'}, (command('Fire', 'nuke', {[148] = 600})))
+        assert.same({'Fire IV'}, (command('Fire', 'nuke', {['Fire V'] = 10})))
     end)
 
     it('smallnuke casts the second tier', function()
@@ -855,13 +866,14 @@ describe('RDM\'s elemental commands', function()
     end)
 
     it('nuke goes down to Banish when Banish II is on recast in the Light mode', function()
-        assert.same({'Banish'}, (command('Light', 'nuke', {[29] = 600})))
+        assert.same({'Banish'}, (command('Light', 'nuke', {['Banish II'] = 10})))
     end)
 
     it('nuke says so when both Banishes are on recast in the Light mode', function()
         local gs = boot_ticking()
         gs:console('gs c set ElementalMode Light')
-        jobby.set_spell_recasts(gs, {[28] = 600, [29] = 600})
+        gs.game:start_spell_recast('Banish', 10)
+        gs.game:start_spell_recast('Banish II', 10)
         jobby.chat(gs)
         gs:console('gs c elemental nuke')
         assert.same({}, jobby.actions(gs))
@@ -876,10 +888,12 @@ describe('RDM\'s elemental commands', function()
         local gs = boot_ticking()
         gs:console('gs c set ElementalMode Fire')
         local recasts = {}
-        for _, id in ipairs({148, 147, 146, 145, 144}) do
-            recasts[id] = 600
+        for _, spell in ipairs({'Fire V', 'Fire IV', 'Fire III', 'Fire II', 'Fire'}) do
+            recasts[spell] = 10
         end
-        jobby.set_spell_recasts(gs, recasts)
+        for spell, seconds in pairs(recasts) do
+            gs.game:start_spell_recast(spell, seconds)
+        end
         jobby.chat(gs)
         gs:console('gs c elemental nuke')
         assert.same({}, jobby.actions(gs))
@@ -910,7 +924,7 @@ describe('RDM\'s Auto Arts', function()
 
     it('uses no Composure while it is on recast', function()
         local gs = arts({buffs = buffed})
-        jobby.set_ability_recasts(gs, {[50] = 60})
+        gs.game:start_ability_recast('Composure', 60)
         gs:play(3)
         assert.same({}, actions_of(gs:traffic()))
     end)
