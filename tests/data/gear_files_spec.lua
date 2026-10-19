@@ -51,17 +51,25 @@ local function actions_sent(gs)
     return names
 end
 
--- The sets init_gear_sets in the gear file assigns by a plain dotted name ('precast.FC', 'idle'), each once.
+-- The sets init_gear_sets in the gear file assigns by a plain dotted name ('precast.FC', 'idle'), each once. Only
+-- the function's own statements count, those as little indented as any, so a set made only under an if, as for one
+-- sub job, isn't looked for; nor is one in a comment.
 local function sets_assigned(path)
     local file = assert(io.open(harness.repo .. '/' .. path, 'rb'))
     local source = '\n' .. file:read('*a') .. '\nfunction '
     file:close()
     local body = assert(source:match('\nfunction init_gear_sets%(%)(.-)\nfunction '), path .. ' has no init_gear_sets')
+    body = body:gsub('%-%-%[(=*)%[.-%]%1%]', ''):gsub('%-%-[^\n]*', '')
+    local assignments, least = {}, math.huge
+    for indent, name in body:gmatch('\n([ \t]*)sets%.([%w_%.]+)%s*=[^=]') do
+        assignments[#assignments + 1] = {indent = #indent, name = name}
+        least = math.min(least, #indent)
+    end
     local names, seen = {}, {}
-    for name in body:gmatch('\n%s*sets%.([%w_%.]+)%s*=') do
-        if not seen[name] then
-            seen[name] = true
-            names[#names + 1] = name
+    for _, assignment in ipairs(assignments) do
+        if assignment.indent == least and not seen[assignment.name] then
+            seen[assignment.name] = true
+            names[#names + 1] = assignment.name
         end
     end
     return names

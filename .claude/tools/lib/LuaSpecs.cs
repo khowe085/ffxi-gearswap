@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
 
@@ -26,12 +27,13 @@ static class LuaSpecs
 	}
 
 	// busted's arguments for a spec file: the repo's output handler, and the filter, which busted reads as a Lua
-	// pattern, with each character a pattern gives a meaning to escaped, so it finds the text as it is.
+	// pattern: each character a pattern gives a meaning to is escaped, so it finds the text as it is, and each letter
+	// matches in either case, as the tools tests' filter does.
 	public static IReadOnlyList<string> BustedArguments(string spec, string? filter)
 	{
 		var arguments = new List<string> { "--output=tests/support/report.lua" };
 		if (filter is not null)
-			arguments.Add("--filter=" + string.Concat(filter.Select(c => "^$()%.[]*+-?".Contains(c) ? "%" + c : c.ToString())));
+			arguments.Add("--filter=" + string.Concat(filter.Select(Literal)));
 		arguments.Add(spec);
 		return arguments;
 	}
@@ -39,7 +41,7 @@ static class LuaSpecs
 	// Reads what busted wrote for a spec file with the repo's output handler, tests/support/report.lua: busted's
 	// JSON, as the last line on standard output, after anything the tests printed. Output without it is a spec file
 	// that didn't run, as one busted couldn't load, and its run keeps what was written on both streams.
-	public static SpecRun Read(string spec, string standardOutput, string standardError)
+	public static SpecRun Read(string spec, string standardOutput, string standardError, int exitCode)
 	{
 		var output = standardOutput + standardError;
 		var lines = standardOutput.ReplaceLineEndings("\n").TrimEnd('\n').Split('\n');
@@ -72,6 +74,9 @@ static class LuaSpecs
 				Take("failures", SpecResult.Failed);
 				Take("errors", SpecResult.Failed);
 				Take("pendings", SpecResult.Pending);
+				// busted's exit code counts the tests that failed, so any other means it broke off after its results.
+				if (exitCode != 0 && tests.All(test => test.Test.Result != SpecResult.Failed))
+					return new SpecRun(spec, false, [], $"busted exited with code {exitCode}, though no test failed\n{output.Trim()}");
 				return new SpecRun(spec, true, tests.OrderBy(test => test.Line).Select(test => test.Test).ToList(), output);
 			}
 			catch (JsonException)
@@ -104,7 +109,8 @@ static class LuaSpecs
 				output.WriteLine($"SKIP {test.Name} ({spec})" + (test.Message.Length > 0 ? ": " + test.Message : ""));
 				continue;
 			}
-			output.WriteLine($"{(test.Result == SpecResult.Passed ? "PASS" : "FAIL")} {test.Name} ({spec}, {test.Seconds:0.00} s)");
+			var seconds = test.Seconds.ToString("0.00", CultureInfo.InvariantCulture);
+			output.WriteLine($"{(test.Result == SpecResult.Passed ? "PASS" : "FAIL")} {test.Name} ({spec}, {seconds} s)");
 			if (test.Result == SpecResult.Failed)
 				output.WriteLine("     " + test.Message.Replace("\n", "\n     "));
 		}
@@ -123,6 +129,15 @@ static class LuaSpecs
 			count += $"; {unrun.Count} spec file{(unrun.Count == 1 ? "" : "s")} didn't run";
 		output.WriteLine(count);
 		return passed == ran && unrun.Count == 0 ? 0 : 1;
+	}
+
+	static string Literal(char c)
+	{
+		if ("^$()%.[]*+-?".Contains(c))
+			return "%" + c;
+		if (char.IsAsciiLetter(c))
+			return $"[{char.ToLowerInvariant(c)}{char.ToUpperInvariant(c)}]";
+		return c.ToString();
 	}
 
 	static string Text(JsonElement entry, string name) =>

@@ -200,7 +200,7 @@ function Game.new(options)
         hpp = 100, distance = 9, x = 3, y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true,
         model_size = 1, target_index = 0,
     }
-    game.target_index = options.no_target and nil or game.monster.index
+    game.target_index = game.monster.index
 
     game.spells = {}
     if options.spells then

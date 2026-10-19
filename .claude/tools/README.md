@@ -54,7 +54,7 @@ All carry `"schemaVersion": 1`. The classes are in `lib/Dto.cs`; property names 
 
 ## Outside data
 
-What the tools take from outside the repo seldom changes, so it is checked in under `docs/`, and the tools read it from there. Only the tools that write it fetch anything. The `update-ext-data` skill (`.claude/skills/update-ext-data/SKILL.md`) runs them all, then `rank-doc.cs` and the data checks, and reports what changed. It commits nothing.
+What the tools take from outside the repo seldom changes, so it is checked in under `docs/`, and the tools read it from there. Only the tools that write it fetch anything. The `update-ext-data` skill (`.claude/skills/update-ext-data/SKILL.md`) runs them all but `windower-libs.cs`, whose libraries change only when its pin moves, then `rank-doc.cs` and the data checks, and reports what changed. It commits nothing.
 
 | Path under `docs/` | What | Written by |
 |---|---|---|
@@ -165,7 +165,7 @@ dotnet run .claude/gear.cs -- test
 `tests/run-tests.cs` runs against Testy, whose repository is `tests/fixture/repo/`: its export, notes and gear list, a small Sel gear file (`data/Testy/Testy_Blu_Gear.lua`), sets files under `sets/`, clean and with mistakes put in, and small copies of the outside data under `docs/`. The tests never read the real data and never use the network.
 
 - The tests run the tools' builds the launcher just made, side by side, each on what it makes for itself, and each prints how long it took. A run takes a few seconds, after building the tools.
-- A test that needs a mistake copies the fixture to the temp folder, breaks the copy and runs the tool on it. Environment variables point the tools at what a test made: `GEAR_TOOLS_ROOT` at its repository, `GEAR_TOOLS_WIKI` and `GEAR_TOOLS_RESOURCES` at stand-ins for bg-wiki's API and Windower's resource files that the test runs on its own machine, and `GEAR_TOOLS_REPO_<NAME>` (`GEAR_TOOLS_REPO_WSDIST_BETA`, `GEAR_TOOLS_REPO_BG_JOB_GUIDES`) at a repository the test made, as `<url> <commit>`. Nothing else should set them. The tools a test runs also share a temp folder of the test's own, so the test can see what they left behind.
+- A test that needs a mistake copies the fixture to the temp folder, breaks the copy and runs the tool on it. Environment variables point the tools at what a test made: `GEAR_TOOLS_ROOT` at its repository, `GEAR_TOOLS_WIKI` and `GEAR_TOOLS_RESOURCES` at stand-ins for bg-wiki's API and Windower's resource files that the test runs on its own machine, and `GEAR_TOOLS_REPO_<NAME>` (`GEAR_TOOLS_REPO_WSDIST_BETA`, `GEAR_TOOLS_REPO_BG_JOB_GUIDES`, `GEAR_TOOLS_REPO_WINDOWER_LUA`) at a repository the test made, as `<url> <commit>`. Nothing else should set them. The tools a test runs also share a temp folder of the test's own, so the test can see what they left behind.
 
 ## Adding or changing a tool
 

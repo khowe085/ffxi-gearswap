@@ -37,7 +37,8 @@ return function(options)
     end
 
     handler.suiteEnd = function()
-        io.write(json.encode({
+        -- On a line of its own, even after a test that wrote text with no line end.
+        io.write('\n', json.encode({
             successes = plain_list(handler.successes),
             failures = plain_list(handler.failures),
             errors = plain_list(handler.errors),

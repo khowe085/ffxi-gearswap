@@ -44,11 +44,17 @@ try
 		try
 		{
 			using var process = Process.Start(start)!;
-			// Read both streams at once, so a full error pipe can't stall busted while this waits on its output.
+			// Read both streams at once, so a full pipe can't stall busted while this waits on the other.
 			var error = process.StandardError.ReadToEndAsync();
-			var output = process.StandardOutput.ReadToEnd();
-			process.WaitForExit();
-			runs[i] = LuaSpecs.Read(specs[i], output, error.Result);
+			var output = process.StandardOutput.ReadToEndAsync();
+			// A spec file takes seconds; one still running after this is stuck in a loop.
+			if (process.WaitForExit(TimeSpan.FromMinutes(10)) is false)
+			{
+				process.Kill(entireProcessTree: true);
+				runs[i] = new SpecRun(specs[i], false, [], "busted was stopped after 10 minutes");
+				return;
+			}
+			runs[i] = LuaSpecs.Read(specs[i], output.Result, error.Result, process.ExitCode);
 		}
 		catch (Win32Exception)
 		{

@@ -2386,7 +2386,7 @@ Test("LuaSpecs.Find takes every spec file under tests/, by its path in the repo,
 
 Test("LuaSpecs.Read gives each test of a spec file its outcome, message and time, in the file's order", () =>
 {
-	var run = LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "");
+	var run = LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "", 2);
 	Equal("tests/x_spec.lua", run.Spec);
 	Equal(true, run.Ran);
 	Equal("an earlier test|a set goes on|a set stays off|a hook runs|a buff comes", string.Join("|", run.Tests.Select(test => test.Name)));
@@ -2400,36 +2400,65 @@ Test("LuaSpecs.Read gives each test of a spec file its outcome, message and time
 
 Test("LuaSpecs.Read takes busted's JSON from standard output alone, whatever busted wrote on standard error", () =>
 {
-	var run = LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "Warning: a LuaRocks tree could not be read\n");
+	var run = LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "Warning: a LuaRocks tree could not be read\n", 2);
 	Equal(true, run.Ran);
 	Equal(5, run.Tests.Count);
 });
 
 Test("LuaSpecs.Read takes output without busted's JSON as a spec file that didn't run, and keeps both streams", () =>
 {
-	var run = LuaSpecs.Read("tests/x_spec.lua", "a line a test printed\n", "lua: tests/x_spec.lua:3: ')' expected near ':'\n");
+	var run = LuaSpecs.Read("tests/x_spec.lua", "a line a test printed\n", "lua: tests/x_spec.lua:3: ')' expected near ':'\n", 1);
 	Equal(false, run.Ran);
 	Equal(0, run.Tests.Count);
 	Equal("a line a test printed\nlua: tests/x_spec.lua:3: ')' expected near ':'", run.Output);
 });
 
-Test("LuaSpecs.BustedArguments has busted run a spec file with the repo's report, and finds a filter's text as it is", () =>
+Test("LuaSpecs.BustedArguments has busted run a spec file with the repo's report, and finds a filter's text as it is, in any case", () =>
 {
 	Equal("--output=tests/support/report.lua tests/a_spec.lua", string.Join(" ", LuaSpecs.BustedArguments("tests/a_spec.lua", null)));
-	// busted reads its filter as a Lua pattern, and a test's name holds brackets and dots.
-	Equal("--output=tests/support/report.lua --filter=sets%.precast%.WS%[name%] %(%^%$%*%+%-%?%%%) tests/a_spec.lua",
-		string.Join(" ", LuaSpecs.BustedArguments("tests/a_spec.lua", "sets.precast.WS[name] (^$*+-?%)")));
+	// busted reads its filter as a Lua pattern, and a test's name holds brackets and dots; the tools tests' filter
+	// takes a name in any case.
+	Equal("--output=tests/support/report.lua --filter=[sS]%.[wW]%[[nN]%] %(%^%$%*%+%-%?%%%)1 tests/a_spec.lua",
+		string.Join(" ", LuaSpecs.BustedArguments("tests/a_spec.lua", "s.W[n] (^$*+-?%)1")));
+});
+
+Test("LuaSpecs.Read takes a spec file busted gave up on after its results, with no test failed, as one that didn't run", () =>
+{
+	var passing = """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""" + "\n";
+	Equal(true, LuaSpecs.Read("tests/a_spec.lua", passing, "", 0).Ran);
+	var run = LuaSpecs.Read("tests/a_spec.lua", passing, "lua: the cleanup failed\n", 1);
+	Equal(false, run.Ran);
+	Contains(run.Output, "busted exited with code 1, though no test failed");
+	Contains(run.Output, "lua: the cleanup failed");
+	// busted's exit code counts the tests that failed.
+	Equal(true, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "", 2).Ran);
+});
+
+Test("LuaSpecs.Report writes the times the same in any culture", () =>
+{
+	var culture = System.Globalization.CultureInfo.CurrentCulture;
+	try
+	{
+		System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo("de-DE");
+		var written = new StringWriter();
+		LuaSpecs.Report([LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""", "", 0)], null, written);
+		Contains(written.ToString(), "PASS it works (tests/a_spec.lua, 0.25 s)");
+	}
+	finally
+	{
+		System.Globalization.CultureInfo.CurrentCulture = culture;
+	}
 });
 
 Test("LuaSpecs.Report writes a line for each test and the count, and fails a run with a failed test or a file that didn't run", () =>
 {
-	var passing = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""", "");
+	var passing = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""", "", 0);
 	var written = new StringWriter();
 	Equal(0, LuaSpecs.Report([passing], null, written));
 	Equal("PASS it works (tests/a_spec.lua, 0.25 s)\n1 of 1 tests passed\n", written.ToString().Replace("\r\n", "\n"));
 
 	written = new StringWriter();
-	Equal(1, LuaSpecs.Report([passing, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), ""), LuaSpecs.Read("tests/y_spec.lua", "", "lua: no such file\n")], null, written));
+	Equal(1, LuaSpecs.Report([passing, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "", 2), LuaSpecs.Read("tests/y_spec.lua", "", "lua: no such file\n", 1)], null, written));
 	var report = written.ToString().Replace("\r\n", "\n");
 	Contains(report, "FAIL a set stays off (tests/x_spec.lua, 0.13 s)\n     tests/x_spec.lua:20: Expected objects to be the same.\n");
 	Contains(report, "FAIL a hook runs (tests/x_spec.lua, 0.06 s)\n     gearswap.lua:12: attempt to call nil\n     stack traceback:\n     \tgearswap.lua:12: in function 'f'\n");
@@ -2439,13 +2468,13 @@ Test("LuaSpecs.Report writes a line for each test and the count, and fails a run
 
 	// A pending test declared outside an it has its reason in its name, and no message.
 	written = new StringWriter();
-	LuaSpecs.Report([LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[{"name":"a ring moves: GearSwap's bug"}]}""", "")], null, written);
+	LuaSpecs.Report([LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[{"name":"a ring moves: GearSwap's bug"}]}""", "", 0)], null, written);
 	Contains(written.ToString().Replace("\r\n", "\n"), "SKIP a ring moves: GearSwap's bug (tests/a_spec.lua)\n");
 });
 
 Test("LuaSpecs.Report says so, with exit code 2, when no test ran, as for a filter no test's name holds", () =>
 {
-	var none = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[]}""", "");
+	var none = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[]}""", "", 0);
 	var written = new StringWriter();
 	Equal(2, LuaSpecs.Report([none], "nothing like this", written));
 	Equal("No gearswap test's name holds \"nothing like this\".\n", written.ToString().Replace("\r\n", "\n"));
@@ -2459,7 +2488,9 @@ Test("run-gearswap-tests stops, and says what to install, when it can't run bust
 	var sandbox = NewSandbox();
 	Directory.CreateDirectory(Path.Combine(sandbox.Repo, "tests"));
 	File.WriteAllText(Path.Combine(sandbox.Repo, "tests", "a_spec.lua"), "it('runs', function() end)\n");
-	Stops(sandbox.RunWithoutGit("run-gearswap-tests"), "Couldn't run busted, which GearSwap's tests run on. Install Lua 5.1, LuaRocks and busted: luarocks --lua-version 5.1 install busted");
+	Stops(sandbox.RunWithoutGit("run-gearswap-tests"), OperatingSystem.IsWindows()
+		? "GearSwap's tests run on Linux or WSL, not on Windows."
+		: "Couldn't run busted, which GearSwap's tests run on. Install Lua 5.1, LuaRocks and busted: luarocks --lua-version 5.1 install busted");
 	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
 });
 
