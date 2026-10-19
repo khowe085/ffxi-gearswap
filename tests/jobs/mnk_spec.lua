@@ -1,4 +1,4 @@
-local jobby = require('jobby_jobs_1_8')
+local jobby = require('jobby')
 
 local gear = {'Volte Cap', 'Null Masque', 'Volte Jupon', 'Adamantite Armor', 'Volte Bracers', 'Volte Hose',
     'Volte Boots', 'Fotia Gorget', "Combatant's Torque", 'Null Belt', 'Fotia Belt', 'Moonshade Earring',
@@ -28,7 +28,7 @@ end
 local function boot_buffing(options)
     local gs = boot_ticking(options)
     gs:console('gs c set AutoBuffMode Auto')
-    jobby.fight(gs)
+    gs:monster_hits()
     return gs
 end
 
@@ -45,7 +45,7 @@ local function engaged_with(changes)
     for slot, item in pairs(changes) do
         set[slot] = item
     end
-    return jobby.idle_with(set)
+    return jobby.worn_by(set, jobby.full_idle)
 end
 
 describe('MNK\'s melee set', function()
@@ -120,16 +120,16 @@ describe('MNK\'s idle set', function()
     it('has sets.buff.Boost laid over it while Boost is up', function()
         local gs = boot()
         gs:gain_buff('Boost')
-        assert.same(jobby.idle_with({ring1 = 'Karieyh Ring'}), gs:worn())
+        assert.same(jobby.worn_by({ring1 = 'Karieyh Ring'}, jobby.full_idle), gs:worn())
         gs:lose_buff('Boost')
-        assert.same(jobby.idle_with({}), gs:worn())
+        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
     end)
 
     it('has no Impetus or Footwork set laid over it', function()
         local gs = boot()
         gs:gain_buff('Impetus')
         gs:gain_buff('Footwork')
-        assert.same(jobby.idle_with({}), gs:worn())
+        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -140,8 +140,9 @@ describe('MNK\'s weapon skill set', function()
     end)
 
     it('is sets.precast.WS[name]', function()
-        assert.same(jobby.idle_with({head = 'Volte Cap', neck = 'Fotia Gorget', ear1 = 'Moonshade Earring',
-            ear2 = 'Brutal Earring', waist = 'Fotia Belt'}), weaponskill(gs, '/ws "Victory Smite" <t>'))
+        assert.same(jobby.worn_by({head = 'Volte Cap', neck = 'Fotia Gorget', ear1 = 'Moonshade Earring',
+            ear2 = 'Brutal Earring', waist = 'Fotia Belt'},
+                jobby.full_idle), weaponskill(gs, '/ws "Victory Smite" <t>'))
     end)
 
     it('swaps Moonshade Earring for sets.MaxTP when TP, with Moonshade\'s 250, is over 3200', function()
@@ -236,7 +237,7 @@ describe('MNK\'s Boost', function()
 
     it('wears sets.precast.JA.Boost and, out of combat, its OutOfCombat set', function()
         local gs = boot()
-        assert.same(jobby.idle_with({hands = 'Volte Bracers', feet = 'Volte Boots'}), boost(gs))
+        assert.same(jobby.worn_by({hands = 'Volte Bracers', feet = 'Volte Boots'}, jobby.full_idle), boost(gs))
     end)
 
     it('wears only sets.precast.JA.Boost when engaged', function()
@@ -249,7 +250,7 @@ describe('MNK\'s Boost', function()
 
     it('wears only sets.precast.JA.Boost in a fight', function()
         local gs = boot()
-        jobby.fight(gs)
+        gs:monster_hits()
         local worn = boost(gs)
         assert.equal('Volte Bracers', worn.hands)
         assert.equal('Nyame Sollerets', worn.feet)
@@ -269,13 +270,14 @@ describe('MNK\'s weapon skill under Auto Boost', function()
     end)
 
     it('is held for Boost when Warcry is on recast', function()
-        jobby.set_ability_recasts(gs, {[2] = 60})
+        gs.game:start_ability_recast('Warcry', 60)
         gs:type('/ws "Victory Smite" <t>')
         assert.same({'Boost'}, actions_of(gs:traffic()))
     end)
 
     it('goes out when Warcry and Boost are both on recast', function()
-        jobby.set_ability_recasts(gs, {[2] = 60, [16] = 60})
+        gs.game:start_ability_recast('Warcry', 60)
+        gs.game:start_ability_recast('Boost', 60)
         gs:type('/ws "Victory Smite" <t>')
         assert.same({'Victory Smite'}, actions_of(gs:traffic()))
     end)
@@ -284,11 +286,12 @@ describe('MNK\'s weapon skill under Auto Boost', function()
         gs:type('/ws "Victory Smite" <t>')
         assert.same({'Warcry'}, actions_of(gs:traffic()))
         gs:finish_action()
-        jobby.set_ability_recasts(gs, {[2] = 60})
+        gs.game:start_ability_recast('Warcry', 60)
         gs:advance(1.2)
         assert.same({'Boost'}, actions_of(gs:traffic()))
         gs:finish_action()
-        jobby.set_ability_recasts(gs, {[2] = 60, [16] = 60})
+        gs.game:start_ability_recast('Warcry', 60)
+        gs.game:start_ability_recast('Boost', 60)
         gs:advance(1.2)
         assert.same({'Victory Smite'}, actions_of(gs:traffic()))
     end)
@@ -341,13 +344,13 @@ describe('MNK\'s Auto Buff Mode in a fight', function()
     it('passes over Chakra while it is on recast', function()
         local gs = boot_buffing()
         gs.game.player.vitals.hp, gs.game.player.vitals.hpp = 700, 50
-        jobby.set_ability_recasts(gs, {[15] = 30})
+        gs.game:start_ability_recast('Chakra', 30)
         assert.same({'Impetus'}, actions_of(jobby.until_action(gs)))
     end)
 
     it('passes over Impetus while it is on recast', function()
         local gs = boot_buffing()
-        jobby.set_ability_recasts(gs, {[31] = 30})
+        gs.game:start_ability_recast('Impetus', 30)
         assert.same({'Focus'}, actions_of(jobby.until_action(gs)))
     end)
 
@@ -368,7 +371,7 @@ describe('MNK\'s Auto Buff Mode in a fight', function()
 
     it('goes on to Aggressor with a War sub job and Berserk up, Focus being on recast', function()
         local gs = boot_buffing({sub_job = 'WAR'})
-        jobby.set_ability_recasts(gs, {[13] = 30})
+        gs.game:start_ability_recast('Focus', 30)
         gs:gain_buff('Impetus')
         gs:gain_buff('Berserk')
         assert.same({'Aggressor'}, actions_of(jobby.until_action(gs)))

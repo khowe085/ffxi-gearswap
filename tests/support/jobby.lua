@@ -1,8 +1,7 @@
 -------------------------------------------------------------------------------------------------------------------
--- Jobby, the made-up character the tests of the job files (data/BLU.lua, COR.lua, PUP.lua, DNC.lua, SCH.lua, GEO.lua
--- and RUN.lua) play: the boot options for each job, over the fixture gear file tests/fixture/data/Jobby/Jobby_<Job>_Gear.lua
--- that job loads, the sets as they are worn, and what a test of a job file needs besides: the world's day and
--- weather, recasts that aren't ready, and the actions of a pet.
+-- Jobby, the made-up character the tests of the job files in data/ play (tests/jobs): the boot options for each job,
+-- over the fixture gear file tests/fixture/data/Jobby/Jobby_<Job>_Gear.lua that job loads, the sets as they are worn,
+-- and a look at what the job file sent, typed, ran and said.
 -------------------------------------------------------------------------------------------------------------------
 
 local harness = require('harness')
@@ -15,15 +14,20 @@ jobby.idle = {head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets
     feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt', left_ear = 'Etiolation Earring',
     right_ear = 'Loquac. Earring', left_ring = 'Defending Ring', right_ring = 'Stikini Ring +1'}
 
--- What the game shows worn once the idle set is on and the changes are laid over it: a slot named in the set's own
--- terms (ring1) or the game's (left_ring), a piece or 'empty'.
+-- What the idle set of the gear files of WAR, MNK, WHM, BLM, RDM, THF, PLD and DRK wears: every gear file's, with an
+-- ammo and a back.
+jobby.full_idle = testy.worn_by(jobby.idle, {ammo = 'Staunch Tathlum +1', back = 'Moonbeam Cape'})
+
+-- What the game shows worn once the idle set (jobby.idle unless another is given) is on and the changes are laid over
+-- it: a slot named in the set's own terms (ring1) or the game's (left_ring), a piece or 'empty'.
 function jobby.worn_by(changes, base)
     return testy.worn_by(base or jobby.idle, changes)
 end
 
--- The pieces Jobby wears in every gear file's idle set.
-jobby.idle_items = {'Nyame Helm', 'Nyame Mail', 'Nyame Gauntlets', 'Nyame Flanchard', 'Nyame Sollerets',
-    'Loricate Torque +1', 'Plat. Mog. Belt', 'Etiolation Earring', 'Loquac. Earring', 'Defending Ring', 'Stikini Ring +1'}
+-- The pieces of the idle sets, which every job can wear.
+local idle_items = {'Nyame Helm', 'Nyame Mail', 'Nyame Gauntlets', 'Nyame Flanchard', 'Nyame Sollerets',
+    'Loricate Torque +1', 'Plat. Mog. Belt', 'Etiolation Earring', 'Loquac. Earring', 'Defending Ring',
+    'Stikini Ring +1', 'Staunch Tathlum +1', 'Moonbeam Cape'}
 
 local slots = {main = true, sub = true, range = true, ammo = true, head = true, neck = true, left_ear = true,
     right_ear = true, body = true, hands = true, left_ring = true, right_ring = true, back = true, waist = true,
@@ -49,107 +53,122 @@ function jobby.layer(...)
     return merged
 end
 
--- The equip request GearSwap sends for the sets laid one over another.
-function jobby.request(...)
-    return jobby.layer(...)
+-- Forgets what was sent, typed, run and said so far.
+local function forget(gs)
+    gs:traffic()
+    gs.game.commands, gs.game.typed, gs.game.chat_log = {}, {}, {}
 end
 
--- Boot options for Jobby on a job: the pieces named (and the idle set's) in the inventory, the job's gear file
--- expected, over what the test gives.
---   job        the job's short name
---   items      the names of the pieces the gear file names beyond the idle set's, a {name =, count =, bag =} for one
---              that needs more
---   overrides  boot options that replace these
-function jobby.options(job, items, overrides)
-    local options = {character = 'Jobby', main_job = job, sub_job = 'NIN', expect_file = job .. '.lua', items = {}}
-    for _, name in ipairs(jobby.idle_items) do
-        options.items[#options.items + 1] = {name = name}
+-- Boots Jobby as that job, with the pieces of the idle sets and the items given in the inventory and every gear file's
+-- idle set on, and has Sel update the gear once, with nothing sent, typed, run or said since. options are a boot's
+-- (see harness.boot), with these in place of the harness's:
+--   items     the names of the pieces Jobby has besides the idle sets', or {name =, bag =, count =} for one that
+--             needs more
+--   wearing   slot name to the name of an item, worn when GearSwap loads over the idle set
+--   sub_job   WHM unless given
+function jobby.boot(job, options)
+    local boot = {character = 'Jobby', main_job = job, sub_job = 'WHM', expect_file = job .. '.lua'}
+    for key, value in pairs(options or {}) do
+        boot[key] = value
     end
-    for _, item in ipairs(items or {}) do
-        options.items[#options.items + 1] = type(item) == 'string' and {name = item} or item
+    boot.items = {}
+    for _, name in ipairs(idle_items) do
+        boot.items[#boot.items + 1] = {name = name}
     end
-    options.wearing = {}
-    for slot, name in pairs(jobby.idle) do
-        options.wearing[slot] = name
+    for _, item in ipairs((options or {}).items or {}) do
+        boot.items[#boot.items + 1] = type(item) == 'table' and item or {name = item}
     end
-    for key, value in pairs(overrides or {}) do
-        options[key] = value
+    boot.wearing = testy.worn_by(jobby.idle, (options or {}).wearing)
+    local gs = harness.boot(boot)
+    gs:console('gs c update')
+    forget(gs)
+    return gs
+end
+
+-- As boot, and past the five seconds Sel waits after loading before its tick acts, with nothing sent since.
+function jobby.boot_ticking(job, options)
+    local gs = jobby.boot(job, options)
+    gs:play(6)
+    forget(gs)
+    return gs
+end
+
+-- What Jobby has targeted is another player, Pal, standing in front of him, who isn't in the party. fields are over
+-- Pal's (see Game:add_party_member). Returns Pal as the game holds him.
+function jobby.target_a_player(gs, fields)
+    local pal = {name = 'Pal', in_party = false}
+    for key, value in pairs(fields or {}) do
+        pal[key] = value
     end
-    return options
+    pal = gs.game:add_party_member(pal)
+    gs.game:target(pal.index)
+    return pal
 end
 
-function jobby.boot(job, items, overrides)
-    return harness.boot(jobby.options(job, items, overrides))
-end
-
--- Makes the world's day and weather what the test says: day and weather by their ids in the resources
--- (day 6 is Lightsday, weather 16 is Auroras). The addon takes them up the next time it reads the world.
-function jobby.set_world(gs, world)
-    local game = gs.game
-    local original = game.get_info
-    game.get_info = function(self)
-        local info = original(self)
-        for key, value in pairs(world) do
-            info[key] = value
-        end
-        return info
-    end
-end
-
--- An action packet of the pet's, as the server sends it. category 7 is a weapon skill (a monster ability, by its id in
--- the resources) readied, 11 the end of one, 8 a spell begun and 4 a spell cast (by spell id).
-local function pet_action(gs, category, param, action_param, message)
-    gs:run(function()
-        gs.game:send_action_packet({
-            actor_id = gs.game.pet.id, category = category, param = param, recast = 0,
-            targets = {{id = category == 7 and gs.game.monster.id or gs.game.player.id,
-                actions = {{message = message, param = action_param, reaction = 0, animation = 0, effect = 0, stagger = 0}}}},
-        })
-        gs.game:settle()
-    end)
-end
-
-function jobby.pet_readies(gs, ability_id)
-    pet_action(gs, 7, 24931, ability_id, 185)
-end
-
-function jobby.pet_uses(gs, ability_id)
-    pet_action(gs, 11, ability_id, 100, 185)
-end
-
-function jobby.pet_starts_spell(gs, spell_id)
-    pet_action(gs, 8, 24931, spell_id, 7)
-end
-
-function jobby.pet_casts(gs, spell_id)
-    pet_action(gs, 4, spell_id, 100, 7)
-end
-
--- Puts each ability recast (by recast id, in seconds) and each spell recast (by spell id, in frames of a sixtieth
--- of a second) at what the test says; every other one stays ready.
-function jobby.set_recasts(gs, recasts)
-    local game = gs.game
-    game.ability_recast_overrides = recasts.abilities or game.ability_recast_overrides
-    game.spell_recast_overrides = recasts.spells or game.spell_recast_overrides
-    if not game.recasts_overridden then
-        game.recasts_overridden = true
-        local original_abilities = game.ability_recasts
-        game.ability_recasts = function(self)
-            local result = original_abilities(self)
-            for id, seconds in pairs(self.ability_recast_overrides or {}) do
-                result[id] = seconds
+-- Plays the game on until the addon sends an action, and returns everything it sent as Session:traffic gives it; nil
+-- when no action goes out in that many seconds (6 unless given, the time a spell and its aftercast hold Sel's tick).
+function jobby.until_action(gs, seconds)
+    for _ = 1, math.floor((seconds or 6) * 10 + 0.5) do
+        gs:play(0.1)
+        local traffic = gs:traffic()
+        for _, entry in ipairs(traffic) do
+            if entry.action then
+                return traffic
             end
-            return result
-        end
-        local original_spells = game.windower.ffxi.get_spell_recasts
-        game.windower.ffxi.get_spell_recasts = function()
-            local result = original_spells()
-            for id, frames in pairs(game.spell_recast_overrides or {}) do
-                result[id] = frames
-            end
-            return result
         end
     end
+end
+
+-- The names of the actions in what Session:traffic gave, in order.
+function jobby.action_names(traffic)
+    local names = {}
+    for _, entry in ipairs(traffic or {}) do
+        if entry.action then
+            names[#names + 1] = entry.action
+        end
+    end
+    return names
+end
+
+-- The names of the actions GearSwap sent since this was last asked, in order.
+function jobby.actions(gs)
+    return jobby.action_names(gs:traffic())
+end
+
+-- The actions GearSwap sent since this was last asked, in order, as {action = name, target = name}.
+function jobby.action_entries(gs)
+    local entries = {}
+    for _, entry in ipairs(gs:traffic()) do
+        if entry.action then
+            entries[#entries + 1] = entry
+        end
+    end
+    return entries
+end
+
+-- The lines typed into the chat since this was last asked that GearSwap let through to the game as they were.
+function jobby.typed(gs)
+    local lines = gs.game.typed
+    gs.game.typed = {}
+    return lines
+end
+
+-- The text of what the addon put in the chat log since this was last asked, without the color codes it wraps its
+-- messages in.
+function jobby.chat(gs)
+    local lines = {}
+    for _, entry in ipairs(gs.game.chat_log) do
+        lines[#lines + 1] = (entry.text:gsub('^\31.', ''):gsub('\30\1$', ''))
+    end
+    gs.game.chat_log = {}
+    return lines
+end
+
+-- The console commands run since this was last asked, as the game recorded them.
+function jobby.commands(gs)
+    local commands = gs.game.commands
+    gs.game.commands = {}
+    return commands
 end
 
 return jobby

@@ -117,7 +117,7 @@ describe('Sel in Abyssea', function()
     local gs
     before_each(function()
         gs = commy.boot_rdm()
-        commy.game(gs, 'change_zone', 132)
+        gs:change_zone(132)
     end)
 
     -- A line of the game's in the chat log.
@@ -139,7 +139,7 @@ describe('Sel in Abyssea', function()
     end)
 
     it('heeds no such line outside Abyssea', function()
-        commy.game(gs, 'change_zone', 288)
+        gs:change_zone(288)
         game_says('The fiend appears vulnerable to ice elemental magic!')
         assert.equal('Fire', gs.user.state.ElementalMode.value)
     end)

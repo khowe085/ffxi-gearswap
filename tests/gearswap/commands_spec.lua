@@ -1,6 +1,5 @@
 local harness = require('harness')
 local plain = require('plain')
-local world = require('world')
 
 local chat, texts, printed = plain.chat, plain.texts, plain.printed
 
@@ -23,7 +22,7 @@ local function boot_corey_without_a_file()
         character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
         items = {{name = 'Nyame Helm'}, {name = 'Nyame Mail'}},
     })
-    world.change_job(gs, 'MON')
+    gs:change_main_job('MON')
     assert.is_nil(gs.env.user_env, 'Corey has a file for the monipulator')
     printed(gs)
     chat(gs)
@@ -602,7 +601,7 @@ describe('with no file loaded', function()
 
     it('a change to a job that has a file loads it', function()
         local gs = boot_corey_without_a_file()
-        world.change_job(gs, 'BLM')
+        gs:change_main_job('BLM')
         assert.equal('Corey_BLM.lua', gs.env.current_file)
     end)
 end)

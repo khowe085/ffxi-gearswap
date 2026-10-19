@@ -96,7 +96,7 @@ end
 -- Commy as a warrior at noon, with the idle set on, and nothing sent or said yet.
 function commy.boot_war(overrides)
     return boot(commy.war(overrides), function(gs)
-        commy.game(gs, 'set_time', 12 * 60)
+        gs:set_time(12 * 60)
     end)
 end
 
@@ -137,16 +137,6 @@ function commy.printed(gs)
     end
     gs.commy_printed_seen = #printed
     return lines
-end
-
--- Has the game do something, by the name of a method of support/game.lua's Game, and lets it settle, as the
--- session's own methods do.
-function commy.game(gs, method, ...)
-    local arguments = {n = select('#', ...), ...}
-    gs:run(function()
-        gs.game[method](gs.game, unpack(arguments, 1, arguments.n))
-        gs.game:settle()
-    end)
 end
 
 -- The id of the entry with that English name in a test resource (spells, monster_abilities and the like).

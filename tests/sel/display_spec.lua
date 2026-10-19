@@ -133,18 +133,18 @@ describe('Sel\'s status box', function()
         .. 'is on, so the box stays up until something else updates it, as gs c update does')
 
     it('hides when the client leaves the zone, as on logging out', function()
-        commy.game(gs, 'leave_zone')
+        gs:leave_zone()
         assert.is_false(gs.user.stateBox:visible())
     end)
 
     it('shows again on zoning in', function()
-        commy.game(gs, 'change_zone', 248)
+        gs:change_zone(248)
         assert.is_true(gs.user.stateBox:visible())
     end)
 
     it('stays hidden on zoning in while DisplayMode is off', function()
         gs:console('gs c toggle DisplayMode')
-        commy.game(gs, 'change_zone', 248)
+        gs:change_zone(248)
         assert.is_false(gs.user.stateBox:visible())
     end)
 

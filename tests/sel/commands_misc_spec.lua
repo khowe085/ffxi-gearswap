@@ -226,12 +226,10 @@ end)
 describe('gs c facemob', function()
     it('turns Commy to face the monster Commy targets', function()
         local gs = commy.boot_rdm()
-        local turns = {}
-        gs.game.windower.ffxi.turn = function(angle) turns[#turns + 1] = angle end
         gs.game.monster.x, gs.game.monster.y = 0, 3
         gs:console('gs c facemob')
-        assert.equal(1, #turns)
-        assert.near(-math.pi / 2, turns[1], 1e-9)
+        assert.equal(1, #gs.game.turns)
+        assert.near(-math.pi / 2, gs.game.turns[1], 1e-9)
     end)
 end)
 
@@ -244,7 +242,7 @@ describe('gs c killstatue', function()
     end)
 
     it('uses the job\'s statue weapon skill on a statue in reach in Bastok\'s Dynamis [D]', function()
-        commy.game(gs, 'change_zone', 295)
+        gs:change_zone(295)
         gs:console('gs c killstatue')
         gs:advance(0.5)
         assert.truthy(table.concat(gs.game.commands, '\n'):find('Sanguine Blade ' .. gs.game.monster.id, 1, true))

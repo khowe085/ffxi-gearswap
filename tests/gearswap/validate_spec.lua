@@ -1,7 +1,6 @@
 local harness = require('harness')
 local plain = require('plain')
 local testy = require('testy')
-local world = require('world')
 
 local chat, texts = plain.chat, plain.texts
 
@@ -93,7 +92,7 @@ describe('gs validate', function()
             character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
             items = {{name = 'Nyame Helm'}},
         })
-        world.change_job(gs, 'MON')
+        gs:change_main_job('MON')
         chat(gs)
         assert.same({'GearSwap: There is nothing to validate because there is no file loaded.'}, texts(validate(gs)))
     end)

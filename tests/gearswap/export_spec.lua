@@ -2,7 +2,6 @@ local harness = require('harness')
 local lfs = require('lfs')
 local plain = require('plain')
 local testy = require('testy')
-local world = require('world')
 
 local chat, texts = plain.chat, plain.texts
 
@@ -329,7 +328,7 @@ describe('gs export of the items', function()
 
     it('of all with the items in a safe puts them under the safe', function()
         local gs = boot()
-        world.send(gs, 0x020, {['Count'] = 1, ['Item'] = 21621, ['Bag'] = 1, ['Index'] = 1})
+        gs:send(0x020, {['Count'] = 1, ['Item'] = 21621, ['Bag'] = 1, ['Index'] = 1})
         export(gs, 'all file safe')
         local bags = by_bag(exported(gs, 'Testy_safe.lua'))
         assert.is_truthy(bags.safe:find('"Naegling"', 1, true))
@@ -388,7 +387,7 @@ describe('gs export of the sets', function()
             character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
             items = {{name = 'Nyame Helm'}},
         })
-        world.change_job(gs, 'MON')
+        gs:change_main_job('MON')
         chat(gs)
         assert.same({'GearSwap: Cannot export the sets table of the current file because there is no file loaded.'},
             export(gs, 'sets'))

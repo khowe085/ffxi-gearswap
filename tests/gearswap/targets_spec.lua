@@ -1,6 +1,5 @@
 local plain = require('plain')
 local testy = require('testy')
-local world = require('world')
 
 local function calls(gs)
     local list = gs.user.calls
@@ -33,6 +32,22 @@ local function sent_since(gs, mark, id)
     return found
 end
 
+-- Notes each axis of the target arrow GearSwap reads from get_info, whose answers stay the game's. Returns the list.
+local function watch_arrow(gs)
+    local reads = {}
+    local get_info = gs.game.get_info
+    gs.game.get_info = function(game)
+        local info = get_info(game)
+        local arrow = info.target_arrow
+        info.target_arrow = setmetatable({}, {__index = function(_, axis)
+            reads[#reads + 1] = axis
+            return arrow[axis]
+        end})
+        return info
+    end
+    return reads
+end
+
 local function error_of(fn, ...)
     local ok, err = pcall(fn, ...)
     assert.is_false(ok, 'expected an error')
@@ -59,7 +74,7 @@ describe('an action aimed at a target typed as', function()
 
     it('a name is a player who is no party member, with no flag for the party', function()
         local gs = boot()
-        gs.game:add_mob({name = 'Bob', is_npc = false, spawn_type = 1, id = 0x100999})
+        gs.game:add_party_member({name = 'Bob', in_party = false})
         gs:type('/ma "Cure III" Bob')
         local got = calls(gs)
         assert.same({'Bob', false}, {got[1].target, got[1].party or false})
@@ -96,6 +111,26 @@ describe('an action aimed at a target typed as', function()
         assert.same({{equip = precast_gear}, {action = 'Dia II', target = 'Apex Toad'}, {equip = midcast_gear}}, gs:traffic())
     end)
 
+    it('its id has GearSwap read the target arrow, and goes at the target with no offset in its packet: precast '
+        .. 'builds the packet again without it', function()
+        local gs = boot()
+        gs.game:set_info({target_arrow = {x = 5, y = 2, z = 1}})
+        local reads = watch_arrow(gs)
+        local mark = #gs.game.sent
+        gs:type('/ma "Dia II" ' .. gs.game.monster.id)
+        assert.is_true(#reads > 0)
+        assert.same({action = 'Dia II', target = 'Apex Toad'}, gs:traffic()[2])
+        assert.same({0, 0, 0}, {sent_since(gs, mark, 0x1A)[1].data:unpack('fff', 17)})
+    end)
+
+    it('<t> has GearSwap leave the target arrow alone for a spell with no Ge in its name', function()
+        local gs = boot()
+        local reads = watch_arrow(gs)
+        gs:type('/ma "Dia II" <t>')
+        assert.same({}, reads)
+        assert.same({action = 'Dia II', target = 'Apex Toad'}, gs:traffic()[2])
+    end)
+
     it('an id nobody has is left to the game', function()
         local gs = boot()
         gs:type('/ma "Cure III" 99999999')
@@ -104,7 +139,7 @@ describe('an action aimed at a target typed as', function()
 
     it('<pet> goes at the pet', function()
         local gs = boot()
-        gs.game:summon_pet({name = 'Carbuncle'})
+        gs.game:place_pet({name = 'Carbuncle'})
         gs:type('/ma "Cure III" <pet>')
         assert.same({'Carbuncle'}, {gs:traffic()[2].target})
     end)
@@ -366,6 +401,10 @@ describe('move_spell_target', function()
         assert.same({9, 7, 8}, {sent_since(gs, mark, 0x1A)[1].data:unpack('fff', 17)})
     end)
 
+    pending('is none for an action that is no geomancy spell, such as Tachi: Gekko, when the target arrow is away from '
+        .. 'the target: equip_sets in flow.lua looks for \'Geo-\' in the name as a Lua pattern, in which - repeats '
+        .. 'the o it follows, so any name with Ge in it takes the offset')
+
     it('with something that is not a table of numbers is an error', function()
         local gs = boot()
         gs.user.knobs.move_target = {x = 1, y = 'two', z = 3}
@@ -469,7 +508,7 @@ describe('an action the player can\'t use', function()
 
     it('in the Mog House goes to the game, after filtered_action', function()
         local gs = boot()
-        world.zone_in(gs, {['_unknown7'] = ('\0'):rep(20) .. '\1'})
+        gs:send_zone_in({['_unknown7'] = ('\0'):rep(20) .. '\1'})
         calls(gs)
         gs:type('/ma "Cure III" <me>')
         assert.same({'filtered_action'}, events(calls(gs)))
@@ -600,7 +639,7 @@ describe('an item typed in the chat', function()
 
         it('sends the trade packet (0x036) for an NPC that is near', function()
             local gs = with_remedy()
-            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = 4})
+            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = 4 ^ 2})
             local mark = #gs.game.sent
             gs:type('/item "Remedy" ' .. npc.id)
             assert.equal(npc.id, sent_since(gs, mark, 0x36)[1].data:unpack('I', 5))
@@ -608,7 +647,7 @@ describe('an item typed in the chat', function()
 
         it('tells the player an NPC is too far away, and goes nowhere', function()
             local gs = with_remedy()
-            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = 10})
+            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = 10 ^ 2})
             local mark = #gs.game.sent
             assert.is_true(gs:type('/item "Remedy" ' .. npc.id))
             assert.same({}, sent_since(gs, mark, 0x36))
@@ -623,9 +662,9 @@ describe('an item typed in the chat', function()
     end)
 
     describe('given to an NPC', function()
-        local function with_npc(distance)
+        local function with_npc(yalms)
             local gs = with_remedy()
-            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = distance})
+            local npc = gs.game:add_mob({name = 'Moogle', spawn_type = 2, distance = yalms ^ 2})
             gs.game:target(npc.index)
             return gs, npc
         end

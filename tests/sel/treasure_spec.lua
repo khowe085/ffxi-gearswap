@@ -69,7 +69,7 @@ describe('Sel\'s Treasure Hunter in Tag mode', function()
 
     it('forgets every monster on zoning', function()
         tag_with_dia(gs)
-        commy.game(gs, 'change_zone', 288)
+        gs:change_zone(288)
         assert.is_true(dia_wears_th(gs))
     end)
 

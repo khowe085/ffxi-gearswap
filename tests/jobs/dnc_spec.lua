@@ -17,15 +17,8 @@ local function boot(options)
     for _ = 1, (options.kobers or 1) - 1 do
         items[#items + 1] = 'Setan Kober'
     end
-    local wearing = {}
-    for slot, name in pairs(jobby.idle) do
-        wearing[slot] = name
-    end
-    for slot, name in pairs(options.wearing or {}) do
-        wearing[slot] = name
-    end
-    local gs = jobby.boot('DNC', items,
-        {sub_job = options.sub_job or 'NIN', tp = options.tp, buffs = options.buffs, wearing = wearing})
+    local gs = jobby.boot('DNC', {items = items, sub_job = options.sub_job or 'NIN', tp = options.tp,
+        buffs = options.buffs, wearing = options.wearing})
     if options.hp then
         gs.game.player.vitals.hp = options.hp
     end
@@ -74,7 +67,7 @@ describe('a step', function()
         local gs = boot({tp = 0})
         gs:type('/ja "Box Step" <t>')
         local sent = gs:traffic()
-        assert.same(jobby.request(sets_of(gs).precast.Step), sent[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.Step), sent[1].equip)
         assert.equal('Box Step', sent[2].action)
     end)
 
@@ -89,7 +82,7 @@ describe('a step', function()
             local gs = boot({tp = 1200, engaged = true})
             gs:type('/ja "Box Step" <t>')
             gs:traffic()
-            jobby.set_recasts(gs, {abilities = {[236] = 30}})
+            gs.game:start_ability_recast('Presto', 30)
             gs:advance(1.2)
             assert.same({'Box Step'}, actions(gs))
         end)
@@ -115,14 +108,14 @@ describe('a step', function()
 
         it('goes out at once while Presto is on recast', function()
             local gs = boot({tp = 1200, engaged = true})
-            jobby.set_recasts(gs, {abilities = {[236] = 30}})
+            gs.game:start_ability_recast('Presto', 30)
             gs:type('/ja "Box Step" <t>')
             assert.same({'Box Step'}, actions(gs))
         end)
 
         it('is refused while the steps are on recast', function()
             local gs = boot({tp = 1200, engaged = true})
-            jobby.set_recasts(gs, {abilities = {[220] = 30}})
+            gs.game:start_ability_recast('Quickstep', 30)
             gs:type('/ja "Box Step" <t>')
             assert.same({}, actions(gs))
             assert.is_true(said(gs, 'Abort: [Box Step] waiting on recast.'))
@@ -223,19 +216,19 @@ describe('a weapon skill under AutoBuffMode with the TP to spare for a step', fu
 
     it('goes out while Presto is neither ready nor up', function()
         local gs = buffer()
-        jobby.set_recasts(gs, {abilities = {[236] = 30}})
+        gs.game:start_ability_recast('Presto', 30)
         assert.same({'Rudra\'s Storm'}, weaponskill(gs))
     end)
 
     it('is held back for the step itself with Presto up', function()
         local gs = buffer({buffs = {'Presto'}})
-        jobby.set_recasts(gs, {abilities = {[236] = 30}})
+        gs.game:start_ability_recast('Presto', 30)
         assert.same({'Box Step'}, weaponskill(gs))
     end)
 
     it('goes out when the steps are on recast', function()
         local gs = buffer()
-        jobby.set_recasts(gs, {abilities = {[220] = 30}})
+        gs.game:start_ability_recast('Quickstep', 30)
         assert.same({'Rudra\'s Storm'}, weaponskill(gs))
     end)
 
@@ -246,31 +239,32 @@ describe('a weapon skill under AutoBuffMode with the TP to spare for a step', fu
 
     it('is held back for Building Flourish when Climactic Flourish is on recast', function()
         local gs = buffer({buffs = {'Finishing Move 3'}})
-        jobby.set_recasts(gs, {abilities = {[226] = 30}})
+        gs.game:start_ability_recast('Climactic Flourish', 30)
         assert.same({'Building Flourish'}, weaponskill(gs))
     end)
 
     it('is held back for Climactic Flourish when Building Flourish is on recast', function()
         local gs = buffer({buffs = {'Finishing Move 3'}})
-        jobby.set_recasts(gs, {abilities = {[222] = 30}})
+        gs.game:start_ability_recast('Building Flourish', 30)
         assert.same({'Climactic Flourish'}, weaponskill(gs))
     end)
 
     it('goes out with Climactic Flourish up, its recast running, and Building Flourish not to be used on it', function()
         local gs = buffer({buffs = {'Finishing Move 3', 'Climactic Flourish'}})
-        jobby.set_recasts(gs, {abilities = {[226] = 30}})
+        gs.game:start_ability_recast('Climactic Flourish', 30)
         assert.same({'Rudra\'s Storm'}, weaponskill(gs))
     end)
 
     it('goes out with Building Flourish up, its recast running, and Climactic Flourish not to be used on it', function()
         local gs = buffer({buffs = {'Finishing Move 3', 'Building Flourish'}})
-        jobby.set_recasts(gs, {abilities = {[222] = 30}})
+        gs.game:start_ability_recast('Building Flourish', 30)
         assert.same({'Rudra\'s Storm'}, weaponskill(gs))
     end)
 
     it('goes out when both flourishes are on recast', function()
         local gs = buffer({buffs = {'Finishing Move 5'}})
-        jobby.set_recasts(gs, {abilities = {[226] = 30, [222] = 30}})
+        gs.game:start_ability_recast('Climactic Flourish', 30)
+        gs.game:start_ability_recast('Building Flourish', 30)
         assert.same({'Rudra\'s Storm'}, weaponskill(gs))
     end)
 
@@ -283,25 +277,27 @@ describe('a weapon skill under AutoBuffMode with the TP to spare for a step', fu
 
     it('is held back for Sekkanoki over 1850 TP with the sub job Samurai', function()
         local gs = buffer({sub_job = 'SAM', tp = 1900})
-        jobby.set_recasts(gs, {abilities = {[220] = 30}})
+        gs.game:start_ability_recast('Quickstep', 30)
         assert.same({'Sekkanoki'}, weaponskill(gs))
     end)
 
     it('is held back for Meditate at 1850 TP or less with the sub job Samurai', function()
         local gs = buffer({sub_job = 'SAM', tp = 1850})
-        jobby.set_recasts(gs, {abilities = {[220] = 30}})
+        gs.game:start_ability_recast('Quickstep', 30)
         assert.same({'Meditate'}, weaponskill(gs))
     end)
 
     it('goes out with the sub job Samurai when neither is ready', function()
         local gs = buffer({sub_job = 'SAM', tp = 1900})
-        jobby.set_recasts(gs, {abilities = {[220] = 30, [140] = 30, [134] = 30}})
+        gs.game:start_ability_recast('Quickstep', 30)
+        gs.game:start_ability_recast('Sekkanoki', 30)
+        gs.game:start_ability_recast('Meditate', 30)
         assert.same({'Rudra\'s Storm'}, weaponskill(gs))
     end)
 
     it('goes out with the sub job Samurai when an SJ Restriction is on', function()
         local gs = buffer({sub_job = 'SAM', tp = 1900, buffs = {'SJ Restriction'}})
-        jobby.set_recasts(gs, {abilities = {[220] = 30}})
+        gs.game:start_ability_recast('Quickstep', 30)
         assert.same({'Rudra\'s Storm'}, weaponskill(gs))
     end)
 
@@ -384,7 +380,9 @@ describe('a weapon skill by a dancer', function()
             options.buffs[#options.buffs + 1] = 'Climactic Flourish'
             local gs = boot(options)
             gs:console('gs c set AutoBuffMode Auto')
-            jobby.set_recasts(gs, {abilities = {[226] = 30, [236] = 30, [220] = 30}})
+            gs.game:start_ability_recast('Climactic Flourish', 30)
+            gs.game:start_ability_recast('Presto', 30)
+            gs.game:start_ability_recast('Quickstep', 30)
             gs:type('/ws "Rudra\'s Storm" <t>')
             gs:traffic()
             gs.game.player.vitals.tp = 0
@@ -408,7 +406,10 @@ describe('a weapon skill by a dancer', function()
         it('is followed by no Reverse Flourish while it is on recast', function()
             local gs = boot({tp = 2000, engaged = true, buffs = {'Climactic Flourish', 'Finishing Move 3'}})
             gs:console('gs c set AutoBuffMode Auto')
-            jobby.set_recasts(gs, {abilities = {[226] = 30, [236] = 30, [220] = 30, [222] = 30}})
+            gs.game:start_ability_recast('Climactic Flourish', 30)
+            gs.game:start_ability_recast('Presto', 30)
+            gs.game:start_ability_recast('Quickstep', 30)
+            gs.game:start_ability_recast('Reverse Flourish', 30)
             gs:type('/ws "Rudra\'s Storm" <t>')
             gs:traffic()
             gs.game.player.vitals.tp = 0
@@ -420,7 +421,9 @@ describe('a weapon skill by a dancer', function()
         it('is followed by no Reverse Flourish with TP left', function()
             local gs = boot({tp = 2000, engaged = true, buffs = {'Climactic Flourish', 'Finishing Move 3'}})
             gs:console('gs c set AutoBuffMode Auto')
-            jobby.set_recasts(gs, {abilities = {[226] = 30, [236] = 30, [220] = 30}})
+            gs.game:start_ability_recast('Climactic Flourish', 30)
+            gs.game:start_ability_recast('Presto', 30)
+            gs.game:start_ability_recast('Quickstep', 30)
             gs:type('/ws "Rudra\'s Storm" <t>')
             gs:traffic()
             gs:finish_action()
@@ -449,27 +452,27 @@ describe('the dancer\'s abilities of each kind', function()
 
     it('wear sets.precast.Samba for a samba', function()
         local gs, equip = equip_of('/ja "Haste Samba" <me>')
-        assert.same(jobby.request(sets_of(gs).precast.Samba), equip)
+        assert.same(jobby.layer(sets_of(gs).precast.Samba), equip)
     end)
 
     it('wear sets.precast.Flourish1 for Animated Flourish', function()
         local gs, equip = equip_of('/ja "Animated Flourish" <t>')
-        assert.same(jobby.request(sets_of(gs).precast.Flourish1), equip)
+        assert.same(jobby.layer(sets_of(gs).precast.Flourish1), equip)
     end)
 
     it('wear sets.precast.Flourish1 for Violent Flourish', function()
         local gs, equip = equip_of('/ja "Violent Flourish" <t>')
-        assert.same(jobby.request(sets_of(gs).precast.Flourish1), equip)
+        assert.same(jobby.layer(sets_of(gs).precast.Flourish1), equip)
     end)
 
     it('wear sets.precast.Flourish2 for Reverse Flourish', function()
         local gs, equip = equip_of('/ja "Reverse Flourish" <me>')
-        assert.same(jobby.request(sets_of(gs).precast.Flourish2), equip)
+        assert.same(jobby.layer(sets_of(gs).precast.Flourish2), equip)
     end)
 
     it('wear sets.precast.Flourish3 for Striking Flourish', function()
         local gs, equip = equip_of('/ja "Striking Flourish" <me>')
-        assert.same(jobby.request(sets_of(gs).precast.Flourish3), equip)
+        assert.same(jobby.layer(sets_of(gs).precast.Flourish3), equip)
     end)
 
     it('wear nothing for an ability with no set, such as Saber Dance', function()
@@ -554,7 +557,7 @@ describe('the dances', function()
 
         it('begin with nothing while the dance is on recast', function()
             local gs = stance('Saber Dance')
-            jobby.set_recasts(gs, {abilities = {[219] = 30}})
+            gs.game:start_ability_recast('Saber Dance', 30)
             assert.same({}, first_actions(gs))
         end)
 
@@ -588,7 +591,7 @@ describe('the tick of a dancer', function()
 
         it('uses nothing while No Foot Rise is on recast', function()
             local gs = buffer()
-            jobby.set_recasts(gs, {abilities = {[223] = 30}})
+            gs.game:start_ability_recast('No Foot Rise', 30)
             assert.same({}, first_actions(gs))
         end)
 
@@ -666,7 +669,7 @@ describe('the tick of a dancer', function()
 
         it('uses no step while the steps are on recast', function()
             local gs = stepper('Main')
-            jobby.set_recasts(gs, {abilities = {[220] = 30}})
+            gs.game:start_ability_recast('Quickstep', 30)
             assert.same({}, first_actions(gs))
         end)
 
@@ -707,7 +710,7 @@ describe('the tick of a dancer', function()
 
         it('uses none while the sambas are on recast', function()
             local gs = sambaer('Haste Samba')
-            jobby.set_recasts(gs, {abilities = {[216] = 30}})
+            gs.game:start_ability_recast('Drain Samba II', 30)
             assert.same({}, first_actions(gs))
         end)
 
@@ -756,7 +759,7 @@ describe('Curing Waltz by a dancer on himself', function()
 
     it('is Curing Waltz IV for 1100 HP missing, once Contradance is on recast', function()
         local gs = boot({tp = 1500, hp = 400})
-        jobby.set_recasts(gs, {abilities = {[229] = 100}})
+        gs.game:start_ability_recast('Contradance', 100)
         gs:type('/ja "Curing Waltz V" <me>')
         assert.same({'Curing Waltz IV'}, actions(gs))
     end)
@@ -764,7 +767,7 @@ describe('Curing Waltz by a dancer on himself', function()
     it('is Contradance first for 1100 HP or more missing, and the waltz of the tier half a second later', function()
         local gs = waltz(1200, 1500, 'Curing Waltz V')
         assert.same({'Contradance'}, actions(gs))
-        jobby.set_recasts(gs, {abilities = {[229] = 100}})
+        gs.game:start_ability_recast('Contradance', 100)
         gs:play(7)
         assert.same({'Curing Waltz IV'}, actions(gs))
     end)
@@ -783,7 +786,7 @@ describe('Curing Waltz by a dancer on himself', function()
 
     it('is downgraded to what the TP buys, with a word of it', function()
         local gs = boot({tp = 300, hp = 300})
-        jobby.set_recasts(gs, {abilities = {[229] = 100}})
+        gs.game:start_ability_recast('Contradance', 100)
         gs:type('/ja "Curing Waltz IV" <me>')
         assert.same({'Curing Waltz'}, actions(gs))
         assert.is_true(said(gs, 'Insufficient TP [300]. Downgrading to Curing Waltz.'))
@@ -791,7 +794,7 @@ describe('Curing Waltz by a dancer on himself', function()
 
     it('is the one the recasts allow when the right tier is on recast', function()
         local gs = boot({tp = 1500, hp = 1100})
-        jobby.set_recasts(gs, {abilities = {[186] = 30}})
+        gs.game:start_ability_recast('Curing Waltz II', 30)
         gs:type('/ja "Curing Waltz II" <me>')
         assert.same({'Curing Waltz III'}, actions(gs))
     end)
@@ -878,7 +881,7 @@ end)
 
 describe('Curing Waltz by a blue mage with the sub job Dancer', function()
     local function waltz(missing, asked)
-        local gs = jobby.boot('BLU', {}, {sub_job = 'DNC', tp = 1500})
+        local gs = jobby.boot('BLU', {sub_job = 'DNC', tp = 1500})
         gs.game.player.vitals.hp = 1500 - missing
         gs:console('gs c update')
         gs:traffic()

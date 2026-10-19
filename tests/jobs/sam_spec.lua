@@ -36,16 +36,6 @@ local function boot(overrides)
     return gs
 end
 
--- The ability is on recast for these seconds from now on, whatever recast was asked before.
-local function put_on_recast(gs, recast_id, seconds)
-    local before = gs.game.ability_recasts
-    gs.game.ability_recasts = function(game)
-        local recasts = before(game)
-        recasts[recast_id] = seconds
-        return recasts
-    end
-end
-
 -- The names of the actions among what GearSwap sent.
 local function actions(gs)
     local names = {}
@@ -55,23 +45,6 @@ local function actions(gs)
         end
     end
     return names
-end
-
-local function set_time(gs, hours)
-    gs.game:fire('time change', hours * 60, 0)
-    gs.game:settle()
-    gs:traffic()
-end
-
--- The monster hits Jobby, which puts Jobby in combat.
-local function in_combat(gs)
-    gs.game:send_action_packet({
-        actor_id = gs.game.monster.id, category = 1,
-        targets = {{id = gs.game.player.id, actions = {{message = 1, param = 10, reaction = 0, animation = 0,
-            effect = 0, stagger = 0}}}},
-    })
-    gs.game:settle()
-    gs:traffic()
 end
 
 describe('data/SAM.lua', function()
@@ -115,28 +88,28 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
 
     it('is held back for Meditate when Sekkanoki is on recast', function()
         gs.game.player.vitals.tp = 3000
-        put_on_recast(gs, 140, 60)
+        gs.game:start_ability_recast('Sekkanoki', 60)
         gs:type('/ws "Tachi: Shoha" <t>')
         assert.same({{action = 'Meditate', target = 'Jobby'}}, gs:traffic())
     end)
 
     it('is held back for Hagakure with less than 1500 TP once Meditate is on recast', function()
         gs.game.player.vitals.tp = 1499
-        put_on_recast(gs, 134, 60)
+        gs.game:start_ability_recast('Meditate', 60)
         gs:type('/ws "Tachi: Shoha" <t>')
         assert.same({{action = 'Hagakure', target = 'Jobby'}}, gs:traffic())
     end)
 
     it('is not held back for Hagakure with 1500 TP', function()
         gs.game.player.vitals.tp = 1500
-        put_on_recast(gs, 134, 60)
+        gs.game:start_ability_recast('Meditate', 60)
         gs:type('/ws "Tachi: Shoha" <t>')
         assert.same({'Tachi: Shoha'}, actions(gs))
     end)
 
     it('is not held back for Hagakure while Sekkanoki is up', function()
         gs.game.player.vitals.tp = 1499
-        put_on_recast(gs, 134, 60)
+        gs.game:start_ability_recast('Meditate', 60)
         gs:gain_buff('Sekkanoki')
         gs:traffic()
         gs:type('/ws "Tachi: Shoha" <t>')
@@ -145,9 +118,9 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
 
     it('goes out when Sekkanoki, Meditate and Hagakure are all on recast', function()
         gs.game.player.vitals.tp = 1000
-        put_on_recast(gs, 140, 60)
-        put_on_recast(gs, 134, 60)
-        put_on_recast(gs, 54, 60)
+        gs.game:start_ability_recast('Sekkanoki', 60)
+        gs.game:start_ability_recast('Meditate', 60)
+        gs.game:start_ability_recast('Hagakure', 60)
         gs:type('/ws "Tachi: Shoha" <t>')
         assert.same({'Tachi: Shoha'}, actions(gs))
     end)
@@ -156,7 +129,7 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
         gs.game.player.vitals.tp = 3000
         gs:type('/ws "Tachi: Shoha" <t>')
         gs:traffic()
-        put_on_recast(gs, 140, 60)
+        gs.game:start_ability_recast('Sekkanoki', 60)
         gs:finish_action()
         gs:advance(1.2)
         assert.same({'Meditate'}, actions(gs))
@@ -165,10 +138,10 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
     it('is typed again after Sekkanoki and Meditate, and goes out', function()
         gs.game.player.vitals.tp = 3000
         gs:type('/ws "Tachi: Shoha" <t>')
-        put_on_recast(gs, 140, 60)
+        gs.game:start_ability_recast('Sekkanoki', 60)
         gs:finish_action()
         gs:advance(1.2)
-        put_on_recast(gs, 134, 60)
+        gs.game:start_ability_recast('Meditate', 60)
         gs:finish_action()
         gs:traffic()
         gs:advance(1.2)
@@ -238,14 +211,14 @@ describe('SAM\'s weapon skill set with Moonshade Earring in it', function()
 
     it('gives way to sets.DayMaxTPWSEars by day when sets.MaxTP holds Lugra Earring', function()
         gs.user.sets.MaxTP = {ear1 = 'Lugra Earring +1'}
-        set_time(gs, 12)
+        gs:set_time(12 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Beastly Earring', ear2 = 'Etiolation Earring'}),
             weaponskill(gs, 'Tachi: Fudo', 3000))
     end)
 
     it('gives way to sets.MaxTP itself at night when it holds Lugra Earring', function()
         gs.user.sets.MaxTP = {ear1 = 'Lugra Earring +1'}
-        set_time(gs, 22)
+        gs:set_time(22 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Lugra Earring +1', ear2 = 'Etiolation Earring'}),
             weaponskill(gs, 'Tachi: Fudo', 3000))
     end)
@@ -253,7 +226,7 @@ describe('SAM\'s weapon skill set with Moonshade Earring in it', function()
     it('gives way to sets.AccDayMaxTPWSEars by day in an accuracy mode when sets.AccMaxTP holds Lugra Earring', function()
         gs.user.sets.AccMaxTP = {ear1 = 'Lugra Earring +1'}
         gs:console('gs c set OffenseMode Acc')
-        set_time(gs, 12)
+        gs:set_time(12 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Stealth Earring', ear2 = 'Etiolation Earring'}),
             weaponskill(gs, 'Tachi: Fudo', 3000))
     end)
@@ -261,7 +234,7 @@ describe('SAM\'s weapon skill set with Moonshade Earring in it', function()
     it('gives way to sets.AccMaxTP itself at night in an accuracy mode when it holds Lugra Earring', function()
         gs.user.sets.AccMaxTP = {ear1 = 'Lugra Earring +1'}
         gs:console('gs c set OffenseMode Acc')
-        set_time(gs, 22)
+        gs:set_time(22 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Lugra Earring +1', ear2 = 'Etiolation Earring'}),
             weaponskill(gs, 'Tachi: Fudo', 3000))
     end)
@@ -274,20 +247,20 @@ describe('SAM\'s weapon skill set with Lugra Earring in it', function()
     end)
 
     it('gives way to sets.DayWSEars by day', function()
-        set_time(gs, 12)
+        gs:set_time(12 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = "Hecate's Earring", ear2 = 'Etiolation Earring'}),
             weaponskill(gs, 'Tachi: Gekko', 1000))
     end)
 
     it('gives way to sets.AccDayWSEars by day in an accuracy mode', function()
         gs:console('gs c set OffenseMode Acc')
-        set_time(gs, 12)
+        gs:set_time(12 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Pixie Earring', ear2 = 'Etiolation Earring'}),
             weaponskill(gs, 'Tachi: Gekko', 1000))
     end)
 
     it('stays at night', function()
-        set_time(gs, 22)
+        gs:set_time(22 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Lugra Earring +1', ear2 = 'Etiolation Earring'}),
             weaponskill(gs, 'Tachi: Gekko', 1000))
     end)
@@ -567,7 +540,7 @@ describe('SAM\'s stance, kept by the tick', function()
     end)
 
     it('waits while Hasso is on recast, without trying it', function()
-        put_on_recast(gs, 138, 30)
+        gs.game:start_ability_recast('Hasso', 30)
         gs:play(5.5)
         assert.same({}, actions(gs))
         assert.is_nil(gs:log():find('waiting on recast', 1, true))
@@ -575,7 +548,7 @@ describe('SAM\'s stance, kept by the tick', function()
 
     it('waits while Seigan is on recast in the Seigan stance', function()
         gs:console('gs c set Stance Seigan')
-        put_on_recast(gs, 139, 30)
+        gs.game:start_ability_recast('Seigan', 30)
         gs:play(5.5)
         assert.same({}, actions(gs))
         assert.is_nil(gs:log():find('waiting on recast', 1, true))
@@ -605,13 +578,13 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
     end)
 
     it('are Berserk first with a sub job of WAR', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({'Berserk'}, actions(gs))
     end)
 
     it('are Aggressor once Berserk is up', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Berserk')
         gs:traffic()
         gs:play(5.5)
@@ -619,14 +592,14 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
     end)
 
     it('are Aggressor when Berserk is on recast', function()
-        in_combat(gs)
-        put_on_recast(gs, 1, 60)
+        gs:monster_hits()
+        gs.game:start_ability_recast('Berserk', 60)
         gs:play(5.5)
         assert.same({'Aggressor'}, actions(gs))
     end)
 
     it('are nothing once Berserk and Aggressor are up', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Berserk')
         gs:gain_buff('Aggressor')
         gs:traffic()
@@ -635,7 +608,7 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
     end)
 
     it('are nothing under SJ Restriction', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('SJ Restriction')
         gs:traffic()
         gs:play(5.5)
@@ -643,7 +616,7 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
     end)
 
     it('are nothing with AutoBuffMode off', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:console('gs c set AutoBuffMode Off')
         gs:play(5.5)
         assert.same({}, actions(gs))
@@ -661,7 +634,7 @@ describe('SAM\'s buffs kept by the tick with a sub job of DRK', function()
         gs = boot({sub_job = 'DRK'})
         gs:console('gs c set AutoBuffMode Auto')
         gs:console('gs c set Stance None')
-        in_combat(gs)
+        gs:monster_hits()
     end)
 
     it('are Last Resort', function()

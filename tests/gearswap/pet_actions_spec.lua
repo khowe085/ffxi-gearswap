@@ -22,7 +22,7 @@ local function boot()
 end
 
 local function pet_acts(gs, fields)
-    local pet = gs.game.extra_mobs[gs.game.pet_index]
+    local pet = gs.game.pet
     local act = {actor_id = pet.id, category = fields.category, param = fields.param or 0, recast = 0,
         targets = {{id = fields.target_id or gs.game.monster.id, actions = {{message = fields.message or 0,
             param = fields.value or 0, reaction = 0, animation = 0, effect = 0, stagger = 0}}}}}
@@ -101,7 +101,7 @@ end)
 describe('a pet\'s action', function()
     local function boot_with_pet()
         local gs = boot()
-        gs.game:summon_pet({name = 'Carbuncle'})
+        gs.game:place_pet({name = 'Carbuncle'})
         gs:console('gs c refresh')
         calls(gs)
         return gs
@@ -143,9 +143,8 @@ describe('a pet\'s action', function()
 
     it('is left alone when the player has no pet', function()
         local gs = boot()
-        gs.game:summon_pet({name = 'Carbuncle'})
-        local pet_id = gs.game.extra_mobs[gs.game.pet_index].id
-        gs.game:dismiss_pet()
+        local pet_id = gs.game:place_pet({name = 'Carbuncle'}).id
+        gs:take_pet()
         gs:run(function()
             gs.game:send_action_packet({actor_id = pet_id, category = 7, param = 0, recast = 0, targets = {{id = gs.game.monster.id,
                 actions = {{message = 43, param = 257, reaction = 0, animation = 0, effect = 0, stagger = 0}}}}})
@@ -182,7 +181,7 @@ describe('a Monipulator\'s skill typed in the chat', function()
         local gs = harness.boot({main_job = 'MON', sub_job = 'NON', main_job_level = level or 99, expect_file = 'Testy_MON.lua',
             items = {}})
         plain.load(gs, 'Testy_Actions.lua')
-        gs.game.species = 1
+        gs.game:set_species(1)
         gs:console('gs c refresh')
         calls(gs)
         gs:traffic()

@@ -1,6 +1,5 @@
 local lfs = require('lfs')
 local plain = require('plain')
-local world = require('world')
 
 local chat, texts = plain.chat, plain.texts
 
@@ -39,7 +38,7 @@ local function stats(gs, fields)
     for label, value in pairs(fields or {}) do
         values[label] = value
     end
-    world.send(gs, 0x061, values)
+    gs:send(0x061, values)
 end
 
 -- The line /checkparam <me> answers with: message 712 to 715 from the player to themselves.

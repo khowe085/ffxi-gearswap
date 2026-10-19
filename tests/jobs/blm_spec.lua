@@ -1,4 +1,4 @@
-local jobby = require('jobby_jobs_1_8')
+local jobby = require('jobby')
 
 local gear = {'Daybreak', 'Ammurapi Shield', "Terra's Staff", 'Kupo Shield', 'Volte Cap', 'Null Masque',
     'Volte Jupon', 'Adamantite Armor', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget',
@@ -34,7 +34,8 @@ end
 describe('BLM\'s cure sets', function()
     local function cure_head(setup, spell)
         local gs = boot()
-        jobby.set_world(gs, {weather = setup.weather and light_weather or 0, day = setup.day and light_day or 0})
+        gs:set_weather(setup.weather and light_weather or 0)
+        gs:set_day(setup.day and light_day or 0)
         if setup.weapons then
             gs:console('gs c set Weapons Staff')
         end
@@ -197,9 +198,9 @@ describe('BLM\'s Death Mode', function()
     it('wears sets.idle.Death over the idle set', function()
         local gs = boot()
         gs:console('gs c set DeathMode Lock')
-        assert.same(jobby.idle_with({body = 'Adamantite Armor'}), gs:worn())
+        assert.same(jobby.worn_by({body = 'Adamantite Armor'}, jobby.full_idle), gs:worn())
         gs:console('gs c set DeathMode Off')
-        assert.same(jobby.idle_with({}), gs:worn())
+        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
     end)
 
     it('puts sets.precast.FC.Death on for any spell', function()
@@ -254,7 +255,7 @@ describe('BLM\'s Death Mode', function()
         local gs = death_cast('Death')
         gs:finish_action()
         assert.equal('Off', gs.user.state.DeathMode.value)
-        assert.same(jobby.idle_with({}), gs:worn())
+        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
     end)
 
     it('stays Single when Death is interrupted', function()
@@ -286,30 +287,31 @@ describe('BLM\'s Mana Wall', function()
     end)
 
     it('has sets.buff[\'Mana Wall\'] laid over the idle set', function()
-        assert.same(jobby.idle_with({neck = "Combatant's Torque"}), gs:worn())
+        assert.same(jobby.worn_by({neck = "Combatant's Torque"}, jobby.full_idle), gs:worn())
         gs:lose_buff('Mana Wall')
-        assert.same(jobby.idle_with({}), gs:worn())
+        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
     end)
 
     it('has sets.buff[\'Mana Wall\'] laid over the melee set', function()
         gs:engage()
-        assert.same(jobby.idle_with({head = 'Volte Cap', body = 'Volte Jupon', neck = "Combatant's Torque"}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', neck = "Combatant's Torque"},
+            jobby.full_idle), gs:worn())
     end)
 
     it('has sets.buff[\'Mana Wall\'] laid over the defense set', function()
         gs:console('gs c set DefenseMode Physical')
-        assert.same(jobby.idle_with({head = 'Null Masque', neck = "Combatant's Torque"}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Null Masque', neck = "Combatant's Torque"}, jobby.full_idle), gs:worn())
     end)
 
     it('has sets.buff[\'Mana Wall\'] put back after a spell\'s midcast set in a fight in a DT idle mode', function()
-        jobby.fight(gs)
+        gs:monster_hits()
         gs:console('gs c set IdleMode DT')
         gs:type('/ma "Fire II" <t>')
         assert.equal("Combatant's Torque", gs:worn().neck)
     end)
 
     it('leaves the spell\'s precast set\'s neck on after its midcast outside a DT idle mode', function()
-        jobby.fight(gs)
+        gs:monster_hits()
         gs:type('/ma "Fire II" <t>')
         assert.equal('Fotia Gorget', gs:worn().neck)
     end)
@@ -334,37 +336,40 @@ describe('BLM\'s idle set', function()
 
     it('has sets.latent_refresh over it under 51% MP', function()
         low_mp()
-        assert.same(jobby.idle_with({waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by({waist = 'Null Belt'}, jobby.full_idle), gs:worn())
     end)
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')
         low_mp()
-        assert.same(jobby.idle_with({head = 'Null Masque'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Null Masque'}, jobby.full_idle), gs:worn())
     end)
 
     it('has sets.latent_refresh and the grip over the Sphere idle set under 51% MP, its main being a staff', function()
         gs:console('gs c set IdleMode Sphere')
         low_mp()
-        assert.same(jobby.idle_with({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'}), gs:worn())
+        assert.same(jobby.worn_by({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'},
+            jobby.full_idle), gs:worn())
     end)
 
     it('has no grip over it with the weapons locked', function()
         gs:console('gs c set IdleMode Sphere')
         gs:console('gs c set Weapons Staff')
         low_mp()
-        assert.same(jobby.idle_with({main = 'Daybreak', sub = 'Ammurapi Shield', waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by({main = 'Daybreak', sub = 'Ammurapi Shield', waist = 'Null Belt'},
+            jobby.full_idle), gs:worn())
     end)
 
     it('has sets.buff.Sublimation over it while Sublimation charges', function()
         gs:gain_buff('Sublimation: Activated')
-        assert.same(jobby.idle_with({back = 'Null Shawl'}), gs:worn())
+        assert.same(jobby.worn_by({back = 'Null Shawl'}, jobby.full_idle), gs:worn())
     end)
 
     it('has sets.buff.DTSublimation over the DT idle set while Sublimation charges', function()
         gs:console('gs c set IdleMode DT')
         gs:gain_buff('Sublimation: Activated')
-        assert.same(jobby.idle_with({head = 'Null Masque', back = 'Null Shawl', ring1 = 'Karieyh Ring'}), gs:worn())
+        assert.same(jobby.worn_by({head = 'Null Masque', back = 'Null Shawl', ring1 = 'Karieyh Ring'},
+            jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -427,7 +432,7 @@ describe('BLM\'s Manawell', function()
         gs:type('/ma "Impact" <t>')
         assert.same({'Manawell'}, actions_of(gs:traffic()))
         gs:finish_action()
-        jobby.set_ability_recasts(gs, {[35] = 60})
+        gs.game:start_ability_recast('Manawell', 60)
         gs:advance(0.95)
         assert.same({}, actions_of(gs:traffic()))
         gs:advance(0.1)
@@ -441,7 +446,7 @@ describe('BLM\'s Manawell', function()
     end)
 
     it('is not used for Impact while it is on recast', function()
-        jobby.set_ability_recasts(gs, {[35] = 60})
+        gs.game:start_ability_recast('Manawell', 60)
         gs:type('/ma "Impact" <t>')
         assert.same({'Impact'}, actions_of(gs:traffic()))
     end)
@@ -562,7 +567,7 @@ describe('BLM\'s Auto Buff Mode', function()
         local gs = buffing({sub_job = 'SCH', buffs = {'Reraise', 'Stoneskin'}})
         gs:play(3)
         assert.same({}, actions_of(gs:traffic()))
-        jobby.fight(gs)
+        gs:monster_hits()
         assert.same({'Klimaform'}, actions_of(jobby.until_action(gs)))
     end)
 
@@ -575,7 +580,9 @@ describe('BLM\'s elemental commands', function()
         local gs = boot_ticking({sub_job = 'WHM'})
         gs:console('gs c set ElementalMode ' .. mode)
         if recasts then
-            jobby.set_spell_recasts(gs, recasts)
+            for spell, seconds in pairs(recasts) do
+                gs.game:start_spell_recast(spell, seconds)
+            end
         end
         if mp then
             gs.game.player.vitals.mp = mp
@@ -589,7 +596,7 @@ describe('BLM\'s elemental commands', function()
     end)
 
     it('goes down a tier when that one is on recast', function()
-        assert.same({'Fire V'}, (command('Fire', 'nuke', {[849] = 600})))
+        assert.same({'Fire V'}, (command('Fire', 'nuke', {['Fire VI'] = 10})))
     end)
 
     it('goes down a tier when Jobby hasn\'t the MP', function()
@@ -602,12 +609,14 @@ describe('BLM\'s elemental commands', function()
 
     it('says so when every tier is on recast', function()
         local recasts = {}
-        for _, id in ipairs({849, 148, 147, 146, 145, 144}) do
-            recasts[id] = 600
+        for _, spell in ipairs({'Fire VI', 'Fire V', 'Fire IV', 'Fire III', 'Fire II', 'Fire'}) do
+            recasts[spell] = 10
         end
         local gs = boot_ticking()
         gs:console('gs c set ElementalMode Fire')
-        jobby.set_spell_recasts(gs, recasts)
+        for spell, seconds in pairs(recasts) do
+            gs.game:start_spell_recast(spell, seconds)
+        end
         jobby.chat(gs)
         gs:console('gs c elemental nuke')
         assert.same({}, jobby.actions(gs))
@@ -619,7 +628,7 @@ describe('BLM\'s elemental commands', function()
     end)
 
     it('goes down to Banish when Banish II is on recast in the Light mode', function()
-        assert.same({'Banish'}, (command('Light', 'nuke', {[29] = 600})))
+        assert.same({'Banish'}, (command('Light', 'nuke', {['Banish II'] = 10})))
     end)
 
     it('casts the ancient magic of the element', function()
@@ -635,9 +644,9 @@ describe('BLM\'s elemental commands', function()
     end)
 
     it('goes down the aoe tiers on recast', function()
-        assert.same({'Firaga III'}, (command('Fire', 'aga', {[496] = 600})))
-        assert.same({'Firaga II'}, (command('Fire', 'aga', {[496] = 600, [176] = 600})))
-        assert.same({'Firaga'}, (command('Fire', 'aga', {[496] = 600, [176] = 600, [175] = 600})))
+        assert.same({'Firaga III'}, (command('Fire', 'aga', {['Firaja'] = 10})))
+        assert.same({'Firaga II'}, (command('Fire', 'aga', {['Firaja'] = 10, ['Firaga III'] = 10})))
+        assert.same({'Firaga'}, (command('Fire', 'aga', {['Firaja'] = 10, ['Firaga III'] = 10, ['Firaga II'] = 10})))
     end)
 
     it('casts the -ja nuke for aja', function()
@@ -647,7 +656,10 @@ describe('BLM\'s elemental commands', function()
     it('says so when every aoe tier is on recast', function()
         local gs = boot_ticking()
         gs:console('gs c set ElementalMode Fire')
-        jobby.set_spell_recasts(gs, {[496] = 600, [176] = 600, [175] = 600, [174] = 600})
+        gs.game:start_spell_recast('Firaja', 10)
+        gs.game:start_spell_recast('Firaga III', 10)
+        gs.game:start_spell_recast('Firaga II', 10)
+        gs.game:start_spell_recast('Firaga', 10)
         jobby.chat(gs)
         gs:console('gs c elemental aga')
         assert.same({}, jobby.actions(gs))
@@ -657,7 +669,8 @@ describe('BLM\'s elemental commands', function()
     it('says so when both Banishes are on recast in the Light mode', function()
         local gs = boot_ticking()
         gs:console('gs c set ElementalMode Light')
-        jobby.set_spell_recasts(gs, {[28] = 600, [29] = 600})
+        gs.game:start_spell_recast('Banish', 10)
+        gs.game:start_spell_recast('Banish II', 10)
         jobby.chat(gs)
         gs:console('gs c elemental nuke')
         assert.same({}, jobby.actions(gs))

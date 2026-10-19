@@ -35,27 +35,6 @@ local function boot(overrides)
     return gs
 end
 
--- The ability is on recast for these seconds from now on, whatever recast was asked before.
-local function put_on_recast(gs, recast_id, seconds)
-    local before = gs.game.ability_recasts
-    gs.game.ability_recasts = function(game)
-        local recasts = before(game)
-        recasts[recast_id] = seconds
-        return recasts
-    end
-end
-
--- The spell is on recast for these seconds from now on.
-local function put_spell_on_recast(gs, spell_id, seconds)
-    local ffxi = gs.game.windower.ffxi
-    local before = ffxi.get_spell_recasts
-    ffxi.get_spell_recasts = function()
-        local recasts = before()
-        recasts[spell_id] = seconds * 60
-        return recasts
-    end
-end
-
 -- The names of the actions among what GearSwap sent.
 local function actions(gs)
     local names = {}
@@ -65,17 +44,6 @@ local function actions(gs)
         end
     end
     return names
-end
-
--- The monster hits Jobby, which puts Jobby in combat.
-local function in_combat(gs)
-    gs.game:send_action_packet({
-        actor_id = gs.game.monster.id, category = 1,
-        targets = {{id = gs.game.player.id, actions = {{message = 1, param = 10, reaction = 0, animation = 0,
-            effect = 0, stagger = 0}}}},
-    })
-    gs.game:settle()
-    gs:traffic()
 end
 
 describe('data/NIN.lua', function()
@@ -258,7 +226,7 @@ describe('NIN\'s stance, kept by the tick', function()
     end)
 
     it('puts Innin up in combat', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({'Innin'}, actions(gs))
     end)
@@ -270,20 +238,20 @@ describe('NIN\'s stance, kept by the tick', function()
 
     it('puts Yonin up in combat in the Yonin stance', function()
         gs:console('gs c set Stance Yonin')
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({'Yonin'}, actions(gs))
     end)
 
     it('puts nothing up in the None stance', function()
         gs:console('gs c set Stance None')
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({}, actions(gs))
     end)
 
     it('waits with Yonin up in the Innin stance', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Yonin')
         gs:traffic()
         gs:play(5.5)
@@ -292,7 +260,7 @@ describe('NIN\'s stance, kept by the tick', function()
 
     it('waits with Innin up in the Yonin stance', function()
         gs:console('gs c set Stance Yonin')
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Innin')
         gs:traffic()
         gs:play(5.5)
@@ -300,16 +268,16 @@ describe('NIN\'s stance, kept by the tick', function()
     end)
 
     it('waits while Innin is on recast', function()
-        in_combat(gs)
-        put_on_recast(gs, 147, 30)
+        gs:monster_hits()
+        gs.game:start_ability_recast('Innin', 30)
         gs:play(5.5)
         assert.same({}, actions(gs))
     end)
 
     it('waits while Yonin is on recast in the Yonin stance', function()
         gs:console('gs c set Stance Yonin')
-        in_combat(gs)
-        put_on_recast(gs, 146, 30)
+        gs:monster_hits()
+        gs.game:start_ability_recast('Yonin', 30)
         gs:play(5.5)
         assert.same({}, actions(gs))
     end)
@@ -324,13 +292,13 @@ describe('NIN\'s buffs kept by the tick', function()
     end)
 
     it('are Migawari first in combat', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:play(5.5)
         assert.same({'Migawari: Ichi'}, actions(gs))
     end)
 
     it('are Berserk next with a sub job of WAR', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Migawari')
         gs:traffic()
         gs:play(5.5)
@@ -338,14 +306,14 @@ describe('NIN\'s buffs kept by the tick', function()
     end)
 
     it('are Berserk when Migawari is on recast', function()
-        in_combat(gs)
-        put_spell_on_recast(gs, 510, 60)
+        gs:monster_hits()
+        gs.game:start_spell_recast('Migawari: Ichi', 60)
         gs:play(5.5)
         assert.same({'Berserk'}, actions(gs))
     end)
 
     it('are Aggressor once Berserk is up', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Migawari')
         gs:gain_buff('Berserk')
         gs:traffic()
@@ -354,7 +322,7 @@ describe('NIN\'s buffs kept by the tick', function()
     end)
 
     it('are nothing once Migawari, Berserk and Aggressor are up', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Migawari')
         gs:gain_buff('Berserk')
         gs:gain_buff('Aggressor')
@@ -364,7 +332,7 @@ describe('NIN\'s buffs kept by the tick', function()
     end)
 
     it('are no Berserk or Aggressor under a defense mode', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Migawari')
         gs:console('gs c set DefenseMode Physical')
         gs:traffic()
@@ -373,7 +341,7 @@ describe('NIN\'s buffs kept by the tick', function()
     end)
 
     it('are no Berserk or Aggressor in a defensive hybrid mode', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Migawari')
         gs:console('gs c set HybridMode DT')
         gs:traffic()
@@ -382,7 +350,7 @@ describe('NIN\'s buffs kept by the tick', function()
     end)
 
     it('are no Berserk or Aggressor under SJ Restriction', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:gain_buff('Migawari')
         gs:gain_buff('SJ Restriction')
         gs:traffic()
@@ -391,7 +359,7 @@ describe('NIN\'s buffs kept by the tick', function()
     end)
 
     it('are nothing with AutoBuffMode off', function()
-        in_combat(gs)
+        gs:monster_hits()
         gs:console('gs c set AutoBuffMode Off')
         gs:play(5.5)
         assert.same({}, actions(gs))
@@ -460,28 +428,28 @@ describe('NIN\'s shadows kept by AutoShadowMode', function()
     end)
 
     it('are Utsusemi: Ni when San is on recast', function()
-        put_spell_on_recast(gs, 340, 60)
+        gs.game:start_spell_recast('Utsusemi: San', 60)
         gs:play(5.5)
         assert.same({'Utsusemi: Ni'}, actions(gs))
     end)
 
     it('are Utsusemi: Ichi when San and Ni are on recast', function()
-        put_spell_on_recast(gs, 340, 60)
-        put_spell_on_recast(gs, 339, 60)
+        gs.game:start_spell_recast('Utsusemi: San', 60)
+        gs.game:start_spell_recast('Utsusemi: Ni', 60)
         gs:play(5.5)
         assert.same({'Utsusemi: Ichi'}, actions(gs))
     end)
 
     it('are nothing when all three are on recast', function()
-        put_spell_on_recast(gs, 340, 60)
-        put_spell_on_recast(gs, 339, 60)
-        put_spell_on_recast(gs, 338, 60)
+        gs.game:start_spell_recast('Utsusemi: San', 60)
+        gs.game:start_spell_recast('Utsusemi: Ni', 60)
+        gs.game:start_spell_recast('Utsusemi: Ichi', 60)
         gs:play(5.5)
         assert.same({}, actions(gs))
     end)
 
     it('are Utsusemi: Ni with two up and San on recast, only when fewer than two are up', function()
-        put_spell_on_recast(gs, 340, 60)
+        gs.game:start_spell_recast('Utsusemi: San', 60)
         gs:gain_buff('Copy Image (2)')
         gs:traffic()
         gs:play(5.5)
@@ -572,22 +540,22 @@ describe('NIN\'s elemental commands', function()
     end)
 
     it('nuke with the next tier down when the highest is on recast', function()
-        put_spell_on_recast(gs, 322, 60)
+        gs.game:start_spell_recast('Katon: San', 60)
         gs:console('gs c elemental nuke')
         assert.same({'Katon: Ni'}, actions(gs))
     end)
 
     it('nuke with the lowest tier when the others are on recast', function()
-        put_spell_on_recast(gs, 322, 60)
-        put_spell_on_recast(gs, 321, 60)
+        gs.game:start_spell_recast('Katon: San', 60)
+        gs.game:start_spell_recast('Katon: Ni', 60)
         gs:console('gs c elemental nuke')
         assert.same({'Katon: Ichi'}, actions(gs))
     end)
 
     it('nuke with nothing, and say so, when every tier is on recast', function()
-        put_spell_on_recast(gs, 322, 60)
-        put_spell_on_recast(gs, 321, 60)
-        put_spell_on_recast(gs, 320, 60)
+        gs.game:start_spell_recast('Katon: San', 60)
+        gs.game:start_spell_recast('Katon: Ni', 60)
+        gs.game:start_spell_recast('Katon: Ichi', 60)
         gs:console('gs c elemental nuke')
         assert.same({}, actions(gs))
         assert.is_truthy(gs:log():find('Abort: All Fire nukes on cooldown.', 1, true))

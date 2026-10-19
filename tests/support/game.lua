@@ -1,15 +1,19 @@
 -------------------------------------------------------------------------------------------------------------------
 -- A stand-in for the game and for the Windower API an addon sees: one character in a field zone, its bags and
--- gear, a monster to target, and the server's side of equipping.
+-- gear, a monster to target, the other mobs a test adds (members of the party and the alliance, other players,
+-- NPCs), a pet, and the server's side of equipping and of moving items between bags.
 --
 -- Nothing happens on its own. What the addon sends (packets, commands, chat input) waits in a queue, as it would
--- for the next frame, and settle() handles it: an equip request is carried out and confirmed with the packets the
--- server answers with, a command runs, input goes through the outgoing text event. advance(seconds) moves the clock
--- on, runs the timers that fall due (coroutine.schedule, @wait) and settles after each. The tests say when the
--- server answers an action (finish_action, interrupt_action) and when a buff comes or goes.
+-- for the next frame, and settle() handles it: an equip request or a move between bags is carried out and confirmed
+-- with the packets the server answers with, a command runs, input goes through the outgoing text event.
+-- advance(seconds) moves the clock on, runs the timers that fall due (coroutine.schedule, @wait) and settles after
+-- each. The tests say when the server answers an action (finish_action, interrupt_action) and when a buff comes or
+-- goes.
 --
 -- The game reads its items, spells and abilities from the resources it is given: the raw tables of Windower's
--- resource files, with jobs, slots and races still bit masks.
+-- resource files, with jobs, slots and races still bit masks. It writes most of the packets the server sends byte by
+-- byte; send() builds one from Windower's own field definitions, by the labels of its fields, with the packets
+-- library of the addon it plays, which the harness hands it once GearSwap has loaded.
 -------------------------------------------------------------------------------------------------------------------
 
 local lfs = require('lfs')
@@ -122,6 +126,23 @@ local function read_u32(data, position)
     return read_u16(data, position) + 65536 * read_u16(data, position + 2)
 end
 
+local function job_id(res, short)
+    for id, job in pairs(res.jobs) do
+        if type(job) == 'table' and job.ens == short then
+            return id
+        end
+    end
+    error(('the test resources have no job %q'):format(short), 3)
+end
+
+local function occupied(bag)
+    local count = 0
+    for _ in pairs(bag.items) do
+        count = count + 1
+    end
+    return count
+end
+
 -- options: res (the raw resource tables), paths (addon and windower, for the API), name, id, index, main_job,
 -- main_job_level, sub_job, sub_job_level, race, status, zone, items ({name=, bag=, extdata=, count=}, bag by its API
 -- name, inventory unless given), wearing (slot name to the item's position in items), buffs (names), spells and
@@ -143,20 +164,16 @@ function Game.new(options)
     game.typed = {}
     game.commands = {}
     game.chat_log = {}
+    game.turns = {}
     game.last_packets = {incoming = {}, outgoing = {}}
     game.action_tables = {}
+    game.info = {}
+    game.others = {}
+    game.next_index = 0x500
 
     local res = game.res
-    local function job_id(short)
-        for id, job in pairs(res.jobs) do
-            if type(job) == 'table' and job.ens == short then
-                return id
-            end
-        end
-        error(('the test resources have no job %q'):format(short), 3)
-    end
-    local main_job_id = job_id(options.main_job or 'WHM')
-    local sub_job_id = options.sub_job and job_id(options.sub_job) or 0
+    local main_job_id = job_id(res, options.main_job or 'WHM')
+    local sub_job_id = options.sub_job and job_id(res, options.sub_job) or 0
     local jobs = {}
     for id, job in pairs(res.jobs) do
         if type(job) == 'table' and job.ens then
@@ -213,7 +230,7 @@ function Game.new(options)
             game.spells[id] = true
         end
     end
-    game.job_abilities, game.weapon_skills = {}, {}
+    game.job_abilities, game.weapon_skills, game.job_traits = {}, {}, {}
     local abilities = options.abilities
     for id, ability in pairs(res.job_abilities) do
         if type(ability) == 'table' and (not abilities or abilities[ability.en]) then
@@ -265,7 +282,12 @@ function Game:job_names(id)
     return job and job.ens or 'NON', job and job.en or 'None'
 end
 
+-- What get_player reports: nothing while the game is still loading the character (loading = 'player'), and the
+-- player without a main job id while it is still loading the job (loading = 'job'), as when the game has just started.
 function Game:get_player()
+    if self.loading == 'player' then
+        return nil
+    end
     local player = copy(self.player)
     player.main_job, player.main_job_full = self:job_names(player.main_job_id)
     if player.sub_job_id ~= 0 then
@@ -276,6 +298,9 @@ function Game:get_player()
     player.target_index = self.target_index
     player.pet_index = self.pet and self.pet.index
     player.in_combat = self.player.status == 1
+    if self.loading == 'job' then
+        player.main_job_id = nil
+    end
     return player
 end
 
@@ -298,21 +323,25 @@ function Game:mobs()
     if self.pet then
         mobs[self.pet.index] = copy(self.pet)
     end
-    for _, other in ipairs(self.others or {}) do
+    for _, other in ipairs(self.others) do
         mobs[other.index] = copy(other)
     end
     return mobs
 end
 
+-- The mob a target names: <me>, <t>, <st>, <pet>, and the slots of the party and the alliance (<p0> to <p5>, <a10>
+-- on).
 function Game:mob_by_target(target)
     target = (target or ''):lower():gsub('^<(.*)>$', '%1')
     if target == 'me' or target == 'self' then
         return self:player_mob()
-    elseif (target == 't' or target == 'bt') and self.target_index then
-        return self:mobs()[self.target_index]
-    elseif target == 'pet' and self.pet then
-        return copy(self.pet)
-    elseif target:match('^p%d$') then
+    elseif target == 't' or target == 'bt' then
+        return self.target_index and self:mobs()[self.target_index]
+    elseif target == 'st' then
+        return self.subtarget_index and self:mobs()[self.subtarget_index]
+    elseif target == 'pet' then
+        return self.pet and copy(self.pet)
+    elseif target:match('^[pa]%d+$') then
         local member = self:get_party()[target]
         return member and member.mob
     end
@@ -328,7 +357,7 @@ end
 
 function Game:items_of(bag_id)
     local bag = self.bags[bag_id]
-    local list = {max = bag.max, count = #bag.items, enabled = true}
+    local list = {max = bag.max, count = occupied(bag), enabled = not bag.disabled}
     for slot = 1, bag.max do
         list[slot] = copy(bag.items[slot]) or {id = 0, count = 0, status = 0, slot = slot, bazaar = 0, extdata = string.char(0):rep(24)}
     end
@@ -357,7 +386,8 @@ function Game:get_items(bag, index)
     local all = {equipment = {}, gil = 0}
     for id, data in pairs(self.bags) do
         all[data.api] = self:items_of(id)
-        all['count_' .. data.api], all['max_' .. data.api], all['enabled_' .. data.api] = #data.items, data.max, true
+        all['count_' .. data.api], all['max_' .. data.api], all['enabled_' .. data.api] = occupied(data), data.max,
+            not data.disabled
     end
     for id, name in pairs(slot_names) do
         local spot = self.equipment[id]
@@ -370,17 +400,24 @@ end
 function Game:get_bag_info()
     local info = {}
     for _, bag in pairs(self.bags) do
-        info[bag.api] = {max = bag.max, count = #bag.items, enabled = true}
+        info[bag.api] = {max = bag.max, count = occupied(bag), enabled = not bag.disabled}
     end
     return info
 end
 
+-- What the game reports of itself, with the fields set_info changed laid over it.
 function Game:get_info()
-    return {logged_in = true, zone = self.zone, server = 1, language = 'English', weather = 0, day = 0, moon = 50,
-        moon_phase = 0, time = 720, mog_house = false, menu_open = false, chat_open = false,
+    local info = {logged_in = true, zone = self.zone, server = 1, language = 'English', weather = 0, day = 0,
+        moon = 50, moon_phase = 0, time = 720, mog_house = false, menu_open = false, chat_open = false,
         target_arrow = {x = 0, y = 0, z = 0}}
+    for key, value in pairs(self.info) do
+        info[key] = copy(value)
+    end
+    return info
 end
 
+-- The party list: the player as p0, then each other player in the party in the order they joined, and those in the
+-- slot they were given (a10 to a15 and a20 to a25 for the alliance's other parties).
 function Game:get_party()
     local player = self.player
     local party = {
@@ -388,11 +425,13 @@ function Game:get_party()
             tp = player.vitals.tp, hpp = player.vitals.hpp, mpp = player.vitals.mpp, zone = self.zone},
         party1_leader = player.id, party1_count = 1, party2_count = 0, party3_count = 0,
     }
-    for _, other in ipairs(self.others or {}) do
-        if other.in_party then
-            party.party1_count = party.party1_count + 1
-            party['p' .. (party.party1_count - 1)] = {name = other.name, mob = copy(other), hp = other.hp,
-                mp = other.mp, tp = other.tp, hpp = other.hpp, mpp = other.mpp, zone = self.zone}
+    for _, other in ipairs(self.others) do
+        local slot = other.slot or other.in_party and 'p' .. party.party1_count
+        if slot then
+            party[slot] = {name = other.name, mob = copy(other), hp = other.hp, mp = other.mp, tp = other.tp,
+                hpp = other.hpp, mpp = other.mpp, zone = self.zone}
+            local count = slot:match('^p') and 'party1_count' or slot:match('^a1') and 'party2_count' or 'party3_count'
+            party[count] = party[count] + 1
         end
     end
     return party
@@ -400,11 +439,14 @@ end
 
 -- What get_mjob_data reports. A blue mage's spells are its 20 set slots, by spell id, 512 in an empty one: here
 -- the blue magic it knows, the lowest ids first, all of it even past 20 so a spell added to the resources never falls
--- out of the set; a test that wants a spell out of it leaves it unknown. A puppetmaster's is its automaton.
+-- out of the set; a test that wants a spell out of it leaves it unknown. A puppetmaster's is its automaton, a
+-- Monipulator's its species.
 function Game:mjob_data()
     local job = self.res.jobs[self.player.main_job_id].ens
     if job == 'PUP' then
         return self:automaton_data()
+    elseif job == 'MON' then
+        return {species = self.species}
     elseif job ~= 'BLU' then
         return {}
     end
@@ -455,21 +497,11 @@ function Game:player_x()
     return x
 end
 
--- Lays these fields over what get_info reports from here on: time (minutes past midnight), day and weather (by id)
--- and the like. The game takes a get_info of its own that lays them over Game.get_info's.
-function Game:change_info(fields)
-    if not rawget(self, 'info_changes') then
-        self.info_changes = {}
-        self.get_info = function(game)
-            local info = Game.get_info(game)
-            for k, v in pairs(game.info_changes) do
-                info[k] = v
-            end
-            return info
-        end
-    end
-    for k, v in pairs(fields) do
-        self.info_changes[k] = v
+-- Lays these fields over what get_info reports from here on: time (minutes past midnight), day and weather (by id),
+-- mog_house, target_arrow and the like. No event says so; set_time, set_day and set_weather send theirs.
+function Game:set_info(fields)
+    for key, value in pairs(fields) do
+        self.info[key] = value
     end
 end
 
@@ -726,8 +758,11 @@ function Game:wearable(bag_id, bag_slot, slot_id)
 end
 
 -- Carries out one equip request, as four bytes: bag slot, equipment slot, bag. Returns the bytes to confirm it
--- with, or nil when the server refuses it.
+-- with, or nil when the server refuses it, as it refuses every one in a game with refuse_equips set.
 function Game:equip_chunk(chunk)
+    if self.refuse_equips then
+        return nil
+    end
     local bag_slot, slot_id, bag_id = chunk:byte(1), chunk:byte(2), chunk:byte(3)
     local current = self.equipment[slot_id]
     if bag_slot == 0 then
@@ -787,6 +822,13 @@ function Game:inject_outgoing(id, data)
             param = read_u16(data, 13)}
         self.actions[#self.actions + 1] = action
         self.sent[#self.sent].action = action
+        local moogle = action.category == 0 and self:mob_by_id(action.target_id)
+        if moogle and moogle.name:find('Moogle') then
+            self.moogle_menu = true
+            self:receive(0x02E, u32(0))
+        end
+    elseif id == 0x029 then
+        self:move_item(read_u32(data, 5), data:byte(9), data:byte(10), data:byte(11))
     end
 end
 
@@ -809,17 +851,64 @@ function Game:send_action_message(fields)
     return self:receive(0x029, body)
 end
 
--- The buff packet (0x063, type 9): the player's 32 buff slots, then when each wears off. The times count from the
--- game's clock, not from the epoch GearSwap counts a buff's duration from, so the durations it works out are
--- meaningless; a test of a duration needs the times set right first.
-function Game:send_buffs()
+-- The buff packet (0x063, type 9): the player's 32 buff slots, then when each wears off. Given buffs, each
+-- {name = , expires = }, the player's buffs become those first; expires is when it wears off, in seconds on the
+-- game's clock, 600 seconds on unless given. The times count from the game's clock, not from the epoch GearSwap
+-- counts a buff's duration from, so the durations it works out are meaningless; a test of a duration sets the times
+-- right first.
+function Game:send_buffs(buffs)
+    local expires = {}
+    if buffs then
+        self.player.buffs = {}
+        for i, buff in ipairs(buffs) do
+            self.player.buffs[i] = (find_by_name(self.res.buffs, buff.name, 'buff'))
+            expires[i] = buff.expires
+        end
+    end
     local ids, times = {}, {}
     for i = 1, 32 do
         local id = self.player.buffs[i]
         ids[i] = u16(id or 255)
-        times[i] = u32(id and (self.clock + 600) * 60 or 0)
+        times[i] = u32(id and (expires[i] or self.clock + 600) * 60 or 0)
     end
     return self:receive(0x063, string.char(9, 0, 0, 0) .. table.concat(ids) .. table.concat(times))
+end
+
+-- The party buff packet (0x076) for up to five members, each {id = , index = , buffs = {buff ids}}.
+function Game:send_party_buffs(members)
+    local body = {}
+    for i = 1, 5 do
+        local member = members[i]
+        local mask, low = {0, 0, 0, 0, 0, 0, 0, 0}, {}
+        for n = 1, 32 do
+            local id = member and member.buffs and member.buffs[n] or 255
+            low[n] = string.char(id % 256)
+            local byte = math.floor((n - 1) / 4) + 1
+            mask[byte] = mask[byte] + math.floor(id / 256) * 4 ^ ((n - 1) % 4)
+        end
+        body[i] = u32(member and member.id or 0) .. u16(member and member.index or 0) .. string.char(0, 0)
+            .. string.char(unpack(mask)) .. table.concat(low)
+    end
+    return self:receive(0x076, table.concat(body))
+end
+
+-- The body of the packet the server sends, as Windower's packets library builds it from its field definitions:
+-- fields are the values by label, and the rest are zeros.
+function Game:packet_body(id, fields)
+    local packets = assert(self.packets, 'the game builds a packet by its labels only with the packets library '
+        .. 'of the addon it plays, which the harness hands it once GearSwap has loaded')
+    return packets.build(packets.new('incoming', id, fields or {})):sub(5)
+end
+
+-- The server sends the packet, built from its fields by label.
+function Game:send(id, fields)
+    return self:receive(id, self:packet_body(id, fields))
+end
+
+-- A packet GearSwap has no handler for. The addon acts on a pet's coming or going, and on its change of status, with
+-- the packet that follows the one that told of them.
+function Game:next_packet()
+    return self:receive(0x0FF, '')
 end
 
 -- A packet the client sends of its own: the outgoing chunk handlers see it as it goes, not as injected.
@@ -836,19 +925,21 @@ local function put(body, position, bytes)
     return body:sub(1, position - 5) .. bytes .. body:sub(position - 4 + #bytes)
 end
 
--- The zone-in packet (0x00A) for the character and zone as the game holds them, in the bytes GearSwap reads.
-function Game:send_zone_in()
+-- The zone-in packet (0x00A) for the character and zone as the game holds them, with fields, by label, laid over
+-- it: the Mog House flag is in _unknown7's last byte, for one.
+function Game:send_zone_in(fields)
     local player = self.player
-    local body = string.char(0):rep(0x100)
-    body = put(body, 0x05, u32(player.id))
-    body = put(body, 0x09, u16(player.index))
-    body = put(body, 0x31, u16(self.zone))
-    body = put(body, 0x69, string.char(self:get_info().weather))
-    body = put(body, 0x85, player.name)
-    body = put(body, 0xB5, string.char(player.main_job_id))
-    body = put(body, 0xB8, string.char(player.sub_job_id))
-    body = put(body, 0xE9, u32(player.vitals.max_hp) .. u32(player.vitals.max_mp))
-    return self:receive(0x00A, body)
+    local values = {
+        ['Player'] = player.id, ['Player Index'] = player.index, ['Zone'] = self.zone, ['Player Name'] = player.name,
+        ['Main Job'] = player.main_job_id, ['Sub Job'] = player.sub_job_id, ['Weather'] = self:get_info().weather,
+        ['Race'] = player.race, ['MH Door Menu'] = 0, ['Max HP'] = player.vitals.max_hp,
+        ['Max MP'] = player.vitals.max_mp,
+        ['STR'] = 10, ['DEX'] = 10, ['VIT'] = 10, ['AGI'] = 10, ['INT'] = 10, ['MND'] = 10, ['CHR'] = 10,
+    }
+    for label, value in pairs(fields or {}) do
+        values[label] = value
+    end
+    return self:send(0x00A, values)
 end
 
 -- The char stats packet (0x061), in the bytes GearSwap reads: maximum HP and MP, and the jobs and their levels.
@@ -948,9 +1039,11 @@ function Game:make_windower(paths)
                 end
             end,
             get_mob_array = function() return game:mobs() end,
-            get_mob_list = function()
+            get_mob_list = function(name)
                 local list = {}
-                for index, mob in pairs(game:mobs()) do list[index] = mob.name end
+                for index, mob in pairs(game:mobs()) do
+                    if not name or mob.name == name then list[index] = mob.name end
+                end
                 return list
             end,
             get_items = function(bag, index) return game:get_items(bag, index) end,
@@ -963,7 +1056,8 @@ function Game:make_windower(paths)
             get_party = function() return game:get_party() end,
             get_spells = function() return copy(game.spells) end,
             get_abilities = function()
-                return {job_abilities = copy(game.job_abilities), weapon_skills = copy(game.weapon_skills), job_traits = {}}
+                return {job_abilities = copy(game.job_abilities), weapon_skills = copy(game.weapon_skills),
+                    job_traits = copy(game.job_traits)}
             end,
             get_spell_recasts = function()
                 local recasts = {}
@@ -975,7 +1069,8 @@ function Game:make_windower(paths)
             get_sjob_data = function() return {} end,
             get_key_items = function() return {} end,
             get_position = function() return '(?-?)' end,
-            turn = noop, run = noop, follow = noop, toggle_walk = noop,
+            turn = function(angle) game.turns[#game.turns + 1] = angle end,
+            run = noop, follow = noop, toggle_walk = noop,
         },
     }
     for name in pairs({set_text = true, set_location = true, set_visibility = true, set_color = true,
@@ -1056,6 +1151,14 @@ function Game:start_ability_recast(name, seconds)
     self.abilities_ready_at[ability.recast_id] = self.clock + seconds
 end
 
+-- The job traits the character has from now on, by name, as get_abilities reports them; none unless set.
+function Game:set_job_traits(names)
+    self.job_traits = {}
+    for i, name in ipairs(names) do
+        self.job_traits[i] = (find_by_name(self.res.job_traits, name, 'job trait'))
+    end
+end
+
 -- Puts the spell on recast for that many seconds, as the server does once it is cast.
 function Game:start_spell_recast(name, seconds)
     local id = find_by_name(self.res.spells, name, 'spell')
@@ -1113,21 +1216,21 @@ end
 -- Moves Vana'diel's clock to minutes past midnight, and fires the event that says so.
 function Game:set_time(minutes)
     local old = self:get_info().time
-    self:change_info({time = minutes})
+    self:set_info({time = minutes})
     self:fire('time change', minutes, old)
 end
 
 -- Makes it the day of that id (res.days), and fires the event that says so.
 function Game:set_day(id)
     local old = self:get_info().day
-    self:change_info({day = id})
+    self:set_info({day = id})
     self:fire('day change', id, old)
 end
 
 -- Makes the weather that of that id (res.weather), and fires the event that says so.
 function Game:set_weather(id)
     local old = self:get_info().weather
-    self:change_info({weather = id})
+    self:set_info({weather = id})
     self:fire('weather change', id, old)
 end
 
@@ -1152,13 +1255,20 @@ end
 -- Changes the character's sub job (by its short name) and its level, as at a Moogle, with the char stats packet
 -- that tells of it.
 function Game:change_sub_job(short, level)
-    for id, job in pairs(self.res.jobs) do
-        if type(job) == 'table' and job.ens == short then
-            self.player.sub_job_id = id
-        end
-    end
+    self.player.sub_job_id = job_id(self.res, short)
     self.player.sub_job_level = level or 49
     self.player.jobs[short] = self.player.sub_job_level
+    self:send_char_stats()
+end
+
+-- Changes the character's main job (by its short name) and its level, as at a Moogle: the client asks with the job
+-- change packet (0x100), and the server answers with the char stats packet.
+function Game:change_main_job(short, level)
+    local id = job_id(self.res, short)
+    self:send_from_client(0x100, string.char(id, self.player.sub_job_id, 0, 0))
+    self.player.main_job_id = id
+    self.player.main_job_level = level or 99
+    self.player.jobs[short] = self.player.main_job_level
     self:send_char_stats()
 end
 
@@ -1171,7 +1281,7 @@ end
 
 -- The body of a packet of that many bytes, zeros but for the bytes put at the 1-based positions the packets library
 -- reads them from.
-local function packet_body(size, bytes)
+local function bytes_body(size, bytes)
     local body = {}
     for position = 5, size do
         body[position - 4] = bytes[position] or 0
@@ -1183,7 +1293,7 @@ end
 -- pet's index (times 8) and the indicolure's byte.
 function Game:send_character_update(pet_index)
     pet_index = pet_index or self.pet and self.pet.index * 8 or 0
-    return self:receive(0x037, packet_body(0x68, {
+    return self:receive(0x037, bytes_body(0x68, {
         [0x31] = self.player.status, [0x35] = pet_index % 256, [0x36] = math.floor(pet_index / 256),
         [0x59] = self.indi_byte or 0,
     }))
@@ -1193,24 +1303,26 @@ end
 function Game:send_pet_info(tp)
     local owner = self.player.index
     tp = tp or self.pet and self.pet.tp or 0
-    return self:receive(0x068, packet_body(0x28, {
+    return self:receive(0x068, bytes_body(0x28, {
         [0x07] = owner % 256, [0x08] = math.floor(owner / 256), [0x11] = tp % 256, [0x12] = math.floor(tp / 256),
     }))
 end
 
+
 -- Puts a pet at the player's side, with no packet to tell of it, as one already out when GearSwap loads. fields over
--- the defaults: id, index, name, hpp, mpp, tp (3000 is full), status (0 idle, 1 engaged), distance (squared, as
--- Windower gives it), x, y, model_size.
+-- the defaults: id, index, name, hpp, mpp, tp (3000 is full; the pet's mob has none unless given), status (0 idle,
+-- 1 engaged), distance (squared, as Windower gives it), x, y, model_size. Returns the pet as the game holds it.
 function Game:place_pet(fields)
     local pet = {
         id = 0x1069100, index = 0x402, name = 'Pet', is_npc = true, spawn_type = 16, race = 0, status = 0, hpp = 100,
         mpp = 100, distance = 4, x = 1, y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, model_size = 1,
-        target_index = 0, tp = 0,
+        target_index = 0,
     }
     for key, value in pairs(fields or {}) do
         pet[key] = value
     end
     self.pet = pet
+    return pet
 end
 
 -- Gives the player a pet (fields as place_pet) and tells the addon, as the server does: the character update, then
@@ -1236,7 +1348,7 @@ end
 function Game:set_pet_status(status)
     local index = self.pet.index
     self.pet.status = status
-    self:receive(0x00E, packet_body(0x30, {
+    self:receive(0x00E, bytes_body(0x30, {
         [9] = index % 256, [10] = math.floor(index / 256), [11] = 4, [32] = status,
     }))
     self:send_pet_info()
@@ -1250,13 +1362,17 @@ function Game:set_pet_tp(tp)
     self:settle()
 end
 
--- The automaton a puppetmaster has, as get_mjob_data tells it: heads, frames and attachments by item name, the
--- ones fitted and, as the pet's MP, how much it has.
+-- The automaton a puppetmaster has, as get_mjob_data tells it: the head, frame and attachments fitted, by item name,
+-- those the puppetmaster has (the fitted ones unless given), and its HP and MP.
 function Game:set_automaton(fields)
     fields = fields or {}
+    local attachments = fields.attachments or {}
     self.automaton = {
-        name = fields.name or 'Automaton', head = fields.head, frame = fields.frame,
-        attachments = fields.attachments or {}, mp = fields.mp or 0, max_mp = fields.max_mp or 0,
+        name = fields.name or 'Automaton', head = fields.head, frame = fields.frame, attachments = attachments,
+        available_heads = fields.available_heads or {fields.head},
+        available_frames = fields.available_frames or {fields.frame},
+        available_attachments = fields.available_attachments or attachments,
+        hp = fields.hp or 100, max_hp = fields.max_hp or 100, mp = fields.mp or 0, max_mp = fields.max_mp or 0,
     }
 end
 
@@ -1274,32 +1390,16 @@ function Game:automaton_data()
     end
     return {
         name = automaton.name, head = ids({automaton.head})[1], frame = ids({automaton.frame})[1],
-        attachments = ids(automaton.attachments), available_heads = ids({automaton.head}),
-        available_frames = ids({automaton.frame}), available_attachments = ids(automaton.attachments),
-        mp = automaton.mp, max_mp = automaton.max_mp, hp = 100, max_hp = 100,
+        attachments = ids(automaton.attachments), available_heads = ids(automaton.available_heads),
+        available_frames = ids(automaton.available_frames),
+        available_attachments = ids(automaton.available_attachments),
+        hp = automaton.hp, max_hp = automaton.max_hp, mp = automaton.mp, max_mp = automaton.max_mp,
     }
 end
 
--- Another player near the character: a member of the party (p1, p2 in the order they are added) unless in_party is
--- false. fields over the defaults: name, id, index, hp (of the 1000 they have), distance (squared, as Windower gives
--- it), x, y.
-function Game:add_party_member(fields)
-    self.others = self.others or {}
-    local number = #self.others + 1
-    local other = {
-        id = 0x100100 + number, index = 0x500 + number, name = 'Someone', is_npc = false, spawn_type = 1, race = 1,
-        status = 0, hp = 1000, max_hp = 1000, hpp = 100, mp = 500, mpp = 100, tp = 0, distance = 16, x = 2, y = 0, z = 0,
-        facing = 0, claim_id = 0, valid_target = true, in_party = true, in_alliance = true, model_size = 1,
-        target_index = 0,
-    }
-    for key, value in pairs(fields or {}) do
-        other[key] = value
-    end
-    if not (fields and fields.hpp) then
-        other.hpp = math.floor(other.hp / other.max_hp * 100)
-    end
-    self.others[number] = other
-    return other
+-- The species a Monipulator is, by its id in the monstrosity resources, as get_mjob_data tells it.
+function Game:set_species(id)
+    self.species = id
 end
 
 -- The indicolure the player has, as the character update tells it: the element (by its id in the resources), the
@@ -1312,6 +1412,158 @@ function Game:set_indi(fields)
     end
     self:send_character_update()
     self:settle()
+end
+
+-------------------------------------------------------------------------------------------------------------------
+-- The mobs besides the player, the monster and the pet: other players, in the party or not, and NPCs. Each takes
+-- the next index from 0x500 unless given one, and stands along x as far as its distance says.
+-------------------------------------------------------------------------------------------------------------------
+
+local function add_other(game, defaults, fields)
+    local index = fields.index or game.next_index
+    game.next_index = math.max(game.next_index, index) + 1
+    local mob = {index = index, status = 0, hpp = 100, mpp = 100, y = 0, z = 0, facing = 0, claim_id = 0,
+        valid_target = true, model_size = 1, target_index = 0}
+    for key, value in pairs(defaults(index)) do
+        mob[key] = value
+    end
+    for key, value in pairs(fields) do
+        mob[key] = value
+    end
+    mob.x = fields.x or math.sqrt(mob.distance)
+    game.others[#game.others + 1] = mob
+    return mob
+end
+
+-- Another player near the character: a member of the party (p1, p2 in the order they are added, or the slot given:
+-- a10 to a15 and a20 to a25 for the alliance's other parties) unless in_party is false. fields over the defaults:
+-- name, id, index, hp (of the 1000 they have), mp, tp, hpp (that of the HP unless given), status, distance (squared,
+-- as Windower gives it), x, y, slot. Returns the player as the game holds them.
+function Game:add_party_member(fields)
+    fields = fields or {}
+    local own_party = fields.in_party ~= false and (not fields.slot or fields.slot:match('^p') ~= nil)
+    local alliance = fields.in_party ~= false or fields.slot ~= nil
+    local member = add_other(self, function(index)
+        return {id = 0x100000 + index, name = 'Someone', is_npc = false, race = 1, hp = 1000, max_hp = 1000, mp = 500,
+            tp = 0, distance = 16, spawn_type = own_party and 13 or alliance and 9 or 1}
+    end, fields)
+    member.in_party, member.in_alliance = own_party, alliance
+    if not fields.hpp then
+        member.hpp = math.floor(member.hp / member.max_hp * 100)
+    end
+    return member
+end
+
+-- An NPC, or another mob, near the character. fields over the defaults: name, id, index, is_npc, spawn_type, race,
+-- hpp, status, claim_id, distance (squared, as Windower gives it; 5 yalms unless given), x, y. Returns the mob as
+-- the game holds it.
+function Game:add_mob(fields)
+    return add_other(self, function(index)
+        return {id = 0x01000000 + index, name = 'Mob', is_npc = true, spawn_type = 2, race = 0, distance = 25,
+            in_party = false, in_alliance = false}
+    end, fields or {})
+end
+
+-- The mob at that index, a player or an NPC, is gone.
+function Game:remove_mob(index)
+    for i = #self.others, 1, -1 do
+        if self.others[i].index == index then
+            table.remove(self.others, i)
+        end
+    end
+end
+
+-- Makes the mob at that index the target, or the subtarget; none when given none.
+function Game:target(index)
+    self.target_index = index
+end
+
+function Game:subtarget(index)
+    self.subtarget_index = index
+end
+
+-------------------------------------------------------------------------------------------------------------------
+-- Items in bags, and moving them. The client asks for a move with an outgoing 0x029 (count, from bag, to bag, slot,
+-- target slot); the server moves the item to the first empty slot of the other bag, and tells the client with an
+-- item update for the new slot (0x020) and a count of 0 for the old (0x01E). It takes nothing out of or into a bag
+-- that is closed (a bag's disabled), a Mog House bag away from the Mog House and a moogle, or into one that is full,
+-- nothing that is worn, and nothing that doesn't go through the inventory. A game with refuse_moves set takes no move
+-- at all.
+-------------------------------------------------------------------------------------------------------------------
+
+-- Puts one more item in a bag, in its first empty slot. item as in the boot options: name, extdata, count. Returns
+-- the slot.
+function Game:add_item(bag_name, item)
+    local bag_id = assert(self:bag_id(bag_name), ('no bag named %s'):format(tostring(bag_name)))
+    local bag = self.bags[bag_id]
+    local item_id = find_by_name(self.res.items, item.name, 'item')
+    for slot = 1, bag.max do
+        if not bag.items[slot] then
+            bag.items[slot] = {id = item_id, count = item.count or 1, status = 0, slot = slot, bazaar = 0,
+                extdata = item.extdata or string.char(0):rep(24)}
+            return slot
+        end
+    end
+    error(('%s is full'):format(bag_name))
+end
+
+-- The slot of the first item with that name in a bag, and the item, or nil.
+function Game:find_item(bag_name, name)
+    local bag = self.bags[self:bag_id(bag_name)]
+    for slot = 1, bag.max do
+        local item = bag.items[slot]
+        if item and self.res.items[item.id].en == name then
+            return slot, item
+        end
+    end
+end
+
+-- The names of the items in a bag, sorted.
+function Game:bag_names(bag_name)
+    local names = {}
+    for _, item in pairs(self.bags[self:bag_id(bag_name)].items) do
+        names[#names + 1] = self.res.items[item.id].en
+    end
+    table.sort(names)
+    return names
+end
+
+-- Whether bag_id is open to the client: not closed, and, for a Mog House bag, in the Mog House or at a moogle.
+function Game:bag_reachable(bag_id)
+    if self.bags[bag_id].disabled then
+        return false
+    end
+    if self.res.bags[bag_id].access == 'Mog House' then
+        return self:get_info().mog_house or (self.moogle_menu and self.res.bags[bag_id].api ~= 'storage') or false
+    end
+    return true
+end
+
+function Game:move_item(count, from_id, to_id, index)
+    local from, to = self.bags[from_id], self.bags[to_id]
+    local item = from and from.items[index]
+    if self.refuse_moves or not item or not to or item.status ~= 0 or (from_id ~= 0 and to_id ~= 0) then
+        return false
+    elseif not self:bag_reachable(from_id) or not self:bag_reachable(to_id) then
+        return false
+    end
+    local target
+    for slot = 1, to.max do
+        if not to.items[slot] then
+            target = slot
+            break
+        end
+    end
+    if not target then
+        return false
+    end
+    from.items[index] = nil
+    item.slot = target
+    to.items[target] = item
+    self:receive(0x01E, u32(0) .. string.char(from_id, index, 0, 0))
+    self:receive(0x020, u32(item.count) .. u32(item.bazaar) .. u16(item.id) .. string.char(to_id, target, 0)
+        .. item.extdata)
+    return true
 end
 
 return Game

@@ -33,14 +33,6 @@ describe('the stand-in game', function()
         assert.are_not.same(gs.game.equipment[13], gs.game.equipment[14])
     end)
 
-    it('reports the target arrow, which GearSwap reads for an action typed at a target\'s id', function()
-        local gs = harness.boot(testy.whm())
-        gs:traffic()
-        gs:type('/ma "Haste" ' .. gs.game.player.id)
-        local traffic = gs:traffic()
-        assert.same({action = 'Haste', target = 'Testy'}, traffic[#traffic])
-    end)
-
     it('counts a recast down with the clock: abilities in seconds, spells in 60ths of a second', function()
         local game = Game.new({res = harness.resources()})
         game:start_ability_recast('Berserk', 300)
@@ -53,6 +45,23 @@ describe('the stand-in game', function()
         assert.equal(0, game.windower.ffxi.get_spell_recasts()[58])
         game:advance(10)
         assert.equal(0, game.windower.ffxi.get_spell_recasts()[57])
+    end)
+
+    it('takes the last recast started for an ability, whatever was left of the one before', function()
+        local game = Game.new({res = harness.resources()})
+        game:start_ability_recast('Berserk', 300)
+        game:start_ability_recast('Berserk', 0)
+        assert.equal(0, game.windower.ffxi.get_ability_recasts()[1])
+    end)
+
+    it('takes the merit levels the boot gives it', function()
+        local gs = harness.boot(testy.whm({merits = {sic_recast = 3}}))
+        assert.equal(3, gs.game.windower.ffxi.get_player().merits.sic_recast)
+    end)
+
+    it('has no merits unless the boot gives them', function()
+        local gs = harness.boot(testy.whm())
+        assert.same({}, gs.game.windower.ffxi.get_player().merits)
     end)
 
     it('sends Windower\'s tp change event with the new TP and the old', function()
@@ -78,33 +87,13 @@ describe('the stand-in game', function()
         assert.equal(walked, x())
     end)
 
-    it('lists the party\'s members after the character, in the order they joined', function()
-        local game = Game.new({res = harness.resources()})
-        game:add_party_member({name = 'Koru-Moru'})
-        game:add_party_member({name = 'Qultada'})
-        local party = game.windower.ffxi.get_party()
-        assert.equal('Koru-Moru', party.p1.name)
-        assert.equal('Qultada', party.p2.name)
-        assert.is_nil(party.p3)
-        assert.equal(3, party.party1_count)
-    end)
-
     it('zones: get_info reports the new zone, after the zone change event', function()
-        local game = Game.new({res = harness.resources()})
+        local gs = harness.boot(testy.whm())
+        local game = gs.game
         local seen
         game:register('zone change', function(new, old) seen = {new, old, game.windower.ffxi.get_info().zone} end)
-        game:change_zone(230)
+        gs:change_zone(230)
         assert.same({230, 288, 230}, seen)
-    end)
-
-    it('counts each bag\'s items and room in get_items, as Windower does', function()
-        local game = Game.new({res = harness.resources(), items = {{name = 'Naegling'}, {name = 'Daybreak', bag = 'sack'}}})
-        local items = game.windower.ffxi.get_items()
-        assert.equal(1, items.count_inventory)
-        assert.equal(1, items.count_sack)
-        assert.equal(0, items.count_satchel)
-        assert.equal(80, items.max_sack)
-        assert.is_true(items.enabled_sack)
     end)
 
     it('lists the items GearSwap used, with their targets', function()
@@ -125,16 +114,6 @@ describe('the stand-in game', function()
         assert.equal(2028, seen.targets[1].actions[1].param)
     end)
 
-    it('reports the target arrow at rest, so an action at a target given by its id goes out', function()
-        local gs = harness.boot(testy.whm())
-        gs:type('/ma "Cure III" ' .. gs.game.monster.id)
-        local actions = {}
-        for _, entry in ipairs(gs:traffic()) do
-            actions[#actions + 1] = entry.action and entry
-        end
-        assert.same({{action = 'Cure III', target = 'Apex Toad'}}, actions)
-    end)
-
     it('moves Vana\'diel\'s time, day and weather, as get_info reports them, with the events that say so', function()
         local game = Game.new({res = harness.resources()})
         local events = {}
@@ -151,9 +130,14 @@ describe('the stand-in game', function()
     end)
 
     it('zones as the game does: leave-zone out, zone-out and zone-in in, then the zone change event', function()
-        local game = Game.new({res = harness.resources(), name = 'Commy', main_job = 'RDM', sub_job = 'WHM'})
+        local gs = harness.boot(testy.whm())
+        local game = gs.game
         local seen = {}
-        game:register('outgoing chunk', function(id, _, _, injected) seen[#seen + 1] = {'out', id, injected} end)
+        game:register('outgoing chunk', function(id, _, _, injected)
+            if not injected then
+                seen[#seen + 1] = {'out', id, injected}
+            end
+        end)
         game:register('incoming chunk', function(id, data)
             seen[#seen + 1] = {'in', id}
             if id == 0x00A then
@@ -162,8 +146,8 @@ describe('the stand-in game', function()
             end
         end)
         game:register('zone change', function(new, old) seen[#seen + 1] = {'zone change', new, old} end)
-        game:change_zone(230)
-        assert.same({{'out', 0x00D, false}, {'in', 0x00B}, {'in', 0x00A}, {'zone', 230, 'job', 5, 3, 'name', 'Commy'},
+        gs:change_zone(230)
+        assert.same({{'out', 0x00D, false}, {'in', 0x00B}, {'in', 0x00A}, {'zone', 230, 'job', 3, 5, 'name', 'Testy'},
             {'in', 0x063}, {'zone change', 230, 288}}, seen)
         assert.equal(230, game.windower.ffxi.get_info().zone)
     end)
@@ -177,5 +161,91 @@ describe('the stand-in game', function()
         assert.same({1, 99, 13, 45}, {packet:byte(13), packet:byte(14), packet:byte(15), packet:byte(16)})
         local player = game.windower.ffxi.get_player()
         assert.same({'NIN', 45}, {player.sub_job, player.sub_job_level})
+    end)
+
+    it('changes the main job as at a Moogle: the job change packet out, then the char stats packet in', function()
+        local game = Game.new({res = harness.resources(), main_job = 'WAR', sub_job = 'BLM'})
+        local seen = {}
+        game:register('outgoing chunk', function(id, data, _, injected)
+            seen[#seen + 1] = {'out', id, data:byte(5), data:byte(6), injected}
+        end)
+        game:register('incoming chunk', function(id, data)
+            seen[#seen + 1] = {'in', id, data:byte(13), data:byte(14), data:byte(15)}
+        end)
+        game:change_main_job('MNK', 90)
+        game:settle()
+        assert.same({{'out', 0x100, 2, 4, false}, {'in', 0x061, 2, 90, 4}}, seen)
+        local player = game.windower.ffxi.get_player()
+        assert.same({'MNK', 90, 'BLM'}, {player.main_job, player.main_job_level, player.sub_job})
+    end)
+end)
+
+describe('what the stand-in game reports of itself', function()
+    it('has a target arrow at rest, with no offset', function()
+        local game = Game.new({res = harness.resources()})
+        assert.same({x = 0, y = 0, z = 0}, game.windower.ffxi.get_info().target_arrow)
+    end)
+
+    it('takes the fields it is told to change, and keeps the others', function()
+        local game = Game.new({res = harness.resources()})
+        game:set_info({mog_house = true, weather = 7})
+        local info = game.windower.ffxi.get_info()
+        assert.same({true, 7, true}, {info.mog_house, info.weather, info.logged_in})
+    end)
+end)
+
+describe('the packets the server sends in the stand-in game', function()
+    local function parse(gs, id)
+        local data = gs.game.last_packets.incoming[id][1]
+        return gs.env.packets.parse('incoming', data)
+    end
+
+    it('are built from Windower\'s field definitions, by the labels of their fields', function()
+        local gs = harness.boot(testy.whm())
+        gs:send(0x00A, {['Zone'] = 230, ['Player Name'] = 'Corey', ['Max HP'] = 1800})
+        local packet = parse(gs, 0x00A)
+        assert.same({230, 'Corey', 1800}, {packet['Zone'], packet['Player Name'], packet['Max HP']})
+    end)
+
+    it('are framed with the id and a sequence that goes up with each', function()
+        local gs = harness.boot(testy.whm())
+        gs:send(0x00B, {})
+        local first = parse(gs, 0x00B)._sequence
+        gs:send(0x00B, {})
+        assert.equal(first + 1, parse(gs, 0x00B)._sequence)
+    end)
+
+    it('zone in names the character the game has, by default', function()
+        local gs = harness.boot(testy.whm())
+        gs:send_zone_in()
+        local packet = parse(gs, 0x00A)
+        assert.same({'Testy', 3, 5, 288}, {packet['Player Name'], packet['Main Job'], packet['Sub Job'], packet['Zone']})
+    end)
+
+    it('take a number for a field of bytes, as Windower\'s pack does, so a label two fields share can be built', function()
+        local gs = harness.boot(testy.whm())
+        assert.equal('12', ('A4'):pack(12):sub(1, 2))
+        assert.equal(4, #('A4'):pack(12))
+        assert.has_no.errors(function()
+            gs:send(0x00A, {['_unknown12'] = 7})
+        end)
+    end)
+
+    it('a buff packet has each buff in its slot and when it wears off, as the packet gives it', function()
+        local gs = harness.boot(testy.whm())
+        gs:send_buffs({{name = 'Haste', expires = 5000}, {name = 'Protect', expires = 6000}})
+        local data = gs.game.last_packets.incoming[0x063][1]
+        assert.same({9, 33, 40, 255}, {data:unpack('H', 5), data:unpack('H', 9), data:unpack('H', 11), data:unpack('H', 13)})
+        assert.same({5000 * 60, 6000 * 60}, {data:unpack('I', 0x49), data:unpack('I', 0x4D)})
+        assert.same({33, 40}, {gs.game.player.buffs[1], gs.game.player.buffs[2]})
+    end)
+
+    it('a party buff packet has the id and index of each member, and their buffs', function()
+        local gs = harness.boot(testy.whm())
+        local alice = gs.game:add_party_member({name = 'Alice'})
+        gs:send_party_buffs({{id = alice.id, index = alice.index, buffs = {33, 419}}})
+        local data = gs.game.last_packets.incoming[0x076][1]
+        assert.same({alice.id, alice.index, 33}, {data:unpack('I', 5), data:unpack('H', 9), data:byte(0x15)})
+        assert.same({419 % 256, math.floor(419 / 256)}, {data:byte(0x16), math.floor(data:byte(0x0D) / 4) % 4})
     end)
 end)

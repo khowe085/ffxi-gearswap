@@ -1,6 +1,5 @@
 local harness = require('harness')
 local plain = require('plain')
-local world = require('world')
 
 local chat, texts = plain.chat, plain.texts
 
@@ -341,7 +340,7 @@ describe('the hold after gs test', function()
             character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
             items = {{name = 'Nyame Helm'}},
         })
-        world.change_job(gs, 'MON')
+        gs:change_main_job('MON')
         chat(gs)
         assert.same({'GearSwap: There is nothing to test because there is no file loaded.'}, gs_test(gs, 'set sets.idle'))
     end)

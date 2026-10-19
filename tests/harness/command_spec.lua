@@ -1,3 +1,4 @@
+local Game = require('game')
 local harness = require('harness')
 local testy = require('testy')
 
@@ -10,19 +11,17 @@ local function actions(gs)
 end
 
 describe('the stand-in game\'s commands', function()
-    local gs
-    before_each(function()
-        gs = harness.boot(testy.whm())
-        gs:traffic()
-    end)
-
     it('run an input command as the line typed', function()
+        local gs = harness.boot(testy.whm())
+        gs:traffic()
         gs:console('input /ma "Cure III" <me>')
         assert.same({'Cure III'}, actions(gs))
     end)
 
-    it('run the same with any number of @ in front, which Windower takes off', function()
-        gs:console('@@input /ma "Cure III" <me>')
-        assert.same({'Cure III'}, actions(gs))
+    it('run with any number of @ before them, as GearSwap\'s send_command, which adds one, sends Sel\'s @input', function()
+        local game = Game.new({res = harness.resources()})
+        game:run_command('@@input /echo hello')
+        assert.same({'input /echo hello'}, game.commands)
+        assert.same({'/echo hello'}, game.typed)
     end)
 end)

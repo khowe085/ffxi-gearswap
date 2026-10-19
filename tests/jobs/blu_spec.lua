@@ -10,11 +10,9 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
 -- set.
 local function boot(spells, overrides)
     local options = overrides or {}
-    options.spells = spells
-    local gs = jobby.boot('BLU', pieces, options)
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
+    options.spells, options.items = spells, pieces
+    options.sub_job = options.sub_job or 'NIN'
+    return jobby.boot('BLU', options)
 end
 
 local function sets_of(gs)
@@ -218,7 +216,7 @@ describe('a spell that needs Unbridled Learning', function()
     it('is cancelled, not held back, when Unbridled Learning is on recast', function()
         local gs = boot({'Cesspool'})
         gs:console('gs c set AutoUnbridled true')
-        jobby.set_recasts(gs, {abilities = {[81] = 100}})
+        gs.game:start_ability_recast('Unbridled Learning', 100)
         gs:type('/ma "Cesspool" <t>')
         assert.same({}, gs:traffic())
         assert.is_true(said(gs, 'Abort: Unbridled Learning not active.'))
@@ -542,7 +540,7 @@ describe('the tick of a blue mage', function()
         it('leaves Light Arts alone while it is on recast', function()
             local gs = scholar()
             gs:console('gs c toggle AutoArts')
-            jobby.set_recasts(gs, {abilities = {[228] = 60}})
+            gs.game:start_ability_recast('Light Arts', 60)
             assert.same({}, first_actions(gs))
         end)
     end)
@@ -599,7 +597,7 @@ describe('the tick of a blue mage', function()
 
         it('leaves Mighty Guard alone in combat when Unbridled Learning is not ready', function()
             local gs = buffer({'Mighty Guard'}, {sub_job = 'RDM', buffs = {'Haste', 'Refresh', 'Attack Boost'}})
-            jobby.set_recasts(gs, {abilities = {[81] = 100}})
+            gs.game:start_ability_recast('Unbridled Learning', 100)
             gs.user.in_combat = true
             assert.same({}, first_actions(gs))
         end)

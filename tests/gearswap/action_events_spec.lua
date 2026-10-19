@@ -1,5 +1,4 @@
 local plain = require('plain')
-local world = require('world')
 
 local function calls(gs)
     local list = gs.user.calls
@@ -130,7 +129,7 @@ end)
 
 describe('a packet another addon injected', function()
     local function item_packet(gs)
-        local body = world.packet_body(gs, 0x020, {['Count'] = 1, ['Item'] = 26366, ['Bag'] = 0, ['Index'] = 70})
+        local body = gs.game:packet_body(0x020, {['Count'] = 1, ['Item'] = 26366, ['Bag'] = 0, ['Index'] = 70})
         return string.char(0x20, 0x0C, 1, 0) .. body
     end
 
@@ -259,7 +258,7 @@ end)
 describe('a pet\'s command ended by the server', function()
     local function boot_with_pet()
         local gs = boot()
-        gs.game:summon_pet({name = 'Carbuncle'})
+        gs.game:place_pet({name = 'Carbuncle'})
         gs:console('gs c refresh')
         gs:type('/pet "Assault" <t>')
         calls(gs)
@@ -284,7 +283,7 @@ describe('a pet\'s command ended by the server', function()
 
     it('when the server says the player can\'t, from the pet, is told to pet_aftercast, marked interrupted', function()
         local gs = boot_with_pet()
-        local pet = gs.game.extra_mobs[gs.game.pet_index]
+        local pet = gs.game.pet
         gs:run(function()
             gs.game:send_action_message({message_id = 17, actor_id = pet.id, target_id = gs.game.monster.id})
             gs.game:settle()
