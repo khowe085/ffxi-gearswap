@@ -18,6 +18,7 @@ function init_gear_sets()
 		ear2 = 'Loquac. Earring', ring1 = 'Defending Ring', ring2 = 'Stikini Ring +1'}
 	sets.idle.DT = set_combine(sets.idle, {body = 'Malignance Tabard'})
 	sets.latent_refresh = {waist = 'Wanion Belt'}
+	sets.latent_refresh_grip = {ring2 = 'Gelatinous Ring'}
 	sets.Learning = {neck = 'Weike Torque'}
 
 	sets.engaged = {head = 'Volte Cap', body = 'Volte Jupon'}

@@ -344,6 +344,13 @@ describe('what the pet does', function()
         assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet, sets_of(gs).midcast.Pet.Cure)), gs:worn())
     end)
 
+    it('puts no set on for a weapon skill it readies, only for its spells', function()
+        local gs = boot()
+        local before = gs:worn()
+        jobby.pet_readies(gs, 1943)
+        assert.same(before, gs:worn())
+    end)
+
     it('says its weapon skill in the party chat with the party chat state on', function()
         local gs = boot()
         gs:console('gs c toggle PartyChatWS')

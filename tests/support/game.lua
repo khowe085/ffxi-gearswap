@@ -296,6 +296,9 @@ function Game:mobs()
     if self.pet then
         mobs[self.pet.index] = copy(self.pet)
     end
+    for _, other in ipairs(self.others or {}) do
+        mobs[other.index] = copy(other)
+    end
     return mobs
 end
 
@@ -307,6 +310,9 @@ function Game:mob_by_target(target)
         return self:mobs()[self.target_index]
     elseif target == 'pet' and self.pet then
         return copy(self.pet)
+    elseif target:match('^p%d$') then
+        local member = self:get_party()[target]
+        return member and member.mob
     end
 end
 
@@ -368,16 +374,25 @@ end
 
 function Game:get_info()
     return {logged_in = true, zone = self.zone, server = 1, language = 'English', weather = 0, day = 0, moon = 50,
-        moon_phase = 0, time = 720, mog_house = false, menu_open = false, chat_open = false}
+        moon_phase = 0, time = 720, mog_house = false, menu_open = false, chat_open = false,
+        target_arrow = {x = 0, y = 0, z = 0}}
 end
 
 function Game:get_party()
     local player = self.player
-    return {
+    local party = {
         p0 = {name = player.name, mob = self:player_mob(), hp = player.vitals.hp, mp = player.vitals.mp,
             tp = player.vitals.tp, hpp = player.vitals.hpp, mpp = player.vitals.mpp, zone = self.zone},
         party1_leader = player.id, party1_count = 1, party2_count = 0, party3_count = 0,
     }
+    for _, other in ipairs(self.others or {}) do
+        if other.in_party then
+            party.party1_count = party.party1_count + 1
+            party['p' .. (party.party1_count - 1)] = {name = other.name, mob = copy(other), hp = other.hp,
+                mp = other.mp, tp = other.tp, hpp = other.hpp, mpp = other.mpp, zone = self.zone}
+        end
+    end
+    return party
 end
 
 -- What get_mjob_data reports. A blue mage's spells are its 20 set slots, by spell id, 512 in an empty one: here
@@ -1063,6 +1078,28 @@ function Game:automaton_data()
         available_frames = ids({automaton.frame}), available_attachments = ids(automaton.attachments),
         mp = automaton.mp, max_mp = automaton.max_mp, hp = 100, max_hp = 100,
     }
+end
+
+-- Another player near the character: a member of the party (p1, p2 in the order they are added) unless in_party is
+-- false. fields over the defaults: name, id, index, hp (of the 1000 they have), distance (squared, as Windower gives
+-- it), x, y.
+function Game:add_other_player(fields)
+    self.others = self.others or {}
+    local number = #self.others + 1
+    local other = {
+        id = 0x100100 + number, index = 0x500 + number, name = 'Someone', is_npc = false, spawn_type = 1, race = 1,
+        status = 0, hp = 1000, max_hp = 1000, hpp = 100, mp = 500, mpp = 100, tp = 0, distance = 16, x = 2, y = 0, z = 0,
+        facing = 0, claim_id = 0, valid_target = true, in_party = true, in_alliance = true, model_size = 1,
+        target_index = 0,
+    }
+    for key, value in pairs(fields or {}) do
+        other[key] = value
+    end
+    if not (fields and fields.hpp) then
+        other.hpp = math.floor(other.hp / other.max_hp * 100)
+    end
+    self.others[number] = other
+    return other
 end
 
 -- The indicolure the player has, as the character update tells it: the element (by its id in the resources), the

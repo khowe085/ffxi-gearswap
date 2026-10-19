@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------------------------------------------
 -- Jobby, the made-up character the tests of the job files (data/BLU.lua, COR.lua, PUP.lua, DNC.lua, SCH.lua, GEO.lua
 -- and RUN.lua) play: the boot options for each job, over the fixture gear file tests/fixture/data/Jobby/Jobby_<Job>_Gear.lua
--- that job loads, and what a test of a job file needs besides: the world's day and weather, recasts that aren't
--- ready, and a distance to the monster.
+-- that job loads, the sets as they are worn, and what a test of a job file needs besides: the world's day and
+-- weather, recasts that aren't ready, and the actions of a pet.
 -------------------------------------------------------------------------------------------------------------------
 
 local harness = require('harness')

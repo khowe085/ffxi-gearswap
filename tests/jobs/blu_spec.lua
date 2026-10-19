@@ -4,10 +4,10 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
     'Adamantite Armor', 'Plumb Boots', "Orunmila's Torque", 'Weike Torque', 'Loricate Torque', 'Sortiarius Earring',
     'Beatific Earring', 'Choleric Earring', 'Pensee Earring', 'Moonshade Earring', 'Lunette Ring', 'Pernicious Ring',
     'Gelatinous Ring', 'Cacoethic Ring', 'Petrov Ring', 'Fortified Ring', 'Vertigo Ring', 'Dhanurveda Ring',
-    'Wanion Belt', 'Prodigious Mantle', 'Malignance Chapeau', 'Malignance Tabard', 'Naegling'}
+    'Wanion Belt', 'Prodigious Mantle', 'Malignance Chapeau', 'Malignance Tabard', 'Naegling', 'Gozuki Mezuki'}
 
--- Jobby as a blue mage with the idle set on, knowing only the spells named: a blue mage can set no more than 20 of
--- them, and the game's blue magic set is the first 20 it knows.
+-- Jobby as a blue mage with the idle set on, knowing only the spells named, which the game gives him in his blue magic
+-- set.
 local function boot(spells, overrides)
     local options = overrides or {}
     options.spells = spells
@@ -115,6 +115,16 @@ describe('a blue spell the lists leave out or hold twice', function()
         gs:traffic()
         assert.same(jobby.worn_by(jobby.layer(sets_of(gs).precast.FC['Blue Magic'], sets_of(gs).midcast['Blue Magic'])),
             midcast_worn(gs, '/ma "Polar Roar" <t>'))
+    end)
+
+    it('takes the set of one of the lists that hold it for Bilgestorm too: Physical or Stun', function()
+        local gs = boot({'Bilgestorm'})
+        gs:gain_buff('Unbridled Learning')
+        gs:traffic()
+        local worn = midcast_worn(gs, '/ma "Bilgestorm" <t>')
+        local physical = blue_over_fast_cast(gs, blue(gs, 'Physical'))
+        local stun = blue_over_fast_cast(gs, blue(gs, 'Stun'))
+        assert.is_true(pcall(assert.same, physical, worn) or pcall(assert.same, stun, worn))
     end)
 
     it('takes the set of one of the lists that hold it, as Lua happens to order them', function()
@@ -310,6 +320,13 @@ describe('a blue healing spell', function()
             midcast_worn(gs, '/ma "Pollen" <me>'))
     end)
 
+    it('wears the unlocked set but no sets.Self_Healing for a spell on someone else', function()
+        local gs = boot({'Magic Fruit'})
+        gs.game:add_other_player({name = 'Friend'})
+        assert.same(blue_over_fast_cast(gs, blue(gs, 'Healing'), blue(gs, 'UnlockedHealing')),
+            midcast_worn(gs, '/ma "Magic Fruit" Friend'))
+    end)
+
     it('wears sets.Self_Healing alone, without the unlocked set, when a weapon set locks the weapons', function()
         local gs = boot({'Pollen'})
         gs:console('gs c set Weapons Naegling')
@@ -442,6 +459,29 @@ describe('the idle set under half MP', function()
         gs:console('gs c set IdleMode DT')
         low_mp(gs)
         assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.DT)), gs:worn())
+    end)
+
+    it('wears sets.latent_refresh_grip too with a staff in the idle set and the weapons free', function()
+        local gs = boot({'Foot Kick'})
+        sets_of(gs).idle.main = 'Gozuki Mezuki'
+        low_mp(gs)
+        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+            {main = 'Gozuki Mezuki'})), gs:worn())
+    end)
+
+    it('wears no sets.latent_refresh_grip with a weapon set locking the weapons', function()
+        local gs = boot({'Foot Kick'})
+        sets_of(gs).idle.main = 'Gozuki Mezuki'
+        gs:console('gs c set Weapons Naegling')
+        low_mp(gs)
+        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, {main = 'Naegling'})), gs:worn())
+    end)
+
+    it('wears no sets.latent_refresh_grip with a weapon in the idle set that is no staff', function()
+        local gs = boot({'Foot Kick'})
+        sets_of(gs).idle.main = 'Naegling'
+        low_mp(gs)
+        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, {main = 'Naegling'})), gs:worn())
     end)
 
     it('wears sets.idle alone above half MP', function()

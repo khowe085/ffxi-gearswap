@@ -150,6 +150,9 @@ describe('a ranged attack', function()
             sets_of(gs).buff['Triple Shot'].Acc), gs:worn())
     end)
 
+    pending('wears sets.buff.Barrage over the midcast set under Barrage: job_post_midcast in data/COR.lua reads '
+        .. 'state.Buff.Barrage, which only data/RNG.lua declares, so a corsair with Ranger as the sub job never wears it')
+
     it('wears sets.TrueShot on a target in the sweet spot', function()
         local gs = boot()
         gs.game.monster.distance = 36
@@ -191,6 +194,14 @@ describe('a ranged attack', function()
         gs:traffic()
         gs:type('/ra <t>')
         assert.same(jobby.request(sets_of(gs).precast.RA['Death Penalty'].AM), gs:traffic()[1].equip)
+    end)
+
+    it('wears no AM set under another level of Aftermath', function()
+        local gs = boot()
+        gs:gain_buff('Aftermath: Lv.1')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same(jobby.request(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
     end)
 
     it('wears the AM set no more once Aftermath is gone', function()
