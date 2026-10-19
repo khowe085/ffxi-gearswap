@@ -67,6 +67,9 @@ sealed class TestCommand
 	Builds builds;
 	string[] categories;
 
+	// The exit code of tests/run-gearswap-tests.cs where busted can't run: not installed, or on Windows.
+	const int BustedCantRun = 3;
+
 	public TestCommand(string repo, Builds builds)
 	{
 		this.repo = repo;
@@ -106,13 +109,14 @@ sealed class TestCommand
 			return Stop("--filter is for one category of tests: test tools --filter <text> or test gearswap --filter <text>");
 		var outcome = 0;
 		foreach (var category in categories.Where(category => named.Count == 0 || named.Contains(category)))
-			outcome = Math.Max(outcome, Test(category, all || named.Count > 0, filter));
+			outcome = Math.Max(outcome, Test(category, all || named.Count > 0, named.Contains(category), filter));
 		return outcome;
 	}
 
 	// Runs a category, unless it passed with these files and isn't forced to run, and says how it went. The exit code:
-	// 1 when it failed, and 2 when it couldn't run, as for a --filter no test's name holds.
-	int Test(string category, bool forced, string? filter)
+	// 1 when it failed, and 2 when it couldn't run, as for a --filter no test's name holds. GearSwap's tests where
+	// busted can't run are skipped, with a notice, unless the category was named.
+	int Test(string category, bool forced, bool named, string? filter)
 	{
 		var pass = Path.Combine(passes, category);
 		var before = Files.Hash(repo, Inputs(category));
@@ -128,6 +132,13 @@ sealed class TestCommand
 			"gearswap" => RunGearSwapTests(filter),
 			_ => RunDataChecks() ? 0 : 1,
 		};
+		if (outcome == BustedCantRun)
+		{
+			if (named)
+				return 2;
+			Console.WriteLine($"{category}: skipped, since busted can't run here (they need Linux or WSL with Lua 5.1 and busted)");
+			return 0;
+		}
 		if (outcome == 1)
 			Console.WriteLine($"{category}: FAILED");
 		if (outcome != 0)
@@ -149,8 +160,8 @@ sealed class TestCommand
 	// The files of the checkout a category's result rests on. The tools tests run on a fixture of their own, so they
 	// rest on the tools' source and tests/ alone. The data checks rest on the data and the docs they check, and on this
 	// launcher, which says what they are; the builds they run are rested on through the build that clears their pass.
-	// GearSwap's tests rest on the GearSwap they load (its Lua, libs/ and the Lua under data/), the Windower libraries
-	// under it, the tests and their busted settings.
+	// GearSwap's tests rest on the GearSwap they load (its Lua, libs/ and data/, where a character's notes say its gear
+	// files are tested), the Windower libraries under it, the tests and their busted settings.
 	IEnumerable<string> Inputs(string category)
 	{
 		if (category == "tools")
@@ -158,7 +169,7 @@ sealed class TestCommand
 		if (category == "gearswap")
 			return Directory.GetFiles(repo, "*.lua")
 				.Concat(Files.Under(Path.Combine(repo, "libs")))
-				.Concat(Files.Under(Path.Combine(repo, "data")).Where(file => file.EndsWith(".lua", StringComparison.OrdinalIgnoreCase)))
+				.Concat(Files.Under(Path.Combine(repo, "data")))
 				.Concat(Files.Under(Path.Combine(repo, "docs", "windower", "libs")))
 				.Concat(Files.Under(Path.Combine(repo, "tests")))
 				.Concat(Files.IfThere(Path.Combine(repo, ".busted")))
@@ -193,7 +204,7 @@ sealed class TestCommand
 			return 1;
 		string[] arguments = filter is null ? [] : [filter];
 		var exit = Apps.Run(runner, arguments);
-		return exit is 0 or 2 ? exit : 1;
+		return exit is 0 or 2 or BustedCantRun ? exit : 1;
 	}
 
 	// Reads each character's gear files into sets files, checks those against the export, the blue magic lists and

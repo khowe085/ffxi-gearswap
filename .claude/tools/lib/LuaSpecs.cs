@@ -31,7 +31,7 @@ static class LuaSpecs
 	// matches in either case, as the tools tests' filter does.
 	public static IReadOnlyList<string> BustedArguments(string spec, string? filter)
 	{
-		var arguments = new List<string> { "--output=tests/support/report.lua" };
+		List<string> arguments = ["--output=tests/support/report.lua"];
 		if (filter is not null)
 			arguments.Add("--filter=" + string.Concat(filter.Select(Literal)));
 		arguments.Add(spec);

@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -2436,17 +2437,17 @@ Test("LuaSpecs.Read takes a spec file busted gave up on after its results, with 
 
 Test("LuaSpecs.Report writes the times the same in any culture", () =>
 {
-	var culture = System.Globalization.CultureInfo.CurrentCulture;
+	var culture = CultureInfo.CurrentCulture;
 	try
 	{
-		System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo("de-DE");
+		CultureInfo.CurrentCulture = new CultureInfo("de-DE");
 		var written = new StringWriter();
 		LuaSpecs.Report([LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""", "", 0)], null, written);
 		Contains(written.ToString(), "PASS it works (tests/a_spec.lua, 0.25 s)");
 	}
 	finally
 	{
-		System.Globalization.CultureInfo.CurrentCulture = culture;
+		CultureInfo.CurrentCulture = culture;
 	}
 });
 
@@ -2479,18 +2480,52 @@ Test("LuaSpecs.Report says so, with exit code 2, when no test ran, as for a filt
 	Equal(2, LuaSpecs.Report([none], "nothing like this", written));
 	Equal("No gearswap test's name holds \"nothing like this\".\n", written.ToString().Replace("\r\n", "\n"));
 	written = new StringWriter();
+	Equal(2, LuaSpecs.Report([none], null, written));
+	Equal("No tests in the spec files under tests/.\n", written.ToString().Replace("\r\n", "\n"));
+	written = new StringWriter();
 	Equal(2, LuaSpecs.Report([], null, written));
 	Equal("No spec files under tests/.\n", written.ToString().Replace("\r\n", "\n"));
 });
 
-Test("run-gearswap-tests stops, and says what to install, when it can't run busted", () =>
+Test("run-gearswap-tests stops with exit code 3, and says what to install, when it can't run busted", () =>
 {
 	var sandbox = NewSandbox();
 	Directory.CreateDirectory(Path.Combine(sandbox.Repo, "tests"));
 	File.WriteAllText(Path.Combine(sandbox.Repo, "tests", "a_spec.lua"), "it('runs', function() end)\n");
-	Stops(sandbox.RunWithoutGit("run-gearswap-tests"), OperatingSystem.IsWindows()
+	var run = sandbox.RunWithoutGit("run-gearswap-tests");
+	// The launcher tells this apart from the runner's other stops, to skip GearSwap's tests where they can't run.
+	Equal(3, run.ExitCode);
+	Contains(run.Output, OperatingSystem.IsWindows()
 		? "GearSwap's tests run on Linux or WSL, not on Windows."
 		: "Couldn't run busted, which GearSwap's tests run on. Install Lua 5.1, LuaRocks and busted: luarocks --lua-version 5.1 install busted");
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
+Test("run-gearswap-tests runs busted on each spec file with the repo's report and the filter, in a temp folder it removes, and reports each test", () =>
+{
+	var sandbox = NewSandbox();
+	Directory.CreateDirectory(Path.Combine(sandbox.Repo, "tests", "sel"));
+	File.WriteAllText(Path.Combine(sandbox.Repo, "tests", "a_spec.lua"), "");
+	File.WriteAllText(Path.Combine(sandbox.Repo, "tests", "sel", "b_spec.lua"), "");
+	var bin = Path.Combine(workDir, "stand-in-busted");
+	Directory.CreateDirectory(bin);
+	if (OperatingSystem.IsWindows())
+	{
+		Equal(3, sandbox.RunWithPath(bin, "run-gearswap-tests").ExitCode);
+		return;
+	}
+	// A stand-in for busted: it notes its arguments and its temp folder beside the spec file, the last argument, and
+	// writes a passing test named for the file.
+	var busted = Path.Combine(bin, "busted");
+	File.WriteAllText(busted, "#!/bin/sh\nfor spec; do :; done\nprintf '%s\\n' \"$@\" \"$TMPDIR\" > \"$spec.args\"\n"
+		+ "echo '{\"successes\":[{\"name\":\"'\"$spec\"' runs\",\"element\":{\"duration\":0.5,\"trace\":{\"currentline\":1}}}],\"failures\":[],\"errors\":[],\"pendings\":[]}'\n");
+	File.SetUnixFileMode(busted, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+	var run = sandbox.RunWithPath(bin, "run-gearswap-tests", "Some Name");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "PASS tests/a_spec.lua runs (tests/a_spec.lua, 0.50 s)\nPASS tests/sel/b_spec.lua runs (tests/sel/b_spec.lua, 0.50 s)\n2 of 2 tests passed\n");
+	var arguments = File.ReadAllLines(Path.Combine(sandbox.Repo, "tests", "sel", "b_spec.lua.args"));
+	Equal("--output=tests/support/report.lua|--filter=[sS][oO][mM][eE] [nN][aA][mM][eE]|tests/sel/b_spec.lua", string.Join("|", arguments[..^1]));
+	True(arguments[^1].StartsWith(sandbox.Temp), "busted's temp folder is the run's own, in the temp folder: " + arguments[^1]);
 	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
 });
 
@@ -2863,10 +2898,13 @@ sealed class Sandbox
 		Start(tool, arguments, resources: resources.Root + "res/", adjust: start => start.Environment["GEAR_TOOLS_REPO_WSDIST_BETA"] = $"{wsdist.Path} {wsdist.Commit}");
 
 	// Runs a tool with nothing on its PATH, so it can't find git.
-	public ToolRun RunWithoutGit(string tool, params string[] arguments) => Start(tool, arguments, adjust: start =>
+	public ToolRun RunWithoutGit(string tool, params string[] arguments) => RunWithPath("", tool, arguments);
+
+	// Runs a tool with only the folder given on its PATH, to find a stand-in program there.
+	public ToolRun RunWithPath(string path, string tool, params string[] arguments) => Start(tool, arguments, adjust: start =>
 	{
 		start.FileName = Environment.ProcessPath!;
-		start.Environment["PATH"] = "";
+		start.Environment["PATH"] = path;
 	});
 
 	ToolRun Start(string tool, string[] arguments, string? wiki = null, string? resources = null, Action<ProcessStartInfo>? adjust = null)

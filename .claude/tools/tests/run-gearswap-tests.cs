@@ -6,7 +6,7 @@
 // With a filter, only the tests whose name holds the text run. busted reads .busted at the repo root; to run one spec
 // file by hand: busted tests/sel/idle_spec.lua. The tests copy a Windower install into the temp folder; each run
 // gives its busted processes a temp folder of their own and removes it after. They run on Linux or WSL. Exit code 1
-// when a test fails or a spec file doesn't run, 2 when busted can't be run or nothing runs.
+// when a test fails or a spec file doesn't run, 2 when nothing runs, 3 when busted can't run here.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ var filter = args.Length > 0 ? args[0] : null;
 if (OperatingSystem.IsWindows())
 {
 	Console.Error.WriteLine("GearSwap's tests run on Linux or WSL, not on Windows.");
-	return 2;
+	return 3;
 }
 var specs = LuaSpecs.Find(Tool.RepoRoot);
 var temp = Path.Combine(Path.GetTempPath(), "gearswap-tests-" + Guid.NewGuid().ToString("N")[..8]);
@@ -76,6 +76,6 @@ finally
 if (missing)
 {
 	Console.Error.WriteLine("Couldn't run busted, which GearSwap's tests run on. Install Lua 5.1, LuaRocks and busted: luarocks --lua-version 5.1 install busted");
-	return 2;
+	return 3;
 }
 return LuaSpecs.Report(runs, filter, Console.Out);

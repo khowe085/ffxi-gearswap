@@ -5,10 +5,11 @@
 -- globals, the libraries it requires and the user file it loads live there and nowhere else, so one test can't see
 -- what another left behind. The standard libraries GearSwap or Windower's libraries change are copies (table, math,
 -- os, io, coroutine), except string: Windower's string functions have to land on the string table that strings'
--- methods come from.
+-- methods come from. That table and the metatables Windower's libraries set for the whole state are put back as Lua
+-- had them at each boot.
 --
 -- GearSwap reads its files from a copy of a Windower install that this module builds in the temp folder once per
--- run: the repo's GearSwap (its Lua, libs/ and data/, with the fixture characters' files from tests/fixture/data
+-- spec file, as busted loads the module again for each: the repo's GearSwap (its Lua, libs/ and data/, with the fixture characters' files from tests/fixture/data
 -- added to data/), Windower's own libraries from docs/windower/libs and the test resources from tests/fixture/res.
 -- What GearSwap or Sel write while a test runs lands in that copy, never in the repo. Paths in an error are given
 -- back as the repo's.
@@ -200,6 +201,39 @@ local function shallow_copy(t)
         result[k] = v
     end
     return result
+end
+
+-- The string table and the metatables of strings, booleans and functions, as Lua had them before any boot. Windower's
+-- libraries change these for the whole Lua state, and each boot loads the libraries again, so each boot starts from
+-- these; otherwise each would wrap the string functions the one before left. They are kept in the Lua registry, which
+-- every copy of this module busted loads shares, so the ones kept are those from before the first boot.
+local function as_lua_had_them()
+    local registry = debug.getregistry()
+    if not registry.gearswap_test_pristine then
+        registry.gearswap_test_pristine = {
+            string = shallow_copy(string),
+            string_meta = debug.getmetatable(''),
+            boolean_meta = debug.getmetatable(false),
+            function_meta = debug.getmetatable(print),
+        }
+    end
+    return registry.gearswap_test_pristine
+end
+as_lua_had_them()
+
+local function put_back_as_lua_had_them()
+    local saved = as_lua_had_them()
+    for k in pairs(string) do
+        if saved.string[k] == nil then
+            string[k] = nil
+        end
+    end
+    for k, v in pairs(saved.string) do
+        string[k] = v
+    end
+    debug.setmetatable('', saved.string_meta)
+    debug.setmetatable(false, saved.boolean_meta)
+    debug.setmetatable(print, saved.function_meta)
 end
 
 local support_folder = join(harness.repo, 'tests', 'support')
@@ -400,6 +434,7 @@ local beginning_category = {[3] = 8, [7] = 7, [16] = 12}
 --   expect_file    the user file GearSwap should load, by its name in data/
 function harness.boot(options)
     options = options or {}
+    put_back_as_lua_had_them()
     local paths = harness.tree()
     local res = harness.resources()
 
@@ -467,8 +502,8 @@ function harness.boot(options)
 end
 
 -- Runs fn, and gives any error it raises the repo's paths.
-function Session:run(fn, ...)
-    local results = {xpcall(fn, debug.traceback, ...)}
+function Session:run(fn)
+    local results = {xpcall(fn, debug.traceback)}
     if not results[1] then
         error(harness.repo_paths(results[2]), 0)
     end
