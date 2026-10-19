@@ -434,7 +434,6 @@ local beginning_category = {[3] = 8, [7] = 7, [16] = 12}
 --   expect_file    the user file GearSwap should load, by its name in data/
 function harness.boot(options)
     options = options or {}
-    put_back_as_lua_had_them()
     local paths = harness.tree()
     local res = harness.resources()
 
@@ -483,6 +482,8 @@ function harness.boot(options)
     local session = setmetatable({game = game, env = env, seen = 0}, Session)
     -- Windower hands each addon this table to describe itself in.
     env._addon = {}
+    -- After the augments are written, whose libraries change the string functions too.
+    put_back_as_lua_had_them()
     session:run(function()
         local chunk = assert(env.loadfile(paths.addon .. 'gearswap.lua'))
         chunk()
