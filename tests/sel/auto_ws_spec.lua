@@ -187,8 +187,20 @@ describe('AutoWSRestore under Auto WS', function()
         assert.same({{action = 'Sanguine Blade', target = 'Apex Toad'}}, autoy.actions(gs))
     end)
 
-    it('uses Mystic Boon in place of the choice under 31% MP', function()
+    it('uses Entropy in place of the choice under 31% MP', function()
         local gs = boot('Savage Blade 1000')
+        gs.game.player.vitals.mpp = 30
+        gs:set_tp(1000)
+        assert.same({{action = 'Entropy', target = 'Apex Toad'}}, autoy.actions(gs))
+    end)
+
+    it('uses Mystic Boon in place of the choice under 31% MP when it doesn\'t know Entropy', function()
+        local gs = boot('Savage Blade 1000')
+        for i, id in ipairs(gs.game.weapon_skills) do
+            if gs.game.res.weapon_skills[id].en == 'Entropy' then
+                table.remove(gs.game.weapon_skills, i)
+            end
+        end
         gs.game.player.vitals.mpp = 30
         gs:set_tp(1000)
         assert.same({{action = 'Mystic Boon', target = 'Apex Toad'}}, autoy.actions(gs))
