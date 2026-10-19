@@ -14,6 +14,13 @@ namespace GearTools;
 // in one, and the report of a run. tests/run-gearswap-tests.cs runs each spec file in a busted process of its own.
 static class LuaSpecs
 {
+	static JsonSerializerOptions reportOptions;
+
+	static LuaSpecs()
+	{
+		reportOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+	}
+
 	// Every *_spec.lua under the repo's tests/, by its path in the repo with forward slashes, in order.
 	public static IReadOnlyList<string> Find(string repo)
 	{
@@ -44,47 +51,21 @@ static class LuaSpecs
 	public static SpecRun Read(string spec, string standardOutput, string standardError, int exitCode)
 	{
 		var output = standardOutput + standardError;
-		var lines = standardOutput.ReplaceLineEndings("\n").TrimEnd('\n').Split('\n');
-		var last = lines[^1];
-		if (last.StartsWith('{'))
+		var report = ParseReport(standardOutput.ReplaceLineEndings("\n").TrimEnd('\n').Split('\n')[^1]);
+		if (report is not null)
 		{
-			try
-			{
-				using var json = JsonDocument.Parse(last);
-				var tests = new List<(int Line, SpecTest Test)>();
-				void Take(string list, SpecResult result)
-				{
-					if (json.RootElement.TryGetProperty(list, out var entries) is false)
-						return;
-					foreach (var entry in entries.EnumerateArray())
-					{
-						var message = Text(entry, "message");
-						var traceback = entry.TryGetProperty("trace", out var trace) ? Text(trace, "traceback") : "";
-						if (entry.TryGetProperty("isError", out var isError) && isError.ValueKind == JsonValueKind.True && traceback.Length > 0)
-							message += "\n" + traceback.TrimStart('\n');
-						var element = entry.TryGetProperty("element", out var found) ? found : default;
-						var seconds = element.ValueKind == JsonValueKind.Object && element.TryGetProperty("duration", out var duration) && duration.ValueKind == JsonValueKind.Number ? duration.GetDouble() : 0;
-						// The test's own line, where it is declared; a failure's trace says where its assertion was.
-						var declared = element.ValueKind == JsonValueKind.Object && element.TryGetProperty("trace", out var elementTrace) ? elementTrace : default;
-						var line = declared.ValueKind == JsonValueKind.Object && declared.TryGetProperty("currentline", out var current) && current.ValueKind == JsonValueKind.Number ? current.GetInt32() : 0;
-						tests.Add((line, new SpecTest(Text(entry, "name"), result, message, seconds)));
-					}
-				}
-				Take("successes", SpecResult.Passed);
-				Take("failures", SpecResult.Failed);
-				Take("errors", SpecResult.Failed);
-				Take("pendings", SpecResult.Pending);
-				// busted exits with a code other than 0 only when a test failed, so with none failed it broke off after its
-				// results.
-				if (exitCode != 0 && tests.All(test => test.Test.Result != SpecResult.Failed))
-					return new SpecRun(spec, false, [], $"busted exited with code {exitCode}, though no test failed\n{output.Trim()}");
-				return new SpecRun(spec, true, tests.OrderBy(test => test.Line).Select(test => test.Test).ToList(), output);
-			}
-			catch (Exception problem) when (problem is JsonException or InvalidOperationException)
-			{
-			}
+			var tests = (report.Successes ?? []).Select(entry => Test(entry, SpecResult.Passed))
+				.Concat((report.Failures ?? []).Concat(report.Errors ?? []).Select(entry => Test(entry, SpecResult.Failed)))
+				.Concat((report.Pendings ?? []).Select(entry => Test(entry, SpecResult.Pending)))
+				.ToList();
+			// busted exits with a code other than 0 only when a test failed, so with none failed it broke off after its
+			// results.
+			if (exitCode != 0 && tests.All(test => test.Test.Result != SpecResult.Failed))
+				return new SpecRun(spec, false, [], $"busted exited with code {exitCode}, though no test failed\n{output.Trim()}");
+			return new SpecRun(spec, true, tests.OrderBy(test => test.Line).Select(test => test.Test).ToList(), output);
 		}
-		return new SpecRun(spec, false, [], output.Trim());
+		var exited = exitCode != 0 ? $"\nbusted exited with code {exitCode}" : "";
+		return new SpecRun(spec, false, [], (output.Trim() + exited).Trim());
 	}
 
 	// Writes a line for each test and then the count, and returns the exit code: 0 when every test passed, 1 when
@@ -141,8 +122,76 @@ static class LuaSpecs
 		return c.ToString();
 	}
 
-	static string Text(JsonElement entry, string name) =>
-		entry.ValueKind == JsonValueKind.Object && entry.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString()! : "";
+	// busted's JSON, or null when the line isn't busted's JSON.
+	static ReportJson? ParseReport(string line)
+	{
+		if (line.StartsWith('{') is false)
+			return null;
+		try
+		{
+			return JsonSerializer.Deserialize<ReportJson>(line, reportOptions);
+		}
+		catch (JsonException)
+		{
+			return null;
+		}
+	}
+
+	// A test of the report, and the line it is declared on; a failure's own trace says where its assertion was.
+	static (int Line, SpecTest Test) Test(EntryJson entry, SpecResult result)
+	{
+		var message = entry.Message ?? "";
+		var traceback = entry.Trace?.Traceback ?? "";
+		if (entry.IsError == true && traceback.Length > 0)
+			message += "\n" + traceback.TrimStart('\n');
+		return (entry.Element?.Trace?.Currentline ?? 0, new SpecTest(entry.Name ?? "", result, message, entry.Element?.Duration ?? 0));
+	}
+
+	sealed class ReportJson
+	{
+		public List<EntryJson> Successes { get; set; }
+
+		public List<EntryJson> Failures { get; set; }
+
+		public List<EntryJson> Errors { get; set; }
+
+		public List<EntryJson> Pendings { get; set; }
+
+		public ReportJson()
+		{
+			Successes = [];
+			Failures = [];
+			Errors = [];
+			Pendings = [];
+		}
+	}
+
+	sealed class EntryJson
+	{
+		public string? Name { get; set; }
+
+		public string? Message { get; set; }
+
+		public bool? IsError { get; set; }
+
+		public ElementJson? Element { get; set; }
+
+		public TraceJson? Trace { get; set; }
+	}
+
+	sealed class ElementJson
+	{
+		public double? Duration { get; set; }
+
+		public TraceJson? Trace { get; set; }
+	}
+
+	sealed class TraceJson
+	{
+		public int? Currentline { get; set; }
+
+		public string? Traceback { get; set; }
+	}
 }
 
 // What busted's run of one spec file came to: its tests, or, when it didn't run, what it wrote instead.

@@ -2411,7 +2411,9 @@ Test("LuaSpecs.Read takes output without busted's JSON as a spec file that didn'
 	var run = LuaSpecs.Read("tests/x_spec.lua", "a line a test printed\n", "lua: tests/x_spec.lua:3: ')' expected near ':'\n", 1);
 	Equal(false, run.Ran);
 	Equal(0, run.Tests.Count);
-	Equal("a line a test printed\nlua: tests/x_spec.lua:3: ')' expected near ':'", run.Output);
+	Equal("a line a test printed\nlua: tests/x_spec.lua:3: ')' expected near ':'\nbusted exited with code 1", run.Output);
+	// A busted the system stopped may write nothing; its exit code is then all there is to go on.
+	Equal("busted exited with code 137", LuaSpecs.Read("tests/x_spec.lua", "", "", 137).Output);
 });
 
 Test("LuaSpecs.BustedArguments has busted run a spec file with the repo's report, and finds a filter's text as it is, in any case", () =>
@@ -2447,7 +2449,10 @@ Test("LuaSpecs.Report writes the times the same in any culture", () =>
 	var culture = CultureInfo.CurrentCulture;
 	try
 	{
-		CultureInfo.CurrentCulture = new CultureInfo("de-DE");
+		// A culture that writes a decimal comma, made from the invariant one so it needs no culture data installed.
+		var comma = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+		comma.NumberFormat.NumberDecimalSeparator = ",";
+		CultureInfo.CurrentCulture = comma;
 		var written = new StringWriter();
 		LuaSpecs.Report([LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""", "", 0)], null, written);
 		Contains(written.ToString(), "PASS it works (tests/a_spec.lua, 0.25 s)");
@@ -2521,18 +2526,21 @@ Test("run-gearswap-tests runs busted on each spec file with the repo's report an
 		Equal(3, sandbox.RunWithPath(bin, "run-gearswap-tests").ExitCode);
 		return;
 	}
-	// A stand-in for busted: it notes its arguments and its temp folder beside the spec file, the last argument, and
-	// writes a passing test named for the file.
+	// A stand-in for busted: it notes its arguments, its temp folder and whether that is there beside the spec file,
+	// the last argument, and writes a passing test named for the file.
 	var busted = Path.Combine(bin, "busted");
 	File.WriteAllText(busted, "#!/bin/sh\nfor spec; do :; done\nprintf '%s\\n' \"$@\" \"$TMPDIR\" > \"$spec.args\"\n"
+		+ "if [ -d \"$TMPDIR\" ]; then echo there >> \"$spec.args\"; fi\n"
 		+ "echo '{\"successes\":[{\"name\":\"'\"$spec\"' runs\",\"element\":{\"duration\":0.5,\"trace\":{\"currentline\":1}}}],\"failures\":[],\"errors\":[],\"pendings\":[]}'\n");
 	File.SetUnixFileMode(busted, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
 	var run = sandbox.RunWithPath(bin, "run-gearswap-tests", "Some Name");
 	Equal(0, run.ExitCode);
 	Contains(run.Output, "PASS tests/a_spec.lua runs (tests/a_spec.lua, 0.50 s)\nPASS tests/sel/b_spec.lua runs (tests/sel/b_spec.lua, 0.50 s)\n2 of 2 tests passed\n");
 	var arguments = File.ReadAllLines(Path.Combine(sandbox.Repo, "tests", "sel", "b_spec.lua.args"));
-	Equal("--output=tests/support/report.lua|--filter=[sS][oO][mM][eE] [nN][aA][mM][eE]|tests/sel/b_spec.lua", string.Join("|", arguments[..^1]));
-	True(arguments[^1].StartsWith(sandbox.Temp), "busted's temp folder is the run's own, in the temp folder: " + arguments[^1]);
+	Equal("--output=tests/support/report.lua|--filter=[sS][oO][mM][eE] [nN][aA][mM][eE]|tests/sel/b_spec.lua", string.Join("|", arguments[..^2]));
+	// A folder of the run's own, there while busted ran and gone after.
+	True(arguments[^2].StartsWith(Path.Combine(sandbox.Temp, "gearswap-tests-")), "busted's temp folder is the run's own: " + arguments[^2]);
+	Equal("there", arguments[^1]);
 	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
 });
 

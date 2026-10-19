@@ -31,7 +31,7 @@ var temp = Path.Combine(Path.GetTempPath(), "gearswap-tests-" + Guid.NewGuid().T
 Directory.CreateDirectory(temp);
 var runs = new SpecRun[specs.Count];
 var missing = false;
-// The error a program that isn't there gives: ENOENT, and ERROR_FILE_NOT_FOUND on Windows.
+// The error a program that isn't there gives: ENOENT.
 const int FileNotFound = 2;
 try
 {
@@ -52,9 +52,13 @@ try
 		{
 			// Not found is busted not installed; anything else is a busted that is there but wouldn't start.
 			if (problem.NativeErrorCode == FileNotFound)
+			{
 				missing = true;
+			}
 			else
+			{
 				runs[i] = new SpecRun(specs[i], false, [], "busted couldn't be started: " + problem.Message);
+			}
 			return;
 		}
 		using (process)

@@ -105,6 +105,15 @@ local function errors(gs)
 end
 
 describe('the gear file', function()
+    -- Without this, a change to how characters or gear files are found could leave nothing tested, and pass.
+    it('finder finds at least one character\'s gear file', function()
+        local found = 0
+        for _, character in ipairs(characters()) do
+            found = found + #gear_files(character)
+        end
+        assert.is_true(found > 0)
+    end)
+
     for _, character in ipairs(characters()) do
         for _, file in ipairs(gear_files(character)) do
             it(file.path .. ' loads and builds its sets', function()

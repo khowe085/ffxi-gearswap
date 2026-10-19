@@ -254,5 +254,16 @@ describe('the pack stand-in for Windower\'s', function()
             assert.is_false(ok)
             assert.matches('does not know the format', problem)
         end)
+
+        it('raises an error on a count after a code that takes none, rather than reading one value', function()
+            for _, format in ipairs({'H3', 'C*', 'I2', 'f4'}) do
+                local ok, problem = pcall(string.unpack, bytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), format)
+                assert.is_false(ok, format)
+                assert.matches('does not know the format', problem)
+                ok, problem = pcall(string.pack, format, 1, 2, 3, 4)
+                assert.is_false(ok, format)
+                assert.matches('does not know the format', problem)
+            end
+        end)
     end)
 end)

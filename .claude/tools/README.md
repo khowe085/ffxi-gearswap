@@ -160,7 +160,7 @@ dotnet run .claude/gear.cs -- test
 - A pass vouches for the builds it ran on, so a build made again clears every pass.
 - `--all` runs every category, and `test tools` (or `data`, or `gearswap`) runs that one whether or not it changed.
 - `test tools --filter gear-list` runs only the tools tests whose name holds the text, and `test gearswap --filter <text>` the GearSwap tests'.
-- Exit code 0 when every category that ran passed, 1 when one failed, 2 for an option or a category it doesn't know, a `--filter` no test's name holds, or `test gearswap` where busted can't run (not installed, or on Windows). A plain `test` skips GearSwap's tests there, with a notice, and keeps no pass for them.
+- Exit code 0 when every category that ran passed, 1 when one failed, 2 for an option or a category it doesn't know, a `--filter` no test's name holds, or `test gearswap` where busted can't run (not installed, or on Windows). A plain `test`, or `test --all`, skips GearSwap's tests there, with a notice, and keeps no pass for them.
 
 `tests/run-tests.cs` runs against Testy, whose repository is `tests/fixture/repo/`: its export, notes and gear list, a small Sel gear file (`data/Testy/Testy_Blu_Gear.lua`), sets files under `sets/`, clean and with mistakes put in, and small copies of the outside data under `docs/`. The tests never read the real data and never use the network.
 

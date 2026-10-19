@@ -28,6 +28,8 @@ local function format_items(format)
         local count = format:match('^%d+', position + 1) or format:match('^%*', position + 1)
         position = position + 1 + (count and #count or 0)
         if code:match('%s') then
+        elseif count and code:match('[CcBHhIif]') then
+            error(('tests/support/pack.lua does not know the format %q with a count (in %q)'):format(code, format), 3)
         elseif code:match('[<>CcBHhIifbqASz]') then
             items[#items + 1] = {code = code, count = count == '*' and '*' or tonumber(count)}
         else

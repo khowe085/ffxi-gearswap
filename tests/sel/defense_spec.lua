@@ -19,7 +19,7 @@ describe('Sel\'s defense mode', function()
         assert.same(testy.worn_by(testy.rdm_idle, pdt), gs:worn())
     end)
 
-    it('Physical lays sets.defense.PDT over the engaged set', function()
+    it('Physical puts sets.defense.PDT on while engaged', function()
         local gs = boot()
         gs:engage()
         assert.same(testy.worn_by(testy.rdm_idle, engaged), gs:worn())

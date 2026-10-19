@@ -16,6 +16,10 @@
 -- back as the repo's.
 -------------------------------------------------------------------------------------------------------------------
 
+-- GearSwap needs setfenv and getfenv, which Lua 5.1 has and later Luas don't.
+assert(_VERSION == 'Lua 5.1', ('GearSwap\'s tests run on Lua 5.1, and busted runs on %s. Install busted for 5.1: '
+    .. 'luarocks --lua-version 5.1 install busted'):format(_VERSION))
+
 local lfs = require('lfs')
 local Game = require('game')
 local dialect = require('dialect')
