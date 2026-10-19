@@ -489,8 +489,8 @@ function init_gear_sets()
 
 	sets.engaged.DW.Acc = set_combine(sets.engaged.Acc, {})
 
-	-- DT 55 (cap 50), DA 25, Store TP 26
-	sets.engaged.DW.DT = set_combine(sets.engaged.DT, {ear1="Alabaster Earring",ear2="Brutal Earring",feet="Leth. Houseaux +3"})
+	-- DT 55 (cap 50), DA 25, Store TP 25
+	sets.engaged.DW.DT = set_combine(sets.engaged.DT, {ear1="Alabaster Earring",feet="Leth. Houseaux +3"})
 
 	sets.engaged.DW.Acc.DT = set_combine(sets.engaged.Acc.DT, {})
 end
