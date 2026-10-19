@@ -6,8 +6,13 @@ return {
     [35] = {id=35,en="Provoke",ja="挑発",element=1,icon_id=360,mp_cost=0,prefix="/jobability",range=11,recast_id=5,targets=32,tp_cost=0,type="JobAbility"},
     [74] = {id=74,en="Divine Seal",ja="女神の印",duration=60,element=6,icon_id=381,mp_cost=0,prefix="/jobability",range=0,recast_id=26,status=78,targets=1,tp_cost=0,type="JobAbility"},
     [83] = {id=83,en="Convert",ja="コンバート",element=7,icon_id=391,mp_cost=0,prefix="/jobability",range=0,recast_id=49,targets=1,tp_cost=0,type="JobAbility"},
+    [88] = {id=88,en="Assault",ja="神獣の攻撃",element=6,icon_id=473,mp_cost=0,prefix="/pet",range=12,recast_id=170,targets=32,tp_cost=0,type="PetCommand"},
+    [98] = {id=98,en="Fighter's Roll",ja="ファイターズロール",duration=300,element=1,icon_id=485,mp_cost=0,prefix="/jobability",range=0,recast_id=193,status=310,targets=1,tp_cost=0,type="CorsairRoll"},
+    [123] = {id=123,en="Double-Up",ja="ダブルアップ",element=6,icon_id=485,mp_cost=0,prefix="/jobability",range=0,recast_id=194,targets=1,tp_cost=0,type="JobAbility"},
     [247] = {id=247,en="Composure",ja="コンポージャー",duration=7200,element=6,icon_id=392,mp_cost=0,prefix="/jobability",range=0,recast_id=50,status=419,targets=1,tp_cost=0,type="JobAbility"},
     [274] = {id=274,en="Saboteur",ja="サボトゥール",duration=60,element=7,icon_id=393,mp_cost=0,prefix="/jobability",range=0,recast_id=36,status=454,targets=1,tp_cost=0,type="JobAbility"},
+    [672] = {id=672,en="Foot Kick",ja="フットキック",element=6,icon_id=46,mp_cost=1,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},
+    [673] = {id=673,en="Dust Cloud",ja="土煙",element=3,icon_id=43,mp_cost=1,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},
 }, {"id", "en", "ja", "duration", "element", "icon_id", "mp_cost", "prefix", "range", "recast_id", "status", "targets", "tp_cost", "type", "skillchain_a", "skillchain_b", "skillchain_c"}
 --[[
 Copyright 2013-2026 Windower

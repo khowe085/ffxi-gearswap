@@ -1,7 +1,11 @@
 -- The entries GearSwap's tests use, cut from Windower/Resources at 5f22f38.
 -- Automatically generated file: Items
 return {
-    [13566] = {id=13566,en="Defending Ring",ja="守りの指輪",enl="defending ring",jal="守りの指輪",category="Armor",flags=63568,jobs=8388606,level=70,races=510,slots=24576,stack=1,targets=0,type=5},
+    [1179] = {id=1179,en="Shihei",ja="紙兵",enl="shihei",jal="紙兵",category="General",flags=4,stack=99,targets=0,type=1},
+    [2972] = {id=2972,en="Shikanofuda",ja="鹿ノ札",enl="shikanofuda",jal="鹿ノ札",category="General",flags=4,stack=99,targets=0,type=1},
+    [4112] = {id=4112,en="Potion",ja="ポーション",enl="potion",jal="ポーション",cast_time=1,category="Usable",flags=1540,stack=1,targets=1,type=7},
+    [4155] = {id=4155,en="Remedy",ja="万能薬",enl="remedy",jal="万能薬",cast_time=1,category="Usable",flags=1540,stack=12,targets=1,type=7},
+    [13566] ={id=13566,en="Defending Ring",ja="守りの指輪",enl="defending ring",jal="守りの指輪",category="Armor",flags=63568,jobs=8388606,level=70,races=510,slots=24576,stack=1,targets=0,type=5},
     [14812] = {id=14812,en="Loquac. Earring",ja="ロケイシャスピアス",enl="loquacious earring",jal="ロケイシャスピアス",category="Armor",flags=63572,jobs=8388606,level=75,races=510,slots=6144,stack=1,targets=0,type=5},
     [17174] = {id=17174,en="Judge's Bow",ja="ジャッジボウ",enl="Judge's bow",jal="ジャッジボウ",category="Weapon",damage=100,delay=540,flags=63586,jobs=8388606,level=1,races=510,range_type="Bow",skill=25,slots=4,stack=1,targets=0,type=4},
     [21621] = {id=21621,en="Naegling",ja="ネイグリング",enl="Naegling",jal="ネイグリング",category="Weapon",damage=166,delay=240,flags=63552,item_level=119,jobs=4419554,level=99,races=510,skill=3,slots=3,stack=1,targets=0,type=4},
