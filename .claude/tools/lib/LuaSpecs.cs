@@ -25,12 +25,24 @@ static class LuaSpecs
 			.ToList();
 	}
 
-	// Reads what busted wrote for a spec file with the repo's output handler, tests/support/report.lua: busted's
-	// JSON, as its last line, after anything the tests printed. Output without it is a spec file that didn't run, as
-	// one busted couldn't load.
-	public static SpecRun Read(string spec, string output)
+	// busted's arguments for a spec file: the repo's output handler, and the filter, which busted reads as a Lua
+	// pattern, with each character a pattern gives a meaning to escaped, so it finds the text as it is.
+	public static IReadOnlyList<string> BustedArguments(string spec, string? filter)
 	{
-		var lines = output.ReplaceLineEndings("\n").TrimEnd('\n').Split('\n');
+		var arguments = new List<string> { "--output=tests/support/report.lua" };
+		if (filter is not null)
+			arguments.Add("--filter=" + string.Concat(filter.Select(c => "^$()%.[]*+-?".Contains(c) ? "%" + c : c.ToString())));
+		arguments.Add(spec);
+		return arguments;
+	}
+
+	// Reads what busted wrote for a spec file with the repo's output handler, tests/support/report.lua: busted's
+	// JSON, as the last line on standard output, after anything the tests printed. Output without it is a spec file
+	// that didn't run, as one busted couldn't load, and its run keeps what was written on both streams.
+	public static SpecRun Read(string spec, string standardOutput, string standardError)
+	{
+		var output = standardOutput + standardError;
+		var lines = standardOutput.ReplaceLineEndings("\n").TrimEnd('\n').Split('\n');
 		var last = lines[^1];
 		if (last.StartsWith('{'))
 		{
@@ -50,7 +62,9 @@ static class LuaSpecs
 							message += "\n" + traceback.TrimStart('\n');
 						var element = entry.TryGetProperty("element", out var found) ? found : default;
 						var seconds = element.ValueKind == JsonValueKind.Object && element.TryGetProperty("duration", out var duration) && duration.ValueKind == JsonValueKind.Number ? duration.GetDouble() : 0;
-						var line = trace.ValueKind == JsonValueKind.Object && trace.TryGetProperty("currentline", out var current) && current.ValueKind == JsonValueKind.Number ? current.GetInt32() : 0;
+						// The test's own line, where it is declared; a failure's trace says where its assertion was.
+						var declared = element.ValueKind == JsonValueKind.Object && element.TryGetProperty("trace", out var elementTrace) ? elementTrace : default;
+						var line = declared.ValueKind == JsonValueKind.Object && declared.TryGetProperty("currentline", out var current) && current.ValueKind == JsonValueKind.Number ? current.GetInt32() : 0;
 						tests.Add((line, new SpecTest(Text(entry, "name"), result, message, seconds)));
 					}
 				}

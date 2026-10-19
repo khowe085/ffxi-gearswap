@@ -12,7 +12,7 @@ runs every spec file, each in a busted process of its own, side by side (`.claud
 busted tests/sel/idle_spec.lua
 ```
 
-They need Lua 5.1, LuaRocks and busted: `luarocks --lua-version 5.1 install busted`. Nothing else: no game, no Windower, no network.
+They run on Linux or WSL, not on Windows, and need Lua 5.1, LuaRocks and busted: `luarocks --lua-version 5.1 install busted`. Nothing else: no game, no Windower, no network.
 
 ## What is where
 
@@ -32,7 +32,7 @@ They need Lua 5.1, LuaRocks and busted: `luarocks --lua-version 5.1 install bust
 
 - **A Lua state of its own.** Each boot gets its own environment, with its own `require`, so GearSwap's globals, the libraries it loads and the user file's globals don't carry from one test to the next. Only the `string` table is shared, since Windower's string functions have to be where strings' methods come from.
 - **A Windower install of its own.** GearSwap runs from a copy, made in the temp folder once per spec file: the repo's GearSwap (its Lua, `libs/`, and the Lua under `data/` with `fixture/data` added), Windower's libraries from `docs/windower/libs` and the resources from `fixture/res`. What GearSwap or Sel write lands in the copy, never in the repo, and the copy is removed when busted exits. Paths in an error are given back as the repo's. File names match in any case, as on Windows.
-- **Windower's own libraries**, unchanged, from `docs/windower/libs`. `dotnet run .claude/gear.cs -- windower-libs` writes them from Windower/Lua at the commit `.claude/tools/lib/Sources.cs` pins; move the pin there, run it, and run the tests. Windower's C modules are stood in for: `support/pack.lua` (string.pack and string.unpack in Windower's formats), `support/bit.lua` (LuaJIT's bit), and empty socket and mime.
+- **Windower's own libraries**, unchanged, from `docs/windower/libs`. `dotnet run .claude/gear.cs -- windower-libs` writes them from Windower/Lua at the commit `.claude/tools/lib/Sources.cs` pins; move the pin there, run it, and run the tests. Windower's C modules are stood in for: `support/pack.lua` (string.pack and string.unpack in Windower's formats), `support/bit.lua` (LuaJIT's bit), a socket with only gettime and sleep, and an empty mime.
 - **Windower's Lua dialect.** Windower's Lua takes a method called on a literal (`'%d':format(n)`, `0:char()`, `true:fn()`) or on a table constructor, and a function expression called where it stands. `support/dialect.lua` puts each in parentheses before a file is compiled; nothing else changes, line numbers included.
 - **The game** (`support/game.lua`): the character, a monster to target, bags and gear, and the Windower API over them. Nothing happens on its own. What GearSwap sends waits for the game to settle, as it would for the next frame: an equip request is carried out and confirmed with the packets the server answers with, a command runs (a `wait` puts the rest off), chat input goes through the outgoing text event. The clock moves only when a test advances it, and the timers due then run. A test says when the server answers an action and when a buff comes or goes.
 

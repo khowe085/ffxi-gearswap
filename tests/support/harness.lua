@@ -407,14 +407,23 @@ function harness.boot(options)
     for i, item in ipairs(options.items or {}) do
         items[i] = {name = item.name, bag = item.bag, count = item.count, extdata = item.augments and harness.extdata(item.augments)}
     end
-    for slot, name in pairs(options.wearing or {}) do
-        for i, item in ipairs(options.items or {}) do
-            if item.name == name then
-                wearing[slot] = i
-                break
+    -- Each slot, in the game's order, takes the first copy of its piece not worn already.
+    local taken = {}
+    for id = 0, 15 do
+        local slot = Game.slot_names[id]
+        local name = (options.wearing or {})[slot]
+        if name then
+            for i, item in ipairs(options.items or {}) do
+                if item.name == name and not taken[i] then
+                    wearing[slot], taken[i] = i, true
+                    break
+                end
             end
+            assert(wearing[slot], ('%s is worn but not among the items'):format(name))
         end
-        assert(wearing[slot], ('%s is worn but not among the items'):format(name))
+    end
+    for slot in pairs(options.wearing or {}) do
+        assert(Game.slot_ids[slot], ('%s isn\'t a slot the game knows'):format(slot))
     end
 
     local game = Game.new({

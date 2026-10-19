@@ -29,7 +29,7 @@ var toolsDir = Path.GetFullPath(Path.Combine(testsDir, ".."));
 var fixtureDir = Path.Combine(testsDir, "fixture");
 var buildsDir = Path.GetFullPath(Path.Combine(toolsDir, "..", "cache", "builds"));
 var workDir = Path.Combine(Path.GetTempPath(), "gear-tools-tests-" + Environment.ProcessId);
-var unbuilt = Directory.GetFiles(toolsDir, "*.cs").Select(Path.GetFileNameWithoutExtension).Where(tool => File.Exists(Path.Combine(buildsDir, tool!, tool + ".dll")) is false).ToList();
+var unbuilt = Directory.GetFiles(toolsDir, "*.cs").Append("run-gearswap-tests.cs").Select(Path.GetFileNameWithoutExtension).Where(tool => File.Exists(Path.Combine(buildsDir, tool!, tool + ".dll")) is false).ToList();
 if (unbuilt.Count > 0)
 {
 	Console.Error.WriteLine($"No build of {string.Join(", ", unbuilt)}. Build the tools first: dotnet run .claude/gear.cs -- build");
@@ -1520,8 +1520,11 @@ Test("windower-libs writes the Windower libraries GearSwap's tests run on into d
 	var libs = Path.Combine(sandbox.Repo, "docs", "windower", "libs");
 	Directory.CreateDirectory(libs);
 	File.WriteAllText(Path.Combine(libs, "vectors.lua"), "-- a library no longer taken\n");
+	Directory.CreateDirectory(Path.Combine(libs, "socket"));
+	File.WriteAllText(Path.Combine(libs, "socket", "http.lua"), "-- a library no longer taken, in a folder of its own\n");
 	var run = sandbox.RunWithRepo("windower_lua", lua, "windower-libs");
 	Equal(0, run.ExitCode);
+	True(Directory.Exists(Path.Combine(libs, "socket")) is false, "a folder left empty is dropped");
 	var written = Directory.GetFiles(libs, "*", SearchOption.AllDirectories).Select(file => Path.GetRelativePath(libs, file).Replace('\\', '/'));
 	Equal(string.Join(" ", Sources.WindowerLibraries.Order(StringComparer.Ordinal)), string.Join(" ", written.Order(StringComparer.Ordinal)));
 	Equal("-- packets/fields.lua\n", File.ReadAllText(Path.Combine(libs, "packets", "fields.lua")));
@@ -2356,11 +2359,12 @@ Test("search-fast-recast stops with its usage line on a --hidden file that isn't
 
 // ---------------------------------------------------------------- GearSwap's tests
 
-// What busted -o json writes for a spec file, after whatever its tests printed.
+// What busted writes on standard output for a spec file with tests/support/report.lua, after whatever its tests
+// printed. The failed assertion is in a helper further down the file than the test that calls it.
 string BustedOutput(string spec) => "a line a test printed\n" + $$$"""
 	{"successes":[{"name":"a set goes on","element":{"duration":0.25,"trace":{"currentline":12,"short_src":"{{{spec}}}"}},"trace":{"currentline":12}},
 	{"name":"an earlier test","element":{"duration":0.5,"trace":{"currentline":3,"short_src":"{{{spec}}}"}},"trace":{"currentline":3}}],
-	"failures":[{"name":"a set stays off","message":"{{{spec}}}:20: Expected objects to be the same.","element":{"duration":0.125,"trace":{"currentline":18}},"trace":{"currentline":18,"traceback":"\nstack traceback:\n\t{{{spec}}}:20: in function"}}],
+	"failures":[{"name":"a set stays off","message":"{{{spec}}}:20: Expected objects to be the same.","element":{"duration":0.125,"trace":{"currentline":18}},"trace":{"currentline":45,"traceback":"\nstack traceback:\n\t{{{spec}}}:20: in function"}}],
 	"errors":[{"name":"a hook runs","message":"gearswap.lua:12: attempt to call nil","isError":true,"element":{"duration":0.0625,"trace":{"currentline":30}},"trace":{"currentline":30,"traceback":"\nstack traceback:\n\tgearswap.lua:12: in function 'f'"}}],
 	"pendings":[{"name":"a buff comes","message":"Sel equips nothing for it yet","element":{"trace":{"currentline":40}},"trace":{"currentline":40}}],
 	"duration":1.5}
@@ -2382,7 +2386,7 @@ Test("LuaSpecs.Find takes every spec file under tests/, by its path in the repo,
 
 Test("LuaSpecs.Read gives each test of a spec file its outcome, message and time, in the file's order", () =>
 {
-	var run = LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"));
+	var run = LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "");
 	Equal("tests/x_spec.lua", run.Spec);
 	Equal(true, run.Ran);
 	Equal("an earlier test|a set goes on|a set stays off|a hook runs|a buff comes", string.Join("|", run.Tests.Select(test => test.Name)));
@@ -2394,39 +2398,54 @@ Test("LuaSpecs.Read gives each test of a spec file its outcome, message and time
 	Equal(0.5, run.Tests[0].Seconds);
 });
 
-Test("LuaSpecs.Read takes output without busted's JSON as a spec file that didn't run, and keeps it", () =>
+Test("LuaSpecs.Read takes busted's JSON from standard output alone, whatever busted wrote on standard error", () =>
 {
-	var run = LuaSpecs.Read("tests/x_spec.lua", "lua: tests/x_spec.lua:3: ')' expected near ':'\n");
+	var run = LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "Warning: a LuaRocks tree could not be read\n");
+	Equal(true, run.Ran);
+	Equal(5, run.Tests.Count);
+});
+
+Test("LuaSpecs.Read takes output without busted's JSON as a spec file that didn't run, and keeps both streams", () =>
+{
+	var run = LuaSpecs.Read("tests/x_spec.lua", "a line a test printed\n", "lua: tests/x_spec.lua:3: ')' expected near ':'\n");
 	Equal(false, run.Ran);
 	Equal(0, run.Tests.Count);
-	Equal("lua: tests/x_spec.lua:3: ')' expected near ':'", run.Output);
+	Equal("a line a test printed\nlua: tests/x_spec.lua:3: ')' expected near ':'", run.Output);
+});
+
+Test("LuaSpecs.BustedArguments has busted run a spec file with the repo's report, and finds a filter's text as it is", () =>
+{
+	Equal("--output=tests/support/report.lua tests/a_spec.lua", string.Join(" ", LuaSpecs.BustedArguments("tests/a_spec.lua", null)));
+	// busted reads its filter as a Lua pattern, and a test's name holds brackets and dots.
+	Equal("--output=tests/support/report.lua --filter=sets%.precast%.WS%[name%] %(%^%$%*%+%-%?%%%) tests/a_spec.lua",
+		string.Join(" ", LuaSpecs.BustedArguments("tests/a_spec.lua", "sets.precast.WS[name] (^$*+-?%)")));
 });
 
 Test("LuaSpecs.Report writes a line for each test and the count, and fails a run with a failed test or a file that didn't run", () =>
 {
-	var passing = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""");
+	var passing = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""", "");
 	var written = new StringWriter();
 	Equal(0, LuaSpecs.Report([passing], null, written));
 	Equal("PASS it works (tests/a_spec.lua, 0.25 s)\n1 of 1 tests passed\n", written.ToString().Replace("\r\n", "\n"));
 
 	written = new StringWriter();
-	Equal(1, LuaSpecs.Report([passing, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua")), LuaSpecs.Read("tests/y_spec.lua", "lua: no such file\n")], null, written));
+	Equal(1, LuaSpecs.Report([passing, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), ""), LuaSpecs.Read("tests/y_spec.lua", "", "lua: no such file\n")], null, written));
 	var report = written.ToString().Replace("\r\n", "\n");
 	Contains(report, "FAIL a set stays off (tests/x_spec.lua, 0.13 s)\n     tests/x_spec.lua:20: Expected objects to be the same.\n");
 	Contains(report, "FAIL a hook runs (tests/x_spec.lua, 0.06 s)\n     gearswap.lua:12: attempt to call nil\n     stack traceback:\n     \tgearswap.lua:12: in function 'f'\n");
 	Contains(report, "SKIP a buff comes (tests/x_spec.lua): Sel equips nothing for it yet\n");
+	Contains(report, "FAIL tests/y_spec.lua didn't run\n     lua: no such file\n");
+	True(report.EndsWith("3 of 5 tests passed, 1 pending; 1 spec file didn't run\n"), "the count comes last: " + report);
 
 	// A pending test declared outside an it has its reason in its name, and no message.
 	written = new StringWriter();
-	LuaSpecs.Report([LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[{"name":"a ring moves: GearSwap's bug"}]}""")], null, written);
+	LuaSpecs.Report([LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[{"name":"a ring moves: GearSwap's bug"}]}""", "")], null, written);
 	Contains(written.ToString().Replace("\r\n", "\n"), "SKIP a ring moves: GearSwap's bug (tests/a_spec.lua)\n");
-	Contains(report, "FAIL tests/y_spec.lua didn't run\n     lua: no such file\n");
-	True(report.EndsWith("3 of 5 tests passed, 1 pending; 1 spec file didn't run\n"), "the count comes last: " + report);
 });
 
 Test("LuaSpecs.Report says so, with exit code 2, when no test ran, as for a filter no test's name holds", () =>
 {
-	var none = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[]}""");
+	var none = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[]}""", "");
 	var written = new StringWriter();
 	Equal(2, LuaSpecs.Report([none], "nothing like this", written));
 	Equal("No gearswap test's name holds \"nothing like this\".\n", written.ToString().Replace("\r\n", "\n"));

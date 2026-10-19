@@ -485,7 +485,12 @@ end
 function Game:advance(seconds)
     local finish = self.clock + (seconds or 0)
     self:settle()
+    local ran = 0
     while true do
+        ran = ran + 1
+        if ran > 10000 then
+            error('the game\'s timers never ran out; something keeps setting more', 2)
+        end
         local due
         for i, timer in ipairs(self.timers) do
             if timer.at <= finish and (not due or timer.at < self.timers[due].at) then
@@ -725,7 +730,9 @@ function Game:send_action_message(fields)
     return self:receive(0x029, body)
 end
 
--- The buff packet (0x063, type 9): the player's 32 buff slots, then when each wears off.
+-- The buff packet (0x063, type 9): the player's 32 buff slots, then when each wears off. The times count from the
+-- game's clock, not from the epoch GearSwap counts a buff's duration from, so the durations it works out are
+-- meaningless; a test of a duration needs the times set right first.
 function Game:send_buffs()
     local ids, times = {}, {}
     for i = 1, 32 do

@@ -154,13 +154,13 @@ dotnet run .claude/gear.cs -- test
 |---|---|---|
 | `tools` | Every tool's build brought up to date, then `tests/run-tests.cs`: the shared code and each tool, on a small made-up character | The tools' source (each tool's file, `lib/` and `Directory.Build.props`), `tests/` and the launcher |
 | `data` | The tools' checks of each character, a folder under `data/` with its notes or gear list: `sel-sets.cs` on each of its gear files, then `check-export.cs` on each sets file, `check-blu-spells.cs` on the BLU one, `gear-list.cs` on them all, and `doc-lint.cs`. Then `rank-doc --check` | `data/` and `docs/`, the outside data in it too, the launcher, which says what the checks are, and the builds it runs (see below) |
-| `gearswap` | `tests/run-gearswap-tests.cs`: GearSwap's Lua tests in the repo's `tests/` (see `tests/README.md`), each spec file in a busted process of its own, side by side. They need Lua 5.1, LuaRocks and busted | GearSwap's Lua at the repo root, `libs/`, the Lua under `data/`, `docs/windower/libs/`, the repo's `tests/` and `.busted`, and the launcher |
+| `gearswap` | `tests/run-gearswap-tests.cs`: GearSwap's Lua tests in the repo's `tests/` (see `tests/README.md`), each spec file in a busted process of its own, side by side. They run on Linux or WSL, and need Lua 5.1, LuaRocks and busted | GearSwap's Lua at the repo root, `libs/`, the Lua under `data/`, `docs/windower/libs/`, the repo's `tests/` and `.busted`, and the launcher |
 
 - The hash of a category's files when it last passed is kept in the checkout's `.claude/cache/passes`. A run that fails, one with `--filter`, or one during which the files changed keeps no pass.
 - A pass vouches for the builds it ran on, so a build made again clears every pass.
-- `--all` runs every category, and `test tools` (or `data`) runs that one whether or not it changed.
+- `--all` runs every category, and `test tools` (or `data`, or `gearswap`) runs that one whether or not it changed.
 - `test tools --filter gear-list` runs only the tools tests whose name holds the text, and `test gearswap --filter <text>` the GearSwap tests'.
-- Exit code 0 when every category that ran passed, 1 when one failed, 2 for an option or a category it doesn't know, or a `--filter` no test's name holds.
+- Exit code 0 when every category that ran passed, 1 when one failed, 2 for an option or a category it doesn't know, a `--filter` no test's name holds, or GearSwap's tests where busted can't run (not installed, or on Windows).
 
 `tests/run-tests.cs` runs against Testy, whose repository is `tests/fixture/repo/`: its export, notes and gear list, a small Sel gear file (`data/Testy/Testy_Blu_Gear.lua`), sets files under `sets/`, clean and with mistakes put in, and small copies of the outside data under `docs/`. The tests never read the real data and never use the network.
 
