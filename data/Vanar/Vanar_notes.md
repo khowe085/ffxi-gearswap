@@ -221,6 +221,7 @@ Vanar's numbers under the formulas in [ffxi-mechanics.md](../../docs/ffxi-mechan
 ### Multi-attack
 
 - At Vanar's ranks: the Nyame Path B Sollerets (+2%) and Mail (+3%) at rank 20 give Double Attack, and so do the Gauntlets (+2%) and the Flanchard (+3%), both rank 20 **(player, 2026-10-08 and 2026-10-09)**; the Helm at rank 20 gives +2% **(player, 2026-10-12)**, Path B's Double Attack starting at rank 16. Every Bunzi's and Gleti's armor piece is rank 0, so Bunzi's Hat has no Quadruple Attack, Gleti's Cuirass no Double Attack and Gleti's Breeches no Triple Attack. Bunzi's Gloves (RDM) keep their base Double Attack +8%.
+- Vanar's THF has Triple Attack 10% before gear, taking the player's 471 job points as spent: tier II's 6% and the gifts at 125 and 450 job points, 2% each ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#multi-attack)). Its Triple Attack Rate merits (+1% a level) aren't recorded.
 
 ### Subtle Blow
 
@@ -229,6 +230,7 @@ Vanar's numbers under the formulas in [ffxi-mechanics.md](../../docs/ffxi-mechan
 ### Skill and accuracy: Combat skill
 
 - Vanar's Bunzi's Rod is rank 0 and his Gleti's Knife rank 1. Both have their base skill, since no rank adds skill.
+- Vanar's THF has no Master Levels and the 8/8 dagger and sword merits (player, 2026-10-02): a Tauret hand is 424 + 16 + 250 = 690 skill (621 accuracy from skill), a Gleti's Knife hand 695 (625) and a Naegling hand 334 + 16 + 250 = 600 (540). So a Naegling main hand reads 81 less accuracy than a Tauret one in the same set ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#combat-skill)).
 
 ### Skill and accuracy: Sword skill past 600 (disputed)
 
@@ -272,6 +274,9 @@ Main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_
   - `sets.engaged.DT`, and `sets.engaged.DT.AM` on it with nothing of its own: Tizona + Thibron 1544 / 1311 (55%), Almace + Thibron 1551 / 1318 (59%), Naegling + Thibron 1548 / 1332 (66%). TP per round: +4.2 to +4.9% with a Thibron off hand, +1.6% with an Almace or Bunzi's Rod one; under Aftermath +6.5 to +7.0% with Thibron and +4.7% with Almace.
   - Every main hand and every Almace or Bunzi's Rod off hand is over its cap in these sets, so a Thibron off hand is the only hand where accuracy still counts: 2 accuracy is a point of its hit rate.
   - The ACC-mode sets (`sets.engaged.Acc` and those on it) give less TP per round than `sets.engaged` at 1350 evasion with every weapon set but the Thibron ones, where they give 3 to 6% more. They give more with most weapon sets from about 1525 evasion and with all of them from 1550, and with Maxentius + Bunzi's Rod from about 1475.
+- Vanar's THF, by the same formula: its job point gifts add 13 (5 + 8, taking the 471 as spent) and it has no accuracy trait ([Combat skill](#skill-and-accuracy-combat-skill) has its hands' skill). Neither a `/checkparam` record nor its base DEX is recorded, so for the sets of 2026-10-18 these are the base DEX the 1275 floor (gear, food and weapon skill accuracy) needs, with Gleti's Knife in the off hand, with Oden (Grape Daifuku):
+  - A Naegling main hand doesn't reach it: `sets.engaged` needs base DEX 160 (151) and Savage Blade's set 157 (148), where Vanar's BLU/WAR has 120 with no gear at Master Level 25 (above).
+  - With Tauret, `sets.engaged` needs 52 (43) and Evisceration's set 65 (56). `sets.precast.WS`, which Rudra's Storm wears, needs 98 (90), so whether it clears the floor waits on a `/checkparam`.
 
 ### Attack and pDIF: Physical damage limit
 

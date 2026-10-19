@@ -1,0 +1,48 @@
+{{Standard WS
+|description=Deals quintuple damage and weighs target down. Damage varies with TP.
+|type=Dagger          <!-- Weapon Type -->
+|class=Physical         <!-- Magical, Physical, or Hybrid -->
+|element       <!-- For magical and hybrid WSs, NOT status effects -->
+|dstat         <!-- For magical WSs: Player Stat minus Monster Stat : (AGI-INT)*2, (INT-INT + 8), etc. -->
+|cap           <!-- For magical WSs: Maximum Value for the dStat term -->
+|target=Single        <!-- AoE, Single, or Self -->
+|tpmod=fTP         <!-- The quantity modified by TP. Use fTP for "Damage varies with TP" -->
+|fTP=           <!-- Base fTP if damage doesn't vary with TP -->
+|100TP=5.0         <!-- Modifier text for 100 TP -->
+|200TP=10.19         <!-- Modifier text for 200 TP -->
+|300TP=13         <!-- Modifier text for 300 TP -->
+|statmod=80% [[DEX]]       <!-- Stat modifiers for the WS, include links for the stats -->
+|sc1=Darkness           <!-- Top priority Skillchain element -->
+|sc2=Distortion           <!-- Secondary priority Skillchain element -->
+|sc3           <!-- Tertiary priority Skillchain element -->
+|atkmod=        <!-- Attack modifier for the WS. -->
+|cumulative    <!-- Cumulative enmity if fixed -->
+|volatile      <!-- Volatile enmity if fixed -->
+|quest=Kupofried's Weapon Skill Moogle Magic
+|Insert WS Job Level Template=
+{{WS Job Level
+|jobs=[[THF]], [[BRD]], [[DNC]] via [[Twashtar]], [[Daka]], [[Daka +1|+1]], [[Daka +2|+2]], [[Daka +3|+3]], or [[Khandroma]]
+|level=85
+}}
+|Insert Merit WS Template     <!-- Can be left null -->
+|Insert Equipment Ability Modified Template= <!-- Use the Equipment Ability Modified Template here -->
+{{Equipment Ability Modified
+|equip=Twashtar
+|modifier=[[Empyrean Aftermath]]
+}}
+|notes=
+* Can only be used if you set THF / BRD / DNC as your '''main''' job.
+* [[Daka]], [[Daka +1|+1]], [[Daka +2|+2]], [[Daka +3|+3]], and [[Khandroma]] do not give Aftermath
+* Inflicts an accurate [[Weight]] effect.
+** Effect is about -26% movement speed.
+** Effect duration is 1 minute.
+}}
+* [http://www32.atwiki.jp/studiogobli/pages/106.html February 2011 Empyrean page (Studio Gobli)]
+** [http://www32.atwiki.jp/studiogobli/pages/107.html Raw Data (Studio Gobli)]
+* [http://www.bluegartr.com/threads/90728-Final-Form-Magian-Weapons?p=4362337&viewfull=1#post4362337 January 2011 - Attempts to confirm Studio Gobli findings (Byrth, BG)]
+* [https://forum.square-enix.com/ffxi/threads/42615 June 17, 2014 - Version Update with WS Adjustments (Official Forums)]
+* [http://www.bluegartr.com/threads/121610-Rehauled-Weapon-Skills-tier-lists?p=6140907&viewfull=1#post6140907 June 2014 - fTP Testing (Motenten and Melphina, BG)]
+* [https://forum.square-enix.com/ffxi/threads/45365-Dec-10-2014-(JST)-Version-Update December 10, 2014 - Version Update with WS Adjustments (Official Forums)]
+* [http://www.bluegartr.com/threads/124376-December-10th-Update-Weaponskill-Adjustments-testing?p=6291987&viewfull=1#post6291987 December 2014 - 12/14 Update Adjustments (Byrth, BG)]
+* [https://forum.square-enix.com/ffxi/threads/46531-Mar-26-2015-%28JST%29-Version-Update?p=545503&viewfull=1#post545503 March 26, 2015 - Version update with Dagger fTP adjustments (Official Forums)]
+* [http://www.ffxiah.com/forum/topic/48529/the-official-bgwiki-thread/5/#3180574 October 2016 - Ballista potency testing 2016 (Braden, AH.com)]
