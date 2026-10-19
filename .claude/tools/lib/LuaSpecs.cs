@@ -74,12 +74,13 @@ static class LuaSpecs
 				Take("failures", SpecResult.Failed);
 				Take("errors", SpecResult.Failed);
 				Take("pendings", SpecResult.Pending);
-				// busted's exit code counts the tests that failed, so any other means it broke off after its results.
+				// busted exits with a code other than 0 only when a test failed, so with none failed it broke off after its
+				// results.
 				if (exitCode != 0 && tests.All(test => test.Test.Result != SpecResult.Failed))
 					return new SpecRun(spec, false, [], $"busted exited with code {exitCode}, though no test failed\n{output.Trim()}");
 				return new SpecRun(spec, true, tests.OrderBy(test => test.Line).Select(test => test.Test).ToList(), output);
 			}
-			catch (JsonException)
+			catch (Exception problem) when (problem is JsonException or InvalidOperationException)
 			{
 			}
 		}

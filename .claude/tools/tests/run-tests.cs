@@ -2431,8 +2431,15 @@ Test("LuaSpecs.Read takes a spec file busted gave up on after its results, with 
 	Equal(false, run.Ran);
 	Contains(run.Output, "busted exited with code 1, though no test failed");
 	Contains(run.Output, "lua: the cleanup failed");
-	// busted's exit code counts the tests that failed.
-	Equal(true, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "", 2).Ran);
+	// busted exits with a code other than 0 when a test failed.
+	Equal(true, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "", 1).Ran);
+});
+
+Test("LuaSpecs.Read takes a last line that is JSON but not busted's as a spec file that didn't run", () =>
+{
+	var run = LuaSpecs.Read("tests/a_spec.lua", "{\"successes\":1}\n", "", 1);
+	Equal(false, run.Ran);
+	Contains(run.Output, "{\"successes\":1}");
 });
 
 Test("LuaSpecs.Report writes the times the same in any culture", () =>
@@ -2527,6 +2534,27 @@ Test("run-gearswap-tests runs busted on each spec file with the repo's report an
 	Equal("--output=tests/support/report.lua|--filter=[sS][oO][mM][eE] [nN][aA][mM][eE]|tests/sel/b_spec.lua", string.Join("|", arguments[..^1]));
 	True(arguments[^1].StartsWith(sandbox.Temp), "busted's temp folder is the run's own, in the temp folder: " + arguments[^1]);
 	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
+Test("run-gearswap-tests fails a spec file whose busted is there but won't start, rather than skipping the run", () =>
+{
+	var sandbox = NewSandbox();
+	Directory.CreateDirectory(Path.Combine(sandbox.Repo, "tests"));
+	File.WriteAllText(Path.Combine(sandbox.Repo, "tests", "a_spec.lua"), "");
+	var bin = Path.Combine(workDir, "busted-not-runnable");
+	Directory.CreateDirectory(bin);
+	if (OperatingSystem.IsWindows())
+	{
+		Equal(3, sandbox.RunWithPath(bin, "run-gearswap-tests").ExitCode);
+		return;
+	}
+	// A busted that is marked as a program but isn't one: found, but the system won't start it.
+	var busted = Path.Combine(bin, "busted");
+	File.WriteAllText(busted, "not a program\n");
+	File.SetUnixFileMode(busted, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+	var run = sandbox.RunWithPath(bin, "run-gearswap-tests");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "FAIL tests/a_spec.lua didn't run\n     busted couldn't be started: ");
 });
 
 // ---------------------------------------------------------------- running them

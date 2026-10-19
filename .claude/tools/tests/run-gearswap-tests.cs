@@ -31,6 +31,8 @@ var temp = Path.Combine(Path.GetTempPath(), "gearswap-tests-" + Guid.NewGuid().T
 Directory.CreateDirectory(temp);
 var runs = new SpecRun[specs.Count];
 var missing = false;
+// The error a program that isn't there gives: ENOENT, and ERROR_FILE_NOT_FOUND on Windows.
+const int FileNotFound = 2;
 try
 {
 	Parallel.For(0, specs.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
@@ -41,24 +43,34 @@ try
 		string[] temps = ["TMPDIR", "TEMP", "TMP"];
 		foreach (var name in temps)
 			start.Environment[name] = temp;
+		Process process;
 		try
 		{
-			using var process = Process.Start(start)!;
+			process = Process.Start(start)!;
+		}
+		catch (Win32Exception problem)
+		{
+			// Not found is busted not installed; anything else is a busted that is there but wouldn't start.
+			if (problem.NativeErrorCode == FileNotFound)
+				missing = true;
+			else
+				runs[i] = new SpecRun(specs[i], false, [], "busted couldn't be started: " + problem.Message);
+			return;
+		}
+		using (process)
+		{
 			// Read both streams at once, so a full pipe can't stall busted while this waits on the other.
 			var error = process.StandardError.ReadToEndAsync();
 			var output = process.StandardOutput.ReadToEndAsync();
-			// A spec file takes seconds; one still running after this is stuck in a loop.
+			// A spec file takes seconds; one still running after this is stuck in a loop, and what it wrote says where.
 			if (process.WaitForExit(TimeSpan.FromMinutes(10)) is false)
 			{
 				process.Kill(entireProcessTree: true);
-				runs[i] = new SpecRun(specs[i], false, [], "busted was stopped after 10 minutes");
+				process.WaitForExit();
+				runs[i] = new SpecRun(specs[i], false, [], $"busted was stopped after 10 minutes\n{output.Result}{error.Result}".Trim());
 				return;
 			}
 			runs[i] = LuaSpecs.Read(specs[i], output.Result, error.Result, process.ExitCode);
-		}
-		catch (Win32Exception)
-		{
-			missing = true;
 		}
 	});
 }
