@@ -125,7 +125,8 @@ end
 -- options: res (the raw resource tables), paths (addon and windower, for the API), name, id, index, main_job,
 -- main_job_level, sub_job, sub_job_level, race, status, zone, items ({name=, bag=, extdata=, count=}, bag by its API
 -- name, inventory unless given), wearing (slot name to the item's position in items), buffs (names), spells and
--- abilities (the names known; every one the resources hold unless given), tp (0 unless given).
+-- abilities (the names known; every one the resources hold unless given), tp (0 unless given), merits (the player's
+-- merit levels by name, none unless given).
 function Game.new(options)
     local game = setmetatable({}, Game)
     game.res = options.res
@@ -188,7 +189,7 @@ function Game.new(options)
         vitals = {hp = 1500, mp = 1000, max_hp = 1500, max_mp = 1000, hpp = 100, mpp = 100, tp = options.tp or 0},
         buffs = {},
         skills = {},
-        merits = {},
+        merits = options.merits or {},
     }
     for _, name in ipairs(options.buffs or {}) do
         game.player.buffs[#game.player.buffs + 1] = (find_by_name(res.buffs, name, 'buff'))
@@ -283,7 +284,7 @@ function Game:player_mob()
         id = player.id, index = player.index, name = player.name, is_npc = false, spawn_type = 13, race = player.race,
         status = player.status, hpp = player.vitals.hpp, mpp = player.vitals.mpp, tp = player.vitals.tp,
         distance = 0, x = 0, y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, in_party = true,
-        in_alliance = true, model_size = 1, target_index = self.target_index or 0,
+        in_alliance = true, model_size = 1, target_index = self.target_index or 0, pet_index = player.pet_index,
     }
 end
 
@@ -291,6 +292,12 @@ function Game:mobs()
     local mobs = {[self.player.index] = self:player_mob()}
     if self.monster then
         mobs[self.monster.index] = copy(self.monster)
+    end
+    if self.pet then
+        mobs[self.pet.index] = copy(self.pet)
+    end
+    for _, member in ipairs(self.party_members or {}) do
+        mobs[member.index] = copy(member)
     end
     return mobs
 end
@@ -362,16 +369,23 @@ end
 
 function Game:get_info()
     return {logged_in = true, zone = self.zone, server = 1, language = 'English', weather = 0, day = 0, moon = 50,
-        moon_phase = 0, time = 720, mog_house = false, menu_open = false, chat_open = false}
+        moon_phase = 0, time = 720, mog_house = false, menu_open = false, chat_open = false,
+        target_arrow = {x = 0, y = 0, z = 0}}
 end
 
 function Game:get_party()
     local player = self.player
-    return {
+    local party = {
         p0 = {name = player.name, mob = self:player_mob(), hp = player.vitals.hp, mp = player.vitals.mp,
             tp = player.vitals.tp, hpp = player.vitals.hpp, mpp = player.vitals.mpp, zone = self.zone},
         party1_leader = player.id, party1_count = 1, party2_count = 0, party3_count = 0,
     }
+    for position, member in ipairs(self.party_members or {}) do
+        party['p' .. position] = {name = member.name, mob = copy(member), hp = 1000, mp = 500, tp = 0,
+            hpp = member.hpp, mpp = 100, zone = self.zone}
+        party.party1_count = position + 1
+    end
+    return party
 end
 
 -- What get_mjob_data reports. A blue mage's spells are its 20 set slots, by spell id, 512 in an empty one: here
@@ -575,7 +589,7 @@ Game.split_words = split_words
 function Game:run_command(line)
     local commands = split_commands(line)
     for i, command in ipairs(commands) do
-        command = command:gsub('^%s+', ''):gsub('%s+$', ''):gsub('^@', '')
+        command = command:gsub('^%s+', ''):gsub('%s+$', ''):gsub('^@+', '')
         local words = split_words(command)
         local verb = words[1] and words[1]:lower()
         if verb == 'wait' then
@@ -941,6 +955,86 @@ function Game:set_status(status)
     local old = self.player.status
     self.player.status = status
     self:fire('status change', status, old)
+end
+
+-------------------------------------------------------------------------------------------------------------------
+-- A pet: the player's pet_index, a mob for it among the mobs, and the packets that tell GearSwap about it.
+-------------------------------------------------------------------------------------------------------------------
+
+-- Puts a pet at the player's side as it stands when GearSwap loads, with no packet to tell of it. fields over the
+-- defaults: id, index, name, status (a status id, 0 idle and 1 engaged), hpp, distance (squared), model_size.
+function Game:place_pet(fields)
+    local pet = {
+        id = 0x1069200, index = 0x200, name = 'Carbuncle', is_npc = true, spawn_type = 16, race = 0, status = 0,
+        hpp = 100, distance = 4, x = 1, y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, model_size = 1,
+        target_index = 0,
+    }
+    for field, value in pairs(fields or {}) do
+        pet[field] = value
+    end
+    self.pet = pet
+    self.player.pet_index = pet.index
+end
+
+-- The character update (0x037) with the player's status and the index of the pet, 0 for none, in its own bits.
+function Game:send_character_update(pet_index)
+    local body = string.char(0):rep(100)
+    body = body:sub(1, 44) .. string.char(self.player.status) .. body:sub(46)
+    body = body:sub(1, 48) .. u16(pet_index * 8) .. body:sub(51)
+    return self:receive(0x037, body)
+end
+
+-- The server gives the player a pet: GearSwap learns of it from the character update, and runs its pet_change when
+-- the next packet comes.
+function Game:summon_pet(fields)
+    self:place_pet(fields)
+    self:send_character_update(self.pet.index)
+    self:send_buffs()
+end
+
+-- The pet goes away: the character update says so while the pet is still among the mobs, and it is gone by the next
+-- packet, after which GearSwap runs its pet_change with what it knew of the pet.
+function Game:dismiss_pet()
+    self:send_character_update(0)
+    self:settle()
+    self.pet = nil
+    self.player.pet_index = nil
+    self:send_buffs()
+end
+
+-- The pet's status changes (0 idle, 1 engaged): the update of the pet (0x00E) comes first, then the next packet,
+-- after which GearSwap runs its pet_status_change.
+function Game:set_pet_status(status)
+    local body = string.char(0):rep(0x70 - 4)
+    body = body:sub(1, 4) .. u16(self.pet.index) .. string.char(4) .. body:sub(8, 27) .. string.char(status) .. body:sub(29)
+    self:receive(0x00E, body)
+    self:settle()
+    self.pet.status = status
+    self:send_buffs()
+end
+
+-- Puts another player in the character's party, among the mobs and the party's list. fields over the defaults: id,
+-- index, name, hpp, distance (squared), model_size.
+function Game:add_party_member(fields)
+    self.party_members = self.party_members or {}
+    local position = #self.party_members + 1
+    local member = {
+        id = 0x100100 + position, index = 0x410 + position, name = 'Friend' .. position, is_npc = false,
+        spawn_type = 1, race = 1, status = 0, hpp = 100, distance = 25, x = 5, y = 0, z = 0, facing = 0,
+        claim_id = 0, valid_target = true, in_party = true, in_alliance = true, model_size = 1, target_index = 0,
+    }
+    for field, value in pairs(fields or {}) do
+        member[field] = value
+    end
+    self.party_members[position] = member
+    return member
+end
+
+-- The pet's TP, in tenths of a percent as the server counts them (1000 is 100%), from the pet's update (0x068).
+function Game:set_pet_tp(tp)
+    local body = string.char(0):rep(0x28 - 4)
+    body = body:sub(1, 2) .. u16(self.player.index) .. body:sub(5, 12) .. u16(tp) .. body:sub(15)
+    return self:receive(0x068, body)
 end
 
 return Game

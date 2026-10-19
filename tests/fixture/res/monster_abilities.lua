@@ -1,6 +1,7 @@
 -- The entries GearSwap's tests use, cut from Windower/Resources at 5f22f38.
 -- Automatically generated file: Monster Abilities
 return {
+    [257] = {id=257,en="Foot Kick",ja="フットキック"},
 }, {"id", "en", "ja", "skillchain_a", "skillchain_b", "skillchain_c"}
 --[[
 Copyright 2013-2026 Windower
