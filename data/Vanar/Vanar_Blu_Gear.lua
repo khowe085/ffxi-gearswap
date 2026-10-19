@@ -33,7 +33,7 @@ function character_user_job_setup()
 	}
 	blue_magic_maps.Physical = S{}
 	blue_magic_maps.PhysicalDex = S{
-		'Amorphic Spikes','Asuran Claws','Claw Cyclone','Foot Kick','Frenetic Rip','Goblin Rush',
+		'Amorphic Spikes','Asuran Claws','Claw Cyclone','Disseverment','Foot Kick','Frenetic Rip','Goblin Rush',
 		'Hysteric Barrage','Sickle Slash','Smite of Rage','Thrashing Assault','Vanity Dive'
 	}
 	blue_magic_maps.PhysicalVit = S{
@@ -44,7 +44,7 @@ function character_user_job_setup()
 		'Ram Charge','Screwdriver'
 	}
 	blue_magic_maps.Stun = S{
-		'Barbed Crescent','Battle Dance','Benthic Typhoon','Bilgestorm','Disseverment',
+		'Barbed Crescent','Battle Dance','Benthic Typhoon','Bilgestorm',
 		'Feather Storm','Frypan','Head Butt','Hydro Shot','Paralyzing Triad','Pinecone Bomb','Queasyshroom',
 		'Saurian Slide','Seedspray','Spiral Spin','Sprout Smack','Sub-zero Smash',
 		'Sudden Lunge','Sweeping Gouge','Tail Slap','Terror Touch','Tourbillion','Wild Oats','Whirl of Rage'
