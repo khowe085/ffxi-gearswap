@@ -391,6 +391,7 @@ Double, Triple and Quadruple Attack are rolled on melee rounds and on weapon ski
 - "Occasionally attacks X times" procs on weapon skills only from Mythic AM3 (bg-wiki, Category:Multi-Attack). wsdist rolls it on every weapon skill, so it overrates OA off hands there, such as Kraken Club, Blurred Knife +1 and Demersal Degen +1 (see Where wsdist and bg-wiki disagree).
 - BLU gets Double Attack (7%) from set blue magic. Setting enough for a second tier gives Triple Attack (5%, from BLU 92) instead of Double Attack. A /WAR support job gives a higher Double Attack rate than the spell trait: WAR has tier I (10%) at 25 and tier II (12%) at 50, so /WAR at 53 or 54 gives 12% (bg-wiki, Double Attack and Blue Mage Job Traits).
 - RDM's own multi-attack comes from Temper and Temper II (see Enhancing magic).
+- THF has Triple Attack of its own: 5% from level 55 and 6% (tier II) from 95, plus 1% a level of its Triple Attack Rate merit (Group 1, up to 5) and 2% at each of 125, 450, 1050 and 1900 job points spent, 19% in all (bg-wiki, Triple Attack and Thief).
 
 Quadruple Attack has no job trait; it comes only from gear. Pieces RDM or BLU can wear (bg-wiki, Quadruple Attack):
 
@@ -518,18 +519,18 @@ A hand's combat skill is the sum of:
 - the weapon's own `<type> skill +N`. Only item-level weapons have it;
 - `<type> skill +N` and "Combat skills +N" on armor.
 
-RDM and BLU job point gifts add no combat skill; they add flat accuracy, attack and evasion instead (see Accuracy from set bonuses and abilities).
+RDM, BLU and THF job point gifts add no combat skill; they add flat accuracy, attack and evasion instead (see Accuracy from set bonuses and abilities).
 
-| Skill at 99, before Master Levels and merits | RDM | BLU |
-|---|---|---|
-| Sword | 398 (B) | 424 (A+) |
-| Dagger | 398 (B) | none |
-| Club | 334 (D) | 388 (B−) |
-| Evasion | 334 (D) | 368 (C−) |
-| Parrying | 300 (E) | 334 (D) |
-| Shield | 265 (F) | none |
+| Skill at 99, before Master Levels and merits | RDM | BLU | THF |
+|---|---|---|---|
+| Sword | 398 (B) | 424 (A+) | 334 (D) |
+| Dagger | 398 (B) | none | 424 (A+) |
+| Club | 334 (D) | 388 (B−) | 300 (E) |
+| Evasion | 334 (D) | 368 (C−) | 424 (A+) |
+| Parrying | 300 (E) | 334 (D) | 417 (A) |
+| Shield | 265 (F) | none | 265 (F) |
 
-(bg-wiki, Red Mage and Blue Mage.) Master Level 50 adds 50 (RDM sword 448, BLU sword 474). Job mastery itself adds no combat skill. On RDM a club hand starts 64 below a sword or dagger hand; on BLU, 36 below.
+(bg-wiki, Red Mage, Blue Mage and Thief.) Master Level 50 adds 50 (RDM sword 448, BLU sword 474). Job mastery itself adds no combat skill. On RDM a club hand starts 64 below a sword or dagger hand; on BLU, 36 below; on THF a sword hand starts 90 below a dagger hand.
 
 - Each Master Level adds 1 to every skill in the table: at Master Level 25, RDM sword and dagger are 423 and BLU sword 449, before merits and the weapon's own skill. Master Levels also add +1 to every base stat per level, and the support job is level 49 + floor(Master Level ÷ 5), 54 at Master Level 25 (bg-wiki, Master Levels).
   - Only a mastered job earns Master Levels, so a job with any Master Level is mastered: 2,100 job points spent. Each job has 10 categories at 210 points each, so that is every category at 20 and every gift (arithmetic, as under Job points and merits).
@@ -655,6 +656,7 @@ Other sources:
 | Composure (RDM) | +50 at level 99, plus 1 per level of the Composure Effect job point category, up to +70 | floor((24 × level + 74) ÷ 49) (bg-wiki, Composure) |
 | RDM job point gifts | +3, +5, +6, +8 at 45, 320, 845, 1620 JP spent: +22 | Always on (bg-wiki, Red Mage) |
 | BLU job point gifts | +5, +8, +10, +13 at 30, 280, 780, 1530 JP spent: +36 | Always on (bg-wiki, Blue Mage) |
+| THF job point gifts | +5, +8, +10, +13 at 30, 280, 780, 1530 JP spent: +36 | Always on, ranged accuracy too. THF has no Accuracy Bonus trait (bg-wiki, Thief) |
 | RDM Group 2 merit, Accuracy | +5 per level, up to 5 levels (+25) | Shares the group's 10 levels with Enfeebling and Enhancing Magic Duration, Magic Accuracy, Immunobreak Chance and En-spell Damage (bg-wiki, Merit Points). |
 | Accuracy Bonus trait | +10, +22, +35, +48, +60, +73 for tiers I to VI | Also ranged accuracy. See below |
 | Aggressor (/WAR) | +25, with Evasion −25 | 3 minutes, 5-minute recast; no longer ranged accuracy (bg-wiki, Aggressor) |
@@ -662,6 +664,7 @@ Other sources:
 | Sword Madrigal (bard) | +45 at +0 to +85 at +9 | As above |
 
 - The job point gift tiers are listed one by one. bg-wiki doesn't say they add up; the +22 and +36 totals assume they do, as it does for the capacity point gifts.
+- THF's other combat gifts, by job points spent: Attack +7, +11, +14, +18 at 10, 210, 660, 1360 (+50); Triple Attack +2% at 125, 450, 1050 and 1900 (+8%, see Multi-attack); Dual Wield Effect, 5% less delay, at 550; Critical hit damage +2% at 150, 500, 1125 and 2000 (bg-wiki, Thief).
 - Accuracy Bonus trait (bg-wiki, Accuracy Bonus and Blue Mage Job Traits):
   - RDM has none of its own. As a support job at level 53 or 54 (49 + floor(Master Level ÷ 5)), /DNC and /DRG give tier I (+10; tier II needs 60) and /RUN tier I.
   - BLU gets it only from set blue magic, up to tier IV, with tiers V and VI from job point gifts. Each tier needs 8 trait points. Spells (set points / trait points): Dimensional Death 5/4, Frenetic Rip 3/4, Disseverment 5/4, Vanity Dive 2/4, Nature's Meditation 6/8, Anvil Lightning 8/8.
