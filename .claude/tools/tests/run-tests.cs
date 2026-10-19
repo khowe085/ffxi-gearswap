@@ -2408,10 +2408,10 @@ Test("LuaSpecs.Read takes busted's JSON from standard output alone, whatever bus
 
 Test("LuaSpecs.Read takes output without busted's JSON as a spec file that didn't run, and keeps both streams", () =>
 {
-	var run = LuaSpecs.Read("tests/x_spec.lua", "a line a test printed\n", "lua: tests/x_spec.lua:3: ')' expected near ':'\n", 1);
+	var run = LuaSpecs.Read("tests/x_spec.lua", "a line a test printed\n", "lua: not enough memory\n", 1);
 	Equal(false, run.Ran);
 	Equal(0, run.Tests.Count);
-	Equal("a line a test printed\nlua: tests/x_spec.lua:3: ')' expected near ':'\nbusted exited with code 1", run.Output);
+	Equal("a line a test printed\nlua: not enough memory\nbusted exited with code 1", run.Output);
 	// A busted the system stopped may write nothing; its exit code is then all there is to go on.
 	Equal("busted exited with code 137", LuaSpecs.Read("tests/x_spec.lua", "", "", 137).Output);
 });

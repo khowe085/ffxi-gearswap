@@ -58,8 +58,10 @@ local function sets_assigned(path)
     local file = assert(io.open(harness.repo .. '/' .. path, 'rb'))
     local source = '\n' .. file:read('*a') .. '\nfunction '
     file:close()
-    local body = assert(source:match('\nfunction init_gear_sets%(%)(.-)\nfunction '), path .. ' has no init_gear_sets')
-    body = body:gsub('%-%-%[(=*)%[.-%]%1%]', ''):gsub('%-%-[^\n]*', '')
+    -- The function ends at the first end at the start of a line; those inside it are indented.
+    local body = assert(source:match('\nfunction init_gear_sets%(%)(.-)\nend'), path .. ' has no init_gear_sets')
+    -- ---[[ starts a line comment, not a block one, so what follows it is code.
+    body = body:gsub('%-%-%-[^\n]*', ''):gsub('%-%-%[(=*)%[.-%]%1%]', ''):gsub('%-%-[^\n]*', '')
     local assignments, least = {}, math.huge
     for indent, name in body:gmatch('\n([ \t]*)sets%.([%w_%.]+)%s*=[^=]') do
         assignments[#assignments + 1] = {indent = #indent, name = name}

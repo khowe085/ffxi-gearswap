@@ -5,8 +5,8 @@
 -- globals, the libraries it requires and the user file it loads live there and nowhere else, so one test can't see
 -- what another left behind. The standard libraries GearSwap or Windower's libraries change are copies (table, math,
 -- os, io, coroutine), except string: Windower's string functions have to land on the string table that strings'
--- methods come from. That table and the metatables of strings, booleans and functions, which Windower's libraries
--- set for the whole state on top of what they found, are put back as Lua had them at each boot.
+-- methods come from. That table and the metatables of strings, numbers, booleans and functions, which Windower's
+-- libraries set for the whole state on top of what they found, are put back as Lua had them at each boot.
 --
 -- GearSwap reads its files from a copy of a Windower install that this module builds in the temp folder once per
 -- spec file, as busted loads the module again for each: the repo's GearSwap (its Lua, libs/ and data/, with the
@@ -208,7 +208,7 @@ local function shallow_copy(t)
     return result
 end
 
--- The string table and the metatables of strings, booleans and functions, as Lua had them before any boot. Windower's
+-- The string table and the metatables of strings, numbers, booleans and functions, as Lua had them before any boot. Windower's
 -- libraries change these for the whole Lua state, and each boot loads the libraries again, so each boot starts from
 -- these; otherwise each would wrap the string functions the one before left. They are kept in the Lua registry, which
 -- every copy of this module busted loads shares, so the ones kept are those from before the first boot.
@@ -218,6 +218,7 @@ local function as_lua_had_them()
         registry.gearswap_test_pristine = {
             string = shallow_copy(string),
             string_meta = debug.getmetatable(''),
+            number_meta = debug.getmetatable(0),
             boolean_meta = debug.getmetatable(false),
             function_meta = debug.getmetatable(print),
         }
@@ -237,6 +238,7 @@ local function put_back_as_lua_had_them()
         string[k] = v
     end
     debug.setmetatable('', saved.string_meta)
+    debug.setmetatable(0, saved.number_meta)
     debug.setmetatable(false, saved.boolean_meta)
     debug.setmetatable(print, saved.function_meta)
 end

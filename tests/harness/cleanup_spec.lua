@@ -2,7 +2,7 @@ local lfs = require('lfs')
 
 local function temp_folder()
     math.randomseed(os.time() + math.floor(os.clock() * 1000000))
-    local base = os.getenv('TMPDIR') or '/tmp'
+    local base = (os.getenv('TMPDIR') or '/tmp'):gsub('/+$', '')
     for _ = 1, 100 do
         local path = ('%s/gearswap-cleanup-%08x'):format(base, math.random(0, 0x7FFFFFFF))
         if lfs.mkdir(path) then

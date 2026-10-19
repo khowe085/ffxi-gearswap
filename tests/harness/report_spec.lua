@@ -27,7 +27,7 @@ local function report_of(spec)
     os.remove(folder .. '/made_spec.lua')
     lfs.rmdir(folder)
     local line = output:match('([^\n]*)\n*$')
-    return json.decode(line), line
+    return assert(json.decode(line), 'busted wrote no report:\n' .. output), line
 end
 
 describe('the report the runner reads', function()

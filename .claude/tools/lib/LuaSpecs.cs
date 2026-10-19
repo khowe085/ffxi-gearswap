@@ -47,7 +47,8 @@ static class LuaSpecs
 
 	// Reads what busted wrote for a spec file with the repo's output handler, tests/support/report.lua: busted's
 	// JSON, as the last line on standard output, after anything the tests printed. Output without it is a spec file
-	// that didn't run, as one busted couldn't load, and its run keeps what was written on both streams.
+	// that didn't run to the end, as one whose busted crashed (a file busted can't load is an error in its JSON), and
+	// its run keeps what was written on both streams.
 	public static SpecRun Read(string spec, string standardOutput, string standardError, int exitCode)
 	{
 		var output = standardOutput + standardError;
