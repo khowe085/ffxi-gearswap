@@ -1,8 +1,6 @@
 local plain = require('plain')
 local testy = require('testy')
 
-local chat, texts = plain.chat, plain.texts
-
 local worn_names = {}
 for _, name in pairs(testy.whm_idle) do
     worn_names[name] = true
@@ -20,7 +18,7 @@ local function boot(extra, changes)
         items[#items + 1] = item
     end
     local gs = plain.boot('Testy_WHM.lua', {items = items})
-    chat(gs)
+    gs:chat_lines()
     return gs
 end
 
@@ -28,7 +26,7 @@ end
 local function run(gs, command, seconds)
     gs:console(command)
     gs:advance(seconds or 20)
-    return texts(chat(gs))
+    return gs:chat()
 end
 
 local unworn = {"Bunzi's Hat", "Bunzi's Rod", 'Kaykaus Mitra +1', 'Kishar Ring'}
@@ -99,7 +97,7 @@ describe('gs stash', function()
             character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
             items = {{name = 'Nyame Helm', bag = 'wardrobe2'}},
         })
-        chat(gs)
+        gs:chat_lines()
         assert.same({'GearSwap: stash cannot read the MON file: GearSwap finds no file for it. Nothing moved.'},
             run(gs, 'gs stash mon'))
         assert.same({}, gs.game:bag_names('case'))
@@ -152,6 +150,18 @@ describe('gs stash', function()
         assert.equal('GearSwap: stash moved 1 piece: 1 to case.', lines[#lines])
         assert.equal(4, #gs.game:bag_names('wardrobe2'))
     end)
+
+    it('says a piece that joined a stack in the inventory on its way out stayed in the inventory', function()
+        local gs = boot({{name = 'Bronze Bullet', bag = 'wardrobe2', count = 10}, {name = 'Bronze Bullet', count = 20}})
+        local lines = run(gs, 'gs stash whm unused')
+        assert.equal('GearSwap: 1 piece stayed in the inventory.', lines[#lines])
+        assert.same({'Bronze Bullet'}, gs.game:bag_names('inventory'))
+        assert.same({}, gs.game:bag_names('case'))
+    end)
+
+    pending('says no more of a piece that joined a stack in the inventory than that it stayed there: move_items in '
+        .. 'wardrobe.lua takes a batch none of whose pieces filled a slot in the inventory for one the server refused, '
+        .. 'and says the server did not take the last moves')
 
     it('with unused says it would empty the wardrobes when the file names no piece', function()
         local gs = boot()
@@ -207,9 +217,9 @@ describe('gs stash', function()
         local gs = boot()
         gs:console('gs stash whm')
         gs:advance(0.1)
-        chat(gs)
+        gs:chat_lines()
         gs:console('gs pull whm')
-        assert.same({'GearSwap: A stash or pull is still moving gear.'}, texts(chat(gs)))
+        assert.same({'GearSwap: A stash or pull is still moving gear.'}, gs:chat())
         gs:advance(20)
     end)
 
@@ -242,7 +252,7 @@ describe('gs stash', function()
         gs:advance(0.3)
         gs.game.zone = 230
         gs:advance(20)
-        local lines = texts(chat(gs))
+        local lines = gs:chat()
         assert.matches('stopped: you changed zones%.', lines[#lines])
     end)
 

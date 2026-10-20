@@ -185,7 +185,7 @@ describe('refresh_player', function()
 
     it('says the target is an NPC when its id is that of an NPC', function()
         local gs = boot()
-        local npc = gs.game:add_mob({name = 'Moogle', id = 0x01000800 + 5})
+        local npc = gs.game:add_mob({name = 'Moogle'})
         gs.game:target(npc.index)
         refresh(gs)
         assert.equal('NPC', gs.user.player.target.type)

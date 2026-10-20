@@ -7,8 +7,6 @@ local gear = {"Terra's Staff", 'Daybreak', 'Ammurapi Shield', 'Kupo Shield', 'Vo
     'Adamantite Armor', 'Fotia Gorget', "Combatant's Torque", 'Karieyh Ring', 'Null Belt', 'Null Shawl',
     'Cessance Earring', 'Moonshade Earring', 'Brutal Earring'}
 
-local actions_of = jobby.action_names
-
 local function boot(options)
     options = options or {}
     options.items = gear
@@ -119,14 +117,14 @@ describe('WHM\'s status removal', function()
 
     it('is held for Divine Caress when it is ready', function()
         gs:type('/ma "Poisona" <me>')
-        assert.same({'Divine Caress'}, actions_of(gs:traffic()))
+        assert.same({'Divine Caress'}, gs:actions())
     end)
 
     it('is held for Divine Caress for each spell of the status removal map', function()
         for _, spell in ipairs({'Paralyna', 'Silena', 'Blindna', 'Cursna', 'Stona', 'Viruna'}) do
             local fresh = boot()
             fresh:type('/ma "' .. spell .. '" <me>')
-            assert.same({'Divine Caress'}, actions_of(fresh:traffic()), spell)
+            assert.same({'Divine Caress'}, fresh:actions(), spell)
         end
     end)
 
@@ -137,9 +135,9 @@ describe('WHM\'s status removal', function()
         gs.game:start_ability_recast('Divine Caress', 60)
         gs:gain_buff('Divine Caress')
         gs:advance(0.95)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
         gs:advance(0.1)
-        assert.same({'Poisona'}, actions_of(gs:traffic()))
+        assert.same({'Poisona'}, gs:actions())
         assert.same(idle_with({neck = 'Fotia Gorget', hands = 'Volte Bracers', feet = 'Volte Boots',
             ring1 = 'Karieyh Ring'}), gs:worn())
     end)
@@ -147,31 +145,31 @@ describe('WHM\'s status removal', function()
     it('goes out at once, with the status removal midcast set alone, without Divine Caress up and on recast', function()
         gs.game:start_ability_recast('Divine Caress', 60)
         gs:type('/ma "Poisona" <me>')
-        assert.same({'Poisona'}, actions_of(gs:traffic()))
+        assert.same({'Poisona'}, gs:actions())
         assert.same(idle_with({neck = 'Fotia Gorget', hands = 'Volte Bracers', feet = 'Volte Boots'}), gs:worn())
     end)
 
     it('goes out at once with Auto Caress off', function()
         gs:console('gs c toggle AutoCaress')
         gs:type('/ma "Poisona" <me>')
-        assert.same({'Poisona'}, actions_of(gs:traffic()))
+        assert.same({'Poisona'}, gs:actions())
     end)
 
     it('goes out at once under amnesia', function()
         gs:gain_buff('amnesia')
         gs:type('/ma "Poisona" <me>')
-        assert.same({'Poisona'}, actions_of(gs:traffic()))
+        assert.same({'Poisona'}, gs:actions())
     end)
 
     it('is not held for Divine Caress for Erase', function()
         gs:type('/ma "Erase" <me>')
-        assert.same({'Erase'}, actions_of(gs:traffic()))
+        assert.same({'Erase'}, gs:actions())
     end)
 
     it('is not held for Divine Caress for Esuna, when the gear file puts it in the status removal map', function()
         gs.user.spell_maps.Esuna = 'StatusRemoval'
         gs:type('/ma "Esuna" <me>')
-        assert.same({'Esuna'}, actions_of(gs:traffic()))
+        assert.same({'Esuna'}, gs:actions())
     end)
 
     it('has Divine Caress\'s set over the midcast set of Erase, Divine Caress being up', function()
@@ -190,19 +188,19 @@ describe('WHM\'s Raise III and Arise', function()
 
     it('is held for Celerity with Light Arts up and a stratagem to spend', function()
         gs:type('/ma "Arise" <me>')
-        assert.same({'Celerity'}, actions_of(gs:traffic()))
+        assert.same({'Celerity'}, gs:actions())
     end)
 
     it('is held for Celerity for Raise III as well', function()
         gs:type('/ma "Raise III" <me>')
-        assert.same({'Celerity'}, actions_of(gs:traffic()))
+        assert.same({'Celerity'}, gs:actions())
     end)
 
     it('is held for Celerity with Addendum: White up', function()
         gs:lose_buff('Light Arts')
         gs:gain_buff('Addendum: White')
         gs:type('/ma "Arise" <me>')
-        assert.same({'Celerity'}, actions_of(gs:traffic()))
+        assert.same({'Celerity'}, gs:actions())
     end)
 
     it('goes out a second after Celerity', function()
@@ -211,33 +209,33 @@ describe('WHM\'s Raise III and Arise', function()
         gs:finish_action()
         gs:gain_buff('Celerity')
         gs:advance(0.95)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
         gs:advance(0.1)
-        assert.same({'Arise'}, actions_of(gs:traffic()))
+        assert.same({'Arise'}, gs:actions())
     end)
 
     it('goes out at once with Celerity up', function()
         gs:gain_buff('Celerity')
         gs:type('/ma "Arise" <me>')
-        assert.same({'Arise'}, actions_of(gs:traffic()))
+        assert.same({'Arise'}, gs:actions())
     end)
 
     it('goes out at once with Auto Celerity off', function()
         gs:console('gs c toggle AutoCelerity')
         gs:type('/ma "Arise" <me>')
-        assert.same({'Arise'}, actions_of(gs:traffic()))
+        assert.same({'Arise'}, gs:actions())
     end)
 
     it('goes out at once with no stratagem left', function()
         gs.game:start_ability_recast('Penury', 165)
         gs:type('/ma "Arise" <me>')
-        assert.same({'Arise'}, actions_of(gs:traffic()))
+        assert.same({'Arise'}, gs:actions())
     end)
 
     it('goes out at once without Light Arts', function()
         gs:lose_buff('Light Arts')
         gs:type('/ma "Arise" <me>')
-        assert.same({'Arise'}, actions_of(gs:traffic()))
+        assert.same({'Arise'}, gs:actions())
     end)
 end)
 
@@ -245,27 +243,27 @@ describe('WHM\'s Devotion', function()
     local gs
     before_each(function()
         gs = boot()
-        jobby.chat(gs)
+        gs:chat()
     end)
 
     it('is blocked under 50% HP, with a notice', function()
         gs.game.player.vitals.hp, gs.game.player.vitals.hpp = 740, 49
         gs:type('/ja "Devotion" <me>')
         assert.same({}, gs:traffic())
-        assert.same({'Abort: Blocking Devotion under 50% HP to prevent inefficient use.'}, jobby.chat(gs))
+        assert.same({'Abort: Blocking Devotion under 50% HP to prevent inefficient use.'}, gs:chat())
     end)
 
     it('goes out at 50% HP', function()
         gs.game.player.vitals.hp, gs.game.player.vitals.hpp = 750, 50
         gs:type('/ja "Devotion" <me>')
-        assert.same({'Devotion'}, actions_of(gs:traffic()))
+        assert.same({'Devotion'}, gs:actions())
     end)
 
     it('goes out under 50% HP with Block Low Devotion off', function()
         gs:console('gs c toggle BlockLowDevotion')
         gs.game.player.vitals.hp, gs.game.player.vitals.hpp = 740, 49
         gs:type('/ja "Devotion" <me>')
-        assert.same({'Devotion'}, actions_of(gs:traffic()))
+        assert.same({'Devotion'}, gs:actions())
     end)
 end)
 
@@ -337,14 +335,14 @@ describe('WHM\'s Sleep timers', function()
         if options and options.timers_off then
             gs:console('gs c toggle UseCustomTimers')
         end
-        jobby.commands(gs)
+        gs:commands()
         gs:type('/ma "' .. name .. '" <t>')
         if options and options.interrupted then
             gs:interrupt_action()
         else
             gs:finish_action()
         end
-        return jobby.commands(gs)
+        return gs:commands()
     end
 
     it('starts a 60 second timer on the target when Sleep lands', function()
@@ -452,9 +450,9 @@ end)
 describe('WHM\'s status line', function()
     it('says the casting and idle modes, as a caster\'s does', function()
         local gs = boot()
-        jobby.chat(gs)
+        gs:chat()
         gs:console('gs c update user')
-        local lines = jobby.chat(gs)
+        local lines = gs:chat()
         assert.is_truthy(lines[#lines]:find('Casting [Normal], Idle [Normal]', 1, true), lines[#lines])
     end)
 end)
@@ -476,18 +474,21 @@ describe('WHM\'s Auto Arts', function()
 
     it('is left alone by Auto Buff Mode: the buffs go first when Auto Arts is off', function()
         local gs = arts({sub_job = 'SCH'}, false, true)
-        assert.same({'Reraise IV'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Reraise IV'}, gs:actions())
     end)
 
     it('uses Afflatus Solace once Auto Arts is on, with Auto Buff Mode on', function()
         local gs = arts({sub_job = 'SCH', buffs = buffed}, true, true)
-        assert.same({'Afflatus Solace'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Afflatus Solace'}, gs:actions())
     end)
 
     it('uses Light Arts after Afflatus Solace with Scholar as the sub job', function()
         local gs = arts({sub_job = 'SCH', buffs = buffed}, true, true)
         gs:gain_buff('Afflatus Solace')
-        assert.same({'Light Arts'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Light Arts'}, gs:actions())
     end)
 
     it('uses no Light Arts with Light Arts up', function()
@@ -495,40 +496,41 @@ describe('WHM\'s Auto Arts', function()
         gs:gain_buff('Afflatus Solace')
         gs:gain_buff('Light Arts')
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses no Light Arts without Scholar as the sub job', function()
         local gs = arts({sub_job = 'RDM', buffs = buffed}, true, true)
         gs:gain_buff('Afflatus Solace')
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses no Afflatus Solace with Afflatus Misery up', function()
         local gs = arts({buffs = buffed}, true, true)
         gs:gain_buff('Afflatus Misery')
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses no Afflatus Solace while it is on recast', function()
         local gs = arts({buffs = buffed}, true, true)
         gs.game:start_ability_recast('Afflatus Solace', 60)
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses Afflatus Solace in a fight with Auto Arts on and Auto Buff Mode off', function()
         local gs = arts({}, true, false)
         gs:monster_hits()
-        assert.same({'Afflatus Solace'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Afflatus Solace'}, gs:actions())
     end)
 
     it('uses no Afflatus Solace out of a fight with Auto Arts on and Auto Buff Mode off', function()
         local gs = arts({}, true, false)
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 end)
 
@@ -540,46 +542,54 @@ describe('WHM\'s Auto Buff Mode', function()
     end
 
     it('starts with Reraise IV', function()
-        assert.same({'Reraise IV'}, actions_of(jobby.until_action(buffing())))
+        local gs = buffing()
+        gs:play_until_action()
+        assert.same({'Reraise IV'}, gs:actions())
     end)
 
     it('goes on to Haste with Reraise up', function()
         local gs = buffing()
         gs:gain_buff('Reraise')
-        assert.same({'Haste'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Haste'}, gs:actions())
     end)
 
     it('skips Aurorastorm without Scholar as the sub job, and goes on to Refresh', function()
         local gs = buffing({sub_job = 'RDM'})
         gs:gain_buff('Reraise')
         gs:gain_buff('Haste')
-        assert.same({'Refresh'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Refresh'}, gs:actions())
     end)
 
     it('casts Aurorastorm with Scholar as the sub job', function()
         local gs = buffing({sub_job = 'SCH'})
         gs:gain_buff('Reraise')
         gs:gain_buff('Haste')
-        assert.same({'Aurorastorm'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Aurorastorm'}, gs:actions())
     end)
 
     it('skips a spell on recast', function()
         local gs = buffing()
         gs.game:start_spell_recast('Reraise IV', 10)
-        assert.same({'Haste'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Haste'}, gs:actions())
     end)
 
     it('skips Haste while it is on recast', function()
         local gs = buffing()
         gs:gain_buff('Reraise')
         gs.game:start_spell_recast('Haste', 10)
-        assert.same({'Refresh'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Refresh'}, gs:actions())
     end)
 
     it('skips a spell it hasn\'t the MP for', function()
         local gs = buffing()
         gs.game.player.vitals.mp = 45
-        assert.same({'Haste'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Haste'}, gs:actions())
     end)
 
     it('casts nothing once every buff Jobby can cast is up', function()
@@ -588,7 +598,7 @@ describe('WHM\'s Auto Buff Mode', function()
             gs:gain_buff(buff)
         end
         gs:play(3)
-        assert.same({}, jobby.action_names(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 end)
 
@@ -596,44 +606,49 @@ describe('WHM\'s buff up', function()
     it('casts the Default list in order, Reraise IV first', function()
         local gs = boot_ticking()
         gs:console('gs c buffup')
-        assert.same({'Reraise IV'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Reraise IV'}, gs:actions())
     end)
 
     it('goes on to Shellra V and then Protectra V', function()
         local gs = boot_ticking()
         gs:console('gs c buffup')
         gs:gain_buff('Reraise')
-        assert.same({'Shellra V'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Shellra V'}, gs:actions())
         gs:finish_action()
         gs:gain_buff('Shell')
-        assert.same({'Protectra V'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Protectra V'}, gs:actions())
     end)
 
     it('says so, and stops, when every buff it can cast is up', function()
         local gs = boot_ticking({buffs = {'Reraise', 'Shell', 'Protect', 'Auspice', 'Haste', 'Aquaveil', 'Stoneskin',
             'Blink', 'Phalanx'}})
-        jobby.chat(gs)
+        gs:chat()
         gs:console('gs c buffup')
         gs:play(1)
-        assert.same({}, jobby.action_names(gs:traffic()))
-        assert.same({'All Default buffs are up!'}, jobby.chat(gs))
+        assert.same({}, gs:actions())
+        assert.same({'All Default buffs are up!'}, gs:chat())
         assert.equal('', gs.user.buffup)
     end)
 
     it('is told by name which list to cast', function()
         local gs = boot_ticking()
         gs:console('gs c buffup Self')
-        assert.same({'Reraise IV'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Reraise IV'}, gs:actions())
         gs:finish_action()
         gs:gain_buff('Reraise')
-        assert.same({'Aquaveil'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Aquaveil'}, gs:actions())
     end)
 
     it('says when there is no such list', function()
         local gs = boot_ticking()
-        jobby.chat(gs)
+        gs:chat()
         gs:console('gs c buffup Nonsense')
-        assert.same({'Nonsense is not a buff list!'}, jobby.chat(gs))
+        assert.same({'Nonsense is not a buff list!'}, gs:chat())
     end)
 end)
 
@@ -647,7 +662,7 @@ describe('WHM\'s elemental commands', function()
             end
         end
         gs:console('gs c elemental ' .. command)
-        return jobby.actions(gs), gs
+        return gs:actions(), gs
     end
 
     it('nukes with Holy II in the Light mode', function()
@@ -690,17 +705,17 @@ describe('WHM\'s elemental commands', function()
         gs.game:start_spell_recast('Banish III', 10)
         gs.game:start_spell_recast('Banish II', 10)
         gs.game:start_spell_recast('Banish', 10)
-        jobby.chat(gs)
+        gs:chat()
         gs:console('gs c elemental nuke')
-        assert.same({}, jobby.actions(gs))
-        assert.same({}, jobby.chat(gs))
+        assert.same({}, gs:actions())
+        assert.same({}, gs:chat())
     end)
 
     it('hands a command it doesn\'t know on to Sel\'s elemental commands', function()
         local gs = boot_ticking({sub_job = 'RDM'})
         gs:console('gs c set ElementalMode Fire')
         gs:console('gs c elemental barelement')
-        assert.same({'Barblizzard'}, jobby.actions(gs))
+        assert.same({'Barblizzard'}, gs:actions())
     end)
 
     it('says so when every tier is on recast', function()
@@ -708,10 +723,10 @@ describe('WHM\'s elemental commands', function()
         gs:console('gs c set ElementalMode Fire')
         gs.game:start_spell_recast('Fire II', 10)
         gs.game:start_spell_recast('Fire', 10)
-        jobby.chat(gs)
+        gs:chat()
         gs:console('gs c elemental nuke')
-        assert.same({}, jobby.actions(gs))
-        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, jobby.chat(gs))
+        assert.same({}, gs:actions())
+        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, gs:chat())
     end)
 end)
 
@@ -729,7 +744,7 @@ describe('WHM\'s smart cure', function()
             end
         end
         gs:console('gs c smartcure me')
-        return jobby.actions(gs)
+        return gs:actions()
     end
 
     it('casts Cure on a target missing less than 250 HP', function()
@@ -741,9 +756,9 @@ describe('WHM\'s smart cure', function()
     end)
 
     it('says so when the cures it would use are all on recast', function()
-        jobby.chat(gs)
+        gs:chat()
         assert.same({}, smartcure(1500, 100, {['Cure'] = 10, ['Cure II'] = 10}))
-        assert.same({'Abort: Appropriate cures are on cooldown.'}, jobby.chat(gs))
+        assert.same({'Abort: Appropriate cures are on cooldown.'}, gs:chat())
     end)
 
     -- Jobby's HP and HP percentage for a target missing 333, 618, 1000 and 1500 HP, which fall in the four tiers
@@ -786,14 +801,14 @@ describe('WHM\'s smart cure', function()
         end
         local when = #busy == 0 and 'with every cure ready' or ('with ' .. table.concat(busy_names, ', ') .. ' on recast')
         it(('casts %s on a target missing %d HP %s'):format(cure or 'nothing', hp_missing, when), function()
-            jobby.chat(gs)
+            gs:chat()
             local hp = missing[hp_missing]
             local sent = smartcure(hp[1], hp[2], recasts)
             if cure then
                 assert.same({cure}, sent)
             else
                 assert.same({}, sent)
-                assert.same({'Abort: Appropriate cures are on cooldown.'}, jobby.chat(gs))
+                assert.same({'Abort: Appropriate cures are on cooldown.'}, gs:chat())
             end
         end)
     end
@@ -816,13 +831,13 @@ describe('WHM\'s smart cure', function()
 
         it('given by its id', function()
             gs:console('gs c smartcure ' .. gs.game.player.id)
-            assert.same({{action = 'Cure', target = 'Jobby'}}, jobby.action_entries(gs))
+            assert.same({{action = 'Cure', target = 'Jobby'}}, gs:action_entries())
         end)
 
         it('given as <t>, estimating the HP it is missing from a 1800 HP maximum', function()
             pal(50)
             gs:console('gs c smartcure t')
-            assert.same({'Cure V'}, jobby.actions(gs))
+            assert.same({'Cure V'}, gs:actions())
         end)
 
         pending('given by the name of a player nearby, who isn\'t targeted: handle_smartcure in data/WHM.lua takes the '
@@ -836,25 +851,25 @@ describe('WHM\'s smart cure', function()
         it('given by a name nobody answers to, which is Jobby when the current target isn\'t valid', function()
             jobby.target_a_player(gs, {valid_target = false})
             gs:console('gs c smartcure Nobody')
-            assert.same({{action = 'Cure', target = 'Jobby'}}, jobby.action_entries(gs))
+            assert.same({{action = 'Cure', target = 'Jobby'}}, gs:action_entries())
         end)
 
         it('not given, which is the current target when it is another player', function()
             pal(50)
             gs:console('gs c smartcure')
-            assert.same({'Cure V'}, jobby.actions(gs))
+            assert.same({'Cure V'}, gs:actions())
         end)
 
         it('not given, which is Jobby when nothing is targeted', function()
             gs.game.target_index = nil
             gs:console('gs c smartcure')
-            assert.same({{action = 'Cure', target = 'Jobby'}}, jobby.action_entries(gs))
+            assert.same({{action = 'Cure', target = 'Jobby'}}, gs:action_entries())
         end)
 
         it('not given, which is sent on to the targeting of an ally when a monster is targeted', function()
             gs:console('gs c smartcure')
             local sent = false
-            for _, command in ipairs(jobby.commands(gs)) do
+            for _, command in ipairs(gs:commands()) do
                 sent = sent or command == 'gs c smartcure <stal>'
             end
             assert.is_true(sent)
@@ -863,7 +878,7 @@ describe('WHM\'s smart cure', function()
         it('who is dead, which is raised with Arise', function()
             pal(0).status = 2
             gs:console('gs c smartcure t')
-            assert.same({{action = 'Arise', target = 'Pal'}}, jobby.action_entries(gs))
+            assert.same({{action = 'Arise', target = 'Pal'}}, gs:action_entries())
         end)
     end)
 

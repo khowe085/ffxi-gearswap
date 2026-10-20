@@ -4,8 +4,9 @@
 -- NPCs), a pet, and the server's side of equipping and of moving items between bags.
 --
 -- Nothing happens on its own. What the addon sends (packets, commands, chat input) waits in a queue, as it would
--- for the next frame, and settle() handles it: an equip request or a move between bags is carried out and confirmed
--- with the packets the server answers with, a command runs, input goes through the outgoing text event.
+-- for the next frame, and settle() handles it: a packet goes through the outgoing chunk event, then, unless a handler
+-- blocked it, the server carries out an equip request or a move between bags and confirms it with the packets it
+-- answers with; a command runs; input goes through the outgoing text event.
 -- advance(seconds) moves the clock on, runs the timers that fall due (coroutine.schedule, @wait) and settles after
 -- each. The tests say when the server answers an action (finish_action, interrupt_action) and when a buff comes or
 -- goes.
@@ -42,14 +43,14 @@ local function copy(value)
     end
     return result
 end
-Game.copy = copy
 
 local function has_bit(mask, index)
     return math.floor((mask or 0) / 2 ^ index) % 2 == 1
 end
-Game.has_bit = has_bit
 
--- The entry with that name, short or long; of several, the one with the lowest id.
+-- The id of the entry of a resource (the raw table of a Windower resource file) with that name, short or long, in
+-- any case, and the entry; of several, the one with the lowest id. kind names the resource in the error when none
+-- has the name.
 local function find_by_name(resource, name, kind)
     local lowered = name:lower()
     local found
@@ -64,6 +65,7 @@ local function find_by_name(resource, name, kind)
     end
     return found, resource[found]
 end
+Game.find_by_name = find_by_name
 
 -- Windower lists a path's entries by their names on disk. GearSwap runs on Windows, where a file's name matches in
 -- any case, and asks for files by names it lowered; the files keep their case on disk.
@@ -329,13 +331,35 @@ function Game:mobs()
     return mobs
 end
 
--- The mob a target names: <me>, <t>, <st>, <pet>, and the slots of the party and the alliance (<p0> to <p5>, <a10>
--- on).
+-- The enemy the alliance has claimed, <bt>: the target if it is one, else the first such; nil when there is none.
+function Game:battle_target()
+    local claimants = {[self.player.id] = true}
+    for _, other in ipairs(self.others) do
+        if other.in_alliance then
+            claimants[other.id] = true
+        end
+    end
+    local mobs = self:mobs()
+    local function claimed(index)
+        local mob = index and mobs[index]
+        return mob and mob.is_npc and claimants[mob.claim_id] and mob or nil
+    end
+    local found = claimed(self.target_index) or claimed(self.monster and self.monster.index)
+    for _, other in ipairs(self.others) do
+        found = found or claimed(other.index)
+    end
+    return found
+end
+
+-- The mob a target names: <me>, <t>, <bt>, <st>, <pet>, and the slots of the party and the alliance (<p0> to <p5>,
+-- <a10> on).
 function Game:mob_by_target(target)
     target = (target or ''):lower():gsub('^<(.*)>$', '%1')
     if target == 'me' or target == 'self' then
         return self:player_mob()
-    elseif target == 't' or target == 'bt' then
+    elseif target == 'bt' then
+        return self:battle_target()
+    elseif target == 't' then
         return self.target_index and self:mobs()[self.target_index]
     elseif target == 'st' then
         return self.subtarget_index and self:mobs()[self.subtarget_index]
@@ -541,6 +565,18 @@ function Game:fire(event, ...)
     return result
 end
 
+-- Calls the outgoing chunk handlers on a packet the client sends, as Windower does: a handler that returns true
+-- blocks it, and each after it is told so. Returns whether one did.
+function Game:outgoing_chunk(id, data, injected)
+    local blocked = false
+    for _, entry in ipairs(copy(self.handlers['outgoing chunk'] or {})) do
+        if entry.handler(id, data, data, injected, blocked) == true then
+            blocked = true
+        end
+    end
+    return blocked
+end
+
 function Game:enqueue(kind, ...)
     self.queue[#self.queue + 1] = {kind = kind, ...}
 end
@@ -555,9 +591,13 @@ function Game:settle()
         end
         local entry = table.remove(self.queue, 1)
         if entry.kind == 'incoming' then
-            self:deliver_incoming(entry[1], entry[2])
+            self:deliver_incoming(entry[1], entry[2], entry[3])
         elseif entry.kind == 'outgoing' then
-            self:fire('outgoing chunk', entry[1], entry[2], entry[2], true, false)
+            if not self:outgoing_chunk(entry[1], entry[2], true) then
+                self:serve(entry[1], entry[2], entry[3])
+            end
+        elseif entry.kind == 'event' then
+            self:fire(unpack(entry))
         elseif entry.kind == 'command' then
             self:run_command(entry[1])
         elseif entry.kind == 'input' then
@@ -669,7 +709,6 @@ local function split_words(command)
         end
     end
 end
-Game.split_words = split_words
 
 -- Runs a line as Windower's console would: each command in turn, with a wait putting off the ones after it.
 function Game:run_command(line)
@@ -733,9 +772,9 @@ function Game:receive(id, body)
     return data
 end
 
-function Game:deliver_incoming(id, data)
+function Game:deliver_incoming(id, data, injected)
     self.last_packets.incoming[id] = {data, self.clock}
-    self:fire('incoming chunk', id, data, data, false, false)
+    self:fire('incoming chunk', id, data, data, injected or false, false)
     if id == 0x028 then
         local act = self.action_tables[data]
         if act then
@@ -800,10 +839,40 @@ function Game:equipset_reply(request)
     return body
 end
 
+-- The resource an action request (0x01A) names its action from, by the request's category.
+local action_resources = {[3] = 'spells', [7] = 'weapon_skills', [9] = 'job_abilities', [25] = 'monster_skills'}
+
+-- A packet the addon sends. It is noted as sent at once, with what it asks for named as things stand when it goes:
+-- equip (slot to item name, or 'empty') for an equip request, action ({target_id =, target_index =, category =,
+-- param =, name =, target =}) for an action, used ({item =, target =}) for the use of an item. The outgoing chunk
+-- handlers see it as the game settles, and the server's side follows.
 function Game:inject_outgoing(id, data)
     self.last_packets.outgoing[id] = {data, self.clock}
-    self.sent[#self.sent + 1] = {id = id, data = data, at = self.clock}
-    self:enqueue('outgoing', id, data)
+    local packet = {id = id, data = data, at = self.clock}
+    if id == 0x050 or id == 0x051 then
+        packet.equip = self:equip_request(packet)
+    elseif id == 0x01A then
+        local action = {target_id = read_u32(data, 5), target_index = read_u16(data, 9), category = read_u16(data, 11),
+            param = read_u16(data, 13)}
+        local resource = self.res[action_resources[action.category] or '']
+        local entry = resource and resource[action.param]
+        local target = self:mob_by_id(action.target_id)
+        action.name = entry and entry.en or ('category %d'):format(action.category)
+        action.target = target and target.name
+        packet.action = action
+    elseif id == 0x037 then
+        local bag = self.bags[data:byte(17)]
+        local item = bag and bag.items[data:byte(15)]
+        local target = self:mob_by_id(read_u32(data, 5))
+        packet.used = {item = item and self.res.items[item.id].en, target = target and target.name}
+    end
+    self.sent[#self.sent + 1] = packet
+    self:enqueue('outgoing', id, data, packet)
+end
+
+-- The server's side of a packet the addon sent and no handler blocked: an equip request carried out and confirmed,
+-- or refused; an action taken in, and a moogle's menu opened for a talk to one; a move between bags made.
+function Game:serve(id, data, packet)
     if id == 0x050 then
         local reply = self:equip_chunk(data:sub(5, 8))
         if reply then
@@ -818,10 +887,8 @@ function Game:inject_outgoing(id, data)
         end
         self:receive(0x117, self:equipset_reply(data))
     elseif id == 0x01A then
-        local action = {target_id = read_u32(data, 5), target_index = read_u16(data, 9), category = read_u16(data, 11),
-            param = read_u16(data, 13)}
+        local action = packet.action
         self.actions[#self.actions + 1] = action
-        self.sent[#self.sent].action = action
         local moogle = action.category == 0 and self:mob_by_id(action.target_id)
         if moogle and moogle.name:find('Moogle') then
             self.moogle_menu = true
@@ -916,7 +983,7 @@ function Game:send_from_client(id, body)
     local size = 4 + #body
     local data = pad(packet_header(id, size, self:next_sequence()) .. body, 4 * math.ceil(size / 4))
     self.last_packets.outgoing[id] = {data, self.clock}
-    self:fire('outgoing chunk', id, data, data, false, false)
+    self:outgoing_chunk(id, data, false)
     return data
 end
 
@@ -1023,7 +1090,7 @@ function Game:make_windower(paths)
         prim = {create = noop, delete = noop},
         packets = {
             inject_outgoing = function(id, data) game:inject_outgoing(id, data) end,
-            inject_incoming = function(id, data) game:enqueue('incoming', id, data) end,
+            inject_incoming = function(id, data) game:enqueue('incoming', id, data, true) end,
             last_incoming = function(id) return unpack(game.last_packets.incoming[id] or {}) end,
             last_outgoing = function(id) return unpack(game.last_packets.outgoing[id] or {}) end,
             parse_action = function(data) return copy(game.action_tables[data]) end,
@@ -1184,33 +1251,48 @@ function Game:stand()
     self.walking_since = nil
 end
 
--- The monster begins readying a TP move at the character: the action packet the server sends for it.
+-- The message of each kind of action of a monster's, by its category: a melee hit (1), a spell cast (4), a TP move
+-- readied (7, 'readies') and used (11), a spell begun (8, 'starts casting').
+local monster_messages = {[1] = 1, [4] = 2, [7] = 43, [8] = 327, [11] = 185}
+
+-- An action of the monster's at a target, the character unless given an id, as the action packet the server sends
+-- of it. name is the TP move or spell, by its English name; a melee hit has none. The packet that begins an action
+-- names it in its target's action, with 24931 as its own param. A monster no one has claimed is claimed by the
+-- player it acts on.
+function Game:monster_acts(category, name, target_id)
+    local resource = (category == 7 or category == 11) and 'monster_abilities'
+        or (category == 4 or category == 8) and 'spells'
+    local id = resource and find_by_name(self.res[resource], name, resource) or 0
+    local begins = category == 7 or category == 8
+    target_id = target_id or self.player.id
+    local target = self:mob_by_id(target_id)
+    if self.monster.claim_id == 0 and target and not target.is_npc then
+        self.monster.claim_id = target_id
+    end
+    return self:send_action_packet({actor_id = self.monster.id, category = category, param = begins and 24931 or id,
+        targets = {{id = target_id, actions = {{message = monster_messages[category],
+            param = begins and id or 50, reaction = 0, animation = 0, effect = 0, stagger = 0}}}}})
+end
+
+-- The monster begins readying a TP move at the character.
 function Game:monster_readies(name)
-    local id = find_by_name(self.res.monster_abilities, name, 'monster ability')
-    return self:send_action_packet({actor_id = self.monster.id, category = 7, param = 24931,
-        targets = {{id = self.player.id, actions = {{message = 43, param = id, reaction = 0, animation = 0,
-            effect = 0, stagger = 0}}}}})
+    return self:monster_acts(7, name)
+end
+
+-- The monster hits the character with a melee swing.
+function Game:monster_hits()
+    return self:monster_acts(1)
 end
 
 -- The items the addon used (the use item packet, 0x037), in order, as {item = name, target = name}.
 function Game:items_used()
     local used = {}
     for _, packet in ipairs(self.sent) do
-        if packet.id == 0x037 then
-            local bag = self.bags[packet.data:byte(17)]
-            local item = bag and bag.items[packet.data:byte(15)]
-            local target = self:mob_by_id(read_u32(packet.data, 5))
-            used[#used + 1] = {item = item and self.res.items[item.id].en, target = target and target.name}
+        if packet.used then
+            used[#used + 1] = packet.used
         end
     end
     return used
-end
-
--- The monster hits the character with a melee swing.
-function Game:monster_hits()
-    return self:send_action_packet({actor_id = self.monster.id, category = 1, param = 0,
-        targets = {{id = self.player.id, actions = {{message = 1, param = 50, reaction = 0, animation = 0,
-            effect = 0, stagger = 0}}}}})
 end
 
 -- Moves Vana'diel's clock to minutes past midnight, and fires the event that says so.
@@ -1262,10 +1344,14 @@ function Game:change_sub_job(short, level)
 end
 
 -- Changes the character's main job (by its short name) and its level, as at a Moogle: the client asks with the job
--- change packet (0x100), and the server answers with the char stats packet.
+-- change packet (0x100), the server takes every piece off, and answers with the char stats packet.
 function Game:change_main_job(short, level)
     local id = job_id(self.res, short)
     self:send_from_client(0x100, string.char(id, self.player.sub_job_id, 0, 0))
+    for slot_id, spot in pairs(self.equipment) do
+        self.bags[spot.bag].items[spot.slot].status = 0
+        self.equipment[slot_id] = nil
+    end
     self.player.main_job_id = id
     self.player.main_job_level = level or 99
     self.player.jobs[short] = self.player.main_job_level
@@ -1308,19 +1394,20 @@ function Game:send_pet_info(tp)
     }))
 end
 
-
 -- Puts a pet at the player's side, with no packet to tell of it, as one already out when GearSwap loads. fields over
 -- the defaults: id, index, name, hpp, mpp, tp (3000 is full; the pet's mob has none unless given), status (0 idle,
--- 1 engaged), distance (squared, as Windower gives it), x, y, model_size. Returns the pet as the game holds it.
+-- 1 engaged), distance (squared, as Windower gives it; 2 yalms unless given), x (as far along x as the distance says
+-- unless given), y, model_size. Returns the pet as the game holds it.
 function Game:place_pet(fields)
     local pet = {
         id = 0x1069100, index = 0x402, name = 'Pet', is_npc = true, spawn_type = 16, race = 0, status = 0, hpp = 100,
-        mpp = 100, distance = 4, x = 1, y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, model_size = 1,
+        mpp = 100, distance = 4, y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, model_size = 1,
         target_index = 0,
     }
     for key, value in pairs(fields or {}) do
         pet[key] = value
     end
+    pet.x = pet.x or math.sqrt(pet.distance)
     self.pet = pet
     return pet
 end
@@ -1456,10 +1543,11 @@ end
 
 -- An NPC, or another mob, near the character. fields over the defaults: name, id, index, is_npc, spawn_type, race,
 -- hpp, status, claim_id, distance (squared, as Windower gives it; 5 yalms unless given), x, y. Returns the mob as
--- the game holds it.
+-- the game holds it. An NPC's id has 0x800 set in its last twelve bits, a monster's doesn't: GearSwap tells the two
+-- apart by it.
 function Game:add_mob(fields)
     return add_other(self, function(index)
-        return {id = 0x01000000 + index, name = 'Mob', is_npc = true, spawn_type = 2, race = 0, distance = 25,
+        return {id = 0x01000800 + index, name = 'Mob', is_npc = true, spawn_type = 2, race = 0, distance = 25,
             in_party = false, in_alliance = false}
     end, fields or {})
 end
@@ -1473,9 +1561,13 @@ function Game:remove_mob(index)
     end
 end
 
--- Makes the mob at that index the target, or the subtarget; none when given none.
+-- Makes the mob at that index the target, with the target change event, or the subtarget; none when given none.
 function Game:target(index)
+    local old = self.target_index
     self.target_index = index
+    if index ~= old then
+        self:fire('target change', index or 0, old or 0)
+    end
 end
 
 function Game:subtarget(index)
@@ -1484,11 +1576,12 @@ end
 
 -------------------------------------------------------------------------------------------------------------------
 -- Items in bags, and moving them. The client asks for a move with an outgoing 0x029 (count, from bag, to bag, slot,
--- target slot); the server moves the item to the first empty slot of the other bag, and tells the client with an
--- item update for the new slot (0x020) and a count of 0 for the old (0x01E). It takes nothing out of or into a bag
--- that is closed (a bag's disabled), a Mog House bag away from the Mog House and a moogle, or into one that is full,
--- nothing that is worn, and nothing that doesn't go through the inventory. A game with refuse_moves set takes no move
--- at all.
+-- target slot); the server moves that many of the item onto a stack of it in the other bag that has room for them,
+-- else into the first empty slot, and tells the client with an item update for the slot they went to (0x020) and the
+-- count left in the old (0x01E). The add item event follows for a slot that was empty, and the remove item event for
+-- one that is now. It takes nothing out of or into a bag that is closed (a bag's disabled), a Mog House bag away
+-- from the Mog House and a moogle, or into one that is full, nothing that is worn, more than there is, and nothing
+-- that doesn't go through the inventory. A game with refuse_moves set takes no move at all.
 -------------------------------------------------------------------------------------------------------------------
 
 -- Puts one more item in a bag, in its first empty slot. item as in the boot options: name, extdata, count. Returns
@@ -1544,25 +1637,52 @@ function Game:move_item(count, from_id, to_id, index)
     local item = from and from.items[index]
     if self.refuse_moves or not item or not to or item.status ~= 0 or (from_id ~= 0 and to_id ~= 0) then
         return false
+    elseif count < 1 or count > item.count then
+        return false
     elseif not self:bag_reachable(from_id) or not self:bag_reachable(to_id) then
         return false
     end
-    local target
+    local stack = self.res.items[item.id].stack or 1
+    local target, joined
     for slot = 1, to.max do
-        if not to.items[slot] then
-            target = slot
+        local there = to.items[slot]
+        if there and there.id == item.id and there.extdata == item.extdata and there.count + count <= stack then
+            target, joined = slot, there
             break
+        end
+    end
+    for slot = 1, to.max do
+        if target then
+            break
+        elseif not to.items[slot] then
+            target = slot
         end
     end
     if not target then
         return false
     end
-    from.items[index] = nil
-    item.slot = target
-    to.items[target] = item
-    self:receive(0x01E, u32(0) .. string.char(from_id, index, 0, 0))
-    self:receive(0x020, u32(item.count) .. u32(item.bazaar) .. u16(item.id) .. string.char(to_id, target, 0)
-        .. item.extdata)
+    local left = item.count - count
+    local moved = joined or left == 0 and item
+        or {id = item.id, count = 0, status = 0, bazaar = 0, extdata = item.extdata}
+    if moved ~= item then
+        moved.count = moved.count + count
+    end
+    moved.slot = target
+    to.items[target] = moved
+    if left == 0 then
+        from.items[index] = nil
+    else
+        item.count = left
+    end
+    self:receive(0x01E, u32(left) .. string.char(from_id, index, 0, 0))
+    self:receive(0x020, u32(moved.count) .. u32(moved.bazaar) .. u16(moved.id) .. string.char(to_id, target, 0)
+        .. moved.extdata)
+    if left == 0 then
+        self:enqueue('event', 'remove item', from_id, index, item.id, count)
+    end
+    if not joined then
+        self:enqueue('event', 'add item', to_id, target, moved.id, count)
+    end
     return true
 end
 

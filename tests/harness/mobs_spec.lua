@@ -63,4 +63,68 @@ describe('the mobs the stand-in game adds', function()
         gs.game:subtarget(mob.index)
         assert.equal('Moogle', gs.game.windower.ffxi.get_mob_by_target('<st>').name)
     end)
+
+    it('are NPCs to GearSwap unless given another id', function()
+        local gs = boot()
+        gs.game:target(gs.game:add_mob({name = 'Moogle'}).index)
+        gs.env.refresh_globals()
+        assert.equal('NPC', gs.env.player.target.type)
+    end)
+
+    it('say a change of target with the target change event, the new target\'s index and the old', function()
+        local gs = boot()
+        local mob = gs.game:add_mob({name = 'Moogle'})
+        local seen = {}
+        gs.game:register('target change', function(new, old) seen[#seen + 1] = {new, old} end)
+        gs.game:target(mob.index)
+        gs.game:target(mob.index)
+        gs.game:target(nil)
+        assert.same({{mob.index, gs.game.monster.index}, {0, mob.index}}, seen)
+    end)
+end)
+
+describe('the battle target in the stand-in game, <bt>', function()
+    local function battle_target(gs)
+        local mob = gs.game.windower.ffxi.get_mob_by_target('<bt>')
+        return mob and mob.name
+    end
+
+    it('is none while no one has claimed the monster', function()
+        assert.is_nil(battle_target(boot()))
+    end)
+
+    it('is the monster the character has claimed, whatever is targeted', function()
+        local gs = boot()
+        gs.game.monster.claim_id = gs.game.player.id
+        gs.game:target(gs.game:add_party_member({name = 'Pal', in_party = false}).index)
+        assert.equal('Apex Toad', battle_target(gs))
+    end)
+
+    it('is the monster a member of the alliance has claimed', function()
+        local gs = boot()
+        local member = gs.game:add_party_member({name = 'Friend', slot = 'a10'})
+        gs.game.monster.claim_id = member.id
+        assert.equal('Apex Toad', battle_target(gs))
+    end)
+
+    it('is none for a monster another player has claimed', function()
+        local gs = boot()
+        gs.game.monster.claim_id = gs.game:add_party_member({name = 'Stranger', in_party = false}).id
+        assert.is_nil(battle_target(gs))
+    end)
+
+    it('is the targeted monster of two the character has claimed', function()
+        local gs = boot()
+        gs.game.monster.claim_id = gs.game.player.id
+        local other = gs.game:add_mob({name = 'Goblin', id = 0x1069002, claim_id = gs.game.player.id})
+        gs.game:target(other.index)
+        assert.equal('Goblin', battle_target(gs))
+    end)
+
+    it('is claimed by the character once the monster acts on it', function()
+        local gs = boot()
+        gs:monster_hits()
+        assert.equal(gs.game.player.id, gs.game.monster.claim_id)
+        assert.equal('Apex Toad', battle_target(gs))
+    end)
 end)

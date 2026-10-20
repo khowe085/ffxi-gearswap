@@ -2,7 +2,7 @@ local harness = require('harness')
 local plain = require('plain')
 local testy = require('testy')
 
-local chat, texts = plain.chat, plain.texts
+local texts = plain.texts
 
 -- Testy as a white mage owning what Testy_WHM.lua names except the pieces left out, and the extra pieces.
 local function boot(left_out, extra)
@@ -16,13 +16,13 @@ local function boot(left_out, extra)
         items[#items + 1] = item
     end
     local gs = plain.boot('Testy_WHM.lua', {items = items})
-    chat(gs)
+    gs:chat_lines()
     return gs
 end
 
 local function validate(gs, text)
     gs:console('gs validate' .. (text and ' ' .. text or ''))
-    return chat(gs)
+    return gs:chat_lines()
 end
 
 describe('gs validate', function()
@@ -93,7 +93,7 @@ describe('gs validate', function()
             items = {{name = 'Nyame Helm'}},
         })
         gs:change_main_job('MON')
-        chat(gs)
+        gs:chat_lines()
         assert.same({'GearSwap: There is nothing to validate because there is no file loaded.'}, texts(validate(gs)))
     end)
 

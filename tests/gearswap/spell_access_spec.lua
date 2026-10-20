@@ -1,7 +1,6 @@
 local plain = require('plain')
 local testy = require('testy')
 
-local chat, texts = plain.chat, plain.texts
 local calls, events = plain.calls, plain.names
 
 -- Testy on the user file Testy_Actions.lua, the game then told it is these jobs: the file doesn't depend on the job.
@@ -17,7 +16,7 @@ local function boot(jobs, extra_items)
     gs.env._settings.debug_mode = true
     gs:console('gs c refresh')
     calls(gs)
-    chat(gs)
+    gs:chat_lines()
     return gs
 end
 
@@ -26,7 +25,7 @@ local function cast(gs, line)
     gs:type(line)
     local went = events(calls(gs))[2] == 'precast'
     local reasons = {}
-    for _, text in ipairs(texts(chat(gs))) do
+    for _, text in ipairs(gs:chat()) do
         local reason = text:match('^GearSwap %(Debug Mode%): (Unable to .*)$')
         if reason then
             reasons[#reasons + 1] = reason

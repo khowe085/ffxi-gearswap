@@ -23,12 +23,12 @@ end
 -- has gone out again: what was sent, in order.
 local function weaponskill_after_buff(gs, line)
     gs:type(line or '/ws "Savage Blade" <t>')
-    local sent = autoy.actions(gs)
+    local sent = gs:action_entries()
     if #sent == 1 and sent[1].target == 'Autoy' then
         gs:finish_action()
         gs:gain_buff(sent[1].action)
         gs:advance(1.2)
-        for _, action in ipairs(autoy.actions(gs)) do
+        for _, action in ipairs(gs:action_entries()) do
             sent[#sent + 1] = action
         end
     end
@@ -39,13 +39,13 @@ describe('Auto WS Buff, User-Globals.lua\'s buff before a weapon skill', functio
     it('uses Berserk in place of a weapon skill on ws_buff_list, and sends the weapon skill 1.1 seconds later', function()
         local gs = boot()
         assert.is_true(gs:type('/ws "Savage Blade" <t>'))
-        assert.same({buff('Berserk')}, autoy.actions(gs))
+        assert.same({buff('Berserk')}, gs:action_entries())
         gs:finish_action()
         gs:gain_buff('Berserk')
         gs:advance(1)
-        assert.same({}, autoy.actions(gs))
+        assert.same({}, gs:action_entries())
         gs:advance(0.2)
-        assert.same({savage_blade}, autoy.actions(gs))
+        assert.same({savage_blade}, gs:action_entries())
     end)
 
     it('takes Warcry while Berserk is up', function()
@@ -112,11 +112,11 @@ describe('Auto WS Buff, User-Globals.lua\'s buff before a weapon skill', functio
         local gs = boot()
         gs:type('/ws "Savage Blade" <t>')
         gs:type('/ws "Savage Blade" <t>')
-        assert.same({buff('Berserk')}, autoy.actions(gs))
+        assert.same({buff('Berserk')}, gs:action_entries())
         gs:finish_action()
         gs:gain_buff('Berserk')
         gs:advance(1.2)
-        assert.same({savage_blade}, autoy.actions(gs))
+        assert.same({savage_blade}, gs:action_entries())
     end)
 
     it('lets the next press through once the weapon skill it sent is done', function()
@@ -127,7 +127,7 @@ describe('Auto WS Buff, User-Globals.lua\'s buff before a weapon skill', functio
         gs:advance(3)
         gs:traffic()
         gs:type('/ws "Savage Blade" <t>')
-        assert.same({buff('Warcry')}, autoy.actions(gs))
+        assert.same({buff('Warcry')}, gs:action_entries())
     end)
 end)
 

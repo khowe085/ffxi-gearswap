@@ -26,8 +26,7 @@ local function boot(options)
     if options.engaged then
         gs:engage()
     end
-    gs:traffic()
-    gs.game.chat_log, gs.game.commands, gs.game.typed = {}, {}, {}
+    gs:forget()
     return gs
 end
 
@@ -38,7 +37,7 @@ end
 -- The actions the tick sent in its first moments (it starts five seconds after the file loads).
 local function first_actions(gs)
     gs:play(5.3)
-    return jobby.actions(gs)
+    return gs:actions()
 end
 
 local function engaged_worn(gs, ...)
@@ -58,7 +57,7 @@ describe('a step', function()
         it('is held back for Presto', function()
             local gs = boot({tp = 1200, engaged = true})
             gs:type('/ja "Box Step" <t>')
-            assert.same({'Presto'}, jobby.actions(gs))
+            assert.same({'Presto'}, gs:actions())
         end)
 
         it('goes out once Presto is on recast, a second later', function()
@@ -67,55 +66,55 @@ describe('a step', function()
             gs:traffic()
             gs.game:start_ability_recast('Presto', 30)
             gs:advance(1.2)
-            assert.same({'Box Step'}, jobby.actions(gs))
+            assert.same({'Box Step'}, gs:actions())
         end)
 
         it('goes out at once with the Auto Presto Mode off', function()
             local gs = boot({tp = 1200, engaged = true})
             gs:console('gs c toggle AutoPrestoMode')
             gs:type('/ja "Box Step" <t>')
-            assert.same({'Box Step'}, jobby.actions(gs))
+            assert.same({'Box Step'}, gs:actions())
         end)
 
         it('goes out at once with 99 TP', function()
             local gs = boot({tp = 99, engaged = true})
             gs:type('/ja "Box Step" <t>')
-            assert.same({'Box Step'}, jobby.actions(gs))
+            assert.same({'Box Step'}, gs:actions())
         end)
 
         it('goes out at once with three finishing moves', function()
             local gs = boot({tp = 1200, engaged = true, buffs = {'Finishing Move 3'}})
             gs:type('/ja "Box Step" <t>')
-            assert.same({'Box Step'}, jobby.actions(gs))
+            assert.same({'Box Step'}, gs:actions())
         end)
 
         it('goes out at once while Presto is on recast', function()
             local gs = boot({tp = 1200, engaged = true})
             gs.game:start_ability_recast('Presto', 30)
             gs:type('/ja "Box Step" <t>')
-            assert.same({'Box Step'}, jobby.actions(gs))
+            assert.same({'Box Step'}, gs:actions())
         end)
 
         it('is refused while the steps are on recast', function()
             local gs = boot({tp = 1200, engaged = true})
             gs.game:start_ability_recast('Quickstep', 30)
             gs:type('/ja "Box Step" <t>')
-            assert.same({}, jobby.actions(gs))
-            assert.same({'Abort: [Box Step] waiting on recast. (0:00:30)'}, jobby.chat(gs))
+            assert.same({}, gs:actions())
+            assert.same({'Abort: [Box Step] waiting on recast. (0:00:30)'}, gs:chat())
         end)
     end)
 
     it('engages the monster first when not engaged and close, as Sel\'s idle step does, then goes out', function()
         local gs = boot({tp = 1200})
         gs:type('/ja "Box Step" <t>')
-        assert.same({'category 2', 'Box Step'}, jobby.actions(gs))
+        assert.same({'category 2', 'Box Step'}, gs:actions())
     end)
 end)
 
 describe('gs c step', function()
     local function step(gs, command)
         gs:console(command or 'gs c step')
-        return jobby.actions(gs)
+        return gs:actions()
     end
 
     it('uses the main step on the target, Box Step to start with', function()
@@ -189,7 +188,7 @@ describe('a weapon skill under AutoBuffMode with the TP to spare for a step', fu
 
     local function weaponskill(gs)
         gs:type('/ws "Rudra\'s Storm" <t>')
-        return jobby.actions(gs)
+        return gs:actions()
     end
 
     it('is held back for a step with fewer than three finishing moves, and Presto goes first', function()
@@ -371,7 +370,7 @@ describe('a weapon skill by a dancer', function()
                 gs.game:start_ability_recast(name, 30)
             end
             gs:type('/ws "Rudra\'s Storm" <t>')
-            assert.same({'Rudra\'s Storm'}, jobby.actions(gs))
+            assert.same({'Rudra\'s Storm'}, gs:actions())
             gs.game.player.vitals.tp = options.tp_left or 0
             gs:finish_action()
             gs:play(7)
@@ -380,22 +379,22 @@ describe('a weapon skill by a dancer', function()
 
         it('is followed by Reverse Flourish, with three finishing moves and the TP spent', function()
             local gs = finished({buffs = {'Finishing Move 3'}})
-            assert.same({'Reverse Flourish'}, jobby.actions(gs))
+            assert.same({'Reverse Flourish'}, gs:actions())
         end)
 
         it('is followed by no Reverse Flourish with fewer than three finishing moves', function()
             local gs = finished({buffs = {'Finishing Move 2'}})
-            assert.same({}, jobby.actions(gs))
+            assert.same({}, gs:actions())
         end)
 
         it('is followed by no Reverse Flourish while it is on recast', function()
             local gs = finished({buffs = {'Finishing Move 3'}, recasts = {'Reverse Flourish'}})
-            assert.same({}, jobby.actions(gs))
+            assert.same({}, gs:actions())
         end)
 
         it('is followed by no Reverse Flourish with 999 TP left', function()
             local gs = finished({buffs = {'Finishing Move 3'}, tp_left = 999})
-            assert.same({}, jobby.actions(gs))
+            assert.same({}, gs:actions())
         end)
     end)
 
@@ -406,7 +405,7 @@ describe('a weapon skill by a dancer', function()
         gs.game.player.vitals.tp = 0
         gs:finish_action()
         gs:play(7)
-        assert.same({}, jobby.actions(gs))
+        assert.same({}, gs:actions())
     end)
 end)
 
@@ -680,67 +679,67 @@ describe('Curing Waltz by a dancer on himself', function()
         local missing, name = unpack(tier)
         it(('is %s for %d HP missing, whatever the tier asked for'):format(name, missing), function()
             local gs = waltz(missing, 1500, 'Curing Waltz V')
-            assert.same({name}, jobby.actions(gs))
-            assert.same({('Trying to cure %d HP using %s.'):format(missing, name)}, jobby.chat(gs))
+            assert.same({name}, gs:actions())
+            assert.same({('Trying to cure %d HP using %s.'):format(missing, name)}, gs:chat())
         end)
     end
 
     it('goes out as asked when it is the tier for the HP missing', function()
         local gs = waltz(400, 1500, 'Curing Waltz II')
-        assert.same({'Curing Waltz II'}, jobby.actions(gs))
-        assert.same({}, jobby.chat(gs))
+        assert.same({'Curing Waltz II'}, gs:actions())
+        assert.same({}, gs:chat())
     end)
 
     it('is Curing Waltz IV for 1100 HP missing, once Contradance is on recast', function()
         local gs = boot({tp = 1500, hp = 400})
         gs.game:start_ability_recast('Contradance', 100)
         gs:type('/ja "Curing Waltz V" <me>')
-        assert.same({'Curing Waltz IV'}, jobby.actions(gs))
+        assert.same({'Curing Waltz IV'}, gs:actions())
     end)
 
     it('is Contradance first for 1100 HP or more missing, and the waltz of the tier half a second later', function()
         local gs = waltz(1200, 1500, 'Curing Waltz V')
-        assert.same({'Contradance'}, jobby.actions(gs))
+        assert.same({'Contradance'}, gs:actions())
         gs.game:start_ability_recast('Contradance', 100)
         gs:finish_action()
         gs:play(0.4)
-        assert.same({}, jobby.actions(gs))
+        assert.same({}, gs:actions())
         gs:play(0.2)
-        assert.same({'Curing Waltz IV'}, jobby.actions(gs))
+        assert.same({'Curing Waltz IV'}, gs:actions())
     end)
 
     it('is refused for under 40 HP missing', function()
         local gs = waltz(30, 1500, 'Curing Waltz')
-        assert.same({}, jobby.actions(gs))
-        assert.same({'Abort: You have full HP!'}, jobby.chat(gs))
+        assert.same({}, gs:actions())
+        assert.same({'Abort: You have full HP!'}, gs:chat())
     end)
 
     it('is refused with under 200 TP', function()
         local gs = waltz(400, 199, 'Curing Waltz II')
-        assert.same({}, jobby.actions(gs))
-        assert.same({'Abort: Insufficient TP [199] to waltz.'}, jobby.chat(gs))
+        assert.same({}, gs:actions())
+        assert.same({'Abort: Insufficient TP [199] to waltz.'}, gs:chat())
     end)
 
     it('is downgraded to what the TP buys, with a word of it', function()
         local gs = boot({tp = 300, hp = 300})
         gs.game:start_ability_recast('Contradance', 100)
         gs:type('/ja "Curing Waltz IV" <me>')
-        assert.same({'Curing Waltz'}, jobby.actions(gs))
+        assert.same({'Curing Waltz'}, gs:actions())
         assert.same({'Insufficient TP [300]. Downgrading to Curing Waltz.', 'Trying to cure 1200 HP using Curing Waltz.'},
-            jobby.chat(gs))
+            gs:chat())
     end)
 
     it('is the one the recasts allow when the right tier is on recast', function()
         local gs = boot({tp = 1500, hp = 1100})
         gs.game:start_ability_recast('Curing Waltz II', 30)
         gs:type('/ja "Curing Waltz II" <me>')
-        assert.same({'Curing Waltz III'}, jobby.actions(gs))
+        assert.same({'Curing Waltz III'}, gs:actions())
     end)
 
     it('is left as it is for Healing Waltz', function()
         local gs = boot({tp = 1500, hp = 1450})
         gs:type('/ja "Healing Waltz" <me>')
-        assert.same({'Healing Waltz'}, jobby.actions(gs))
+        assert.same({'Healing Waltz'}, gs:actions())
     end)
 
     it('wears sets.precast.Waltz and sets.Self_Waltz', function()
@@ -758,7 +757,7 @@ describe('Curing Waltz by a dancer on himself', function()
         local gs = boot({tp = 1500, hp = 1100})
         gs:console('gs c toggle RefineWaltz')
         gs:type('/ja "Curing Waltz V" <me>')
-        assert.same({'Curing Waltz V'}, jobby.actions(gs))
+        assert.same({'Curing Waltz V'}, gs:actions())
     end)
 end)
 
@@ -774,10 +773,8 @@ describe('Curing Waltz by a dancer on a party member', function()
 
     local function targeted(gs)
         local sent = {}
-        for _, entry in ipairs(gs:traffic()) do
-            if entry.action then
-                sent[#sent + 1] = entry.action .. ' ' .. entry.target
-            end
+        for _, entry in ipairs(gs:action_entries()) do
+            sent[#sent + 1] = entry.action .. ' ' .. entry.target
         end
         return sent
     end
@@ -833,23 +830,23 @@ describe('Curing Waltz by a blue mage with the sub job Dancer', function()
         local missing, name = unpack(tier)
         it(('is %s for %d HP missing'):format(name, missing), function()
             local gs = waltz(missing, 'Curing Waltz V')
-            assert.same({name}, jobby.actions(gs))
+            assert.same({name}, gs:actions())
         end)
     end
 
     it('is refused for under 40 HP missing', function()
         local gs = waltz(30, 'Curing Waltz')
-        assert.same({}, jobby.actions(gs))
-        assert.same({'Abort: You have full HP!'}, jobby.chat(gs))
+        assert.same({}, gs:actions())
+        assert.same({'Abort: You have full HP!'}, gs:chat())
     end)
 end)
 
 describe('the display of a dancer\'s state', function()
     -- What gs c update user puts in the chat.
     local function display(gs)
-        jobby.chat(gs)
+        gs:chat()
         gs:console('gs c update user')
-        return jobby.chat(gs)
+        return gs:chat()
     end
 
     it('says the offense mode and the weapon skill mode', function()

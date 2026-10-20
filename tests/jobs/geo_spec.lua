@@ -5,7 +5,8 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
     'Gelatinous Ring', 'Wanion Belt', 'Daybreak', "Bunzi's Rod", 'Vertigo Ring', 'Dhanurveda Ring', 'Petrov Ring',
     'Gozuki Mezuki'}
 
--- Jobby as a geomancer with the idle set on. The options are those of a boot (sub_job, tp, buffs) and these besides:
+-- Jobby as a geomancer with the idle set on, who has claimed the toad, his battle target. The options are those of a
+-- boot (sub_job, tp, buffs) and these besides:
 --   mp       the MP of the 1000 he has
 --   luopan   true for a luopan out
 --   friend   true for a party member, Friend, and stranger for another player near him, Stranger, not in the party
@@ -13,6 +14,7 @@ local function boot(options)
     options = options or {}
     local gs = jobby.boot('GEO', {items = pieces, sub_job = options.sub_job or 'WHM', tp = options.tp,
         buffs = options.buffs})
+    gs.game.monster.claim_id = gs.game.player.id
     if options.mp then
         gs.game.player.vitals.mp = options.mp
         gs.game.player.vitals.mpp = math.floor(options.mp / 10)
@@ -27,8 +29,7 @@ local function boot(options)
     if options.luopan then
         gs:give_pet({name = 'Luopan', distance = options.luopan_distance})
     end
-    gs:traffic()
-    gs.game.chat_log, gs.game.commands, gs.game.typed = {}, {}, {}
+    gs:forget()
     return gs
 end
 
@@ -39,7 +40,7 @@ end
 -- The actions GearSwap sent since this was last asked, in order, each as its name and its target's.
 local function actions(gs)
     local sent = {}
-    for _, entry in ipairs(jobby.action_entries(gs)) do
+    for _, entry in ipairs(gs:action_entries()) do
         sent[#sent + 1] = entry.action .. ' ' .. entry.target
     end
     return sent
@@ -56,7 +57,7 @@ end
 local function first_typed(gs)
     gs:play(5.3)
     local typed = {}
-    for _, line in ipairs(jobby.typed(gs)) do
+    for _, line in ipairs(gs:typed()) do
         if line ~= '/lockstyle on' then
             typed[#typed + 1] = line
         end
@@ -85,7 +86,7 @@ describe('an indicolure spell', function()
         local gs = boot({buffs = {'Entrust'}})
         gs:type('/ma "Indi-Torpor" <me>')
         assert.same({}, actions(gs))
-        assert.same({"Entrust active - You can't entrust yourself."}, jobby.chat(gs))
+        assert.same({"Entrust active - You can't entrust yourself."}, gs:chat())
     end)
 
     it('wears the fast cast set, then sets.midcast.Geomancy.Indi', function()
@@ -116,8 +117,8 @@ describe('an indicolure spell on a party member', function()
             options.friend = true
             local gs = boot(options)
             gs:console('gs c toggle AutoEntrust')
-            jobby.chat(gs)
-            jobby.commands(gs)
+            gs:chat()
+            gs:commands()
             return gs
         end
 
@@ -128,7 +129,7 @@ describe('an indicolure spell on a party member', function()
             gs:finish_action()
             gs:gain_buff('Entrust')
             gs:advance(1.2)
-            assert.same({'input /ja "Entrust" <me>', 'input /ma "Indi-Fury" Friend'}, jobby.commands(gs))
+            assert.same({'input /ja "Entrust" <me>', 'input /ma "Indi-Fury" Friend'}, gs:commands())
             assert.same({'Indi-Fury Friend'}, actions(gs))
         end)
 
@@ -137,7 +138,7 @@ describe('an indicolure spell on a party member', function()
             gs.game:start_ability_recast('Entrust', 60)
             gs:type('/ma "Indi-Fury" Friend')
             assert.same({}, actions(gs))
-            assert.same({'Abort: [Entrust] waiting on recast. (0:01:00)'}, jobby.chat(gs))
+            assert.same({'Abort: [Entrust] waiting on recast. (0:01:00)'}, gs:chat())
         end)
 
         it('is refused while the spell is on recast, saying so', function()
@@ -145,7 +146,7 @@ describe('an indicolure spell on a party member', function()
             gs.game:start_spell_recast('Indi-Fury', 10)
             gs:type('/ma "Indi-Fury" Friend')
             assert.same({}, actions(gs))
-            assert.same({'Abort: [Indi-Fury] waiting on recast. (0:00:10)'}, jobby.chat(gs))
+            assert.same({'Abort: [Indi-Fury] waiting on recast. (0:00:10)'}, gs:chat())
         end)
 
         it('is cast on the caster, as it is for a spell aimed at himself, when no party member is aimed at', function()
@@ -297,11 +298,11 @@ describe('Blaze of Glory and Ecliptic Attrition under Bolster', function()
         local gs = boot({buffs = {'Bolster'}})
         gs:type('/ja "Blaze of Glory" <me>')
         assert.same({}, actions(gs))
-        assert.same({'Abort: Bolster maxes the strength of bubbles.'}, jobby.chat(gs))
+        assert.same({'Abort: Bolster maxes the strength of bubbles.'}, gs:chat())
         gs:advance(3)
         gs:type('/ja "Ecliptic Attrition" <me>')
         assert.same({}, actions(gs))
-        assert.same({'Abort: Bolster maxes the strength of bubbles.'}, jobby.chat(gs))
+        assert.same({'Abort: Bolster maxes the strength of bubbles.'}, gs:chat())
     end)
 
     it('are used without it', function()
@@ -375,16 +376,16 @@ describe('the indicolure out', function()
         gs:set_indi({element = 1, size = 1})
         gs:finish_action()
         assert.same({'timers d "Jobby: "', 'timers c "Jobby: Indi-Torpor" 180 down spells/00136.png'},
-            jobby.commands(gs))
+            gs:commands())
     end)
 
     it('starts no timer with the custom timers state off', function()
         local gs = boot()
         gs:console('gs c toggle UseCustomTimers')
-        jobby.commands(gs)
+        gs:commands()
         gs:type('/ma "Indi-Torpor" <me>')
         gs:finish_action()
-        assert.same({}, jobby.commands(gs))
+        assert.same({}, gs:commands())
     end)
 end)
 
@@ -394,14 +395,14 @@ describe('a geomancer\'s Sleep timers', function()
         if options and options.timers_off then
             gs:console('gs c toggle UseCustomTimers')
         end
-        jobby.commands(gs)
+        gs:commands()
         gs:type('/ma "' .. name .. '" <t>')
         if options and options.interrupted then
             gs:interrupt_action()
         else
             gs:finish_action()
         end
-        return jobby.commands(gs)
+        return gs:commands()
     end
 
     it('starts a 60 second timer on the target when Sleep lands', function()
@@ -588,7 +589,7 @@ describe('gs c geo', function()
     it('says the subcommands when it is given none', function()
         local gs = boot()
         assert.same({}, geo(gs, 'geo'))
-        assert.same({'The geo subcommands are: Geo, Indi, Entrust'}, jobby.chat(gs))
+        assert.same({'The geo subcommands are: Geo, Indi, Entrust'}, gs:chat())
     end)
 
     it('casts the automatic Geo spell on the battle target with geo geo', function()
@@ -606,7 +607,7 @@ describe('gs c geo', function()
         gs:console('gs c geo entrust')
         gs:advance(1.2)
         assert.same({'gs c geo entrust', 'input /ja "Entrust" <me>', 'input /ma "Indi-Fury" <p1>'},
-            jobby.commands(gs))
+            gs:commands())
         assert.same({'Entrust Jobby'}, actions(gs))
     end)
 
@@ -615,7 +616,7 @@ describe('gs c geo', function()
         gs:console('gs c geo entrust Someone')
         gs:advance(1.2)
         assert.same({'gs c geo entrust Someone', 'input /ja "Entrust" <me>', 'input /ma "Indi-Fury" Someone'},
-            jobby.commands(gs))
+            gs:commands())
     end)
 
     pending('casts the automatic Indi spell with geo indi while Entrust is up: that branch of job_self_command in '
@@ -629,7 +630,7 @@ describe('the automatic spells a geomancer names', function()
         gs:console('gs c autogeo')
         gs:console('gs c autoentrust')
         assert.same({'Your Auto Indi- spell is set to Torpor.', 'Your Auto Geo- spell is set to Frailty.',
-            'Your Auto Entrust Indi- spell is set to Fury.'}, jobby.chat(gs))
+            'Your Auto Entrust Indi- spell is set to Fury.'}, gs:chat())
     end)
 
     it('are changed by naming another, with its first letter capitalized', function()
@@ -638,7 +639,7 @@ describe('the automatic spells a geomancer names', function()
         gs:console('gs c autogeo torpor')
         gs:console('gs c autoentrust haste')
         assert.same({'Your Auto Indi- spell is set to Fury.', 'Your Auto Geo- spell is set to Torpor.',
-            'Your Auto Entrust Indi- spell is set to Haste.'}, jobby.chat(gs))
+            'Your Auto Entrust Indi- spell is set to Haste.'}, gs:chat())
         assert.equal('Fury', gs.user.autoindi)
         assert.equal('Torpor', gs.user.autogeo)
         assert.equal('Haste', gs.user.autoentrust)
@@ -659,7 +660,7 @@ describe('the automatic spells a geomancer names', function()
     it('include the entrustee, <p1> by default, set by name', function()
         local gs = boot()
         gs:console('gs c trustee someone')
-        assert.same({'Your Auto Entrustee target is set to Someone.'}, jobby.chat(gs))
+        assert.same({'Your Auto Entrustee target is set to Someone.'}, gs:chat())
         assert.equal('Someone', gs.user.autoentrustee)
     end)
 
@@ -667,14 +668,14 @@ describe('the automatic spells a geomancer names', function()
         local gs = boot()
         gs.game:target(gs.game:add_party_member({name = 'Friend'}).index)
         gs:console('gs c trustee')
-        assert.same({'Your Auto Entrustee target is set to Friend.'}, jobby.chat(gs))
+        assert.same({'Your Auto Entrustee target is set to Friend.'}, gs:chat())
         assert.equal('Friend', gs.user.autoentrustee)
     end)
 
     it('take <p1> for the entrustee when the target is not in the party', function()
         local gs = boot()
         gs:console('gs c trustee')
-        assert.same({'Your Auto Entrustee target is set to <p1>.'}, jobby.chat(gs))
+        assert.same({'Your Auto Entrustee target is set to <p1>.'}, gs:chat())
     end)
 end)
 
@@ -703,7 +704,7 @@ describe('gs c elemental on a geomancer\'s nukes', function()
     it('says so when nothing is ready and affordable', function()
         local gs = boot({mp = 3})
         assert.same({}, nuke(gs))
-        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, jobby.chat(gs))
+        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, gs:chat())
     end)
 
     it('casts Fire II for a small nuke', function()
@@ -724,9 +725,9 @@ describe('gs c elemental on a geomancer\'s nukes', function()
         gs.game:start_spell_recast('Banish II', 100)
         gs.game:start_spell_recast('Banish', 100)
         gs:traffic()
-        jobby.chat(gs)
+        gs:chat()
         assert.same({}, nuke(gs))
-        assert.same({'Abort: Banishes on cooldown or not enough MP.'}, jobby.chat(gs))
+        assert.same({'Abort: Banishes on cooldown or not enough MP.'}, gs:chat())
     end)
 end)
 
@@ -770,9 +771,9 @@ describe('the tick of a geomancer', function()
         gs.user.last_indi = 'Torpor'
         gs.user.in_combat = true
         assert.same({'Entrust Jobby'}, first_actions(gs))
-        jobby.commands(gs)
+        gs:commands()
         gs:advance(1.2)
-        assert.same({'input /ma "Indi-Fury" <p1>'}, jobby.commands(gs))
+        assert.same({'input /ma "Indi-Fury" <p1>'}, gs:commands())
     end)
 
     it('uses no Entrust out of combat with the combat only state on', function()

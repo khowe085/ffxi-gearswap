@@ -2,7 +2,7 @@ local plain = require('plain')
 
 local function boot()
     local gs = plain.boot('Testy_Functions.lua')
-    gs.game.chat_log = {}
+    gs:chat()
     return gs
 end
 
@@ -10,7 +10,7 @@ local function command(gs, text)
     gs:console('gs c ' .. text)
 end
 
-local chat, texts, error_of = plain.chat, plain.texts, plain.error_of
+local error_of = plain.error_of
 
 describe('equip', function()
     it('puts on the set it is given', function()
@@ -136,7 +136,7 @@ describe('print_set', function()
             {color = 1, text = '------------------------- title -------------------------'},
             {color = 8, text = 'head Nyame Helm'},
             {color = 1, text = '----------------------------------------------------------------'},
-        }, chat(gs))
+        }, gs:chat_lines())
     end)
 
     it('prints a set with no title between plain dashes', function()
@@ -146,26 +146,26 @@ describe('print_set', function()
             '----------------------------------------------------------------',
             'head Nyame Helm',
             '----------------------------------------------------------------',
-        }, texts(chat(gs)))
+        }, gs:chat())
     end)
 
     it('prints a list in the order it has', function()
         local gs = boot()
         command(gs, 'print_list')
-        local lines = texts(chat(gs))
+        local lines = gs:chat()
         assert.same({'1 Nyame Helm', '2 Nyame Mail'}, {lines[2], lines[3]})
     end)
 
     it('prints an empty set as one line that says so', function()
         local gs = boot()
         command(gs, 'print_empty title')
-        assert.same({'------------------title -- Empty Table -----------------'}, texts(chat(gs)))
+        assert.same({'------------------title -- Empty Table -----------------'}, gs:chat())
     end)
 
     it('prints an empty set with no title as one line that says so', function()
         local gs = boot()
         command(gs, 'print_empty')
-        assert.same({'-------------------------- Empty Table -------------------------'}, texts(chat(gs)))
+        assert.same({'-------------------------- Empty Table -------------------------'}, gs:chat())
     end)
 
     it('prints the slots in their order, an advanced piece as its name marked, and the rest after', function()
@@ -177,7 +177,7 @@ describe('print_set', function()
             'body Nyame Mail (Adv.)',
             'notes a note',
             '----------------------------------------------------------------',
-        }, texts(chat(gs)))
+        }, gs:chat())
     end)
 
     it('of nothing is an error that names the title', function()
@@ -195,13 +195,13 @@ describe('add_to_chat', function()
     it('puts a line in the chat in the color it is given', function()
         local gs = boot()
         command(gs, 'chat_number 122 hello')
-        assert.same({{color = 122, text = 'hello'}}, chat(gs))
+        assert.same({{color = 122, text = 'hello'}}, gs:chat_lines())
     end)
 
     it('puts a line in the chat in the usual color when it is given only the line', function()
         local gs = boot()
         command(gs, 'chat hello')
-        assert.same({{color = 8, text = 'hello'}}, chat(gs))
+        assert.same({{color = 8, text = 'hello'}}, gs:chat_lines())
     end)
 end)
 
@@ -360,19 +360,19 @@ describe('show_swaps and debug_mode', function()
     it('shown swaps are printed in the chat under the event that made them', function()
         local gs = boot()
         command(gs, 'show_swaps on')
-        gs.game.chat_log = {}
+        gs:chat()
         command(gs, 'equip_hat')
         assert.same({
             '------------------------- self_command -------------------------',
             'head Bunzi\'s Hat',
             '----------------------------------------------------------------',
-        }, texts(chat(gs)))
+        }, gs:chat())
     end)
 
     it('swaps are not printed when they are not shown', function()
         local gs = boot()
         command(gs, 'equip_hat')
-        assert.same({}, chat(gs))
+        assert.same({}, gs:chat_lines())
     end)
 
     it('show_swaps with something that is not a boolean is an error', function()
@@ -393,18 +393,18 @@ describe('show_swaps and debug_mode', function()
     it('debug mode says in the chat why an action was left to the game', function()
         local gs = plain.boot('Testy_Functions.lua', {spells = {'Cure IV'}})
         command(gs, 'debug_mode')
-        gs.game.chat_log = {}
+        gs:chat()
         gs:type('/ma "Cure III" <me>')
         assert.same({
             'GearSwap (Debug Mode): Unable to execute command. You do not know that spell (Cure III)',
             'GearSwap (Debug Mode): Entering filtered_action',
-        }, texts(chat(gs)))
+        }, gs:chat())
     end)
 
     it('says nothing of that when debug mode is off', function()
         local gs = plain.boot('Testy_Functions.lua', {spells = {'Cure IV'}})
         gs:type('/ma "Cure III" <me>')
-        assert.same({}, chat(gs))
+        assert.same({}, gs:chat_lines())
     end)
 
     it('debug_mode with something that is not a boolean is an error', function()
@@ -613,10 +613,10 @@ describe('text boxes and primitives a user file makes', function()
             local gs = boot()
             gs.user.windower[kind].create('box')
             assert.is_true(gs.env.__raw[kind].registry.box)
-            assert.same({}, chat(gs))
+            assert.same({}, gs:chat_lines())
             gs.user.windower[kind].create('box')
             assert.same({'GearSwap: ' .. (kind == 'text' and 'Text object' or 'Primitive')
-                .. ' cannot be created because it already exists.'}, texts(chat(gs)))
+                .. ' cannot be created because it already exists.'}, gs:chat())
         end)
 
         it('a ' .. kind .. ' can be made again once it is deleted', function()
@@ -625,7 +625,7 @@ describe('text boxes and primitives a user file makes', function()
             gs.user.windower[kind].delete('box')
             assert.is_nil(gs.env.__raw[kind].registry.box)
             gs.user.windower[kind].create('box')
-            assert.same({}, chat(gs))
+            assert.same({}, gs:chat_lines())
         end)
 
         it('a ' .. kind .. ' GearSwap has no record of is deleted all the same', function()

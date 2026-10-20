@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------------------------------------------
 -- Jobby, the made-up character the tests of the job files in data/ play (tests/jobs): the boot options for each job,
--- over the fixture gear file tests/fixture/data/Jobby/Jobby_<Job>_Gear.lua that job loads, the sets as they are worn,
--- and a look at what the job file sent, typed, ran and said.
+-- over the fixture gear file tests/fixture/data/Jobby/Jobby_<Job>_Gear.lua that job loads, and the sets as they are
+-- worn.
 -------------------------------------------------------------------------------------------------------------------
 
 local harness = require('harness')
@@ -33,30 +33,19 @@ local slots = {main = true, sub = true, range = true, ammo = true, head = true, 
     right_ear = true, body = true, hands = true, left_ring = true, right_ring = true, back = true, waist = true,
     legs = true, feet = true}
 
--- GearSwap's names for the slots of a set, by the game's: a set can say ear1 or left_ear, and set_combine says
--- the second.
-local game_slots = {ear1 = 'left_ear', ear2 = 'right_ear', ring1 = 'left_ring', ring2 = 'right_ring', ranged = 'range',
-    lear = 'left_ear', rear = 'right_ear', lring = 'left_ring', rring = 'right_ring'}
-
 -- The sets laid one over another, as the pieces they hold by the game's slot names: only the slots, since a set a
 -- gear file builds can hold the sets under it too.
 function jobby.layer(...)
     local merged = {}
     for _, set in ipairs({...}) do
         for slot, item in pairs(set) do
-            slot = game_slots[slot] or slot
+            slot = testy.game_slots[slot] or slot
             if slots[slot] then
                 merged[slot] = item
             end
         end
     end
     return merged
-end
-
--- Forgets what was sent, typed, run and said so far.
-local function forget(gs)
-    gs:traffic()
-    gs.game.commands, gs.game.typed, gs.game.chat_log = {}, {}, {}
 end
 
 -- Boots Jobby as that job, with the pieces of the idle sets and the items given in the inventory and every gear file's
@@ -81,15 +70,15 @@ function jobby.boot(job, options)
     boot.wearing = testy.worn_by(jobby.idle, (options or {}).wearing)
     local gs = harness.boot(boot)
     gs:console('gs c update')
-    forget(gs)
+    gs:forget()
     return gs
 end
 
--- As boot, and past the five seconds Sel waits after loading before its tick acts, with nothing sent since.
+-- As boot, and past the seconds Sel waits after loading before its tick acts, with nothing sent since.
 function jobby.boot_ticking(job, options)
     local gs = jobby.boot(job, options)
-    gs:play(6)
-    forget(gs)
+    gs:play(harness.sel_load_time + 1)
+    gs:forget()
     return gs
 end
 
@@ -111,72 +100,6 @@ function jobby.can_dual_wield(gs)
     gs.user.set_dual_wield()
     gs.game:settle()
     gs:traffic()
-end
-
--- Plays the game on until the addon sends an action, and returns everything it sent as Session:traffic gives it; nil
--- when no action goes out in that many seconds (6 unless given, the time a spell and its aftercast hold Sel's tick).
-function jobby.until_action(gs, seconds)
-    for _ = 1, math.floor((seconds or 6) * 10 + 0.5) do
-        gs:play(0.1)
-        local traffic = gs:traffic()
-        for _, entry in ipairs(traffic) do
-            if entry.action then
-                return traffic
-            end
-        end
-    end
-end
-
--- The names of the actions in what Session:traffic gave, in order.
-function jobby.action_names(traffic)
-    local names = {}
-    for _, entry in ipairs(traffic or {}) do
-        if entry.action then
-            names[#names + 1] = entry.action
-        end
-    end
-    return names
-end
-
--- The names of the actions GearSwap sent since this was last asked, in order.
-function jobby.actions(gs)
-    return jobby.action_names(gs:traffic())
-end
-
--- The actions GearSwap sent since this was last asked, in order, as {action = name, target = name}.
-function jobby.action_entries(gs)
-    local entries = {}
-    for _, entry in ipairs(gs:traffic()) do
-        if entry.action then
-            entries[#entries + 1] = entry
-        end
-    end
-    return entries
-end
-
--- The lines typed into the chat since this was last asked that GearSwap let through to the game as they were.
-function jobby.typed(gs)
-    local lines = gs.game.typed
-    gs.game.typed = {}
-    return lines
-end
-
--- The text of what the addon put in the chat log since this was last asked, without the color codes it wraps its
--- messages in.
-function jobby.chat(gs)
-    local lines = {}
-    for _, entry in ipairs(gs.game.chat_log) do
-        lines[#lines + 1] = (entry.text:gsub('^\31.', ''):gsub('\30\1$', ''))
-    end
-    gs.game.chat_log = {}
-    return lines
-end
-
--- The console commands run since this was last asked, as the game recorded them.
-function jobby.commands(gs)
-    local commands = gs.game.commands
-    gs.game.commands = {}
-    return commands
 end
 
 return jobby

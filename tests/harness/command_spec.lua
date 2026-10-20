@@ -2,20 +2,12 @@ local Game = require('game')
 local harness = require('harness')
 local testy = require('testy')
 
-local function actions(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        names[#names + 1] = entry.action
-    end
-    return names
-end
-
 describe('the stand-in game\'s commands', function()
     it('run an input command as the line typed', function()
         local gs = harness.boot(testy.whm())
         gs:traffic()
         gs:console('input /ma "Cure III" <me>')
-        assert.same({'Cure III'}, actions(gs))
+        assert.same({'Cure III'}, gs:actions())
     end)
 
     it('run with any number of @ before them, as GearSwap\'s send_command, which adds one, sends Sel\'s @input', function()

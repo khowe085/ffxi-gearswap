@@ -3,8 +3,6 @@ local lfs = require('lfs')
 local plain = require('plain')
 local testy = require('testy')
 
-local chat, texts = plain.chat, plain.texts
-
 local cape_augments = {'MND+20', 'Enmity+10'}
 
 -- Testy as a white mage with the augmented cape on in place of the plain one.
@@ -19,7 +17,7 @@ local function boot(overrides)
         options[key] = value
     end
     local gs = plain.boot('Testy_WHM.lua', options)
-    chat(gs)
+    gs:chat_lines()
     return gs
 end
 
@@ -43,7 +41,7 @@ end
 
 local function export(gs, options)
     gs:console('gs export ' .. options)
-    return texts(chat(gs))
+    return gs:chat()
 end
 
 local worn_lines = {
@@ -389,7 +387,7 @@ describe('gs export of the sets', function()
             items = {{name = 'Nyame Helm'}},
         })
         gs:change_main_job('MON')
-        chat(gs)
+        gs:chat_lines()
         assert.same({'GearSwap: Cannot export the sets table of the current file because there is no file loaded.'},
             export(gs, 'sets'))
     end)

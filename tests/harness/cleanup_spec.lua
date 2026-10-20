@@ -1,20 +1,8 @@
 local lfs = require('lfs')
 
-local function temp_folder()
-    math.randomseed(os.time() + math.floor(os.clock() * 1000000))
-    local base = (os.getenv('TMPDIR') or '/tmp'):gsub('/+$', '')
-    for _ = 1, 100 do
-        local path = ('%s/gearswap-cleanup-%08x'):format(base, math.random(0, 0x7FFFFFFF))
-        if lfs.mkdir(path) then
-            return path
-        end
-    end
-    error('could not make a temp folder in ' .. base)
-end
-
 describe('the copy of a Windower install a run makes', function()
     it('is removed as busted exits, by the helper .busted names', function()
-        local temp = temp_folder()
+        local temp = require('harness').temp_folder('cleanup')
         local spec = temp .. '/boots_spec.lua'
         local file = assert(io.open(spec, 'w'))
         file:write("print('made ' .. require('harness').tree().root)\nit('runs', function() end)\n")

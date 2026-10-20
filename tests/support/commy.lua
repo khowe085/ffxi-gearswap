@@ -40,11 +40,11 @@ local function boot(options, before_update)
     end
     gs:console('gs c update')
     gs:traffic()
-    commy.chat(gs)
+    gs:chat()
     return gs
 end
 
--- The idle set of data/Commy/Commy_Rdm_Gear.lua.
+-- The idle set of tests/fixture/data/Commy/Commy_Rdm_Gear.lua.
 commy.rdm_idle = {main = 'Daybreak', sub = 'Ammurapi Shield', ammo = 'Staunch Tathlum +1', head = 'Nyame Helm',
     body = 'Nyame Mail', hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard', feet = 'Nyame Sollerets',
     neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt', ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring',
@@ -74,7 +74,7 @@ function commy.boot_rdm(overrides)
     return boot(commy.rdm(overrides))
 end
 
--- The idle set of data/Commy/Commy_War_Gear.lua.
+-- The idle set of tests/fixture/data/Commy/Commy_War_Gear.lua.
 commy.war_idle = {head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard',
     feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt', ear1 = 'Etiolation Earring',
     ear2 = 'Loquac. Earring', ring1 = 'Defending Ring', ring2 = 'Stikini Ring +1'}
@@ -100,7 +100,7 @@ function commy.boot_war(overrides)
     end)
 end
 
--- The idle set of data/Commy/Commy_Thf_Gear.lua.
+-- The idle set of tests/fixture/data/Commy/Commy_Thf_Gear.lua.
 commy.thf_idle = {head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard',
     feet = 'Nyame Sollerets', waist = 'Plat. Mog. Belt'}
 
@@ -114,58 +114,6 @@ local thf_items = {
 function commy.boot_thf(overrides)
     return boot(options_for({character = 'Commy', main_job = 'THF', sub_job = 'WAR', tp = 1000,
         expect_file = 'THF.lua'}, thf_items, overrides))
-end
-
--- The lines put in the chat log since this was last asked of the session, without the codes GearSwap's
--- add_to_chat colours them with.
-function commy.chat(gs)
-    local log = gs.game.chat_log
-    local lines = {}
-    for i = (gs.commy_chat_seen or 0) + 1, #log do
-        lines[#lines + 1] = (log[i].text:gsub('^\31.', ''):gsub('\30\1$', ''))
-    end
-    gs.commy_chat_seen = #log
-    return lines
-end
-
--- What GearSwap printed since this was last asked of the session.
-function commy.printed(gs)
-    local printed = gs.env.printed
-    local lines = {}
-    for i = (gs.commy_printed_seen or 0) + 1, #printed do
-        lines[#lines + 1] = printed[i]
-    end
-    gs.commy_printed_seen = #printed
-    return lines
-end
-
--- The id of the entry with that English name in a test resource (spells, monster_abilities and the like).
-local function resource_id(resource, name)
-    for id, entry in pairs(require('harness').resources()[resource]) do
-        if type(entry) == 'table' and entry.en == name then
-            return id
-        end
-    end
-    error(('the test resources have no %s named %q'):format(resource, name), 3)
-end
-
--- An action of the monster's at a target, Commy unless given, as the action packet the server sends of it:
--- category 1 a melee hit, 7 a TP move readied and 11 one used, 8 a spell begun and 4 one cast. name is the move or
--- spell, by its English name.
-function commy.monster_acts(gs, category, name, target_id)
-    local resource = (category == 7 or category == 11) and 'monster_abilities'
-        or (category == 4 or category == 8) and 'spells'
-    local id = resource and resource_id(resource, name) or 0
-    -- The packet that begins an action names it in its target's action, with 24931 as its own param.
-    local begins = category == 7 or category == 8
-    gs:run(function()
-        gs.game:send_action_packet({
-            actor_id = gs.game.monster.id, category = category, param = begins and 24931 or id,
-            targets = {{id = target_id or gs.game.player.id, actions = {{message = category == 1 and 1 or 0,
-                param = begins and id or 100, reaction = 0, animation = 0, effect = 0, stagger = 0}}}},
-        })
-        gs.game:settle()
-    end)
 end
 
 -- A melee hit of Commy's on the monster, as the action packet the server sends of it.
