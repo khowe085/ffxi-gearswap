@@ -105,6 +105,14 @@ function jobby.target_a_player(gs, fields)
     return pal
 end
 
+-- Jobby has the Dual Wield trait from now on, as Sel finds out when it looks, with nothing sent since.
+function jobby.can_dual_wield(gs)
+    gs.game:set_job_traits({'Dual Wield'})
+    gs.user.set_dual_wield()
+    gs.game:settle()
+    gs:traffic()
+end
+
 -- Plays the game on until the addon sends an action, and returns everything it sent as Session:traffic gives it; nil
 -- when no action goes out in that many seconds (6 unless given, the time a spell and its aftercast hold Sel's tick).
 function jobby.until_action(gs, seconds)

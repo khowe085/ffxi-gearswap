@@ -1,6 +1,5 @@
 -- A small Sel gear file for the tests of data/RNG.lua. Each set wears pieces that tell it apart from the others, from
--- the gear the tests give Jobby, and names the slots of its own so that whichever set was on before, the one chosen
--- shows whole.
+-- the gear the tests give Jobby, so that what is worn shows which sets were laid over which.
 
 function user_job_setup()
 	state.OffenseMode:options('Normal')
@@ -8,6 +7,8 @@ function user_job_setup()
 	state.WeaponskillMode:options('Match', 'Normal', 'Acc')
 	state.IdleMode:options('Normal')
 	state.Weapons:options('None', 'Bow', 'Gun', 'Crossbow')
+
+	DefaultAmmo.Gun.MagicAcc = 'Eminent Bullet'
 end
 
 function init_gear_sets()

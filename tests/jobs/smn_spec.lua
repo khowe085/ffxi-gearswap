@@ -1,55 +1,28 @@
-local harness = require('harness')
-local testy = require('testy')
+local jobby = require('jobby')
 
-local idle = {main = "Judge's Sword", head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets',
-    legs = 'Nyame Flanchard', feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt',
-    ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring', ring1 = 'Defending Ring', ring2 = 'Stikini Ring +1',
-    back = 'Mecisto. Mantle'}
+local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Volte Cap',
+    'Sapphire Platemail', 'Jadeite Cuirie', 'Diamond Haramaki', 'Ruby Robe', 'Volte Jupon', 'Sapphire Gauntlets',
+    'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers', 'Jadeite Chausses', 'Diamond Hiza.', 'Volte Hose',
+    'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Sune-Ate', 'Volte Boots', "Orunmila's Torque", 'Phrenic Torque',
+    'Aptitude Mantle', 'Null Shawl', 'Prosilio Belt', "Tyrant's Ring", 'Ishvara Earring', 'Brutal Earring'}
 
-local pieces = {"Judge's Sword", 'Nyame Helm', 'Nyame Mail', 'Nyame Gauntlets', 'Nyame Flanchard', 'Nyame Sollerets',
-    'Loricate Torque +1', 'Plat. Mog. Belt', 'Etiolation Earring', 'Loquac. Earring', 'Defending Ring',
-    'Stikini Ring +1', 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Sapphire Platemail',
-    'Jadeite Cuirie', 'Diamond Haramaki', 'Ruby Robe', 'Sapphire Gauntlets', 'Jadeite Gloves', 'Diamond Kote',
-    'Sapphire Trousers', 'Jadeite Chausses', 'Diamond Hiza.', 'Sapphire Leggings', 'Jadeite Jambeaux',
-    'Diamond Sune-Ate', "Orunmila's Torque", 'Phrenic Torque', 'Aptitude Mantle', 'Prosilio Belt',
-    "Tyrant's Ring", 'Ishvara Earring', 'Brutal Earring'}
+-- What the idle set of Jobby's summoner gear file wears besides every gear file's.
+local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
+
+local idle = jobby.worn_by(own_idle)
 
 -- What is worn with these changes over the idle set.
 local function worn(changes)
-    return testy.worn_by(idle, changes)
+    return jobby.worn_by(changes, idle)
 end
 
--- Jobby as a summoner with the idle set on, over a sub job of RDM unless told otherwise.
-local function boot(overrides)
-    local items = {}
-    for i, name in ipairs(pieces) do
-        items[i] = {name = name}
-    end
-    local options = {character = 'Jobby', main_job = 'SMN', sub_job = 'RDM', expect_file = 'SMN.lua', items = items,
-        wearing = testy.worn_by(idle)}
-    for k, v in pairs(overrides or {}) do
-        options[k] = v
-    end
-    local gs = harness.boot(options)
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
-end
-
--- The names of the actions among what GearSwap sent.
-local function actions(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        if entry.action then
-            names[#names + 1] = entry.action
-        end
-    end
-    return names
-end
-
--- What the pact is, as it is typed.
-local function typed(gs)
-    return table.concat(gs.game.typed, '|')
+-- Jobby as a summoner with the idle set on, over a sub job of RDM unless the options (jobby.boot's) say otherwise.
+local function boot(options)
+    options = options or {}
+    options.items = gear
+    options.wearing = own_idle
+    options.sub_job = options.sub_job or 'RDM'
+    return jobby.boot('SMN', options)
 end
 
 describe('data/SMN.lua', function()
@@ -69,48 +42,49 @@ describe('SMN\'s summoning', function()
 
     it('goes out when no avatar is out', function()
         gs:type('/ma "Ifrit" <me>')
-        assert.same({'Ifrit'}, actions(gs))
+        assert.same({'Ifrit'}, jobby.actions(gs))
     end)
 
     it('is turned down for the avatar that is out, while it has more than 50% HP', function()
         gs:give_pet({name = 'Ifrit', hpp = 51})
         gs:traffic()
+        jobby.chat(gs)
         assert.is_true(gs:type('/ma "Ifrit" <me>'))
-        assert.same({}, actions(gs))
-        assert.is_truthy(gs:log():find('You already have that avatar active!', 1, true))
+        assert.same({}, jobby.actions(gs))
+        assert.same({'You already have that avatar active!'}, jobby.chat(gs))
     end)
 
     it('releases the avatar that is out first when it has 50% HP or less, and summons it again', function()
         gs:give_pet({name = 'Ifrit', hpp = 50})
         gs:traffic()
         gs:type('/ma "Ifrit" <me>')
-        assert.same({'Release'}, actions(gs))
+        assert.same({'Release'}, jobby.actions(gs))
         gs:take_pet()
         gs:traffic()
         gs:advance(2)
-        assert.same({'Ifrit'}, actions(gs))
+        assert.same({'Ifrit'}, jobby.actions(gs))
     end)
 
     it('releases the avatar that is out first for another avatar, and summons that', function()
         gs:give_pet({name = 'Ifrit'})
         gs:traffic()
         gs:type('/ma "Garuda" <me>')
-        assert.same({'Release'}, actions(gs))
+        assert.same({'Release'}, jobby.actions(gs))
         gs:take_pet()
         gs:traffic()
         gs:advance(2)
-        assert.same({'Garuda'}, actions(gs))
+        assert.same({'Garuda'}, jobby.actions(gs))
     end)
 
     it('goes out for a spirit with an avatar out, which only another avatar waits on', function()
         gs:give_pet({name = 'Ifrit'})
         gs:traffic()
         gs:type('/ma "Fire Spirit" <me>')
-        assert.same({'Fire Spirit'}, actions(gs))
+        assert.same({'Fire Spirit'}, jobby.actions(gs))
     end)
 end)
 
-describe('SMN\'s summoning with Astral Conduit up and not enough MP for a pact', function()
+describe('SMN\'s blood pact with Astral Conduit up and not enough MP for it twice over', function()
     local gs
     before_each(function()
         gs = boot()
@@ -118,42 +92,46 @@ describe('SMN\'s summoning with Astral Conduit up and not enough MP for a pact',
         gs:gain_buff('Astral Conduit')
         gs.game.player.vitals.mp = 300
         gs:traffic()
+        jobby.chat(gs)
     end)
 
-    it('is Myrkr with the TP for it, which is said', function()
+    it('goes out, and Myrkr after it with the TP for Myrkr, which is said', function()
         gs.game.player.vitals.tp = 1000
         gs:type('/pet "Flaming Crush" <t>')
-        assert.is_truthy(gs:log():find('Not enough MP to Pact while using Conduit, using Myrkr!', 1, true))
+        assert.same({'Not enough MP to Pact while using Conduit, using Myrkr!'}, jobby.chat(gs))
+        assert.same({'Flaming Crush'}, jobby.actions(gs))
+        assert.same({'Myrkr'}, jobby.action_names(jobby.until_action(gs)))
     end)
 
-    it('is not Myrkr with less than 1000 TP', function()
+    it('is Convert, not Myrkr, with less than 1000 TP', function()
         gs.game.player.vitals.tp = 999
         gs:type('/pet "Flaming Crush" <t>')
-        assert.is_nil(gs:log():find('using Myrkr', 1, true))
+        assert.same({'Not enough MP to Pact while using Conduit, Converting!'}, jobby.chat(gs))
+        assert.same({'Convert'}, jobby.actions(gs))
     end)
 
     it('is Convert with a sub job of RDM and Convert ready', function()
         gs:type('/pet "Flaming Crush" <t>')
-        assert.is_truthy(gs:log():find('Not enough MP to Pact while using Conduit, Converting!', 1, true))
-        assert.same({'Convert'}, actions(gs))
+        assert.same({'Not enough MP to Pact while using Conduit, Converting!'}, jobby.chat(gs))
+        assert.same({'Convert'}, jobby.actions(gs))
     end)
 
     it('is Convert only with AutoConvert on', function()
         gs:console('gs c toggle AutoConvert')
         gs:type('/pet "Flaming Crush" <t>')
-        assert.same({'Flaming Crush'}, actions(gs))
+        assert.same({'Flaming Crush'}, jobby.actions(gs))
     end)
 
     it('is the pact itself when Convert is on recast', function()
         gs.game:start_ability_recast('Convert', 60)
         gs:type('/pet "Flaming Crush" <t>')
-        assert.same({'Flaming Crush'}, actions(gs))
+        assert.same({'Flaming Crush'}, jobby.actions(gs))
     end)
 
     it('is the pact itself when there is MP for it twice over', function()
         gs.game.player.vitals.mp = 329
         gs:type('/pet "Flaming Crush" <t>')
-        assert.same({'Flaming Crush'}, actions(gs))
+        assert.same({'Flaming Crush'}, jobby.actions(gs))
     end)
 end)
 
@@ -192,7 +170,7 @@ describe('SMN\'s blood pacts, once the pact is done', function()
     end)
 
     it('wear the physical pact set of the map and of the avatar, when the pact has no set of its own', function()
-        assert.same(with_ifrit({body = 'Sapphire Platemail', legs = 'Sapphire Trousers'}),
+        assert.same(with_ifrit({body = 'Sapphire Platemail', legs = 'Volte Hose'}),
             pact('/pet "Poison Nails" <t>'))
     end)
 
@@ -216,7 +194,7 @@ describe('SMN\'s blood pacts, once the pact is done', function()
 
     it('wear the AM set of the map with Aftermath level 3, when the pact has no AM set of its own', function()
         gs:gain_buff('Aftermath: Lv.3')
-        assert.same(with_ifrit({body = 'Sapphire Platemail', legs = 'Sapphire Trousers', hands = 'Jadeite Gloves'}),
+        assert.same(with_ifrit({body = 'Sapphire Platemail', legs = 'Volte Hose', hands = 'Jadeite Gloves'}),
             pact('/pet "Poison Nails" <t>'))
     end)
 
@@ -227,12 +205,13 @@ describe('SMN\'s blood pacts, once the pact is done', function()
 
     it('wear the Acc set of the pact\'s name in the Resistant casting mode', function()
         gs:console('gs c set CastingMode Resistant')
-        assert.same(with_ifrit({hands = 'Diamond Kote', legs = 'Jadeite Chausses', back = 'Aptitude Mantle'}), pact('/pet "Flaming Crush" <t>'))
+        assert.same(with_ifrit({hands = 'Diamond Kote', legs = 'Jadeite Chausses', back = 'Null Shawl'}),
+            pact('/pet "Flaming Crush" <t>'))
     end)
 
     it('wear the Acc set of the map in the Resistant casting mode, when the pact has no Acc set of its own', function()
         gs:console('gs c set CastingMode Resistant')
-        assert.same(with_ifrit({body = 'Sapphire Platemail', legs = 'Sapphire Trousers', feet = 'Sapphire Leggings'}),
+        assert.same(with_ifrit({body = 'Sapphire Platemail', legs = 'Volte Hose', feet = 'Volte Boots'}),
             pact('/pet "Poison Nails" <t>'))
     end)
 
@@ -263,6 +242,7 @@ describe('SMN\'s Astral Conduit', function()
         gs:give_pet({name = 'Ifrit'})
         gs:gain_buff('Astral Conduit')
         gs:traffic()
+        jobby.chat(gs)
     end)
 
     local function pact(line)
@@ -273,7 +253,7 @@ describe('SMN\'s Astral Conduit', function()
 
     it('locks the set of the pact in its slots, which the avatar\'s idle set can\'t change', function()
         pact('/pet "Flaming Crush" <t>')
-        assert.is_truthy(gs:log():find('Astral Conduit on, locking your Flaming Crush set.', 1, true))
+        assert.same({'Astral Conduit on, locking your Flaming Crush set.'}, jobby.chat(gs))
         gs:set_pet_status(1)
         assert.equal('Diamond Kote', gs:worn().hands)
     end)
@@ -285,19 +265,23 @@ describe('SMN\'s Astral Conduit', function()
         assert.equal('Jadeite Gloves', gs:worn().hands)
     end)
 
-    it('can be told not to lock, and told to lock again', function()
+    it('can be told not to lock, and told to lock again, which is said', function()
         gs:console('gs c conduitlock')
-        assert.is_truthy(gs:log():find('Astral Conduit no longer locks gear.', 1, true))
+        assert.same({'Astral Conduit no longer locks gear.'}, jobby.chat(gs))
         gs:console('gs c conduitlock')
-        assert.is_truthy(gs:log():find('Astral Conduit now locks gear.', 1, true))
+        assert.same({'Astral Conduit now locks gear.'}, jobby.chat(gs))
+        pact('/pet "Flaming Crush" <t>')
+        gs:set_pet_status(1)
+        assert.equal('Diamond Kote', gs:worn().hands)
     end)
 
     it('lets go of the slots when it wears off', function()
         pact('/pet "Flaming Crush" <t>')
         gs:set_pet_status(1)
         gs:advance(3)
+        jobby.chat(gs)
         gs:lose_buff('Astral Conduit')
-        assert.is_truthy(gs:log():find('Astral Conduit has worn, enabling all slots.', 1, true))
+        assert.same({'Astral Conduit has worn, enabling all slots.'}, jobby.chat(gs))
         assert.equal('Jadeite Gloves', gs:worn().hands)
     end)
 
@@ -305,8 +289,11 @@ describe('SMN\'s Astral Conduit', function()
         pact('/pet "Flaming Crush" <t>')
         gs:advance(4)
         gs:traffic()
+        jobby.chat(gs)
         pact('/pet "Poison Nails" <t>')
-        assert.is_truthy(gs:log():find('Astral Conduit on, locking your Poison Nails set.', 1, true))
+        assert.same({'Astral Conduit on, locking your Poison Nails set.'}, jobby.chat(gs))
+        gs:set_pet_status(1)
+        assert.same({'Jadeite Gloves', 'Sapphire Platemail'}, {gs:worn().hands, gs:worn().body})
     end)
 
     pending('lets go of the slots when the avatar is released: job_pet_change only enables them when the offense mode '
@@ -368,27 +355,27 @@ describe('SMN\'s Pact Spam Mode', function()
     it('has the avatar do its rage pact again once it is done', function()
         gs:pet_readies('Poison Nails', 'ability')
         gs:pet_finishes('Poison Nails', 'ability')
-        assert.same({'Poison Nails'}, actions(gs))
+        assert.same({'Poison Nails'}, jobby.actions(gs))
     end)
 
     it('waits for the pact recast', function()
         gs.game:start_ability_recast('Poison Nails', 30)
         gs:pet_readies('Poison Nails', 'ability')
         gs:pet_finishes('Poison Nails', 'ability')
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is for rage pacts only', function()
         gs:pet_readies('Inferno Howl', 'ability', {target = 'player'})
         gs:pet_finishes('Inferno Howl', 'ability', {target = 'player'})
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('does nothing when it is off', function()
         gs:console('gs c toggle PactSpamMode')
         gs:pet_readies('Poison Nails', 'ability')
         gs:pet_finishes('Poison Nails', 'ability')
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -471,7 +458,7 @@ describe('SMN\'s idle set with no avatar out', function()
 end)
 
 describe('SMN\'s casting in the Proc casting mode', function()
-    it('takes the Proc sets for a spell', function()
+    it('takes the Proc sets for a spell, in place of the sets of its own', function()
         local gs = boot()
         gs:console('gs c set CastingMode Proc')
         gs:type('/ma "Cure III" <me>')
@@ -479,11 +466,11 @@ describe('SMN\'s casting in the Proc casting mode', function()
         assert.equal('Ruby Robe', gs:worn().body)
     end)
 
-    it('takes the plain sets in another mode', function()
+    it('takes the spell\'s own sets in another mode', function()
         local gs = boot()
         gs:type('/ma "Cure III" <me>')
-        assert.equal("Bendis's Hairpin", gs:traffic()[1].equip.head)
-        assert.equal('Nyame Mail', gs:worn().body)
+        assert.equal('Volte Cap', gs:traffic()[1].equip.head)
+        assert.equal('Volte Jupon', gs:worn().body)
     end)
 end)
 
@@ -493,111 +480,113 @@ describe('SMN\'s pact command', function()
         gs = boot()
     end)
 
-    local function said(text)
-        return gs:log():find(text, 1, true) ~= nil
-    end
-
     it('needs an avatar', function()
         gs:console('gs c pact cure')
-        assert.is_true(said('Abort: You do not have an Avatar summoned.'))
+        assert.same({'Abort: You do not have an Avatar summoned.'}, jobby.chat(gs))
     end)
 
     it('is refused for a spirit', function()
         gs:give_pet({name = 'FireSpirit'})
+        jobby.chat(gs)
         gs:console('gs c pact cure')
-        assert.is_true(said('Abort: Spirits cannot use blood pacts.'))
+        assert.same({'Abort: Spirits cannot use blood pacts.'}, jobby.chat(gs))
     end)
 
     it('is refused in town', function()
         gs:give_pet({name = 'Carbuncle'})
+        jobby.chat(gs)
         gs.user.in_town = true
         gs:console('gs c pact cure')
-        assert.is_true(said('Abort:You cannot use pacts in town.'))
+        assert.same({'Abort:You cannot use pacts in town.'}, jobby.chat(gs))
     end)
 
     it('needs a type of pact', function()
         gs:give_pet({name = 'Carbuncle'})
+        jobby.chat(gs)
         gs:console('gs c pact')
-        assert.is_true(said('Abort: No blood pact type given.'))
+        assert.same({'Abort: No blood pact type given.'}, jobby.chat(gs))
     end)
 
     it('is refused for a type it doesn\'t know', function()
         gs:give_pet({name = 'Carbuncle'})
+        jobby.chat(gs)
         gs:console('gs c pact hug')
-        assert.is_true(said('Abort: Unknown blood pact type: hug'))
+        assert.same({'Abort: Unknown blood pact type: hug'}, jobby.chat(gs))
     end)
 
     it('is refused for a type the avatar has no pact of', function()
         gs:give_pet({name = 'Garuda'})
+        jobby.chat(gs)
         gs:console('gs c pact cure')
-        assert.is_true(said('Abort: Garuda does not have a pact of type [cure].'))
+        assert.same({'Abort: Garuda does not have a pact of type [cure].'}, jobby.chat(gs))
     end)
 
     it('names the avatar\'s pact of that type, with no target for Shortcuts to aim', function()
         gs:give_pet({name = 'Carbuncle'})
         gs:console('gs c pact cure')
-        assert.equal('/pet "Healing Ruby"', typed(gs))
+        assert.same({'/pet "Healing Ruby"'}, jobby.typed(gs))
     end)
 
     it('names the avatar\'s pact of a type with its own avatars', function()
         gs:give_pet({name = 'Ifrit'})
         gs:console('gs c pact buffspecial')
-        assert.equal('/pet "Inferno Howl"', typed(gs))
+        assert.same({'/pet "Inferno Howl"'}, jobby.typed(gs))
     end)
 
     it('needs Astral Flow up for an astral flow pact', function()
         gs:give_pet({name = 'Carbuncle'})
+        jobby.chat(gs)
         gs:console('gs c pact astralflow')
-        assert.is_true(said('Abort: Astral Flow not active.'))
-        assert.equal('', typed(gs))
+        assert.same({'Abort: Astral Flow not active.'}, jobby.chat(gs))
+        assert.same({}, jobby.typed(gs))
     end)
 
     it('names the astral flow pact with Astral Flow up', function()
         gs:give_pet({name = 'Carbuncle'})
         gs:gain_buff('Astral Flow')
         gs:console('gs c pact astralflow')
-        assert.equal('/pet "Searing Light"', typed(gs))
+        assert.same({'/pet "Searing Light"'}, jobby.typed(gs))
     end)
 end)
 
 describe('SMN\'s petweather command', function()
-    local function said(gs, text)
-        return gs:log():find(text, 1, true) ~= nil
-    end
-
     it('casts the storm of the avatar\'s element with a sub job of SCH', function()
         local gs = boot({sub_job = 'SCH'})
         gs:give_pet({name = 'Ifrit'})
         gs:console('gs c petweather')
-        assert.same({'Firestorm'}, actions(gs))
+        assert.same({'Firestorm'}, jobby.actions(gs))
     end)
 
-    it('casts the storm of Lightning for an avatar of Thunder', function()
+    it('casts the storm of Lightning for Ramuh, whose element GearSwap names Lightning', function()
         local gs = boot({sub_job = 'SCH'})
         gs:give_pet({name = 'Ramuh'})
+        assert.equal('Lightning', gs.user.pet.element)
         gs:console('gs c petweather')
-        assert.same({'Thunderstorm'}, actions(gs))
+        assert.same({'Thunderstorm'}, jobby.actions(gs))
     end)
 
     it('casts the storm of Light for Carbuncle', function()
         local gs = boot({sub_job = 'SCH'})
         gs:give_pet({name = 'Carbuncle'})
         gs:console('gs c petweather')
-        assert.same({'Aurorastorm'}, actions(gs))
+        assert.same({'Aurorastorm'}, jobby.actions(gs))
     end)
 
     it('says Jobby can\'t cast storms without a sub job of SCH', function()
         local gs = boot()
         gs:give_pet({name = 'Ifrit'})
+        gs:traffic()
+        jobby.chat(gs)
         gs:console('gs c petweather')
-        assert.is_true(said(gs, 'You can not cast storm spells.'))
-        assert.same({}, actions(gs))
+        assert.same({'You can not cast storm spells.'}, jobby.chat(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('says there is no avatar when there is none', function()
         local gs = boot({sub_job = 'SCH'})
         gs:console('gs c petweather')
-        assert.is_true(said(gs, 'You do not have an active avatar.'))
+        assert.same({'You do not have an active avatar.'}, jobby.chat(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -605,43 +594,47 @@ describe('SMN\'s siphon command', function()
     local gs
     before_each(function()
         gs = boot()
+        gs:set_day(0)
     end)
 
     it('summons the spirit of the day\'s element, siphons, and releases the spirit, a step at a time', function()
+        gs:set_day(6)
         gs:console('gs c siphon')
-        assert.same({'Fire Spirit'}, actions(gs))
+        assert.same({'Light Spirit'}, jobby.actions(gs))
         gs:finish_action()
         gs:advance(4)
-        assert.same({'Elemental Siphon'}, actions(gs))
+        assert.same({'Elemental Siphon'}, jobby.actions(gs))
         gs:finish_action()
         gs:advance(1.1)
-        assert.same({'Release'}, actions(gs))
+        assert.same({'Release'}, jobby.actions(gs))
     end)
 
     it('releases the avatar that is out first', function()
         gs:give_pet({name = 'Ifrit'})
         gs:traffic()
         gs:console('gs c siphon')
-        assert.same({'Release'}, actions(gs))
+        assert.same({'Release'}, jobby.actions(gs))
         gs:finish_action()
         gs:take_pet()
         gs:traffic()
         gs:advance(1.1)
-        assert.same({'Fire Spirit'}, actions(gs))
+        assert.same({'Fire Spirit'}, jobby.actions(gs))
     end)
 
     it('is refused in town', function()
         gs.user.in_town = true
         gs:console('gs c siphon')
-        assert.is_truthy(gs:log():find('Cannot use Elemental Siphon in a city area.', 1, true))
-        assert.same({}, actions(gs))
+        assert.same({'Cannot use Elemental Siphon in a city area.'}, jobby.chat(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('waits on the recast of Elemental Siphon', function()
         gs.game:start_ability_recast('Elemental Siphon', 30)
         gs:console('gs c siphon')
-        assert.is_truthy(gs:log():find('Abort: [Elemental Siphon] waiting on recast.', 1, true))
-        assert.same({}, actions(gs))
+        local lines = jobby.chat(gs)
+        assert.equal(1, #lines)
+        assert.is_truthy(lines[1]:find('Abort: [Elemental Siphon] waiting on recast.', 1, true), lines[1])
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -655,7 +648,7 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
         gs:give_pet({name = 'Ifrit'})
         gs:traffic()
         gs:play(5.5)
-        assert.same({"Avatar's Favor"}, actions(gs))
+        assert.same({"Avatar's Favor"}, jobby.actions(gs))
     end)
 
     it('is left alone while it is up', function()
@@ -663,7 +656,7 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
         gs:gain_buff("Avatar's Favor")
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is left alone while it is on recast', function()
@@ -671,7 +664,7 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
         gs.game:start_ability_recast("Avatar's Favor", 30)
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is left alone with AutoFavor off', function()
@@ -679,12 +672,12 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
         gs:console('gs c toggle AutoFavor')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is left alone with no avatar out', function()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is left alone under amnesia', function()
@@ -692,7 +685,7 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
         gs:gain_buff('amnesia')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -701,15 +694,15 @@ describe('SMN\'s Sleepga pact', function()
         local gs = boot()
         gs:give_pet({name = 'Diabolos'})
         gs:traffic()
-        gs.game.commands = {}
+        jobby.commands(gs)
         gs:type('/pet "Sleepga" <t>')
         gs:finish_action()
-        local started = false
-        for _, command in ipairs(gs.game.commands) do
-            started = started or command == 'timers c "Sleepga [Apex Toad]" 60 down spells/00220.png'
-        end
-        assert.is_true(started)
+        assert.same({'timers c "Sleepga [Apex Toad]" 60 down spells/00220.png'}, jobby.commands(gs))
     end)
+
+    pending('starts no timer with UseCustomTimers off, and wears the pet midcast set for the pact: job_aftercast in '
+        .. 'data/SMN.lua tests UseCustomTimers and Sleep, or Sleepga, so Sleepga always takes the timer\'s branch and '
+        .. 'never the blood pact\'s')
 end)
 
 describe('SMN\'s buffs kept by the tick under AutoBuffMode', function()
@@ -717,10 +710,10 @@ describe('SMN\'s buffs kept by the tick under AutoBuffMode', function()
         local gs = boot({sub_job = 'WHM'})
         gs:console('gs c set AutoBuffMode Auto')
         gs:play(5.5)
-        assert.same({'Reraise'}, actions(gs))
+        assert.same({'Reraise'}, jobby.actions(gs))
     end)
 
-    it('are nothing while Reraise is up and the sub job casts nothing else on the list', function()
+    it('are nothing once Reraise, Haste, Refresh and Stoneskin, the list\'s buffs, are up', function()
         local gs = boot({sub_job = 'WHM'})
         gs:console('gs c set AutoBuffMode Auto')
         gs:gain_buff('Reraise')
@@ -729,6 +722,6 @@ describe('SMN\'s buffs kept by the tick under AutoBuffMode', function()
         gs:gain_buff('Stoneskin')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)

@@ -1,57 +1,26 @@
-local harness = require('harness')
-local testy = require('testy')
+local jobby = require('jobby')
 
-local idle = {main = "Judge's Sword", head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets',
-    legs = 'Nyame Flanchard', feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt',
-    ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring', ring1 = 'Defending Ring', ring2 = 'Stikini Ring +1',
-    back = 'Mecisto. Mantle'}
-
-local pieces = {"Judge's Sword", 'Nyame Helm', 'Nyame Mail', 'Nyame Gauntlets', 'Nyame Flanchard', 'Nyame Sollerets',
-    'Loricate Torque +1', 'Plat. Mog. Belt', 'Etiolation Earring', 'Loquac. Earring', 'Defending Ring',
-    'Stikini Ring +1', 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Sapphire Platemail',
+local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Sapphire Platemail',
     'Jadeite Cuirie', 'Jadeite Chausses', 'Diamond Haramaki', 'Sapphire Gauntlets', 'Jadeite Gloves',
     'Diamond Kote', 'Sapphire Trousers', 'Diamond Hiza.', 'Diamond Sune-Ate', "Orunmila's Torque", 'Prosilio Belt',
     "Tyrant's Ring", 'Aptitude Mantle', 'Carnwenhan', 'Daurdabla', 'Miracle Cheer', 'Marsyas', 'Ruby Robe', 'Rage Platemail'}
 
+-- What the idle set of Jobby's bard gear file wears besides every gear file's.
+local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
+
+local idle = jobby.worn_by(own_idle)
+
 -- What is worn with these changes over the idle set.
 local function worn(changes)
-    return testy.worn_by(idle, changes)
+    return jobby.worn_by(changes, idle)
 end
 
--- Jobby as a bard with the idle set on, over a sub job of WHM unless told otherwise.
-local function boot(overrides)
-    local items = {}
-    for i, name in ipairs(pieces) do
-        items[i] = {name = name}
-    end
-    local options = {character = 'Jobby', main_job = 'BRD', sub_job = 'WHM', expect_file = 'BRD.lua', items = items,
-        wearing = testy.worn_by(idle)}
-    for k, v in pairs(overrides or {}) do
-        options[k] = v
-    end
-    local gs = harness.boot(options)
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
-end
-
--- The names of the actions among what GearSwap sent.
-local function actions(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        if entry.action then
-            names[#names + 1] = entry.action
-        end
-    end
-    return names
-end
-
--- Jobby has the Dual Wield trait from now on, as Sel finds out when it looks.
-local function can_dual_wield(gs)
-    gs.game:set_job_traits({'Dual Wield'})
-    gs.user.set_dual_wield()
-    gs.game:settle()
-    gs:traffic()
+-- Jobby as a bard with the idle set on, over a sub job of WHM unless the options (jobby.boot's) say otherwise.
+local function boot(options)
+    options = options or {}
+    options.items = gear
+    options.wearing = own_idle
+    return jobby.boot('BRD', options)
 end
 
 describe('data/BRD.lua', function()
@@ -73,12 +42,6 @@ describe('BRD\'s songs on the party', function()
     it('take sets.precast.FC, over which the midcast set goes: the song class, then the spell map', function()
         assert.is_true(gs:type('/ma "Valor Minuet V" <me>'))
         assert.same(worn({head = "Bendis's Hairpin", main = 'Carnwenhan', body = 'Sapphire Platemail'}), gs:worn())
-    end)
-
-    it('take the set of the song\'s name in precast', function()
-        gs:type('/ma "Mage\'s Ballad" <me>')
-        local traffic = gs:traffic()
-        assert.same({head = "Bendis's Hairpin", left_ring = "Tyrant's Ring"}, traffic[1].equip)
     end)
 
     it('take the song class set, then the spell map\'s over it', function()
@@ -142,7 +105,7 @@ describe('BRD\'s songs on a monster', function()
     end)
 
     it('have the dual wielder\'s set over them for a character who can', function()
-        can_dual_wield(gs)
+        jobby.can_dual_wield(gs)
         gs:type('/ma "Foe Lullaby" <t>')
         assert.equal('Prosilio Belt', gs:worn().waist)
     end)
@@ -154,11 +117,12 @@ describe('BRD\'s extra songs', function()
         gs = boot()
     end)
 
-    it('are Dummy songs with the dummy class set in place of the song class\'s, the instrument going on', function()
-        gs:console('gs c set ExtraSongsMode Dummy')
-        gs:type('/ma "Valor Minuet V" <me>')
-        assert.same(worn({head = "Bendis's Hairpin", body = 'Rage Platemail'}), gs:worn())
-    end)
+    it('are Dummy songs with the dummy class set in place of the song class\'s, and nothing in the range slot',
+        function()
+            gs:console('gs c set ExtraSongsMode Dummy')
+            gs:type('/ma "Valor Minuet V" <me>')
+            assert.same(worn({head = "Bendis's Hairpin", body = 'Rage Platemail'}), gs:worn())
+        end)
 
     it('are FullLength songs with the extra song instrument over the song class set', function()
         gs:console('gs c set ExtraSongsMode FullLength')
@@ -271,17 +235,21 @@ describe('BRD\'s Nightingale', function()
         gs:gain_buff('Nightingale')
         gs:traffic()
         gs:type('/ma "Mage\'s Ballad" <me>')
-        local traffic = gs:traffic()
-        assert.same({head = "Bendis's Hairpin", left_ring = "Tyrant's Ring", legs = 'Sapphire Trousers'},
-            traffic[1].equip)
-        assert.equal('Mage\'s Ballad', traffic[2].action)
+        assert.same({
+            {equip = {head = "Bendis's Hairpin", left_ring = "Tyrant's Ring", legs = 'Sapphire Trousers'}},
+            {action = 'Mage\'s Ballad', target = 'Jobby'},
+            {equip = {main = 'Carnwenhan', body = 'Sapphire Platemail'}},
+        }, gs:traffic())
     end)
 
-    it('leaves the midcast set until after the song goes out without it', function()
+    it('leaves the midcast set, the song\'s own with the rest, until after the song goes out without it', function()
         local gs = boot()
         gs:type('/ma "Mage\'s Ballad" <me>')
-        local traffic = gs:traffic()
-        assert.same({head = "Bendis's Hairpin", left_ring = "Tyrant's Ring"}, traffic[1].equip)
+        assert.same({
+            {equip = {head = "Bendis's Hairpin", left_ring = "Tyrant's Ring"}},
+            {action = 'Mage\'s Ballad', target = 'Jobby'},
+            {equip = {main = 'Carnwenhan', body = 'Sapphire Platemail', legs = 'Sapphire Trousers'}},
+        }, gs:traffic())
     end)
 end)
 
@@ -294,7 +262,7 @@ describe('BRD\'s song on a party member', function()
 
     it('is held back for Pianissimo, which goes out in its place', function()
         gs:type('/ma "Mage\'s Ballad" Friend')
-        assert.same({'Pianissimo'}, actions(gs))
+        assert.same({'Pianissimo'}, jobby.actions(gs))
     end)
 
     it('is typed again 1.1 seconds after, and goes out to the party member with Pianissimo up', function()
@@ -303,31 +271,25 @@ describe('BRD\'s song on a party member', function()
         gs:gain_buff('Pianissimo')
         gs:traffic()
         gs:advance(1.2)
-        local sent = {}
-        for _, entry in ipairs(gs:traffic()) do
-            if entry.action then
-                sent[#sent + 1] = entry
-            end
-        end
-        assert.same({{action = 'Mage\'s Ballad', target = 'Friend'}}, sent)
+        assert.same({{action = 'Mage\'s Ballad', target = 'Friend'}}, jobby.action_entries(gs))
     end)
 
     it('goes out at once with Pianissimo up', function()
         gs:gain_buff('Pianissimo')
         gs:traffic()
         gs:type('/ma "Mage\'s Ballad" Friend')
-        assert.same({'Mage\'s Ballad'}, actions(gs))
+        assert.same({'Mage\'s Ballad'}, jobby.actions(gs))
     end)
 
     it('is held back for Pianissimo only when the song itself is ready, and waits on its recast when not', function()
         gs.game:start_spell_recast("Mage's Ballad", 60)
         gs:type('/ma "Mage\'s Ballad" Friend')
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('goes out on Jobby with no Pianissimo', function()
         gs:type('/ma "Mage\'s Ballad" <me>')
-        assert.same({'Mage\'s Ballad'}, actions(gs))
+        assert.same({'Mage\'s Ballad'}, jobby.actions(gs))
     end)
 end)
 
@@ -341,32 +303,34 @@ describe('BRD\'s song aimed with <t> while Pianissimo is up', function()
 
     it('is held back, and typed again aimed with <stpt>, with a monster targeted', function()
         assert.is_true(gs:type('/ma "Mage\'s Ballad" <t>'))
-        assert.same({}, actions(gs))
-        assert.is_truthy(gs:log():find('typed: /ma "Mage\'s Ballad" +<stpt>'))
+        assert.same({}, jobby.actions(gs))
+        local typed = jobby.typed(gs)
+        assert.equal(1, #typed)
+        assert.is_truthy(typed[1]:find('^/ma "Mage\'s Ballad" +<stpt>$'), typed[1])
     end)
 
     it('is left as it is aimed with <me>', function()
         gs:type('/ma "Mage\'s Ballad" <me>')
-        assert.same({'Mage\'s Ballad'}, actions(gs))
+        assert.same({'Mage\'s Ballad'}, jobby.actions(gs))
     end)
 
     it('is left alone when it is aimed at a monster, a debuff song', function()
         gs:type('/ma "Foe Lullaby" <t>')
-        assert.same({'Foe Lullaby'}, actions(gs))
+        assert.same({'Foe Lullaby'}, jobby.actions(gs))
     end)
 end)
 
 describe('BRD\'s Rudra\'s Storm', function()
-    it('is Savage Blade when Jobby has the weapon skills of a sword', function()
+    it('is Savage Blade when Jobby has Fast Blade, which the job file takes for a sword in hand', function()
         local gs = boot({abilities = {'Fast Blade', 'Savage Blade'}, tp = 1000})
         gs:type('/ws "Rudra\'s Storm" <t>')
-        assert.same({'Savage Blade'}, actions(gs))
+        assert.same({'Savage Blade'}, jobby.actions(gs))
     end)
 
-    it('is left alone when Jobby has no sword\'s weapon skills', function()
+    it('is left alone when Jobby doesn\'t have Fast Blade, whatever other sword weapon skills he has', function()
         local gs = boot({abilities = {'Savage Blade'}, tp = 1000})
         gs:type('/ws "Rudra\'s Storm" <t>')
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -626,14 +590,14 @@ describe('BRD\'s songs kept by AutoSongMode', function()
 
     it('are Honor March first', function()
         gs:play(5.5)
-        assert.same({'Honor March'}, actions(gs))
+        assert.same({'Honor March'}, jobby.actions(gs))
     end)
 
     it('are Valor Minuet V once March is up', function()
         gs:gain_buff('March')
         gs:traffic()
         gs:play(5.5)
-        assert.same({'Valor Minuet V'}, actions(gs))
+        assert.same({'Valor Minuet V'}, jobby.actions(gs))
     end)
 
     it('are Blade Madrigal once March and Minuet are up, as a full-length extra song', function()
@@ -641,7 +605,7 @@ describe('BRD\'s songs kept by AutoSongMode', function()
         gs:gain_buff('Minuet')
         gs:traffic()
         gs:play(5.5)
-        assert.same({'Blade Madrigal'}, actions(gs))
+        assert.same({'Blade Madrigal'}, jobby.actions(gs))
         assert.equal('Daurdabla', gs:worn().range)
     end)
 
@@ -651,13 +615,13 @@ describe('BRD\'s songs kept by AutoSongMode', function()
         gs:gain_buff('Madrigal')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('are nothing with AutoSongMode off', function()
         gs:console('gs c toggle AutoSongMode')
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('are given up on a change of zone', function()

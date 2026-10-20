@@ -127,6 +127,7 @@ return {
     [22294] = {id=22294,en="Hauksbok Bolt",ja="ホクスボクボルト",enl="Hauksbok bolt",jal="ホクスボクボルト",ammo_type="Bolt",category="Weapon",damage=156,delay=192,flags=63552,item_level=119,jobs=2048,level=99,races=510,skill=26,slots=8,stack=1,targets=0,type=4},
     [22295] = {id=22295,en="Hauksbok Bullet",ja="ホクスボクブレット",enl="Hauksbok bullet",jal="ホクスボクブレット",ammo_type="Bullet",category="Weapon",damage=300,delay=240,flags=63552,item_level=119,jobs=133120,level=99,races=510,skill=26,slots=8,stack=1,targets=0,type=4},
     [23349] = {id=23349,en="Horos T. Shoes +2",ja="ＨＯトーシュー+2",enl="horos toe shoes +2",jal="ＨＯトーシュー+2",category="Armor",flags=63552,item_level=119,jobs=524288,level=99,races=510,slots=256,stack=1,targets=0,type=5},
+    [23388] = {id=23388,en="Vishap Armet +3",ja="ＶＳアーメット+3",enl="vishap armet +3",jal="ＶＳアーメット+3",category="Armor",flags=63552,item_level=119,jobs=16384,level=99,races=510,slots=16,stack=1,targets=0,type=5},
     [23446] = {id=23446,en="Atrophy Tabard +3",ja="ＡＴタバード+3",enl="atrophy tabard +3",jal="ＡＴタバード+3",category="Armor",flags=63552,item_level=119,jobs=32,level=99,races=510,slots=32,stack=1,targets=0,type=5},
     [23491] = {id=23491,en="Lethargy Sayon +3",ja="ＬＴサヨン+3",enl="lethargy sayon +3",jal="ＬＴサヨン+3",category="Armor",flags=63552,item_level=119,jobs=32,level=99,races=510,slots=32,stack=1,targets=0,type=5},
     [23713] = {id=23713,en="Volte Cap",ja="ヴォルトキャップ",enl="volte cap",jal="ヴォルトキャップ",category="Armor",flags=63568,item_level=119,jobs=8388606,level=99,races=510,slots=16,stack=1,targets=0,type=5},

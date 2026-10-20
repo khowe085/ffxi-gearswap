@@ -239,6 +239,7 @@ return {
     [735] = {id=735,en="Wild Carrot",ja="ワイルドカロット",element=6,icon_id=46,mp_cost=2,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},
     [736] = {id=736,en="Sudden Lunge",ja="サドンランジ",element=6,icon_id=46,mp_cost=1,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},
     [751] = {id=751,en="Choke Breath",ja="チョークブレス",element=2,icon_id=42,mp_cost=1,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},
+    [761] = {id=761,en="Sensilla Blades",ja="センシラブレード",element=6,icon_id=46,mp_cost=1,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},
     [765] = {id=765,en="Sweeping Gouge",ja="スイープガウジ",element=2,icon_id=42,mp_cost=1,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},
     [767] = {id=767,en="Pentapeck",ja="ペンタペック",element=0,icon_id=40,mp_cost=3,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},
     [772] = {id=772,en="Somersault",ja="サマーソルト",element=6,icon_id=46,mp_cost=1,prefix="/pet",range=2,recast_id=102,targets=3,tp_cost=0,type="Monster"},

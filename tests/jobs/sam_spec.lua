@@ -1,50 +1,28 @@
-local harness = require('harness')
-local testy = require('testy')
+local jobby = require('jobby')
 
-local idle = {main = 'Masamune', head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets',
-    legs = 'Nyame Flanchard', feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt',
-    ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring', ring1 = 'Defending Ring', ring2 = 'Stikini Ring +1',
-    back = 'Mecisto. Mantle'}
-
-local pieces = {'Masamune', 'Nyame Helm', 'Nyame Mail', 'Nyame Gauntlets', 'Nyame Flanchard', 'Nyame Sollerets',
-    'Loricate Torque +1', 'Plat. Mog. Belt', 'Etiolation Earring', 'Loquac. Earring', 'Defending Ring',
-    'Stikini Ring +1', 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Sapphire Platemail',
-    'Jadeite Cuirie', 'Sapphire Gauntlets', 'Jadeite Gloves', 'Sapphire Trousers', 'Jadeite Chausses',
-    'Diamond Haramaki', 'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Kote', 'Diamond Hiza.',
+local gear = {'Masamune', "Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin",
+    'Sapphire Platemail', 'Jadeite Cuirie', 'Sapphire Gauntlets', 'Jadeite Gloves', 'Sapphire Trousers',
+    'Jadeite Chausses', 'Diamond Haramaki', 'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Kote', 'Diamond Hiza.',
     'Diamond Sune-Ate', "Orunmila's Torque", 'Moonshade Earring', 'Lugra Earring +1', 'Ishvara Earring',
-    'Brutal Earring', "Hecate's Earring", 'Pixie Earring', 'Beastly Earring', 'Stealth Earring', "Judge's Sword"}
+    'Brutal Earring', "Hecate's Earring", 'Pixie Earring', 'Beastly Earring', 'Stealth Earring'}
+
+-- What the idle set of Jobby's samurai gear file wears besides every gear file's.
+local own_idle = {main = 'Masamune', back = 'Mecisto. Mantle'}
+
+local idle = jobby.worn_by(own_idle)
 
 -- What is worn with these changes over the idle set.
 local function worn(changes)
-    return testy.worn_by(idle, changes)
+    return jobby.worn_by(changes, idle)
 end
 
--- Jobby as a samurai with the idle set on, over a sub job of WAR unless told otherwise.
-local function boot(overrides)
-    local items = {}
-    for i, name in ipairs(pieces) do
-        items[i] = {name = name}
-    end
-    local options = {character = 'Jobby', main_job = 'SAM', sub_job = 'WAR', expect_file = 'SAM.lua', items = items,
-        wearing = testy.worn_by(idle)}
-    for k, v in pairs(overrides or {}) do
-        options[k] = v
-    end
-    local gs = harness.boot(options)
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
-end
-
--- The names of the actions among what GearSwap sent.
-local function actions(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        if entry.action then
-            names[#names + 1] = entry.action
-        end
-    end
-    return names
+-- Jobby as a samurai with the idle set on, over a sub job of WAR unless the options (jobby.boot's) say otherwise.
+local function boot(options)
+    options = options or {}
+    options.items = gear
+    options.wearing = own_idle
+    options.sub_job = options.sub_job or 'WAR'
+    return jobby.boot('SAM', options)
 end
 
 describe('data/SAM.lua', function()
@@ -104,7 +82,7 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
         gs.game.player.vitals.tp = 1500
         gs.game:start_ability_recast('Meditate', 60)
         gs:type('/ws "Tachi: Shoha" <t>')
-        assert.same({'Tachi: Shoha'}, actions(gs))
+        assert.same({'Tachi: Shoha'}, jobby.actions(gs))
     end)
 
     it('is not held back for Hagakure while Sekkanoki is up', function()
@@ -113,7 +91,7 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
         gs:gain_buff('Sekkanoki')
         gs:traffic()
         gs:type('/ws "Tachi: Shoha" <t>')
-        assert.same({'Tachi: Shoha'}, actions(gs))
+        assert.same({'Tachi: Shoha'}, jobby.actions(gs))
     end)
 
     it('goes out when Sekkanoki, Meditate and Hagakure are all on recast', function()
@@ -122,7 +100,7 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
         gs.game:start_ability_recast('Meditate', 60)
         gs.game:start_ability_recast('Hagakure', 60)
         gs:type('/ws "Tachi: Shoha" <t>')
-        assert.same({'Tachi: Shoha'}, actions(gs))
+        assert.same({'Tachi: Shoha'}, jobby.actions(gs))
     end)
 
     it('is typed again 1.1 seconds after Sekkanoki goes out, and then waits for Meditate', function()
@@ -132,7 +110,7 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
         gs.game:start_ability_recast('Sekkanoki', 60)
         gs:finish_action()
         gs:advance(1.2)
-        assert.same({'Meditate'}, actions(gs))
+        assert.same({'Meditate'}, jobby.actions(gs))
     end)
 
     it('is typed again after Sekkanoki and Meditate, and goes out', function()
@@ -145,7 +123,7 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
         gs:finish_action()
         gs:traffic()
         gs:advance(1.2)
-        assert.same({'Tachi: Shoha'}, actions(gs))
+        assert.same({'Tachi: Shoha'}, jobby.actions(gs))
     end)
 end)
 
@@ -162,13 +140,13 @@ describe('SAM\'s weapon skill typed with a spear in hand', function()
         ['Tachi: Rana'] = 'Penta Thrust', ['Tachi: Gekko'] = 'Sonic Thrust', ['Tachi: Hobaku'] = 'Leg Sweep'}) do
         it('is ' .. spear .. ' for ' .. tachi, function()
             gs:type('/ws "' .. tachi .. '" <t>')
-            assert.same({spear}, actions(gs))
+            assert.same({spear}, jobby.actions(gs))
         end)
     end
 
     it('is left alone when it isn\'t one of those', function()
         gs:type('/ws "Tachi: Kasha" <t>')
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -176,7 +154,7 @@ describe('SAM\'s weapon skill typed without a spear in hand', function()
     it('is left to GearSwap, which finds Jobby doesn\'t have it', function()
         local gs = boot({abilities = {'Stardiver'}})
         gs:type('/ws "Tachi: Fudo" <t>')
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -372,8 +350,9 @@ describe('SAM\'s engaged set', function()
         assert.same(engaged_with({body = 'Jadeite Cuirie'}), gs:worn())
     end)
 
-    it('takes Hasso\'s set rather than Third Eye\'s with Hasso and Third Eye up', function()
+    it('takes Hasso\'s set rather than Third Eye\'s with Hasso, Seigan and Third Eye up', function()
         gs:gain_buff('Hasso')
+        gs:gain_buff('Seigan')
         gs:gain_buff('Third Eye')
         gs:engage()
         assert.same(engaged_with({feet = 'Sapphire Leggings'}), gs:worn())
@@ -454,28 +433,19 @@ describe('SAM after a weapon skill with Meikyo Shisui up', function()
         gs:gain_buff('Meikyo Shisui')
         gs.game.player.vitals.tp = 1000
         gs:type('/ws "Tachi: Shoha" <t>')
-        gs.game.commands = {}
+        jobby.commands(gs)
     end)
-
-    local function cancelled_meikyo()
-        for _, command in ipairs(gs.game.commands) do
-            if command == 'cancel Meikyo Shisui' then
-                return true
-            end
-        end
-        return false
-    end
 
     it('cancels Meikyo Shisui with less than 750 TP left', function()
         gs.game.player.vitals.tp = 749
         gs:finish_action()
-        assert.is_true(cancelled_meikyo())
+        assert.same({'cancel Meikyo Shisui'}, jobby.commands(gs))
     end)
 
     it('leaves Meikyo Shisui with 750 TP left', function()
         gs.game.player.vitals.tp = 750
         gs:finish_action()
-        assert.is_false(cancelled_meikyo())
+        assert.same({}, jobby.commands(gs))
     end)
 end)
 
@@ -484,12 +454,10 @@ describe('SAM after a weapon skill without Meikyo Shisui', function()
         local gs = boot()
         gs.game.player.vitals.tp = 1000
         gs:type('/ws "Tachi: Shoha" <t>')
-        gs.game.commands = {}
+        jobby.commands(gs)
         gs.game.player.vitals.tp = 0
         gs:finish_action()
-        for _, command in ipairs(gs.game.commands) do
-            assert.are_not.equal('cancel Meikyo Shisui', command)
-        end
+        assert.same({}, jobby.commands(gs))
     end)
 end)
 
@@ -501,71 +469,81 @@ describe('SAM\'s stance, kept by the tick', function()
         gs:traffic()
     end)
 
+    -- Whether Jobby was told of an ability waiting on its recast.
+    local function told_of_recast()
+        for _, line in ipairs(jobby.chat(gs)) do
+            if line:find('waiting on recast', 1, true) then
+                return true
+            end
+        end
+        return false
+    end
+
     it('puts Hasso up when engaged with a two-handed weapon', function()
         gs:play(5.5)
-        assert.same({'Hasso'}, actions(gs))
+        assert.same({'Hasso'}, jobby.actions(gs))
     end)
 
     it('puts Seigan up in the Seigan stance', function()
         gs:console('gs c set Stance Seigan')
         gs:play(5.5)
-        assert.same({'Seigan'}, actions(gs))
+        assert.same({'Seigan'}, jobby.actions(gs))
     end)
 
     it('puts nothing up in the None stance', function()
         gs:console('gs c set Stance None')
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('waits while Hasso is up', function()
         gs:gain_buff('Hasso')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('waits while Seigan is up', function()
         gs:gain_buff('Seigan')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('waits under SJ Restriction', function()
         gs:gain_buff('SJ Restriction')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('waits while Hasso is on recast, without trying it', function()
         gs.game:start_ability_recast('Hasso', 30)
         gs:play(5.5)
-        assert.same({}, actions(gs))
-        assert.is_nil(gs:log():find('waiting on recast', 1, true))
+        assert.same({}, jobby.actions(gs))
+        assert.is_false(told_of_recast())
     end)
 
     it('waits while Seigan is on recast in the Seigan stance', function()
         gs:console('gs c set Stance Seigan')
         gs.game:start_ability_recast('Seigan', 30)
         gs:play(5.5)
-        assert.same({}, actions(gs))
-        assert.is_nil(gs:log():find('waiting on recast', 1, true))
+        assert.same({}, jobby.actions(gs))
+        assert.is_false(told_of_recast())
     end)
 
     it('waits with a one-handed weapon in hand', function()
         gs:console('gs c set Weapons Sword')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('waits when not engaged', function()
         gs:disengage()
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -580,7 +558,7 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
     it('are Berserk first with a sub job of WAR', function()
         gs:monster_hits()
         gs:play(5.5)
-        assert.same({'Berserk'}, actions(gs))
+        assert.same({'Berserk'}, jobby.actions(gs))
     end)
 
     it('are Aggressor once Berserk is up', function()
@@ -588,14 +566,14 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
         gs:gain_buff('Berserk')
         gs:traffic()
         gs:play(5.5)
-        assert.same({'Aggressor'}, actions(gs))
+        assert.same({'Aggressor'}, jobby.actions(gs))
     end)
 
     it('are Aggressor when Berserk is on recast', function()
         gs:monster_hits()
         gs.game:start_ability_recast('Berserk', 60)
         gs:play(5.5)
-        assert.same({'Aggressor'}, actions(gs))
+        assert.same({'Aggressor'}, jobby.actions(gs))
     end)
 
     it('are nothing once Berserk and Aggressor are up', function()
@@ -604,7 +582,7 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
         gs:gain_buff('Aggressor')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('are nothing under SJ Restriction', function()
@@ -612,19 +590,19 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
         gs:gain_buff('SJ Restriction')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('are nothing with AutoBuffMode off', function()
         gs:monster_hits()
         gs:console('gs c set AutoBuffMode Off')
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('are nothing out of combat', function()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -639,13 +617,13 @@ describe('SAM\'s buffs kept by the tick with a sub job of DRK', function()
 
     it('are Last Resort', function()
         gs:play(5.5)
-        assert.same({'Last Resort'}, actions(gs))
+        assert.same({'Last Resort'}, jobby.actions(gs))
     end)
 
     it('are nothing while Last Resort is up', function()
         gs:gain_buff('Last Resort')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
