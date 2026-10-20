@@ -1,18 +1,6 @@
 local plain = require('plain')
 
-local function calls(gs)
-    local list = gs.user.calls
-    gs.user.calls = {}
-    return list
-end
-
-local function events(list)
-    local result = {}
-    for i, entry in ipairs(list) do
-        result[i] = entry.event
-    end
-    return result
-end
+local calls, events = plain.calls, plain.names
 
 local function boot(overrides)
     local gs = plain.boot('Testy_Actions.lua', overrides)
@@ -180,6 +168,7 @@ describe('an action that never ends', function()
     it('is forgotten sooner for an ability, which has no cast time', function()
         local gs = boot()
         gs:type('/ja "Divine Seal" <me>')
+        assert.is_true((gs.user.midaction()))
         gs:advance(4)
         gs:console('gs c anything')
         assert.is_false(gs.user.midaction())

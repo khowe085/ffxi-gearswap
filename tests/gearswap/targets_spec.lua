@@ -1,19 +1,7 @@
 local plain = require('plain')
 local testy = require('testy')
 
-local function calls(gs)
-    local list = gs.user.calls
-    gs.user.calls = {}
-    return list
-end
-
-local function events(list)
-    local result = {}
-    for i, entry in ipairs(list) do
-        result[i] = entry.event
-    end
-    return result
-end
+local calls, events, error_of = plain.calls, plain.names, plain.error_of
 
 local function boot(overrides)
     local gs = plain.boot('Testy_Actions.lua', overrides)
@@ -46,12 +34,6 @@ local function watch_arrow(gs)
         return info
     end
     return reads
-end
-
-local function error_of(fn, ...)
-    local ok, err = pcall(fn, ...)
-    assert.is_false(ok, 'expected an error')
-    return err
 end
 
 local precast_gear = {head = "Bunzi's Hat"}
@@ -90,8 +72,18 @@ describe('an action aimed at a target typed as', function()
 
     it('a monster\'s name is left to the game, which wants <t> for it', function()
         local gs = boot()
-        gs:type('/ma "Dia II" Apex Toad')
+        gs.game:add_mob({name = 'Goblin', spawn_type = 16})
+        assert.equal('/ma "Dia II" Goblin', gs:type('/ma "Dia II" Goblin'))
         assert.same({}, calls(gs))
+        assert.same({'/ma "Dia II" Goblin'}, gs.game.typed)
+    end)
+
+    it('the name of a Trust in the party goes at the Trust', function()
+        local gs = boot()
+        gs.game:add_mob({name = 'Kupipi', spawn_type = 14})
+        gs:type('/ma "Cure III" Kupipi')
+        assert.same({'pretarget', 'precast', 'midcast'}, events(calls(gs)))
+        assert.same({action = 'Cure III', target = 'Kupipi'}, gs:traffic()[2])
     end)
 
     it('its id skips pretarget and goes at that player', function()
@@ -301,6 +293,10 @@ describe('cast_delay', function()
         local gs = boot()
         assert.matches('cast_delay%(%) is only valid in the precast and pretarget functions', error_of(gs.user.cast_delay, 1))
     end)
+
+    pending('drops the action it holds back when the zone changes before it goes: the zone-in packet makes '
+        .. 'command_registry anew, and pretarget_delayed_cast and send_action in flow.lua then index the entry that is '
+        .. 'gone and raise an error')
 end)
 
 describe('cancel_spell', function()
@@ -477,6 +473,7 @@ describe('an action the player can\'t use', function()
         gs:type('/ma "Cure III" <me>')
         assert.same({'filtered_action'}, events(calls(gs)))
         assert.same({'/ma "Cure III" <me>'}, gs.game.typed)
+        assert.same({}, gs:traffic())
     end)
 
     it('because the job is too low for the spell goes to the game, after filtered_action', function()
@@ -510,8 +507,11 @@ describe('an action the player can\'t use', function()
         local gs = boot()
         gs:send_zone_in({['_unknown7'] = ('\0'):rep(20) .. '\1'})
         calls(gs)
+        gs:traffic()
         gs:type('/ma "Cure III" <me>')
         assert.same({'filtered_action'}, events(calls(gs)))
+        assert.same({'/ma "Cure III" <me>'}, gs.game.typed)
+        assert.same({}, gs:traffic())
     end)
 
     it('is told to filtered_action as the spell it is', function()

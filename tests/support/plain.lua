@@ -43,6 +43,21 @@ function plain.names(list)
     return result
 end
 
+-- The hooks the user file noted in its calls list since the last ask, in order, with what they were handed. Their
+-- names are plain.names of the list.
+function plain.calls(gs)
+    local list = gs.user.calls
+    gs.user.calls = {}
+    return list
+end
+
+-- The error fn raises when called with the arguments. Fails when it raises none.
+function plain.error_of(fn, ...)
+    local ok, err = pcall(fn, ...)
+    assert.is_false(ok, 'expected an error')
+    return err
+end
+
 -- What GearSwap put in the chat since the last ask: the color and text of each line, without the codes it wraps a
 -- colored line in. The chat is then empty.
 function plain.chat(gs)

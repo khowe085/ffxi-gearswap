@@ -300,7 +300,8 @@ describe('one copy of a ring', function()
     end)
 
     pending('stays where it is when the set names the ring twice and another piece is found before it: GearSwap '
-        .. 'sends it to the right ring and leaves the left ring empty (unpack_equip_list reassigns used_list)')
+        .. 'sends it to the other ring slot and leaves its own empty, the right ring for one worn in the left and the '
+        .. 'left for one worn in the right (unpack_equip_list reassigns used_list)')
 end)
 
 describe('a piece GearSwap can\'t put on', function()

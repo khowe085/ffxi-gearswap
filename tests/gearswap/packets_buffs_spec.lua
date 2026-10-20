@@ -229,11 +229,12 @@ describe('the party buff packet (0x076)', function()
         .. 'party before the second member\'s buffs are stored, so the second member has no buffs to compare and its '
         .. 'change goes unreported')
 
-    it('says nothing when the user file has no party_buff_change', function()
+    it('says nothing when the user file\'s party_buff_change is no function', function()
         local gs, member = party_with_member()
+        gs.user.party_buff_change = 'not a function'
         gs:send_party_buffs({{id = member.id, index = member.index, buffs = {}}})
-        assert.has_no.errors(function()
-            gs:send_party_buffs({{id = member.id, index = member.index, buffs = {33}}})
-        end)
+        plain.chat(gs)
+        gs:send_party_buffs({{id = member.id, index = member.index, buffs = {33}}})
+        assert.same({}, plain.chat(gs))
     end)
 end)

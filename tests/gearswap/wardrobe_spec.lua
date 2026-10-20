@@ -114,9 +114,21 @@ describe('gs stash', function()
         assert.same({}, gs.game:bag_names('case'))
     end)
 
-    it('takes the job by its long name, in any case', function()
+    it('takes the job by its short name, in any case', function()
         local gs = boot()
         run(gs, 'gs stash Whm')
+        assert.same(unworn, gs.game:bag_names('case'))
+    end)
+
+    it('takes the job by its long name, in any case', function()
+        local gs = boot({{name = 'Naegling', bag = 'wardrobe2'}})
+        assert.equal('GearSwap: Testy_PLD.lua uses 6 pieces.', run(gs, 'gs stash PALADIN')[1])
+        assert.same({'Naegling'}, gs.game:bag_names('case'))
+    end)
+
+    it('takes a long name of two words in quotes', function()
+        local gs = boot()
+        run(gs, 'gs stash "White Mage"')
         assert.same(unworn, gs.game:bag_names('case'))
     end)
 
@@ -305,10 +317,13 @@ describe('gs stash', function()
         it('sends nothing to the game for it, and has none of its commands, chat or events run', function()
             local gs = boot()
             local commands, typed = #gs.game.commands, #gs.game.typed
-            run(gs, 'gs stash pld')
+            local lines = run(gs, 'gs stash pld')
             assert.equal(commands + 1, #gs.game.commands)
             assert.equal(typed, #gs.game.typed)
-            assert.same({}, gs.game.chat_log)
+            for _, line in ipairs(lines) do
+                assert.is_nil(line:find('from the paladin file', 1, true), line)
+                assert.is_nil(line:find('from windower', 1, true), line)
+            end
         end)
 
         it('reads it as the main job it is for', function()

@@ -1,20 +1,8 @@
 local harness = require('harness')
+local plain = require('plain')
 local testy = require('testy')
 
--- The hooks GearSwap called on the user file since the last ask, by name, with what they were handed.
-local function calls(gs)
-    local list = gs.user.calls
-    gs.user.calls = {}
-    return list
-end
-
-local function events(list)
-    local names = {}
-    for i, entry in ipairs(list) do
-        names[i] = entry.event
-    end
-    return names
-end
+local calls, events = plain.calls, plain.names
 
 describe('a spell typed in the chat', function()
     local gs
@@ -109,15 +97,6 @@ describe('a spell typed in the chat', function()
         assert.same({{equip = {head = "Bunzi's Hat", left_ring = 'Kishar Ring'}}}, gs:traffic())
         local got = calls(gs)
         assert.same({'pretarget', 'precast'}, {got[1].event, got[2].event, got[3] and got[3].event})
-    end)
-
-    it('is passed on to the game, untouched, when the character doesn\'t know it', function()
-        gs = harness.boot(testy.whm({spells = {'Cure IV'}}))
-        calls(gs)
-        gs:type('/ma "Cure III" <me>')
-        assert.same({}, gs:traffic())
-        assert.same({'/ma "Cure III" <me>'}, gs.game.typed)
-        assert.same({'filtered_action'}, {calls(gs)[1].event})
     end)
 end)
 
