@@ -48,6 +48,19 @@ local function first_actions(gs)
     return gs:actions()
 end
 
+-- What was put in the chat since it was last read, but the report of the gs validate the user file runs five seconds
+-- after it loads, as the tick starts, which finds nothing missing.
+local function tick_chat(gs)
+    local said = {}
+    for _, line in ipairs(gs:chat()) do
+        if line ~= 'GearSwap: Checking for items in gear sets that are not in your inventory.'
+            and line ~= 'GearSwap: Final count = 0' then
+            said[#said + 1] = line
+        end
+    end
+    return said
+end
+
 local function engaged_worn(gs, ...)
     return jobby.worn_by(jobby.layer(sets_of(gs).engaged, ...))
 end
@@ -354,8 +367,8 @@ describe('a weapon skill by a rune fencer at the TP cap', function()
         return gs
     end
 
-    it('trades the Moonshade Earring for sets.MaxTP', function()
-        local gs = engaged(3000)
+    it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
+        local gs = engaged(2951)
         gs:type('/ws "Resolution" <t>')
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Resolution, sets_of(gs).MaxTP), gs:worn())
     end)
@@ -368,8 +381,8 @@ describe('a weapon skill by a rune fencer at the TP cap', function()
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Resolution, sets_of(gs).AccMaxTP), gs:worn())
     end)
 
-    it('keeps the Moonshade Earring under the cap', function()
-        local gs = engaged(2900)
+    it('keeps the Moonshade Earring at 2950 TP', function()
+        local gs = engaged(2950)
         gs:type('/ws "Resolution" <t>')
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Resolution), gs:worn())
     end)
@@ -463,7 +476,9 @@ describe('the tick of a rune fencer', function()
         it('takes none up while it is on recast', function()
             local gs = stance('Hasso')
             gs.game:start_ability_recast('Hasso', 30)
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
 
         it('takes none up with an SJ Restriction', function()
@@ -473,7 +488,9 @@ describe('the tick of a rune fencer', function()
 
         it('takes none up with amnesia', function()
             local gs = stance('Hasso', {buffs = {'amnesia'}})
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
     end)
 
@@ -560,7 +577,9 @@ describe('the tick of a rune fencer', function()
         it('casts nothing with no monster targeted', function()
             local gs = tank()
             gs.game.target_index = nil
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
     end)
 end)

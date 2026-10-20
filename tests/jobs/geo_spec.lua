@@ -7,9 +7,11 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
 
 -- Jobby as a geomancer with the idle set on, who has claimed the toad, his battle target. The options are those of a
 -- boot (sub_job, tp, buffs) and these besides:
---   mp       the MP of the 1000 he has
---   luopan   true for a luopan out
---   friend   true for a party member, Friend, and stranger for another player near him, Stranger, not in the party
+--   mp                the MP of the 1000 he has
+--   luopan            true for a luopan out
+--   luopan_distance   the squared distance of the luopan from him
+--   friend            true for a party member, Friend, and stranger for another player near him, Stranger, not in the
+--                     party
 local function boot(options)
     options = options or {}
     local gs = jobby.boot('GEO', {items = pieces, sub_job = options.sub_job or 'WHM', tp = options.tp,
@@ -52,8 +54,9 @@ local function first_actions(gs)
     return actions(gs)
 end
 
--- What the tick typed that reached the game untouched, in its first moments: Blaze of Glory and Ecliptic Attrition
--- are typed with a semicolon after the target, which GearSwap doesn't take for one.
+-- What the tick typed that reached the game as a line, not as an action GearSwap sent, in its first moments: GearSwap
+-- hands on a line whose target it can't find, as for Blaze of Glory and Ecliptic Attrition, typed with a semicolon
+-- after the target, which GearSwap doesn't take for one, and for a spell on <bt> with no battle target.
 local function first_typed(gs)
     gs:play(5.3)
     local typed = {}
@@ -377,6 +380,11 @@ describe('the indicolure out', function()
         gs:finish_action()
         assert.same({'timers d "Jobby: "', 'timers c "Jobby: Indi-Torpor" 180 down spells/00136.png'},
             gs:commands())
+        gs:advance(3)
+        gs:type('/ma "Indi-Fury" <me>')
+        gs:finish_action()
+        assert.same({'timers d "Jobby: Indi-Torpor"', 'timers c "Jobby: Indi-Fury" 180 down spells/00136.png'},
+            gs:commands())
     end)
 
     it('starts no timer with the custom timers state off', function()
@@ -405,15 +413,15 @@ describe('a geomancer\'s Sleep timers', function()
         return gs:commands()
     end
 
-    it('starts a 60 second timer on the target when Sleep lands', function()
+    it('starts a 60 second timer on the target once Sleep is cast', function()
         assert.same({'timers c "Sleep [Apex Toad]" 60 down spells/00220.png'}, cast_sleep('Sleep'))
     end)
 
-    it('starts a 60 second timer when Sleepga lands', function()
+    it('starts a 60 second timer once Sleepga is cast', function()
         assert.same({'timers c "Sleepga [Apex Toad]" 60 down spells/00220.png'}, cast_sleep('Sleepga'))
     end)
 
-    it('starts a 90 second timer when Sleep II lands', function()
+    it('starts a 90 second timer once Sleep II is cast', function()
         assert.same({'timers c "Sleep II [Apex Toad]" 90 down spells/00220.png'}, cast_sleep('Sleep II'))
     end)
 
@@ -475,12 +483,13 @@ describe('a cure by a geomancer', function()
 end)
 
 describe('the obi entries a geomancer\'s precast fills', function()
-    -- The obi entries once each line is typed and its action done but the last.
+    -- The obi entries once each line is typed and its spell has gone out, and each spell done but the last.
     local function default_after(...)
         local gs = boot()
         local lines = {...}
         for i, line in ipairs(lines) do
             gs:type(line)
+            assert.same({line:match('"(.-)"')}, gs:actions())
             if i < #lines then
                 gs:finish_action()
                 gs:advance(3)
@@ -850,7 +859,8 @@ describe('the tick of a geomancer', function()
         gs.user.autoentrust = 'None'
         gs.game.target_index = nil
         gs.game.monster = nil
-        assert.same({}, first_actions(gs))
+        assert.same({}, first_typed(gs))
+        assert.same({}, actions(gs))
     end)
 
     describe('with a luopan out', function()
@@ -877,18 +887,21 @@ describe('the tick of a geomancer', function()
         it('uses it no more once it has', function()
             local gs = luopan()
             gs.user.used_ecliptic = true
-            assert.same({}, first_actions(gs))
+            assert.same({}, first_typed(gs))
+            assert.same({}, actions(gs))
         end)
 
         it('uses it not at all with the Geo abilities state off', function()
             local gs = luopan()
             gs:console('gs c toggle AutoGeoAbilities')
-            assert.same({}, first_actions(gs))
+            assert.same({}, first_typed(gs))
+            assert.same({}, actions(gs))
         end)
 
         it('uses it not at all under Bolster', function()
             local gs = luopan({buffs = {'Bolster'}})
-            assert.same({}, first_actions(gs))
+            assert.same({}, first_typed(gs))
+            assert.same({}, actions(gs))
         end)
 
         it('uses Full Circle on a luopan out of reach, over 50 yalms away', function()

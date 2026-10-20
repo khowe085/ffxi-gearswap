@@ -5,9 +5,11 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
     'Pensee Earring', 'Moonshade Earring', 'Wanion Belt', 'Prodigious Mantle', 'Malignance Chapeau', 'Setan Kober',
     'Horos T. Shoes +2'}
 
--- Jobby as a dancer with the idle set on. The options are those of a boot (sub_job, tp, buffs) and these besides:
+-- Jobby as a dancer with the idle set on. The options are those of a boot (sub_job, tp, buffs, wearing) and these
+-- besides:
 --   engaged   true to engage the monster
 --   hp        the HP of the 1500 he has
+--   kobers    the number of Setan Kobers he has, one unless given
 local function boot(options)
     options = options or {}
     local items = {}
@@ -38,6 +40,31 @@ end
 local function first_actions(gs)
     gs:play(5.3)
     return gs:actions()
+end
+
+-- What was put in the chat since it was last read, but the report of the gs validate the user file runs five seconds
+-- after it loads, as the tick starts, which finds nothing missing.
+local function tick_chat(gs)
+    local said = {}
+    for _, line in ipairs(gs:chat()) do
+        if line ~= 'GearSwap: Checking for items in gear sets that are not in your inventory.'
+            and line ~= 'GearSwap: Final count = 0' then
+            said[#said + 1] = line
+        end
+    end
+    return said
+end
+
+-- The lines typed that reached the game since this was last asked, as GearSwap hands on a line whose target it can't
+-- find, but the /lockstyle on the user file types five seconds after it loads.
+local function tick_typed(gs)
+    local typed = {}
+    for _, line in ipairs(gs:typed()) do
+        if line ~= '/lockstyle on' then
+            typed[#typed + 1] = line
+        end
+    end
+    return typed
 end
 
 local function engaged_worn(gs, ...)
@@ -330,8 +357,8 @@ describe('a weapon skill by a dancer', function()
         return gs
     end
 
-    it('trades the Moonshade Earring for sets.MaxTP at the TP cap', function()
-        local gs = weaponskill(3000)
+    it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
+        local gs = weaponskill(2951)
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Rudra\'s Storm'], sets_of(gs).MaxTP), gs:worn())
     end)
 
@@ -340,8 +367,8 @@ describe('a weapon skill by a dancer', function()
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Rudra\'s Storm'], sets_of(gs).AccMaxTP), gs:worn())
     end)
 
-    it('keeps the Moonshade Earring under the cap', function()
-        local gs = weaponskill(2900)
+    it('keeps the Moonshade Earring at 2950 TP', function()
+        local gs = weaponskill(2950)
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Rudra\'s Storm']), gs:worn())
     end)
 
@@ -371,6 +398,7 @@ describe('a weapon skill by a dancer', function()
             end
             gs:type('/ws "Rudra\'s Storm" <t>')
             assert.same({'Rudra\'s Storm'}, gs:actions())
+            gs:chat()
             gs.game.player.vitals.tp = options.tp_left or 0
             gs:finish_action()
             gs:play(7)
@@ -390,6 +418,7 @@ describe('a weapon skill by a dancer', function()
         it('is followed by no Reverse Flourish while it is on recast', function()
             local gs = finished({buffs = {'Finishing Move 3'}, recasts = {'Reverse Flourish'}})
             assert.same({}, gs:actions())
+            assert.same({}, tick_chat(gs))
         end)
 
         it('is followed by no Reverse Flourish with 999 TP left', function()
@@ -524,7 +553,9 @@ describe('the dances', function()
         it('begin with nothing while the dance is on recast', function()
             local gs = stance('Saber Dance')
             gs.game:start_ability_recast('Saber Dance', 30)
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
 
         it('begin with nothing when the stance is None', function()
@@ -558,7 +589,9 @@ describe('the tick of a dancer', function()
         it('uses nothing while No Foot Rise is on recast', function()
             local gs = buffer()
             gs.game:start_ability_recast('No Foot Rise', 30)
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
 
         it('uses nothing with AutoBuffMode off', function()
@@ -640,13 +673,16 @@ describe('the tick of a dancer', function()
         it('uses no step while the steps are on recast', function()
             local gs = stepper('Main')
             gs.game:start_ability_recast('Quickstep', 30)
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
 
         it('uses no step with no monster targeted', function()
             local gs = stepper('Main')
             gs.game.target_index = nil
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_typed(gs))
         end)
     end)
 

@@ -54,6 +54,19 @@ local function first_actions(gs)
     return gs:actions()
 end
 
+-- What was put in the chat since it was last read, but the report of the gs validate the user file runs five seconds
+-- after it loads, as the tick starts, which finds nothing missing.
+local function tick_chat(gs)
+    local said = {}
+    for _, line in ipairs(gs:chat()) do
+        if line ~= 'GearSwap: Checking for items in gear sets that are not in your inventory.'
+            and line ~= 'GearSwap: Final count = 0' then
+            said[#said + 1] = line
+        end
+    end
+    return said
+end
+
 describe('the automaton\'s mode, from its head and frame', function()
     local cases = {
         {'Valoredge Head', 'Sharpshot Frame', 'HybridRanged'},
@@ -148,7 +161,7 @@ describe('the idle set of a puppetmaster', function()
     end)
 
     it('wears the set of the automaton\'s PetWSGear over it from 1000 TP of the pet\'s', function()
-        local gs = boot({pet = {status = 1, tp = 1500}})
+        local gs = boot({pet = {status = 1, tp = 1000}})
         assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetWSGear.Melee)),
             gs:worn())
     end)
@@ -463,6 +476,7 @@ describe('the tick of a puppetmaster', function()
         local gs = boot({pet = {hpp = 30}})
         gs.game:start_ability_recast('Repair', 60)
         assert.same({}, first_actions(gs))
+        assert.same({}, tick_chat(gs))
     end)
 
     describe('with the Auto Puppet Mode on', function()
@@ -487,7 +501,9 @@ describe('the tick of a puppetmaster', function()
             local gs = puppeteer({no_pet = true})
             gs.game:start_ability_recast('Activate', 600)
             gs.game:start_ability_recast('Deus Ex Automata', 600)
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
 
         it('sends an idle pet in on a monster target with Deploy', function()
@@ -549,7 +565,9 @@ describe('the tick of a puppetmaster', function()
         it('uses none while the maneuvers are on recast', function()
             local gs = buffer()
             gs.game:start_ability_recast('Fire Maneuver', 30)
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
 
         it('uses none with the maneuvers up', function()
@@ -567,24 +585,24 @@ describe('the tick of a puppetmaster', function()
     describe('with the pet\'s TP', function()
         it('asks for the gear to be updated when the pet reaches 1000', function()
             local gs = boot({pet = {status = 1}, ticking = true})
-            gs:set_pet_tp(1500)
+            gs:set_pet_tp(1000)
             gs:play(1.5)
             assert.same({'gs c update'}, gs:commands())
         end)
 
         it('asks again when it falls back under 1000', function()
             local gs = boot({pet = {status = 1}, ticking = true})
-            gs:set_pet_tp(1500)
+            gs:set_pet_tp(1000)
             gs:play(1.5)
             gs:commands()
-            gs:set_pet_tp(100)
+            gs:set_pet_tp(999)
             gs:play(1.5)
             assert.same({'gs c update'}, gs:commands())
         end)
 
         it('asks for nothing while it stays under 1000', function()
             local gs = boot({pet = {status = 1}, ticking = true})
-            gs:set_pet_tp(900)
+            gs:set_pet_tp(999)
             gs:play(1.5)
             assert.same({}, gs:commands())
         end)
