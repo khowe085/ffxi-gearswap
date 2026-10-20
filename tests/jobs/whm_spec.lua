@@ -661,11 +661,16 @@ describe('WHM\'s elemental commands', function()
             end
         end
         gs:console('gs c elemental ' .. command)
-        return gs:actions(), gs
+        return gs:action_entries(), gs
+    end
+
+    -- The one action sent: that spell at the toad.
+    local function at_the_toad(spell)
+        return {{action = spell, target = 'Apex Toad'}}
     end
 
     it('nukes with Holy II in the Light mode', function()
-        assert.same({'Holy II'}, (nuke('Light', 'nuke')))
+        assert.same(at_the_toad('Holy II'), (nuke('Light', 'nuke')))
     end)
 
     pending('casts nothing more once Holy II is done in the Light mode: handle_job_elemental in data/WHM.lua returns '
@@ -676,27 +681,27 @@ describe('WHM\'s elemental commands', function()
         .. 'nuke only with more MP than it costs (actual_cost < player.mp), so it goes down to Holy')
 
     it('goes down to Holy when Holy II is on recast', function()
-        assert.same({'Holy'}, (nuke('Light', 'nuke', {recasts = {['Holy II'] = 10}})))
+        assert.same(at_the_toad('Holy'), (nuke('Light', 'nuke', {recasts = {['Holy II'] = 10}})))
     end)
 
     it('goes down to Banish III when Holy II and Holy are on recast', function()
-        assert.same({'Banish III'}, (nuke('Light', 'nuke', {recasts = {['Holy II'] = 10, ['Holy'] = 10}})))
+        assert.same(at_the_toad('Banish III'), (nuke('Light', 'nuke', {recasts = {['Holy II'] = 10, ['Holy'] = 10}})))
     end)
 
     it('smallnuke uses Banish II in the Light mode', function()
-        assert.same({'Banish II'}, (nuke('Light', 'smallnuke')))
+        assert.same(at_the_toad('Banish II'), (nuke('Light', 'smallnuke')))
     end)
 
     it('smallnuke goes down to Banish when Banish II is on recast', function()
-        assert.same({'Banish'}, (nuke('Light', 'smallnuke', {recasts = {['Banish II'] = 10}})))
+        assert.same(at_the_toad('Banish'), (nuke('Light', 'smallnuke', {recasts = {['Banish II'] = 10}})))
     end)
 
     it('nukes with the highest tier Jobby can cast in another mode: Fire II from a level 49 Black Mage sub job', function()
-        assert.same({'Fire II'}, (nuke('Fire', 'nuke')))
+        assert.same(at_the_toad('Fire II'), (nuke('Fire', 'nuke')))
     end)
 
     it('goes down a tier when that one is on recast', function()
-        assert.same({'Fire'}, (nuke('Fire', 'nuke', {recasts = {['Fire II'] = 10}})))
+        assert.same(at_the_toad('Fire'), (nuke('Fire', 'nuke', {recasts = {['Fire II'] = 10}})))
     end)
 
     -- Sel's handle_elemental goes on to its own nuke here too, but picks the same tier, and Sel drops a spell of the
@@ -712,7 +717,7 @@ describe('WHM\'s elemental commands', function()
         .. 'with more MP than it costs (actual_cost < player.mp), so it goes down to Fire')
 
     it('smallnuke uses Fire II in another mode', function()
-        assert.same({'Fire II'}, (nuke('Fire', 'smallnuke')))
+        assert.same(at_the_toad('Fire II'), (nuke('Fire', 'smallnuke')))
     end)
 
     it('casts nothing, and says nothing, when every light nuke is on recast', function()

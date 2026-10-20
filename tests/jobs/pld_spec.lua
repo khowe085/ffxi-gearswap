@@ -305,23 +305,20 @@ describe('PLD\'s engaged set by what is in the sub slot', function()
         return gs
     end
 
-    it('is sets.engaged.DW with a weapon in the sub slot and a Dancer sub job', function()
-        assert.equal('Volte Bracers', engaged('DNC', 'Swords'):worn().hands)
-    end)
-
-    it('is sets.engaged.DW with a weapon in the sub slot and a Ninja sub job', function()
-        assert.equal('Volte Bracers', engaged('NIN', 'Swords'):worn().hands)
+    it('is sets.engaged.DW with a weapon in the sub slot and a Dancer or Ninja sub job', function()
+        for _, sub_job in ipairs({'DNC', 'NIN'}) do
+            assert.same(engaged_with({main = 'Naegling', sub = 'Kheshig Blade', hands = 'Volte Bracers'}),
+                engaged(sub_job, 'Swords'):worn(), sub_job)
+        end
     end)
 
     it('is sets.engaged with a White Mage sub job, for which a weapon set with a weapon in the sub slot is passed '
         .. 'over', function()
-        local worn = engaged('WHM', 'Swords'):worn()
-        assert.same({'Naegling', 'Aegis'}, {worn.main, worn.sub})
-        assert.equal('Nyame Gauntlets', worn.hands)
+        assert.same(engaged_with({main = 'Naegling', sub = 'Aegis'}), engaged('WHM', 'Swords'):worn())
     end)
 
     it('is sets.engaged with a shield in the sub slot and a Dancer sub job', function()
-        assert.equal('Nyame Gauntlets', engaged('DNC', 'Shield'):worn().hands)
+        assert.same(engaged_with({main = 'Naegling', sub = 'Aegis'}), engaged('DNC', 'Shield'):worn())
     end)
 
     it('stays sets.engaged at an update with a two-handed weapon and a Dancer sub job, though data/PLD.lua sets DW '
@@ -330,7 +327,7 @@ describe('PLD\'s engaged set by what is in the sub slot', function()
         gs:traffic()
         gs:console('gs c update')
         assert.same({}, gs:traffic())
-        assert.equal('Nyame Gauntlets', gs:worn().hands)
+        assert.same(engaged_with({main = 'Ragnarok'}), gs:worn())
     end)
 
     pending('is sets.engaged with a shield in the sub slot, Weapons None and a Dancer sub job: Sel\'s '

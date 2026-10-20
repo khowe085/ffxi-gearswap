@@ -198,6 +198,7 @@ return {
     [26367] = {id=26367,en="Null Belt",ja="無の腰当",enl="null belt",jal="無の腰当",category="Armor",flags=63568,jobs=8388606,level=99,races=510,slots=1024,stack=1,targets=0,type=5},
     [26406] = {id=26406,en="Kupo Shield",ja="クポシールド",enl="kupo shield",jal="クポシールド",category="Armor",flags=63552,jobs=8388606,level=1,races=510,shield_size=3,slots=2,stack=1,targets=0,type=5},
     [26419] = {id=26419,en="Ammurapi Shield",ja="アムラピシールド",enl="Ammurapi shield",jal="アムラピシールド",category="Armor",flags=63568,item_level=119,jobs=3179576,level=99,races=510,shield_size=1,slots=2,stack=1,targets=0,type=5},
+    [26487] = {id=26487,en="Sacro Bulwark",ja="サクロバルワーク",enl="sacro bulwark",jal="サクロバルワーク",category="Armor",flags=63568,item_level=119,jobs=674,level=99,races=510,shield_size=3,slots=2,stack=1,targets=0,type=5},
     [26692] = {id=26692,en="Blacksh. Hairpin",ja="堅甲の髪飾り",enl="blackshell hairpin",jal="堅甲の髪飾り",category="Armor",flags=63572,item_level=119,jobs=8388606,level=99,races=510,slots=16,stack=1,targets=0,type=5},
     [26696] = {id=26696,en="Pixie Hairpin +1",ja="妖蟲の髪飾り+1",enl="pixie hairpin +1",jal="妖蟲の髪飾り+1",category="Armor",flags=2052,item_level=118,jobs=8388606,level=99,races=510,slots=16,stack=1,targets=0,type=5},
     [26699] = {id=26699,en="Theia's Hairpin +1",ja="テイアの髪飾り+1",enl="Theia's hairpin +1",jal="テイアの髪飾り+1",category="Armor",flags=34820,item_level=118,jobs=8388606,level=99,races=510,slots=16,stack=1,targets=0,type=5},

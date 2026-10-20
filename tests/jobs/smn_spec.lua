@@ -106,8 +106,9 @@ describe('SMN\'s blood pact with Astral Conduit up and not enough MP for it twic
         assert.same({'Myrkr'}, gs:actions())
     end)
 
-    it('is Convert, not Myrkr, with less than 1000 TP', function()
+    it('is Convert, not Myrkr, with less than 1000 TP and more than 400 HP', function()
         gs.game.player.vitals.tp = 999
+        gs.game.player.vitals.hp = 401
         gs:type('/pet "Flaming Crush" <t>')
         assert.same({'Not enough MP to Pact while using Conduit, Converting!'}, gs:chat())
         assert.same({'Convert'}, gs:actions())

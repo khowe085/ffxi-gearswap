@@ -33,7 +33,7 @@ function init_gear_sets()
 
 	sets.midcast.Geomancy = {hands = 'Volte Bracers', main = 'Daybreak'}
 	sets.midcast.Geomancy.Indi = {hands = 'Volte Bracers', main = 'Daybreak', body = 'Adamantite Armor'}
-	sets.buff['Blaze of Glory'] = {hands = 'Volte Bracers'}
+	sets.buff['Blaze of Glory'] = {hands = 'Volte Bracers', neck = "Orunmila's Torque"}
 	sets.buff.Entrust = {neck = 'Weike Torque'}
 
 	sets.midcast.Cure = {ring1 = 'Gelatinous Ring'}

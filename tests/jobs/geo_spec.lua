@@ -262,7 +262,7 @@ describe('a Geo spell cast under Blaze of Glory', function()
         gs:type('/ma "Geo-Frailty" <bt>')
         gs:finish_action()
         gs:console('gs c update')
-        assert.equal('Volte Bracers', gs:worn().hands)
+        assert.equal("Orunmila's Torque", gs:worn().neck)
     end)
 
     it('keeps no gear on without the buff', function()

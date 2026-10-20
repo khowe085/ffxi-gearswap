@@ -5,7 +5,8 @@ local gear = {'Masamune', "Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin"
     'Sapphire Platemail', 'Jadeite Cuirie', 'Sapphire Gauntlets', 'Jadeite Gloves', 'Sapphire Trousers',
     'Jadeite Chausses', 'Diamond Haramaki', 'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Kote', 'Diamond Hiza.',
     'Diamond Sune-Ate', "Orunmila's Torque", 'Moonshade Earring', 'Lugra Earring +1', 'Ishvara Earring',
-    'Brutal Earring', "Hecate's Earring", 'Pixie Earring', 'Beastly Earring', 'Stealth Earring'}
+    'Brutal Earring', "Hecate's Earring", 'Pixie Earring', 'Beastly Earring', 'Stealth Earring', 'Volte Bracers',
+    'Volte Hose', 'Volte Jupon'}
 
 -- What the idle set of Jobby's samurai gear file wears besides every gear file's.
 local own_idle = {main = 'Masamune', back = 'Mecisto. Mantle'}
@@ -39,7 +40,8 @@ describe('SAM\'s weapon skill with AutoBuffMode off', function()
         gs.game.player.vitals.tp = 3000
         assert.is_true(gs:type('/ws "Tachi: Shoha" <t>'))
         assert.same({
-            {equip = {head = "Theia's Hairpin", neck = "Orunmila's Torque"}},
+            {equip = {head = "Theia's Hairpin", neck = "Orunmila's Torque", hands = 'Volte Bracers',
+                legs = 'Volte Hose'}},
             {action = 'Tachi: Shoha', target = 'Apex Toad'},
         }, gs:traffic())
     end)
@@ -256,21 +258,24 @@ describe('SAM\'s weapon skill set with neither earring in it', function()
         gs = boot()
     end)
 
+    -- What is worn with sets.precast.WS on, and these changes over it.
+    local function ws_with(changes)
+        return worn(jobby.worn_by({head = "Theia's Hairpin", neck = "Orunmila's Torque", hands = 'Volte Bracers',
+            legs = 'Volte Hose'}, changes))
+    end
+
     it('is the set as it stands at any TP', function()
-        assert.same(worn({head = "Theia's Hairpin", neck = "Orunmila's Torque"}),
-            weaponskill(gs, 'Tachi: Shoha', 3000))
+        assert.same(ws_with(), weaponskill(gs, 'Tachi: Shoha', 3000))
     end)
 
     it('has Sekkanoki\'s set over it while Sekkanoki is up', function()
         gs:gain_buff('Sekkanoki')
-        assert.same(worn({head = "Theia's Hairpin", neck = "Orunmila's Torque", hands = 'Diamond Kote'}),
-            weaponskill(gs, 'Tachi: Shoha', 1000))
+        assert.same(ws_with({hands = 'Diamond Kote'}), weaponskill(gs, 'Tachi: Shoha', 1000))
     end)
 
     it('has Sengikori\'s set over it while Sengikori is up', function()
         gs:gain_buff('Sengikori')
-        assert.same(worn({head = "Theia's Hairpin", neck = "Orunmila's Torque", legs = 'Diamond Hiza.'}),
-            weaponskill(gs, 'Tachi: Shoha', 1000))
+        assert.same(ws_with({legs = 'Diamond Hiza.'}), weaponskill(gs, 'Tachi: Shoha', 1000))
     end)
 end)
 
@@ -390,13 +395,13 @@ describe('SAM casting with a sub job that casts', function()
     it('wears no Reraise in the plain physical defense mode', function()
         gs:console('gs c set DefenseMode Physical')
         gs:type('/ma "Cure III" <me>')
-        assert.same(worn({hands = 'Sapphire Gauntlets'}), gs:worn())
+        assert.same(worn({hands = 'Sapphire Gauntlets', body = 'Volte Jupon'}), gs:worn())
     end)
 
     it('wears no Reraise in another hybrid mode', function()
         gs:console('gs c set HybridMode DT')
         gs:type('/ma "Cure III" <me>')
-        assert.same(worn(), gs:worn())
+        assert.same(worn({body = 'Volte Jupon'}), gs:worn())
     end)
 end)
 
@@ -513,15 +518,15 @@ describe('SAM\'s stance, kept by the tick', function()
         gs.game:start_ability_recast('Hasso', 30)
         gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
-        assert.same({}, jobby.said(gs, 'waiting on recast'))
+        assert.same({}, jobby.said(gs, '^Abort'))
     end)
 
-    it('waits while Seigan is on recast in the Seigan stance', function()
+    it('waits while Seigan is on recast in the Seigan stance, without trying it', function()
         gs:console('gs c set Stance Seigan')
         gs.game:start_ability_recast('Seigan', 30)
         gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
-        assert.same({}, jobby.said(gs, 'waiting on recast'))
+        assert.same({}, jobby.said(gs, '^Abort'))
     end)
 
     it('waits with a one-handed weapon in hand', function()

@@ -23,8 +23,8 @@ function init_gear_sets()
 	sets.precast.JA.Jump = {hands = 'Sapphire Gauntlets'}
 	sets.precast.JA.Jump.Acc = {hands = 'Jadeite Gloves'}
 	sets.precast.JA['High Jump'] = {legs = 'Sapphire Trousers'}
-	sets.precast.JA['Spirit Jump'] = {hands = 'Diamond Kote'}
-	sets.precast.JA['Spirit Jump'].Acc = {hands = 'Diamond Kote', legs = 'Jadeite Chausses'}
+	sets.precast.JA['Spirit Jump'] = {hands = 'Diamond Kote', legs = 'Volte Hose'}
+	sets.precast.JA['Spirit Jump'].Acc = {legs = 'Jadeite Chausses'}
 	sets.precast.JA['Spirit Link'] = {legs = 'Diamond Hiza.'}
 	sets.precast.JA['Spirit Link'].Acc = {legs = 'Jadeite Chausses'}
 

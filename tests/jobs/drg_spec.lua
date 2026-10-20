@@ -4,7 +4,7 @@ local jobby = require('jobby')
 local gear = {'Pitchfork +1', 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Vishap Armet +3',
     'Sapphire Platemail', 'Jadeite Cuirie', 'Diamond Haramaki', 'Sapphire Leggings', 'Sapphire Gauntlets',
     'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers', 'Jadeite Chausses', 'Diamond Hiza.', "Orunmila's Torque",
-    'Moonshade Earring', 'Ishvara Earring', 'Brutal Earring', 'Aptitude Mantle', 'Volte Cap'}
+    'Moonshade Earring', 'Ishvara Earring', 'Brutal Earring', 'Aptitude Mantle', 'Volte Cap', 'Volte Hose'}
 
 -- What the idle set of Jobby's dragoon gear file wears besides every gear file's.
 local own_idle = {main = 'Pitchfork +1', back = 'Mecisto. Mantle'}

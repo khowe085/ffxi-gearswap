@@ -16,7 +16,7 @@ function init_gear_sets()
 		ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring', ring1 = 'Defending Ring', ring2 = 'Stikini Ring +1',
 		back = 'Mecisto. Mantle'}
 
-	sets.engaged = {head = "Bendis's Hairpin", body = 'Sapphire Platemail'}
+	sets.engaged = {head = "Bendis's Hairpin", body = 'Sapphire Platemail', neck = 'Loricate Torque +1'}
 	sets.engaged.Acc = {head = "Bendis's Hairpin", body = 'Jadeite Cuirie'}
 
 	sets.defense.PDT = {legs = 'Jadeite Chausses'}
@@ -25,7 +25,7 @@ function init_gear_sets()
 	sets.precast.FC.Utsusemi = {head = "Theia's Hairpin"}
 
 	sets.midcast.Utsusemi = {hands = 'Sapphire Gauntlets'}
-	sets.midcast.ElementalNinjutsu = {hands = 'Jadeite Gloves'}
+	sets.midcast.ElementalNinjutsu = {hands = 'Jadeite Gloves', feet = 'Sapphire Leggings'}
 	sets.midcast.NinjutsuBuff = {hands = 'Diamond Kote'}
 	sets.midcast.NinjutsuDebuff = {legs = 'Sapphire Trousers'}
 

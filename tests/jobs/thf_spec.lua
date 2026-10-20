@@ -117,9 +117,8 @@ describe('THF\'s weapon skill set by Sneak Attack and Trick Attack', function()
 
     it('is sets.precast.WS for a weapon skill with none of its own', function()
         gs:gain_buff('Sneak Attack')
-        local worn = weaponskill(gs, '/ws "Mandalic Stab" <t>')
-        assert.equal('Defending Ring', worn.left_ring)
-        assert.equal('Plat. Mog. Belt', worn.waist)
+        assert.same(jobby.worn_by(jobby.full_idle, {neck = 'Fotia Gorget', ear1 = 'Moonshade Earring',
+            ear2 = 'Brutal Earring', body = 'Adamantite Armor'}), weaponskill(gs, '/ws "Mandalic Stab" <t>'))
     end)
 end)
 

@@ -28,7 +28,8 @@ function init_gear_sets()
 	sets.precast.RA.Gun.Flurry = {hands = 'Diamond Kote'}
 	sets.precast.RA.Gun.Flurry2 = {hands = 'Diamond Kote', legs = 'Jadeite Chausses'}
 
-	sets.midcast.RA = {body = 'Sapphire Platemail'}
+	sets.midcast.RA = {body = 'Sapphire Platemail', hands = 'Volte Bracers', legs = 'Volte Hose', neck = 'Fotia Gorget',
+		back = 'Moonbeam Cape'}
 	sets.midcast.RA.Acc = {body = 'Jadeite Cuirie'}
 	sets.midcast.RA.AM = {body = 'Diamond Haramaki'}
 	sets.TrueShot = {feet = 'Sapphire Leggings'}

@@ -598,19 +598,24 @@ describe('BLM\'s elemental commands', function()
             gs.game.player.vitals.mp = mp
         end
         gs:console('gs c elemental ' .. name)
-        return gs:actions(), gs
+        return gs:action_entries(), gs
+    end
+
+    -- The one action sent: that spell at the toad.
+    local function at_the_toad(spell)
+        return {{action = spell, target = 'Apex Toad'}}
     end
 
     it('nukes with the highest tier, Fire VI, in another mode', function()
-        assert.same({'Fire VI'}, (command('Fire', 'nuke')))
+        assert.same(at_the_toad('Fire VI'), (command('Fire', 'nuke')))
     end)
 
     it('goes down a tier when that one is on recast', function()
-        assert.same({'Fire V'}, (command('Fire', 'nuke', {['Fire VI'] = 10})))
+        assert.same(at_the_toad('Fire V'), (command('Fire', 'nuke', {['Fire VI'] = 10})))
     end)
 
     it('goes down a tier when Jobby hasn\'t the MP', function()
-        assert.same({'Fire V'}, (command('Fire', 'nuke', nil, 338)))
+        assert.same(at_the_toad('Fire V'), (command('Fire', 'nuke', nil, 338)))
     end)
 
     pending('nukes with Fire VI with just its cost in MP, 339: handle_job_elemental in data/BLM.lua takes a tier only '
@@ -624,7 +629,7 @@ describe('BLM\'s elemental commands', function()
     end)
 
     it('smallnuke uses the second tier', function()
-        assert.same({'Fire II'}, (command('Fire', 'smallnuke')))
+        assert.same(at_the_toad('Fire II'), (command('Fire', 'smallnuke')))
     end)
 
     it('says so when every tier is on recast', function()
@@ -644,33 +649,34 @@ describe('BLM\'s elemental commands', function()
     end)
 
     it('nukes with Banish II in the Light mode', function()
-        assert.same({'Banish II'}, (command('Light', 'nuke')))
+        assert.same(at_the_toad('Banish II'), (command('Light', 'nuke')))
     end)
 
     it('goes down to Banish when Banish II is on recast in the Light mode', function()
-        assert.same({'Banish'}, (command('Light', 'nuke', {['Banish II'] = 10})))
+        assert.same(at_the_toad('Banish'), (command('Light', 'nuke', {['Banish II'] = 10})))
     end)
 
     it('casts the ancient magic of the element', function()
-        assert.same({'Flare'}, (command('Fire', 'ancientmagic')))
+        assert.same(at_the_toad('Flare'), (command('Fire', 'ancientmagic')))
     end)
 
     it('casts the second tier of the ancient magic', function()
-        assert.same({'Flare II'}, (command('Fire', 'ancientmagic2')))
+        assert.same(at_the_toad('Flare II'), (command('Fire', 'ancientmagic2')))
     end)
 
     it('casts the highest tier of the aoe nuke, the -ja one', function()
-        assert.same({'Firaja'}, (command('Fire', 'aga')))
+        assert.same(at_the_toad('Firaja'), (command('Fire', 'aga')))
     end)
 
     it('goes down the aoe tiers on recast', function()
-        assert.same({'Firaga III'}, (command('Fire', 'aga', {['Firaja'] = 10})))
-        assert.same({'Firaga II'}, (command('Fire', 'aga', {['Firaja'] = 10, ['Firaga III'] = 10})))
-        assert.same({'Firaga'}, (command('Fire', 'aga', {['Firaja'] = 10, ['Firaga III'] = 10, ['Firaga II'] = 10})))
+        assert.same(at_the_toad('Firaga III'), (command('Fire', 'aga', {['Firaja'] = 10})))
+        assert.same(at_the_toad('Firaga II'), (command('Fire', 'aga', {['Firaja'] = 10, ['Firaga III'] = 10})))
+        assert.same(at_the_toad('Firaga'),
+            (command('Fire', 'aga', {['Firaja'] = 10, ['Firaga III'] = 10, ['Firaga II'] = 10})))
     end)
 
     it('casts the -ja nuke for aja', function()
-        assert.same({'Firaja'}, (command('Fire', 'aja')))
+        assert.same(at_the_toad('Firaja'), (command('Fire', 'aja')))
     end)
 
     it('says so when every aoe tier is on recast', function()
