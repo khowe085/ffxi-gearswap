@@ -21,12 +21,12 @@ describe('Sel\'s weapon lock', function()
         gs = boot()
     end)
 
-    it('puts the weapon set\'s main and sub on over the idle set\'s', function()
+    it('puts the weapon set\'s main on over the idle set\'s', function()
         gs:console('gs c set Weapons Naegling')
         assert.same(testy.worn_by(testy.rdm_idle, {main = 'Naegling'}), gs:worn())
     end)
 
-    it('keeps the weapon set\'s main and sub on when a spell\'s set names other weapons', function()
+    it('keeps the weapon set\'s main on when a spell\'s set names another', function()
         gs:console('gs c set Weapons Naegling')
         gs:type('/ma "Cure III" <me>')
         assert.same(curing_with('Naegling'), gs:worn())
@@ -34,7 +34,7 @@ describe('Sel\'s weapon lock', function()
         assert.same(testy.worn_by(testy.rdm_idle, {main = 'Naegling'}), gs:worn())
     end)
 
-    it('swaps to another weapon set\'s main and sub when the weapon set changes', function()
+    it('swaps to another weapon set\'s main when the weapon set changes', function()
         gs:console('gs c set Weapons Naegling')
         gs:console('gs c set Weapons Crocea')
         assert.same(testy.worn_by(testy.rdm_idle, {main = 'Crocea Mors'}), gs:worn())
@@ -54,8 +54,17 @@ describe('Sel\'s weapon lock', function()
         assert.same(testy.worn_by(testy.rdm_idle), gs:worn())
     end)
 
-    pending('lets each set\'s weapons go on while engaged with Weapons None, as docs/frameworks/sel.md says: '
-        .. 'data/User/User-Globals.lua holds the weapons in hand while engaged (hold_engaged_weapons)')
+    it('holds the weapons in hand while engaged with Weapons None, as User-Globals.lua has it, so a spell\'s set\'s '
+        .. 'weapons don\'t go on', function()
+        gs:engage()
+        gs:type('/ma "Cure III" <me>')
+        local worn = gs:worn()
+        assert.same({'Daybreak', 'Kaykaus Mitra +1'}, {worn.main, worn.head})
+    end)
+
+    pending('lets each set\'s weapons go on while engaged with Weapons None or UnlockWeapons on, as '
+        .. 'docs/frameworks/sel.md says: data/User/User-Globals.lua holds the weapons in hand while engaged '
+        .. '(hold_engaged_weapons)')
 end)
 
 describe('Sel\'s weapon set with UnlockWeapons on', function()
@@ -76,5 +85,12 @@ describe('Sel\'s weapon set with UnlockWeapons on', function()
         assert.same(curing_with("Bunzi's Rod"), gs:worn())
         gs:finish_action()
         assert.same(testy.worn_by(testy.rdm_idle, {main = 'Naegling'}), gs:worn())
+    end)
+
+    it('is held in hand while engaged, as User-Globals.lua has it, so a spell\'s set\'s weapons don\'t go on', function()
+        gs:engage()
+        gs:type('/ma "Cure III" <me>')
+        local worn = gs:worn()
+        assert.same({'Naegling', 'Kaykaus Mitra +1'}, {worn.main, worn.head})
     end)
 end)

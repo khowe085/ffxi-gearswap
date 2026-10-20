@@ -76,7 +76,7 @@ describe('gs c elemental', function()
         assert.same({'/ma "Blaze Spikes" <me>'}, typed_for(gs, 'gs c elemental spikes'))
     end)
 
-    it('barelement casts the bar spell against the element the mode\'s is weak to', function()
+    it('barelement casts the bar spell against the element the mode\'s is strong against', function()
         assert.same({'/ma "Barblizzard" <me>'}, typed_for(gs, 'gs c elemental barelement'))
     end)
 
@@ -98,7 +98,7 @@ describe('gs c elemental', function()
         assert.equal('/ma "Firaga" ' .. monster, typed_for(gs, 'gs c elemental aga')[1])
     end)
 
-    it('bardsong and carol cast the threnody and carol of the element the mode\'s is weak to', function()
+    it('bardsong and carol cast the threnody and carol of the element the mode\'s is strong against', function()
         assert.same({'/ma "Ice Threnody" ' .. monster}, typed_for(gs, 'gs c elemental bardsong'))
         gs:advance(5)
         assert.same({'/ma "Ice Carol" ' .. monster}, typed_for(gs, 'gs c elemental carol'))
@@ -224,9 +224,9 @@ describe('gs c smartcure', function()
     end)
 
     it('cures the party member named, by the HP the party reports', function()
-        gs.game.player.vitals.hp = 750
+        gs.game.player.vitals.hp = 300
         gs.game.player.vitals.hpp = 50
-        assert.same({'/ma "Cure IV" ' .. gs.game.player.id}, typed_for(gs, 'gs c smartcure Commy'))
+        assert.same({'/ma "Cure II" ' .. gs.game.player.id}, typed_for(gs, 'gs c smartcure Commy'))
     end)
 
     it('picks its target by <stal> when the target is a monster, and cures the one picked', function()

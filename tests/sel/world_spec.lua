@@ -40,9 +40,10 @@ describe('Sel\'s idle set and the time of day', function()
         assert.same(commy.worn_by(idle, {waist = 'Reiki Yotai', neck = 'Sanctity Necklace'}), gs:worn())
     end)
 
-    it('changes no gear for a time that stays in the same part of the day', function()
+    it('changes no gear for a time that stays in the same part of the day, so a piece put on by hand stays', function()
+        gs:console('gs equip sets.Town')
         gs:set_time(at(13))
-        assert.same({}, gs:traffic())
+        assert.same(commy.worn_by(idle, {waist = 'Chaac Belt', head = 'Volte Cap'}), gs:worn())
     end)
 
     it('leaves the time of day\'s sets off in an idle mode other than Normal', function()

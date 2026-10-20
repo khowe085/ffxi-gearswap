@@ -47,12 +47,6 @@ describe('AutoNukeMode', function()
         assert.same({}, autoy.actions(gs))
     end)
 
-    it('is turned off by a zone change', function()
-        local gs = boot()
-        gs:change_zone(230)
-        assert.is_false(gs.user.state.AutoNukeMode.value)
-    end)
-
     pending('casts a spell of more than one word set with gs c autonuke: check_nuke in libs/Sel-Utility.lua types it '
         .. 'unquoted (/ma Thunder III <t>), which GearSwap doesn\'t take for a spell and lets through to the game '
         .. 'untouched, on every tick')

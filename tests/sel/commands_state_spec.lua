@@ -41,6 +41,7 @@ describe('gs c cycle', function()
     end)
 
     it('puts on the set the new option picks', function()
+        assert.same(commy.worn_by(commy.rdm_idle), gs:worn())
         gs:console('gs c cycle IdleMode')
         assert.same(commy.worn_by(commy.rdm_idle, {head = 'Malignance Chapeau', body = 'Malignance Tabard'}), gs:worn())
     end)
@@ -150,7 +151,10 @@ describe('gs c reset', function()
     end)
 
     pending('with all, sets every mode back to its default: handle_reset reads _type of each value in state, and '
-        .. 'state holds the boolean th_gear_is_locked, so it stops on the error "_type" is not defined for booleans')
+        .. 'state holds the boolean th_gear_is_locked, so it stops on the error "_type" is not defined for booleans; '
+        .. 'without it, it would reset nothing, since it looks for a _type of mode, which is a mode\'s _class (its '
+        .. '_type is list, boolean or string), and a mode it did reset would stop it on state_var.description, '
+        .. 'state_var being nil there')
 end)
 
 describe('gs c value', function()

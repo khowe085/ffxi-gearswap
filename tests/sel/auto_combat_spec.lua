@@ -39,13 +39,15 @@ describe('Sel\'s tick, as it takes the character out of combat', function()
         assert.same(yoran_oran, autoy.actions(gs))
     end)
 
-    it('turns the defense mode off then under AutoDefenseMode', function()
+    it('turns the defense mode off then under AutoDefenseMode, and takes its set off', function()
         local gs = hit()
         gs:console('gs c toggle AutoDefenseMode')
         gs:console('gs c set DefenseMode Physical')
+        assert.equal('Malignance Chapeau', gs:worn().head)
         gs.game.monster.hpp = 0
         gs:play(7)
         assert.equal('None', gs.user.state.DefenseMode.value)
+        assert.equal('Nyame Helm', gs:worn().head)
     end)
 
     it('leaves the defense mode on without AutoDefenseMode', function()

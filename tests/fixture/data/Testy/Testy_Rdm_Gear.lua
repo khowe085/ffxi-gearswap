@@ -21,6 +21,7 @@ function init_gear_sets()
 	sets.precast.FC = {head = "Bunzi's Hat", ring1 = 'Kishar Ring'}
 	sets.precast.FC['Enhancing Magic'] = set_combine(sets.precast.FC, {body = 'Atrophy Tabard +3'})
 	sets.precast.FC.Refresh = set_combine(sets.precast.FC, {body = 'Lethargy Sayon +3'})
+	sets.precast.FC['Refresh II'] = set_combine(sets.precast.FC.Refresh, {head = 'Kaykaus Mitra +1'})
 	sets.precast.FC.Cure = set_combine(sets.precast.FC, {body = 'Malignance Tabard'})
 	sets.precast.FC.DT = {head = 'Malignance Chapeau'}
 
@@ -33,6 +34,7 @@ function init_gear_sets()
 
 	sets.midcast.FastRecast = {head = 'Malignance Chapeau'}
 	sets.midcast.Cure = {main = "Bunzi's Rod", head = 'Kaykaus Mitra +1'}
+	sets.midcast['Cure II'] = {body = 'Atrophy Tabard +3'}
 	sets.midcast['Enhancing Magic'] = {body = 'Lethargy Sayon +3'}
 	sets.midcast.Refresh = set_combine(sets.midcast['Enhancing Magic'], {body = 'Atrophy Tabard +3'})
 	sets.midcast['Enfeebling Magic'] = {body = 'Malignance Tabard'}

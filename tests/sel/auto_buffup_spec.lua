@@ -65,6 +65,7 @@ describe('gs c buffup', function()
         gs:play(1)
         assert.same({}, autoy.actions(gs))
         assert.equal(1, autoy.count(autoy.chat(gs), 'Nope is not a buff list!'))
+        assert.equal('', gs.user.buffup)
     end)
 
     it('is called off when the character walks, and says so', function()

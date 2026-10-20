@@ -121,11 +121,15 @@ describe('gs c forceequip', function()
         assert.same(commy.worn_by(idle), gs:worn())
     end)
 
-    it('lets the slot go with gs c enable all', function()
+    it('takes the piece off with gs c enable all', function()
         gs:console('gs c forceequip neck Sanctity Necklace')
         gs:console('gs c enable all')
         assert.same(commy.worn_by(idle), gs:worn())
     end)
+
+    pending('keeps the slot free after gs c enable all once a weapon set is chosen: handle_enable empties '
+        .. 'internal_disable but leaves disabled_sets.User, so the next build_internal_disable (a weapon set, Doom, '
+        .. 'showtp) puts the forced piece back on')
 end)
 
 describe('gs c showset', function()
@@ -256,7 +260,8 @@ describe('Sel\'s weapon sets for dual wield', function()
     end)
 
     it('are passed over by a cycle when Commy can\'t dual wield, whether named so or with a weapon in the sub', function()
-        gs:console('gs c set Weapons Naegling')
+        gs:console('gs c cycle Weapons')
+        assert.equal('Naegling', gs.user.state.Weapons.value)
         gs:console('gs c cycle Weapons')
         assert.equal('Crocea', gs.user.state.Weapons.value)
         assert.same(commy.worn_by(idle, {main = 'Crocea Mors'}), gs:worn())
@@ -267,11 +272,13 @@ describe('Sel\'s weapon sets for dual wield', function()
         gs:console('gs c cycleback Weapons')
         assert.equal('Naegling', gs.user.state.Weapons.value)
         assert.same(commy.worn_by(idle, {main = 'Naegling'}), gs:worn())
+        gs:console('gs c cycleback Weapons')
+        assert.equal('None', gs.user.state.Weapons.value)
     end)
 
     it('named for dual wield are passed over when set by name', function()
         gs:console('gs c set Weapons DualWeapons')
-        assert.equal('Crocea', gs.user.state.Weapons.value)
+        assert.equal('Naegling', gs.user.state.Weapons.value)
     end)
 
     it('with a weapon in the sub are passed over when set by name, as User-Globals.lua has it', function()
@@ -279,4 +286,8 @@ describe('Sel\'s weapon sets for dual wield', function()
         assert.equal('Crocea', gs.user.state.Weapons.value)
         assert.equal('Ammurapi Shield', gs:worn().sub)
     end)
+
+    pending('are passed over when a cycle comes to one named for dual wield right after one with a weapon in the sub: '
+        .. 'User-Globals.lua\'s skip_dual_sets cycles on by the sub alone once Sel\'s check by the name has run, so '
+        .. 'it stops at the one named for dual wield when that one\'s sub is a shield')
 end)
