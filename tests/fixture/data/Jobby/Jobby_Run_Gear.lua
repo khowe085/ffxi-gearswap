@@ -26,7 +26,7 @@ function init_gear_sets()
 
 	sets.engaged = set_combine(sets.idle, {head = 'Volte Cap', body = 'Volte Jupon'})
 	sets.engaged.MP = set_combine(sets.engaged, {hands = 'Volte Bracers'})
-	sets.defense.PDT = {neck = 'Weike Torque'}
+	sets.defense.PDT = {neck = 'Weike Torque', legs = 'Desultor Tassets'}
 	sets.defense.MDT = {neck = 'Weike Torque'}
 	sets.defense.MEVA = {neck = 'Weike Torque'}
 	sets.MP = {ear2 = 'Pensee Earring'}
@@ -36,15 +36,16 @@ function init_gear_sets()
 
 	sets.precast.FC = {head = 'Volte Cap', neck = 'Weike Torque'}
 	sets.precast.FC.Inspiration = {feet = 'Volte Boots'}
-	sets.precast.JA['Vivacious Pulse'] = {}
-	sets.precast.JA['Vivacious Pulse'].Ignis = {head = 'Null Masque'}
-	sets.precast.JA['Vivacious Pulse'].Lux = {head = 'Volte Cap'}
+	sets.precast.JA['Vivacious Pulse'] = {head = 'Volte Cap'}
+	sets.precast.JA['Vivacious Pulse'].Ignis = {head = 'Null Masque', hands = 'Volte Bracers'}
+	sets.precast.JA['Vivacious Pulse'].Lux = {feet = 'Volte Boots'}
 	sets.precast.JA['Vivacious Pulse'].Tenebrae = {legs = 'Volte Hose'}
 	sets.precast.JA.Vallation = {hands = 'Volte Bracers'}
 	sets.precast.JA.Valiance = {hands = 'Volte Bracers', back = 'Prodigious Mantle'}
 	sets.precast.JA.Ignis = {back = 'Prodigious Mantle'}
 	sets.precast.Effusion = {legs = 'Volte Hose'}
 	sets.element.Light = {ring1 = 'Lunette Ring'}
+	sets.element.Fire = {ring1 = 'Medada\'s Ring'}
 
 	sets.precast.WS.Resolution = {head = 'Null Masque', ear1 = 'Moonshade Earring'}
 	sets.MaxTP = {ear1 = 'Sortiarius Earring', ear2 = 'Pensee Earring'}

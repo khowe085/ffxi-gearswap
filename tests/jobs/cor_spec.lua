@@ -35,26 +35,6 @@ local function sets_of(gs)
     return gs.user.sets
 end
 
-local function said(gs, text)
-    for _, entry in ipairs(gs.game.chat_log) do
-        if entry.text:find(text, 1, true) then
-            return true
-        end
-    end
-    return false
-end
-
--- The console commands run so far that start with the text.
-local function ran(gs, start)
-    local commands = {}
-    for _, command in ipairs(gs.game.commands) do
-        if command:sub(1, #start) == start then
-            commands[#commands + 1] = command
-        end
-    end
-    return commands
-end
-
 local gun = {range = 'Death Penalty', ammo = 'Eminent Bullet'}
 
 -- What is worn once the action's sets are on, with the gun and its bullet worn over the idle set.
@@ -69,14 +49,6 @@ local function equips(gs)
         sent[#sent + 1] = entry.equip or entry.action
     end
     return sent
-end
-
-local function actions(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        names[#names + 1] = entry.action
-    end
-    return names
 end
 
 describe('a ranged attack', function()
@@ -207,21 +179,6 @@ describe('a ranged attack', function()
         gs:type('/ra <t>')
         assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
     end)
-
-    it('puts the default bullet back on afterwards', function()
-        local gs = boot({bullets = {['Bronze Bullet'] = 40, ['Eminent Bullet'] = 40}, ammo = 'Bronze Bullet'})
-        gs:type('/ja "Fire Shot" <t>')
-        gs:finish_action()
-        assert.equal('Eminent Bullet', gs:worn().ammo)
-    end)
-
-    it('leaves the bullet alone afterwards with the default ammo mode off', function()
-        local gs = boot({bullets = {['Bronze Bullet'] = 40, ['Eminent Bullet'] = 40}, ammo = 'Bronze Bullet'})
-        gs:console('gs c toggle UseDefaultAmmo')
-        gs:type('/ja "Fire Shot" <t>')
-        gs:finish_action()
-        assert.equal('Bronze Bullet', gs:worn().ammo)
-    end)
 end)
 
 describe('a Quick Draw shot', function()
@@ -291,16 +248,16 @@ describe('a Quick Draw shot', function()
         local gs = boot({items = {{name = 'Trump Card', bag = 'satchel', count = 10}}})
         gs:type('/ja "Fire Shot" <t>')
         assert.same({}, gs:traffic())
-        assert.same({'get "Trump Card" satchel'}, ran(gs, 'get '))
+        assert.same({'get "Trump Card" satchel'}, jobby.commands(gs))
         gs:advance(1)
-        assert.same({'get "Trump Card" satchel', 'get "Trump Card" satchel'}, ran(gs, 'get '))
+        assert.same({'get "Trump Card" satchel'}, jobby.commands(gs))
     end)
 
     it('goes out when the Trump Card is in the inventory', function()
         local gs = boot({items = {{name = 'Trump Card', count = 10}}})
         gs:type('/ja "Fire Shot" <t>')
         assert.same('Fire Shot', gs:traffic()[2].action)
-        assert.same({}, ran(gs, 'get '))
+        assert.same({}, jobby.commands(gs))
     end)
 end)
 
@@ -309,27 +266,29 @@ describe('the bullets a ranged action needs', function()
         local gs = boot()
         gs:type('/ra <t>')
         assert.same({'category 16'}, {gs:traffic()[2].action})
-        assert.is_false(said(gs, 'LOW AMMO WARNING'))
+        assert.same({}, jobby.chat(gs))
     end)
 
     it('stop a ranged attack when there are none, saying which', function()
         local gs = boot({bullets = {['Bronze Bullet'] = 40}, ammo = 'Bronze Bullet'})
         gs:type('/ra <t>')
         assert.same({}, gs:traffic())
-        assert.is_true(said(gs, 'No ammo (Eminent Bullet) available for that action.'))
+        assert.same({'No ammo (Eminent Bullet) available for that action.'}, jobby.chat(gs))
     end)
 
     it('warn at the warning limit, and let the attack go', function()
         local gs = boot({bullets = {['Eminent Bullet'] = 15}})
         gs:type('/ra <t>')
         assert.same('category 16', gs:traffic()[2].action)
-        assert.is_true(said(gs, '****  LOW AMMO WARNING: Eminent Bullet ****'))
+        local warning = '****  LOW AMMO WARNING: Eminent Bullet ****'
+        local border = ('*'):rep(#warning)
+        assert.same({border, warning, border}, jobby.chat(gs))
     end)
 
     it('do not warn above the warning limit', function()
         local gs = boot({bullets = {['Eminent Bullet'] = 16}})
         gs:type('/ra <t>')
-        assert.is_false(said(gs, 'LOW AMMO WARNING'))
+        assert.same({}, jobby.chat(gs))
     end)
 
     it('are held back for Quick Draw when the bullet is the same', function()
@@ -337,7 +296,7 @@ describe('the bullets a ranged action needs', function()
         gs.user.gear.QDbullet = 'Eminent Bullet'
         gs:type('/ra <t>')
         assert.same({}, gs:traffic())
-        assert.is_true(said(gs, 'No ammo will be left for Quick Draw.  Cancelling.'))
+        assert.same({'No ammo will be left for Quick Draw.  Cancelling.'}, jobby.chat(gs))
     end)
 
     it('are held back three at a time for Quick Draw under Triple Shot', function()
@@ -347,7 +306,7 @@ describe('the bullets a ranged action needs', function()
         gs:traffic()
         gs:type('/ra <t>')
         assert.same({}, gs:traffic())
-        assert.is_true(said(gs, 'No ammo will be left for Quick Draw.  Cancelling.'))
+        assert.same({'No ammo will be left for Quick Draw.  Cancelling.'}, jobby.chat(gs))
     end)
 
     it('are enough for Quick Draw under Triple Shot with four left', function()
@@ -363,14 +322,14 @@ describe('the bullets a ranged action needs', function()
         local gs = boot({tp = 1000, bullets = {['Bronze Bullet'] = 40, ['Eminent Bullet'] = 40}, ammo = 'Bronze Bullet'})
         gs:type('/ws "Last Stand" <t>')
         assert.same({}, gs:traffic())
-        assert.is_true(said(gs, 'No ammo (Orichalc. Bullet) available for that action.'))
+        assert.same({'No ammo (Orichalc. Bullet) available for that action.'}, jobby.chat(gs))
     end)
 
     it('for a magical weapon skill are the magic bullet', function()
         local gs = boot({tp = 1000, bullets = {['Bronze Bullet'] = 40}, ammo = 'Bronze Bullet'})
         gs:type('/ws "Leaden Salute" <t>')
         assert.same({}, gs:traffic())
-        assert.is_true(said(gs, 'No ammo (Living Bullet) available for that action.'))
+        assert.same({'No ammo (Living Bullet) available for that action.'}, jobby.chat(gs))
     end)
 
     pending('swap a Rare bullet worn for the default one with no weapon set: panic_swap_ammo in libs/Sel-Utility.lua '
@@ -381,13 +340,30 @@ describe('the bullets a ranged action needs', function()
         local gs = boot({tp = 1000, bullets = {['Eminent Bullet'] = 40}})
         gs:type('/ws "Last Stand" <t>')
         assert.same('Last Stand', gs:traffic()[2].action)
-        assert.is_true(said(gs, 'No weaponskill ammo available, using equipped ammo: (Eminent Bullet)'))
+        assert.same({'No weaponskill ammo available, using equipped ammo: (Eminent Bullet)'}, jobby.chat(gs))
     end)
 
     it('are not asked for a melee weapon skill', function()
         local gs = boot({tp = 1000, bullets = {['Bronze Bullet'] = 40}, ammo = 'Bronze Bullet'})
         gs:type('/ws "Evisceration" <t>')
-        assert.same({'Evisceration'}, actions(gs))
+        assert.same({'Evisceration'}, jobby.actions(gs))
+    end)
+end)
+
+describe('any action', function()
+    it('puts the default bullet back on afterwards', function()
+        local gs = boot({bullets = {['Bronze Bullet'] = 40, ['Eminent Bullet'] = 40}, ammo = 'Bronze Bullet'})
+        gs:type('/ja "Fire Shot" <t>')
+        gs:finish_action()
+        assert.equal('Eminent Bullet', gs:worn().ammo)
+    end)
+
+    it('leaves the bullet alone afterwards with the default ammo mode off', function()
+        local gs = boot({bullets = {['Bronze Bullet'] = 40, ['Eminent Bullet'] = 40}, ammo = 'Bronze Bullet'})
+        gs:console('gs c toggle UseDefaultAmmo')
+        gs:type('/ja "Fire Shot" <t>')
+        gs:finish_action()
+        assert.equal('Bronze Bullet', gs:worn().ammo)
     end)
 end)
 
@@ -458,16 +434,18 @@ describe('a Corsair roll', function()
         local gs = boot()
         gs:type('/ja "Fighter\'s Roll" <me>')
         gs:finish_action()
-        assert.is_true(said(gs, "Fighter's Roll provides a bonus to Double Attack Rate.  Roll size: Large"))
-        assert.is_true(said(gs, 'Lucky roll is 5, Unlucky roll is 9.'))
+        assert.same({"Fighter's Roll provides a bonus to Double Attack Rate.  Roll size: Large",
+            'Lucky roll is 5, Unlucky roll is 9.'}, jobby.chat(gs))
     end)
 
     it('says the roll is small without Luzaf\'s Ring', function()
         local gs = boot()
         gs:console('gs c toggle LuzafRing')
+        jobby.chat(gs)
         gs:type('/ja "Fighter\'s Roll" <me>')
         gs:finish_action()
-        assert.is_true(said(gs, "Fighter's Roll provides a bonus to Double Attack Rate.  Roll size: Small"))
+        assert.same({"Fighter's Roll provides a bonus to Double Attack Rate.  Roll size: Small",
+            'Lucky roll is 5, Unlucky roll is 9.'}, jobby.chat(gs))
     end)
 
     it('says nothing of the roll with the display off', function()
@@ -475,7 +453,7 @@ describe('a Corsair roll', function()
         gs.user.displayroll = false
         gs:type('/ja "Fighter\'s Roll" <me>')
         gs:finish_action()
-        assert.is_false(said(gs, 'Lucky roll is'))
+        assert.same({}, jobby.chat(gs))
     end)
 end)
 
@@ -521,7 +499,7 @@ describe('Fold', function()
         gs:gain_buff('Bust')
         gs:traffic()
         gs:type('/ja "Fold" <me>')
-        assert.same({'Fold'}, actions(gs))
+        assert.same({'Fold'}, equips(gs))
     end)
 end)
 
@@ -581,25 +559,26 @@ describe('a weapon skill at the TP cap', function()
         .. 'against 26, but GearSwap gives a weapon skill its skill by name, so Last Stand takes sets.MaxTP')
 end)
 
-describe('a weapon skill when a spear weapon skill is known', function()
-    -- Wasp Sting is the weapon skill the job file reads as a spear in hand, and sends the dagger's skill for a sword's.
+describe('a weapon skill when a dagger weapon skill is known', function()
+    -- The job file takes Wasp Sting (weapon skill 16) known as a dagger in hand, and sends the dagger's weapon skill
+    -- for a sword's.
     local known = {'Wasp Sting', 'Evisceration', 'Aeolian Edge'}
 
     it('is Evisceration in place of Savage Blade', function()
         local gs = boot({tp = 1000, abilities = known})
         gs:type('/ws "Savage Blade" <t>')
-        assert.same({'Evisceration'}, actions(gs))
+        assert.same({'Evisceration'}, jobby.actions(gs))
     end)
 
     it('is Aeolian Edge in place of Circle Blade', function()
         local gs = boot({tp = 1000, abilities = known})
         gs:type('/ws "Circle Blade" <t>')
-        assert.same({'Aeolian Edge'}, actions(gs))
+        assert.same({'Aeolian Edge'}, jobby.actions(gs))
     end)
 
     it('is left alone without it', function()
         local gs = boot({tp = 1000, abilities = {'Evisceration', 'Aeolian Edge'}})
         gs:type('/ws "Savage Blade" <t>')
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)

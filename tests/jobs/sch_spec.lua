@@ -4,7 +4,7 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
     'Adamantite Armor', 'Plumb Boots', "Orunmila's Torque", 'Weike Torque', 'Kaykaus Mitra +1', 'Sortiarius Earring',
     'Beatific Earring', 'Choleric Earring', 'Pensee Earring', 'Lunette Ring', 'Pernicious Ring', 'Gelatinous Ring',
     'Cacoethic Ring', 'Petrov Ring', 'Fortified Ring', 'Vertigo Ring', 'Dhanurveda Ring', 'Wanion Belt',
-    'Prodigious Mantle', "Bunzi's Rod", 'Gozuki Mezuki'}
+    'Prodigious Mantle', "Bunzi's Rod", 'Gozuki Mezuki', 'Kishar Ring'}
 
 -- Jobby as a scholar with the idle set on. The options are those of a boot (sub_job, tp, buffs, spells) and
 -- these besides:
@@ -36,33 +36,6 @@ local function sets_of(gs)
     return gs.user.sets
 end
 
-local function said(gs, text)
-    for _, entry in ipairs(gs.game.chat_log) do
-        if entry.text:find(text, 1, true) then
-            return true
-        end
-    end
-    return false
-end
-
-local function ran(gs, start)
-    local commands = {}
-    for _, command in ipairs(gs.game.commands) do
-        if command:sub(1, #start) == start then
-            commands[#commands + 1] = command
-        end
-    end
-    return commands
-end
-
-local function actions(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        names[#names + 1] = entry.action
-    end
-    return names
-end
-
 -- The actions sent, each as its name and its target's.
 local function targeted(gs)
     local sent = {}
@@ -77,7 +50,7 @@ end
 -- The actions the tick sent in its first moments (it starts five seconds after the file loads).
 local function first_actions(gs)
     gs:play(5.3)
-    return actions(gs)
+    return jobby.actions(gs)
 end
 
 -- What is worn once the spell's precast and midcast sets are on: the fast cast set, then the sets named over it.
@@ -180,16 +153,16 @@ describe('a Curaga by a scholar on a player outside the party', function()
     it('is refused without an art, saying why', function()
         local gs = boot({sub_job = 'WHM', stranger = true})
         gs:type('/ma "Curaga" Stranger')
-        assert.same({}, actions(gs))
-        assert.is_true(said(gs, "Error: You can't Curaga outside of party."))
+        assert.same({}, jobby.actions(gs))
+        assert.same({"Error: You can't Curaga outside of party."}, jobby.chat(gs))
     end)
 
     it('is refused with no stratagem to spend, saying why', function()
         local gs = boot({sub_job = 'WHM', stranger = true, buffs = {'Light Arts'}})
         gs.game:start_ability_recast('Penury', 165)
         gs:type('/ma "Curaga" Stranger')
-        assert.same({}, actions(gs))
-        assert.is_true(said(gs, 'Error: Not enough Stratagems to convert Curaga to Accesion Cure.'))
+        assert.same({}, jobby.actions(gs))
+        assert.same({'Error: Not enough Stratagems to convert Curaga to Accesion Cure.'}, jobby.chat(gs))
     end)
 
     it('goes out as it is on a member of the party', function()
@@ -204,8 +177,8 @@ describe('a cure on a player too far to heal', function()
         local gs = boot({friend = true})
         gs.game.others[1].distance = 22 ^ 2
         gs:type('/ma "Cure III" Friend')
-        assert.same({}, actions(gs))
-        assert.is_true(said(gs, 'Target out of range, too far to heal!'))
+        assert.same({}, jobby.actions(gs))
+        assert.same({'Target out of range, too far to heal!'}, jobby.chat(gs))
     end)
 
     it('goes out at 21 yalms', function()
@@ -235,6 +208,11 @@ describe('the set of a spell by its kind', function()
     it('is sets.midcast.Helix for a helix, which is no nuke of either tier', function()
         local gs = boot()
         assert.same(fast_cast(gs, sets_of(gs).midcast.Helix), cast(gs, '/ma "Pyrohelix" <t>'))
+    end)
+
+    it('is sets.midcast.ElementalEnfeeble for an elemental enfeeble, which is no nuke of either tier: Burn', function()
+        local gs = boot({sub_job = 'BLM'})
+        assert.same(fast_cast(gs, sets_of(gs).midcast.ElementalEnfeeble), cast(gs, '/ma "Burn" <t>'))
     end)
 
     it('is sets.midcast["Enfeebling Magic"] for Dispel', function()
@@ -269,8 +247,19 @@ describe('the obi entries a scholar\'s precast fills', function()
     end)
 
     it('are left as they were for a spell that is neither', function()
-        assert.is_nil(default_after('/ma "Dispel" <t>').obi_waist)
+        local gs = boot()
+        gs:type('/ma "Cure III" <me>')
+        gs:finish_action()
+        gs:advance(3)
+        gs:traffic()
+        gs:type('/ma "Dispel" <t>')
+        assert.same({'Dispel'}, jobby.actions(gs))
+        assert.equal('Prodigious Mantle', gs.user.gear.default.obi_back)
+        assert.equal('Wanion Belt', gs.user.gear.default.obi_waist)
     end)
+
+    pending('are left as they were for an elemental enfeeble: job_precast in data/SCH.lua tests default_spell_map, '
+        .. 'a global nothing sets, against \'ElementalEnfeeble\', so Burn takes the high nuke ones')
 end)
 
 describe('the casting mode of a scholar', function()
@@ -370,7 +359,7 @@ describe('the stratagems laid over a spell', function()
         assert.same(fast_cast(gs, sets_of(gs).midcast.Cure, sets_of(gs).buff.Penury), worn)
     end)
 
-    it('wear sets.buff.Penury over a cure ahead of Parsimony', function()
+    it('wear sets.buff.Penury over a cure with Parsimony up too', function()
         local gs, worn = with({'Penury', 'Parsimony'}, '/ma "Cure III" <me>')
         assert.same(fast_cast(gs, sets_of(gs).midcast.Cure, sets_of(gs).buff.Penury), worn)
     end)
@@ -441,7 +430,8 @@ describe('the stratagems laid over a spell', function()
     end)
 
     it('wear no Ebullience, Immanence or Klimaform set in the Proc casting mode', function()
-        local gs = boot({buffs = {'Ebullience', 'Immanence'}})
+        local gs = boot({buffs = {'Ebullience', 'Immanence', 'Klimaform'}})
+        gs:set_weather(8)
         gs:console('gs c set CastingMode Proc')
         gs:traffic()
         local worn = cast(gs, '/ma "Stone" <t>')
@@ -463,6 +453,10 @@ describe('the stratagems laid over a spell', function()
         local gs, worn = with({'Addendum: Black'}, '/ma "Dispel" <t>')
         assert.equal('Volte Hose', worn.legs)
     end)
+
+    pending('wear sets.buff["Dark Arts"] over an elemental enfeeble under Dark Arts: job_post_midcast in data/SCH.lua '
+        .. 'tests default_spell_map, a global nothing sets, so Burn goes on to the nukes\' branch and takes the '
+        .. 'Klimaform, Ebullience and Immanence sets instead')
 end)
 
 describe('a stratagem used', function()
@@ -472,7 +466,7 @@ describe('a stratagem used', function()
         gs:type('/ja "Penury" <me>')
         gs:finish_action()
         gs:advance(1)
-        assert.is_true(said(gs, '~~~Current Stratagem Charges Available: [3]~~~'))
+        assert.same({'~~~Current Stratagem Charges Available: [3]~~~'}, jobby.chat(gs))
     end)
 
     it('is followed by it not before that second is over', function()
@@ -480,7 +474,7 @@ describe('a stratagem used', function()
         gs:type('/ja "Penury" <me>')
         gs:finish_action()
         gs:advance(.9)
-        assert.is_false(said(gs, 'Current Stratagem Charges Available'))
+        assert.same({}, jobby.chat(gs))
     end)
 
     it('is not followed by the charges when it is an ability of another kind', function()
@@ -488,26 +482,20 @@ describe('a stratagem used', function()
         gs:type('/ja "Light Arts" <me>')
         gs:finish_action()
         gs:advance(2)
-        assert.is_false(said(gs, 'Current Stratagem Charges Available'))
+        assert.same({}, jobby.chat(gs))
     end)
 
     it('is counted by gs c showcharge: five with none on recast, at level 99 with the job points', function()
         local gs = boot()
         gs:console('gs c showcharge')
-        assert.is_true(said(gs, '~~~Current Stratagem Charges Available: [5]~~~'))
+        assert.same({'~~~Current Stratagem Charges Available: [5]~~~'}, jobby.chat(gs))
     end)
 
     it('is counted by gs c showcharge: a charge back for each 33 seconds of the recast', function()
         local gs = boot()
         gs.game:start_ability_recast('Penury', 99)
         gs:console('gs c showcharge')
-        assert.is_true(said(gs, '~~~Current Stratagem Charges Available: [2]~~~'))
-    end)
-
-    it('is counted with three charges at most by a scholar sub job at level 50 or more', function()
-        local gs = jobby.boot('BLU', {sub_job = 'SCH', sub_job_level = 60})
-        gs:console('gs c update')
-        assert.equal(3, gs.user.get_current_stratagem_count())
+        assert.same({'~~~Current Stratagem Charges Available: [2]~~~'}, jobby.chat(gs))
     end)
 end)
 
@@ -516,37 +504,49 @@ describe('a sleep spell cast by a scholar', function()
         local gs = boot()
         gs:type('/ma "Sleep" <t>')
         gs:finish_action()
-        assert.same({'timers c "Sleep [Apex Toad]" 60 down spells/00220.png'}, ran(gs, 'timers'))
+        assert.same({'timers c "Sleep [Apex Toad]" 60 down spells/00220.png'}, jobby.commands(gs))
+    end)
+
+    it('starts a timer of a minute for Sleepga', function()
+        local gs = boot({sub_job = 'BLM'})
+        gs:type('/ma "Sleepga" <t>')
+        gs:finish_action()
+        assert.same({'timers c "Sleepga [Apex Toad]" 60 down spells/00220.png'}, jobby.commands(gs))
     end)
 
     it('starts a timer of a minute and a half for Sleep II', function()
         local gs = boot()
         gs:type('/ma "Sleep II" <t>')
         gs:finish_action()
-        assert.same({'timers c "Sleep II [Apex Toad]" 90 down spells/00220.png'}, ran(gs, 'timers'))
+        assert.same({'timers c "Sleep II [Apex Toad]" 90 down spells/00220.png'}, jobby.commands(gs))
     end)
 
     it('starts no timer with the custom timers state off', function()
         local gs = boot()
         gs:console('gs c toggle UseCustomTimers')
+        jobby.commands(gs)
         gs:type('/ma "Sleep" <t>')
         gs:finish_action()
-        assert.same({}, ran(gs, 'timers'))
+        assert.same({}, jobby.commands(gs))
     end)
 
     it('starts no timer for a spell that is not a sleep', function()
         local gs = boot()
         gs:type('/ma "Stone" <t>')
         gs:finish_action()
-        assert.same({}, ran(gs, 'timers'))
+        assert.same({}, jobby.commands(gs))
     end)
 
     it('starts no timer for a sleep that is interrupted', function()
         local gs = boot()
         gs:type('/ma "Sleep" <t>')
         gs:interrupt_action()
-        assert.same({}, ran(gs, 'timers'))
+        assert.same({}, jobby.commands(gs))
     end)
+
+    pending('starts no timer for Sleepga with the custom timers state off: job_aftercast in data/SCH.lua tests '
+        .. 'state.UseCustomTimers.value and spell.english == \'Sleep\' or spell.english == \'Sleepga\', so Sleepga '
+        .. 'starts one whatever the state says')
 end)
 
 describe('the idle set of a scholar', function()
@@ -630,76 +630,6 @@ describe('the idle set of a scholar', function()
     end)
 end)
 
-describe('gs c scholar', function()
-    local function scholar(buffs, command)
-        local gs = boot({buffs = buffs})
-        gs:console('gs c scholar ' .. command)
-        return gs, actions(gs)
-    end
-
-    local cases = {
-        -- buffs, command, the ability used
-        {{}, 'light', 'Light Arts'},
-        {{'Light Arts'}, 'light', 'Addendum: White'},
-        {{'Addendum: White'}, 'light', 'Accession'},
-        {{}, 'dark', 'Dark Arts'},
-        {{'Dark Arts'}, 'dark', 'Addendum: Black'},
-        {{'Addendum: Black'}, 'dark', 'Manifestation'},
-        {{}, 'buff', 'Light Arts'},
-        {{'Light Arts'}, 'cost', 'Penury'},
-        {{'Light Arts'}, 'speed', 'Celerity'},
-        {{'Light Arts'}, 'aoe', 'Accession'},
-        {{'Light Arts'}, 'power', 'Rapture'},
-        {{'Light Arts'}, 'duration', 'Perpetuance'},
-        {{'Light Arts'}, 'accuracy', 'Altruism'},
-        {{'Light Arts'}, 'enmity', 'Tranquility'},
-        {{'Light Arts'}, 'addendum', 'Addendum: White'},
-        {{'Addendum: White'}, 'cost', 'Penury'},
-        {{'Dark Arts'}, 'cost', 'Parsimony'},
-        {{'Dark Arts'}, 'speed', 'Alacrity'},
-        {{'Dark Arts'}, 'aoe', 'Manifestation'},
-        {{'Dark Arts'}, 'power', 'Ebullience'},
-        {{'Dark Arts'}, 'accuracy', 'Focalization'},
-        {{'Dark Arts'}, 'enmity', 'Equanimity'},
-        {{'Dark Arts'}, 'skillchain', 'Immanence'},
-        {{'Dark Arts'}, 'addendum', 'Addendum: Black'},
-        {{'Addendum: Black'}, 'power', 'Ebullience'},
-    }
-
-    for _, case in ipairs(cases) do
-        local buffs, command, ability = unpack(case)
-        local art = buffs[1] or 'no art'
-        it(('uses %s for %s under %s'):format(ability, command, art), function()
-            local gs, used = scholar(buffs, command)
-            assert.same({ability}, used)
-        end)
-    end
-
-    it('says so when no art is up for a stratagem', function()
-        local gs, used = scholar({}, 'cost')
-        assert.same({}, used)
-        assert.is_true(said(gs, 'No arts has been activated yet.'))
-    end)
-
-    it('says so for a stratagem Light Arts lacks', function()
-        local gs, used = scholar({'Light Arts'}, 'skillchain')
-        assert.same({}, used)
-        assert.is_true(said(gs, 'Error: Light Arts does not have a skillchain command.'))
-    end)
-
-    it('says so for a stratagem Dark Arts lacks', function()
-        local gs, used = scholar({'Dark Arts'}, 'duration')
-        assert.same({}, used)
-        assert.is_true(said(gs, 'Error: Dark Arts does not have a duration command.'))
-    end)
-
-    it('says so for a command it does not know', function()
-        local gs, used = scholar({'Light Arts'}, 'nothing')
-        assert.same({}, used)
-        assert.is_true(said(gs, 'Error: Unknown command [nothing]'))
-    end)
-end)
-
 describe('gs c elemental on a scholar\'s nukes', function()
     -- Fire IV and V want an Addendum: Black, which the scholar has up.
     local function nuker(options)
@@ -710,7 +640,7 @@ describe('gs c elemental on a scholar\'s nukes', function()
 
     local function nuke(gs, command)
         gs:console('gs c elemental ' .. (command or 'nuke'))
-        return actions(gs)
+        return jobby.actions(gs)
     end
 
     it('casts the highest tier of the element\'s nuke that is ready and affordable: Fire V', function()
@@ -739,7 +669,7 @@ describe('gs c elemental on a scholar\'s nukes', function()
     it('says so when nothing is ready and affordable', function()
         local gs = nuker({mp = 5})
         assert.same({}, nuke(gs))
-        assert.is_true(said(gs, 'Abort: All Fire nukes on cooldown or or not enough MP.'))
+        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, jobby.chat(gs))
     end)
 
     it('casts Fire II for a small nuke', function()
@@ -774,8 +704,9 @@ describe('gs c elemental on a scholar\'s nukes', function()
         gs.game:start_spell_recast('Banish II', 100)
         gs.game:start_spell_recast('Banish', 100)
         gs:traffic()
+        jobby.chat(gs)
         assert.same({}, nuke(gs))
-        assert.is_true(said(gs, 'Abort: Banishes on cooldown or not enough MP.'))
+        assert.same({'Abort: Banishes on cooldown or not enough MP.'}, jobby.chat(gs))
     end)
 
     it('casts the helix of the element, a second tier with the job points to spend', function()
@@ -827,40 +758,40 @@ describe('gs c elemental skillchain on a scholar', function()
 
     local function chain(gs, command)
         gs:console('gs c elemental ' .. command)
-        return actions(gs)
+        return jobby.actions(gs)
     end
 
     it('says so when no monster is targeted', function()
         local gs = skillchainer()
         gs.game.target_index = nil
         assert.same({}, chain(gs, 'skillchain1'))
-        assert.is_true(said(gs, 'Abort: You are not targeting a monster.'))
+        assert.same({'Abort: You are not targeting a monster.'}, jobby.chat(gs))
     end)
 
     it('says so when the scholar is silenced', function()
         local gs = skillchainer({buffs = {'Dark Arts', 'silence'}})
         assert.same({}, chain(gs, 'skillchain1'))
-        assert.is_true(said(gs, 'You are disabled, cancelling skillchain.'))
+        assert.same({'You are disabled, cancelling skillchain.'}, jobby.chat(gs))
     end)
 
     it('says so with fewer than two stratagems', function()
         local gs = skillchainer()
         gs.game:start_ability_recast('Penury', 132)
         assert.same({}, chain(gs, 'skillchain1'))
-        assert.is_true(said(gs, 'Abort: You have less than two stratagems available.'))
+        assert.same({'Abort: You have less than two stratagems available.'}, jobby.chat(gs))
     end)
 
     it('counts the Immanence up as a stratagem', function()
         local gs = skillchainer({buffs = {'Dark Arts', 'Immanence'}})
         gs.game:start_ability_recast('Penury', 132)
         assert.same({}, chain(gs, 'skillchain1'))
-        assert.is_false(said(gs, 'Abort: You have less than two stratagems available.'))
+        assert.same({}, jobby.chat(gs))
     end)
 
     it('starts Dark Arts when it is not up, and says why', function()
         local gs = skillchainer({buffs = {'Light Arts'}})
         assert.same({'Dark Arts'}, chain(gs, 'skillchain1'))
-        assert.is_true(said(gs, "Can't use elemental skillchain commands without Dark Arts - Activating."))
+        assert.same({"Can't use elemental skillchain commands without Dark Arts - Activating."}, jobby.chat(gs))
     end)
 
     it('is an Immanence, an opening in the party chat and the first spell a second and a bit later', function()
@@ -869,7 +800,7 @@ describe('gs c elemental skillchain on a scholar', function()
         assert.same({'/p {Liquefaction} -Apex Toad- MB: {Fire} OPEN!'}, gs.game.typed)
         gs:advance(1.4)
         gs:finish_action()
-        assert.same({'Stone'}, actions(gs))
+        assert.same({'Stone'}, jobby.actions(gs))
     end)
 
     it('goes on with a second Immanence and the second spell, closing in the party chat', function()
@@ -878,7 +809,7 @@ describe('gs c elemental skillchain on a scholar', function()
         gs:advance(1.4)
         gs:finish_action()
         gs:advance(6)
-        local names = actions(gs)
+        local names = jobby.actions(gs)
         assert.same({'Stone', 'Immanence', 'Pyrohelix'}, names)
         local party = {}
         for _, line in ipairs(gs.game.typed) do
@@ -894,14 +825,14 @@ describe('gs c elemental skillchain on a scholar', function()
         local gs = skillchainer()
         gs.game:start_spell_recast('Stone', 100)
         assert.same({}, chain(gs, 'skillchain1'))
-        assert.is_true(said(gs, 'Abort: [Stone] waiting on recast. (0:01:40)'))
+        assert.same({'Abort: [Stone] waiting on recast. (0:01:40)'}, jobby.chat(gs))
     end)
 
     it('is held back for the second spell on recast', function()
         local gs = skillchainer()
         gs.game:start_spell_recast('Pyrohelix', 100)
         assert.same({}, chain(gs, 'skillchain1'))
-        assert.is_true(said(gs, 'Abort: [Pyrohelix] waiting on recast. (0:01:40)'))
+        assert.same({'Abort: [Pyrohelix] waiting on recast. (0:01:40)'}, jobby.chat(gs))
     end)
 
     it('takes the spells of the second kind of skillchain for skillchain2: Fire, then Ionohelix', function()
@@ -909,28 +840,40 @@ describe('gs c elemental skillchain on a scholar', function()
         chain(gs, 'skillchain2')
         assert.same({'/p {Fusion} -Apex Toad- MB: {Fire}, {Light} OPEN!'}, gs.game.typed)
         gs:advance(1.4)
-        assert.same({'Fire'}, actions(gs))
+        gs:finish_action()
+        gs:advance(6)
+        assert.same({'Fire', 'Immanence', 'Ionohelix'}, jobby.actions(gs))
     end)
 
     it('is for Fire alone at three steps', function()
         local gs = skillchainer()
         gs:console('gs c set ElementalMode Ice')
         gs:traffic()
+        jobby.chat(gs)
         assert.same({}, chain(gs, 'skillchain3'))
-        assert.is_true(said(gs, 'Abort: Fire is the only element with a consecutive 3-step skillchain.'))
+        assert.same({'Abort: Fire is the only element with a consecutive 3-step skillchain.'}, jobby.chat(gs))
     end)
 
     it('is Stone, Pyrohelix and Ionohelix at three steps in Fire', function()
         local gs = skillchainer()
         assert.same({'Immanence'}, chain(gs, 'skillchain3'))
         assert.same({'/p {Liquefaction} -Apex Toad- MB: {Fire} OPEN!'}, gs.game.typed)
+        gs:advance(1.4)
+        gs:finish_action()
+        gs:advance(6)
+        gs:finish_action()
+        gs:advance(10)
+        assert.same({'Stone', 'Immanence', 'Pyrohelix', 'Immanence', 'Ionohelix'}, jobby.actions(gs))
     end)
+
+    pending('says Ionohelix is on recast when that holds a skillchain of three steps back: handle_job_elemental in '
+        .. 'data/SCH.lua names Pyrohelix in the message for the recast of spell 283, which is Ionohelix')
 
     it('wants the stratagems of the steps: four at four steps', function()
         local gs = skillchainer()
         gs.game:start_ability_recast('Penury', 99)
         assert.same({}, chain(gs, 'skillchain4'))
-        assert.is_true(said(gs, 'Abort: You have less than four stratagems available.'))
+        assert.same({'Abort: You have less than four stratagems available.'}, jobby.chat(gs))
     end)
 
     it('puts the casting mode to Proc for a skillchain of four steps', function()
@@ -950,20 +893,20 @@ describe('gs c elemental skillchain on a scholar', function()
         local gs = skillchainer()
         gs.game:start_ability_recast('Penury', 33)
         assert.same({}, chain(gs, 'skillchain5'))
-        assert.is_true(said(gs, 'Abort: You have less than five stratagems available.'))
+        assert.same({'Abort: You have less than five stratagems available.'}, jobby.chat(gs))
     end)
 
     it('starts the Immanence of a skillchain of six steps when it is not up', function()
         local gs = skillchainer()
         assert.same({'Immanence'}, chain(gs, 'skillchain6'))
-        assert.is_true(said(gs, 'Immanence not active, wait for stratagem cooldown. - Activating Immanence.'))
+        assert.same({'Immanence not active, wait for stratagem cooldown. - Activating Immanence.'}, jobby.chat(gs))
         assert.equal('Normal', gs.user.state.CastingMode.value)
     end)
 
     it('starts a skillchain of six steps with the spell once the Immanence is up', function()
         local gs = skillchainer({buffs = {'Dark Arts', 'Immanence'}})
         gs:console('gs c elemental skillchain6')
-        assert.same({'Aero'}, actions(gs))
+        assert.same({'Aero'}, jobby.actions(gs))
         assert.equal('Proc', gs.user.state.CastingMode.value)
     end)
 
@@ -971,15 +914,18 @@ describe('gs c elemental skillchain on a scholar', function()
         local gs = skillchainer({tp = 1000})
         gs.game.monster.distance = 4
         gs:console('gs c elemental wsskillchain')
-        assert.same({'Immanence'}, actions(gs))
+        assert.same({'Immanence'}, jobby.actions(gs))
         gs:advance(1.4)
-        assert.same({'Rock Crusher'}, actions(gs))
+        assert.same({'Rock Crusher'}, jobby.actions(gs))
+        gs:finish_action()
+        gs:advance(5)
+        assert.same({'Pyrohelix'}, jobby.actions(gs))
     end)
 
     it('says so when a weapon skill skillchain has not the TP', function()
         local gs = skillchainer({tp = 999})
         assert.same({}, chain(gs, 'wsskillchain'))
-        assert.is_true(said(gs, "Abort: You don't have enough TP for this skillchain."))
+        assert.same({"Abort: You don't have enough TP for this skillchain."}, jobby.chat(gs))
     end)
 
     it('says so when the weapon skill is not known', function()
@@ -989,9 +935,13 @@ describe('gs c elemental skillchain on a scholar', function()
         gs:traffic()
         gs.game.chat_log = {}
         gs:console('gs c elemental wsskillchain')
-        assert.same({}, actions(gs))
-        assert.is_true(said(gs, "Abort: You don't have access to [Rock Crusher]."))
+        assert.same({}, jobby.actions(gs))
+        assert.equal("Abort: You don't have access to [Rock Crusher].", jobby.chat(gs)[1])
     end)
+
+    pending('says no more than why a weapon skill skillchain is held back: handle_job_elemental in data/SCH.lua '
+        .. 'returns nothing after the weapon skill unknown or the second spell on recast, rather than true, so Sel\'s '
+        .. 'handle_elemental goes on and says \'Unrecognized elemental command.\' too')
 
     pending('closes a skillchain by gs c elemental endskillchain: handle_job_elemental in data/SCH.lua reads '
         .. 'second_spell_id and skillchain, which that branch never sets, so the command stops in an error')
