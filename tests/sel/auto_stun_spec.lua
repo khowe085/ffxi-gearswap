@@ -29,8 +29,10 @@ describe('AutoStunMode, Sel-Stahp.lua\'s stun on a monster\'s TP move', function
 
     it('leaves a monster it isn\'t targeting', function()
         local gs = boot()
-        gs.game.target_index = gs.game.player.index
+        local goblin = gs.game:add_mob({name = 'Goblin', id = 0x1069002, spawn_type = 16, distance = 9})
+        gs.game:target(goblin.index)
         gs:play(1)
+        gs:traffic()
         gs:monster_readies('Fulmination')
         assert.same({}, gs:action_entries())
     end)
@@ -42,17 +44,22 @@ describe('AutoStunMode, Sel-Stahp.lua\'s stun on a monster\'s TP move', function
         assert.same({}, gs:action_entries())
     end)
 
+    -- Sel refuses a spell on recast or while silenced with an "Abort: ..." line, so these read the chat too.
     it('does nothing while Stun is on recast and no other stun is to hand', function()
         local gs = boot()
         gs.game:start_spell_recast('Stun', 30)
+        gs:chat()
         gs:monster_readies('Fulmination')
         assert.same({}, gs:action_entries())
+        assert.same({}, gs:chat())
     end)
 
     it('does nothing while silenced with no other stun to hand', function()
         local gs = boot({buffs = {'silence'}})
+        gs:chat()
         gs:monster_readies('Fulmination')
         assert.same({}, gs:action_entries())
+        assert.same({}, gs:chat())
     end)
 
     it('uses Weapon Bash when Stun is on recast and a dark knight sub has it', function()

@@ -4,8 +4,8 @@ local function on_me(name)
     return {action = name, target = 'Autoy'}
 end
 
--- Autoy having just cast Haste. Sel's tick waits 3.75 seconds from the precast of Haste, a 3-second spell, and
--- 2.4 seconds from its end, before it acts again.
+-- Autoy having just cast Haste. Sel's tick waits 3.85 seconds from the precast of Haste, a 3-second spell, and
+-- 2.5 seconds from its end, before it acts again.
 local function just_cast(options)
     local gs = autoy.boot(options)
     gs:type('/ma "Haste" <me>')

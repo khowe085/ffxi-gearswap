@@ -268,6 +268,20 @@ describe('Sel\'s weapon sets for dual wield', function()
         assert.equal('Ammurapi Shield', gs:worn().sub)
     end)
 
+    -- Sel looks for the trait with set_dual_wield five seconds after it loads; until then it takes Commy to have none.
+    it('are stopped at by a cycle once Commy has the Dual Wield trait', function()
+        gs.game:set_job_traits({'Dual Wield'})
+        gs.user.set_dual_wield()
+        gs.game:settle()
+        gs:console('gs c set Weapons None')
+        local seen = {}
+        for _ = 1, 3 do
+            gs:console('gs c cycle Weapons')
+            seen[#seen + 1] = gs.user.state.Weapons.value
+        end
+        assert.same({'DualWeapons', 'Naegling', 'Swords'}, seen)
+    end)
+
     pending('are passed over when a cycle comes to one named for dual wield right after one with a weapon in the sub: '
         .. 'User-Globals.lua\'s skip_dual_sets cycles on by the sub alone once Sel\'s check by the name has run, so '
         .. 'it stops at the one named for dual wield when that one\'s sub is a shield')

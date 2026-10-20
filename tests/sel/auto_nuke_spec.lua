@@ -21,11 +21,14 @@ describe('AutoNukeMode', function()
         assert.same({{action = 'Paralyze', target = 'Apex Toad'}}, gs:action_entries())
     end)
 
+    -- Sel refuses a spell on recast with an "Abort: ..." line, so this reads the chat too.
     it('holds back while the spell is on recast', function()
         local gs = boot()
         gs.game:start_spell_recast('Fire', 10)
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:action_entries())
+        assert.same({}, gs:chat())
     end)
 
     it('holds back with no monster targeted', function()
