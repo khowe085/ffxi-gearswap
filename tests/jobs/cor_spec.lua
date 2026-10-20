@@ -550,7 +550,7 @@ describe('a weapon skill at the TP cap', function()
     end)
 
     it('keeps the Moonshade Earring below that', function()
-        local gs = engaged(2740)
+        local gs = engaged(2749)
         gs:type('/ws "Evisceration" <t>')
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration), gs:worn())
     end)

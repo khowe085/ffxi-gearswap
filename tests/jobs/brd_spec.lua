@@ -5,7 +5,7 @@ local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's H
     'Jadeite Cuirie', 'Jadeite Chausses', 'Diamond Haramaki', 'Sapphire Gauntlets', 'Jadeite Gloves',
     'Diamond Kote', 'Sapphire Trousers', 'Diamond Hiza.', 'Diamond Sune-Ate', "Orunmila's Torque", 'Prosilio Belt',
     "Tyrant's Ring", 'Aptitude Mantle', 'Carnwenhan', 'Daurdabla', 'Miracle Cheer', 'Marsyas', 'Ruby Robe',
-    'Rage Platemail', 'Volte Brais', 'Volte Bracers'}
+    'Rage Platemail', 'Volte Brais', 'Volte Bracers', 'Terpander', 'Null Belt'}
 
 -- What the idle set of Jobby's bard gear file wears besides every gear file's.
 local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
@@ -43,14 +43,15 @@ describe('BRD\'s songs on the party', function()
 
     it('take sets.precast.FC, over which the song class\'s midcast set goes', function()
         assert.is_true(gs:type('/ma "Valor Minuet V" <me>'))
-        assert.same(worn({head = "Bendis's Hairpin", main = 'Carnwenhan', body = 'Sapphire Platemail',
-            legs = 'Volte Brais'}), gs:worn())
+        assert.same(worn({head = "Bendis's Hairpin", main = 'Carnwenhan', range = 'Terpander',
+            body = 'Sapphire Platemail', legs = 'Volte Brais'}), gs:worn())
     end)
 
     it('take the song class set, then the spell map\'s over it', function()
         gs:type('/ma "Mage\'s Ballad" <me>')
         assert.same(worn({head = "Bendis's Hairpin", ring1 = "Tyrant's Ring", main = 'Carnwenhan',
-            body = 'Sapphire Platemail', legs = 'Sapphire Trousers'}), gs:worn())
+            range = 'Terpander', body = 'Sapphire Platemail', hands = 'Volte Bracers', legs = 'Sapphire Trousers'}),
+            gs:worn())
     end)
 
     it('take the song class set\'s casting mode in that casting mode', function()
@@ -86,13 +87,13 @@ describe('BRD\'s songs on a monster', function()
     it('take the debuff class set, then the song\'s own set over it', function()
         gs:type('/ma "Foe Lullaby" <t>')
         assert.same(worn({head = "Theia's Hairpin", main = 'Carnwenhan', body = 'Diamond Haramaki',
-            hands = 'Sapphire Gauntlets'}), gs:worn())
+            hands = 'Sapphire Gauntlets', waist = 'Null Belt'}), gs:worn())
     end)
 
     it('take the spell map\'s set when the song has none of its own', function()
         gs:type('/ma "Horde Lullaby" <t>')
         assert.same(worn({head = "Bendis's Hairpin", ring1 = "Tyrant's Ring", main = 'Carnwenhan', body = 'Diamond Haramaki',
-            hands = 'Volte Bracers', legs = 'Sapphire Trousers'}), gs:worn())
+            hands = 'Volte Bracers', legs = 'Sapphire Trousers', waist = 'Null Belt'}), gs:worn())
     end)
 
     it('take the casting mode\'s set of each in that casting mode', function()
@@ -104,7 +105,7 @@ describe('BRD\'s songs on a monster', function()
 
     it('have no dual wielder\'s set over them for a character who can\'t dual wield', function()
         gs:type('/ma "Foe Lullaby" <t>')
-        assert.equal('Plat. Mog. Belt', gs:worn().waist)
+        assert.equal('Null Belt', gs:worn().waist)
     end)
 
     it('have the dual wielder\'s set over them for a character who can', function()
@@ -181,14 +182,15 @@ describe('BRD\'s Pianissimo and Soul Voice', function()
         gs = boot()
     end)
 
-    it('have the Pianissimo set, which a song\'s own Pianissimo set takes the place of, over the song', function()
+    it('have the Pianissimo set, which the spell map\'s Pianissimo set takes the place of, over the song', function()
         gs:gain_buff('Pianissimo')
         gs:type('/ma "Mage\'s Ballad" <me>')
         assert.same(worn({head = "Bendis's Hairpin", ring1 = "Tyrant's Ring", main = 'Carnwenhan',
-            body = 'Sapphire Platemail', legs = 'Sapphire Trousers', hands = 'Jadeite Gloves'}), gs:worn())
+            range = 'Terpander', body = 'Sapphire Platemail', legs = 'Sapphire Trousers', hands = 'Jadeite Gloves'}),
+            gs:worn())
     end)
 
-    it('take the song\'s own Pianissimo set rather than the general one', function()
+    it('take the spell map\'s Pianissimo set rather than the general one', function()
         gs:gain_buff('Pianissimo')
         gs:type('/ma "Honor March" <me>')
         assert.same(worn({head = "Bendis's Hairpin", main = 'Carnwenhan', body = 'Sapphire Platemail',
@@ -199,14 +201,15 @@ describe('BRD\'s Pianissimo and Soul Voice', function()
         gs:gain_buff('Soul Voice')
         gs:type('/ma "Mage\'s Ballad" <me>')
         assert.same(worn({head = "Bendis's Hairpin", ring1 = "Tyrant's Ring", main = 'Carnwenhan',
-            body = 'Sapphire Platemail', legs = 'Sapphire Trousers', hands = 'Diamond Kote'}), gs:worn())
+            range = 'Terpander', body = 'Sapphire Platemail', legs = 'Sapphire Trousers', hands = 'Diamond Kote'}),
+            gs:worn())
     end)
 
-    it('take the song\'s own Soul Voice set rather than the general one', function()
+    it('take the spell map\'s Soul Voice set rather than the general one', function()
         gs:gain_buff('Soul Voice')
         gs:type('/ma "Advancing March" <me>')
-        assert.same(worn({head = "Bendis's Hairpin", main = 'Carnwenhan', body = 'Sapphire Platemail',
-            legs = 'Jadeite Chausses', feet = 'Diamond Sune-Ate'}), gs:worn())
+        assert.same(worn({head = "Bendis's Hairpin", main = 'Carnwenhan', range = 'Terpander',
+            body = 'Sapphire Platemail', legs = 'Jadeite Chausses', feet = 'Diamond Sune-Ate'}), gs:worn())
     end)
 
     it('are left out of a Dummy song', function()
@@ -215,7 +218,7 @@ describe('BRD\'s Pianissimo and Soul Voice', function()
         gs:gain_buff('Soul Voice')
         gs:type('/ma "Mage\'s Ballad" <me>')
         assert.same(worn({head = "Bendis's Hairpin", ring1 = "Tyrant's Ring", body = 'Rage Platemail',
-            legs = 'Sapphire Trousers'}), gs:worn())
+            hands = 'Volte Bracers', legs = 'Sapphire Trousers'}), gs:worn())
     end)
 
     it('have Miracle Cheer on a song under the Pianissimo mode while Pianissimo is up', function()
@@ -228,7 +231,7 @@ describe('BRD\'s Pianissimo and Soul Voice', function()
     it('have no Miracle Cheer on a song under the Pianissimo mode without Pianissimo', function()
         gs:console('gs c toggle Pianissimode')
         gs:type('/ma "Mage\'s Ballad" <me>')
-        assert.is_nil(gs:worn().range)
+        assert.equal('Terpander', gs:worn().range)
     end)
 end)
 
@@ -239,9 +242,10 @@ describe('BRD\'s Nightingale', function()
         gs:traffic()
         gs:type('/ma "Mage\'s Ballad" <me>')
         assert.same({
-            {equip = {head = "Bendis's Hairpin", left_ring = "Tyrant's Ring", legs = 'Sapphire Trousers'}},
+            {equip = {head = "Bendis's Hairpin", left_ring = "Tyrant's Ring", hands = 'Volte Bracers',
+                legs = 'Sapphire Trousers'}},
             {action = 'Mage\'s Ballad', target = 'Jobby'},
-            {equip = {main = 'Carnwenhan', body = 'Sapphire Platemail'}},
+            {equip = {main = 'Carnwenhan', range = 'Terpander', body = 'Sapphire Platemail'}},
         }, gs:traffic())
     end)
 
@@ -251,7 +255,8 @@ describe('BRD\'s Nightingale', function()
         assert.same({
             {equip = {head = "Bendis's Hairpin", left_ring = "Tyrant's Ring"}},
             {action = 'Mage\'s Ballad', target = 'Jobby'},
-            {equip = {main = 'Carnwenhan', body = 'Sapphire Platemail', legs = 'Sapphire Trousers'}},
+            {equip = {main = 'Carnwenhan', range = 'Terpander', body = 'Sapphire Platemail', hands = 'Volte Bracers',
+                legs = 'Sapphire Trousers'}},
         }, gs:traffic())
     end)
 end)

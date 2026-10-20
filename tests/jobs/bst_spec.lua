@@ -6,10 +6,11 @@ local gear = {"Judge's Sword", 'Aern Sword', 'Trainee Sword', "Charmer's Merlin"
     'Diamond Haramaki', 'Sapphire Gauntlets', 'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers',
     'Jadeite Chausses', 'Diamond Hiza.', 'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Sune-Ate',
     "Orunmila's Torque", 'Phrenic Torque', 'Aptitude Mantle', 'Prosilio Belt', 'Moonshade Earring', 'Ishvara Earring',
-    'Brutal Earring', 'Lugra Earring +1', "Hecate's Earring", 'Pixie Earring', 'Malignance Tights'}
+    'Brutal Earring', 'Lugra Earring +1', "Hecate's Earring", 'Pixie Earring', 'Malignance Tights', 'Kupo Shield',
+    'Sacro Bulwark', 'Bronze Bullet'}
 
 -- What the idle set of Jobby's beastmaster gear file wears besides every gear file's.
-local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
+local own_idle = {main = "Judge's Sword", sub = 'Kupo Shield', back = 'Mecisto. Mantle'}
 
 local idle = jobby.worn_by(jobby.idle, own_idle)
 
@@ -140,27 +141,33 @@ describe('BST\'s Reward', function()
     it('has the set of the reward mode, with Reward\'s own over it, before it goes out', function()
         gs:type('/ja "Reward" <me>')
         local traffic = gs:traffic()
-        assert.same({legs = 'Sapphire Trousers', ammo = 'Pet Food Theta', feet = 'Sapphire Leggings'},
-            traffic[1].equip)
+        assert.same({sub = 'Sacro Bulwark', legs = 'Sapphire Trousers', ammo = 'Pet Food Theta',
+            feet = 'Sapphire Leggings'}, traffic[1].equip)
         assert.equal('Reward', traffic[2].action)
     end)
 
     it('has the set of another reward mode in that mode', function()
         gs:console('gs c set RewardMode Zeta')
         gs:type('/ja "Reward" <me>')
-        assert.same({legs = 'Sapphire Trousers', ammo = 'Pet Food Zeta', feet = 'Jadeite Jambeaux'},
-            gs:traffic()[1].equip)
+        assert.same({sub = 'Sacro Bulwark', legs = 'Sapphire Trousers', ammo = 'Pet Food Zeta',
+            feet = 'Jadeite Jambeaux'}, gs:traffic()[1].equip)
     end)
 
-    it('has the dual wield set too, for a character who can dual wield', function()
-        jobby.can_dual_wield(gs)
-        gs:type('/ja "Reward" <me>')
-        assert.equal('Aern Sword', gs:traffic()[1].equip.sub)
-    end)
+    it('has the dual wield set too, for a character who can dual wield, in the slots Reward\'s own set leaves free',
+        function()
+            jobby.can_dual_wield(gs)
+            gs:type('/ja "Reward" <me>')
+            assert.equal("Charmer's Merlin", gs:traffic()[1].equip.main)
+        end)
+
+    pending('has the dual wield set\'s sub over Reward\'s own, for a character who can dual wield: job_precast in '
+        .. 'data/BST.lua equips sets.precast.JA.Reward.DW itself, and Sel\'s precast then lays sets.precast.JA.Reward '
+        .. 'over it, so a sub in Reward\'s own set wins')
 
     it('has no dual wield set for a character who can\'t', function()
         gs:type('/ja "Reward" <me>')
-        assert.is_nil(gs:traffic()[1].equip.sub)
+        assert.same({sub = 'Sacro Bulwark', legs = 'Sapphire Trousers', ammo = 'Pet Food Theta',
+            feet = 'Sapphire Leggings'}, gs:traffic()[1].equip)
     end)
 end)
 
@@ -274,7 +281,7 @@ end)
 
 -- What Jobby wears with a pet out in the Tank pet mode, idle: the set of a pet idle, and the Tank set under it.
 local function with_pet(changes)
-    local set = {back = 'Aptitude Mantle', ring1 = "Tyrant's Ring"}
+    local set = {sub = 'Sacro Bulwark', back = 'Aptitude Mantle', ring1 = "Tyrant's Ring"}
     for slot, item in pairs(changes or {}) do
         set[slot] = item
     end
@@ -604,7 +611,7 @@ describe('BST\'s idle set with a pet out', function()
         gs:give_pet({name = 'DroopyDortwin'})
         gs:console('gs c set PetMode DD')
         gs:console('gs c update')
-        assert.same(worn({back = 'Aptitude Mantle', ring2 = 'Moepapa Ring'}), gs:worn())
+        assert.same(worn({sub = 'Sacro Bulwark', back = 'Aptitude Mantle', ring2 = 'Moepapa Ring'}), gs:worn())
     end)
 
     pending('is the set for the DD pet mode as soon as that mode is set: job_state_change in data/BST.lua looks for '
@@ -626,23 +633,29 @@ describe('BST\'s idle set with a pet out', function()
         assert.same(worn(), gs:worn())
     end)
 
-    it('has the dual wield pet set over it for a character who can dual wield', function()
+    it('has the dual wield pet set on too, for a character who can dual wield, in the slots the pet idle set leaves '
+        .. 'free', function()
         jobby.can_dual_wield(gs)
         gs:give_pet({name = 'DroopyDortwin'})
-        assert.equal('Aern Sword', gs:worn().sub)
+        assert.equal('Staunch Tathlum +1', gs:worn().ammo)
     end)
 
-    it('has the dual wield engaged pet set over it while the pet is engaged, for a character who can dual wield', function()
+    it('has the dual wield engaged pet set on too while the pet is engaged, for a character who can dual wield, in the '
+        .. 'slots the pet idle set leaves free', function()
         jobby.can_dual_wield(gs)
         gs:give_pet({name = 'DroopyDortwin'})
         gs:set_pet_status(1)
-        assert.equal('Trainee Sword', gs:worn().sub)
+        assert.equal('Bronze Bullet', gs:worn().ammo)
     end)
 
-    it('has no dual wield set over it for a character who can\'t', function()
+    pending('has the dual wield pet set\'s sub over the pet idle set\'s, idle or engaged, for a character who can '
+        .. 'dual wield: job_customize_idle_set in data/BST.lua equips sets.idle.Pet.DW or sets.idle.Pet.Engaged.DW '
+        .. 'itself, and Sel then equips the idle set it hands back over it, so a sub in the pet idle set wins')
+
+    it('has no dual wield set for a character who can\'t', function()
         gs:give_pet({name = 'DroopyDortwin'})
         gs:set_pet_status(1)
-        assert.is_nil(gs:worn().sub)
+        assert.same(with_pet({waist = 'Prosilio Belt'}), gs:worn())
     end)
 
     it('is the pet idle set at once for a pet that was out when GearSwap loaded', function()
@@ -891,7 +904,7 @@ describe('BST\'s weapon skill sets', function()
     end)
 
     it('have none of that without Killer Instinct', function()
-        assert.equal('Mecisto. Mantle', weaponskill(gs, 'Savage Blade', 1000).back)
+        assert.equal('Moonbeam Cape', weaponskill(gs, 'Savage Blade', 1000).back)
     end)
 end)
 

@@ -914,13 +914,10 @@ describe('RDM\'s elemental commands', function()
     end)
 
     it('nuke says so when both Banishes are on recast in the Light mode', function()
-        local gs = boot_ticking()
-        gs:console('gs c set ElementalMode Light')
-        gs.game:start_spell_recast('Banish', 10)
-        gs.game:start_spell_recast('Banish II', 10)
-        gs:chat()
-        gs:console('gs c elemental nuke')
-        assert.same({}, gs:actions())
+        local actions, gs = sent('Light', 'nuke', {recasts = {['Banish'] = 10, ['Banish II'] = 10}, setup = function(gs)
+            gs:chat()
+        end})
+        assert.same({}, actions)
         assert.same({'Abort: Banishes on cooldown or not enough MP.'}, gs:chat())
     end)
 
@@ -929,18 +926,14 @@ describe('RDM\'s elemental commands', function()
     end)
 
     it('says so when every tier is on recast', function()
-        local gs = boot_ticking()
-        gs:console('gs c set ElementalMode Fire')
         local recasts = {}
         for _, spell in ipairs({'Fire V', 'Fire IV', 'Fire III', 'Fire II', 'Fire'}) do
             recasts[spell] = 10
         end
-        for spell, seconds in pairs(recasts) do
-            gs.game:start_spell_recast(spell, seconds)
-        end
-        gs:chat()
-        gs:console('gs c elemental nuke')
-        assert.same({}, gs:actions())
+        local actions, gs = sent('Fire', 'nuke', {recasts = recasts, setup = function(gs)
+            gs:chat()
+        end})
+        assert.same({}, actions)
         assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, gs:chat())
     end)
 end)

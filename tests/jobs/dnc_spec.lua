@@ -287,28 +287,33 @@ describe('a weapon skill under AutoBuffMode with the TP to spare for a step', fu
         assert.same({'Rudra\'s Storm'}, weaponskill(gs))
     end)
 
-    it('goes out at 1099 TP, the cost of a step being a hundred', function()
-        local gs = buffer({tp = 1099})
-        assert.same({'Rudra\'s Storm'}, weaponskill(gs))
-    end)
-
     pending('is held back at 1095 TP with Horos T. Shoes +2 in sets.precast.Step, which take 10 off the cost: '
         .. 'job_setup in data/DNC.lua works the reduction out before the gear file has built sets.precast.Step, so it is '
         .. 'nothing until a sub job change runs job_setup again')
 
-    it('goes out at 1090 TP, a step costing a hundred', function()
-        local gs = buffer({tp = 1090})
-        assert.same({'Rudra\'s Storm'}, weaponskill(gs))
+    -- In a defense mode step_cost in data/DNC.lua counts no shoes, so the cost there is a hundred less the kobers'.
+    local function defending(options)
+        local gs = buffer(options)
+        gs:console('gs c set DefenseMode Physical')
+        return gs
+    end
+
+    it('goes out at 1099 TP and is held back at 1100 in a defense mode, a step costing a hundred', function()
+        assert.same({'Rudra\'s Storm'}, weaponskill(defending({tp = 1099})))
+        assert.same({'Presto'}, weaponskill(defending({tp = 1100})))
     end)
 
-    it('is held back at 1090 TP with a Setan Kober in hand, which takes 40 off the cost', function()
-        local gs = buffer({tp = 1090, wearing = {main = 'Setan Kober'}})
-        assert.same({'Presto'}, weaponskill(gs))
+    it('goes out at 1059 TP and is held back at 1060 in a defense mode with a Setan Kober in hand, which takes 40 '
+        .. 'off the cost', function()
+        assert.same({'Rudra\'s Storm'}, weaponskill(defending({tp = 1059, wearing = {main = 'Setan Kober'}})))
+        assert.same({'Presto'}, weaponskill(defending({tp = 1060, wearing = {main = 'Setan Kober'}})))
     end)
 
-    it('is held back at 1030 TP with a Setan Kober in each hand, which takes 80 off the cost', function()
-        local gs = buffer({tp = 1030, wearing = {main = 'Setan Kober', sub = 'Setan Kober'}, kobers = 2})
-        assert.same({'Presto'}, weaponskill(gs))
+    it('goes out at 1019 TP and is held back at 1020 in a defense mode with a Setan Kober in each hand, which take 80 '
+        .. 'off the cost', function()
+        local kobers = {main = 'Setan Kober', sub = 'Setan Kober'}
+        assert.same({'Rudra\'s Storm'}, weaponskill(defending({tp = 1019, wearing = kobers, kobers = 2})))
+        assert.same({'Presto'}, weaponskill(defending({tp = 1020, wearing = kobers, kobers = 2})))
     end)
 
     it('goes out with the AutoBuffMode off', function()

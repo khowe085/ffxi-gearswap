@@ -3,7 +3,7 @@ local jobby = require('jobby')
 
 local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Sapphire Platemail',
     'Jadeite Cuirie', 'Volte Jupon', 'Jadeite Chausses', 'Sapphire Gauntlets', 'Jadeite Gloves', 'Sapphire Trousers',
-    'Diamond Haramaki', 'Diamond Kote', 'Diamond Sune-Ate', "Orunmila's Torque"}
+    'Diamond Haramaki', 'Diamond Kote', 'Diamond Sune-Ate', "Orunmila's Torque", 'Sapphire Leggings'}
 
 local tools = {'Inoshishinofuda', 'Shikanofuda', 'Chonofuda'}
 
@@ -65,7 +65,8 @@ describe('NIN\'s ninjutsu', function()
 
     it('takes sets.midcast.ElementalNinjutsu for an elemental ninjutsu', function()
         gs:type('/ma "Katon: Ni" <t>')
-        assert.same(worn({head = "Bendis's Hairpin", hands = 'Jadeite Gloves'}), gs:worn())
+        assert.same(worn({head = "Bendis's Hairpin", hands = 'Jadeite Gloves', feet = 'Sapphire Leggings'}),
+            gs:worn())
     end)
 
     it('takes sets.midcast.NinjutsuBuff for a ninjutsu on itself that has no spell map of Sel\'s', function()
@@ -94,7 +95,8 @@ describe('NIN\'s elemental ninjutsu with Futae', function()
     it('has no sets.buff.Futae over it in the Proc casting mode', function()
         gs:console('gs c set CastingMode Proc')
         gs:type('/ma "Katon: Ni" <t>')
-        assert.same(worn({head = "Bendis's Hairpin", hands = 'Jadeite Gloves'}), gs:worn())
+        assert.same(worn({head = "Bendis's Hairpin", hands = 'Jadeite Gloves', feet = 'Sapphire Leggings'}),
+            gs:worn())
     end)
 
     it('has no sets.buff.Futae over a ninjutsu that isn\'t elemental', function()
@@ -256,6 +258,15 @@ describe('NIN\'s stance, kept by the tick', function()
         assert.same({}, gs:actions())
     end)
 
+    -- check_stance in data/NIN.lua looks only for the other stance's buff, not for the stance's own.
+    it('puts Innin up again with Innin up, once its recast is over', function()
+        gs:monster_hits()
+        gs:gain_buff('Innin')
+        gs:traffic()
+        gs:play(harness.sel_load_time + 0.5)
+        assert.same({'Innin'}, gs:actions())
+    end)
+
     it('waits with Innin up in the Yonin stance', function()
         gs:console('gs c set Stance Yonin')
         gs:monster_hits()
@@ -389,9 +400,11 @@ describe('NIN\'s buffup', function()
         gs:play(harness.sel_load_time + 0.5)
         assert.same({'Kakka: Ichi'}, gs:actions())
     end)
+end)
 
-    it('is done once both are up, which is said', function()
-        gs = boot_ticking({buffs = {'Subtle Blow Plus', 'Store TP'}})
+describe('NIN\'s buffup with both its buffs up', function()
+    it('is done at once, which is said', function()
+        local gs = boot_ticking({buffs = {'Subtle Blow Plus', 'Store TP'}})
         gs:console('gs c buffup')
         gs:play(1)
         assert.same({}, gs:actions())

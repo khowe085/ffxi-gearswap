@@ -36,7 +36,10 @@ function init_gear_sets()
 	sets.buff.Sengikori = {legs = 'Diamond Hiza.'}
 	sets.buff['Meikyo Shisui'] = {feet = 'Diamond Sune-Ate'}
 
-	sets.precast.WS = {head = "Theia's Hairpin", neck = 'Orunmila\'s Torque'}
+	sets.midcast.Cure = {body = 'Volte Jupon'}
+
+	sets.precast.WS = {head = "Theia's Hairpin", neck = 'Orunmila\'s Torque', hands = 'Volte Bracers',
+		legs = 'Volte Hose'}
 	sets.precast.WS['Tachi: Fudo'] = {head = "Theia's Hairpin", ear1 = 'Moonshade Earring', ear2 = 'Etiolation Earring'}
 	sets.precast.WS['Tachi: Gekko'] = {head = "Theia's Hairpin", ear1 = 'Lugra Earring +1', ear2 = 'Etiolation Earring'}
 	sets.MaxTP = {ear1 = 'Ishvara Earring'}

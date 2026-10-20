@@ -5,7 +5,7 @@ local gear = {"Judge's Sword", "Judge's Bow", 'Mecisto. Mantle', "Bendis's Hairp
     'Jadeite Gloves', 'Diamond Kote', 'Jadeite Chausses', 'Sapphire Trousers', 'Diamond Hiza.', "Orunmila's Torque",
     'Phrenic Torque', 'Aptitude Mantle', 'Moonshade Earring', 'Ishvara Earring', 'Brutal Earring',
     "Hecate's Earring", 'Pixie Earring', 'Beastly Earring', 'Stealth Earring', 'Armageddon', 'Gastraphetes',
-    'Annihilator', 'Gandiva', 'Yoichinoyumi'}
+    'Annihilator', 'Gandiva', 'Yoichinoyumi', 'Volte Bracers', 'Volte Hose', 'Fotia Gorget'}
 
 local ammunition = {'Chrono Arrow', 'Hauksbok Arrow', 'Chrono Bullet', 'Eradicating Bullet', 'Devastating Bullet',
     'Eminent Bullet', 'Hauksbok Bullet', 'Animikii Bullet', 'Quelling Bolt', 'Hauksbok Bolt'}
@@ -18,6 +18,12 @@ local idle = jobby.worn_by(jobby.idle, own_idle)
 -- What is worn with these changes over the idle set.
 local function worn(changes)
     return jobby.worn_by(idle, changes)
+end
+
+-- What is worn with sets.midcast.RA over the idle set, and these changes over that.
+local function shot_with(changes)
+    return worn(jobby.worn_by({body = 'Sapphire Platemail', hands = 'Volte Bracers', legs = 'Volte Hose',
+        neck = 'Fotia Gorget', back = 'Moonbeam Cape'}, changes))
 end
 
 -- Jobby as a ranger with the idle set on, Staunch Tathlum +1 for ammo and 99 of each ammunition, over a sub job of
@@ -118,8 +124,7 @@ describe('RNG\'s ranged attack', function()
         gs:type('/ra <t>')
         local traffic = gs:traffic()
         assert.equal("Theia's Hairpin", traffic[1].equip.head)
-        assert.same(worn({range = 'Armageddon', ammo = 'Chrono Bullet', head = "Theia's Hairpin",
-            body = 'Sapphire Platemail'}), gs:worn())
+        assert.same(shot_with({range = 'Armageddon', ammo = 'Chrono Bullet', head = "Theia's Hairpin"}), gs:worn())
     end)
 
     it('takes the midcast set of the ranged mode', function()
@@ -130,8 +135,8 @@ describe('RNG\'s ranged attack', function()
     end)
 
     pending('has Chrono Arrow once an update has put the idle set\'s bow in an empty range slot: job_update in '
-        .. 'data/RNG.lua takes the type of the ranged weapon before Sel\'s update puts the idle set on, so the type '
-        .. 'stays None, and do_ammo_checks raises an error indexing DefaultAmmo with it')
+        .. 'data/RNG.lua takes the type of the ranged weapon before Sel\'s update puts the idle set on, so the type is '
+        .. 'None until the weapons are next set up, and do_ammo_checks raises an error indexing DefaultAmmo with it')
 
     it('has the default ammunition of the weapon back once it is done, over the accuracy ranged mode\'s', function()
         local gs = boot()
@@ -312,8 +317,7 @@ describe('RNG\'s ranged attack with a buff up', function()
     it('has sets.buff.Velocity Shot over the midcast set with Velocity Shot', function()
         gs:gain_buff('Velocity Shot')
         gs:type('/ra <t>')
-        assert.same(worn({head = "Bendis's Hairpin", ammo = 'Chrono Arrow', body = 'Sapphire Platemail',
-            back = 'Aptitude Mantle'}), gs:worn())
+        assert.same(shot_with({head = "Bendis's Hairpin", ammo = 'Chrono Arrow', back = 'Aptitude Mantle'}), gs:worn())
     end)
 
     it('has sets.buff.Barrage over the midcast set with Barrage', function()
@@ -337,7 +341,7 @@ describe('RNG\'s ranged attack with a buff up', function()
 
     it('has none of them without the buffs', function()
         gs:type('/ra <t>')
-        assert.same(worn({head = "Bendis's Hairpin", ammo = 'Chrono Arrow', body = 'Sapphire Platemail'}), gs:worn())
+        assert.same(shot_with({head = "Bendis's Hairpin", ammo = 'Chrono Arrow'}), gs:worn())
     end)
 end)
 
@@ -362,7 +366,7 @@ describe('RNG\'s ranged attack with Double Shot', function()
     it('has the set for the weapons locked, in place of the base set', function()
         gs:console('gs c set Weapons Gun')
         gs:type('/ra <t>')
-        assert.same({legs = 'Jadeite Chausses', hands = 'Nyame Gauntlets'},
+        assert.same({legs = 'Jadeite Chausses', hands = 'Volte Bracers'},
             {legs = gs:worn().legs, hands = gs:worn().hands})
     end)
 

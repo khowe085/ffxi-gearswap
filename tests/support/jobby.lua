@@ -1,7 +1,8 @@
 -------------------------------------------------------------------------------------------------------------------
 -- Jobby, the made-up character the tests of the job files in data/ play (tests/jobs): the boot options for each job,
 -- over the fixture gear file tests/fixture/data/Jobby/Jobby_<Job>_Gear.lua that job loads, and the sets as they are
--- worn.
+-- worn; what Jobby is told and types but the lines User-Globals.lua gives five seconds after a load; and what a test
+-- gives him besides: the Dual Wield trait, and another player as his target.
 -------------------------------------------------------------------------------------------------------------------
 
 local harness = require('harness')
@@ -98,7 +99,8 @@ local validate_report = {['GearSwap: Checking for items in gear sets that are no
     ['GearSwap: Final count = 0'] = true}
 
 -- The lines put in the chat since it was last read, but the report of that gs validate; only those the pattern finds,
--- when one is given. Sel and the job files begin each line that turns an action down with Abort.
+-- when one is given. Sel begins each line that turns an action down with Abort, and most job files do too, but not
+-- SMN.lua's for an avatar already out, BST.lua's for a weapon skill out of range or DRG.lua's for every jump on recast.
 function jobby.said(gs, pattern)
     local lines = {}
     for _, line in ipairs(gs:chat()) do
@@ -110,18 +112,29 @@ function jobby.said(gs, pattern)
 end
 
 -- The lines typed since this was last asked that reached the game, but the /lockstyle on that User-Globals.lua types
--- along with that gs validate.
+-- along with that gs validate: the first the game was given, since Sel's own waits fifteen seconds after a load.
 function jobby.typed(gs)
+    local typed = gs:typed()
+    local load_lock
+    for i, line in ipairs(gs.game.typed) do
+        if line == '/lockstyle on' then
+            load_lock = i
+            break
+        end
+    end
+    local first = #gs.game.typed - #typed
     local lines = {}
-    for _, line in ipairs(gs:typed()) do
-        if line ~= '/lockstyle on' then
+    for i, line in ipairs(typed) do
+        if first + i ~= load_lock then
             lines[#lines + 1] = line
         end
     end
     return lines
 end
 
--- Jobby has the Dual Wield trait from now on, as Sel finds out when it looks, with nothing sent since.
+-- Jobby has the Dual Wield trait from now on, as Sel finds out when it looks, with nothing sent since. Sel starts the
+-- weapons over when it looks, as five seconds after a load (gs c weapons initialize), which in a Jobby gear file, with
+-- no DualWeapons set, puts Weapons back at its first option, None.
 function jobby.can_dual_wield(gs)
     gs.game:set_job_traits({'Dual Wield'})
     gs:run(function()
