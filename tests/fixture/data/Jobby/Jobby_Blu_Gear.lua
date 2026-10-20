@@ -1,5 +1,6 @@
 -- A small Sel gear file for the tests of data/BLU.lua. Each blue magic list's set wears its own ring and ear, so the
--- set a spell took shows from what is worn; the other sets wear pieces that tell them apart.
+-- set a spell took shows from what is worn; the other sets wear pieces that tell them apart. The engaged set,
+-- Requiescat's and PhysicalDex's wear a neck for sets.Learning to take the place of.
 
 function user_job_setup()
 	state.OffenseMode:options('Normal', 'Acc')
@@ -21,7 +22,7 @@ function init_gear_sets()
 	sets.latent_refresh_grip = {ring2 = 'Gelatinous Ring'}
 	sets.Learning = {neck = 'Weike Torque'}
 
-	sets.engaged = {head = 'Volte Cap', body = 'Volte Jupon'}
+	sets.engaged = {head = 'Volte Cap', body = 'Volte Jupon', neck = 'Combatant\'s Torque'}
 	sets.engaged.Acc = set_combine(sets.engaged, {body = 'Adamantite Armor'})
 
 	sets.precast.FC = {head = 'Volte Cap'}
@@ -30,7 +31,7 @@ function init_gear_sets()
 
 	sets.precast.WS['Chant du Cygne'] = {head = 'Null Masque', ear1 = 'Moonshade Earring'}
 	sets.precast.WS['Savage Blade'] = {head = 'Null Masque', ear2 = 'Moonshade Earring'}
-	sets.precast.WS.Requiescat = {head = 'Null Masque'}
+	sets.precast.WS.Requiescat = {head = 'Null Masque', neck = 'Fotia Gorget'}
 	sets.MaxTP = {ear1 = 'Sortiarius Earring', ear2 = 'Pensee Earring'}
 	sets.AccMaxTP = {ear1 = 'Beatific Earring', ear2 = 'Pensee Earring'}
 
@@ -38,7 +39,8 @@ function init_gear_sets()
 	sets.midcast['Blue Magic'].Physical = {ring1 = 'Lunette Ring', ear1 = 'Sortiarius Earring'}
 	sets.midcast['Blue Magic'].PhysicalAcc = {ring1 = 'Lunette Ring', ear1 = 'Beatific Earring'}
 	sets.midcast['Blue Magic'].PhysicalStr = {ring1 = 'Lunette Ring', ear1 = 'Choleric Earring'}
-	sets.midcast['Blue Magic'].PhysicalDex = {ring1 = 'Pernicious Ring', ear1 = 'Sortiarius Earring'}
+	sets.midcast['Blue Magic'].PhysicalDex = {ring1 = 'Pernicious Ring', ear1 = 'Sortiarius Earring',
+		neck = 'Sanctity Necklace'}
 	sets.midcast['Blue Magic'].PhysicalVit = {ring1 = 'Pernicious Ring', ear1 = 'Beatific Earring'}
 	sets.midcast['Blue Magic'].PhysicalAgi = {ring1 = 'Pernicious Ring', ear1 = 'Choleric Earring'}
 	sets.midcast['Blue Magic'].PhysicalInt = {ring1 = 'Gelatinous Ring', ear1 = 'Sortiarius Earring'}

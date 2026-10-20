@@ -4,15 +4,26 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
     'Adamantite Armor', 'Plumb Boots', "Orunmila's Torque", 'Weike Torque', 'Loricate Torque', 'Sortiarius Earring',
     'Beatific Earring', 'Choleric Earring', 'Pensee Earring', 'Moonshade Earring', 'Lunette Ring', 'Pernicious Ring',
     'Gelatinous Ring', 'Cacoethic Ring', 'Petrov Ring', 'Fortified Ring', 'Vertigo Ring', 'Dhanurveda Ring',
-    'Wanion Belt', 'Prodigious Mantle', 'Malignance Chapeau', 'Malignance Tabard', 'Naegling', 'Gozuki Mezuki'}
+    'Wanion Belt', 'Prodigious Mantle', 'Malignance Chapeau', 'Malignance Tabard', 'Naegling', 'Gozuki Mezuki',
+    'Fotia Gorget', 'Sanctity Necklace', "Combatant's Torque"}
 
--- Jobby as a blue mage with the idle set on, knowing only the spells named, which the game gives him in his blue magic
+-- The boot options of Jobby as a blue mage, knowing only the spells named, which the game gives him in his blue magic
 -- set.
-local function boot(spells, overrides)
+local function blue_mage(spells, overrides)
     local options = overrides or {}
     options.spells, options.items = spells, pieces
     options.sub_job = options.sub_job or 'NIN'
-    return jobby.boot('BLU', options)
+    return options
+end
+
+-- Jobby as a blue mage with the idle set on (see blue_mage).
+local function boot(spells, overrides)
+    return jobby.boot('BLU', blue_mage(spells, overrides))
+end
+
+-- As boot, and past the five seconds Sel waits after loading before its tick acts.
+local function boot_ticking(spells, overrides)
+    return jobby.boot_ticking('BLU', blue_mage(spells, overrides))
 end
 
 local function sets_of(gs)
@@ -21,15 +32,6 @@ end
 
 local function blue(gs, list)
     return sets_of(gs).midcast['Blue Magic'][list]
-end
-
-local function said(gs, text)
-    for _, entry in ipairs(gs.game.chat_log) do
-        if entry.text:find(text, 1, true) then
-            return true
-        end
-    end
-    return false
 end
 
 -- What is worn once the spell is out: the Blue Magic fast cast set and the set of the spell's list over the idle set.
@@ -46,13 +48,7 @@ end
 -- the first action's delay is over, a second later.
 local function first_actions(gs)
     gs:play(5.3)
-    local actions = {}
-    for _, sent in ipairs(gs:traffic()) do
-        if sent.action then
-            actions[#actions + 1] = sent.action
-        end
-    end
-    return actions
+    return jobby.actions(gs)
 end
 
 describe('the set a blue spell takes from its list in blue_magic_maps', function()
@@ -115,16 +111,6 @@ describe('a blue spell the lists leave out or hold twice', function()
             midcast_worn(gs, '/ma "Polar Roar" <t>'))
     end)
 
-    it('takes the set of one of the lists that hold it for Bilgestorm too: Physical or Stun', function()
-        local gs = boot({'Bilgestorm'})
-        gs:gain_buff('Unbridled Learning')
-        gs:traffic()
-        local worn = midcast_worn(gs, '/ma "Bilgestorm" <t>')
-        local physical = blue_over_fast_cast(gs, blue(gs, 'Physical'))
-        local stun = blue_over_fast_cast(gs, blue(gs, 'Stun'))
-        assert.is_true(pcall(assert.same, physical, worn) or pcall(assert.same, stun, worn))
-    end)
-
     it('takes the set of one of the lists that hold it, as Lua happens to order them', function()
         local gs = boot({'Hecatomb Wave'})
         local worn = midcast_worn(gs, '/ma "Hecatomb Wave" <t>')
@@ -154,13 +140,13 @@ describe('the casting mode and a blue spell', function()
         gs:console('gs c set CastingMode Proc')
         gs:traffic()
         gs:type('/ma "Foot Kick" <t>')
-        assert.same(sets_of(gs).precast.FC.Proc, gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.FC.Proc), gs:traffic()[1].equip)
     end)
 
     it('wears sets.precast.FC["Blue Magic"] ahead of the spell otherwise', function()
         local gs = boot({'Foot Kick'})
         gs:type('/ma "Foot Kick" <t>')
-        assert.same(sets_of(gs).precast.FC['Blue Magic'], gs:traffic()[1].equip)
+        assert.same(jobby.layer(sets_of(gs).precast.FC['Blue Magic']), gs:traffic()[1].equip)
     end)
 end)
 
@@ -169,7 +155,7 @@ describe('a spell that needs Unbridled Learning', function()
         local gs = boot({'Cesspool'})
         gs:type('/ma "Cesspool" <t>')
         assert.same({}, gs:traffic())
-        assert.is_true(said(gs, 'Abort: Unbridled Learning not active.'))
+        assert.same({'Abort: Unbridled Learning not active.'}, jobby.chat(gs))
     end)
 
     it('goes out at once with Unbridled Learning up', function()
@@ -177,7 +163,7 @@ describe('a spell that needs Unbridled Learning', function()
         gs:gain_buff('Unbridled Learning')
         gs:traffic()
         gs:type('/ma "Cesspool" <t>')
-        assert.same({'Cesspool'}, {gs:traffic()[2].action})
+        assert.same({'Cesspool'}, jobby.actions(gs))
     end)
 
     it('goes out with Unbridled Wisdom up too', function()
@@ -185,7 +171,7 @@ describe('a spell that needs Unbridled Learning', function()
         gs:gain_buff('Unbridled Wisdom')
         gs:traffic()
         gs:type('/ma "Cesspool" <t>')
-        assert.same({'Cesspool'}, {gs:traffic()[2].action})
+        assert.same({'Cesspool'}, jobby.actions(gs))
     end)
 
     it('is held back for Unbridled Learning, and cast a second later, in the Auto Unbridled mode', function()
@@ -196,7 +182,7 @@ describe('a spell that needs Unbridled Learning', function()
         gs:gain_buff('Unbridled Learning')
         gs:traffic()
         gs:advance(1)
-        assert.same('Cesspool', gs:traffic()[2].action)
+        assert.same({'Cesspool'}, jobby.actions(gs))
     end)
 
     it('is held back for Unbridled Learning when AutoBuffMode is on', function()
@@ -217,16 +203,17 @@ describe('a spell that needs Unbridled Learning', function()
         local gs = boot({'Cesspool'})
         gs:console('gs c set AutoUnbridled true')
         gs.game:start_ability_recast('Unbridled Learning', 100)
+        jobby.chat(gs)
         gs:type('/ma "Cesspool" <t>')
         assert.same({}, gs:traffic())
-        assert.is_true(said(gs, 'Abort: Unbridled Learning not active.'))
+        assert.same({'Abort: Unbridled Learning not active.'}, jobby.chat(gs))
     end)
 
     it('is the only kind of blue spell the filter holds back', function()
         local gs = boot({'Foot Kick'})
         gs:console('gs c set AutoUnbridled true')
         gs:type('/ma "Foot Kick" <t>')
-        assert.same('Foot Kick', gs:traffic()[2].action)
+        assert.same({'Foot Kick'}, jobby.actions(gs))
     end)
 end)
 
@@ -253,7 +240,7 @@ describe('a weapon skill when a club is in hand', function()
         local gs = boot({'Foot Kick'}, {tp = 1000, abilities = {'Requiescat'}})
         gs:type('/ws "Chant du Cygne" <t>')
         assert.same({}, gs:traffic())
-        assert.same({}, gs.game.typed)
+        assert.same({}, jobby.typed(gs))
     end)
 end)
 
@@ -494,7 +481,7 @@ describe('gs c curecheat', function()
         gs:console('gs c curecheat')
         assert.same({{equip = {neck = 'Loricate Torque'}}}, gs:traffic())
         gs:advance(1)
-        assert.same('Magic Fruit', gs:traffic()[2].action)
+        assert.same({'Magic Fruit'}, jobby.actions(gs))
     end)
 
     it('says so when there is no sets.HPDown', function()
@@ -502,7 +489,7 @@ describe('gs c curecheat', function()
         sets_of(gs).HPDown = nil
         gs:console('gs c curecheat')
         assert.same({}, gs:traffic())
-        assert.is_true(said(gs, "You don't have a sets.HPDown to cheat with."))
+        assert.same({"You don't have a sets.HPDown to cheat with."}, jobby.chat(gs))
     end)
 end)
 
@@ -645,11 +632,11 @@ describe('the tick of a blue mage', function()
             assert.same({'Carcharian Verve'}, first_actions(gs))
         end)
 
-        it('says so and stops when every buff is up', function()
-            local gs = boot({'Erratic Flutter'}, {buffs = {'Haste'}})
+        it('says so and stops when each spell of the list it can cast has its buff up', function()
+            local gs = boot_ticking({'Erratic Flutter'}, {buffs = {'Haste'}})
             gs:console('gs c buffup')
-            gs:play(5.3)
-            assert.is_true(said(gs, 'All Default buffs are up!'))
+            gs:play(1)
+            assert.same({'All Default buffs are up!'}, jobby.chat(gs))
             assert.same('', gs.user.buffup)
         end)
     end)

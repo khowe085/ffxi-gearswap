@@ -12,6 +12,7 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
 --   no_pet                 no pet is called out
 --   oil                    false for no Automat. Oil +3 among the pieces
 --   mp                     the automaton's MP, of a hundred
+--   ticking                past the five seconds Sel waits after loading before its tick acts, before the pet is out
 local function boot(options)
     options = options or {}
     local items = {}
@@ -21,8 +22,8 @@ local function boot(options)
     if options.oil ~= false then
         items[#items + 1] = 'Automat. Oil +3'
     end
-    local gs = jobby.boot('PUP', {items = items, sub_job = options.sub_job or 'WHM', tp = options.tp,
-        buffs = options.buffs})
+    local gs = (options.ticking and jobby.boot_ticking or jobby.boot)('PUP', {items = items,
+        sub_job = options.sub_job or 'WHM', tp = options.tp, buffs = options.buffs})
     gs.game:set_automaton({name = 'Tin', head = options.head or 'Valoredge Head',
         frame = options.frame or 'Valoredge Frame', max_mp = 100, mp = options.mp or 100})
     gs:console('gs c update')
@@ -48,37 +49,10 @@ local function sets_of(gs)
     return gs.user.sets
 end
 
-local function said(gs, text)
-    for _, entry in ipairs(gs.game.chat_log) do
-        if entry.text:find(text, 1, true) then
-            return true
-        end
-    end
-    return false
-end
-
-local function ran(gs, command)
-    local count = 0
-    for _, ran_command in ipairs(gs.game.commands) do
-        if ran_command == command then
-            count = count + 1
-        end
-    end
-    return count
-end
-
-local function actions(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        names[#names + 1] = entry.action
-    end
-    return names
-end
-
 -- The actions the tick sent in its first moments (it starts five seconds after the file loads).
 local function first_actions(gs)
     gs:play(5.3)
-    return actions(gs)
+    return jobby.actions(gs)
 end
 
 describe('the automaton\'s mode, from its head and frame', function()
@@ -125,7 +99,7 @@ describe('the automaton\'s mode, from its head and frame', function()
         local gs = boot({no_pet = true})
         gs:console('gs c autopetmode')
         assert.equal('None', gs.user.state.PetMode.value)
-        assert.is_true(said(gs, 'Error: No valid pet.'))
+        assert.same({'Error: No valid pet.'}, jobby.chat(gs))
     end)
 
     it('is the idle custom group while the pet is out, and no more once it is gone', function()
@@ -232,9 +206,9 @@ describe('the idle set of a puppetmaster', function()
         assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).buff.Overdrive)), gs:worn())
     end)
 
-    it('wears sets.latent_refresh under half MP with a mage as the sub job and no pet engaged', function()
+    it('wears sets.latent_refresh at 50% MP with a mage as the sub job and no pet engaged', function()
         local gs = boot()
-        gs.game.player.vitals.mpp = 40
+        gs.game.player.vitals.mpp = 50
         gs:console('gs c update')
         assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet, sets_of(gs).latent_refresh)), gs:worn())
     end)
@@ -253,8 +227,10 @@ describe('the idle set of a puppetmaster', function()
         assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
     end)
 
-    it('wears no sets.latent_refresh above half MP', function()
+    it('wears no sets.latent_refresh at 51% MP', function()
         local gs = boot()
+        gs.game.player.vitals.mpp = 51
+        gs:console('gs c update')
         assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
     end)
 end)
@@ -381,33 +357,33 @@ describe('engaging', function()
     it('sends the pet in with Deploy when it is idle and the target is a monster close by', function()
         local gs = boot()
         gs:engage()
-        assert.same({'Deploy'}, actions(gs))
+        assert.same({'Deploy'}, jobby.actions(gs))
     end)
 
     it('sends no pet in with the Auto Deploy Mode off', function()
         local gs = boot()
         gs:console('gs c toggle AutoDeployMode')
         gs:engage()
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('sends no pet in when it is engaged already', function()
         local gs = boot({pet = {status = 1}})
         gs:engage()
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('sends no pet in with none out', function()
         local gs = boot({no_pet = true})
         gs:engage()
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('sends no pet in when the target is 20 yalms away', function()
         local gs = boot()
         gs.game.monster.distance = 20 ^ 2
         gs:engage()
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -415,7 +391,7 @@ describe('gs c maneuver', function()
     local function maneuver(gs, argument)
         gs:console('gs c maneuver' .. (argument and (' ' .. argument) or ''))
         gs:advance(1)
-        return actions(gs)
+        return jobby.actions(gs)
     end
 
     it('uses the first maneuver of the automaton\'s mode that is not up enough', function()
@@ -446,19 +422,19 @@ describe('gs c maneuver', function()
     it('says so when the list has no maneuver that number', function()
         local gs = boot()
         assert.same({}, maneuver(gs, '5'))
-        assert.is_true(said(gs, "Error: You don't have that many maneuvers listed."))
+        assert.same({"Error: You don't have that many maneuvers listed."}, jobby.chat(gs))
     end)
 
     it('says so when the argument is no number of one to eight', function()
         local gs = boot()
         assert.same({}, maneuver(gs, 'x'))
-        assert.is_true(said(gs, 'Error: Maneuver command format is wrong.'))
+        assert.same({'Error: Maneuver command format is wrong.'}, jobby.chat(gs))
     end)
 
     it('says so when there is no pet', function()
         local gs = boot({no_pet = true})
         assert.same({}, maneuver(gs))
-        assert.is_true(said(gs, 'Error: No valid pet.'))
+        assert.same({'Error: No valid pet.'}, jobby.chat(gs))
     end)
 end)
 
@@ -591,38 +567,36 @@ describe('the tick of a puppetmaster', function()
 
     describe('with the pet\'s TP', function()
         it('asks for the gear to be updated when the pet reaches 1000', function()
-            local gs = boot({pet = {status = 1}})
+            local gs = boot({pet = {status = 1}, ticking = true})
             gs:set_pet_tp(1500)
-            gs.game.commands = {}
-            gs:play(5.3)
-            assert.equal(1, ran(gs, 'gs c update'))
+            gs:play(1.5)
+            assert.same({'gs c update'}, jobby.commands(gs))
         end)
 
         it('asks again when it falls back under 1000', function()
-            local gs = boot({pet = {status = 1}})
+            local gs = boot({pet = {status = 1}, ticking = true})
             gs:set_pet_tp(1500)
-            gs:play(5.3)
-            gs.game.commands = {}
+            gs:play(1.5)
+            jobby.commands(gs)
             gs:set_pet_tp(100)
             gs:play(1.5)
-            assert.equal(1, ran(gs, 'gs c update'))
+            assert.same({'gs c update'}, jobby.commands(gs))
         end)
 
         it('asks for nothing while it stays under 1000', function()
-            local gs = boot({pet = {status = 1}})
+            local gs = boot({pet = {status = 1}, ticking = true})
             gs:set_pet_tp(900)
-            gs.game.commands = {}
-            gs:play(5.3)
-            assert.equal(0, ran(gs, 'gs c update'))
+            gs:play(1.5)
+            assert.same({}, jobby.commands(gs))
         end)
 
         it('asks for nothing with the Pet WS Gear state off', function()
-            local gs = boot({pet = {status = 1}})
+            local gs = boot({pet = {status = 1}, ticking = true})
             gs:console('gs c toggle PetWSGear')
+            jobby.commands(gs)
             gs:set_pet_tp(1500)
-            gs.game.commands = {}
-            gs:play(5.3)
-            assert.equal(0, ran(gs, 'gs c update'))
+            gs:play(1.5)
+            assert.same({}, jobby.commands(gs))
         end)
     end)
 end)
@@ -673,8 +647,8 @@ describe('a weapon skill by a puppetmaster at the TP cap', function()
         return gs
     end
 
-    it('trades the Moonshade Earring for sets.MaxTP', function()
-        local gs = engaged(3000)
+    it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
+        local gs = engaged(2951)
         gs:type('/ws "Victory Smite" <t>')
         assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'],
             sets_of(gs).MaxTP)), gs:worn())
@@ -689,8 +663,8 @@ describe('a weapon skill by a puppetmaster at the TP cap', function()
             sets_of(gs).AccMaxTP)), gs:worn())
     end)
 
-    it('keeps the Moonshade Earring under 2951 TP', function()
-        local gs = engaged(2900)
+    it('keeps the Moonshade Earring at 2950 TP', function()
+        local gs = engaged(2950)
         gs:type('/ws "Victory Smite" <t>')
         assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'])), gs:worn())
     end)
@@ -713,21 +687,25 @@ describe('the automaton\'s call and its aftercast', function()
 end)
 
 describe('the status of the pet in the display', function()
+    -- What Sel shows of the modes after the job file's line.
+    local modes = 'Melee: Normal, WS: Match'
+
     it('says its name, parts, mode, status, TP and HP', function()
         local gs = boot({pet = {hpp = 80}})
         gs:console('gs c update user')
-        assert.is_true(said(gs, 'Tin [Valoredge Head][Valoredge Frame](Melee): Idle  TP=0  HP%=80'))
+        assert.same({'Tin [Valoredge Head][Valoredge Frame](Melee): Idle  TP=0  HP%=80', modes}, jobby.chat(gs))
     end)
 
     it('adds the MP of a magic automaton', function()
         local gs = boot({head = 'Stormwaker Head', frame = 'Stormwaker Frame'})
         gs:console('gs c update user')
-        assert.is_true(said(gs, 'Tin [Stormwaker Head][Stormwaker Frame](Magic): Idle  TP=0  HP%=100  MP%=100'))
+        assert.same({'Tin [Stormwaker Head][Stormwaker Frame](Magic): Idle  TP=0  HP%=100  MP%=100', modes},
+            jobby.chat(gs))
     end)
 
-    it('says nothing with no pet out', function()
+    it('says nothing of a pet with none out', function()
         local gs = boot({no_pet = true})
         gs:console('gs c update user')
-        assert.is_false(said(gs, 'TP='))
+        assert.same({modes}, jobby.chat(gs))
     end)
 end)

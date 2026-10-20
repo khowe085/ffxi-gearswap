@@ -44,6 +44,7 @@ function init_gear_sets()
 	sets.midcast.LowTierNuke = {ring1 = 'Vertigo Ring'}
 	sets.midcast.HighTierNuke = {ring1 = 'Dhanurveda Ring'}
 	sets.midcast.Helix = {ring1 = 'Gelatinous Ring', ear1 = 'Pensee Earring'}
+	sets.midcast.ElementalEnfeeble = {ring1 = 'Kishar Ring'}
 	sets.midcast['Elemental Magic'] = {ear1 = 'Choleric Earring'}
 	sets.midcast['Enfeebling Magic'] = {ear1 = 'Beatific Earring'}
 	sets.midcast['Enhancing Magic'] = {ear1 = 'Sortiarius Earring'}

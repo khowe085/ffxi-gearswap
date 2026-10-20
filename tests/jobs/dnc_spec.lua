@@ -35,27 +35,10 @@ local function sets_of(gs)
     return gs.user.sets
 end
 
-local function said(gs, text)
-    for _, entry in ipairs(gs.game.chat_log) do
-        if entry.text:find(text, 1, true) then
-            return true
-        end
-    end
-    return false
-end
-
-local function actions(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        names[#names + 1] = entry.action
-    end
-    return names
-end
-
 -- The actions the tick sent in its first moments (it starts five seconds after the file loads).
 local function first_actions(gs)
     gs:play(5.3)
-    return actions(gs)
+    return jobby.actions(gs)
 end
 
 local function engaged_worn(gs, ...)
@@ -75,7 +58,7 @@ describe('a step', function()
         it('is held back for Presto', function()
             local gs = boot({tp = 1200, engaged = true})
             gs:type('/ja "Box Step" <t>')
-            assert.same({'Presto'}, actions(gs))
+            assert.same({'Presto'}, jobby.actions(gs))
         end)
 
         it('goes out once Presto is on recast, a second later', function()
@@ -84,55 +67,55 @@ describe('a step', function()
             gs:traffic()
             gs.game:start_ability_recast('Presto', 30)
             gs:advance(1.2)
-            assert.same({'Box Step'}, actions(gs))
+            assert.same({'Box Step'}, jobby.actions(gs))
         end)
 
         it('goes out at once with the Auto Presto Mode off', function()
             local gs = boot({tp = 1200, engaged = true})
             gs:console('gs c toggle AutoPrestoMode')
             gs:type('/ja "Box Step" <t>')
-            assert.same({'Box Step'}, actions(gs))
+            assert.same({'Box Step'}, jobby.actions(gs))
         end)
 
         it('goes out at once with 99 TP', function()
             local gs = boot({tp = 99, engaged = true})
             gs:type('/ja "Box Step" <t>')
-            assert.same({'Box Step'}, actions(gs))
+            assert.same({'Box Step'}, jobby.actions(gs))
         end)
 
         it('goes out at once with three finishing moves', function()
             local gs = boot({tp = 1200, engaged = true, buffs = {'Finishing Move 3'}})
             gs:type('/ja "Box Step" <t>')
-            assert.same({'Box Step'}, actions(gs))
+            assert.same({'Box Step'}, jobby.actions(gs))
         end)
 
         it('goes out at once while Presto is on recast', function()
             local gs = boot({tp = 1200, engaged = true})
             gs.game:start_ability_recast('Presto', 30)
             gs:type('/ja "Box Step" <t>')
-            assert.same({'Box Step'}, actions(gs))
+            assert.same({'Box Step'}, jobby.actions(gs))
         end)
 
         it('is refused while the steps are on recast', function()
             local gs = boot({tp = 1200, engaged = true})
             gs.game:start_ability_recast('Quickstep', 30)
             gs:type('/ja "Box Step" <t>')
-            assert.same({}, actions(gs))
-            assert.is_true(said(gs, 'Abort: [Box Step] waiting on recast.'))
+            assert.same({}, jobby.actions(gs))
+            assert.same({'Abort: [Box Step] waiting on recast. (0:00:30)'}, jobby.chat(gs))
         end)
     end)
 
     it('engages the monster first when not engaged and close, as Sel\'s idle step does, then goes out', function()
         local gs = boot({tp = 1200})
         gs:type('/ja "Box Step" <t>')
-        assert.same({'category 2', 'Box Step'}, actions(gs))
+        assert.same({'category 2', 'Box Step'}, jobby.actions(gs))
     end)
 end)
 
 describe('gs c step', function()
     local function step(gs, command)
         gs:console(command or 'gs c step')
-        return actions(gs)
+        return jobby.actions(gs)
     end
 
     it('uses the main step on the target, Box Step to start with', function()
@@ -206,7 +189,7 @@ describe('a weapon skill under AutoBuffMode with the TP to spare for a step', fu
 
     local function weaponskill(gs)
         gs:type('/ws "Rudra\'s Storm" <t>')
-        return actions(gs)
+        return jobby.actions(gs)
     end
 
     it('is held back for a step with fewer than three finishing moves, and Presto goes first', function()
@@ -330,7 +313,7 @@ describe('a weapon skill under AutoBuffMode with the TP to spare for a step', fu
         assert.same({'Rudra\'s Storm'}, weaponskill(gs))
     end)
 
-    it('goes out when not engaged', function()
+    it('is held back for no step when not engaged', function()
         local gs = boot({tp = 1200})
         gs:console('gs c set AutoBuffMode Auto')
         assert.same({'Rudra\'s Storm'}, weaponskill(gs))
@@ -373,6 +356,10 @@ describe('a weapon skill by a dancer', function()
     end)
 
     describe('with a Climactic Flourish up and AutoBuffMode on', function()
+        -- Jobby, engaged with 2000 TP unless given, uses Rudra's Storm, which goes out at once; the server answers it,
+        -- and seven seconds pass. The options are those of a boot and these besides:
+        --   recasts   the abilities on recast besides Climactic Flourish, Presto and the steps
+        --   tp_left   the TP the weapon skill leaves, 0 unless given
         local function finished(options)
             options.tp = options.tp or 2000
             options.engaged = true
@@ -380,55 +367,35 @@ describe('a weapon skill by a dancer', function()
             options.buffs[#options.buffs + 1] = 'Climactic Flourish'
             local gs = boot(options)
             gs:console('gs c set AutoBuffMode Auto')
-            gs.game:start_ability_recast('Climactic Flourish', 30)
-            gs.game:start_ability_recast('Presto', 30)
-            gs.game:start_ability_recast('Quickstep', 30)
+            for _, name in ipairs({'Climactic Flourish', 'Presto', 'Quickstep', unpack(options.recasts or {})}) do
+                gs.game:start_ability_recast(name, 30)
+            end
             gs:type('/ws "Rudra\'s Storm" <t>')
-            gs:traffic()
-            gs.game.player.vitals.tp = 0
+            assert.same({'Rudra\'s Storm'}, jobby.actions(gs))
+            gs.game.player.vitals.tp = options.tp_left or 0
             gs:finish_action()
             gs:play(7)
             return gs
         end
 
-        it('is followed by Reverse Flourish a second and a half later, with three finishing moves and the TP spent', function()
+        it('is followed by Reverse Flourish, with three finishing moves and the TP spent', function()
             local gs = finished({buffs = {'Finishing Move 3'}})
-            assert.same({'Reverse Flourish'}, actions(gs))
+            assert.same({'Reverse Flourish'}, jobby.actions(gs))
         end)
 
         it('is followed by no Reverse Flourish with fewer than three finishing moves', function()
-            local gs = finished({})
-            for _, name in ipairs(actions(gs)) do
-                assert.are_not.equal('Reverse Flourish', name)
-            end
+            local gs = finished({buffs = {'Finishing Move 2'}})
+            assert.same({}, jobby.actions(gs))
         end)
 
         it('is followed by no Reverse Flourish while it is on recast', function()
-            local gs = boot({tp = 2000, engaged = true, buffs = {'Climactic Flourish', 'Finishing Move 3'}})
-            gs:console('gs c set AutoBuffMode Auto')
-            gs.game:start_ability_recast('Climactic Flourish', 30)
-            gs.game:start_ability_recast('Presto', 30)
-            gs.game:start_ability_recast('Quickstep', 30)
-            gs.game:start_ability_recast('Reverse Flourish', 30)
-            gs:type('/ws "Rudra\'s Storm" <t>')
-            gs:traffic()
-            gs.game.player.vitals.tp = 0
-            gs:finish_action()
-            gs:play(7)
-            assert.same({}, actions(gs))
+            local gs = finished({buffs = {'Finishing Move 3'}, recasts = {'Reverse Flourish'}})
+            assert.same({}, jobby.actions(gs))
         end)
 
-        it('is followed by no Reverse Flourish with TP left', function()
-            local gs = boot({tp = 2000, engaged = true, buffs = {'Climactic Flourish', 'Finishing Move 3'}})
-            gs:console('gs c set AutoBuffMode Auto')
-            gs.game:start_ability_recast('Climactic Flourish', 30)
-            gs.game:start_ability_recast('Presto', 30)
-            gs.game:start_ability_recast('Quickstep', 30)
-            gs:type('/ws "Rudra\'s Storm" <t>')
-            gs:traffic()
-            gs:finish_action()
-            gs:play(7)
-            assert.same({}, actions(gs))
+        it('is followed by no Reverse Flourish with 999 TP left', function()
+            local gs = finished({buffs = {'Finishing Move 3'}, tp_left = 999})
+            assert.same({}, jobby.actions(gs))
         end)
     end)
 
@@ -439,7 +406,7 @@ describe('a weapon skill by a dancer', function()
         gs.game.player.vitals.tp = 0
         gs:finish_action()
         gs:play(7)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -478,7 +445,7 @@ describe('the dancer\'s abilities of each kind', function()
     it('wear nothing for an ability with no set, such as Saber Dance', function()
         local gs = boot()
         gs:type('/ja "Saber Dance" <me>')
-        assert.same({'Saber Dance'}, actions(gs))
+        assert.same({{action = 'Saber Dance', target = 'Jobby'}}, gs:traffic())
     end)
 end)
 
@@ -667,6 +634,10 @@ describe('the tick of a dancer', function()
             assert.same({}, first_actions(gs))
         end)
 
+        pending('uses no step while idle in combat, as autostep_engaged_only, which job_setup sets, means: check_step '
+            .. 'in data/DNC.lua tests not player.status == \'Engaged\', which Lua reads as (not player.status) == '
+            .. '\'Engaged\', never true, so the tick steps idle as engaged, and Sel engages the monster for the step')
+
         it('uses no step while the steps are on recast', function()
             local gs = stepper('Main')
             gs.game:start_ability_recast('Quickstep', 30)
@@ -680,50 +651,13 @@ describe('the tick of a dancer', function()
         end)
     end)
 
-    describe('with an auto samba mode', function()
-        local function sambaer(mode, options)
-            options = options or {}
-            options.engaged = true
-            options.tp = options.tp or 1200
-            options.buffs = options.buffs or {'Finishing Move 3'}
-            local gs = boot(options)
-            gs:console('gs c set AutoSambaMode ' .. mode)
-            return gs
+    -- Sel's tick uses the samba; tests/sel/auto_subjob_spec.lua tries the rest of it with a dancer sub job.
+    it('uses the samba of the auto samba mode with 400 TP engaged, a dancer by main job', function()
+        for _, samba in ipairs({'Haste Samba', 'Aspir Samba'}) do
+            local gs = boot({engaged = true, tp = 400, buffs = {'Finishing Move 3'}})
+            gs:console('gs c set AutoSambaMode ' .. samba)
+            assert.same({samba}, first_actions(gs))
         end
-
-        it('uses the samba chosen, with 400 TP or more engaged', function()
-            local gs = sambaer('Haste Samba', {tp = 400})
-            assert.same({'Haste Samba'}, first_actions(gs))
-            gs = sambaer('Aspir Samba')
-            assert.same({'Aspir Samba'}, first_actions(gs))
-        end)
-
-        it('uses none with less TP', function()
-            local gs = sambaer('Haste Samba', {tp = 399})
-            assert.same({}, first_actions(gs))
-        end)
-
-        it('uses none with a samba up', function()
-            local gs = sambaer('Haste Samba', {buffs = {'Finishing Move 3', 'Haste Samba'}})
-            assert.same({}, first_actions(gs))
-        end)
-
-        it('uses none while the sambas are on recast', function()
-            local gs = sambaer('Haste Samba')
-            gs.game:start_ability_recast('Drain Samba II', 30)
-            assert.same({}, first_actions(gs))
-        end)
-
-        it('uses none when not engaged', function()
-            local gs = boot({tp = 1200, buffs = {'Finishing Move 3'}})
-            gs:console('gs c set AutoSambaMode Haste Samba')
-            assert.same({}, first_actions(gs))
-        end)
-
-        it('uses none in the Off mode', function()
-            local gs = sambaer('Off')
-            assert.same({}, first_actions(gs))
-        end)
     end)
 end)
 
@@ -746,63 +680,67 @@ describe('Curing Waltz by a dancer on himself', function()
         local missing, name = unpack(tier)
         it(('is %s for %d HP missing, whatever the tier asked for'):format(name, missing), function()
             local gs = waltz(missing, 1500, 'Curing Waltz V')
-            assert.same({name}, actions(gs))
-            assert.is_true(said(gs, ('Trying to cure %d HP using %s.'):format(missing, name)))
+            assert.same({name}, jobby.actions(gs))
+            assert.same({('Trying to cure %d HP using %s.'):format(missing, name)}, jobby.chat(gs))
         end)
     end
 
     it('goes out as asked when it is the tier for the HP missing', function()
         local gs = waltz(400, 1500, 'Curing Waltz II')
-        assert.same({'Curing Waltz II'}, actions(gs))
-        assert.is_false(said(gs, 'Trying to cure'))
+        assert.same({'Curing Waltz II'}, jobby.actions(gs))
+        assert.same({}, jobby.chat(gs))
     end)
 
     it('is Curing Waltz IV for 1100 HP missing, once Contradance is on recast', function()
         local gs = boot({tp = 1500, hp = 400})
         gs.game:start_ability_recast('Contradance', 100)
         gs:type('/ja "Curing Waltz V" <me>')
-        assert.same({'Curing Waltz IV'}, actions(gs))
+        assert.same({'Curing Waltz IV'}, jobby.actions(gs))
     end)
 
     it('is Contradance first for 1100 HP or more missing, and the waltz of the tier half a second later', function()
         local gs = waltz(1200, 1500, 'Curing Waltz V')
-        assert.same({'Contradance'}, actions(gs))
+        assert.same({'Contradance'}, jobby.actions(gs))
         gs.game:start_ability_recast('Contradance', 100)
-        gs:play(7)
-        assert.same({'Curing Waltz IV'}, actions(gs))
+        gs:finish_action()
+        gs:play(0.4)
+        assert.same({}, jobby.actions(gs))
+        gs:play(0.2)
+        assert.same({'Curing Waltz IV'}, jobby.actions(gs))
     end)
 
     it('is refused for under 40 HP missing', function()
         local gs = waltz(30, 1500, 'Curing Waltz')
-        assert.same({}, actions(gs))
-        assert.is_true(said(gs, 'Abort: You have full HP!'))
+        assert.same({}, jobby.actions(gs))
+        assert.same({'Abort: You have full HP!'}, jobby.chat(gs))
     end)
 
     it('is refused with under 200 TP', function()
         local gs = waltz(400, 199, 'Curing Waltz II')
-        assert.same({}, actions(gs))
-        assert.is_true(said(gs, 'Abort: Insufficient TP [199] to waltz.'))
+        assert.same({}, jobby.actions(gs))
+        assert.same({'Abort: Insufficient TP [199] to waltz.'}, jobby.chat(gs))
     end)
 
     it('is downgraded to what the TP buys, with a word of it', function()
         local gs = boot({tp = 300, hp = 300})
         gs.game:start_ability_recast('Contradance', 100)
         gs:type('/ja "Curing Waltz IV" <me>')
-        assert.same({'Curing Waltz'}, actions(gs))
-        assert.is_true(said(gs, 'Insufficient TP [300]. Downgrading to Curing Waltz.'))
+        assert.same({'Curing Waltz'}, jobby.actions(gs))
+        assert.same({'Insufficient TP [300]. Downgrading to Curing Waltz.', 'Trying to cure 1200 HP using Curing Waltz.'},
+            jobby.chat(gs))
     end)
 
     it('is the one the recasts allow when the right tier is on recast', function()
         local gs = boot({tp = 1500, hp = 1100})
         gs.game:start_ability_recast('Curing Waltz II', 30)
         gs:type('/ja "Curing Waltz II" <me>')
-        assert.same({'Curing Waltz III'}, actions(gs))
+        assert.same({'Curing Waltz III'}, jobby.actions(gs))
     end)
 
     it('is left as it is for Healing Waltz', function()
         local gs = boot({tp = 1500, hp = 1450})
         gs:type('/ja "Healing Waltz" <me>')
-        assert.same({'Healing Waltz'}, actions(gs))
+        assert.same({'Healing Waltz'}, jobby.actions(gs))
     end)
 
     it('wears sets.precast.Waltz and sets.Self_Waltz', function()
@@ -820,7 +758,7 @@ describe('Curing Waltz by a dancer on himself', function()
         local gs = boot({tp = 1500, hp = 1100})
         gs:console('gs c toggle RefineWaltz')
         gs:type('/ja "Curing Waltz V" <me>')
-        assert.same({'Curing Waltz V'}, actions(gs))
+        assert.same({'Curing Waltz V'}, jobby.actions(gs))
     end)
 end)
 
@@ -895,46 +833,45 @@ describe('Curing Waltz by a blue mage with the sub job Dancer', function()
         local missing, name = unpack(tier)
         it(('is %s for %d HP missing'):format(name, missing), function()
             local gs = waltz(missing, 'Curing Waltz V')
-            assert.same({name}, actions(gs))
+            assert.same({name}, jobby.actions(gs))
         end)
     end
 
     it('is refused for under 40 HP missing', function()
         local gs = waltz(30, 'Curing Waltz')
-        assert.same({}, actions(gs))
-        assert.is_true(said(gs, 'Abort: You have full HP!'))
+        assert.same({}, jobby.actions(gs))
+        assert.same({'Abort: You have full HP!'}, jobby.chat(gs))
     end)
 end)
 
 describe('the display of a dancer\'s state', function()
+    -- What gs c update user puts in the chat.
     local function display(gs)
+        jobby.chat(gs)
         gs:console('gs c update user')
+        return jobby.chat(gs)
     end
 
     it('says the offense mode and the weapon skill mode', function()
         local gs = boot()
-        display(gs)
-        assert.is_true(said(gs, 'Melee: Normal, WS: Match'))
+        assert.same({'Melee: Normal, WS: Match'}, display(gs))
     end)
 
     it('adds the hybrid mode when it is not Normal', function()
         local gs = boot()
         gs:console('gs c set HybridMode DT')
-        display(gs)
-        assert.is_true(said(gs, 'Melee: Normal/DT, WS: Match'))
+        assert.same({'Melee: Normal/DT, WS: Match'}, display(gs))
     end)
 
     it('adds the defense mode and its set', function()
         local gs = boot()
         gs:console('gs c set DefenseMode Physical')
-        display(gs)
-        assert.is_true(said(gs, 'Melee: Normal, WS: Match, Defense: Physical (PDT)'))
+        assert.same({'Melee: Normal, WS: Match, Defense: Physical (PDT)'}, display(gs))
     end)
 
     it('adds kiting', function()
         local gs = boot()
         gs:console('gs c toggle Kiting')
-        display(gs)
-        assert.is_true(said(gs, 'Melee: Normal, WS: Match, Kiting'))
+        assert.same({'Melee: Normal, WS: Match, Kiting'}, display(gs))
     end)
 end)

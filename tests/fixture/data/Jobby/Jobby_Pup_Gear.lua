@@ -46,6 +46,7 @@ function init_gear_sets()
 	sets.midcast.Pet.PetWSGear.Melee = {head = 'Null Masque', body = 'Adamantite Armor'}
 	sets.midcast.Pet.PetEnmityGear = {waist = 'Wanion Belt'}
 	sets.midcast.Pet.Cure = {back = 'Prodigious Mantle'}
+	sets.midcast.Pet.Slapstick = {feet = 'Plumb Boots'}
 
 	sets.precast.FC = {head = 'Volte Cap'}
 	sets.precast.JA.Activate = {head = 'Null Masque'}
