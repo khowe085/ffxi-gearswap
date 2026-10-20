@@ -298,6 +298,16 @@ describe('gs c scholar', function()
         assert.same({'/ja "Manifestation" <me>'}, typed_for(gs, 'gs c scholar dark'))
     end)
 
+    it('cost uses Penury with Addendum: White up in place of Light Arts', function()
+        gs:gain_buff('Addendum: White')
+        assert.same({'/ja "Penury" <me>'}, typed_for(gs, 'gs c scholar cost'))
+    end)
+
+    it('power uses Ebullience with Addendum: Black up in place of Dark Arts', function()
+        gs:gain_buff('Addendum: Black')
+        assert.same({'/ja "Ebullience" <me>'}, typed_for(gs, 'gs c scholar power'))
+    end)
+
     it('buff uses Light Arts unless Addendum: White is up', function()
         assert.same({'/ja "Light Arts" <me>'}, typed_for(gs, 'gs c scholar buff'))
         gs:gain_buff('Addendum: White')
