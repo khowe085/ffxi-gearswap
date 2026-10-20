@@ -57,7 +57,6 @@ describe('the user file GearSwap loads for a job', function()
         for i, name in ipairs(names) do
             assert.equal('Lookup/' .. name, (loaded_for('Lookup')), 'the file the ' .. i .. 'th name should load')
             os.remove(data_folder() .. 'Lookup/' .. name)
-            made[#made + 1] = nil
         end
     end)
 

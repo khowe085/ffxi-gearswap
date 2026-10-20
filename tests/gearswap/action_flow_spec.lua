@@ -1,4 +1,3 @@
-local harness = require('harness')
 local plain = require('plain')
 local testy = require('testy')
 
@@ -7,7 +6,7 @@ local calls, events = plain.calls, plain.names
 describe('a spell typed in the chat', function()
     local gs
     before_each(function()
-        gs = harness.boot(testy.whm())
+        gs = plain.boot()
         calls(gs)
     end)
 
@@ -103,7 +102,7 @@ end)
 describe('a weapon skill or job ability typed in the chat', function()
     local gs
     before_each(function()
-        gs = harness.boot(testy.whm())
+        gs = plain.boot()
         calls(gs)
     end)
 
@@ -146,7 +145,7 @@ end)
 
 describe('a line GearSwap has no action for', function()
     it('reaches the game as it was typed', function()
-        local gs = harness.boot(testy.whm())
+        local gs = plain.boot()
         assert.equal('/echo hello', gs:type('/echo hello'))
         assert.same({'/echo hello'}, gs.game.typed)
         assert.same({}, gs:traffic())
@@ -155,7 +154,7 @@ end)
 
 describe('the player\'s status', function()
     it('changing calls status_change, which wears the set for it', function()
-        local gs = harness.boot(testy.whm())
+        local gs = plain.boot()
         calls(gs)
         gs:engage()
         assert.same({event = 'status_change', extra = {new = 'Engaged', old = 'Idle'}}, calls(gs)[1])
@@ -168,7 +167,7 @@ end)
 describe('a GearSwap command', function()
     local gs
     before_each(function()
-        gs = harness.boot(testy.whm())
+        gs = plain.boot()
         calls(gs)
     end)
 

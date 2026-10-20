@@ -1,4 +1,3 @@
-local harness = require('harness')
 local plain = require('plain')
 local testy = require('testy')
 
@@ -85,12 +84,7 @@ describe('gs validate', function()
     end)
 
     it('says there is nothing to validate when no file is loaded', function()
-        local gs = harness.boot({
-            character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
-            items = {{name = 'Nyame Helm'}},
-        })
-        gs:change_main_job('MON')
-        gs:chat_lines()
+        local gs = plain.boot_without_a_file()
         assert.same({'GearSwap: There is nothing to validate because there is no file loaded.'}, validate(gs))
     end)
 

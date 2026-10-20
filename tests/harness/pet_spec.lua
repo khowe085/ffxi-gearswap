@@ -213,6 +213,16 @@ describe('the stand-in game\'s pet, as a user file\'s hooks see it', function()
         local finished = calls(gs)[1]
         assert.same({'pet_aftercast', 'Fire'}, {finished.event, finished.name})
     end)
+
+    it('interrupts a spell as the player\'s is interrupted, which runs pet_aftercast as an interruption', function()
+        local gs = boot_summoner({pet = {name = 'FireSpirit'}})
+        gs:pet_readies('Fire', 'spell')
+        calls(gs)
+        gs:pet_acts('Fire', 'spell', 'interrupt')
+        local called = calls(gs)
+        assert.equal(1, #called)
+        assert.same({'pet_aftercast', 'Fire', 'Interruption'}, {called[1].event, called[1].name, called[1].action_type})
+    end)
 end)
 
 describe('the stand-in game\'s indicolure', function()

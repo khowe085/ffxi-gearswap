@@ -166,6 +166,11 @@ describe('the pet\'s status in an NPC update (0x00E)', function()
         assert.same({{event = 'pet_status_change', new = 'Engaged', old = 'Idle'}}, plain.events(gs))
     end)
 
+    pending('changing twice while the user file is disabled is told as both, in order, after gs enable: the '
+        .. 'pet_status_change the second change leaves to be told, in packet_parsing.lua, takes the place of the one '
+        .. 'the first left, so the user file is told only that the pet went from Engaged, which it never heard of, to '
+        .. 'Idle')
+
     it('says nothing of a status that is none of those', function()
         local gs, pet = boot_with_pet()
         update(gs, pet, 5)

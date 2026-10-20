@@ -14,8 +14,7 @@ local function boot(jobs, extra_items)
     player.main_job_id, player.sub_job_id = jobs.main, jobs.sub
     player.main_job_level, player.sub_job_level = jobs.main_level or 99, jobs.sub_level or 49
     gs.env._settings.debug_mode = true
-    gs:console('gs c refresh')
-    calls(gs)
+    plain.refresh(gs)
     gs:chat_lines()
     return gs
 end

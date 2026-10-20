@@ -1014,7 +1014,8 @@ function Game:next_packet()
 end
 
 -- A packet the client sends of its own: the outgoing chunk handlers see it as it goes, not as injected. Returns
--- whether one of them blocked it.
+-- whether one of them blocked it. One that none blocks goes no further: the server never answers it, so an equip
+-- request sent this way is not carried out.
 function Game:send_from_client(id, body)
     local size = 4 + #body
     local data = pad(packet_header(id, size, self:next_sequence()) .. body, 4 * math.ceil(size / 4))

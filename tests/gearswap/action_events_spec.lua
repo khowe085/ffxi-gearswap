@@ -53,9 +53,10 @@ describe('the spell a hook is handed', function()
         assert.equal(1500, calls(gs)[2].tpaftercast)
     end)
 
-    pending('has the percentage of MP the player will have left, as mppaftercast, which is 0 to 100 as mpp is: it is the MP '
-        .. 'left over the maximum, a fraction, so a check such as spell.mppaftercast > 50, in '
-        .. 'beta_examples_and_information/Byrth_BLM.lua and Byrth_GEO.lua, is never true')
+    pending('has the percentage of MP the player will have left, as mppaftercast, which is 0 to 100 as mpp is: for an '
+        .. 'action that costs MP it is the MP left over the maximum, a fraction (one that costs none gets mpp), so a '
+        .. 'check such as spell.mppaftercast > 50, in beta_examples_and_information/Byrth_BLM.lua and Byrth_GEO.lua, '
+        .. 'is never true of a spell that costs MP')
 end)
 
 describe('a command typed with another name for its prefix', function()
@@ -249,7 +250,7 @@ describe('a pet\'s command ended by the server', function()
     local function boot_with_pet()
         local gs = boot()
         gs.game:place_pet({name = 'Carbuncle'})
-        gs:console('gs c refresh')
+        plain.refresh(gs)
         gs:type('/pet "Assault" <t>')
         calls(gs)
         return gs
@@ -310,7 +311,7 @@ describe('gear changes', function()
     it('are not made, and the hooks run, for a player that is a monster', function()
         local gs = boot()
         gs.game.player.race = 0
-        gs:console('gs c refresh')
+        plain.refresh(gs)
         gs:traffic()
         gs:type('/ma "Cure III" <me>')
         assert.same({{action = 'Cure III', target = 'Testy'}}, gs:traffic())

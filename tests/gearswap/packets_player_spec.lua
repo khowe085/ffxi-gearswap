@@ -1,4 +1,3 @@
-local harness = require('harness')
 local plain = require('plain')
 
 local refresh = plain.refresh
@@ -159,20 +158,13 @@ describe('the vitals packets', function()
 end)
 
 describe('the outgoing job change packet (0x100)', function()
-    local function boot_corey()
-        return harness.boot({
-            character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
-            items = {{name = 'Nyame Helm'}, {name = 'Nyame Mail'}},
-        })
-    end
-
     local function change_to(gs, main, sub)
         gs.game.player.main_job_id = main
         gs:send_from_client(0x100, string.char(main, sub, 0, 0))
     end
 
     it('loads the file of the new main job', function()
-        local gs = boot_corey()
+        local gs = plain.boot_corey()
         change_to(gs, 4, 5)
         assert.equal('Corey_BLM.lua', gs.env.current_file)
     end)
@@ -181,21 +173,21 @@ describe('the outgoing job change packet (0x100)', function()
         .. 'in the packet differs from the main job after the same handler has set it, so it never runs')
 
     it('forgets what was held back for the old job\'s slots', function()
-        local gs = boot_corey()
+        local gs = plain.boot_corey()
         gs.env.not_sent_out_equip.head = 'Nyame Helm'
         change_to(gs, 4, 5)
         assert.is_nil(gs.env.not_sent_out_equip.head)
     end)
 
     it('changes nothing when the job it names is the one the player has', function()
-        local gs = boot_corey()
+        local gs = plain.boot_corey()
         local user = gs.env.user_env
         change_to(gs, 3, 5)
         assert.equal(user, gs.env.user_env)
     end)
 
     it('changes nothing when it names no job', function()
-        local gs = boot_corey()
+        local gs = plain.boot_corey()
         local user = gs.env.user_env
         gs:send_from_client(0x100, string.char(0, 5, 0, 0))
         assert.equal(user, gs.env.user_env)

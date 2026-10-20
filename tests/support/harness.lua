@@ -923,16 +923,19 @@ end
 -- The kinds of move a pet makes, by the resource each is in and how the server sends it: a ready move of a
 -- beastmaster's pet (a monster's skill, readied with message 43 and done in category 11), a blood pact or breath (a
 -- job ability, readied with message 326 and done in category 13) and a spell a spirit casts (readied in category 8 and
--- done in category 4).
+-- done in category 4). A move interrupted is sent as the player's is (see Session:interrupt_action): in the category
+-- it was readied in, with 28787 as its param and no message.
 local pet_moves = {
     monster = {resource = 'monster_abilities', ready = {category = 7, message = 43},
-        finish = {category = 11, message = 185}},
+        finish = {category = 11, message = 185}, interrupt = {category = 7, message = 0}},
     ability = {resource = 'job_abilities', ready = {category = 7, message = 326},
-        finish = {category = 13, message = 110}},
-    spell = {resource = 'spells', ready = {category = 8, message = 327}, finish = {category = 4, message = 2}},
+        finish = {category = 13, message = 110}, interrupt = {category = 7, message = 0}},
+    spell = {resource = 'spells', ready = {category = 8, message = 327}, finish = {category = 4, message = 2},
+        interrupt = {category = 8, message = 0}},
 }
 
--- fields: category and message of the packet, target ('monster', or 'player') for who it is aimed at.
+-- phase: 'ready', 'finish' or 'interrupt'. fields: category and message of the packet, target ('monster', or
+-- 'player') for who it is aimed at, actor_id for a mob that acts in the pet's place.
 function Session:pet_acts(name, kind, phase, fields)
     kind = pet_moves[kind or 'monster']
     fields = fields or {}
@@ -941,11 +944,11 @@ function Session:pet_acts(name, kind, phase, fields)
     local game = self.game
     self:run(function()
         local target = fields.target == 'player' and game.player or game.monster
-        local action = {message = fields.message or packet.message, param = phase == 'ready' and move or 100,
+        local action = {message = fields.message or packet.message, param = phase ~= 'finish' and move or 100,
             reaction = 0, animation = 0, effect = 0, stagger = 0}
         game:send_action_packet({
-            actor_id = game.pet.id, category = fields.category or packet.category,
-            param = phase == 'finish' and move or 0,
+            actor_id = fields.actor_id or game.pet.id, category = fields.category or packet.category,
+            param = phase == 'finish' and move or phase == 'interrupt' and 28787 or 0,
             targets = {{id = target.id, actions = {action}}},
         })
         game:settle()

@@ -1,9 +1,12 @@
 local autoy = require('autoy')
 
--- Autoy with Naegling locked in hand, engaged on the toad three yalms off, Auto WS set to the choice given.
-local function boot(choice)
-    local gs = autoy.boot()
-    gs:console('gs c set Weapons Naegling')
+-- Autoy with Naegling locked in hand, engaged on the toad three yalms off, Auto WS set to the choice given. The
+-- options: abilities, the abilities and weapon skills Autoy knows (as for a boot), and weapons, another weapon set
+-- to lock in hand.
+local function boot(choice, options)
+    options = options or {}
+    local gs = autoy.boot({abilities = options.abilities})
+    gs:console('gs c set Weapons ' .. (options.weapons or 'Naegling'))
     gs:engage()
     if choice then
         gs:console('gs c set AutoWS ' .. choice)
@@ -204,42 +207,48 @@ describe('Auto WS, User-Globals.lua\'s weapon skill on TP', function()
 end)
 
 describe('AutoWSRestore under Auto WS', function()
+    -- The game lists only the weapon skills of the weapon in hand: of those the restore picks from, Sanguine Blade
+    -- is a sword's, Mystic Boon a club's.
+    local sword = {abilities = {'Savage Blade', 'Sanguine Blade'}}
+    local club = {weapons = 'Daybreak', abilities = {'Black Halo', 'Mystic Boon'}}
+
     it('uses Sanguine Blade in place of the choice under 41% HP', function()
-        local gs = boot('Savage Blade 1000')
+        local gs = boot('Savage Blade 1000', sword)
         gs.game.player.vitals.hpp = 40
         gs:set_tp(1000)
         assert.same({{action = 'Sanguine Blade', target = 'Apex Toad'}}, gs:action_entries())
     end)
 
-    it('uses Entropy in place of the choice under 31% MP', function()
-        local gs = boot('Savage Blade 1000')
+    it('keeps to the choice under 31% MP with a sword, which has no MP weapon skill', function()
+        local gs = boot('Savage Blade 1000', sword)
         gs.game.player.vitals.mpp = 30
         gs:set_tp(1000)
-        assert.same({{action = 'Entropy', target = 'Apex Toad'}}, gs:action_entries())
+        assert.same(savage_blade, gs:action_entries())
     end)
 
-    it('uses Mystic Boon in place of the choice under 31% MP when it doesn\'t know Entropy', function()
-        local gs = boot('Savage Blade 1000')
-        for i, id in ipairs(gs.game.weapon_skills) do
-            if gs.game.res.weapon_skills[id].en == 'Entropy' then
-                table.remove(gs.game.weapon_skills, i)
-            end
-        end
+    it('keeps to the choice at 41% HP', function()
+        local gs = boot('Savage Blade 1000', sword)
+        gs.game.player.vitals.hpp = 41
+        gs:set_tp(1000)
+        assert.same(savage_blade, gs:action_entries())
+    end)
+
+    it('uses Mystic Boon in place of the choice under 31% MP with a club', function()
+        local gs = boot('Black Halo 1000', club)
         gs.game.player.vitals.mpp = 30
         gs:set_tp(1000)
         assert.same({{action = 'Mystic Boon', target = 'Apex Toad'}}, gs:action_entries())
     end)
 
-    it('keeps to the choice at 41% HP and 31% MP', function()
-        local gs = boot('Savage Blade 1000')
-        gs.game.player.vitals.hpp = 41
+    it('keeps to the choice at 31% MP with a club', function()
+        local gs = boot('Black Halo 1000', club)
         gs.game.player.vitals.mpp = 31
         gs:set_tp(1000)
-        assert.same(savage_blade, gs:action_entries())
+        assert.same({{action = 'Black Halo', target = 'Apex Toad'}}, gs:action_entries())
     end)
 
     it('keeps to the choice when turned off', function()
-        local gs = boot('Savage Blade 1000')
+        local gs = boot('Savage Blade 1000', sword)
         gs:console('gs c toggle AutoWSRestore')
         gs.game.player.vitals.hpp = 40
         gs:set_tp(1000)
