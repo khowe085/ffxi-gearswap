@@ -16,13 +16,7 @@ local function boot_ticking(options)
     return jobby.boot_ticking('MNK', options)
 end
 
-local function actions_of(traffic)
-    local names = {}
-    for _, entry in ipairs(traffic or {}) do
-        names[#names + 1] = entry.action
-    end
-    return names
-end
+local actions_of = jobby.action_names
 
 -- Jobby in a fight with Auto Buff Mode on.
 local function boot_buffing(options)

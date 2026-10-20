@@ -28,7 +28,7 @@ function init_gear_sets()
 	sets.MaxTP = {ear1 = 'Cessance Earring'}
 
 	sets.midcast.FastRecast = {back = 'Null Shawl'}
-	sets.midcast.Death = {head = 'Blistering Sallet'}
+	sets.midcast.Death = {head = 'Blistering Sallet', hands = 'Regal Cuffs'}
 	sets.midcast.Proc = {legs = 'Volte Hose'}
 	sets.midcast.LowTierNuke = {head = 'Volte Cap'}
 	sets.midcast.LowTierNuke.Death = {head = 'Null Masque'}

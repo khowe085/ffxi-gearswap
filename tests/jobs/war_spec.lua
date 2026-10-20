@@ -1,8 +1,9 @@
 local jobby = require('jobby')
 
 local gear = {'Naegling', 'Conqueror', 'Volte Cap', 'Null Masque', 'Volte Jupon', 'Adamantite Armor',
-    'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget', 'Null Belt', 'Moonshade Earring', 'Brutal Earring',
-    'Lugra Earring', 'Cessance Earring', 'Odnowa Earring +1', 'Karieyh Ring', 'Chirich Ring +1'}
+    'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget', "Combatant's Torque", 'Null Belt',
+    'Moonshade Earring', 'Brutal Earring', 'Lugra Earring', 'Cessance Earring', 'Odnowa Earring +1', 'Karieyh Ring',
+    'Chirich Ring +1'}
 
 local great_sword = {'Hard Slash', 'Resolution', 'Ground Strike'}
 
@@ -26,13 +27,7 @@ local function boot_buffing(options)
     return gs
 end
 
-local function actions_of(traffic)
-    local names = {}
-    for _, entry in ipairs(traffic or {}) do
-        names[#names + 1] = entry.action
-    end
-    return names
-end
+local actions_of = jobby.action_names
 
 -- What the weapon skill's precast put on over the idle set, once it has gone out.
 local function weaponskill(gs, line)
@@ -118,6 +113,9 @@ describe('WAR\'s Berserk', function()
         gs:finish_action()
         assert.same(jobby.worn_by({main = 'Naegling'}, jobby.full_idle), gs:worn())
     end)
+
+    pending('goes out in Conqueror Mode Always without Conqueror: job_precast in data/WAR.lua then compares the TP '
+        .. 'with tonumber(\'Always\'), which is nil, and raises a Lua error')
 end)
 
 describe('WAR\'s weapon skill under Auto Buff Mode', function()
@@ -220,12 +218,17 @@ describe('WAR\'s weapon skill under Auto Buff Mode with Samurai as the sub job',
         assert.same({'Resolution'}, actions_of(gs:traffic()))
     end)
 
-    it('is held for Sekkanoki again if it hasn\'t come up, then goes out 1.1 seconds after Meditate', function()
+    it('is held for Sekkanoki, then Meditate, then goes out', function()
         gs:type('/ws "Resolution" <t>')
-        gs:traffic()
-        gs:finish_action()
-        gs:advance(1.2)
         assert.same({'Sekkanoki'}, actions_of(gs:traffic()))
+        gs:finish_action()
+        gs.game:start_ability_recast('Sekkanoki', 60)
+        gs:advance(1.2)
+        assert.same({'Meditate'}, actions_of(gs:traffic()))
+        gs:finish_action()
+        gs.game:start_ability_recast('Meditate', 60)
+        gs:advance(1.2)
+        assert.same({'Resolution'}, actions_of(gs:traffic()))
     end)
 end)
 
@@ -357,7 +360,7 @@ describe('WAR\'s weapon skill set', function()
         assert.equal('Adamantite Armor', worn.body)
     end)
 
-    it('swaps in sets.MaxTP, not sets.AccMaxTP, under Sneak Attack in an accuracy offense mode', function()
+    it('swaps in sets.DayMaxTPWSEars, not sets.AccDayMaxTPWSEars, by day under Sneak Attack in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Sneak Attack')
         gs.game.player.vitals.tp = 3000
@@ -403,14 +406,8 @@ describe('WAR\'s weapon skill set', function()
         assert.equal('Cessance Earring', weaponskill(gs, '/ws "Upheaval" <t>').left_ear)
     end)
 
-    it('has sets.WSMighty laid over it with Mighty Strikes up', function()
-        gs:gain_buff('Mighty Strikes')
-        assert.equal('Volte Hose', weaponskill(gs, '/ws "Resolution" <t>').legs)
-    end)
-
-    it('leaves sets.WSMighty off without Mighty Strikes', function()
-        assert.equal('Nyame Flanchard', weaponskill(gs, '/ws "Resolution" <t>').legs)
-    end)
+    pending('has sets.WSCharge laid over it under Brazen Rush or Warrior\'s Charge: job_post_precast in data/WAR.lua '
+        .. 'keeps to state.Buff.Charge, which job_setup never defines, so Sel never sets it for either buff')
 end)
 
 describe('WAR\'s tick with Samurai as the sub job', function()
@@ -495,15 +492,22 @@ describe('WAR\'s tick without Samurai as the sub job', function()
         gs:play(3)
         assert.same({}, actions_of(gs:traffic()))
     end)
+end)
 
-    it('sets the Stance to None on an update', function()
+describe('WAR\'s stance', function()
+    it('is set to None on an update without Samurai as the sub job', function()
         local gs = boot({sub_job = 'WHM'})
+        gs:console('gs c set Stance Seigan')
+        assert.equal('Seigan', gs.user.state.Stance.value)
+        gs:console('gs c update')
         assert.equal('None', gs.user.state.Stance.value)
     end)
 
-    it('leaves the Stance on an update with Samurai as the sub job', function()
+    it('is left alone on an update with Samurai as the sub job', function()
         local gs = boot({sub_job = 'SAM'})
-        assert.equal('Hasso', gs.user.state.Stance.value)
+        gs:console('gs c set Stance Seigan')
+        gs:console('gs c update')
+        assert.equal('Seigan', gs.user.state.Stance.value)
     end)
 end)
 
@@ -629,8 +633,6 @@ describe('WAR\'s buff states', function()
     end)
 end)
 
--- job_post_precast in data/WAR.lua keeps to state.Buff.Charge, which job_setup never defines, so Sel never sets it
--- for Brazen Rush or Warrior's Charge. A gear file that sets it itself gets these sets.
 describe('WAR\'s weapon skill set with state.Buff.Charge kept', function()
     local gs
     before_each(function()
@@ -639,14 +641,14 @@ describe('WAR\'s weapon skill set with state.Buff.Charge kept', function()
     end)
 
     it('has sets.WSCharge laid over it', function()
-        assert.equal('Volte Bracers', weaponskill(gs, '/ws "Resolution" <t>').hands)
+        assert.equal("Combatant's Torque", weaponskill(gs, '/ws "Resolution" <t>').neck)
     end)
 
-    it('has sets.WSMightyCharge laid over it with Mighty Strikes up too', function()
+    it('has sets.WSMightyCharge laid over it in place of sets.WSCharge with Mighty Strikes up too', function()
         gs:gain_buff('Mighty Strikes')
         local worn = weaponskill(gs, '/ws "Resolution" <t>')
         assert.equal('Volte Boots', worn.feet)
-        assert.equal('Volte Bracers', worn.hands)
+        assert.equal('Fotia Gorget', worn.neck)
     end)
 
     it('has sets.ACCWSCharge laid over it in an accuracy offense mode', function()
@@ -668,14 +670,29 @@ describe('WAR\'s weapon skill set with state.Buff.Charge kept', function()
     end)
 end)
 
-describe('WAR\'s weapon skill set under Mighty Strikes in an accuracy offense mode', function()
-    it('has sets.AccWSMighty laid over it when the gear file names sets.ACCWSMighty too, as the job file tests that one', function()
-        local gs = boot({tp = 1000})
+-- Not engaged, as sets.engaged.Mighty wears sets.WSMighty's legs too.
+describe('WAR\'s weapon skill set under Mighty Strikes', function()
+    local gs
+    before_each(function()
+        gs = boot({tp = 1000})
+    end)
+
+    it('has sets.WSMighty laid over it', function()
+        gs:gain_buff('Mighty Strikes')
+        assert.equal('Volte Hose', weaponskill(gs, '/ws "Resolution" <t>').legs)
+    end)
+
+    it('has no sets.WSMighty laid over it without Mighty Strikes', function()
+        assert.equal('Nyame Flanchard', weaponskill(gs, '/ws "Resolution" <t>').legs)
+    end)
+
+    it('has sets.AccWSMighty laid over it in an accuracy offense mode when the gear file names sets.ACCWSMighty too, '
+        .. 'as the job file tests that one', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Mighty Strikes')
         assert.equal('Chirich Ring +1', weaponskill(gs, '/ws "Resolution" <t>').right_ring)
     end)
 
-    pending('has sets.AccWSMighty laid over it when the gear file names only that: job_post_precast in data/WAR.lua '
-        .. 'tests sets.ACCWSMighty and equips sets.AccWSMighty')
+    pending('has sets.AccWSMighty laid over it in an accuracy offense mode when the gear file names only that: '
+        .. 'job_post_precast in data/WAR.lua tests sets.ACCWSMighty and equips sets.AccWSMighty')
 end)

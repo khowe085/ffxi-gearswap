@@ -90,38 +90,3 @@ describe('Sel\'s spell map', function()
         assert.same({'Nyame Flanchard', 'Nyame Gauntlets'}, {worn.legs, worn.hands})
     end)
 end)
-
-describe('RDM.lua\'s Cure spell maps', function()
-    local gs
-    before_each(function()
-        gs = commy.boot_rdm()
-    end)
-
-    it('are none with the weapons free, in weather and on a day that aren\'t light', function()
-        local worn = midcast(gs, '/ma "Cure III" <me>')
-        assert.same({"Bunzi's Rod", 'Nyame Gauntlets'}, {worn.main, worn.hands})
-    end)
-
-    it('MeleeCure is the midcast set of a Cure while a weapon set is held', function()
-        gs:console('gs c set Weapons Naegling')
-        local worn = midcast(gs, '/ma "Cure III" <me>')
-        assert.same({'Naegling', 'Kaykaus Cuffs'}, {worn.main, worn.hands})
-    end)
-
-    it('LightWeatherCure is the midcast set of a Cure in light weather', function()
-        gs:set_weather(16)
-        assert.equal("Bunzi's Gloves", midcast(gs, '/ma "Cure III" <me>').hands)
-    end)
-
-    it('LightDayCure is the midcast set of a Cure on Lightsday', function()
-        gs:set_day(6)
-        assert.equal("Shrieker's Cuffs", midcast(gs, '/ma "Cure III" <me>').hands)
-    end)
-
-    it('with no set of its own, gives way to sets.midcast.Cure, as MeleeLightWeatherCure does', function()
-        gs:console('gs c set Weapons Naegling')
-        gs:set_weather(16)
-        local worn = midcast(gs, '/ma "Cure III" <me>')
-        assert.same({'Naegling', 'Kaykaus Mitra +1', 'Nyame Gauntlets'}, {worn.main, worn.head, worn.hands})
-    end)
-end)

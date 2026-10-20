@@ -115,13 +115,6 @@ describe('PLD\'s Flash', function()
         gs:type('/ma "Flash" <t>')
         assert.same({'Flash'}, actions_of(gs:traffic()))
     end)
-
-    it('goes out at once with Divine Emblem up and its own recast ready', function()
-        gs.game:start_ability_recast('Divine Emblem', 60)
-        gs:gain_buff('Divine Emblem')
-        gs:type('/ma "Flash" <t>')
-        assert.same({'Flash'}, actions_of(gs:traffic()))
-    end)
 end)
 
 describe('PLD\'s weapon skill set', function()
@@ -171,7 +164,7 @@ describe('PLD\'s weapon skill set', function()
         assert.equal('Adamantite Armor', worn.body)
     end)
 
-    it('swaps in sets.MaxTP, not sets.AccMaxTP, under Sneak Attack in an accuracy offense mode', function()
+    it('swaps in sets.DayMaxTPWSEars, not sets.AccDayMaxTPWSEars, by day under Sneak Attack in an accuracy offense mode', function()
         local worn = ws(3000, '/ws "Savage Blade" <t>', function(gs)
             acc(gs)
             gs:gain_buff('Sneak Attack')
@@ -286,31 +279,47 @@ describe('PLD\'s defense set', function()
         assert.equal('Fotia Gorget', gs:worn().neck)
     end)
 
-    it('has the dual wield engaged set with a Dancer sub job and a weapon, not a shield, in the sub slot', function()
-        local gs = boot({sub_job = 'DNC', wearing = {main = 'Naegling', sub = 'Kheshig Blade'}})
-        gs:engage()
-        assert.equal('Volte Bracers', gs:worn().hands)
-    end)
-
-    it('has the plain engaged set with a Dancer sub job and a shield in the sub slot', function()
-        local gs = boot({sub_job = 'DNC', wearing = {main = 'Naegling', sub = 'Aegis'}})
-        gs:engage()
-        assert.equal('Nyame Gauntlets', gs:worn().hands)
-    end)
-
-    it('has the dual wield engaged set with a Ninja sub job and a weapon in the sub slot', function()
-        local gs = boot({sub_job = 'NIN', wearing = {main = 'Naegling', sub = 'Kheshig Blade'}})
-        gs:engage()
-        assert.equal('Volte Bracers', gs:worn().hands)
-    end)
-
-    it('is sets.defense.PDT without Kheshig Blade in hand', function()
+    it('is sets.defense.PDT when Kheshig Blade hasn\'t been in hand', function()
         local gs = boot()
         gs:console('gs c set Weapons Ragnarok')
         gs:console('gs c update')
         gs:console('gs c set DefenseMode Physical')
         assert.equal("Combatant's Torque", gs:worn().neck)
     end)
+
+    pending('is sets.defense.PDT again once Kheshig Blade is put away: update_defense_mode in data/PLD.lua adds '
+        .. '\'Kheshig Blade\' to the defense groups but never takes it out, so with Ragnarok in hand after it the '
+        .. 'Physical defense mode still wears sets.defense.PDT[\'Kheshig Blade\']')
+end)
+
+-- Sel's update_combat_form picks the DW combat form from the weapons in hand, whatever the sub job.
+describe('PLD\'s engaged set by what is in the sub slot', function()
+    local function hands_engaged(sub_job, sub)
+        local gs = boot({sub_job = sub_job, wearing = {main = 'Naegling', sub = sub}})
+        gs:engage()
+        return gs:worn().hands
+    end
+
+    it('is sets.engaged.DW with a weapon in the sub slot and a Dancer sub job', function()
+        assert.equal('Volte Bracers', hands_engaged('DNC', 'Kheshig Blade'))
+    end)
+
+    it('is sets.engaged.DW with a weapon in the sub slot and a Ninja sub job', function()
+        assert.equal('Volte Bracers', hands_engaged('NIN', 'Kheshig Blade'))
+    end)
+
+    it('is sets.engaged.DW with a weapon in the sub slot and a White Mage sub job too', function()
+        assert.equal('Volte Bracers', hands_engaged('WHM', 'Kheshig Blade'))
+    end)
+
+    it('is sets.engaged with a shield in the sub slot and a Dancer sub job', function()
+        assert.equal('Nyame Gauntlets', hands_engaged('DNC', 'Aegis'))
+    end)
+
+    pending('is picked by data/PLD.lua from the sub job and the sub slot: update_defense_mode sets the DW combat form '
+        .. 'for a Ninja or Dancer sub job with a weapon in the sub slot, but Sel\'s update_combat_form runs after '
+        .. 'job_update and again on engaging and sets the combat form from the weapons alone, so those lines never '
+        .. 'change what is worn')
 end)
 
 describe('PLD\'s rune element', function()

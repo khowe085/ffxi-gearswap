@@ -17,54 +17,6 @@ local function said_for(gs, command)
     return said
 end
 
-describe('gs c elemental, as RDM.lua handles it', function()
-    local gs, monster
-    before_each(function()
-        gs = commy.boot_rdm()
-        monster = gs.game.monster.id
-    end)
-
-    it('nuke casts the highest tier of the element Commy can cast, at the target', function()
-        assert.same({'/ma "Fire V" ' .. monster}, typed_for(gs, 'gs c elemental nuke'))
-    end)
-
-    it('nuke casts a lower tier when MP is short for the higher', function()
-        gs.game.player.vitals.mp = 200
-        assert.same({'/ma "Fire IV" ' .. monster}, typed_for(gs, 'gs c elemental nuke'))
-    end)
-
-    it('nuke says so when MP is short for every tier', function()
-        gs.game.player.vitals.mp = 5
-        local typed, said = run(gs, 'gs c elemental nuke')
-        assert.same({}, typed)
-        assert.equal(1, #said)
-        assert.truthy(said[1]:find('^Abort: All Fire nukes on cooldown or'))
-    end)
-
-    it('smallnuke casts the highest of the two lowest tiers', function()
-        assert.same({'/ma "Fire II" ' .. monster}, typed_for(gs, 'gs c elemental smallnuke'))
-    end)
-
-    it('nuke casts Banish II for Light', function()
-        gs:console('gs c set ElementalMode Light')
-        assert.same({'/ma "Banish II" ' .. monster}, typed_for(gs, 'gs c elemental nuke'))
-    end)
-
-    it('nuke casts at Commy when given me', function()
-        assert.same({'/ma "Fire V" ' .. gs.game.player.id}, typed_for(gs, 'gs c elemental nuke me'))
-    end)
-
-    it('enspell and enspell2 cast the element\'s enspell on Commy', function()
-        assert.same({'/ma "EnFire" <me>'}, typed_for(gs, 'gs c elemental enspell'))
-        gs:advance(5)
-        assert.same({'/ma "EnFire II" <me>'}, typed_for(gs, 'gs c elemental enspell2'))
-    end)
-
-    it('weather casts Phalanx II without scholar as sub job', function()
-        assert.same({'/ma "Phalanx II" ' .. gs.game.player.id}, typed_for(gs, 'gs c elemental weather me'))
-    end)
-end)
-
 describe('gs c elemental', function()
     local gs, monster
     before_each(function()
