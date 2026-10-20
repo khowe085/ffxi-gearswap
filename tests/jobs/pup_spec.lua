@@ -1,3 +1,4 @@
+local harness = require('harness')
 local jobby = require('jobby')
 
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
@@ -50,21 +51,8 @@ end
 
 -- The actions the tick sent in its first moments (it starts five seconds after the file loads).
 local function first_actions(gs)
-    gs:play(5.3)
+    gs:play(harness.sel_load_time + 0.3)
     return gs:actions()
-end
-
--- What was put in the chat since it was last read, but the report of the gs validate the user file runs five seconds
--- after it loads, as the tick starts, which finds nothing missing.
-local function tick_chat(gs)
-    local said = {}
-    for _, line in ipairs(gs:chat()) do
-        if line ~= 'GearSwap: Checking for items in gear sets that are not in your inventory.'
-            and line ~= 'GearSwap: Final count = 0' then
-            said[#said + 1] = line
-        end
-    end
-    return said
 end
 
 describe('the automaton\'s mode, from its head and frame', function()
@@ -125,131 +113,132 @@ end)
 describe('the idle set of a puppetmaster', function()
     it('is sets.idle with no pet out', function()
         local gs = boot({no_pet = true})
-        assert.same(jobby.worn_by({}), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle), gs:worn())
     end)
 
     it('is sets.idle.Pet with an idle pet out', function()
         local gs = boot()
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
     end)
 
     it('is the set of the automaton\'s mode under sets.idle.Pet.Engaged with the pet engaged', function()
         local gs = boot({pet = {status = 1}})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
     end)
 
     it('is sets.idle.Pet.Engaged for a mode it has no set for', function()
         local gs = boot({head = 'Soulsoother Head', pet = {status = 1}})
         assert.equal('Tank', gs.user.state.PetMode.value)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet.Engaged)), gs:worn())
     end)
 
     it('follows the pet\'s status as the server changes it', function()
         local gs = boot()
         gs:set_pet_status(1)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
         gs:set_pet_status(0)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
     end)
 
     it('follows the pet out and back in', function()
         local gs = boot()
         gs:take_pet()
-        assert.same(jobby.worn_by({}), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle), gs:worn())
         gs:give_pet({name = 'Tin'})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
     end)
 
     it('wears the set of the automaton\'s PetWSGear over it from 1000 TP of the pet\'s', function()
         local gs = boot({pet = {status = 1, tp = 1000}})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetWSGear.Melee)),
-            gs:worn())
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetWSGear.Melee)), gs:worn())
     end)
 
     it('wears the base PetWSGear for a mode it has no set for', function()
         local gs = boot({head = 'Sharpshot Head', frame = 'Sharpshot Frame', pet = {status = 1, tp = 1500}})
         assert.equal('Ranged', gs.user.state.PetMode.value)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Ranged, sets_of(gs).midcast.Pet.PetWSGear)),
-            gs:worn())
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).idle.Pet.Engaged.Ranged, sets_of(gs).midcast.Pet.PetWSGear)), gs:worn())
     end)
 
     it('keeps the engaged pet set under 1000 TP of the pet\'s', function()
         local gs = boot({pet = {status = 1, tp = 999}})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
     end)
 
     it('leaves PetWSGear off with the Pet WS Gear state off', function()
         local gs = boot({pet = {status = 1, tp = 1500}})
         gs:console('gs c toggle PetWSGear')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
     end)
 
     it('wears sets.midcast.Pet.PetEnmityGear while a Light Maneuver is up and Flashbulb is ready', function()
         local gs = boot({pet = {status = 1}, buffs = {'Light Maneuver'}})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetEnmityGear)),
-            gs:worn())
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetEnmityGear)), gs:worn())
     end)
 
     it('wears sets.midcast.Pet.PetEnmityGear while a Fire Maneuver is up and Provoke is ready', function()
         local gs = boot({pet = {status = 1}, buffs = {'Fire Maneuver'}})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetEnmityGear)),
-            gs:worn())
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetEnmityGear)), gs:worn())
     end)
 
     it('wears no PetEnmityGear without the maneuvers', function()
         local gs = boot({pet = {status = 1}, buffs = {'Wind Maneuver'}})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
     end)
 
     it('wears no PetEnmityGear with the Pet Enmity Gear state off', function()
         local gs = boot({pet = {status = 1}, buffs = {'Light Maneuver'}})
         gs:console('gs c toggle PetEnmityGear')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
     end)
 
     it('puts PetWSGear ahead of PetEnmityGear when the pet has the TP', function()
         local gs = boot({pet = {status = 1, tp = 1500}, buffs = {'Light Maneuver'}})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetWSGear.Melee)),
-            gs:worn())
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetWSGear.Melee)), gs:worn())
     end)
 
     it('wears sets.buff.Overdrive over the engaged pet set while Overdrive is up', function()
         local gs = boot({pet = {status = 1}, buffs = {'Overdrive'}})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).buff.Overdrive)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).buff.Overdrive)), gs:worn())
     end)
 
     it('wears sets.latent_refresh at 50% MP with a mage as the sub job and no pet engaged', function()
         local gs = boot()
         gs.game.player.vitals.mpp = 50
         gs:console('gs c update')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet, sets_of(gs).latent_refresh)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet, sets_of(gs).latent_refresh)), gs:worn())
     end)
 
     it('wears no sets.latent_refresh with an engaged pet', function()
         local gs = boot({pet = {status = 1}})
         gs.game.player.vitals.mpp = 40
         gs:console('gs c update')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee)), gs:worn())
     end)
 
     it('wears no sets.latent_refresh without a mage as the sub job', function()
         local gs = boot({sub_job = 'WAR'})
         gs.game.player.vitals.mpp = 40
         gs:console('gs c update')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
     end)
 
     it('wears no sets.latent_refresh at 51% MP', function()
         local gs = boot()
         gs.game.player.vitals.mpp = 51
         gs:console('gs c update')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet)), gs:worn())
     end)
 end)
 
 describe('the engaged set of a puppetmaster', function()
     local function engaged_worn(gs, ...)
-        return jobby.worn_by(jobby.layer(sets_of(gs).engaged, ...))
+        return jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, ...))
     end
 
     it('is sets.engaged with the pet not engaged', function()
@@ -258,14 +247,14 @@ describe('the engaged set of a puppetmaster', function()
         assert.same(engaged_worn(gs), gs:worn())
     end)
 
-    it('wears PetWSGear over it when the pet has 1000 TP and the puppetmaster has not', function()
-        local gs = boot({pet = {status = 1, tp = 1500}})
+    it('wears PetWSGear over it when the pet has 1000 TP and the puppetmaster under 999', function()
+        local gs = boot({pet = {status = 1, tp = 1500}, tp = 998})
         gs:engage()
         assert.same(engaged_worn(gs, sets_of(gs).midcast.Pet.PetWSGear.Melee), gs:worn())
     end)
 
-    it('wears no PetWSGear over it when the puppetmaster has 1000 TP as well', function()
-        local gs = boot({pet = {status = 1, tp = 1500}, tp = 1000})
+    it('wears no PetWSGear over it from 999 TP of the puppetmaster\'s', function()
+        local gs = boot({pet = {status = 1, tp = 1500}, tp = 999})
         gs:engage()
         assert.same(engaged_worn(gs), gs:worn())
     end)
@@ -290,8 +279,9 @@ describe('the pet\'s Flashbulb and Provoke', function()
 
     it('end the PetEnmityGear of their maneuver until they are ready again', function()
         local gs = boot({pet = {status = 1}, buffs = {'Light Maneuver'}})
-        local with_gear = jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetEnmityGear))
-        local without_gear = jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee))
+        local with_gear = jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee, sets_of(gs).midcast.Pet.PetEnmityGear))
+        local without_gear = jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet.Engaged.Melee))
         assert.same(with_gear, gs:worn())
         gs:pet_finishes('Flashbulb')
         gs:console('gs c update')
@@ -330,7 +320,8 @@ describe('what the pet does', function()
     it('puts the pet\'s set for a spell it casts on, when it starts casting', function()
         local gs = boot()
         gs:pet_readies('Cure III', 'spell')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Pet, sets_of(gs).midcast.Pet.Cure)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet, sets_of(gs).midcast.Pet.Cure)),
+            gs:worn())
     end)
 
     it('puts no set on for a weapon skill it readies, only for its spells', function()
@@ -476,7 +467,7 @@ describe('the tick of a puppetmaster', function()
         local gs = boot({pet = {hpp = 30}})
         gs.game:start_ability_recast('Repair', 60)
         assert.same({}, first_actions(gs))
-        assert.same({}, tick_chat(gs))
+        assert.same({}, jobby.said(gs))
     end)
 
     describe('with the Auto Puppet Mode on', function()
@@ -503,7 +494,7 @@ describe('the tick of a puppetmaster', function()
             gs.game:start_ability_recast('Deus Ex Automata', 600)
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
 
         it('sends an idle pet in on a monster target with Deploy', function()
@@ -567,7 +558,7 @@ describe('the tick of a puppetmaster', function()
             gs.game:start_ability_recast('Fire Maneuver', 30)
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
 
         it('uses none with the maneuvers up', function()
@@ -667,7 +658,7 @@ describe('a weapon skill by a puppetmaster at the TP cap', function()
     it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
         local gs = engaged(2951)
         gs:type('/ws "Victory Smite" <t>')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'],
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'],
             sets_of(gs).MaxTP)), gs:worn())
     end)
 
@@ -676,14 +667,15 @@ describe('a weapon skill by a puppetmaster at the TP cap', function()
         gs:console('gs c set OffenseMode Acc')
         gs:traffic()
         gs:type('/ws "Victory Smite" <t>')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'],
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'],
             sets_of(gs).AccMaxTP)), gs:worn())
     end)
 
     it('keeps the Moonshade Earring at 2950 TP', function()
         local gs = engaged(2950)
         gs:type('/ws "Victory Smite" <t>')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'])), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'])), gs:worn())
     end)
 end)
 

@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------------------------------------------
 -- Autoy, the made-up character the tests of Sel's automatic actions play: a red mage on the real data/RDM.lua
--- with tests/fixture/data/Autoy/Autoy_Rdm_Gear.lua (or the WAR one), and what those tests look at,
--- which is what Sel sends on its own rather than what it wears.
+-- with tests/fixture/data/Autoy/Autoy_Rdm_Gear.lua (or the WAR one), the gear those files name, its boots, and a
+-- count of the lines those tests look for.
 -------------------------------------------------------------------------------------------------------------------
 
 local harness = require('harness')
@@ -15,8 +15,7 @@ autoy.gear = {
     {name = 'Malignance Chapeau'},
 }
 
--- Boots Autoy, a red mage with a white mage sub unless the options say otherwise, with what it sent at load
--- already looked at.
+-- Boots Autoy, a red mage with a white mage sub unless the options say otherwise.
 function autoy.load(options)
     local merged = {character = 'Autoy', main_job = 'RDM', sub_job = 'WHM', items = {}}
     for _, item in ipairs(autoy.gear) do
@@ -31,17 +30,15 @@ function autoy.load(options)
             merged[k] = v
         end
     end
-    local gs = harness.boot(merged)
-    gs:traffic()
-    return gs
+    return harness.boot(merged)
 end
 
 -- Boots Autoy and plays on past what Sel and User-Globals.lua do in the seconds after a load, so a test sets its
--- modes on a settled game whose tick is running.
+-- modes on a settled game whose tick is running, with everything so far taken as read.
 function autoy.boot(options)
     local gs = autoy.load(options)
     gs:play(harness.sel_load_time + 1)
-    gs:traffic()
+    gs:forget()
     return gs
 end
 

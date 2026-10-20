@@ -32,7 +32,7 @@ local function engaged_with(changes)
     for slot, item in pairs(changes or {}) do
         set[slot] = item
     end
-    return jobby.worn_by(set, jobby.full_idle)
+    return jobby.worn_by(jobby.full_idle, set)
 end
 
 describe('DRK\'s weapon skill under Auto Buff Mode', function()
@@ -418,20 +418,20 @@ describe('DRK\'s idle set', function()
     it('has sets.latent_refresh over it under 51% MP', function()
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
         gs:console('gs c update')
-        assert.same(jobby.worn_by({waist = 'Null Belt'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {waist = 'Null Belt'}), gs:worn())
     end)
 
     it('has no latent refresh set over it at 51% MP', function()
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 510, 51
         gs:console('gs c update')
-        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
     end)
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
         gs:console('gs c update')
-        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
     end)
 end)
 

@@ -441,7 +441,9 @@ function Game:get_info()
 end
 
 -- The party list: the player as p0, then each other player in the party in the order they joined, and those in the
--- slot they were given (a10 to a15 and a20 to a25 for the alliance's other parties).
+-- slot they were given (a10 to a15 and a20 to a25 for the alliance's other parties). The player leads the party
+-- unless a member who leads theirs (leader) is in it; another party's leader and the alliance's (alliance_leader)
+-- are the members who lead them.
 function Game:get_party()
     local player = self.player
     local party = {
@@ -454,8 +456,14 @@ function Game:get_party()
         if slot then
             party[slot] = {name = other.name, mob = copy(other), hp = other.hp, mp = other.mp, tp = other.tp,
                 hpp = other.hpp, mpp = other.mpp, zone = self.zone}
-            local count = slot:match('^p') and 'party1_count' or slot:match('^a1') and 'party2_count' or 'party3_count'
-            party[count] = party[count] + 1
+            local number = slot:match('^p') and 1 or slot:match('^a1') and 2 or 3
+            party['party' .. number .. '_count'] = party['party' .. number .. '_count'] + 1
+            if other.leader then
+                party['party' .. number .. '_leader'] = other.id
+            end
+            if other.alliance_leader then
+                party.alliance_leader = other.id
+            end
         end
     end
     return party
@@ -903,11 +911,34 @@ function Game:serve(id, data, packet)
     end
 end
 
+-- The categories of the action packet that begin an action rather than say what it did: a TP move or weapon skill
+-- readied (7), a spell begun (8), an item begun (9) and a ranged attack begun (12).
+local beginning_categories = {[7] = true, [8] = true, [9] = true, [12] = true}
+
+-- A monster no one has claimed is claimed by the player when an action of theirs lands on it, or one of its own on
+-- them.
+function Game:claim(monster_id, player_id)
+    local mobs = {self.monster}
+    for _, other in ipairs(self.others) do
+        mobs[#mobs + 1] = other
+    end
+    for _, mob in pairs(mobs) do
+        if mob.id == monster_id and mob.is_npc and mob.spawn_type == 16 and mob.claim_id == 0 then
+            mob.claim_id = player_id
+        end
+    end
+end
+
 -- The action packet (0x028) for an action of the player's, as Windower's parse_action gives it. The packet's bytes
 -- only carry the header; parse_action and the action event hand out this table for them.
 function Game:send_action_packet(act)
     act.actor_id = act.actor_id or self.player.id
     act.target_count = #act.targets
+    if act.actor_id == self.player.id and not beginning_categories[act.category] then
+        for _, target in ipairs(act.targets) do
+            self:claim(target.id, self.player.id)
+        end
+    end
     local data = self:receive(0x028, u32(act.actor_id) .. string.char(#act.targets, act.category, 0, 0) .. u32(self.sequence))
     self.action_tables[data] = act
     return data
@@ -1279,8 +1310,8 @@ function Game:monster_acts(category, name, target_id)
     local begins = category == 7 or category == 8
     target_id = target_id or self.player.id
     local target = self:mob_by_id(target_id)
-    if self.monster.claim_id == 0 and target and not target.is_npc then
-        self.monster.claim_id = target_id
+    if target and not target.is_npc then
+        self:claim(self.monster.id, target_id)
     end
     return self:send_action_packet({actor_id = self.monster.id, category = category, param = begins and 24931 or id,
         targets = {{id = target_id, actions = {{message = monster_messages[category],
@@ -1538,7 +1569,8 @@ end
 -- Another player near the character: a member of the party (p1, p2 in the order they are added, or the slot given:
 -- a10 to a15 and a20 to a25 for the alliance's other parties) unless in_party is false. fields over the defaults:
 -- name, id, index, hp (of the 1000 they have), mp, tp, hpp (that of the HP unless given), status, distance (squared,
--- as Windower gives it), x, y, slot. Returns the player as the game holds them.
+-- as Windower gives it), x, y, slot, leader (true for one who leads their party), alliance_leader (true for one who
+-- leads the alliance). Returns the player as the game holds them.
 function Game:add_party_member(fields)
     fields = fields or {}
     local own_party = fields.in_party ~= false and (not fields.slot or fields.slot:match('^p') ~= nil)
@@ -1554,15 +1586,19 @@ function Game:add_party_member(fields)
     return member
 end
 
--- An NPC, or another mob, near the character. fields over the defaults: name, id, index, is_npc, spawn_type, race,
--- hpp, status, claim_id, distance (squared, as Windower gives it; 5 yalms unless given), x, y. Returns the mob as
--- the game holds it. An NPC's id has 0x800 set in its last twelve bits, a monster's doesn't: GearSwap tells the two
--- apart by it.
+-- An NPC near the character, or a monster with monster set. fields over the defaults: name, id, index, is_npc,
+-- spawn_type, race, hpp, status, claim_id, distance (squared, as Windower gives it; 5 yalms unless given), x, y.
+-- Returns the mob as the game holds it. An NPC's id has 0x800 set in its last twelve bits and its spawn type is 2; a
+-- monster's id hasn't, and its spawn type is 16. GearSwap tells the two apart by the id, Sel and User-Globals.lua by
+-- the spawn type.
 function Game:add_mob(fields)
+    fields = copy(fields or {})
+    local monster = fields.monster
+    fields.monster = nil
     return add_other(self, function(index)
-        return {id = 0x01000800 + index, name = 'Mob', is_npc = true, spawn_type = 2, race = 0, distance = 25,
-            in_party = false, in_alliance = false}
-    end, fields or {})
+        return {id = (monster and 0x01000000 or 0x01000800) + index, name = 'Mob', is_npc = true,
+            spawn_type = monster and 16 or 2, race = 0, distance = 25, in_party = false, in_alliance = false}
+    end, fields)
 end
 
 -- The mob at that index, a player or an NPC, is gone.
@@ -1574,12 +1610,13 @@ function Game:remove_mob(index)
     end
 end
 
--- Makes the mob at that index the target, with the target change event, or the subtarget; none when given none.
+-- Makes the mob at that index the target, with the target change event, which Windower hands only the new target's
+-- index, or the subtarget; none when given none.
 function Game:target(index)
     local old = self.target_index
     self.target_index = index
     if index ~= old then
-        self:fire('target change', index or 0, old or 0)
+        self:fire('target change', index or 0)
     end
 end
 
@@ -1688,8 +1725,8 @@ function Game:move_item(count, from_id, to_id, index)
         item.count = left
     end
     self:receive(0x01E, u32(left) .. string.char(from_id, index, 0, 0))
-    self:receive(0x020, u32(moved.count) .. u32(moved.bazaar) .. u16(moved.id) .. string.char(to_id, target, 0)
-        .. moved.extdata)
+    self:receive(0x020, u32(moved.count) .. u32(moved.bazaar) .. u16(moved.id)
+        .. string.char(to_id, target, moved.status) .. moved.extdata)
     if left == 0 then
         self:enqueue('event', 'remove item', from_id, index, item.id, count)
     end

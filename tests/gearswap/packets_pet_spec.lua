@@ -1,11 +1,6 @@
 local plain = require('plain')
 
-local function refresh(gs)
-    gs:console('gs c refresh')
-    if gs.user.events then
-        plain.events(gs)
-    end
-end
+local refresh = plain.refresh
 
 describe('a pet', function()
     it('coming is told to the user file with the packet after the one that says so', function()
@@ -47,22 +42,6 @@ describe('a pet', function()
         assert.same({}, plain.events(gs))
     end)
 
-    it('coming or going is not told while the user file is disabled', function()
-        local gs = plain.boot('Testy_Events.lua')
-        gs:console('gs disable')
-        local pet = gs.game:place_pet({name = 'Carbuncle'})
-        gs:send(0x037, {['Pet Index'] = pet.index})
-        gs:next_packet()
-        assert.same({}, plain.events(gs))
-        gs:console('gs enable')
-        gs:next_packet()
-        plain.events(gs)
-        gs:console('gs disable')
-        gs:take_pet()
-        gs:next_packet()
-        assert.same({}, plain.events(gs))
-    end)
-
     it('coming while the user file is disabled is told with the first packet after gs enable', function()
         local gs = plain.boot('Testy_Events.lua')
         gs:console('gs disable')
@@ -85,6 +64,7 @@ describe('a pet', function()
         gs:take_pet()
         gs:next_packet()
         gs:console('gs enable')
+        assert.same({}, plain.events(gs))
         gs:next_packet()
         assert.same({{event = 'pet_change', name = 'Carbuncle', gain = false}}, plain.events(gs))
     end)

@@ -369,16 +369,11 @@ describe('the party and the alliance', function()
 
     it('has the leader of the party, and of the alliance', function()
         local gs = boot()
-        local carol = gs.game:add_party_member({name = 'Carol', slot = 'a10'})
-        local get_party = gs.game.get_party
-        gs.game.get_party = function(game)
-            local party = get_party(game)
-            party.alliance_leader, party.party2_leader = game.player.id, carol.id
-            return party
-        end
+        gs.game:add_party_member({name = 'Carol', slot = 'a10', leader = true, alliance_leader = true})
         refresh(gs)
         local alliance = gs.user.alliance
-        assert.same({'Testy', 'Carol', 'Testy'}, {alliance[1].leader.name, alliance[2].leader.name, alliance.leader.name})
+        assert.same({'Testy', 'Carol', 'Carol'},
+            {alliance[1].leader.name, alliance[2].leader.name, alliance.leader.name})
     end)
 
     it('is the same table, kept up to date, for the user file that has it', function()

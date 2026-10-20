@@ -1,3 +1,4 @@
+local harness = require('harness')
 local jobby = require('jobby')
 
 local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Sapphire Platemail',
@@ -9,11 +10,11 @@ local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's H
 -- What the idle set of Jobby's bard gear file wears besides every gear file's.
 local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
 
-local idle = jobby.worn_by(own_idle)
+local idle = jobby.worn_by(jobby.idle, own_idle)
 
 -- What is worn with these changes over the idle set.
 local function worn(changes)
-    return jobby.worn_by(changes, idle)
+    return jobby.worn_by(idle, changes)
 end
 
 -- Jobby as a bard with the idle set on, over a sub job of WHM unless the options (jobby.boot's) say otherwise.
@@ -259,7 +260,7 @@ describe('BRD\'s song on a party member', function()
     local gs
     before_each(function()
         gs = boot()
-        gs:add_party_member({name = 'Friend'})
+        gs.game:add_party_member({name = 'Friend'})
     end)
 
     it('is held back for Pianissimo, which goes out in its place', function()
@@ -591,14 +592,14 @@ describe('BRD\'s songs kept by AutoSongMode', function()
     end)
 
     it('are Honor March first', function()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({'Honor March'}, gs:actions())
     end)
 
     it('are Valor Minuet V once March is up', function()
         gs:gain_buff('March')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({'Valor Minuet V'}, gs:actions())
     end)
 
@@ -606,7 +607,7 @@ describe('BRD\'s songs kept by AutoSongMode', function()
         gs:gain_buff('March')
         gs:gain_buff('Minuet')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({'Blade Madrigal'}, gs:actions())
         assert.equal('Daurdabla', gs:worn().range)
     end)
@@ -616,13 +617,13 @@ describe('BRD\'s songs kept by AutoSongMode', function()
         gs:gain_buff('Minuet')
         gs:gain_buff('Madrigal')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
     it('are nothing with AutoSongMode off', function()
         gs:console('gs c toggle AutoSongMode')
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 

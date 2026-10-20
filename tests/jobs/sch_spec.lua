@@ -1,3 +1,4 @@
+local harness = require('harness')
 local jobby = require('jobby')
 
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
@@ -46,21 +47,8 @@ end
 
 -- The actions the tick sent in its first moments (it starts five seconds after the file loads).
 local function first_actions(gs)
-    gs:play(5.3)
+    gs:play(harness.sel_load_time + 0.3)
     return gs:actions()
-end
-
--- What was put in the chat since it was last read, but the report of the gs validate the user file runs five seconds
--- after it loads, as the tick starts, which finds nothing missing.
-local function tick_chat(gs)
-    local said = {}
-    for _, line in ipairs(gs:chat()) do
-        if line ~= 'GearSwap: Checking for items in gear sets that are not in your inventory.'
-            and line ~= 'GearSwap: Final count = 0' then
-            said[#said + 1] = line
-        end
-    end
-    return said
 end
 
 -- What is worn once the spell's precast and midcast sets are on: the fast cast set, then the sets named over it.
@@ -70,7 +58,7 @@ local function cast(gs, line)
 end
 
 local function fast_cast(gs, ...)
-    return jobby.worn_by(jobby.layer(sets_of(gs).precast.FC, ...))
+    return jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.FC, ...))
 end
 
 describe('a cure by a scholar', function()
@@ -445,7 +433,8 @@ describe('the stratagems laid over a spell', function()
         gs:console('gs c set CastingMode Proc')
         gs:traffic()
         local worn = cast(gs, '/ma "Stone" <t>')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).precast.FC.Proc, sets_of(gs).midcast.LowTierNuke)), worn)
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).precast.FC.Proc, sets_of(gs).midcast.LowTierNuke)), worn)
     end)
 
     it('wear sets.buff["Light Arts"] over an enfeebling spell under Light Arts', function()
@@ -569,19 +558,19 @@ describe('the idle set of a scholar', function()
     it('wears sets.latent_refresh under half MP', function()
         local gs = boot()
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
     end)
 
     it('wears no sets.latent_refresh above half MP', function()
         local gs = boot()
-        assert.same(jobby.worn_by({}), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle), gs:worn())
     end)
 
     it('wears sets.latent_refresh_grip too with a staff in the idle set and the weapons free', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Gozuki Mezuki'
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
             {main = 'Gozuki Mezuki'})), gs:worn())
     end)
 
@@ -590,53 +579,56 @@ describe('the idle set of a scholar', function()
         sets_of(gs).idle.main = 'Gozuki Mezuki'
         gs:console('gs c set Weapons Staff')
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
+            gs:worn())
     end)
 
     it('wears no sets.latent_refresh in the DT idle mode', function()
         local gs = boot()
         gs:console('gs c set IdleMode DT')
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.DT)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.DT)), gs:worn())
     end)
 
     it('wears sets.buff.Sublimation while Sublimation is charging', function()
         local gs = boot({buffs = {'Sublimation: Activated'}})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).buff.Sublimation)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).buff.Sublimation)), gs:worn())
     end)
 
     it('wears sets.buff.DTSublimation while it is, in the DT idle mode', function()
         local gs = boot({buffs = {'Sublimation: Activated'}})
         gs:console('gs c set IdleMode DT')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.DT, sets_of(gs).buff.DTSublimation)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.DT, sets_of(gs).buff.DTSublimation)),
+            gs:worn())
     end)
 
     it('wears the Sublimation set and no sets.latent_refresh under half MP while Sublimation charges', function()
         local gs = boot({buffs = {'Sublimation: Activated'}})
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).buff.Sublimation)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).buff.Sublimation)), gs:worn())
     end)
 
     it('wears the Sublimation set no more once it is done', function()
         local gs = boot({buffs = {'Sublimation: Activated'}})
         gs:lose_buff('Sublimation: Activated')
         gs:console('gs c update')
-        assert.same(jobby.worn_by({}), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle), gs:worn())
     end)
 
     it('wears sets.TPEat over the latent refresh set under half MP with some TP and a main weapon in the idle set', function()
         local gs = boot({tp = 100})
         sets_of(gs).idle.main = "Bunzi's Rod"
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).TPEat, {main = "Bunzi's Rod"})),
-            gs:worn())
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).TPEat, {main = "Bunzi's Rod"})), gs:worn())
     end)
 
     it('wears no sets.TPEat with no TP to spare', function()
         local gs = boot({tp = 10})
         sets_of(gs).idle.main = "Bunzi's Rod"
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
+            gs:worn())
     end)
 end)
 
@@ -986,7 +978,7 @@ describe('the tick of a scholar', function()
             gs.game:start_ability_recast('Dark Arts', 30)
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
     end)
 

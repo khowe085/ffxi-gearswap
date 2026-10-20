@@ -29,7 +29,7 @@ describe('AutoStunMode, Sel-Stahp.lua\'s stun on a monster\'s TP move', function
 
     it('leaves a monster it isn\'t targeting', function()
         local gs = boot()
-        local goblin = gs.game:add_mob({name = 'Goblin', id = 0x1069002, spawn_type = 16, distance = 9})
+        local goblin = gs.game:add_mob({name = 'Goblin', monster = true, distance = 9})
         gs.game:target(goblin.index)
         gs:play(1)
         gs:traffic()

@@ -1,16 +1,12 @@
 local plain = require('plain')
 
 local function boot()
-    local gs = plain.boot('Testy_Functions.lua')
-    gs:chat()
-    return gs
+    return plain.boot('Testy_Functions.lua')
 end
 
 local function command(gs, text)
     gs:console('gs c ' .. text)
 end
-
-local error_of = plain.error_of
 
 describe('equip', function()
     it('puts on the set it is given', function()
@@ -39,7 +35,7 @@ describe('equip', function()
 
     it('with something that is not a set is an error', function()
         local gs = boot()
-        assert.matches('Trying to combine non%-gear sets', error_of(gs.console, gs, 'gs c equip_a_name'))
+        assert.error_matches(function() gs:console('gs c equip_a_name') end, 'Trying to combine non%-gear sets')
     end)
 end)
 
@@ -65,7 +61,7 @@ describe('set_combine', function()
 
     it('with something that is not a set is an error', function()
         local gs = boot()
-        assert.matches('Trying to combine non%-gear sets', error_of(gs.console, gs, 'gs c combine_a_name'))
+        assert.error_matches(function() gs:console('gs c combine_a_name') end, 'Trying to combine non%-gear sets')
     end)
 
     it('gives the slots under their usual names, and leaves out what is no slot', function()
@@ -101,7 +97,8 @@ describe('disable and enable', function()
 
     it('disable of a name that is no slot is an error', function()
         local gs = boot()
-        assert.matches('disable error, passed an unrecognized slot name. %(hat%)', error_of(gs.console, gs, 'gs c disable hat'))
+        assert.error_matches(function() gs:console('gs c disable hat') end,
+            'disable error, passed an unrecognized slot name. %(hat%)')
     end)
 
     it('enable puts on what was held back for the slot while it was disabled, and says what it was', function()
@@ -124,7 +121,8 @@ describe('disable and enable', function()
 
     it('enable of a name that is no slot is an error', function()
         local gs = boot()
-        assert.matches('enable error, passed an unrecognized slot name. %(hat%)', error_of(gs.console, gs, 'gs c enable hat'))
+        assert.error_matches(function() gs:console('gs c enable hat') end,
+            'enable error, passed an unrecognized slot name. %(hat%)')
     end)
 end)
 
@@ -182,12 +180,13 @@ describe('print_set', function()
 
     it('of nothing is an error that names the title', function()
         local gs = boot()
-        assert.matches('print_set error, nothing set is nil', error_of(gs.console, gs, 'gs c print_nothing'))
+        assert.error_matches(function() gs:console('gs c print_nothing') end, 'print_set error, nothing set is nil')
     end)
 
     it('of something that is not a table is an error that names the title', function()
         local gs = boot()
-        assert.matches('print_set error, a string set is not a table', error_of(gs.console, gs, 'gs c print_a_string'))
+        assert.error_matches(function() gs:console('gs c print_a_string') end,
+            'print_set error, a string set is not a table')
     end)
 end)
 
@@ -267,17 +266,20 @@ describe('include and require', function()
 
     it('of a file that is not there is an error', function()
         local gs = boot()
-        assert.matches('Cannot find the include file %(nothing_here.lua%)', error_of(gs.console, gs, 'gs c include nothing_here'))
+        assert.error_matches(function() gs:console('gs c include nothing_here') end,
+            'Cannot find the include file %(nothing_here.lua%)')
     end)
 
     it('of something that is not a name is an error', function()
         local gs = boot()
-        assert.matches('include%(%) was passed an invalid value %(5%)', error_of(gs.console, gs, 'gs c include_a_number'))
+        assert.error_matches(function() gs:console('gs c include_a_number') end,
+            'include%(%) was passed an invalid value %(5%)')
     end)
 
     it('of a file Lua can\'t read is an error that says what is wrong with it', function()
         local gs = boot()
-        assert.matches('Error loading file %(testy_broken.lua%)', error_of(gs.console, gs, 'gs c include Testy_Broken'))
+        assert.error_matches(function() gs:console('gs c include Testy_Broken') end,
+            'Error loading file %(testy_broken.lua%)')
     end)
 
     it('of pack gives nothing, for GearSwap has loaded it', function()
@@ -310,21 +312,22 @@ describe('include and require', function()
 
     it('don\'t find a file in a folder include_path was not told of', function()
         local gs = boot()
-        assert.matches('Cannot find the include file %(testy_nested.lua%)', error_of(gs.console, gs, 'gs c include Testy_Nested'))
+        assert.error_matches(function() gs:console('gs c include Testy_Nested') end,
+            'Cannot find the include file %(testy_nested.lua%)')
     end)
 
     it('forget the folder include_path named when it is called with nothing', function()
         local gs = boot()
         command(gs, 'include_path sub')
         command(gs, 'include_path')
-        assert.matches('Cannot find the include file', error_of(gs.console, gs, 'gs c include Testy_Nested'))
+        assert.error_matches(function() gs:console('gs c include Testy_Nested') end, 'Cannot find the include file')
     end)
 
     it('forget the folder include_path named once another file is loaded', function()
         local gs = boot()
         command(gs, 'include_path sub')
         plain.load(gs, 'Testy_Functions.lua')
-        assert.matches('Cannot find the include file', error_of(gs.console, gs, 'gs c include Testy_Nested'))
+        assert.error_matches(function() gs:console('gs c include Testy_Nested') end, 'Cannot find the include file')
     end)
 end)
 
@@ -377,7 +380,8 @@ describe('show_swaps and debug_mode', function()
 
     it('show_swaps with something that is not a boolean is an error', function()
         local gs = boot()
-        assert.matches('show_swaps%(%) was passed an invalid value %(bad%)', error_of(gs.console, gs, 'gs c show_swaps bad'))
+        assert.error_matches(function() gs:console('gs c show_swaps bad') end,
+            'show_swaps%(%) was passed an invalid value %(bad%)')
     end)
 
     it('debug_mode with nothing turns debug mode on, and with false off', function()
@@ -409,7 +413,7 @@ describe('show_swaps and debug_mode', function()
 
     it('debug_mode with something that is not a boolean is an error', function()
         local gs = boot()
-        assert.matches('was passed an invalid value %(bad%)', error_of(gs.console, gs, 'gs c debug_mode bad'))
+        assert.error_matches(function() gs:console('gs c debug_mode bad') end, 'was passed an invalid value %(bad%)')
     end)
 
     pending('debug_mode with something that is not a boolean names debug_mode() in its error: debug_mode in '
@@ -443,19 +447,22 @@ describe('set_language', function()
     it('to a language GearSwap doesn\'t have is an error', function()
         local gs = plain.boot()
         gs.env.test_language = 'french'
-        assert.matches('set_language%(%) was passed an invalid value %(french%)', error_of(gs.console, gs, 'gs load Testy_Language.lua'))
+        assert.error_matches(function() gs:console('gs load Testy_Language.lua') end,
+            'set_language%(%) was passed an invalid value %(french%)')
     end)
 
     it('to nothing is an error', function()
         local gs = plain.boot()
-        assert.matches('set_language%(%) was passed an invalid value %(nil%)', error_of(gs.console, gs, 'gs load Testy_Language.lua'))
+        assert.error_matches(function() gs:console('gs load Testy_Language.lua') end,
+            'set_language%(%) was passed an invalid value %(nil%)')
     end)
 
     it('after get_sets is an error', function()
         local gs = plain.boot()
         gs.env.test_language = 'english'
         plain.load(gs, 'Testy_Language.lua')
-        assert.matches('set_language%(%) is only valid in the get_sets function', error_of(gs.console, gs, 'gs c set_language'))
+        assert.error_matches(function() gs:console('gs c set_language') end,
+            'set_language%(%) is only valid in the get_sets function')
     end)
 end)
 
@@ -512,7 +519,8 @@ describe('register_unhandled_command', function()
 
     it('with something that is not a function is an error', function()
         local gs = boot()
-        assert.matches('unhandled_command was passed an invalid value %(not a function%)', error_of(gs.console, gs, 'gs c unhandled_bad'))
+        assert.error_matches(function() gs:console('gs c unhandled_bad') end,
+            'unhandled_command was passed an invalid value %(not a function%)')
     end)
 end)
 
@@ -552,13 +560,14 @@ describe('windower.register_event', function()
 
     it('with something that is not a function is an error', function()
         local gs = boot()
-        assert.matches('windower.register_event%(%) was passed an invalid value %(not a function%)',
-            error_of(gs.console, gs, 'gs c register_bad_function'))
+        assert.error_matches(function() gs:console('gs c register_bad_function') end,
+            'windower.register_event%(%) was passed an invalid value %(not a function%)')
     end)
 
     it('with something that is not an event\'s name is an error', function()
         local gs = boot()
-        assert.matches('windower.register_event%(%) was passed an invalid value %(5%)', error_of(gs.console, gs, 'gs c register_bad_name'))
+        assert.error_matches(function() gs:console('gs c register_bad_name') end,
+            'windower.register_event%(%) was passed an invalid value %(5%)')
     end)
 
     it('gives a number to unregister it by', function()
@@ -577,8 +586,8 @@ describe('windower.register_event', function()
 
         it('with something that is not a number is an error', function()
             local gs = boot()
-            assert.matches('windower.unregister_event%(%) was passed an invalid value %(nothing%)',
-                error_of(gs.console, gs, 'gs c unregister_nothing'))
+            assert.error_matches(function() gs:console('gs c unregister_nothing') end,
+                'windower.unregister_event%(%) was passed an invalid value %(nothing%)')
         end)
     end)
 end)
@@ -602,8 +611,8 @@ describe('windower.raw_register_event', function()
 
     it('with something that is not a function is an error', function()
         local gs = boot()
-        assert.matches('windower.register_event%(%) was passed an invalid value %(not a function%)',
-            error_of(gs.console, gs, 'gs c raw_register_bad_function'))
+        assert.error_matches(function() gs:console('gs c raw_register_bad_function') end,
+            'windower.register_event%(%) was passed an invalid value %(not a function%)')
     end)
 end)
 
@@ -655,7 +664,8 @@ end)
 describe('a user function', function()
     it('that raises an error stops what GearSwap was doing, naming the function', function()
         local gs = boot()
-        assert.matches('GearSwap has detected an error in the user function self_command', error_of(gs.console, gs, 'gs c nonsense'))
+        assert.error_matches(function() gs:console('gs c nonsense') end,
+            'GearSwap has detected an error in the user function self_command')
     end)
 
     it('that is not a function is said not to be one', function()

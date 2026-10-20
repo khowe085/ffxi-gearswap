@@ -16,9 +16,7 @@ local function boot(overrides)
     for key, value in pairs(overrides or {}) do
         options[key] = value
     end
-    local gs = plain.boot('Testy_WHM.lua', options)
-    gs:chat_lines()
-    return gs
+    return plain.boot('Testy_WHM.lua', options)
 end
 
 local function folder(gs)

@@ -1,14 +1,17 @@
 local harness = require('harness')
 local testy = require('testy')
 
--- Testy with what the boot sent, said, printed, typed and ran taken as read.
 local function boot()
-    local gs = harness.boot(testy.whm())
-    gs:forget()
-    return gs
+    return harness.boot(testy.whm())
 end
 
 describe('a session\'s readers of what GearSwap did', function()
+    it('start after the boot, with what GearSwap did while it loaded taken as read', function()
+        local gs = boot()
+        assert.truthy(gs:log():find('Loaded your Testy_WHM.lua file!', 1, true))
+        assert.same({{}, {}, {}, {}, {}}, {gs:printed(), gs:chat(), gs:typed(), gs:commands(), gs:traffic()})
+    end)
+
     it('give each line of chat once, without the codes that color it, and leave the chat log whole', function()
         local gs = boot()
         gs.game.windower.add_to_chat(1, '\31\200hello\30\1')

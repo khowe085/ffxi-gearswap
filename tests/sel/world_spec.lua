@@ -1,4 +1,5 @@
 local commy = require('commy')
+local harness = require('harness')
 
 local idle = commy.war_idle
 
@@ -214,7 +215,7 @@ describe('Sel on loading', function()
     it('checks for dual wield five seconds on, and starts the weapons over', function()
         local gs = commy.boot_rdm()
         gs:console('gs c set Weapons Naegling')
-        gs:advance(4.9)
+        gs:advance(harness.sel_load_time - 0.1)
         assert.equal('Naegling', gs.user.state.Weapons.value)
         gs:advance(0.2)
         assert.truthy(table.concat(gs.game.commands, '\n'):find('gs c weapons initialize', 1, true))

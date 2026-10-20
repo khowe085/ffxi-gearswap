@@ -1,4 +1,5 @@
 local autoy = require('autoy')
+local harness = require('harness')
 
 -- Sel's tick, as AutoBuffMode shows it: under the Auto list, a red mage's first act is Refresh III on itself.
 local refresh = {{action = 'Refresh III', target = 'Autoy'}}
@@ -15,7 +16,7 @@ describe('Sel\'s tick', function()
         local gs = autoy.load()
         gs:console('gs c set AutoBuffMode Auto')
         gs:traffic()
-        gs:play(4.9)
+        gs:play(harness.sel_load_time - 0.1)
         assert.same({}, gs:action_entries())
         gs:play(0.3)
         assert.same(refresh, gs:action_entries())

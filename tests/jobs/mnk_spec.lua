@@ -37,7 +37,7 @@ local function engaged_with(changes)
     for slot, item in pairs(changes) do
         set[slot] = item
     end
-    return jobby.worn_by(set, jobby.full_idle)
+    return jobby.worn_by(jobby.full_idle, set)
 end
 
 describe('MNK\'s melee set', function()
@@ -112,16 +112,16 @@ describe('MNK\'s idle set', function()
     it('has sets.buff.Boost laid over it while Boost is up', function()
         local gs = boot()
         gs:gain_buff('Boost')
-        assert.same(jobby.worn_by({ring1 = 'Karieyh Ring'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {ring1 = 'Karieyh Ring'}), gs:worn())
         gs:lose_buff('Boost')
-        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
     end)
 
     it('has no Impetus or Footwork set laid over it', function()
         local gs = boot()
         gs:gain_buff('Impetus')
         gs:gain_buff('Footwork')
-        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -132,9 +132,9 @@ describe('MNK\'s weapon skill set', function()
     end)
 
     it('is sets.precast.WS[name]', function()
-        assert.same(jobby.worn_by({head = 'Volte Cap', neck = 'Fotia Gorget', ear1 = 'Moonshade Earring',
-            ear2 = 'Brutal Earring', waist = 'Fotia Belt'},
-                jobby.full_idle), weaponskill(gs, '/ws "Victory Smite" <t>'))
+        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', neck = 'Fotia Gorget',
+            ear1 = 'Moonshade Earring', ear2 = 'Brutal Earring', waist = 'Fotia Belt'}),
+            weaponskill(gs, '/ws "Victory Smite" <t>'))
     end)
 
     it('swaps Moonshade Earring for sets.MaxTP when TP, with Moonshade\'s 250, is over 3200', function()
@@ -229,7 +229,7 @@ describe('MNK\'s Boost', function()
 
     it('wears sets.precast.JA.Boost and, out of combat, its OutOfCombat set', function()
         local gs = boot()
-        assert.same(jobby.worn_by({hands = 'Volte Bracers', feet = 'Volte Boots'}, jobby.full_idle), boost(gs))
+        assert.same(jobby.worn_by(jobby.full_idle, {hands = 'Volte Bracers', feet = 'Volte Boots'}), boost(gs))
     end)
 
     it('wears only sets.precast.JA.Boost when engaged', function()

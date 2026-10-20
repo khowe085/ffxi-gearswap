@@ -1,3 +1,4 @@
+local harness = require('harness')
 local jobby = require('jobby')
 
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
@@ -41,27 +42,14 @@ local function midcast_worn(gs, line)
 end
 
 local function blue_over_fast_cast(gs, ...)
-    return jobby.worn_by(jobby.layer(sets_of(gs).precast.FC['Blue Magic'], ...))
+    return jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.FC['Blue Magic'], ...))
 end
 
 -- The actions the tick sent in its first moments: it starts five seconds after the file loads, and acts again once
 -- the first action's delay is over, a second later.
 local function first_actions(gs)
-    gs:play(5.3)
+    gs:play(harness.sel_load_time + 0.3)
     return gs:actions()
-end
-
--- What was put in the chat since it was last read, but the report of the gs validate the user file runs five seconds
--- after it loads, as the tick starts, which finds nothing missing.
-local function tick_chat(gs)
-    local said = {}
-    for _, line in ipairs(gs:chat()) do
-        if line ~= 'GearSwap: Checking for items in gear sets that are not in your inventory.'
-            and line ~= 'GearSwap: Final count = 0' then
-            said[#said + 1] = line
-        end
-    end
-    return said
 end
 
 describe('the set a blue spell takes from its list in blue_magic_maps', function()
@@ -120,7 +108,8 @@ describe('a blue spell the lists leave out or hold twice', function()
         local gs = boot({'Polar Roar'})
         gs:gain_buff('Unbridled Learning')
         gs:traffic()
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).precast.FC['Blue Magic'], sets_of(gs).midcast['Blue Magic'])),
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).precast.FC['Blue Magic'], sets_of(gs).midcast['Blue Magic'])),
             midcast_worn(gs, '/ma "Polar Roar" <t>'))
     end)
 
@@ -282,7 +271,7 @@ describe('a weapon skill at the TP cap', function()
     end
 
     local function engaged_worn(gs, ...)
-        return jobby.worn_by(jobby.layer(sets_of(gs).engaged, ...))
+        return jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, ...))
     end
 
     it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
@@ -308,8 +297,9 @@ describe('a weapon skill at the TP cap', function()
         gs:console('gs c set OffenseMode Acc')
         gs:traffic()
         gs:type('/ws "Chant du Cygne" <t>')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged.Acc, sets_of(gs).precast.WS['Chant du Cygne'],
-            sets_of(gs).AccMaxTP)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).engaged.Acc, sets_of(gs).precast.WS['Chant du Cygne'], sets_of(gs).AccMaxTP)),
+            gs:worn())
     end)
 
     it('keeps the set of a weapon skill with no Moonshade Earring', function()
@@ -345,7 +335,7 @@ describe('a blue healing spell', function()
         local gs = boot({'Pollen'})
         gs:console('gs c set Weapons Naegling')
         gs:traffic()
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).precast.FC['Blue Magic'], blue(gs, 'Healing'),
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.FC['Blue Magic'], blue(gs, 'Healing'),
             sets_of(gs).Self_Healing, {main = 'Naegling'})), midcast_worn(gs, '/ma "Pollen" <me>'))
     end)
 
@@ -370,7 +360,7 @@ describe('a blue healing spell', function()
         local gs = boot({'Healing Breeze'})
         gs:console('gs c set Weapons Naegling')
         gs:traffic()
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).precast.FC['Blue Magic'], blue(gs, 'Healing'),
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.FC['Blue Magic'], blue(gs, 'Healing'),
             blue(gs, 'AoEHealing'), {main = 'Naegling'})), midcast_worn(gs, '/ma "Healing Breeze" <me>'))
     end)
 end)
@@ -422,14 +412,14 @@ describe('the learning mode', function()
     it('wears sets.Learning in the idle set', function()
         local gs = boot({'Foot Kick'})
         gs:console('gs c toggle LearningMode')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).Learning)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).Learning)), gs:worn())
     end)
 
     it('wears sets.Learning in the engaged set', function()
         local gs = boot({'Foot Kick'})
         gs:console('gs c toggle LearningMode')
         gs:engage()
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged, sets_of(gs).Learning)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, sets_of(gs).Learning)), gs:worn())
     end)
 
     it('wears sets.Learning through a blue spell', function()
@@ -444,7 +434,7 @@ describe('the learning mode', function()
         local gs = boot({'Foot Kick'})
         gs:console('gs c toggle LearningMode')
         gs:console('gs c toggle LearningMode')
-        assert.same(jobby.worn_by({}), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle), gs:worn())
     end)
 end)
 
@@ -458,28 +448,28 @@ describe('the idle set under half MP', function()
     it('wears sets.latent_refresh in the Normal idle mode', function()
         local gs = boot({'Foot Kick'})
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
     end)
 
     it('wears it with sets.Learning over it in the learning mode', function()
         local gs = boot({'Foot Kick'})
         gs:console('gs c toggle LearningMode')
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).Learning)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).Learning)), gs:worn())
     end)
 
     it('wears sets.idle.DT alone in the DT idle mode', function()
         local gs = boot({'Foot Kick'})
         gs:console('gs c set IdleMode DT')
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.DT)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.DT)), gs:worn())
     end)
 
     it('wears sets.latent_refresh_grip too with a staff in the idle set and the weapons free', function()
         local gs = boot({'Foot Kick'})
         sets_of(gs).idle.main = 'Gozuki Mezuki'
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
             {main = 'Gozuki Mezuki'})), gs:worn())
     end)
 
@@ -488,19 +478,19 @@ describe('the idle set under half MP', function()
         sets_of(gs).idle.main = 'Gozuki Mezuki'
         gs:console('gs c set Weapons Naegling')
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, {main = 'Naegling'})), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'Naegling'})), gs:worn())
     end)
 
     it('wears no sets.latent_refresh_grip with a weapon in the idle set that is no staff', function()
         local gs = boot({'Foot Kick'})
         sets_of(gs).idle.main = 'Naegling'
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, {main = 'Naegling'})), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'Naegling'})), gs:worn())
     end)
 
     it('wears sets.idle alone above half MP', function()
         local gs = boot({'Foot Kick'})
-        assert.same(jobby.worn_by({}), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle), gs:worn())
     end)
 end)
 
@@ -559,7 +549,7 @@ describe('the tick of a blue mage', function()
             gs.game:start_ability_recast('Light Arts', 60)
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
     end)
 
@@ -599,7 +589,7 @@ describe('the tick of a blue mage', function()
             gs.game.player.vitals.mp = 10
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
 
         it('casts Mighty Guard in combat with Unbridled Learning up', function()
@@ -621,7 +611,7 @@ describe('the tick of a blue mage', function()
             gs.user.in_combat = true
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
     end)
 

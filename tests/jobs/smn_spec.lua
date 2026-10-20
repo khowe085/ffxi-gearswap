@@ -1,3 +1,4 @@
+local harness = require('harness')
 local jobby = require('jobby')
 
 local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Volte Cap',
@@ -10,11 +11,11 @@ local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's H
 -- What the idle set of Jobby's summoner gear file wears besides every gear file's.
 local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
 
-local idle = jobby.worn_by(own_idle)
+local idle = jobby.worn_by(jobby.idle, own_idle)
 
 -- What is worn with these changes over the idle set.
 local function worn(changes)
-    return jobby.worn_by(changes, idle)
+    return jobby.worn_by(idle, changes)
 end
 
 -- Jobby as a summoner with the idle set on, over a sub job of RDM unless the options (jobby.boot's) say otherwise.
@@ -655,7 +656,7 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
     it('is put up once an avatar is out', function()
         gs:give_pet({name = 'Ifrit'})
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({"Avatar's Favor"}, gs:actions())
     end)
 
@@ -663,7 +664,7 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
         gs:give_pet({name = 'Ifrit'})
         gs:gain_buff("Avatar's Favor")
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
@@ -671,21 +672,21 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
         gs:give_pet({name = 'Ifrit'})
         gs.game:start_ability_recast("Avatar's Favor", 30)
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
-        assert.same({}, jobby.refusals(gs))
+        assert.same({}, jobby.said(gs, '^Abort'))
     end)
 
     it('is left alone with AutoFavor off', function()
         gs:give_pet({name = 'Ifrit'})
         gs:console('gs c toggle AutoFavor')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
     it('is left alone with no avatar out', function()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
@@ -693,9 +694,9 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
         gs:give_pet({name = 'Ifrit'})
         gs:gain_buff('amnesia')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
-        assert.same({}, jobby.refusals(gs))
+        assert.same({}, jobby.said(gs, '^Abort'))
     end)
 end)
 
@@ -719,7 +720,7 @@ describe('SMN\'s buffs kept by the tick under AutoBuffMode', function()
     it('are Reraise first, with a sub job that casts it', function()
         local gs = boot({sub_job = 'WHM'})
         gs:console('gs c set AutoBuffMode Auto')
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({'Reraise'}, gs:actions())
     end)
 
@@ -731,7 +732,7 @@ describe('SMN\'s buffs kept by the tick under AutoBuffMode', function()
         gs:gain_buff('Refresh')
         gs:gain_buff('Stoneskin')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 end)

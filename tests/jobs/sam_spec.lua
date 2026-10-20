@@ -1,3 +1,4 @@
+local harness = require('harness')
 local jobby = require('jobby')
 
 local gear = {'Masamune', "Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin",
@@ -9,11 +10,11 @@ local gear = {'Masamune', "Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin"
 -- What the idle set of Jobby's samurai gear file wears besides every gear file's.
 local own_idle = {main = 'Masamune', back = 'Mecisto. Mantle'}
 
-local idle = jobby.worn_by(own_idle)
+local idle = jobby.worn_by(jobby.idle, own_idle)
 
 -- What is worn with these changes over the idle set.
 local function worn(changes)
-    return jobby.worn_by(changes, idle)
+    return jobby.worn_by(idle, changes)
 end
 
 -- Jobby as a samurai with the idle set on, over a sub job of WAR unless the options (jobby.boot's) say otherwise.
@@ -470,80 +471,70 @@ describe('SAM\'s stance, kept by the tick', function()
         gs:traffic()
     end)
 
-    -- Whether Jobby was told of an ability waiting on its recast.
-    local function told_of_recast()
-        for _, line in ipairs(gs:chat()) do
-            if line:find('waiting on recast', 1, true) then
-                return true
-            end
-        end
-        return false
-    end
-
     it('puts Hasso up when engaged with a two-handed weapon', function()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({'Hasso'}, gs:actions())
     end)
 
     it('puts Seigan up in the Seigan stance', function()
         gs:console('gs c set Stance Seigan')
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({'Seigan'}, gs:actions())
     end)
 
     it('puts nothing up in the None stance', function()
         gs:console('gs c set Stance None')
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
     it('waits while Hasso is up', function()
         gs:gain_buff('Hasso')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
     it('waits while Seigan is up', function()
         gs:gain_buff('Seigan')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
     it('waits under SJ Restriction', function()
         gs:gain_buff('SJ Restriction')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
     it('waits while Hasso is on recast, without trying it', function()
         gs.game:start_ability_recast('Hasso', 30)
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
-        assert.is_false(told_of_recast())
+        assert.same({}, jobby.said(gs, 'waiting on recast'))
     end)
 
     it('waits while Seigan is on recast in the Seigan stance', function()
         gs:console('gs c set Stance Seigan')
         gs.game:start_ability_recast('Seigan', 30)
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
-        assert.is_false(told_of_recast())
+        assert.same({}, jobby.said(gs, 'waiting on recast'))
     end)
 
     it('waits with a one-handed weapon in hand', function()
         gs:console('gs c set Weapons Sword')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
     it('waits when not engaged', function()
         gs:disengage()
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 end)
@@ -558,7 +549,7 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
 
     it('are Berserk first with a sub job of WAR', function()
         gs:monster_hits()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({'Berserk'}, gs:actions())
     end)
 
@@ -566,14 +557,14 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
         gs:monster_hits()
         gs:gain_buff('Berserk')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({'Aggressor'}, gs:actions())
     end)
 
     it('are Aggressor when Berserk is on recast', function()
         gs:monster_hits()
         gs.game:start_ability_recast('Berserk', 60)
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({'Aggressor'}, gs:actions())
     end)
 
@@ -582,7 +573,7 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
         gs:gain_buff('Berserk')
         gs:gain_buff('Aggressor')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
@@ -590,19 +581,19 @@ describe('SAM\'s buffs kept by the tick under AutoBuffMode', function()
         gs:monster_hits()
         gs:gain_buff('SJ Restriction')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
     it('are nothing with AutoBuffMode off', function()
         gs:monster_hits()
         gs:console('gs c set AutoBuffMode Off')
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 
     it('are nothing out of combat', function()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 end)
@@ -617,14 +608,14 @@ describe('SAM\'s buffs kept by the tick with a sub job of DRK', function()
     end)
 
     it('are Last Resort', function()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({'Last Resort'}, gs:actions())
     end)
 
     it('are nothing while Last Resort is up', function()
         gs:gain_buff('Last Resort')
         gs:traffic()
-        gs:play(5.5)
+        gs:play(harness.sel_load_time + 0.5)
         assert.same({}, gs:actions())
     end)
 end)

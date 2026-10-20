@@ -436,7 +436,8 @@ local finishing_category = {[3] = 4, [7] = 3, [9] = 6, [16] = 2, [25] = 11}
 -- The category of the action packet that begins one, which an interruption comes in.
 local beginning_category = {[3] = 8, [7] = 7, [16] = 12}
 
--- options, all of them optional:
+-- Loads GearSwap on a new game and returns the session, with what it sent, said, printed, typed and ran while loading
+-- taken as read. options, all of them optional:
 --   character      the character's name, Testy unless given
 --   main_job, sub_job, main_job_level, sub_job_level
 --   tp             the character's TP, 0 unless given
@@ -520,7 +521,7 @@ function harness.boot(options)
         error(('GearSwap loaded %s, not %s'):format(tostring(env.current_file), options.expect_file), 2)
     end
     session.user = env.user_env
-    session.seen = #game.sent
+    session:forget()
     return session
 end
 
@@ -915,16 +916,6 @@ end
 -- The player's indicolure changes (see Game:set_indi), or ends when given no fields.
 function Session:set_indi(fields)
     self:run(function() self.game:set_indi(fields) end)
-end
-
--- Another player joins the character's party (see Game:add_party_member for the fields). No event says so: GearSwap
--- sees the party as it is when it next looks.
-function Session:add_party_member(fields)
-    return self:run(function()
-        local member = self.game:add_party_member(fields)
-        self.game:settle()
-        return member
-    end)
 end
 
 -- The kinds of move a pet makes, by the resource each is in and how the server sends it: a ready move of a

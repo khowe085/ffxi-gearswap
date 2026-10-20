@@ -1,9 +1,7 @@
 local harness = require('harness')
 local plain = require('plain')
 
-local function refresh(gs)
-    gs:console('gs c refresh')
-end
+local refresh = plain.refresh
 
 describe('the player update packet (0x037)', function()
     it('gives the player its status id', function()
@@ -212,18 +210,19 @@ describe('the system message packet (0x053)', function()
     it('ends a trust summon that was refused, as an interrupted action', function()
         local gs = plain.boot()
         gs:type('/ma "Joachim" <me>')
-        gs.user.calls = {}
+        plain.calls(gs)
         gs:send(0x053, {['Message ID'] = 0x12D})
-        local last = gs.user.calls[#gs.user.calls]
+        local calls = plain.calls(gs)
+        local last = calls[#calls]
         assert.same({'aftercast', 'Joachim', true}, {last.event, last.name, last.interrupted})
     end)
 
     it('says nothing for another message', function()
         local gs = plain.boot()
         gs:type('/ma "Cure III" <me>')
-        gs.user.calls = {}
+        plain.calls(gs)
         gs:send(0x053, {['Message ID'] = 0x100})
-        assert.same({}, gs.user.calls)
+        assert.same({}, plain.calls(gs))
     end)
 end)
 

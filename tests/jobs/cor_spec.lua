@@ -39,7 +39,7 @@ local gun = {range = 'Death Penalty', ammo = 'Eminent Bullet'}
 
 -- What is worn once the action's sets are on, with the gun and its bullet worn over the idle set.
 local function worn_with(...)
-    return jobby.worn_by(jobby.layer(gun, ...))
+    return jobby.worn_by(jobby.idle, jobby.layer(gun, ...))
 end
 
 -- What went out since last asked: each run of equip requests, and the name of each action.
