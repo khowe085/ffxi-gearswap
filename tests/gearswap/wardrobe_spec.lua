@@ -17,9 +17,7 @@ local function boot(extra, changes)
     for _, item in ipairs(extra or {}) do
         items[#items + 1] = item
     end
-    local gs = plain.boot('Testy_WHM.lua', {items = items})
-    gs:chat_lines()
-    return gs
+    return plain.boot('Testy_WHM.lua', {items = items})
 end
 
 -- Runs the command, lets the game run until the moves are done, and gives what GearSwap said.
@@ -97,7 +95,6 @@ describe('gs stash', function()
             character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
             items = {{name = 'Nyame Helm', bag = 'wardrobe2'}},
         })
-        gs:chat_lines()
         assert.same({'GearSwap: stash cannot read the MON file: GearSwap finds no file for it. Nothing moved.'},
             run(gs, 'gs stash mon'))
         assert.same({}, gs.game:bag_names('case'))
@@ -324,7 +321,7 @@ describe('gs stash', function()
     end)
 
     describe('reading a file it is not running', function()
-        it('sends nothing to the game for it, and has none of its commands, chat or events run', function()
+        it('sends nothing to the game for it, and has none of its commands or chat run', function()
             local gs = boot()
             local commands, typed = #gs.game.commands, #gs.game.typed
             local lines = run(gs, 'gs stash pld')
@@ -354,7 +351,6 @@ describe('gs stash', function()
 
         it('puts on no gear for it', function()
             local gs = boot()
-            gs:traffic()
             run(gs, 'gs stash pld')
             assert.same({}, gs:traffic())
         end)

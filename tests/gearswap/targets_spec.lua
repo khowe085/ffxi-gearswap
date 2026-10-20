@@ -1,7 +1,7 @@
 local plain = require('plain')
 local testy = require('testy')
 
-local calls, events, error_of = plain.calls, plain.names, plain.error_of
+local calls, events = plain.calls, plain.names
 
 local function boot(overrides)
     local gs = plain.boot('Testy_Actions.lua', overrides)
@@ -72,7 +72,7 @@ describe('an action aimed at a target typed as', function()
 
     it('a monster\'s name is left to the game, which wants <t> for it', function()
         local gs = boot()
-        gs.game:add_mob({name = 'Goblin', spawn_type = 16})
+        gs.game:add_mob({name = 'Goblin', monster = true})
         assert.equal('/ma "Dia II" Goblin', gs:type('/ma "Dia II" Goblin'))
         assert.same({}, calls(gs))
         assert.same({'/ma "Dia II" Goblin'}, gs.game.typed)
@@ -219,18 +219,21 @@ describe('change_target', function()
     it('to a name nobody has is an error', function()
         local gs = boot()
         gs.user.knobs.change_target = 'Nobody'
-        assert.matches('change_target%(%) was passed an invalid value %(Nobody%)', error_of(gs.type, gs, '/ma "Cure III" <t>'))
+        assert.error_matches(function() gs:type('/ma "Cure III" <t>') end,
+            'change_target%(%) was passed an invalid value %(Nobody%)')
     end)
 
     it('to something that is no name is an error', function()
         local gs = boot()
         gs.user.knobs.change_target = 42
-        assert.matches('change_target%(%) was passed an invalid value %(42%)', error_of(gs.type, gs, '/ma "Cure III" <t>'))
+        assert.error_matches(function() gs:type('/ma "Cure III" <t>') end,
+            'change_target%(%) was passed an invalid value %(42%)')
     end)
 
     it('outside pretarget is an error', function()
         local gs = boot()
-        assert.matches('change_target%(%) is only valid in the pretarget function', error_of(gs.user.change_target, '<me>'))
+        assert.error_matches(function() gs.user.change_target('<me>') end,
+            'change_target%(%) is only valid in the pretarget function')
     end)
 end)
 
@@ -286,12 +289,14 @@ describe('cast_delay', function()
     it('that is not a number is an error', function()
         local gs = boot()
         gs.user.knobs.pretarget_delay = 'soon'
-        assert.matches('cast_delay%(%) was passed an invalid value %(soon%)', error_of(gs.type, gs, '/ma "Cure III" <me>'))
+        assert.error_matches(function() gs:type('/ma "Cure III" <me>') end,
+            'cast_delay%(%) was passed an invalid value %(soon%)')
     end)
 
     it('outside pretarget and precast is an error', function()
         local gs = boot()
-        assert.matches('cast_delay%(%) is only valid in the precast and pretarget functions', error_of(gs.user.cast_delay, 1))
+        assert.error_matches(function() gs.user.cast_delay(1) end,
+            'cast_delay%(%) is only valid in the precast and pretarget functions')
     end)
 
     pending('drops the action it holds back when the zone changes before it goes: the zone-in packet makes '
@@ -335,13 +340,14 @@ describe('cancel_spell', function()
     it('with something that is not a boolean is an error', function()
         local gs = boot()
         gs.user.knobs.cancel_with = 'yes'
-        assert.matches('cancel_spell%(%) was passed an invalid value %(yes%)', error_of(gs.type, gs, '/ma "Cure III" <me>'))
+        assert.error_matches(function() gs:type('/ma "Cure III" <me>') end,
+            'cancel_spell%(%) was passed an invalid value %(yes%)')
     end)
 
     it('outside precast, pretarget and filtered_action is an error', function()
         local gs = boot()
-        assert.matches('cancel_spell%(%) is only valid in the precast, pretarget, or filtered_action functions',
-            error_of(gs.user.cancel_spell))
+        assert.error_matches(function() gs.user.cancel_spell() end,
+            'cancel_spell%(%) is only valid in the precast, pretarget, or filtered_action functions')
     end)
 end)
 
@@ -404,13 +410,14 @@ describe('move_spell_target', function()
     it('with something that is not a table of numbers is an error', function()
         local gs = boot()
         gs.user.knobs.move_target = {x = 1, y = 'two', z = 3}
-        assert.matches('move_spell_target%(%) was passed an invalid value', error_of(gs.type, gs, '/ma "Cure III" <me>'))
+        assert.error_matches(function() gs:type('/ma "Cure III" <me>') end,
+            'move_spell_target%(%) was passed an invalid value')
     end)
 
     it('outside precast is an error', function()
         local gs = boot()
-        assert.matches('move_spell_target%(%) is only valid in the precast function',
-            error_of(gs.user.move_spell_target, {x = 1, y = 1, z = 1}))
+        assert.error_matches(function() gs.user.move_spell_target({x = 1, y = 1, z = 1}) end,
+            'move_spell_target%(%) is only valid in the precast function')
     end)
 end)
 

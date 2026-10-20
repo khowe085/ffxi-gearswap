@@ -1,13 +1,9 @@
 local harness = require('harness')
 local plain = require('plain')
 
-local error_of = plain.error_of
-
 local function boot(file)
     local gs = plain.boot(file or 'Testy_Events.lua')
     plain.events(gs)
-    gs:printed()
-    gs:chat_lines()
     return gs
 end
 
@@ -94,7 +90,7 @@ describe('gs load', function()
 
     it('of a file that raises an error says it failed to load', function()
         local gs = boot()
-        assert.matches('GearSwap: File failed to load', error_of(gs.console, gs, 'gs load Testy_Throws'))
+        assert.error_matches(function() gs:console('gs load Testy_Throws') end, 'GearSwap: File failed to load')
     end)
 
     it('makes the player\'s sets come from the new file for gs equip', function()
@@ -306,11 +302,7 @@ describe('gs debugmode, gs demomode and gs showswaps', function()
         local gs = boot('Testy_WHM.lua')
         gs:console('gs demomode')
         gs:type('/ma "Cure III" <me>')
-        local names = {}
-        for i, entry in ipairs(gs.user.calls) do
-            names[i] = entry.event
-        end
-        assert.same({'pretarget', 'precast', 'midcast', 'aftercast'}, names)
+        assert.same({'pretarget', 'precast', 'midcast', 'aftercast'}, plain.names(plain.calls(gs)))
         assert.same({}, gs.game.actions)
     end)
 
@@ -514,8 +506,10 @@ describe('gs equip', function()
 
     it('says so when there is no such set, and changes nothing', function()
         local gs = boot_sets()
+        local worn = gs:worn()
         assert.same({}, equip(gs, 'sets.nothing.here'))
         assert.same({'GearSwap: Equip command cannot be completed. That set does not exist.'}, gs:chat())
+        assert.same(worn, gs:worn())
     end)
 
     pending('says so when the path goes through something that is not a set: a path through a piece\'s name '
@@ -530,7 +524,7 @@ describe('gs equip', function()
 
     it('raises an error when what it finds is not a set', function()
         local gs = boot_sets()
-        assert.matches('Trying to combine non%-gear sets', error_of(gs.console, gs, 'gs equip sets.not_a_set'))
+        assert.error_matches(function() gs:console('gs equip sets.not_a_set') end, 'Trying to combine non%-gear sets')
     end)
 end)
 

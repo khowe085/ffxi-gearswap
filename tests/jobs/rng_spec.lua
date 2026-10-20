@@ -13,11 +13,11 @@ local ammunition = {'Chrono Arrow', 'Hauksbok Arrow', 'Chrono Bullet', 'Eradicat
 -- What the idle set of Jobby's ranger gear file wears besides every gear file's, and the ammo Jobby has on.
 local own_idle = {main = "Judge's Sword", range = "Judge's Bow", back = 'Mecisto. Mantle', ammo = 'Staunch Tathlum +1'}
 
-local idle = jobby.worn_by(own_idle)
+local idle = jobby.worn_by(jobby.idle, own_idle)
 
 -- What is worn with these changes over the idle set.
 local function worn(changes)
-    return jobby.worn_by(changes, idle)
+    return jobby.worn_by(idle, changes)
 end
 
 -- Jobby as a ranger with the idle set on, Staunch Tathlum +1 for ammo and 99 of each ammunition, over a sub job of
@@ -43,7 +43,7 @@ local function boot(options)
     end
     options.ammunition, options.counts, options.without = nil, nil, nil
     options.items = items
-    options.wearing = jobby.worn_by(options.wearing, own_idle)
+    options.wearing = jobby.worn_by(own_idle, options.wearing)
     options.sub_job = options.sub_job or 'NIN'
     return jobby.boot('RNG', options)
 end
@@ -424,7 +424,7 @@ describe('RNG\'s ranged attack with Flurry', function()
     local gs
     before_each(function()
         gs = boot()
-        gs:add_party_member({name = 'Friend'})
+        gs.game:add_party_member({name = 'Friend'})
     end)
 
     -- Friend casts Flurry on Jobby, as the server tells of it, and Flurry is up.

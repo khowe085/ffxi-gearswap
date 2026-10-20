@@ -1,5 +1,7 @@
 -- A GearSwap user file of the plainest kind, with no framework under it, for the tests of GearSwap itself. Each
--- hook notes in calls what GearSwap handed it, and wears a set.
+-- hook notes in calls what GearSwap handed it. Those of an action's precast, midcast and aftercast, of a status change
+-- and of a command wear the set it calls for, where there is one; filtered_action, pretarget and buff_change wear
+-- nothing.
 
 calls = {}
 

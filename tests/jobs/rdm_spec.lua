@@ -597,30 +597,30 @@ describe('RDM\'s idle set', function()
 
     it('has sets.latent_refresh over it under 51% MP', function()
         low_mp()
-        assert.same(jobby.worn_by({waist = 'Null Belt'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {waist = 'Null Belt'}), gs:worn())
     end)
 
     it('has sets.latent_refresh and the grip over the Sphere idle set under 51% MP, its main being a staff', function()
         gs:console('gs c set IdleMode Sphere')
         low_mp()
-        assert.same(jobby.worn_by({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'},
-            jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle,
+            {main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'}), gs:worn())
     end)
 
     it('has sets.TPEat over it too with more than 10 TP', function()
         gs:console('gs c set IdleMode Sphere')
         gs.game.player.vitals.tp = 11
         low_mp()
-        assert.same(jobby.worn_by({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield',
-            ear1 = 'Cessance Earring'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield',
+            ear1 = 'Cessance Earring'}), gs:worn())
     end)
 
     it('has no sets.TPEat over it with 10 TP', function()
         gs:console('gs c set IdleMode Sphere')
         gs.game.player.vitals.tp = 10
         low_mp()
-        assert.same(jobby.worn_by({main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'},
-            jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle,
+            {main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'}), gs:worn())
     end)
 
     it('has no grip or sets.TPEat over it with the weapons locked', function()
@@ -628,25 +628,25 @@ describe('RDM\'s idle set', function()
         gs:console('gs c set Weapons Naegling')
         gs.game.player.vitals.tp = 300
         low_mp()
-        assert.same(jobby.worn_by({main = 'Naegling', waist = 'Null Belt'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {main = 'Naegling', waist = 'Null Belt'}), gs:worn())
     end)
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')
         low_mp()
-        assert.same(jobby.worn_by({head = 'Null Masque'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Null Masque'}), gs:worn())
     end)
 
     it('has sets.buff.Sublimation over it while Sublimation charges', function()
         gs:gain_buff('Sublimation: Activated')
-        assert.same(jobby.worn_by({back = 'Null Shawl'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {back = 'Null Shawl'}), gs:worn())
     end)
 
     it('has sets.buff.DTSublimation over the DT idle set while Sublimation charges', function()
         gs:console('gs c set IdleMode DT')
         gs:gain_buff('Sublimation: Activated')
-        assert.same(jobby.worn_by({head = 'Null Masque', back = 'Null Shawl', ring1 = 'Karieyh Ring'},
-            jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle,
+            {head = 'Null Masque', back = 'Null Shawl', ring1 = 'Karieyh Ring'}), gs:worn())
     end)
 end)
 
@@ -699,22 +699,22 @@ describe('RDM\'s enspell', function()
     it('puts the melee set of the Enspell group on, engaged', function()
         gs:engage()
         gs:gain_buff('Enfire')
-        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', legs = 'Volte Hose'},
-            jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle,
+            {head = 'Volte Cap', body = 'Volte Jupon', legs = 'Volte Hose'}), gs:worn())
     end)
 
     it('puts the melee set of the Enspell2 group on for an enspell II, engaged', function()
         gs:engage()
         gs:gain_buff('Enfire II')
-        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon', feet = 'Volte Boots'},
-            jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle,
+            {head = 'Volte Cap', body = 'Volte Jupon', feet = 'Volte Boots'}), gs:worn())
     end)
 
     it('takes the group off again when the enspell ends', function()
         gs:engage()
         gs:gain_buff('Enfire')
         gs:lose_buff('Enfire')
-        assert.same(jobby.worn_by({head = 'Volte Cap', body = 'Volte Jupon'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
     end)
 end)
 

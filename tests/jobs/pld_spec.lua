@@ -32,7 +32,7 @@ local function engaged_with(changes)
     for slot, item in pairs(changes or {}) do
         set[slot] = item
     end
-    return jobby.worn_by(set, jobby.full_idle)
+    return jobby.worn_by(jobby.full_idle, set)
 end
 
 describe('PLD\'s weapon skill filter', function()
@@ -253,12 +253,12 @@ describe('PLD\'s extra defense mode', function()
     it('lays sets.Aegis over the defense set while a defense mode is on', function()
         gs:console('gs c set ExtraDefenseMode Aegis')
         gs:console('gs c set DefenseMode Physical')
-        assert.same(jobby.worn_by({neck = "Combatant's Torque", feet = 'Volte Boots'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {neck = "Combatant's Torque", feet = 'Volte Boots'}), gs:worn())
     end)
 
     it('lays no extra set over the idle set without a defense mode', function()
         gs:console('gs c set ExtraDefenseMode Aegis')
-        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
     end)
 end)
 
@@ -266,7 +266,7 @@ describe('PLD\'s defense set', function()
     it('is sets.defense.PDT in the Physical defense mode', function()
         local gs = boot()
         gs:console('gs c set DefenseMode Physical')
-        assert.same(jobby.worn_by({neck = "Combatant's Torque"}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {neck = "Combatant's Torque"}), gs:worn())
     end)
 
     it('is sets.defense.PDT[\'Kheshig Blade\'] with Kheshig Blade in hand after an update', function()
@@ -384,25 +384,25 @@ describe('PLD\'s idle set', function()
     it('has sets.latent_refresh over it under 51% MP', function()
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
         gs:console('gs c update')
-        assert.same(jobby.worn_by({waist = 'Null Belt'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {waist = 'Null Belt'}), gs:worn())
     end)
 
     it('has no latent refresh set over it at 51% MP', function()
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 510, 51
         gs:console('gs c update')
-        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
     end)
 
     it('has sets.latent_regen over it under 71% HP', function()
         gs.game.player.vitals.hp, gs.game.player.vitals.hpp = 1000, 70
         gs:console('gs c update')
-        assert.same(jobby.worn_by({ring1 = 'Karieyh Ring'}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle, {ring1 = 'Karieyh Ring'}), gs:worn())
     end)
 
     it('has no latent regen set over it at 71% HP', function()
         gs.game.player.vitals.hp, gs.game.player.vitals.hpp = 1065, 71
         gs:console('gs c update')
-        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
     end)
 
     it('has neither over it in the DT idle mode', function()
@@ -410,7 +410,7 @@ describe('PLD\'s idle set', function()
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
         gs.game.player.vitals.hp, gs.game.player.vitals.hpp = 1000, 70
         gs:console('gs c update')
-        assert.same(jobby.worn_by({}, jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
     end)
 end)
 

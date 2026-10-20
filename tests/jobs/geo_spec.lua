@@ -1,3 +1,4 @@
+local harness = require('harness')
 local jobby = require('jobby')
 
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
@@ -50,7 +51,7 @@ end
 
 -- The actions the tick sent in its first moments (it starts five seconds after the file loads).
 local function first_actions(gs)
-    gs:play(5.3)
+    gs:play(harness.sel_load_time + 0.3)
     return actions(gs)
 end
 
@@ -58,18 +59,12 @@ end
 -- hands on a line whose target it can't find, as for Blaze of Glory and Ecliptic Attrition, typed with a semicolon
 -- after the target, which GearSwap doesn't take for one, and for a spell on <bt> with no battle target.
 local function first_typed(gs)
-    gs:play(5.3)
-    local typed = {}
-    for _, line in ipairs(gs:typed()) do
-        if line ~= '/lockstyle on' then
-            typed[#typed + 1] = line
-        end
-    end
-    return typed
+    gs:play(harness.sel_load_time + 0.3)
+    return jobby.typed(gs)
 end
 
 local function fast_cast(gs, ...)
-    return jobby.worn_by(jobby.layer(sets_of(gs).precast.FC, ...))
+    return jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.FC, ...))
 end
 
 describe('an indicolure spell', function()
@@ -328,27 +323,27 @@ describe('the indicolure out', function()
 
     it('puts the Indi group on the idle set when the buff comes', function()
         local gs = indi_out()
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Indi)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Indi)), gs:worn())
     end)
 
     it('takes the group off again when it ends', function()
         local gs = indi_out()
         gs:set_indi()
         gs:lose_buff('Colure Active')
-        assert.same(jobby.worn_by({}), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle), gs:worn())
     end)
 
     it('puts the Indi group on the DT idle set in the DT idle mode', function()
         local gs = indi_out()
         gs:console('gs c set IdleMode DT')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.DT.Indi)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.DT.Indi)), gs:worn())
     end)
 
     it('is the group after gs c update too', function()
         local gs = boot()
         gs:set_indi({element = 2, size = 2, enemy = true})
         gs:console('gs c update')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Indi)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Indi)), gs:worn())
     end)
 
     it('is the group after an indicolure spell that leaves one out', function()
@@ -356,7 +351,7 @@ describe('the indicolure out', function()
         gs:type('/ma "Indi-Torpor" <me>')
         gs:set_indi({element = 1, size = 1})
         gs:finish_action()
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.Indi, {main = 'Daybreak'})), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Indi, {main = 'Daybreak'})), gs:worn())
     end)
 
     it('is no group after an indicolure spell that leaves none out', function()
@@ -559,33 +554,34 @@ describe('the idle set of a geomancer', function()
     it('wears sets.latent_refresh under half MP', function()
         local gs = boot()
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
     end)
 
     it('wears no sets.latent_refresh in the DT idle mode', function()
         local gs = boot()
         gs:console('gs c set IdleMode DT')
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.DT)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.DT)), gs:worn())
     end)
 
     it('wears sets.latent_refresh_grip too with a staff in the idle set and the weapons free', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Gozuki Mezuki'
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
             {main = 'Gozuki Mezuki'})), gs:worn())
     end)
 
     it('wears sets.buff.Sublimation while Sublimation is charging', function()
         local gs = boot({buffs = {'Sublimation: Activated'}})
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).buff.Sublimation)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).buff.Sublimation)), gs:worn())
     end)
 
     it('wears sets.buff.DTSublimation in the DT idle mode while it is', function()
         local gs = boot({buffs = {'Sublimation: Activated'}})
         gs:console('gs c set IdleMode DT')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.DT, sets_of(gs).buff.DTSublimation)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.DT, sets_of(gs).buff.DTSublimation)),
+            gs:worn())
     end)
 end)
 

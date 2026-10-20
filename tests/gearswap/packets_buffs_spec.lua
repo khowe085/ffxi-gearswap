@@ -1,11 +1,6 @@
 local plain = require('plain')
 
-local function refresh(gs)
-    gs:console('gs c refresh')
-    if gs.user.events then
-        plain.events(gs)
-    end
-end
+local refresh = plain.refresh
 
 describe('the buff packet (0x063)', function()
     it('tells the user file a buff came, with its name and id', function()
@@ -194,6 +189,16 @@ describe('the party buff packet (0x076)', function()
     it('says nothing when the buffs are the same', function()
         local gs, member = party_with_member('Testy_Events.lua')
         gs:send_party_buffs({{id = member.id, index = member.index, buffs = {33}}})
+        gs:send_party_buffs({{id = member.id, index = member.index, buffs = {33}}})
+        assert.same({}, plain.events(gs))
+    end)
+
+    it('says nothing, then or after gs enable, of a change made while the user file is disabled', function()
+        local gs, member = party_with_member('Testy_Events.lua')
+        gs:send_party_buffs({{id = member.id, index = member.index, buffs = {}}})
+        gs:console('gs disable')
+        gs:send_party_buffs({{id = member.id, index = member.index, buffs = {33}}})
+        gs:console('gs enable')
         gs:send_party_buffs({{id = member.id, index = member.index, buffs = {33}}})
         assert.same({}, plain.events(gs))
     end)

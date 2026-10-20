@@ -69,7 +69,6 @@ describe('gs test of an action', function()
     local function boot_actions()
         local gs = plain.boot('Testy_Actions.lua')
         calls(gs)
-        gs:chat_lines()
         return gs
     end
 
@@ -177,7 +176,6 @@ describe('gs test of an action', function()
 
     it('says so when there is no such action, and changes nothing', function()
         local gs = boot_actions()
-        gs:traffic()
         assert.same({'GearSwap: Test: no spell, ability or weapon skill called "nothing at all".'}, gs_test(gs, 'precast nothing at all'))
         assert.same({}, gs:traffic())
         assert.is_false(gs.env.gearswap_disabled)
@@ -209,7 +207,7 @@ describe('gs test of an action', function()
     it('raises the error a hook raises', function()
         local gs = boot_actions()
         gs.user.precast = function() error('the hook failed') end
-        assert.matches('the hook failed', plain.error_of(gs.console, gs, 'gs test precast Cure III'))
+        assert.error_matches(function() gs:console('gs test precast Cure III') end, 'the hook failed')
     end)
 end)
 

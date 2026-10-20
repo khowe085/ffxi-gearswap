@@ -1,6 +1,7 @@
 -------------------------------------------------------------------------------------------------------------------
 -- What the specs of GearSwap itself share: Testy as a white mage on one of the plain user files in
--- tests/fixture/data/Testy, and a look at the list of events such a file notes.
+-- tests/fixture/data/Testy, a refresh of GearSwap's globals, and a look at the events and the hooks' calls such a file
+-- notes, and at their names.
 -------------------------------------------------------------------------------------------------------------------
 
 local assert = require('luassert')
@@ -10,13 +11,13 @@ local testy = require('testy')
 local plain = {}
 
 -- Testy as a white mage with every piece Testy_WHM.lua names, switched to the user file in tests/fixture/data/Testy
--- if one is named. overrides are boot options.
+-- if one is named, with everything up to then taken as read. overrides are boot options.
 function plain.boot(file, overrides)
     local gs = harness.boot(testy.whm(overrides))
     if file then
         plain.load(gs, file)
+        gs:forget()
     end
-    gs:traffic()
     return gs
 end
 
@@ -25,6 +26,15 @@ function plain.load(gs, file)
     gs:console('gs load ' .. file)
     assert.equal(file, gs.env.current_file, 'GearSwap did not load ' .. file .. '. It printed:\n' .. gs:log())
     gs.user = gs.env.user_env
+end
+
+-- Has GearSwap bring its globals up to date, as it does before it hands the user file a command (gs c refresh). The
+-- events the user file noted until then, the command among them, are taken as read.
+function plain.refresh(gs)
+    gs:console('gs c refresh')
+    if gs.user.events then
+        plain.events(gs)
+    end
 end
 
 -- The events the user file noted in its events list since the last ask, in order.
@@ -49,22 +59,6 @@ function plain.calls(gs)
     local list = gs.user.calls
     gs.user.calls = {}
     return list
-end
-
--- The error fn raises when called with the arguments. Fails when it raises none.
-function plain.error_of(fn, ...)
-    local ok, err = pcall(fn, ...)
-    assert.is_false(ok, 'expected an error')
-    return err
-end
-
--- The text of each line of chat, as Session:chat_lines gives them.
-function plain.texts(lines)
-    local result = {}
-    for i, line in ipairs(lines) do
-        result[i] = line.text
-    end
-    return result
 end
 
 return plain

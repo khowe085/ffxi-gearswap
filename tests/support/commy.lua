@@ -32,15 +32,15 @@ local function options_for(job, items, overrides)
     return options
 end
 
--- Boots GearSwap with the options, puts the set Sel picks on, and starts the session with nothing sent or said.
+-- Boots GearSwap with the options, puts the set Sel picks on, and starts the session with everything so far taken as
+-- read.
 local function boot(options, before_update)
     local gs = require('harness').boot(options)
     if before_update then
         before_update(gs)
     end
     gs:console('gs c update')
-    gs:traffic()
-    gs:chat()
+    gs:forget()
     return gs
 end
 

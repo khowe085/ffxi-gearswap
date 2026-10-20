@@ -1,3 +1,4 @@
+local harness = require('harness')
 local jobby = require('jobby')
 
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
@@ -38,37 +39,12 @@ end
 
 -- The actions the tick sent in its first moments (it starts five seconds after the file loads).
 local function first_actions(gs)
-    gs:play(5.3)
+    gs:play(harness.sel_load_time + 0.3)
     return gs:actions()
 end
 
--- What was put in the chat since it was last read, but the report of the gs validate the user file runs five seconds
--- after it loads, as the tick starts, which finds nothing missing.
-local function tick_chat(gs)
-    local said = {}
-    for _, line in ipairs(gs:chat()) do
-        if line ~= 'GearSwap: Checking for items in gear sets that are not in your inventory.'
-            and line ~= 'GearSwap: Final count = 0' then
-            said[#said + 1] = line
-        end
-    end
-    return said
-end
-
--- The lines typed that reached the game since this was last asked, as GearSwap hands on a line whose target it can't
--- find, but the /lockstyle on the user file types five seconds after it loads.
-local function tick_typed(gs)
-    local typed = {}
-    for _, line in ipairs(gs:typed()) do
-        if line ~= '/lockstyle on' then
-            typed[#typed + 1] = line
-        end
-    end
-    return typed
-end
-
 local function engaged_worn(gs, ...)
-    return jobby.worn_by(jobby.layer(sets_of(gs).engaged, ...))
+    return jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, ...))
 end
 
 describe('a step', function()
@@ -197,8 +173,9 @@ describe('gs c step', function()
         gs:console('gs c set CycleStep Quickstep')
         gs.user.in_combat = true
         gs.user.last_in_combat = 0
+        gs.game.monster.claim_id = gs.game.player.id
         gs.game.monster.hpp = 0
-        gs:play(5.3)
+        gs:play(harness.sel_load_time + 0.3)
         assert.equal('Box Step', gs.user.state.CycleStep.value)
     end)
 end)
@@ -418,7 +395,7 @@ describe('a weapon skill by a dancer', function()
         it('is followed by no Reverse Flourish while it is on recast', function()
             local gs = finished({buffs = {'Finishing Move 3'}, recasts = {'Reverse Flourish'}})
             assert.same({}, gs:actions())
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
 
         it('is followed by no Reverse Flourish with 999 TP left', function()
@@ -481,27 +458,27 @@ describe('the dances', function()
     it('put sets.engaged.Saber on the engaged dancer while Saber Dance is up', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Saber Dance')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged.Saber)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged.Saber)), gs:worn())
     end)
 
     it('put sets.engaged.Fan on the engaged dancer while Fan Dance is up', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Fan Dance')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged.Fan)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged.Fan)), gs:worn())
     end)
 
     it('put sets.engaged back when the dance ends', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Saber Dance')
         gs:lose_buff('Saber Dance')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged)), gs:worn())
     end)
 
     it('put sets.buff["Saber Dance"] over the engaged set in a defense mode', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Saber Dance')
         gs:console('gs c set DefenseMode Physical')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged.Saber, sets_of(gs).buff['Saber Dance'],
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged.Saber, sets_of(gs).buff['Saber Dance'],
             sets_of(gs).defense.PDT)), gs:worn())
     end)
 
@@ -509,14 +486,14 @@ describe('the dances', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Climactic Flourish')
         gs:console('gs c set DefenseMode Physical')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged, sets_of(gs).buff['Climactic Flourish'],
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, sets_of(gs).buff['Climactic Flourish'],
             sets_of(gs).defense.PDT)), gs:worn())
     end)
 
     it('put no buff set over the engaged set without a defense mode', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Climactic Flourish')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged)), gs:worn())
     end)
 
     describe('kept up by the tick', function()
@@ -555,7 +532,7 @@ describe('the dances', function()
             gs.game:start_ability_recast('Saber Dance', 30)
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
 
         it('begin with nothing when the stance is None', function()
@@ -591,7 +568,7 @@ describe('the tick of a dancer', function()
             gs.game:start_ability_recast('No Foot Rise', 30)
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
 
         it('uses nothing with AutoBuffMode off', function()
@@ -675,14 +652,14 @@ describe('the tick of a dancer', function()
             gs.game:start_ability_recast('Quickstep', 30)
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
 
         it('uses no step with no monster targeted', function()
             local gs = stepper('Main')
             gs.game.target_index = nil
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_typed(gs))
+            assert.same({}, jobby.typed(gs))
         end)
     end)
 
@@ -780,13 +757,14 @@ describe('Curing Waltz by a dancer on himself', function()
 
     it('wears sets.precast.Waltz and sets.Self_Waltz', function()
         local gs = waltz(400, 1500, 'Curing Waltz II')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).precast.Waltz, sets_of(gs).Self_Waltz)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.Waltz, sets_of(gs).Self_Waltz)),
+            gs:worn())
     end)
 
     it('wears the set of Healing Waltz for it, and no Self_Waltz', function()
         local gs = boot({tp = 1500, hp = 1450})
         gs:type('/ja "Healing Waltz" <me>')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).precast.Waltz['Healing Waltz'])), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.Waltz['Healing Waltz'])), gs:worn())
     end)
 
     it('is not refined with the Refine Waltz state off', function()
@@ -846,7 +824,7 @@ describe('Curing Waltz by a dancer on a party member', function()
 
     it('wears sets.precast.Waltz without the self waltz set', function()
         local gs = waltz_on_friend(600, 'Curing Waltz II')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).precast.Waltz)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.Waltz)), gs:worn())
     end)
 end)
 

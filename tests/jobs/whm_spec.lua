@@ -24,7 +24,7 @@ end
 -- What is worn with the idle set on and these changes over it, as Jobby's gear file has Terra's Staff in it.
 local function idle_with(changes)
     changes.main = changes.main or "Terra's Staff"
-    return jobby.worn_by(changes, jobby.full_idle)
+    return jobby.worn_by(jobby.full_idle, changes)
 end
 
 local light_day, light_weather = 6, 16
@@ -243,7 +243,6 @@ describe('WHM\'s Devotion', function()
     local gs
     before_each(function()
         gs = boot()
-        gs:chat()
     end)
 
     it('is blocked under 50% HP, with a notice', function()
@@ -450,7 +449,6 @@ end)
 describe('WHM\'s status line', function()
     it('says the casting and idle modes, as a caster\'s does', function()
         local gs = boot()
-        gs:chat()
         gs:console('gs c update user')
         local lines = gs:chat()
         assert.is_truthy(lines[#lines]:find('Casting [Normal], Idle [Normal]', 1, true), lines[#lines])
@@ -648,7 +646,6 @@ describe('WHM\'s buff up', function()
 
     it('says when there is no such list', function()
         local gs = boot_ticking()
-        gs:chat()
         gs:console('gs c buffup Nonsense')
         assert.same({'Nonsense is not a buff list!'}, gs:chat())
     end)

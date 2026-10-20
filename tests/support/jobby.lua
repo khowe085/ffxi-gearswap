@@ -18,11 +18,9 @@ jobby.idle = {head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets
 -- ammo and a back.
 jobby.full_idle = testy.worn_by(jobby.idle, {ammo = 'Staunch Tathlum +1', back = 'Moonbeam Cape'})
 
--- What the game shows worn once the idle set (jobby.idle unless another is given) is on and the changes are laid over
--- it: a slot named in the set's own terms (ring1) or the game's (left_ring), a piece or 'empty'.
-function jobby.worn_by(changes, base)
-    return testy.worn_by(base or jobby.idle, changes)
-end
+-- What the game shows worn once the set is on and the changes are laid over it: a slot named in the set's own terms
+-- (ring1) or the game's (left_ring), a piece or 'empty'.
+jobby.worn_by = testy.worn_by
 
 -- The pieces of the idle sets, which every job can wear.
 local idle_items = {'Nyame Helm', 'Nyame Mail', 'Nyame Gauntlets', 'Nyame Flanchard', 'Nyame Sollerets',
@@ -94,12 +92,29 @@ function jobby.target_a_player(gs, fields)
     return pal
 end
 
--- The lines put in the chat since it was last read in which Sel or a job file turned an action down, each beginning
--- Abort.
-function jobby.refusals(gs)
+-- What the gs validate that User-Globals.lua runs five seconds after the file loads says of Jobby, who has every
+-- piece.
+local validate_report = {['GearSwap: Checking for items in gear sets that are not in your inventory.'] = true,
+    ['GearSwap: Final count = 0'] = true}
+
+-- The lines put in the chat since it was last read, but the report of that gs validate; only those the pattern finds,
+-- when one is given. Sel and the job files begin each line that turns an action down with Abort.
+function jobby.said(gs, pattern)
     local lines = {}
     for _, line in ipairs(gs:chat()) do
-        if line:find('^Abort') then
+        if not validate_report[line] and (not pattern or line:find(pattern)) then
+            lines[#lines + 1] = line
+        end
+    end
+    return lines
+end
+
+-- The lines typed since this was last asked that reached the game, but the /lockstyle on that User-Globals.lua types
+-- along with that gs validate.
+function jobby.typed(gs)
+    local lines = {}
+    for _, line in ipairs(gs:typed()) do
+        if line ~= '/lockstyle on' then
             lines[#lines + 1] = line
         end
     end
@@ -109,8 +124,10 @@ end
 -- Jobby has the Dual Wield trait from now on, as Sel finds out when it looks, with nothing sent since.
 function jobby.can_dual_wield(gs)
     gs.game:set_job_traits({'Dual Wield'})
-    gs.user.set_dual_wield()
-    gs.game:settle()
+    gs:run(function()
+        gs.user.set_dual_wield()
+        gs.game:settle()
+    end)
     gs:traffic()
 end
 

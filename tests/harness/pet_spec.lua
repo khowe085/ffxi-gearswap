@@ -1,4 +1,5 @@
 local harness = require('harness')
+local plain = require('plain')
 local testy = require('testy')
 
 -- Testy with GearSwap's equip_sets watched, so what GearSwap takes for an event shows: each call is {event, args}.
@@ -28,12 +29,7 @@ local function boot_summoner(options)
     return harness.boot(options)
 end
 
--- The hooks GearSwap called on the user file since the last ask.
-local function calls(gs)
-    local list = gs.user.calls
-    gs.user.calls = {}
-    return list
-end
+local calls = plain.calls
 
 describe('the stand-in game\'s pet', function()
     it('is none until given', function()

@@ -1,3 +1,4 @@
+local harness = require('harness')
 local jobby = require('jobby')
 
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
@@ -44,25 +45,12 @@ end
 
 -- The actions the tick sent in its first moments (it starts five seconds after the file loads).
 local function first_actions(gs)
-    gs:play(5.3)
+    gs:play(harness.sel_load_time + 0.3)
     return gs:actions()
 end
 
--- What was put in the chat since it was last read, but the report of the gs validate the user file runs five seconds
--- after it loads, as the tick starts, which finds nothing missing.
-local function tick_chat(gs)
-    local said = {}
-    for _, line in ipairs(gs:chat()) do
-        if line ~= 'GearSwap: Checking for items in gear sets that are not in your inventory.'
-            and line ~= 'GearSwap: Final count = 0' then
-            said[#said + 1] = line
-        end
-    end
-    return said
-end
-
 local function engaged_worn(gs, ...)
-    return jobby.worn_by(jobby.layer(sets_of(gs).engaged, ...))
+    return jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, ...))
 end
 
 describe('Valiance', function()
@@ -281,7 +269,7 @@ describe('the engaged set of a rune fencer', function()
     it('is sets.engaged.MP while the extra defense mode is MP', function()
         local gs = boot({engaged = true})
         gs:console('gs c set ExtraDefenseMode MP')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged.MP)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged.MP)), gs:worn())
     end)
 
     it('is sets.engaged again when the extra defense mode goes back to None', function()
@@ -302,8 +290,8 @@ describe('the engaged set of a rune fencer', function()
         local gs = boot({engaged = true})
         gs:console('gs c set ExtraDefenseMode MP')
         gs:console('gs c set DefenseMode Physical')
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).engaged.MP, sets_of(gs).defense.PDT, sets_of(gs).MP)),
-            gs:worn())
+        assert.same(jobby.worn_by(jobby.idle,
+            jobby.layer(sets_of(gs).engaged.MP, sets_of(gs).defense.PDT, sets_of(gs).MP)), gs:worn())
     end)
 end)
 
@@ -317,14 +305,14 @@ describe('the idle set of a rune fencer', function()
     it('wears sets.latent_refresh under half MP', function()
         local gs = boot()
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
     end)
 
     it('wears sets.latent_refresh_grip too with a great sword in the idle set and the weapons free', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Epeolatry'
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
             {main = 'Epeolatry'})), gs:worn())
     end)
 
@@ -332,12 +320,12 @@ describe('the idle set of a rune fencer', function()
         local gs = boot()
         gs:console('gs c set IdleMode DT')
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.layer(sets_of(gs).idle.DT)), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.DT)), gs:worn())
     end)
 
     it('wears no sets.latent_refresh above half MP', function()
         local gs = boot()
-        assert.same(jobby.worn_by({}), gs:worn())
+        assert.same(jobby.worn_by(jobby.idle), gs:worn())
     end)
 end)
 
@@ -362,9 +350,7 @@ end)
 
 describe('a weapon skill by a rune fencer at the TP cap', function()
     local function engaged(tp)
-        local gs = boot({tp = tp, engaged = true})
-        gs:traffic()
-        return gs
+        return boot({tp = tp, engaged = true})
     end
 
     it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
@@ -478,7 +464,7 @@ describe('the tick of a rune fencer', function()
             gs.game:start_ability_recast('Hasso', 30)
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
 
         it('takes none up with an SJ Restriction', function()
@@ -490,7 +476,7 @@ describe('the tick of a rune fencer', function()
             local gs = stance('Hasso', {buffs = {'amnesia'}})
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
     end)
 
@@ -579,7 +565,7 @@ describe('the tick of a rune fencer', function()
             gs.game.target_index = nil
             gs:chat()
             assert.same({}, first_actions(gs))
-            assert.same({}, tick_chat(gs))
+            assert.same({}, jobby.said(gs))
         end)
     end)
 end)

@@ -3,9 +3,7 @@ local plain = require('plain')
 local fast_cast = {head = "Bunzi's Hat", left_ring = 'Kishar Ring'}
 
 local function boot()
-    local gs = plain.boot()
-    gs:traffic()
-    return gs
+    return plain.boot()
 end
 
 describe('an equip request the server doesn\'t answer', function()

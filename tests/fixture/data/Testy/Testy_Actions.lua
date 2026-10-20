@@ -1,6 +1,6 @@
 -- A GearSwap user file of the plainest kind whose hooks do what the tests set in knobs: change the target, delay, cancel
--- or aim the action. Each hook notes in calls what GearSwap handed it. The precast hook wears a head piece for
--- magic and the midcast hook another.
+-- or aim the action. Each hook notes in calls what GearSwap handed it. The precast hook wears a head piece for any
+-- action, the midcast hook another, and the aftercast hook the idle set.
 
 calls = {}
 knobs = {}
