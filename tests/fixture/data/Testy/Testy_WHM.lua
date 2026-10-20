@@ -1,6 +1,6 @@
 -- A GearSwap user file of the plainest kind, with no framework under it, for the tests of GearSwap itself. Each
--- hook notes in calls what GearSwap handed it. Those of an action's precast, midcast and aftercast, of a status change
--- and of a command wear the set it calls for, where there is one; filtered_action, pretarget and buff_change wear
+-- hook notes in calls what GearSwap handed it. Those of an action's precast, midcast and aftercast and of a status
+-- change wear the set it calls for, where there is one; filtered_action, pretarget, buff_change and self_command wear
 -- nothing.
 
 calls = {}
@@ -77,7 +77,4 @@ end
 
 function self_command(command)
     note('self_command', nil, command)
-    if command == 'idle' then
-        equip(sets.idle)
-    end
 end

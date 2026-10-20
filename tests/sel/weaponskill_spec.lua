@@ -72,7 +72,7 @@ describe('Sel\'s weapon skill set', function()
         assert.same(worn_with("Bunzi's Hat", 'Lethargy Sayon +3'), gs:worn())
     end)
 
-    pending('as docs/frameworks/sel.md:38 has it, goes on to the weapon set\'s name '
-        .. '(sets.precast.WS[name][mode][state.Weapons]): get_weaponskill_set in libs/Sel-Include.lua stops at the '
-        .. 'weapon skill mode, so the doc and the code disagree until one is settled')
+    pending('as the "Weapon skill" row of docs/frameworks/sel.md\'s "How Sel picks a set" has it, goes on to the '
+        .. 'weapon set\'s name (sets.precast.WS[name][mode][state.Weapons]): get_weaponskill_set in '
+        .. 'libs/Sel-Include.lua stops at the weapon skill mode, so the doc and the code disagree until one is settled')
 end)

@@ -37,9 +37,16 @@ describe('Sel, for a spell Commy can\'t cast', function()
     end)
 
     it('sends none of them to the game', function()
-        local gs = commy.boot_thf()
-        assert.is_true(gs:type('/ma "Warp" <me>'))
-        assert.same({}, gs:traffic())
-        assert.same({}, gs.game.typed)
+        local cases = {
+            {'Invisible', {{name = 'Prism Powder', count = 12}}},
+            {'Sneak', {{name = 'Silent Oil', count = 12}}},
+            {'Invisible'}, {'Sneak'}, {'Warp'},
+        }
+        for _, case in ipairs(cases) do
+            local gs = commy.boot_thf({extra_items = case[2]})
+            local line = ('/ma "%s" <me>'):format(case[1])
+            assert.is_true(gs:type(line), line)
+            assert.same({{}, {}}, {gs:traffic(), gs:typed()}, line)
+        end
     end)
 end)

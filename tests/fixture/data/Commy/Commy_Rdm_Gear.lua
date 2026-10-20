@@ -1,5 +1,6 @@
 -- Commy's red mage gear file, loaded by the real data/RDM.lua, for the tests of Sel's commands, modes, status
--- display, Treasure Hunter, spell maps and buff handling. Each set wears a piece that tells it apart from the others.
+-- display, Treasure Hunter, spell maps and buff handling. No two sets are alike, so what is worn tells which set went
+-- on.
 
 function user_job_setup()
 	state.OffenseMode:options('Normal', 'Acc')
@@ -20,8 +21,8 @@ function init_gear_sets()
 	-- Sets passed over while a red mage with a white mage sub job can't dual wield: DualWeapons by Sel, by its name
 	-- alone, since its sub is a shield; Swords by User-Globals.lua, by the weapon in its sub. There is no
 	-- sets.weapons.Club.
-	sets.weapons.DualWeapons = {main = 'Naegling', sub = 'Ammurapi Shield'}
-	sets.weapons.Swords = {main = 'Crocea Mors', sub = 'Naegling'}
+	sets.weapons.DualWeapons = {main = 'Aern Sword', sub = 'Ammurapi Shield'}
+	sets.weapons.Swords = {main = 'Murgleis', sub = 'Crocea Mors'}
 
 	sets.precast.FC = {head = "Bunzi's Hat", ring1 = 'Kishar Ring'}
 	sets.precast.WS = {head = 'Kaykaus Mitra +1', body = 'Atrophy Tabard +3'}
@@ -56,8 +57,8 @@ function init_gear_sets()
 	sets.passive.Emp = {waist = "Orpheus's Sash"}
 
 	sets.defense.PDT = {head = 'Kaykaus Mitra +1', body = 'Malignance Tabard'}
-	sets.defense.MDT = {body = 'Lethargy Sayon +3'}
-	sets.defense.MEVA = {body = 'Malignance Tabard'}
+	sets.defense.MDT = {body = 'Volte Jupon'}
+	sets.defense.MEVA = {back = 'Null Shawl'}
 
 	sets.engaged = {head = "Bunzi's Hat", body = 'Lethargy Sayon +3', legs = 'Nyame Flanchard'}
 	sets.engaged.Acc = set_combine(sets.engaged, {body = 'Malignance Tabard'})

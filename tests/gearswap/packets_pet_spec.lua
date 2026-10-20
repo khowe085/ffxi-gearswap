@@ -69,6 +69,10 @@ describe('a pet', function()
         assert.same({{event = 'pet_change', name = 'Carbuncle', gain = false}}, plain.events(gs))
     end)
 
+    pending('coming and going while the user file is disabled is told as both, the coming first, after gs enable: '
+        .. 'the pet_change the going leaves to be told, in packet_parsing.lua, takes the place of the one the coming '
+        .. 'left, so the user file is told only that a pet it never heard of is gone')
+
     it('is in the pet table once GearSwap refreshes: its name, id, index, health and whether it is there', function()
         local gs = plain.boot()
         local pet = gs.game:place_pet({name = 'Ifrit', hpp = 80, mpp = 70})
@@ -150,6 +154,16 @@ describe('the pet\'s status in an NPC update (0x00E)', function()
         local gs, pet = boot_with_pet()
         update(gs, pet, 33)
         assert.same({{event = 'pet_status_change', new = 'Resting', old = 'Idle'}}, plain.events(gs))
+    end)
+
+    it('changing while the user file is disabled is told with the first packet after gs enable', function()
+        local gs, pet = boot_with_pet()
+        gs:console('gs disable')
+        update(gs, pet, 1)
+        gs:console('gs enable')
+        assert.same({}, plain.events(gs))
+        gs:next_packet()
+        assert.same({{event = 'pet_status_change', new = 'Engaged', old = 'Idle'}}, plain.events(gs))
     end)
 
     it('says nothing of a status that is none of those', function()

@@ -54,7 +54,8 @@ describe('the spell a hook is handed', function()
     end)
 
     pending('has the percentage of MP the player will have left, as mppaftercast, which is 0 to 100 as mpp is: it is the MP '
-        .. 'left over the maximum, a fraction, so a comparison with 51 is always true')
+        .. 'left over the maximum, a fraction, so a check such as spell.mppaftercast > 50, in '
+        .. 'beta_examples_and_information/Byrth_BLM.lua and Byrth_GEO.lua, is never true')
 end)
 
 describe('a command typed with another name for its prefix', function()
@@ -325,5 +326,6 @@ describe('a delayed cast that GearSwap is asked for by the game\'s console', fun
             gs:console('lua i gearswap precast_delayed_cast nonsense')
         end)
         assert.same({}, gs:traffic())
+        assert.same({{}, {}}, {gs:chat(), gs:printed()})
     end)
 end)

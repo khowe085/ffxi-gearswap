@@ -60,6 +60,7 @@ local rdm_items = {
     'Nyame Sollerets', 'Malignance Boots', 'Volte Boots', 'Loricate Torque +1', 'Sanctity Necklace',
     "Nicander's Necklace", 'Plat. Mog. Belt', 'Chaac Belt', "Orpheus's Sash", 'Etiolation Earring', 'Loquac. Earring',
     'Defending Ring', 'Stikini Ring +1', 'Kishar Ring', "Medada's Ring", "Sucellos's Cape",
+    'Murgleis', 'Aern Sword', 'Volte Jupon', 'Null Shawl',
 }
 
 -- Commy as a red mage with white mage as sub job, on the real data/RDM.lua with Commy_Rdm_Gear.lua, holding every

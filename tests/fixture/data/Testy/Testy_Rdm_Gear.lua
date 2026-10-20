@@ -1,6 +1,7 @@
--- A small Sel gear file for the tests of Sel's set selection, loaded by the real data/RDM.lua. Each set wears pieces
--- that tell it apart from the others, from the gear the tests give Testy. The sets of one kind (engaged, weapon skill)
--- each name the same slots, so whichever was on before, the one chosen shows whole.
+-- A small Sel gear file for the tests of Sel's set selection, loaded by the real data/RDM.lua. Sets a test tells apart
+-- by what is worn wear pieces, from the gear the tests give Testy, that the others don't; sets no test sets against
+-- each other may wear the same, as sets.defense.PDT and sets.precast.WS.Acc do. The sets of one kind (engaged, weapon
+-- skill) each name the same slots, so whichever was on before, the one chosen shows whole.
 
 function user_job_setup()
 	state.OffenseMode:options('Normal', 'Acc', 'Att')

@@ -76,7 +76,10 @@ describe('gs c smartws', function()
         gs = commy.boot_rdm()
     end)
 
-    -- The commands sent since the session began that name a weapon skill.
+    -- The commands sent since the session began that name a weapon skill. Sel sends the weapon skill as a console
+    -- command of its name and the target's id, which is no Windower command and which neither GearSwap nor Sel
+    -- handles: only an addon such as Shortcuts, which the stand-in doesn't have, makes an action of it. So these tests
+    -- pin the command, not a weapon skill sent.
     local function sent(name)
         local found = {}
         for _, command in ipairs(gs.game.commands) do
@@ -227,6 +230,8 @@ describe('gs c killstatue', function()
         gs.game.monster.status = 1
     end)
 
+    -- As with gs c smartws, the weapon skill goes out as a console command that only an addon such as Shortcuts
+    -- makes an action of.
     it('uses the job\'s statue weapon skill on a statue in reach in Bastok\'s Dynamis [D]', function()
         gs:change_zone(295)
         gs:console('gs c killstatue')

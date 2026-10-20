@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------------------------------------------
 -- A stand-in for the game and for the Windower API an addon sees: one character in a field zone, its bags and
 -- gear, a monster to target, the other mobs a test adds (members of the party and the alliance, other players,
--- NPCs), a pet, and the server's side of equipping and of moving items between bags.
+-- NPCs, other monsters), a pet, and the server's side of equipping and of moving items between bags.
 --
 -- Nothing happens on its own. What the addon sends (packets, commands, chat input) waits in a queue, as it would
 -- for the next frame, and settle() handles it: a packet goes through the outgoing chunk event, then, unless a handler
@@ -1013,13 +1013,13 @@ function Game:next_packet()
     return self:receive(0x0FF, '')
 end
 
--- A packet the client sends of its own: the outgoing chunk handlers see it as it goes, not as injected.
+-- A packet the client sends of its own: the outgoing chunk handlers see it as it goes, not as injected. Returns
+-- whether one of them blocked it.
 function Game:send_from_client(id, body)
     local size = 4 + #body
     local data = pad(packet_header(id, size, self:next_sequence()) .. body, 4 * math.ceil(size / 4))
     self.last_packets.outgoing[id] = {data, self.clock}
-    self:outgoing_chunk(id, data, false)
-    return data
+    return self:outgoing_chunk(id, data, false)
 end
 
 -- Writes bytes into a packet's body at a position counted, as GearSwap counts it, from the packet's first byte.
@@ -1546,8 +1546,8 @@ function Game:set_indi(fields)
 end
 
 -------------------------------------------------------------------------------------------------------------------
--- The mobs besides the player, the monster and the pet: other players, in the party or not, and NPCs. Each takes
--- the next index from 0x500 unless given one, and stands along x as far as its distance says.
+-- The mobs besides the player, the monster and the pet: other players, in the party or not, NPCs and other
+-- monsters. Each takes the next index from 0x500 unless given one, and stands along x as far as its distance says.
 -------------------------------------------------------------------------------------------------------------------
 
 local function add_other(game, defaults, fields)
@@ -1601,7 +1601,7 @@ function Game:add_mob(fields)
     end, fields)
 end
 
--- The mob at that index, a player or an NPC, is gone.
+-- The mob at that index, a player, an NPC or a monster, is gone.
 function Game:remove_mob(index)
     for i = #self.others, 1, -1 do
         if self.others[i].index == index then
