@@ -51,6 +51,19 @@ local function first_actions(gs)
     return gs:actions()
 end
 
+-- What was put in the chat since it was last read, but the report of the gs validate the user file runs five seconds
+-- after it loads, as the tick starts, which finds nothing missing.
+local function tick_chat(gs)
+    local said = {}
+    for _, line in ipairs(gs:chat()) do
+        if line ~= 'GearSwap: Checking for items in gear sets that are not in your inventory.'
+            and line ~= 'GearSwap: Final count = 0' then
+            said[#said + 1] = line
+        end
+    end
+    return said
+end
+
 describe('the set a blue spell takes from its list in blue_magic_maps', function()
     local spells_by_list = {
         {'PhysicalAcc', 'Heavy Strike', '<t>'},
@@ -209,6 +222,21 @@ describe('a spell that needs Unbridled Learning', function()
         assert.same({'Abort: Unbridled Learning not active.'}, gs:chat())
     end)
 
+    it('is cancelled, not held back, with a minute of its own recast left, with the word that Unbridled Learning is '
+        .. 'not active', function()
+        local gs = boot({'Cesspool'})
+        gs:console('gs c set AutoUnbridled true')
+        gs.game:start_spell_recast('Cesspool', 60)
+        gs:chat()
+        gs:type('/ma "Cesspool" <t>')
+        assert.same({}, gs:traffic())
+        assert.same({'Abort: Unbridled Learning not active.'}, gs:chat())
+    end)
+
+    pending('is cancelled, not held back, with 30 seconds of its own recast left: job_filter_precast in data/BLU.lua '
+        .. 'turns the recast to seconds and holds that against spell_latency, which is in sixtieths of a second, so it '
+        .. 'takes a spell with under 48 seconds left for ready and uses Unbridled Learning on it')
+
     it('is the only kind of blue spell the filter holds back', function()
         local gs = boot({'Foot Kick'})
         gs:console('gs c set AutoUnbridled true')
@@ -240,7 +268,8 @@ describe('a weapon skill when a club is in hand', function()
         local gs = boot({'Foot Kick'}, {tp = 1000, abilities = {'Requiescat'}})
         gs:type('/ws "Chant du Cygne" <t>')
         assert.same({}, gs:traffic())
-        assert.same({}, gs:typed())
+        assert.same({}, gs:commands())
+        assert.same({"Abort: You don't have access to [Chant du Cygne]."}, gs:chat())
     end)
 end)
 
@@ -256,8 +285,8 @@ describe('a weapon skill at the TP cap', function()
         return jobby.worn_by(jobby.layer(sets_of(gs).engaged, ...))
     end
 
-    it('trades the Moonshade Earring for sets.MaxTP at 3000 TP', function()
-        local gs = engaged({tp = 3000})
+    it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
+        local gs = engaged({tp = 2951})
         gs:type('/ws "Chant du Cygne" <t>')
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Chant du Cygne'], sets_of(gs).MaxTP), gs:worn())
     end)
@@ -268,8 +297,8 @@ describe('a weapon skill at the TP cap', function()
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Savage Blade'], sets_of(gs).MaxTP), gs:worn())
     end)
 
-    it('keeps the Moonshade Earring below the cap', function()
-        local gs = engaged({tp = 2000})
+    it('keeps the Moonshade Earring at 2950 TP', function()
+        local gs = engaged({tp = 2950})
         gs:type('/ws "Chant du Cygne" <t>')
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Chant du Cygne']), gs:worn())
     end)
@@ -528,7 +557,9 @@ describe('the tick of a blue mage', function()
             local gs = scholar()
             gs:console('gs c toggle AutoArts')
             gs.game:start_ability_recast('Light Arts', 60)
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
     end)
 
@@ -566,7 +597,9 @@ describe('the tick of a blue mage', function()
         it('skips a spell it hasn\'t the MP for', function()
             local gs = buffer({'Erratic Flutter', 'Battery Charge'})
             gs.game.player.vitals.mp = 10
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
 
         it('casts Mighty Guard in combat with Unbridled Learning up', function()
@@ -586,7 +619,9 @@ describe('the tick of a blue mage', function()
             local gs = buffer({'Mighty Guard'}, {sub_job = 'RDM', buffs = {'Haste', 'Refresh', 'Attack Boost'}})
             gs.game:start_ability_recast('Unbridled Learning', 100)
             gs.user.in_combat = true
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
     end)
 

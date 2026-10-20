@@ -50,6 +50,19 @@ local function first_actions(gs)
     return gs:actions()
 end
 
+-- What was put in the chat since it was last read, but the report of the gs validate the user file runs five seconds
+-- after it loads, as the tick starts, which finds nothing missing.
+local function tick_chat(gs)
+    local said = {}
+    for _, line in ipairs(gs:chat()) do
+        if line ~= 'GearSwap: Checking for items in gear sets that are not in your inventory.'
+            and line ~= 'GearSwap: Final count = 0' then
+            said[#said + 1] = line
+        end
+    end
+    return said
+end
+
 -- What is worn once the spell's precast and midcast sets are on: the fast cast set, then the sets named over it.
 local function cast(gs, line)
     gs:type(line)
@@ -971,7 +984,9 @@ describe('the tick of a scholar', function()
         it('begins no art while Dark Arts is on recast', function()
             local gs = arts()
             gs.game:start_ability_recast('Dark Arts', 30)
+            gs:chat()
             assert.same({}, first_actions(gs))
+            assert.same({}, tick_chat(gs))
         end)
     end)
 
