@@ -88,6 +88,20 @@ describe('the stand-in game\'s pet', function()
         assert.equal('Engaged', gs.env.pet.status)
     end)
 
+    it('takes the new status on its mob only once the addon has seen the packet that carries it', function()
+        local gs = boot()
+        gs:give_pet({name = 'Luopan'})
+        local seen
+        gs.game:register('incoming chunk', function(id)
+            if id == 0x00E then
+                seen = gs.game.windower.ffxi.get_mob_by_target('pet').status
+            end
+        end)
+        gs:set_pet_status(1)
+        assert.equal(0, seen)
+        assert.equal(1, gs.game.windower.ffxi.get_mob_by_target('pet').status)
+    end)
+
     it('has the TP the packet says', function()
         local gs = boot()
         gs:give_pet({name = 'Automaton'})
