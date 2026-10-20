@@ -130,9 +130,14 @@ describe('the pet\'s status in an NPC update (0x00E)', function()
         return gs, pet
     end
 
+    -- The client gives the pet's mob the status in the update once the addon has seen it, and only when the mask
+    -- says the update carries one.
     local function update(gs, pet, status, mask)
-        gs.game.pet.status = status
-        gs:send(0x00E, {['NPC'] = pet.id, ['Index'] = pet.index, ['Mask'] = mask or 4, ['Status'] = status})
+        mask = mask or 4
+        gs:send(0x00E, {['NPC'] = pet.id, ['Index'] = pet.index, ['Mask'] = mask, ['Status'] = status})
+        if math.floor(mask / 4) % 2 == 1 then
+            gs.game.pet.status = status
+        end
         gs:next_packet()
     end
 

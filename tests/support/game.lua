@@ -1476,13 +1476,15 @@ function Game:take_pet()
     self:settle()
 end
 
--- The pet's status changes (0 idle, 1 engaged), and the addon is told in the packet for that and the one after.
+-- The pet's status changes (0 idle, 1 engaged), and the addon is told in the packet for that and the one after. The
+-- client gives the pet's mob the new status once the addon has seen the packet that carries it.
 function Game:set_pet_status(status)
     local index = self.pet.index
-    self.pet.status = status
     self:receive(0x00E, bytes_body(0x30, {
         [9] = index % 256, [10] = math.floor(index / 256), [11] = 4, [32] = status,
     }))
+    self:settle()
+    self.pet.status = status
     self:send_pet_info()
     self:settle()
 end

@@ -125,9 +125,8 @@ local function but_the_first(list, read, lines, text_of)
     return kept
 end
 
--- An entry of the chat log's text, as Session:chat gives it.
 local function chat_text(entry)
-    return (tostring(entry.text):gsub('^\31.', ''):gsub('\30\1$', ''))
+    return harness.chat_line(entry).text
 end
 
 local function as_is(line)

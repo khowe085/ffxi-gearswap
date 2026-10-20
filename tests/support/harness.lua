@@ -599,14 +599,19 @@ local function unread(session, name, list)
     return lines
 end
 
--- The lines put in the chat log since it was last read, each as {color =, text =}: a line wrapped in the codes
--- GearSwap's add_to_chat colors it with gives that color and the text inside them.
+-- An entry of the chat log as {color =, text =}: a line wrapped in the codes GearSwap's add_to_chat colors it with
+-- gives that color and the text inside them.
+function harness.chat_line(entry)
+    local text = tostring(entry.text)
+    local code = text:match('^\31(.)')
+    return {color = code and code:byte() or entry.color, text = (text:gsub('^\31.', ''):gsub('\30\1$', ''))}
+end
+
+-- The lines put in the chat log since it was last read, each as harness.chat_line gives it.
 function Session:chat_lines()
     local lines = {}
     for i, entry in ipairs(unread(self, 'chat', self.game.chat_log)) do
-        local text = tostring(entry.text)
-        local code = text:match('^\31(.)')
-        lines[i] = {color = code and code:byte() or entry.color, text = (text:gsub('^\31.', ''):gsub('\30\1$', ''))}
+        lines[i] = harness.chat_line(entry)
     end
     return lines
 end
