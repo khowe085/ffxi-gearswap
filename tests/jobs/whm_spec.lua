@@ -516,8 +516,10 @@ describe('WHM\'s Auto Arts', function()
     it('uses no Afflatus Solace while it is on recast', function()
         local gs = arts({buffs = buffed}, true, true)
         gs.game:start_ability_recast('Afflatus Solace', 60)
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:actions())
+        assert.same({}, gs:chat())
     end)
 
     it('uses Afflatus Solace in a fight with Auto Arts on and Auto Buff Mode off', function()
@@ -669,6 +671,13 @@ describe('WHM\'s elemental commands', function()
         assert.same({'Holy II'}, (nuke('Light', 'nuke')))
     end)
 
+    pending('casts nothing more once Holy II is done in the Light mode: handle_job_elemental in data/WHM.lua returns '
+        .. 'nothing once it has cast, so Sel\'s handle_elemental goes on to its own light nukes, which start at Holy, '
+        .. 'and its MiniQueue casts Holy once Holy II is done')
+
+    pending('nukes with Holy II with just its cost in MP, 150: handle_job_elemental in data/WHM.lua takes a light '
+        .. 'nuke only with more MP than it costs (actual_cost < player.mp), so it goes down to Holy')
+
     it('goes down to Holy when Holy II is on recast', function()
         assert.same({'Holy'}, (nuke('Light', 'nuke', {recasts = {['Holy II'] = 10}})))
     end)
@@ -692,6 +701,18 @@ describe('WHM\'s elemental commands', function()
     it('goes down a tier when that one is on recast', function()
         assert.same({'Fire'}, (nuke('Fire', 'nuke', {recasts = {['Fire II'] = 10}})))
     end)
+
+    -- Sel's handle_elemental goes on to its own nuke here too, but picks the same tier, and Sel drops a spell of the
+    -- name it is already casting.
+    it('casts nothing more once the nuke is done in another mode', function()
+        local _, gs = nuke('Fire', 'nuke')
+        gs:finish_action()
+        gs:play(10)
+        assert.same({}, gs:actions())
+    end)
+
+    pending('nukes with Fire II with just its cost in MP, 26: handle_job_elemental in data/WHM.lua takes a tier only '
+        .. 'with more MP than it costs (actual_cost < player.mp), so it goes down to Fire')
 
     it('smallnuke uses Fire II in another mode', function()
         assert.same({'Fire II'}, (nuke('Fire', 'smallnuke')))

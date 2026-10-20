@@ -48,7 +48,8 @@ describe('THF\'s weapon skill filter', function()
         assert.same({'Savage Blade'}, gs:actions())
     end)
 
-    it('sends nothing in place of Rudra\'s Storm without a sword\'s weapon skills', function()
+    it('sends nothing in place of Rudra\'s Storm when Jobby hasn\'t Fast Blade, which the job file takes for a '
+        .. 'sword', function()
         local gs = boot({tp = 1000, abilities = {'Savage Blade'}})
         gs:type('/ws "Rudra\'s Storm" <t>')
         assert.same({}, gs:traffic())
@@ -240,6 +241,7 @@ describe('THF\'s ranged attack', function()
         local gs = boot()
         tag_the_monster(gs)
         gs:type('/ra <t>')
+        assert.same({{action = 'category 16', target = 'Apex Toad'}, {equip = th}}, gs:traffic())
         assert.same(jobby.worn_by(th, jobby.full_idle), gs:worn())
     end)
 

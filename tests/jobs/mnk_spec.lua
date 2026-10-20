@@ -307,6 +307,9 @@ describe('MNK\'s weapon skill under Auto Boost', function()
         gs:type('/ws "Victory Smite" <t>')
         assert.same({'Victory Smite'}, gs:actions())
     end)
+
+    pending('is held for Boost, not Warcry, while the sub job\'s abilities are restricted: job_precast in data/MNK.lua '
+        .. 'checks only that the sub job is Warrior, so it holds the weapon skill for Warcry under SJ Restriction')
 end)
 
 describe('MNK\'s Auto Buff Mode in a fight', function()
