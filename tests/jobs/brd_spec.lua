@@ -3,7 +3,8 @@ local jobby = require('jobby')
 local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Sapphire Platemail',
     'Jadeite Cuirie', 'Jadeite Chausses', 'Diamond Haramaki', 'Sapphire Gauntlets', 'Jadeite Gloves',
     'Diamond Kote', 'Sapphire Trousers', 'Diamond Hiza.', 'Diamond Sune-Ate', "Orunmila's Torque", 'Prosilio Belt',
-    "Tyrant's Ring", 'Aptitude Mantle', 'Carnwenhan', 'Daurdabla', 'Miracle Cheer', 'Marsyas', 'Ruby Robe', 'Rage Platemail'}
+    "Tyrant's Ring", 'Aptitude Mantle', 'Carnwenhan', 'Daurdabla', 'Miracle Cheer', 'Marsyas', 'Ruby Robe',
+    'Rage Platemail', 'Volte Brais', 'Volte Bracers'}
 
 -- What the idle set of Jobby's bard gear file wears besides every gear file's.
 local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
@@ -39,9 +40,10 @@ describe('BRD\'s songs on the party', function()
         gs = boot()
     end)
 
-    it('take sets.precast.FC, over which the midcast set goes: the song class, then the spell map', function()
+    it('take sets.precast.FC, over which the song class\'s midcast set goes', function()
         assert.is_true(gs:type('/ma "Valor Minuet V" <me>'))
-        assert.same(worn({head = "Bendis's Hairpin", main = 'Carnwenhan', body = 'Sapphire Platemail'}), gs:worn())
+        assert.same(worn({head = "Bendis's Hairpin", main = 'Carnwenhan', body = 'Sapphire Platemail',
+            legs = 'Volte Brais'}), gs:worn())
     end)
 
     it('take the song class set, then the spell map\'s over it', function()
@@ -89,7 +91,7 @@ describe('BRD\'s songs on a monster', function()
     it('take the spell map\'s set when the song has none of its own', function()
         gs:type('/ma "Horde Lullaby" <t>')
         assert.same(worn({head = "Bendis's Hairpin", ring1 = "Tyrant's Ring", main = 'Carnwenhan', body = 'Diamond Haramaki',
-            legs = 'Sapphire Trousers'}), gs:worn())
+            hands = 'Volte Bracers', legs = 'Sapphire Trousers'}), gs:worn())
     end)
 
     it('take the casting mode\'s set of each in that casting mode', function()
@@ -128,14 +130,14 @@ describe('BRD\'s extra songs', function()
         gs:console('gs c set ExtraSongsMode FullLength')
         gs:type('/ma "Valor Minuet V" <me>')
         assert.same(worn({head = "Bendis's Hairpin", main = 'Carnwenhan', body = 'Sapphire Platemail',
-            range = 'Daurdabla'}), gs:worn())
+            legs = 'Volte Brais', range = 'Daurdabla'}), gs:worn())
     end)
 
     it('are Cheer songs with Miracle Cheer in the range slot over the song class set', function()
         gs:console('gs c set ExtraSongsMode Cheer')
         gs:type('/ma "Valor Minuet V" <me>')
         assert.same(worn({head = "Bendis's Hairpin", main = 'Carnwenhan', body = 'Sapphire Platemail',
-            range = 'Miracle Cheer'}), gs:worn())
+            legs = 'Volte Brais', range = 'Miracle Cheer'}), gs:worn())
     end)
 
     it('go back to None after the song', function()
@@ -230,7 +232,7 @@ describe('BRD\'s Pianissimo and Soul Voice', function()
 end)
 
 describe('BRD\'s Nightingale', function()
-    it('puts the song\'s own midcast set on with the precast set, before the song goes out', function()
+    it('puts the midcast set of the song\'s spell map on with the precast set, before the song goes out', function()
         local gs = boot()
         gs:gain_buff('Nightingale')
         gs:traffic()
@@ -242,7 +244,7 @@ describe('BRD\'s Nightingale', function()
         }, gs:traffic())
     end)
 
-    it('leaves the midcast set, the song\'s own with the rest, until after the song goes out without it', function()
+    it('leaves the midcast set, the spell map\'s with the rest, until after the song goes out without it', function()
         local gs = boot()
         gs:type('/ma "Mage\'s Ballad" <me>')
         assert.same({

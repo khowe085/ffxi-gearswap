@@ -94,6 +94,18 @@ function jobby.target_a_player(gs, fields)
     return pal
 end
 
+-- The lines put in the chat since it was last read in which Sel or a job file turned an action down, each beginning
+-- Abort.
+function jobby.refusals(gs)
+    local lines = {}
+    for _, line in ipairs(gs:chat()) do
+        if line:find('^Abort') then
+            lines[#lines + 1] = line
+        end
+    end
+    return lines
+end
+
 -- Jobby has the Dual Wield trait from now on, as Sel finds out when it looks, with nothing sent since.
 function jobby.can_dual_wield(gs)
     gs.game:set_job_traits({'Dual Wield'})

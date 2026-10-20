@@ -3,7 +3,7 @@ local jobby = require('jobby')
 local gear = {'Pitchfork +1', 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Vishap Armet +3',
     'Sapphire Platemail', 'Jadeite Cuirie', 'Diamond Haramaki', 'Sapphire Leggings', 'Sapphire Gauntlets',
     'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers', 'Jadeite Chausses', 'Diamond Hiza.', "Orunmila's Torque",
-    'Moonshade Earring', 'Ishvara Earring', 'Brutal Earring', 'Aptitude Mantle'}
+    'Moonshade Earring', 'Ishvara Earring', 'Brutal Earring', 'Aptitude Mantle', 'Volte Cap'}
 
 -- What the idle set of Jobby's dragoon gear file wears besides every gear file's.
 local own_idle = {main = 'Pitchfork +1', back = 'Mecisto. Mantle'}
@@ -227,13 +227,13 @@ describe('DRG\'s casting with a wyvern out and its HP low', function()
     it('wears no trigger at 25% HP or less', function()
         gs.game.player.vitals.hpp = 25
         gs:type('/ma "Cure III" <me>')
-        assert.same(worn(), gs:worn())
+        assert.same(worn({head = 'Volte Cap'}), gs:worn())
     end)
 
     it('wears no trigger at 45% HP, the Breath_HPP of a sub job of WHM with the trigger head unread', function()
         gs.game.player.vitals.hpp = 45
         gs:type('/ma "Cure III" <me>')
-        assert.same(worn(), gs:worn())
+        assert.same(worn({head = 'Volte Cap'}), gs:worn())
     end)
 
     it('wears no trigger and goes back to the idle set with no wyvern out', function()
@@ -451,10 +451,11 @@ describe('DRG\'s Hasso, kept by the tick with a sub job of SAM', function()
         assert.same({}, gs:actions())
     end)
 
-    it('waits while Hasso is on recast', function()
+    it('waits while Hasso is on recast, without trying it', function()
         gs.game:start_ability_recast('Hasso', 30)
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 end)
 
