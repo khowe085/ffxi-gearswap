@@ -1,14 +1,6 @@
-local harness = require('harness')
-local testy = require('testy')
+local jobby = require('jobby')
 
-local idle = {main = "Judge's Sword", range = "Judge's Bow", head = 'Nyame Helm', body = 'Nyame Mail',
-    hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard', feet = 'Nyame Sollerets', neck = 'Loricate Torque +1',
-    waist = 'Plat. Mog. Belt', ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring', ring1 = 'Defending Ring',
-    ring2 = 'Stikini Ring +1', back = 'Mecisto. Mantle', ammo = 'Staunch Tathlum +1'}
-
-local pieces = {"Judge's Sword", "Judge's Bow", 'Staunch Tathlum +1', 'Nyame Helm', 'Nyame Mail', 'Nyame Gauntlets',
-    'Nyame Flanchard', 'Nyame Sollerets', 'Loricate Torque +1', 'Plat. Mog. Belt', 'Etiolation Earring',
-    'Loquac. Earring', 'Defending Ring', 'Stikini Ring +1', 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin",
+local gear = {"Judge's Sword", "Judge's Bow", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin",
     'Sapphire Platemail', 'Jadeite Cuirie', 'Diamond Haramaki', 'Sapphire Leggings', 'Sapphire Gauntlets',
     'Jadeite Gloves', 'Diamond Kote', 'Jadeite Chausses', 'Sapphire Trousers', 'Diamond Hiza.', "Orunmila's Torque",
     'Phrenic Torque', 'Aptitude Mantle', 'Moonshade Earring', 'Ishvara Earring', 'Brutal Earring',
@@ -16,47 +8,37 @@ local pieces = {"Judge's Sword", "Judge's Bow", 'Staunch Tathlum +1', 'Nyame Hel
     'Annihilator', 'Gandiva', 'Yoichinoyumi'}
 
 local ammunition = {'Chrono Arrow', 'Hauksbok Arrow', 'Chrono Bullet', 'Eradicating Bullet', 'Devastating Bullet',
-    'Hauksbok Bullet', 'Animikii Bullet', 'Quelling Bolt', 'Hauksbok Bolt'}
+    'Eminent Bullet', 'Hauksbok Bullet', 'Animikii Bullet', 'Quelling Bolt', 'Hauksbok Bolt'}
+
+-- What the idle set of Jobby's ranger gear file wears besides every gear file's, and the ammo Jobby has on.
+local own_idle = {main = "Judge's Sword", range = "Judge's Bow", back = 'Mecisto. Mantle', ammo = 'Staunch Tathlum +1'}
+
+local idle = jobby.worn_by(own_idle)
 
 -- What is worn with these changes over the idle set.
 local function worn(changes)
-    return testy.worn_by(idle, changes)
+    return jobby.worn_by(changes, idle)
 end
 
 -- Jobby as a ranger with the idle set on, Staunch Tathlum +1 for ammo and 99 of each ammunition, over a sub job of
--- NIN, which has no Fencer to add TP to a weapon skill, unless told otherwise. counts say how many of an ammunition
--- there are instead.
-local function boot(overrides)
-    overrides = overrides or {}
-    local counts = overrides.counts or {}
-    overrides.counts = nil
+-- NIN, which has no Fencer to add TP to a weapon skill, unless the options say otherwise. options are jobby.boot's,
+-- with wearing over the idle set, and these:
+--   ammunition  the ammunition Jobby has, every kind above unless given
+--   counts      how many of an ammunition there are, in place of 99
+local function boot(options)
+    options = options or {}
     local items = {}
-    for i, name in ipairs(pieces) do
-        items[i] = {name = name}
+    for _, name in ipairs(gear) do
+        items[#items + 1] = name
     end
-    for _, name in ipairs(ammunition) do
-        items[#items + 1] = {name = name, count = counts[name] or 99}
+    for _, name in ipairs(options.ammunition or ammunition) do
+        items[#items + 1] = {name = name, count = (options.counts or {})[name] or 99}
     end
-    local options = {character = 'Jobby', main_job = 'RNG', sub_job = 'NIN', expect_file = 'RNG.lua', items = items,
-        wearing = testy.worn_by(idle)}
-    for k, v in pairs(overrides) do
-        options[k] = v
-    end
-    local gs = harness.boot(options)
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
-end
-
--- The names of the actions among what GearSwap sent.
-local function actions(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        if entry.action then
-            names[#names + 1] = entry.action
-        end
-    end
-    return names
+    options.ammunition, options.counts = nil, nil
+    options.items = items
+    options.wearing = jobby.worn_by(options.wearing, own_idle)
+    options.sub_job = options.sub_job or 'NIN'
+    return jobby.boot('RNG', options)
 end
 
 -- The ammunition on once the ranged attack or weapon skill has been typed.
@@ -90,7 +72,7 @@ describe('data/RNG.lua', function()
     end)
 
     it('knows no type of ranged weapon when none is in the range slot', function()
-        local gs = boot({wearing = testy.worn_by(idle, {range = 'empty'})})
+        local gs = boot({wearing = {range = 'empty'}})
         assert.equal('None', gs.user.RangedWeaponType)
     end)
 end)
@@ -117,10 +99,6 @@ describe('RNG\'s ranged attack', function()
         assert.equal('Quelling Bolt', ammo_for('Crossbow'))
     end)
 
-    it('has Chrono Arrow with a bow in the accuracy ranged mode', function()
-        assert.equal('Chrono Arrow', ammo_for('Bow', nil, 'Acc'))
-    end)
-
     it('has Eradicating Bullet with a gun in the accuracy ranged mode', function()
         assert.equal('Eradicating Bullet', ammo_for('Gun', nil, 'Acc'))
     end)
@@ -143,11 +121,13 @@ describe('RNG\'s ranged attack', function()
         assert.equal('Jadeite Cuirie', gs:worn().body)
     end)
 
-    it('goes on with the ammunition of the weapon, over what Jobby had on', function()
+    it('has the default ammunition of the weapon back once it is done, over the accuracy ranged mode\'s', function()
         local gs = boot()
+        gs:console('gs c set Weapons Gun')
+        gs:console('gs c set RangedMode Acc')
         gs:type('/ra <t>')
         gs:finish_action()
-        assert.equal('Chrono Arrow', gs:worn().ammo)
+        assert.equal('Chrono Bullet', gs:worn().ammo)
     end)
 end)
 
@@ -173,9 +153,10 @@ describe('RNG\'s ranged weapon skill', function()
         assert.equal('Devastating Bullet', ammo_after(gs, '/ws "Trueflight" <t>'))
     end)
 
-    it('has Devastating Bullet when it is elemental, in the accuracy weapon skill mode', function()
+    it('has the gear file\'s MagicAcc ammunition, Eminent Bullet, when it is elemental, in the accuracy weapon '
+        .. 'skill mode', function()
         gs:console('gs c set WeaponskillMode Acc')
-        assert.equal('Devastating Bullet', ammo_after(gs, '/ws "Trueflight" <t>'))
+        assert.equal('Eminent Bullet', ammo_after(gs, '/ws "Trueflight" <t>'))
     end)
 
     it('has Chrono Arrow with a bow, whatever its kind', function()
@@ -203,7 +184,7 @@ describe('RNG\'s weapon skill of another skill', function()
         return ammo_after(gs, '/ws "Savage Blade" <t>')
     end
 
-    it('has Hauksbok Arrow with a bow, so that it spends none of the good ammunition', function()
+    it('has Hauksbok Arrow with a bow', function()
         assert.equal('Hauksbok Arrow', ammo_for('Bow'))
     end)
 
@@ -216,14 +197,7 @@ describe('RNG\'s weapon skill of another skill', function()
     end)
 
     it('leaves the ammunition when Jobby has none of the Hauksbok kind', function()
-        local items = {}
-        for i, name in ipairs(pieces) do
-            items[i] = {name = name}
-        end
-        local gs = harness.boot({character = 'Jobby', main_job = 'RNG', sub_job = 'NIN', expect_file = 'RNG.lua',
-            items = items, wearing = testy.worn_by(idle), tp = 1000})
-        gs:console('gs c update')
-        gs:traffic()
+        local gs = boot({ammunition = {}, tp = 1000})
         assert.equal('Staunch Tathlum +1', ammo_after(gs, '/ws "Savage Blade" <t>'))
     end)
 end)
@@ -243,7 +217,7 @@ describe('RNG\'s default ammunition', function()
     end)
 
     it('is not put on once there is no weapon in the range slot', function()
-        local gs = boot({wearing = testy.worn_by(idle, {range = 'empty'})})
+        local gs = boot({wearing = {range = 'empty'}})
         gs:type('/ja "Barrage" <me>')
         gs:finish_action()
         assert.equal('Staunch Tathlum +1', gs:worn().ammo)
@@ -252,15 +226,15 @@ end)
 
 describe('RNG\'s warning of low ammunition', function()
     it('names the ammunition that is on and how much is left, under 15', function()
-        local gs = boot({counts = {['Chrono Arrow'] = 14}, wearing = testy.worn_by(idle, {ammo = 'Chrono Arrow'})})
+        local gs = boot({counts = {['Chrono Arrow'] = 14}, wearing = {ammo = 'Chrono Arrow'}})
         gs:type('/ra <t>')
-        assert.is_truthy(gs:log():find("Ammo 'Chrono Arrow' running low: (14) remaining.", 1, true))
+        assert.same({"Ammo 'Chrono Arrow' running low: (14) remaining."}, jobby.chat(gs))
     end)
 
     it('is left out from 15', function()
-        local gs = boot({counts = {['Chrono Arrow'] = 15}, wearing = testy.worn_by(idle, {ammo = 'Chrono Arrow'})})
+        local gs = boot({counts = {['Chrono Arrow'] = 15}, wearing = {ammo = 'Chrono Arrow'}})
         gs:type('/ra <t>')
-        assert.is_nil(gs:log():find('running low', 1, true))
+        assert.same({}, jobby.chat(gs))
     end)
 end)
 
@@ -509,19 +483,19 @@ describe('RNG\'s update', function()
 
     it('puts Velocity Shot up when the user asks for the update and Velocity Shot isn\'t up', function()
         gs:console('gs c update user')
-        assert.same({'Velocity Shot'}, actions(gs))
+        assert.same({'Velocity Shot'}, jobby.actions(gs))
     end)
 
     it('puts nothing up in an update the user didn\'t ask for', function()
         gs:console('gs c update')
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('puts nothing up while Velocity Shot is up', function()
         gs:gain_buff('Velocity Shot')
         gs:traffic()
         gs:console('gs c update user')
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 

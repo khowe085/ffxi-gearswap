@@ -1,71 +1,49 @@
-local harness = require('harness')
-local testy = require('testy')
+local jobby = require('jobby')
 
-local idle = {main = "Judge's Sword", head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets',
-    legs = 'Nyame Flanchard', feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt',
-    ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring', ring1 = 'Defending Ring', ring2 = 'Stikini Ring +1',
-    back = 'Mecisto. Mantle'}
-
-local pieces = {"Judge's Sword", 'Aern Sword', 'Trainee Sword', "Charmer's Merlin", 'Nyame Helm', 'Nyame Mail',
-    'Nyame Gauntlets', 'Nyame Flanchard', 'Nyame Sollerets', 'Loricate Torque +1', 'Plat. Mog. Belt',
-    'Etiolation Earring', 'Loquac. Earring', 'Defending Ring', 'Stikini Ring +1', "Tyrant's Ring", 'Moepapa Ring',
+local gear = {"Judge's Sword", 'Aern Sword', 'Trainee Sword', "Charmer's Merlin", "Tyrant's Ring", 'Moepapa Ring',
     'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Sapphire Platemail', 'Jadeite Cuirie',
     'Diamond Haramaki', 'Sapphire Gauntlets', 'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers',
-    'Jadeite Chausses', 'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Sune-Ate', "Orunmila's Torque",
-    'Phrenic Torque', 'Aptitude Mantle', 'Prosilio Belt', 'Moonshade Earring', 'Ishvara Earring', 'Brutal Earring',
-    'Lugra Earring +1', "Hecate's Earring", 'Pixie Earring'}
+    'Jadeite Chausses', 'Diamond Hiza.', 'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Sune-Ate',
+    "Orunmila's Torque", 'Phrenic Torque', 'Aptitude Mantle', 'Prosilio Belt', 'Moonshade Earring', 'Ishvara Earring',
+    'Brutal Earring', 'Lugra Earring +1', "Hecate's Earring", 'Pixie Earring'}
+
+-- What the idle set of Jobby's beastmaster gear file wears besides every gear file's.
+local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
+
+local idle = jobby.worn_by(own_idle)
 
 -- What is worn with these changes over the idle set.
 local function worn(changes)
-    return testy.worn_by(idle, changes)
+    return jobby.worn_by(changes, idle)
 end
 
--- Jobby as a beastmaster with the idle set on, over a sub job of WAR, with the merits and the pet food in its bags that
--- overrides name, and the pet food it has: Theta, Zeta and Eta unless told otherwise.
-local function boot(overrides)
-    overrides = overrides or {}
-    local extra = overrides.extra_items or {{name = 'Pet Food Theta', count = 12}, {name = 'Pet Food Zeta', count = 12},
-        {name = 'Pet Food Eta', count = 12}}
-    overrides.extra_items = nil
+-- The boot options of Jobby as a beastmaster with the idle set on, over a sub job of WAR with three merits in Sic's
+-- recast, unless the options say otherwise. options are jobby.boot's, and food: the pet food and jugs in the bags, a
+-- dozen of the food of each reward mode (Theta, Zeta and Eta) unless given.
+local function boot_options(options)
+    options = options or {}
     local items = {}
-    for i, name in ipairs(pieces) do
-        items[i] = {name = name}
+    for _, name in ipairs(gear) do
+        items[#items + 1] = name
     end
-    for _, item in ipairs(extra) do
+    for _, item in ipairs(options.food or {{name = 'Pet Food Theta', count = 12}, {name = 'Pet Food Zeta', count = 12},
+        {name = 'Pet Food Eta', count = 12}}) do
         items[#items + 1] = item
     end
-    local options = {character = 'Jobby', main_job = 'BST', sub_job = 'WAR', expect_file = 'BST.lua', items = items,
-        wearing = testy.worn_by(idle), merits = {sic_recast = 3}}
-    for k, v in pairs(overrides) do
-        options[k] = v
-    end
-    local gs = harness.boot(options)
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
+    options.food = nil
+    options.items = items
+    options.wearing = own_idle
+    options.sub_job = options.sub_job or 'WAR'
+    options.merits = options.merits or {sic_recast = 3}
+    return options
 end
 
--- The names of the actions among what GearSwap sent.
-local function actions(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        if entry.action then
-            names[#names + 1] = entry.action
-        end
-    end
-    return names
+local function boot(options)
+    return jobby.boot('BST', boot_options(options))
 end
 
--- Jobby has the Dual Wield trait from now on, as Sel finds out when it looks.
-local function can_dual_wield(gs)
-    gs.game:set_job_traits({'Dual Wield'})
-    gs.user.set_dual_wield()
-    gs.game:settle()
-    gs:traffic()
-end
-
-local function said(gs, text)
-    return gs:log():find(text, 1, true) ~= nil
+local function boot_ticking(options)
+    return jobby.boot_ticking('BST', boot_options(options))
 end
 
 describe('data/BST.lua', function()
@@ -92,16 +70,14 @@ describe('BST\'s ready charges', function()
     local gs
     before_each(function()
         gs = boot()
-        gs.game.commands = {}
     end)
 
+    -- The count of ready charges Jobby is told he has.
     local function charges()
         gs:console('gs c showcharge')
-        local count
-        for entry in gs:log():gmatch('~~~Current Ready Charges Available: %[(%d+)%]~~~') do
-            count = tonumber(entry)
-        end
-        return count
+        local lines = jobby.chat(gs)
+        assert.equal(1, #lines, table.concat(lines, '\n'))
+        return tonumber(lines[1]:match('^~~~Current Ready Charges Available: %[(%d+)%]~~~$'))
     end
 
     it('are all three when Sic is ready', function()
@@ -111,6 +87,8 @@ describe('BST\'s ready charges', function()
     it('come back one a charge timer, 19 seconds here', function()
         gs.game:start_ability_recast('Sic', 19)
         assert.equal(2, charges())
+        gs.game:start_ability_recast('Sic', 20)
+        assert.equal(1, charges())
     end)
 
     it('are none when the recast is all three timers', function()
@@ -120,20 +98,20 @@ describe('BST\'s ready charges', function()
 
     it('take 5 seconds less a timer with Charmer\'s Merlin in the ready recast set', function()
         gs.user.sets.midcast.Pet.ReadyRecast.main = "Charmer's Merlin"
-        gs.game:start_ability_recast('Sic', 14)
-        assert.equal(2, charges())
+        gs.game:start_ability_recast('Sic', 15)
+        assert.equal(1, charges())
     end)
 
     it('take 5 seconds less a timer with Desultor Tassets in the ready recast set', function()
         gs.user.sets.midcast.Pet.ReadyRecast.legs = 'Desultor Tassets'
-        gs.game:start_ability_recast('Sic', 14)
-        assert.equal(2, charges())
+        gs.game:start_ability_recast('Sic', 15)
+        assert.equal(1, charges())
     end)
 
     it('take 5 seconds less a timer with Gleti\'s Breeches in the ready recast set', function()
         gs.user.sets.midcast.Pet.ReadyRecast.legs = "Gleti's Breeches"
-        gs.game:start_ability_recast('Sic', 14)
-        assert.equal(2, charges())
+        gs.game:start_ability_recast('Sic', 15)
+        assert.equal(1, charges())
     end)
 
     it('take no less than 10 seconds a timer', function()
@@ -141,6 +119,8 @@ describe('BST\'s ready charges', function()
         gs.user.sets.midcast.Pet.ReadyRecast.legs = 'Desultor Tassets'
         gs.game:start_ability_recast('Sic', 10)
         assert.equal(2, charges())
+        gs.game:start_ability_recast('Sic', 11)
+        assert.equal(1, charges())
     end)
 end)
 
@@ -166,7 +146,7 @@ describe('BST\'s Reward', function()
     end)
 
     it('has the dual wield set too, for a character who can dual wield', function()
-        can_dual_wield(gs)
+        jobby.can_dual_wield(gs)
         gs:type('/ja "Reward" <me>')
         assert.equal('Aern Sword', gs:traffic()[1].equip.sub)
     end)
@@ -189,49 +169,46 @@ describe('BST\'s Spur', function()
     end)
 
     it('has the axes for it for a character who can dual wield', function()
-        can_dual_wield(gs)
+        jobby.can_dual_wield(gs)
         gs:type('/pet "Spur" <me>')
         assert.same({back = 'Aptitude Mantle', main = "Charmer's Merlin", sub = 'Aern Sword'}, gs:traffic()[1].equip)
     end)
 end)
 
 describe('BST\'s Bestial Loyalty and Call Beast', function()
-    local function head_hands_after(gs, line)
+    local function precast(gs, line)
         gs:type(line)
-        local equip = gs:traffic()[1].equip
-        return {head = equip.head, hands = equip.hands, legs = equip.legs}
+        return gs:traffic()[1].equip
     end
 
-    it('wear the set of the jug pet chosen, with Bestial Loyalty\'s own set under it', function()
-        local gs = boot()
-        assert.same({head = "Bendis's Hairpin", hands = 'Diamond Kote', legs = 'Jadeite Chausses'},
-            head_hands_after(gs, '/ja "Bestial Loyalty" <me>'))
+    it('wear the set of the jug pet chosen, with Bestial Loyalty\'s own set over it', function()
+        assert.same({head = "Bendis's Hairpin", hands = 'Diamond Kote', legs = 'Diamond Hiza.',
+            feet = 'Jadeite Jambeaux'}, precast(boot(), '/ja "Bestial Loyalty" <me>'))
     end)
 
-    it('wear the same set for Call Beast', function()
-        local gs = boot()
-        assert.same({head = "Bendis's Hairpin", hands = 'Diamond Kote', legs = 'Jadeite Chausses'},
-            head_hands_after(gs, '/ja "Call Beast" <me>'))
+    it('wear the same sets for Call Beast', function()
+        assert.same({head = "Bendis's Hairpin", hands = 'Diamond Kote', legs = 'Diamond Hiza.',
+            feet = 'Jadeite Jambeaux'}, precast(boot(), '/ja "Call Beast" <me>'))
     end)
 
     it('wear the set of the better pet when the jug of it is in the bags', function()
-        local gs = boot({extra_items = {{name = 'Bubbly Broth', count = 12}}})
-        assert.same({head = "Bendis's Hairpin", hands = 'Jadeite Gloves'},
-            head_hands_after(gs, '/ja "Bestial Loyalty" <me>'))
+        local gs = boot({food = {{name = 'Bubbly Broth', count = 12}}})
+        assert.same({head = "Bendis's Hairpin", hands = 'Jadeite Gloves', legs = 'Diamond Hiza.'},
+            precast(gs, '/ja "Bestial Loyalty" <me>'))
     end)
 
     it('wear the set of the better pet for the other jug too', function()
-        local gs = boot({extra_items = {{name = 'Vis. Broth', count = 12}}})
+        local gs = boot({food = {{name = 'Vis. Broth', count = 12}}})
         gs:console('gs c set JugMode DroopyDortwin')
-        assert.same({head = "Bendis's Hairpin", hands = 'Sapphire Gauntlets'},
-            head_hands_after(gs, '/ja "Bestial Loyalty" <me>'))
+        assert.same({head = "Bendis's Hairpin", hands = 'Sapphire Gauntlets', legs = 'Diamond Hiza.'},
+            precast(gs, '/ja "Bestial Loyalty" <me>'))
     end)
 
     it('wear the set of the jug pet itself without the jug', function()
-        local gs = boot({extra_items = {}})
+        local gs = boot({food = {}})
         gs:console('gs c set JugMode DroopyDortwin')
-        assert.same({head = "Bendis's Hairpin", hands = 'Diamond Kote'},
-            head_hands_after(gs, '/ja "Bestial Loyalty" <me>'))
+        assert.same({head = "Bendis's Hairpin", hands = 'Diamond Kote', legs = 'Diamond Hiza.'},
+            precast(gs, '/ja "Bestial Loyalty" <me>'))
     end)
 end)
 
@@ -240,13 +217,13 @@ describe('BST\'s Bestial Loyalty while it is on recast', function()
         local gs = boot()
         gs.game:start_ability_recast('Bestial Loyalty', 60)
         assert.is_true(gs:type('/ja "Bestial Loyalty" <me>'))
-        assert.same({'Call Beast'}, actions(gs))
+        assert.same({'Call Beast'}, jobby.actions(gs))
     end)
 
     it('goes out when it is ready', function()
         local gs = boot()
         gs:type('/ja "Bestial Loyalty" <me>')
-        assert.same({'Bestial Loyalty'}, actions(gs))
+        assert.same({'Bestial Loyalty'}, jobby.actions(gs))
     end)
 end)
 
@@ -261,7 +238,7 @@ describe('BST\'s weapon skill', function()
         gs.game.monster.distance = yalms * yalms
         gs.env.refresh_globals()
         gs:type(line or '/ws "Savage Blade" <t>')
-        return actions(gs)
+        return jobby.actions(gs)
     end
 
     it('goes out within 6 yalms of the target', function()
@@ -270,7 +247,7 @@ describe('BST\'s weapon skill', function()
 
     it('is cancelled farther away, and Jobby is told', function()
         assert.same({}, aimed_from(6.5))
-        assert.is_true(said(gs, 'Savage Blade Canceled: [Out of Range]'))
+        assert.same({'Savage Blade Canceled: [Out of Range]'}, jobby.chat(gs))
     end)
 
     it('goes out for Mistral Axe from any distance', function()
@@ -307,7 +284,7 @@ describe('BST\'s ready moves, as Jobby commands them', function()
     end)
 
     it('have the ready recast set of the dual wielder\'s kind for a character who can dual wield', function()
-        can_dual_wield(gs)
+        jobby.can_dual_wield(gs)
         gs:type('/pet "Foot Kick" <me>')
         assert.same({sub = "Charmer's Merlin"}, gs:traffic()[1].equip)
     end)
@@ -330,16 +307,6 @@ describe('BST\'s ready moves, once the command is done', function()
     it('have the pet WS set and the TP bonus set while the pet has little TP', function()
         assert.same(with_pet({body = 'Sapphire Platemail', feet = 'Sapphire Leggings'}),
             move('/pet "Foot Kick" <me>'))
-    end)
-
-    it('have the TP bonus set while the pet has under 2400 TP', function()
-        gs:set_pet_tp(2399)
-        assert.equal('Sapphire Leggings', move('/pet "Foot Kick" <me>').feet)
-    end)
-
-    it('have no TP bonus set while the pet has 2400 TP or more', function()
-        gs:set_pet_tp(2400)
-        assert.equal('Nyame Sollerets', move('/pet "Foot Kick" <me>').feet)
     end)
 
     it('have the set of the offense mode in that mode', function()
@@ -394,10 +361,34 @@ describe('BST\'s ready moves, once the command is done', function()
         gs:finish_action()
         gs:pet_readies('Foot Kick')
         gs:pet_finishes('Foot Kick')
-        assert.is_nil(gs:log():find('Ready Charges', 1, true))
+        assert.same({}, jobby.chat(gs))
         gs:advance(0.5)
-        assert.is_true(said(gs, '~~~Current Ready Charges Available: [3]~~~'))
+        assert.same({'~~~Current Ready Charges Available: [3]~~~'}, jobby.chat(gs))
     end)
+end)
+
+describe('BST\'s TP bonus set for a ready move', function()
+    -- The feet worn once the command for Choke Breath is done, Daring Roland, a Thief, having this much TP.
+    local function feet_after(tp)
+        local gs = boot()
+        gs:give_pet({name = 'DaringRoland'})
+        gs:set_pet_tp(tp)
+        gs:traffic()
+        gs:type('/pet "Choke Breath" <me>')
+        gs:finish_action()
+        return gs:worn().feet
+    end
+
+    it('is on while a pet of a job other than Warrior has under 2400 TP', function()
+        assert.equal('Sapphire Leggings', feet_after(2399))
+    end)
+
+    it('is off from 2400 TP', function()
+        assert.equal('Nyame Sollerets', feet_after(2400))
+    end)
+
+    pending('is off from 1900 TP for a Warrior pet, such as Droopy Dortwin, as job_post_aftercast in data/BST.lua '
+        .. 'means: it reads PetJob, which nothing sets, so a pet of every job has the set on up to 2400 TP')
 end)
 
 describe('BST\'s Unleash', function()
@@ -407,6 +398,7 @@ describe('BST\'s Unleash', function()
         gs:give_pet({name = 'DroopyDortwin'})
         gs:gain_buff('Unleash')
         gs:traffic()
+        jobby.chat(gs)
     end)
 
     local function move(line)
@@ -417,7 +409,7 @@ describe('BST\'s Unleash', function()
 
     it('locks the ready set in place with the first move, and says so', function()
         move('/pet "Foot Kick" <me>')
-        assert.is_true(said(gs, 'Unleash is on, locking your current Ready set.'))
+        assert.same({'Unleash is on, locking your current Ready set.'}, jobby.chat(gs))
         gs:pet_readies('Foot Kick')
         gs:pet_finishes('Foot Kick')
         assert.equal('Sapphire Platemail', gs:worn().body)
@@ -433,100 +425,111 @@ describe('BST\'s Unleash', function()
         gs:pet_readies('Foot Kick')
         gs:pet_finishes('Foot Kick')
         gs:advance(3)
+        jobby.chat(gs)
         gs:lose_buff('Unleash')
-        assert.is_true(said(gs, 'Unleash has worn, enabling all slots.'))
+        assert.same({'Unleash has worn, enabling all slots.'}, jobby.chat(gs))
         assert.equal('Nyame Mail', gs:worn().body)
     end)
 
-    it('locks nothing when told not to', function()
+    it('locks nothing when told not to, which is said', function()
         gs:console('gs c unleashlock')
-        assert.is_true(said(gs, 'Unleash no longer locks gear.'))
+        assert.same({'Unleash no longer locks gear.'}, jobby.chat(gs))
         move('/pet "Foot Kick" <me>')
         gs:pet_readies('Foot Kick')
         gs:pet_finishes('Foot Kick')
         assert.equal('Nyame Mail', gs:worn().body)
     end)
 
-    it('locks again when told to', function()
+    it('locks again when told to, which is said', function()
         gs:console('gs c unleashlock')
         gs:console('gs c unleashlock')
-        assert.is_true(said(gs, 'Unleash now locks gear.'))
+        assert.same({'Unleash no longer locks gear.', 'Unleash now locks gear.'}, jobby.chat(gs))
+        move('/pet "Foot Kick" <me>')
+        gs:pet_readies('Foot Kick')
+        gs:pet_finishes('Foot Kick')
+        assert.equal('Sapphire Platemail', gs:worn().body)
     end)
 end)
 
 describe('BST\'s ready command', function()
     local function booted(pet_name, status)
-        local gs = boot()
+        local gs = boot_ticking()
         gs:give_pet({name = pet_name, status = status or 1})
         gs:traffic()
+        jobby.chat(gs)
         return gs
     end
 
-    for kind, move in pairs({aoe = 'Whirl Claws', buff = 'Wild Carrot', debuff = 'Dust Cloud', physical = 'Foot Kick',
-        magical = 'Dust Cloud', default = 'Foot Kick'}) do
-        it('is ' .. move .. ' of the ' .. kind .. ' kind for Droopy Dortwin', function()
-            local gs = booted('DroopyDortwin')
-            gs:console('gs c ready ' .. kind)
-            assert.same({move}, actions(gs))
+    -- The actions that go out on the command and on the tick after it.
+    local function sent(gs, command)
+        gs:console(command)
+        gs:play(6)
+        return jobby.actions(gs)
+    end
+
+    for _, case in ipairs({{'aoe', 'Whirl Claws'}, {'buff', 'Wild Carrot'}, {'debuff', 'Dust Cloud'},
+        {'magical', 'Dust Cloud'}}) do
+        local kind, move = case[1], case[2]
+        it('is ' .. move .. ' of the ' .. kind .. ' kind for Droopy Dortwin, and his default move on the next tick',
+            function()
+                assert.same({move, 'Foot Kick'}, sent(booted('DroopyDortwin'), 'gs c ready ' .. kind))
+            end)
+    end
+
+    for _, kind in ipairs({'physical', 'default'}) do
+        it('is Foot Kick of the ' .. kind .. ' kind for Droopy Dortwin, his default move, once', function()
+            assert.same({'Foot Kick'}, sent(booted('DroopyDortwin'), 'gs c ready ' .. kind))
         end)
     end
 
-    it('is the default move for the pet with no kind named', function()
-        local gs = booted('DroopyDortwin')
-        gs:console('gs c ready')
-        assert.same({'Foot Kick'}, actions(gs))
+    it('is the default move for the pet with no kind named, once', function()
+        assert.same({'Foot Kick'}, sent(booted('DroopyDortwin'), 'gs c ready'))
     end)
 
     it('is Sic for a pet with no default move', function()
-        local gs = booted('FlowerpotMerle')
-        gs:console('gs c ready')
-        assert.same({'Sic'}, actions(gs))
+        assert.same({'Sic'}, sent(booted('FlowerpotMerle'), 'gs c ready'))
     end)
 
     it('is Sic for the default kind of a pet with no default move', function()
-        local gs = booted('FlowerpotMerle')
-        gs:console('gs c ready default')
-        assert.same({'Sic'}, actions(gs))
+        assert.same({'Sic'}, sent(booted('FlowerpotMerle'), 'gs c ready default'))
     end)
 
-    it('is turned down for a kind it doesn\'t know, which is said', function()
+    it('is turned down for a kind it doesn\'t know, which is said, and the default move goes out instead', function()
         local gs = booted('DroopyDortwin')
-        gs:console('gs c ready hug')
-        assert.is_true(said(gs, 'Abort: Unknown ready type: hug'))
+        assert.same({'Foot Kick'}, sent(gs, 'gs c ready hug'))
+        assert.same({'Abort: Unknown ready type: hug'}, jobby.chat(gs))
     end)
 
-    pending('is turned down for a kind it doesn\'t know and nothing else is sent: job_self_command in data/BST.lua '
-        .. 'doesn\'t mark ready as handled, so Sel calls handle_ready again, with the kind taken off, and it sends the '
-        .. 'default move')
+    it('is turned down for a kind the pet has no move of, which is said, and its default move goes out instead',
+        function()
+            local gs = booted('ScissorlegXerin')
+            assert.same({'Sensilla Blades'}, sent(gs, 'gs c ready buff'))
+            assert.same({'Abort: No buff ready move for ScissorlegXerin.'}, jobby.chat(gs))
+        end)
 
-    it('is turned down for a kind the pet has no move of', function()
-        local gs = booted('ScissorlegXerin')
-        gs:console('gs c ready buff')
-        assert.is_true(said(gs, 'Abort: No buff ready move for ScissorlegXerin.'))
-        assert.same({}, actions(gs))
-    end)
-
-    it('is turned down with no charges', function()
+    it('is turned down with no charges, which is said twice', function()
         local gs = booted('DroopyDortwin')
         gs.game:start_ability_recast('Sic', 57)
-        gs:console('gs c ready')
-        assert.is_true(said(gs, 'Abort: No pet charges!'))
-        assert.same({}, actions(gs))
+        assert.same({}, sent(gs, 'gs c ready'))
+        assert.same({'Abort: No pet charges!', 'Abort: No pet charges!'}, jobby.chat(gs))
     end)
 
-    it('is turned down in town', function()
+    it('is turned down in town, which is said twice', function()
         local gs = booted('DroopyDortwin')
         gs.user.in_town = true
-        gs:console('gs c ready')
-        assert.is_true(said(gs, 'Abort:You cannot use ready in town.'))
-        assert.same({}, actions(gs))
+        assert.same({}, sent(gs, 'gs c ready'))
+        assert.same({'Abort:You cannot use ready in town.', 'Abort:You cannot use ready in town.'}, jobby.chat(gs))
     end)
 
-    it('has an idle pet fight first, when Jobby has a monster targeted', function()
-        local gs = booted('DroopyDortwin', 0)
-        gs:console('gs c ready')
-        assert.same({'Fight'}, actions(gs))
-    end)
+    it('has an idle pet fight when Jobby has a monster targeted, and the default move go out on the next tick',
+        function()
+            assert.same({'Fight', 'Foot Kick'}, sent(booted('DroopyDortwin', 0), 'gs c ready'))
+        end)
+
+    pending('sends the move of the kind named alone, nothing for a kind it doesn\'t know or one the pet has no move '
+        .. 'of, and only Fight for an idle pet, and says once why it is turned down: job_self_command in data/BST.lua '
+        .. 'doesn\'t mark ready as handled, so Sel calls handle_ready again with the kind taken off, which sends the '
+        .. 'default move, or says again why not')
 end)
 
 describe('BST\'s pet fighting as Jobby engages', function()
@@ -539,14 +542,14 @@ describe('BST\'s pet fighting as Jobby engages', function()
         gs:give_pet({name = 'DroopyDortwin'})
         gs:traffic()
         gs:engage()
-        assert.same({'Fight'}, actions(gs))
+        assert.same({'Fight'}, jobby.actions(gs))
     end)
 
     it('is left alone when it is engaged already', function()
         gs:give_pet({name = 'DroopyDortwin', status = 1})
         gs:traffic()
         gs:engage()
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is left alone with AutoFightMode off', function()
@@ -554,7 +557,7 @@ describe('BST\'s pet fighting as Jobby engages', function()
         gs:console('gs c toggle AutoFightMode')
         gs:traffic()
         gs:engage()
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is left alone when the target is 20 yalms away or more', function()
@@ -563,12 +566,12 @@ describe('BST\'s pet fighting as Jobby engages', function()
         gs.env.refresh_globals()
         gs:traffic()
         gs:engage()
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is not there to tell when there is none', function()
         gs:engage()
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -610,13 +613,13 @@ describe('BST\'s idle set with a pet out', function()
     end)
 
     it('has the dual wield pet set over it for a character who can dual wield', function()
-        can_dual_wield(gs)
+        jobby.can_dual_wield(gs)
         gs:give_pet({name = 'DroopyDortwin'})
         assert.equal('Aern Sword', gs:worn().sub)
     end)
 
     it('has the dual wield engaged pet set over it while the pet is engaged, for a character who can dual wield', function()
-        can_dual_wield(gs)
+        jobby.can_dual_wield(gs)
         gs:give_pet({name = 'DroopyDortwin'})
         gs:set_pet_status(1)
         assert.equal('Trainee Sword', gs:worn().sub)
@@ -639,13 +642,13 @@ describe('BST\'s jug pet', function()
         local gs = boot()
         gs:console('gs c set JugMode DroopyDortwin')
         gs:advance(0.01)
-        assert.is_true(said(gs, 'DroopyDortwin: Rabbit, Beast, Warrior'))
+        assert.same({'Jug Mode is now DroopyDortwin.', 'DroopyDortwin: Rabbit, Beast, Warrior'}, jobby.chat(gs))
     end)
 
     it('is shown on the command that asks for it', function()
         local gs = boot()
         gs:console('gs c DisplayPetInfo')
-        assert.is_true(said(gs, 'ScissorlegXerin: Chapuli, Vermin, Warrior'))
+        assert.same({'ScissorlegXerin: Chapuli, Vermin, Warrior'}, jobby.chat(gs))
     end)
 end)
 
@@ -659,54 +662,60 @@ describe('BST\'s Reward, kept by the tick', function()
 
     it('goes out for a pet under 34% HP', function()
         gs:play(5.5)
-        assert.same({'Reward'}, actions(gs))
+        assert.same({'Reward'}, jobby.actions(gs))
     end)
 
     it('waits while the pet has 34% HP', function()
         gs.game.pet.hpp = 34
         gs.env.refresh_globals()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('waits while Reward is on recast', function()
         gs.game:start_ability_recast('Reward', 30)
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('waits with AutoRewardMode off', function()
         gs:console('gs c toggle AutoRewardMode')
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('waits under amnesia', function()
         gs:gain_buff('amnesia')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('waits under impairment', function()
         gs:gain_buff('impairment')
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
-    it('waits without the pet food of the reward mode', function()
-        gs = boot({extra_items = {{name = 'Pet Food Zeta', count = 12}}})
+    -- With only Pet Food Zeta in the bags, so that the food looked for is the reward mode's.
+    local function with_zeta_only()
+        gs = boot({food = {{name = 'Pet Food Zeta', count = 12}}})
         gs:give_pet({name = 'DroopyDortwin', hpp = 33})
         gs:traffic()
+    end
+
+    it('waits without the pet food of the reward mode', function()
+        with_zeta_only()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('goes out for the food of another reward mode', function()
+        with_zeta_only()
         gs:console('gs c set RewardMode Zeta')
         gs:play(5.5)
-        assert.same({'Reward'}, actions(gs))
+        assert.same({'Reward'}, jobby.actions(gs))
     end)
 end)
 
@@ -720,39 +729,39 @@ describe('BST\'s pet, called by the tick under AutoCallPet', function()
 
     it('is called with Bestial Loyalty first', function()
         gs:play(5.5)
-        assert.same({'Bestial Loyalty'}, actions(gs))
+        assert.same({'Bestial Loyalty'}, jobby.actions(gs))
     end)
 
     it('is called with Call Beast when Bestial Loyalty is on recast', function()
         gs.game:start_ability_recast('Bestial Loyalty', 60)
         gs:play(5.5)
-        assert.same({'Call Beast'}, actions(gs))
+        assert.same({'Call Beast'}, jobby.actions(gs))
     end)
 
     it('is not called when both are on recast', function()
         gs.game:start_ability_recast('Bestial Loyalty', 60)
         gs.game:start_ability_recast('Call Beast', 60)
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is not called in town', function()
         gs.user.in_town = true
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is not called when there is a pet', function()
         gs:give_pet({name = 'DroopyDortwin'})
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('is not called with AutoCallPet off', function()
         gs:console('gs c toggle AutoCallPet')
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 end)
 
@@ -767,7 +776,7 @@ describe('BST\'s ready moves, kept by the tick under AutoReadyMode', function()
         gs:give_pet({name = 'DroopyDortwin', status = 1})
         gs:traffic()
         gs:play(5.5)
-        assert.same({'Foot Kick'}, actions(gs))
+        assert.same({'Foot Kick'}, jobby.actions(gs))
     end)
 
     it('are none for an engaged pet with no charge', function()
@@ -775,19 +784,19 @@ describe('BST\'s ready moves, kept by the tick under AutoReadyMode', function()
         gs.game:start_ability_recast('Sic', 57)
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('are Fight for an idle pet with a monster targeted', function()
         gs:give_pet({name = 'DroopyDortwin'})
         gs:traffic()
         gs:play(5.5)
-        assert.same({'Fight'}, actions(gs))
+        assert.same({'Fight'}, jobby.actions(gs))
     end)
 
     it('are none with no pet', function()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('are none with AutoReadyMode off', function()
@@ -795,7 +804,7 @@ describe('BST\'s ready moves, kept by the tick under AutoReadyMode', function()
         gs:give_pet({name = 'DroopyDortwin', status = 1})
         gs:traffic()
         gs:play(5.5)
-        assert.same({}, actions(gs))
+        assert.same({}, jobby.actions(gs))
     end)
 
     it('are given up on a change of zone', function()
@@ -818,8 +827,8 @@ describe('BST\'s weapon skill sets', function()
         gs = boot()
     end)
 
-    -- A level 99 beastmaster with a sword and no shield or second weapon is fencing, which adds 400 TP to the 250 of
-    -- Moonshade Earring.
+    -- A level 99 beastmaster with a sword and no shield or second weapon is fencing, which adds the 400 TP of its
+    -- third tier to the 250 of Moonshade Earring; Sel counts none of the job point gifts (see the pending below).
     it('keep Moonshade Earring at 3200 TP with its bonus and Fencer\'s', function()
         local set = weaponskill(gs, 'Savage Blade', 2550)
         assert.same({'Moonshade Earring', 'Etiolation Earring'}, {set.left_ear, set.right_ear})
@@ -829,6 +838,10 @@ describe('BST\'s weapon skill sets', function()
         local set = weaponskill(gs, 'Savage Blade', 2551)
         assert.same({'Ishvara Earring', 'Etiolation Earring'}, {set.left_ear, set.right_ear})
     end)
+
+    pending('give way to sets.MaxTP from 2321 TP, as Fencer\'s job point gifts add 230 TP more at the 2100 job '
+        .. 'points spent: get_fencer_gifts in libs/Sel-Utility.lua walks the gift tiers with ipairs, and they are '
+        .. 'keyed by the job points spent, so it finds none')
 
     it('give way to sets.AccMaxTP above that in an accuracy mode', function()
         gs:console('gs c set OffenseMode Acc')
@@ -867,7 +880,7 @@ describe('BST\'s display of its state', function()
     it('names the modes, the reward mode and the correlation mode', function()
         local gs = boot()
         gs:console('gs c update user')
-        assert.is_true(said(gs, 'Melee: Normal, WS: Match, Reward: Theta, Correlation: Neutral'))
+        assert.same({'Melee: Normal, WS: Match, Reward: Theta, Correlation: Neutral'}, jobby.chat(gs))
     end)
 
     pending('is shown by a gear file that defines no state.ExtraMeleeMode, such as data/Mytha/Mytha_Bst_Gear.lua: '

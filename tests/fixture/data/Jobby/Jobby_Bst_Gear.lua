@@ -1,6 +1,5 @@
 -- A small Sel gear file for the tests of data/BST.lua. Each set wears pieces that tell it apart from the others, from
--- the gear the tests give Jobby, and names the slots of its own so that whichever set was on before, the one chosen
--- shows whole.
+-- the gear the tests give Jobby, so that what is worn shows which sets were laid over which.
 
 function user_job_setup()
 	state.OffenseMode:options('Normal', 'Acc')
@@ -36,11 +35,12 @@ function init_gear_sets()
 	sets.precast.JA.Spur = {back = 'Aptitude Mantle'}
 	sets.SpurAxe = {main = "Charmer's Merlin"}
 	sets.SpurAxesDW = {main = "Charmer's Merlin", sub = 'Aern Sword'}
-	sets.precast.JA['Bestial Loyalty'] = {head = "Bendis's Hairpin"}
+	sets.precast.JA['Bestial Loyalty'] = {head = "Bendis's Hairpin", legs = 'Diamond Hiza.'}
 	sets.precast.JA['Bestial Loyalty'].PonderingPeter = {hands = 'Sapphire Gauntlets'}
 	sets.precast.JA['Bestial Loyalty'].BouncingBertha = {hands = 'Jadeite Gloves'}
 	sets.precast.JA['Bestial Loyalty'].DroopyDortwin = {hands = 'Diamond Kote'}
-	sets.precast.JA['Bestial Loyalty'].ScissorlegXerin = {hands = 'Diamond Kote', legs = 'Jadeite Chausses'}
+	sets.precast.JA['Bestial Loyalty'].ScissorlegXerin = {hands = 'Diamond Kote', legs = 'Jadeite Chausses',
+		feet = 'Jadeite Jambeaux'}
 	sets.precast.JA['Call Beast'] = sets.precast.JA['Bestial Loyalty']
 
 	sets.precast.WS = {head = "Theia's Hairpin", neck = "Orunmila's Torque"}

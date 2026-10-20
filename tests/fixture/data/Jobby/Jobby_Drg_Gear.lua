@@ -1,6 +1,5 @@
 -- A small Sel gear file for the tests of data/DRG.lua. Each set wears pieces that tell it apart from the others, from
--- the gear the tests give Jobby, and names the slots of its own so that whichever set was on before, the one chosen
--- shows whole.
+-- the gear the tests give Jobby, so that what is worn shows which sets were laid over which.
 
 function user_job_setup()
 	state.OffenseMode:options('Normal', 'Acc')
@@ -34,7 +33,7 @@ function init_gear_sets()
 	sets.MaxTP = {ear1 = 'Ishvara Earring'}
 	sets.AccMaxTP = {ear1 = 'Brutal Earring'}
 
-	sets.midcast.HB_Trigger = {head = "Theia's Hairpin"}
+	sets.midcast.HB_Trigger = {head = 'Vishap Armet +3'}
 	sets.HealingBreath = {neck = "Orunmila's Torque"}
 	sets.SmitingBreath = {back = 'Aptitude Mantle'}
 end
