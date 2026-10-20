@@ -290,34 +290,54 @@ describe('PLD\'s defense set', function()
         .. 'Physical defense mode still wears sets.defense.PDT[\'Kheshig Blade\']')
 end)
 
--- Sel's update_combat_form picks the DW combat form from the weapons in hand, whatever the sub job.
+-- data/PLD.lua's job_update sets a combat form from the sub job and the sub slot, then Sel's update_combat_form sets
+-- its own, and self_command equips once more after both, so Sel's is the one worn: DW for a weapon in each hand, and
+-- with Weapons None for any character who can dual wield.
 describe('PLD\'s engaged set by what is in the sub slot', function()
-    local function hands_engaged(sub_job, sub)
-        local gs = boot({sub_job = sub_job, wearing = {main = 'Naegling', sub = sub}})
+    -- Jobby with that sub job, and the Dual Wield trait it gives a Dancer or a Ninja, engaged with that weapon set.
+    local function engaged(sub_job, weapons)
+        local gs = boot({sub_job = sub_job})
+        if sub_job == 'DNC' or sub_job == 'NIN' then
+            jobby.can_dual_wield(gs)
+        end
+        gs:console('gs c set Weapons ' .. weapons)
         gs:engage()
-        return gs:worn().hands
+        return gs
     end
 
     it('is sets.engaged.DW with a weapon in the sub slot and a Dancer sub job', function()
-        assert.equal('Volte Bracers', hands_engaged('DNC', 'Kheshig Blade'))
+        assert.equal('Volte Bracers', engaged('DNC', 'Swords'):worn().hands)
     end)
 
     it('is sets.engaged.DW with a weapon in the sub slot and a Ninja sub job', function()
-        assert.equal('Volte Bracers', hands_engaged('NIN', 'Kheshig Blade'))
+        assert.equal('Volte Bracers', engaged('NIN', 'Swords'):worn().hands)
     end)
 
-    it('is sets.engaged.DW with a weapon in the sub slot and a White Mage sub job too', function()
-        assert.equal('Volte Bracers', hands_engaged('WHM', 'Kheshig Blade'))
+    it('is sets.engaged with a White Mage sub job, for which a weapon set with a weapon in the sub slot is passed '
+        .. 'over', function()
+        local worn = engaged('WHM', 'Swords'):worn()
+        assert.same({'Naegling', 'Aegis'}, {worn.main, worn.sub})
+        assert.equal('Nyame Gauntlets', worn.hands)
     end)
 
     it('is sets.engaged with a shield in the sub slot and a Dancer sub job', function()
-        assert.equal('Nyame Gauntlets', hands_engaged('DNC', 'Aegis'))
+        assert.equal('Nyame Gauntlets', engaged('DNC', 'Shield'):worn().hands)
     end)
 
-    pending('is picked by data/PLD.lua from the sub job and the sub slot: update_defense_mode sets the DW combat form '
-        .. 'for a Ninja or Dancer sub job with a weapon in the sub slot, but Sel\'s update_combat_form runs after '
-        .. 'job_update and again on engaging and sets the combat form from the weapons alone, so those lines never '
-        .. 'change what is worn')
+    it('stays sets.engaged at an update with a two-handed weapon and a Dancer sub job, though data/PLD.lua sets DW '
+        .. 'for the empty sub slot', function()
+        local gs = engaged('DNC', 'Ragnarok')
+        gs:traffic()
+        gs:console('gs c update')
+        assert.same({}, gs:traffic())
+        assert.equal('Nyame Gauntlets', gs:worn().hands)
+    end)
+
+    pending('is sets.engaged with a shield in the sub slot, Weapons None and a Dancer sub job: Sel\'s '
+        .. 'update_combat_form sets the DW combat form with Weapons None for any character who can dual wield, '
+        .. 'whatever is in hand. update_defense_mode in data/PLD.lua resets it for a shield, but in job_update, '
+        .. 'before handle_update calls update_combat_form, and self_command equips once more after, so only Sel\'s '
+        .. 'combat form is ever worn')
 end)
 
 describe('PLD\'s rune element', function()
@@ -340,11 +360,18 @@ end)
 
 describe('PLD\'s stance', function()
     it('is set to None on an update without Samurai as the sub job', function()
-        assert.equal('None', boot({sub_job = 'WHM'}).user.state.Stance.value)
+        local gs = boot({sub_job = 'WHM'})
+        gs:console('gs c set Stance Seigan')
+        assert.equal('Seigan', gs.user.state.Stance.value)
+        gs:console('gs c update')
+        assert.equal('None', gs.user.state.Stance.value)
     end)
 
     it('is left alone on an update with Samurai as the sub job', function()
-        assert.equal('Hasso', boot({sub_job = 'SAM'}).user.state.Stance.value)
+        local gs = boot({sub_job = 'SAM'})
+        gs:console('gs c set Stance Seigan')
+        gs:console('gs c update')
+        assert.equal('Seigan', gs.user.state.Stance.value)
     end)
 end)
 
@@ -421,16 +448,20 @@ describe('PLD\'s Majesty', function()
         local gs = boot_ticking()
         gs:monster_hits()
         gs.game:start_ability_recast('Majesty', 60)
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:actions())
+        assert.same({}, gs:chat())
     end)
 
     it('is not used under amnesia', function()
         local gs = boot_ticking()
         gs:monster_hits()
         gs:gain_buff('amnesia')
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:actions())
+        assert.same({}, gs:chat())
     end)
 
     it('is left to Auto Buff Mode, which uses nothing more, when Majesty is up in a fight', function()
@@ -564,8 +595,10 @@ describe('PLD\'s tick with Samurai as the sub job', function()
     it('uses nothing while Hasso is on recast', function()
         local gs = boot_hasso()
         gs.game:start_ability_recast('Hasso', 30)
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:actions())
+        assert.same({}, gs:chat())
     end)
 
     pending('uses nothing with Hasso up: check_hasso in data/PLD.lua looks at state.Buff.Hasso and state.Buff.Seigan, '
@@ -620,8 +653,10 @@ describe('PLD\'s Auto Tank Mode', function()
     it('uses nothing with no monster targeted', function()
         local gs = tanking()
         gs.game.target_index = nil
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:actions())
+        assert.same({}, gs:chat())
     end)
 end)
 

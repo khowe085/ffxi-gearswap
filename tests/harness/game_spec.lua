@@ -320,6 +320,37 @@ describe('the server\'s answer to an equip request in the stand-in game', functi
     end)
 end)
 
+describe('the server\'s answer to an equip request for the sub slot in the stand-in game', function()
+    -- Testy, a level 99 white mage holding that main weapon, with the job traits given (none unless given), asks the
+    -- server for the item in the sub slot. Returns what is worn.
+    local function sub(main, item, traits)
+        local game = Game.new({res = harness.resources(), main_job = 'WHM', items = {{name = main}, {name = item}},
+            wearing = {main = 1}})
+        game:set_job_traits(traits or {})
+        local bag_slot = assert(game:find_item('inventory', item))
+        game.windower.packets.inject_outgoing(0x050,
+            string.char(0x50, 4, 0, 0, bag_slot, Game.slot_ids.sub, game:bag_id('inventory'), 0))
+        game:settle()
+        return game:worn()
+    end
+
+    it('refuses a weapon without the Dual Wield trait', function()
+        assert.same({main = 'Daybreak'}, sub('Daybreak', "Bunzi's Rod"))
+    end)
+
+    it('puts a weapon on with the Dual Wield trait', function()
+        assert.same({main = 'Daybreak', sub = "Bunzi's Rod"}, sub('Daybreak', "Bunzi's Rod", {'Dual Wield'}))
+    end)
+
+    it('puts a shield on without the Dual Wield trait', function()
+        assert.same({main = 'Daybreak', sub = 'Ammurapi Shield'}, sub('Daybreak', 'Ammurapi Shield'))
+    end)
+
+    it('puts a grip on without the Dual Wield trait', function()
+        assert.same({main = "Terra's Staff", sub = 'Enki Strap'}, sub("Terra's Staff", 'Enki Strap'))
+    end)
+end)
+
 describe('what the stand-in game reports of itself', function()
     it('has a target arrow at rest, with no offset', function()
         local game = Game.new({res = harness.resources()})

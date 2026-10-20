@@ -492,7 +492,7 @@ describe('RDM\'s enhancing spells', function()
         local gs
         before_each(function()
             gs = boot()
-            gs.user.can_dual_wield = true
+            jobby.can_dual_wield(gs)
         end)
 
         it('have the spell\'s DW set laid over them', function()
@@ -816,36 +816,29 @@ describe('RDM\'s melee set with an enspell up and an Enspell weapon set', functi
 end)
 
 describe('RDM\'s elemental commands', function()
-    local function command(mode, name, recasts, sub_job)
-        local gs = boot_ticking({sub_job = sub_job})
+    -- The actions the command sent, with their targets, and the session. options: sub_job, recasts (spell name to
+    -- seconds) and setup, which runs just before the command.
+    local function sent(mode, name, options)
+        options = options or {}
+        local gs = boot_ticking({sub_job = options.sub_job})
         gs:console('gs c set ElementalMode ' .. mode)
-        if recasts then
-            for spell, seconds in pairs(recasts) do
-                gs.game:start_spell_recast(spell, seconds)
-            end
+        for spell, seconds in pairs(options.recasts or {}) do
+            gs.game:start_spell_recast(spell, seconds)
         end
-        gs:console('gs c elemental ' .. name)
-        return gs:actions(), gs
-    end
-
-    -- The actions the command sent, with their targets. setup, when given, runs just before the command.
-    local function sent(mode, name, setup)
-        local gs = boot_ticking()
-        gs:console('gs c set ElementalMode ' .. mode)
-        if setup then
-            setup(gs)
+        if options.setup then
+            options.setup(gs)
         end
         gs:console('gs c elemental ' .. name)
         return gs:action_entries(), gs
     end
 
     it('enspell casts the enspell of the element on oneself', function()
-        assert.same({'Enfire'}, (command('Fire', 'enspell')))
-        assert.same({'Enblizzard'}, (command('Ice', 'enspell')))
+        assert.same({{action = 'Enfire', target = 'Jobby'}}, (sent('Fire', 'enspell')))
+        assert.same({{action = 'Enblizzard', target = 'Jobby'}}, (sent('Ice', 'enspell')))
     end)
 
     it('enspell2 casts the second enspell of the element', function()
-        assert.same({'Enfire II'}, (command('Fire', 'enspell2')))
+        assert.same({{action = 'Enfire II', target = 'Jobby'}}, (sent('Fire', 'enspell2')))
     end)
 
     it('weather casts Phalanx II on oneself without Scholar as the sub job', function()
@@ -853,7 +846,7 @@ describe('RDM\'s elemental commands', function()
     end)
 
     it('weather casts the element\'s storm with Scholar as the sub job', function()
-        assert.same({'Aurorastorm'}, (command('Light', 'weather me', nil, 'SCH')))
+        assert.same({{action = 'Aurorastorm', target = 'Jobby'}}, (sent('Light', 'weather me', {sub_job = 'SCH'})))
     end)
 
     it('weather casts Klimaform on oneself, with Scholar as the sub job, while the element\'s storm is up', function()
@@ -879,34 +872,45 @@ describe('RDM\'s elemental commands', function()
     end)
 
     it('nuke goes down a tier when Jobby hasn\'t the MP for the higher', function()
-        assert.same({{action = 'Fire IV', target = 'Apex Toad'}}, (sent('Fire', 'nuke', function(gs)
+        assert.same({{action = 'Fire IV', target = 'Apex Toad'}}, (sent('Fire', 'nuke', {setup = function(gs)
             gs.game.player.vitals.mp = 200
-        end)))
+        end})))
     end)
 
     it('nuke says so when Jobby hasn\'t the MP for any tier', function()
-        local actions, gs = sent('Fire', 'nuke', function(gs)
+        local actions, gs = sent('Fire', 'nuke', {setup = function(gs)
             gs.game.player.vitals.mp = 5
             gs:chat()
-        end)
+        end})
         assert.same({}, actions)
         assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, gs:chat())
     end)
 
+    pending('nuke casts Fire V with just its cost in MP, 228: handle_job_elemental in data/RDM.lua takes a tier only '
+        .. 'with more MP than it costs (actual_cost < player.mp), so it goes down to Fire IV')
+
+    it('nuke casts nothing more once the spell is done', function()
+        local _, gs = sent('Fire', 'nuke')
+        gs:finish_action()
+        gs:play(10)
+        assert.same({}, gs:actions())
+    end)
+
     it('nuke goes down a tier when that one is on recast', function()
-        assert.same({'Fire IV'}, (command('Fire', 'nuke', {['Fire V'] = 10})))
+        assert.same({{action = 'Fire IV', target = 'Apex Toad'}}, (sent('Fire', 'nuke', {recasts = {['Fire V'] = 10}})))
     end)
 
     it('smallnuke casts the second tier', function()
-        assert.same({'Fire II'}, (command('Fire', 'smallnuke')))
+        assert.same({{action = 'Fire II', target = 'Apex Toad'}}, (sent('Fire', 'smallnuke')))
     end)
 
     it('nuke casts Banish II in the Light mode', function()
-        assert.same({'Banish II'}, (command('Light', 'nuke')))
+        assert.same({{action = 'Banish II', target = 'Apex Toad'}}, (sent('Light', 'nuke')))
     end)
 
     it('nuke goes down to Banish when Banish II is on recast in the Light mode', function()
-        assert.same({'Banish'}, (command('Light', 'nuke', {['Banish II'] = 10})))
+        assert.same({{action = 'Banish', target = 'Apex Toad'}},
+            (sent('Light', 'nuke', {recasts = {['Banish II'] = 10}})))
     end)
 
     it('nuke says so when both Banishes are on recast in the Light mode', function()
@@ -921,7 +925,7 @@ describe('RDM\'s elemental commands', function()
     end)
 
     it('hands a command it doesn\'t know on to Sel\'s elemental commands', function()
-        assert.same({'Barblizzard'}, (command('Fire', 'barelement')))
+        assert.same({{action = 'Barblizzard', target = 'Jobby'}}, (sent('Fire', 'barelement')))
     end)
 
     it('says so when every tier is on recast', function()
@@ -998,8 +1002,10 @@ describe('RDM\'s Auto Arts', function()
     it('uses no Composure while it is on recast', function()
         local gs = arts({buffs = buffed})
         gs.game:start_ability_recast('Composure', 60)
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:actions())
+        assert.same({}, gs:chat())
     end)
 
     it('uses Light Arts after Composure with Scholar as the sub job', function()

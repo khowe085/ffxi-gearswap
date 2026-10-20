@@ -614,6 +614,16 @@ describe('BLM\'s elemental commands', function()
         assert.same({'Fire V'}, (command('Fire', 'nuke', nil, 338)))
     end)
 
+    pending('nukes with Fire VI with just its cost in MP, 339: handle_job_elemental in data/BLM.lua takes a tier only '
+        .. 'with more MP than it costs (actual_cost < player.mp), so it goes down to Fire V')
+
+    it('casts nothing more once the nuke is done', function()
+        local _, gs = command('Fire', 'nuke')
+        gs:finish_action()
+        gs:play(10)
+        assert.same({}, gs:actions())
+    end)
+
     it('smallnuke uses the second tier', function()
         assert.same({'Fire II'}, (command('Fire', 'smallnuke')))
     end)

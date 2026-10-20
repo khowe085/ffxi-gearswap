@@ -11,12 +11,14 @@ function user_job_setup()
 	state.MagicalDefenseMode:options('MDT')
 	state.ResistDefenseMode:options('MEVA')
 	state.ExtraDefenseMode:options('None', 'Aegis')
-	state.Weapons:options('None', 'Ragnarok', 'Kheshig')
+	state.Weapons:options('None', 'Ragnarok', 'Kheshig', 'Swords', 'Shield')
 end
 
 function init_gear_sets()
 	sets.weapons.Ragnarok = {main = 'Ragnarok'}
 	sets.weapons.Kheshig = {main = 'Kheshig Blade', sub = 'Aegis'}
+	sets.weapons.Swords = {main = 'Naegling', sub = 'Kheshig Blade'}
+	sets.weapons.Shield = {main = 'Naegling', sub = 'Aegis'}
 
 	sets.precast.JA['Divine Emblem'] = {head = 'Null Masque'}
 	sets.precast.JA.Majesty = {head = 'Volte Cap'}

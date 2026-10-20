@@ -791,6 +791,10 @@ function Game:wearable(bag_id, bag_slot, slot_id)
     if not entry or not entry.slots or not has_bit(entry.slots, slot_id) or not self.res.bags[bag_id].equippable then
         return false
     end
+    -- A weapon in the sub slot takes the Dual Wield trait; a shield or a grip, which has no skill, doesn't.
+    if slot_names[slot_id] == 'sub' and (entry.skill or 0) > 0 and not self:has_job_trait('Dual Wield') then
+        return false
+    end
     local player = self.player
     return has_bit(entry.jobs, player.main_job_id) and (entry.level or 0) <= player.main_job_level
         and has_bit(entry.races, player.race)
@@ -1224,6 +1228,15 @@ function Game:set_job_traits(names)
     for i, name in ipairs(names) do
         self.job_traits[i] = (find_by_name(self.res.job_traits, name, 'job trait'))
     end
+end
+
+function Game:has_job_trait(name)
+    for _, id in ipairs(self.job_traits) do
+        if self.res.job_traits[id].en == name then
+            return true
+        end
+    end
+    return false
 end
 
 -- Puts the spell on recast for that many seconds, as the server does once it is cast.
