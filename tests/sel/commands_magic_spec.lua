@@ -5,7 +5,7 @@ local function run(gs, command)
     local typed = commy.record_input(gs)
     gs:console(command)
     gs:advance(0.1)
-    return typed, commy.chat(gs)
+    return typed, gs:chat()
 end
 
 local function typed_for(gs, command)

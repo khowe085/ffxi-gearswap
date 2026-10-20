@@ -114,6 +114,19 @@ describe('the stand-in game', function()
         assert.equal(2028, seen.targets[1].actions[1].param)
     end)
 
+    it('has the monster act with the message the server sends for each kind of action', function()
+        local game = Game.new({res = harness.resources()})
+        local messages = {}
+        game:register('action', function(act) messages[#messages + 1] = act.targets[1].actions[1].message end)
+        game:monster_acts(1)
+        game:monster_acts(7, 'Fulmination')
+        game:monster_acts(11, 'Fulmination')
+        game:monster_acts(8, 'Slow')
+        game:monster_acts(4, 'Slow')
+        game:settle()
+        assert.same({1, 43, 185, 327, 2}, messages)
+    end)
+
     it('moves Vana\'diel\'s time, day and weather, as get_info reports them, with the events that say so', function()
         local game = Game.new({res = harness.resources()})
         local events = {}
@@ -177,6 +190,133 @@ describe('the stand-in game', function()
         assert.same({{'out', 0x100, 2, 4, false}, {'in', 0x061, 2, 90, 4}}, seen)
         local player = game.windower.ffxi.get_player()
         assert.same({'MNK', 90, 'BLM'}, {player.main_job, player.main_job_level, player.sub_job})
+    end)
+
+    it('takes every piece off on a change of main job', function()
+        local game = Game.new({res = harness.resources(), main_job = 'WAR', items = {{name = 'Nyame Helm'}},
+            wearing = {head = 1}})
+        game:change_main_job('MNK')
+        game:settle()
+        assert.same({}, game:worn())
+        assert.same({0, 0}, {game.windower.ffxi.get_items().equipment.head, game.bags[0].items[1].status})
+    end)
+end)
+
+describe('what the client sends in the stand-in game', function()
+    local function boot()
+        return Game.new({res = harness.resources(), main_job = 'WAR', items = {{name = 'Nyame Helm'}}})
+    end
+
+    local function equip_head(game)
+        game.windower.packets.inject_outgoing(0x050, string.char(0x50, 4, 0, 0, 1, 4, 0, 0))
+    end
+
+    it('reaches the server once the outgoing chunk handlers have seen it, as the game settles', function()
+        local game = boot()
+        local worn_then
+        game:register('outgoing chunk', function(id) if id == 0x050 then worn_then = game:worn().head end end)
+        equip_head(game)
+        assert.is_nil(game:worn().head)
+        game:settle()
+        assert.is_nil(worn_then)
+        assert.equal('Nyame Helm', game:worn().head)
+    end)
+
+    it('never reaches the server when a handler blocks it, and the handlers after it are told so', function()
+        local game = boot()
+        local blocked_after
+        game:register('outgoing chunk', function(id) return id == 0x050 end)
+        game:register('outgoing chunk', function(_, _, _, _, blocked) blocked_after = blocked end)
+        equip_head(game)
+        game:settle()
+        assert.is_true(blocked_after)
+        assert.is_nil(game:worn().head)
+        assert.is_nil(game.last_packets.incoming[0x050])
+    end)
+
+    it('names what it asks for as it stood when it went, whatever happens to the item after', function()
+        local gs = harness.boot(testy.whm())
+        local slot = gs.game:find_item('inventory', "Bunzi's Hat")
+        gs.game.windower.packets.inject_outgoing(0x050, string.char(0x50, 4, 0, 0, slot, 4, 0, 0))
+        gs.game.bags[0].items[slot] = nil
+        assert.same({{equip = {head = "Bunzi's Hat"}}}, gs:traffic())
+    end)
+
+    it('names the target of an action as it stood when it went', function()
+        local gs = harness.boot(testy.whm())
+        local friend = gs:add_party_member({name = 'Friend'})
+        gs:type('/ma "Cure III" Friend')
+        gs.game:remove_mob(friend.index)
+        assert.same({{action = 'Cure III', target = 'Friend'}}, gs:action_entries())
+    end)
+end)
+
+describe('a packet the addon hands Windower as one from the server, in the stand-in game', function()
+    it('reaches the incoming chunk handlers as injected', function()
+        local game = Game.new({res = harness.resources()})
+        local seen
+        game:register('incoming chunk', function(id, _, _, injected) seen = {id, injected} end)
+        game.windower.packets.inject_incoming(0x0FF, string.char(0xFF, 2, 0, 0, 0, 0, 0, 0))
+        game:settle()
+        assert.same({0x0FF, true}, seen)
+    end)
+end)
+
+describe('the server\'s answer to an equip request in the stand-in game', function()
+    -- Testy, a level 99 Hume white mage wearing Nyame Mail, asks the server for the item in that bag (the inventory
+    -- unless named) in that slot, as GearSwap would. Returns how many equip packets (0x050) the server answered with.
+    local function ask(game, name, slot, bag)
+        local bag_id = game:bag_id(bag or 'inventory')
+        local bag_slot = assert(game:find_item(bag or 'inventory', name))
+        local replies = 0
+        game:register('incoming chunk', function(id) if id == 0x050 then replies = replies + 1 end end)
+        game.windower.packets.inject_outgoing(0x050, string.char(0x50, 4, 0, 0, bag_slot, Game.slot_ids[slot], bag_id, 0))
+        game:settle()
+        return replies
+    end
+
+    local function boot(options)
+        options = options or {}
+        local items = {{name = 'Nyame Mail'}, {name = 'Nyame Helm'}, {name = 'Naegling'}, {name = 'Decennial Dress'},
+            {name = 'Nyame Helm', bag = 'case'}}
+        return Game.new({res = harness.resources(), main_job = 'WHM', main_job_level = options.level, items = items,
+            wearing = {body = 1}})
+    end
+
+    it('puts on a piece the character can wear, and says so', function()
+        local game = boot()
+        assert.equal(1, ask(game, 'Nyame Helm', 'head'))
+        assert.same({body = 'Nyame Mail', head = 'Nyame Helm'}, game:worn())
+    end)
+
+    it('refuses a piece of another job\'s', function()
+        local game = boot()
+        assert.equal(0, ask(game, 'Naegling', 'main'))
+        assert.same({body = 'Nyame Mail'}, game:worn())
+    end)
+
+    it('refuses a piece of a higher level than the character\'s', function()
+        local game = boot({level = 98})
+        assert.equal(0, ask(game, 'Nyame Helm', 'head'))
+        assert.same({body = 'Nyame Mail'}, game:worn())
+    end)
+
+    it('refuses a piece another race wears', function()
+        local game = boot()
+        assert.equal(0, ask(game, 'Decennial Dress', 'body'))
+        assert.same({body = 'Nyame Mail'}, game:worn())
+    end)
+
+    it('refuses a piece in a slot it doesn\'t go in', function()
+        local game = boot()
+        assert.equal(0, ask(game, 'Nyame Helm', 'body'))
+        assert.same({body = 'Nyame Mail'}, game:worn())
+    end)
+
+    it('refuses a piece in a bag gear can\'t be worn from', function()
+        local game = boot()
+        assert.equal(0, ask(game, 'Nyame Helm', 'head', 'case'))
+        assert.same({body = 'Nyame Mail'}, game:worn())
     end)
 end)
 

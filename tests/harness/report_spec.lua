@@ -1,22 +1,11 @@
 local lfs = require('lfs')
 local json = require('dkjson')
-
-local function temp_folder()
-    math.randomseed(os.time() + math.floor(os.clock() * 1000000))
-    local base = os.getenv('TMPDIR') or '/tmp'
-    for _ = 1, 100 do
-        local path = ('%s/gearswap-report-%08x'):format(base, math.random(0, 0x7FFFFFFF))
-        if lfs.mkdir(path) then
-            return path
-        end
-    end
-    error('could not make a temp folder in ' .. base)
-end
+local harness = require('harness')
 
 -- Runs busted with tests/support/report.lua on a spec file made for the purpose, and gives back the report, read
 -- and as it was written.
 local function report_of(spec)
-    local folder = temp_folder()
+    local folder = harness.temp_folder('report')
     local file = assert(io.open(folder .. '/made_spec.lua', 'w'))
     file:write(spec)
     file:close()

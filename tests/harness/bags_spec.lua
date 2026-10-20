@@ -130,6 +130,48 @@ describe('items moving between bags in the stand-in game', function()
         assert.same({'Nyame Mail'}, gs.game:bag_names('storage'))
     end)
 
+    it('moves as many of a stack as it is asked to, and leaves the rest', function()
+        local gs = game_with({{name = 'Bronze Bullet', bag = 'case', count = 20}})
+        move(gs, 5, 7, 0, 1)
+        assert.same({5, 15}, {gs.game.bags[0].items[1].count, gs.game.bags[7].items[1].count})
+        assert.same({15, 7, 1}, {parse(gs, 0x01E)['Count'], parse(gs, 0x01E)['Bag'], parse(gs, 0x01E)['Index']})
+    end)
+
+    it('takes nothing when asked for more than the stack holds', function()
+        local gs = game_with({{name = 'Bronze Bullet', bag = 'case', count = 20}})
+        move(gs, 21, 7, 0, 1)
+        assert.same({}, gs.game:bag_names('inventory'))
+        assert.equal(20, gs.game.bags[7].items[1].count)
+    end)
+
+    it('puts what it moves on a stack of the same item with room for it, not in a slot of its own', function()
+        local gs = game_with({{name = 'Bronze Bullet', count = 20}, {name = 'Bronze Bullet', bag = 'case', count = 10}})
+        move(gs, 10, 7, 0, 1)
+        assert.same({'Bronze Bullet'}, gs.game:bag_names('inventory'))
+        assert.equal(30, gs.game.bags[0].items[1].count)
+        assert.same({30, 0, 1}, {parse(gs, 0x020)['Count'], parse(gs, 0x020)['Bag'], parse(gs, 0x020)['Index']})
+        assert.same({}, gs.game:bag_names('case'))
+    end)
+
+    it('puts what it moves in a slot of its own when the stack has no room for it', function()
+        local gs = game_with({{name = 'Bronze Bullet', count = 95}, {name = 'Bronze Bullet', bag = 'case', count = 10}})
+        move(gs, 10, 7, 0, 1)
+        assert.same({95, 10}, {gs.game.bags[0].items[1].count, gs.game.bags[0].items[2].count})
+    end)
+
+    it('says a slot that filled with the add item event, and one that emptied with the remove item event', function()
+        local gs = game_with({{name = 'Nyame Helm', bag = 'case'}, {name = 'Bronze Bullet', count = 20},
+            {name = 'Bronze Bullet', bag = 'case', count = 10}})
+        local events = {}
+        for _, event in ipairs({'add item', 'remove item'}) do
+            gs.game:register(event, function(...) events[#events + 1] = {event, ...} end)
+        end
+        move(gs, 1, 7, 0, 1)
+        move(gs, 10, 7, 0, 2)
+        assert.same({{'remove item', 7, 1, 23761, 1}, {'add item', 0, 2, 23761, 1}, {'remove item', 7, 2, 17343, 10}},
+            events)
+    end)
+
     it('tells the client with the packets Windower defines: a count of 0 for the old slot, the item for the new', function()
         local gs = game_with({{name = 'Nyame Helm', bag = 'case'}})
         move(gs, 1, 7, 0, 1)

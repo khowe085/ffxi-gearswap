@@ -458,7 +458,7 @@ describe('target_type_check', function()
 
     it('says a spell that can be cast on an NPC can be cast on one', function()
         local gs = boot()
-        local npc = gs.game:add_mob({name = 'Moogle', id = 0x01000800 + 5})
+        local npc = gs.game:add_mob({name = 'Moogle'})
         gs.game:target(npc.index)
         assert.is_true(checked(gs, '/ma "Cure III" <t>'))
     end)

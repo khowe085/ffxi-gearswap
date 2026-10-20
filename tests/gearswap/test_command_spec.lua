@@ -1,19 +1,18 @@
 local harness = require('harness')
 local plain = require('plain')
 
-local chat, texts = plain.chat, plain.texts
 local calls, names = plain.calls, plain.names
 
 local function boot(file)
     local gs = plain.boot(file or 'Testy_WHM.lua')
     calls(gs)
-    chat(gs)
+    gs:chat_lines()
     return gs
 end
 
 local function gs_test(gs, text)
     gs:console('gs test ' .. text)
-    return texts(chat(gs))
+    return gs:chat()
 end
 
 local hold_message = 'GearSwap: Test: user file off for 30 seconds while the test gear is on.'
@@ -70,7 +69,7 @@ describe('gs test of an action', function()
     local function boot_actions()
         local gs = plain.boot('Testy_Actions.lua')
         calls(gs)
-        chat(gs)
+        gs:chat_lines()
         return gs
     end
 
@@ -236,7 +235,7 @@ describe('the hold after gs test', function()
         gs_test(gs, 'set sets.precast.FastCast')
         gs:advance(30.1)
         assert.is_false(gs.env.gearswap_disabled)
-        assert.same({'GearSwap: Test: user file back on.'}, texts(chat(gs)))
+        assert.same({'GearSwap: Test: user file back on.'}, gs:chat())
     end)
 
     it('ends with a status change to the status the player is in, which dresses the player', function()
@@ -283,9 +282,9 @@ describe('the hold after gs test', function()
         gs_test(gs, 'set sets.precast.FastCast')
         gs:console('gs enable')
         assert.is_false(gs.env.gearswap_disabled)
-        chat(gs)
+        gs:chat_lines()
         gs:advance(31)
-        assert.same({}, texts(chat(gs)))
+        assert.same({}, gs:chat())
         assert.same({}, calls(gs))
     end)
 
@@ -319,7 +318,7 @@ describe('the hold after gs test', function()
     it('is not entered when the user file was already disabled: nothing is tested', function()
         local gs = boot()
         gs:console('gs disable')
-        chat(gs)
+        gs:chat_lines()
         assert.same({'GearSwap: Cannot test while the user file is disabled.'}, gs_test(gs, 'set sets.precast.FastCast'))
         assert.same({}, gs:traffic())
     end)
@@ -330,14 +329,14 @@ describe('the hold after gs test', function()
             items = {{name = 'Nyame Helm'}},
         })
         gs:change_main_job('MON')
-        chat(gs)
+        gs:chat_lines()
         assert.same({'GearSwap: There is nothing to test because there is no file loaded.'}, gs_test(gs, 'set sets.idle'))
     end)
 
     it('lets gs test run again during the hold, as the user file is only off for the test', function()
         local gs = boot()
         gs_test(gs, 'set sets.precast.FastCast')
-        chat(gs)
+        gs:chat_lines()
         assert.same({'GearSwap: Test: naked, then sets.midcast.Cure', hold_message}, gs_test(gs, 'set sets.midcast.Cure'))
     end)
 

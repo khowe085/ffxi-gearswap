@@ -5,22 +5,23 @@
 
 local testy = {}
 
--- The pieces each slot's set names, by GearSwap's set slot names, turned into what the game says is worn.
-local worn_names = {ear1 = 'left_ear', ear2 = 'right_ear', ring1 = 'left_ring', ring2 = 'right_ring'}
+-- The game's name for each slot a set may name another way.
+testy.game_slots = {ear1 = 'left_ear', ear2 = 'right_ear', ring1 = 'left_ring', ring2 = 'right_ring', ranged = 'range',
+    lear = 'left_ear', rear = 'right_ear', lring = 'left_ring', rring = 'right_ring'}
 
 -- What the game shows worn once the set is on over nothing, with the changes laid over it.
 function testy.worn_by(set, changes)
     local worn = {}
     for slot, item in pairs(set) do
-        worn[worn_names[slot] or slot] = item
+        worn[testy.game_slots[slot] or slot] = item
     end
     for slot, item in pairs(changes or {}) do
-        worn[worn_names[slot] or slot] = item ~= 'empty' and item or nil
+        worn[testy.game_slots[slot] or slot] = item ~= 'empty' and item or nil
     end
     return worn
 end
 
--- The idle set of data/Testy/Testy_WHM.lua.
+-- The idle set of tests/fixture/data/Testy/Testy_WHM.lua.
 testy.whm_idle = {main = 'Daybreak', sub = 'Ammurapi Shield', ammo = 'Staunch Tathlum +1', head = 'Nyame Helm',
     body = 'Nyame Mail', hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard', feet = 'Nyame Sollerets',
     neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt', ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring',
@@ -46,7 +47,7 @@ function testy.whm(overrides)
     return options
 end
 
--- The idle set of data/Testy/Testy_Rdm_Gear.lua.
+-- The idle set of tests/fixture/data/Testy/Testy_Rdm_Gear.lua.
 testy.rdm_idle = {main = 'Daybreak', sub = 'Ammurapi Shield', ammo = 'Staunch Tathlum +1', head = 'Nyame Helm',
     body = 'Nyame Mail', hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard', feet = 'Nyame Sollerets',
     neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt', ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring',

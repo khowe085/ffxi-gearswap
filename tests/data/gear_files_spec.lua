@@ -42,15 +42,6 @@ local actions = {
 }
 local default_action = {'/ws', 'Savage Blade', '<t>'}
 
--- The names of the actions GearSwap sent since the traffic was last asked for.
-local function actions_sent(gs)
-    local names = {}
-    for _, entry in ipairs(gs:traffic()) do
-        names[#names + 1] = entry.action
-    end
-    return names
-end
-
 -- The sets init_gear_sets in the gear file assigns by a plain dotted name ('precast.FC', 'idle'), each once. Only
 -- the function's own statements count, those as little indented as any, so a set made only under an if, as for one
 -- sub job, isn't looked for; nor is one in a comment.
@@ -139,7 +130,7 @@ describe('the gear file', function()
                 gs:disengage()
                 gs:traffic()
                 assert.is_true(gs:type(('%s "%s" %s'):format(unpack(action))))
-                assert.same({action[2]}, actions_sent(gs))
+                assert.same({action[2]}, gs:actions())
                 gs:finish_action()
                 assert.same({}, errors(gs))
             end)

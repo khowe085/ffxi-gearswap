@@ -39,6 +39,10 @@ end
 
 harness.repo = repo_root()
 
+-- Seconds after GearSwap loads a Sel file that Sel's tick first acts, that Sel sets up the weapon modes
+-- (gs c weapons initialize) and that User-Globals.lua locks the style.
+harness.sel_load_time = 5
+
 local function join(...)
     return (table.concat({...}, '/'):gsub('//+', '/'))
 end
@@ -97,16 +101,17 @@ local function remove_tree(path)
     end
 end
 
-local function temp_folder()
-    local base = (os.getenv('TMPDIR') or os.getenv('TEMP') or os.getenv('TMP') or '/tmp'):gsub('\\', '/')
+-- A new, empty folder in the temp folder, named gearswap-<name>- and a random number.
+function harness.temp_folder(name)
+    local base = (os.getenv('TMPDIR') or os.getenv('TEMP') or os.getenv('TMP') or '/tmp'):gsub('\\', '/'):gsub('/+$', '')
     math.randomseed(os.time() + math.floor(os.clock() * 1000000))
     for _ = 1, 100 do
-        local path = join(base, ('gearswap-tests-%08x'):format(math.random(0, 0x7FFFFFFF)))
+        local path = join(base, ('gearswap-%s-%08x'):format(name, math.random(0, 0x7FFFFFFF)))
         if not lfs.attributes(path) and lfs.mkdir(path) then
             return path
         end
     end
-    error('could not make a temp folder for the Windower install in ' .. base)
+    error('could not make a temp folder in ' .. base)
 end
 
 local tree
@@ -124,7 +129,7 @@ function harness.tree()
     if tree then
         return tree
     end
-    local root = temp_folder()
+    local root = harness.temp_folder('tests')
     table.insert(made_trees(), root)
     local windower = join(root, 'Windower') .. '/'
     local addon = join(root, 'Windower', 'addons', 'GearSwap') .. '/'
@@ -250,16 +255,13 @@ end
 
 local support_folder = join(harness.repo, 'tests', 'support')
 
--- Modules Windower has in C, and so the test runner's Lua lacks: these stand in for them.
-local function stand_in(env, name)
+-- Modules Windower has in C, and so the test runner's Lua lacks: these stand in for them. bit is loaded with the
+-- environment, as LuaJIT has it from the start. GearSwap requires socket and mime, and nothing calls them.
+local function stand_in(name)
     if name == 'pack' then
         local chunk = assert(real.loadfile(join(support_folder, 'pack.lua')))
         return chunk()
-    elseif name == 'bit' then
-        return env.bit
-    elseif name == 'socket' then
-        return {gettime = function() return env.os.clock() end, sleep = function() end}
-    elseif name == 'mime' then
+    elseif name == 'socket' or name == 'mime' then
         return {}
     end
 end
@@ -355,7 +357,7 @@ function harness.environment(game, paths)
         if loaded[name] ~= nil then
             return loaded[name]
         end
-        local module = stand_in(env, name)
+        local module = stand_in(name)
         if module == nil then
             local file = name:gsub('%.', '/')
             local chunk
@@ -429,7 +431,6 @@ end
 local Session = {}
 Session.__index = Session
 
-local action_names = {[3] = 'spells', [7] = 'weapon_skills', [9] = 'job_abilities', [25] = 'monster_skills'}
 -- The category of the action packet that ends an action, by the category of the request that began it.
 local finishing_category = {[3] = 4, [7] = 3, [9] = 6, [16] = 2, [25] = 11}
 -- The category of the action packet that begins one, which an interruption comes in.
@@ -499,7 +500,7 @@ function harness.boot(options)
         return fn(...)
     end
 
-    local session = setmetatable({game = game, env = env, seen = 0}, Session)
+    local session = setmetatable({game = game, env = env, seen = 0, read = {}}, Session)
     -- Windower hands each addon this table to describe itself in.
     env._addon = {}
     -- After the augments are written, whose libraries change the string functions too.
@@ -565,7 +566,8 @@ function Session:worn()
     return self.game:worn()
 end
 
--- What GearSwap printed and put in the chat log, and the commands it ran, a line each.
+-- Everything GearSwap printed and put in the chat log, the commands run and the lines typed that reached the game,
+-- a line each.
 function Session:log()
     local lines = {}
     for _, line in ipairs(self.env.printed) do
@@ -583,38 +585,122 @@ function Session:log()
     return harness.repo_paths(table.concat(lines, '\n'))
 end
 
--- What GearSwap sent since this was last asked, in order: {equip = {slot = item}} for each run of equip requests,
--- with 'empty' for a slot it emptied, and {action = name, target = name} for each action.
+-- The readers below give what was added to one of the game's lists since that list was last read through them. They
+-- keep their place in the session and leave the lists whole, for log() and for a test that reads one itself.
+
+-- The entries of the list added since the reader called name last read it.
+local function unread(session, name, list)
+    local lines = {}
+    for i = (session.read[name] or 0) + 1, #list do
+        lines[#lines + 1] = list[i]
+    end
+    session.read[name] = #list
+    return lines
+end
+
+-- The lines put in the chat log since it was last read, each as {color =, text =}: a line wrapped in the codes
+-- GearSwap's add_to_chat colors it with gives that color and the text inside them.
+function Session:chat_lines()
+    local lines = {}
+    for i, entry in ipairs(unread(self, 'chat', self.game.chat_log)) do
+        local text = tostring(entry.text)
+        local code = text:match('^\31(.)')
+        lines[i] = {color = code and code:byte() or entry.color, text = (text:gsub('^\31.', ''):gsub('\30\1$', ''))}
+    end
+    return lines
+end
+
+-- The text of those lines.
+function Session:chat()
+    local texts = {}
+    for i, line in ipairs(self:chat_lines()) do
+        texts[i] = line.text
+    end
+    return texts
+end
+
+-- What GearSwap printed since this was last asked, a line each.
+function Session:printed()
+    return unread(self, 'printed', self.env.printed)
+end
+
+-- The lines typed into the chat since this was last asked that reached the game, as they reached it.
+function Session:typed()
+    return unread(self, 'typed', self.game.typed)
+end
+
+-- The console commands run since this was last asked.
+function Session:commands()
+    return unread(self, 'commands', self.game.commands)
+end
+
+-- What GearSwap sent since its traffic was last asked for, in order: {equip = {slot = item}} for each run of equip
+-- requests, with 'empty' for a slot it emptied, and {action = name, target = name} for each action. Items and
+-- targets are named as they were when the packet went.
 function Session:traffic()
     local traffic = {}
     local game = self.game
     for i = self.seen + 1, #game.sent do
         local packet = game.sent[i]
-        if packet.id == 0x050 or packet.id == 0x051 then
+        if packet.equip then
             local last = traffic[#traffic]
             if not (last and last.equip) then
                 last = {equip = {}}
                 traffic[#traffic + 1] = last
             end
-            for slot, item in pairs(game:equip_request(packet)) do
+            for slot, item in pairs(packet.equip) do
                 last.equip[slot] = item
             end
         elseif packet.action then
-            traffic[#traffic + 1] = self:describe(packet.action)
+            traffic[#traffic + 1] = {action = packet.action.name, target = packet.action.target}
         end
     end
     self.seen = #game.sent
     return traffic
 end
 
-function Session:describe(action)
-    local res = harness.resources()
-    local resource = res[action_names[action.category] or '']
-    local target = self.game:mob_by_id(action.target_id)
-    return {
-        action = resource and resource[action.param] and resource[action.param].en or ('category %d'):format(action.category),
-        target = target and target.name,
-    }
+-- The actions in what GearSwap sent since its traffic was last asked for, in order, as traffic gives them; or in
+-- the traffic given, which traffic gave before.
+function Session:action_entries(traffic)
+    local entries = {}
+    for _, entry in ipairs(traffic or self:traffic()) do
+        if entry.action then
+            entries[#entries + 1] = entry
+        end
+    end
+    return entries
+end
+
+-- The names of those actions.
+function Session:actions(traffic)
+    local names = {}
+    for i, entry in ipairs(self:action_entries(traffic)) do
+        names[i] = entry.action
+    end
+    return names
+end
+
+-- Plays the game frame by frame until what GearSwap sent since its traffic was last asked for holds an action, for
+-- at most that many seconds (6 unless given, the time a spell and its aftercast hold Sel's tick). Returns the clock
+-- then, or nil when no action went out. The traffic is left for traffic, actions or action_entries to read.
+function Session:play_until_action(seconds)
+    for _ = 1, math.floor((seconds or 6) * 10 + 0.5) do
+        self:play(0.1)
+        for i = self.seen + 1, #self.game.sent do
+            if self.game.sent[i].action then
+                return self.game.clock
+            end
+        end
+    end
+end
+
+-- Has every reader above start from here: what was sent, said, printed, typed and run so far is taken as read.
+function Session:forget()
+    self.seen = #self.game.sent
+    self:chat_lines()
+    self:printed()
+    self:typed()
+    self:commands()
 end
 
 -- Answers the last action GearSwap sent with the packet the server sends when it is done.
@@ -786,6 +872,14 @@ function Session:send_from_client(id, body)
     end)
 end
 
+-- An action of the monster's (see Game:monster_acts).
+function Session:monster_acts(category, name, target_id)
+    self:run(function()
+        self.game:monster_acts(category, name, target_id)
+        self.game:settle()
+    end)
+end
+
 function Session:monster_readies(name)
     self:run(function()
         self.game:monster_readies(name)
@@ -823,13 +917,12 @@ function Session:set_indi(fields)
     self:run(function() self.game:set_indi(fields) end)
 end
 
--- Another player joins the character's party (see Game:add_party_member for the fields); GearSwap looks again at
--- the party at once.
+-- Another player joins the character's party (see Game:add_party_member for the fields). No event says so: GearSwap
+-- sees the party as it is when it next looks.
 function Session:add_party_member(fields)
     return self:run(function()
         local member = self.game:add_party_member(fields)
         self.game:settle()
-        self.env.refresh_globals()
         return member
     end)
 end
@@ -846,21 +939,11 @@ local pet_moves = {
     spell = {resource = 'spells', ready = {category = 8, message = 327}, finish = {category = 4, message = 2}},
 }
 
-local function pet_move_id(kind, name)
-    local found_id
-    for id, move in pairs(harness.resources()[kind.resource]) do
-        if type(move) == 'table' and move.en == name and (not found_id or id < found_id) then
-            found_id = id
-        end
-    end
-    return assert(found_id, ('the test resources have no %s named %q'):format(kind.resource, name))
-end
-
 -- fields: category and message of the packet, target ('monster', or 'player') for who it is aimed at.
 function Session:pet_acts(name, kind, phase, fields)
     kind = pet_moves[kind or 'monster']
     fields = fields or {}
-    local move = pet_move_id(kind, name)
+    local move = Game.find_by_name(self.game.res[kind.resource], name, kind.resource)
     local packet = kind[phase]
     local game = self.game
     self:run(function()

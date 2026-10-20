@@ -4,8 +4,6 @@ local gear = {'Volte Cap', 'Null Masque', 'Volte Jupon', 'Adamantite Armor', 'Vo
     'Volte Boots', 'Fotia Gorget', "Combatant's Torque", 'Null Belt', 'Fotia Belt', 'Moonshade Earring',
     'Brutal Earring', 'Cessance Earring', 'Odnowa Earring +1', 'Karieyh Ring', 'Chirich Ring +1', 'Null Shawl'}
 
-local actions_of = jobby.action_names
-
 local function boot(options)
     options = options or {}
     options.items = gear
@@ -47,7 +45,7 @@ describe('THF\'s weapon skill filter', function()
     it('sends Savage Blade in place of Rudra\'s Storm when Jobby has a sword\'s weapon skills', function()
         local gs = boot({tp = 1000, abilities = {'Fast Blade', 'Savage Blade'}})
         gs:type('/ws "Rudra\'s Storm" <t>')
-        assert.same({'Savage Blade'}, actions_of(gs:traffic()))
+        assert.same({'Savage Blade'}, gs:actions())
     end)
 
     it('sends nothing in place of Rudra\'s Storm without a sword\'s weapon skills', function()
@@ -59,7 +57,7 @@ describe('THF\'s weapon skill filter', function()
     it('lets Rudra\'s Storm go out when Jobby has it', function()
         local gs = boot({tp = 1000, abilities = {'Fast Blade', 'Savage Blade', "Rudra's Storm"}})
         gs:type('/ws "Rudra\'s Storm" <t>')
-        assert.same({"Rudra's Storm"}, actions_of(gs:traffic()))
+        assert.same({"Rudra's Storm"}, gs:actions())
     end)
 end)
 
@@ -475,13 +473,16 @@ describe('THF\'s Auto Buff Mode with Warrior as the sub job', function()
     end
 
     it('starts with Berserk in a fight', function()
-        assert.same({'Berserk'}, actions_of(jobby.until_action(buffing('WAR'))))
+        local gs = buffing('WAR')
+        gs:play_until_action()
+        assert.same({'Berserk'}, gs:actions())
     end)
 
     it('goes on to Aggressor with Berserk up', function()
         local gs = buffing('WAR')
         gs:gain_buff('Berserk')
-        assert.same({'Aggressor'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Aggressor'}, gs:actions())
     end)
 
     it('uses nothing with both up', function()
@@ -489,19 +490,20 @@ describe('THF\'s Auto Buff Mode with Warrior as the sub job', function()
         gs:gain_buff('Berserk')
         gs:gain_buff('Aggressor')
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('passes over Berserk while it is on recast', function()
         local gs = buffing('WAR')
         gs.game:start_ability_recast('Berserk', 60)
-        assert.same({'Aggressor'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Aggressor'}, gs:actions())
     end)
 
     it('uses nothing without Warrior as the sub job', function()
         local gs = buffing('WHM')
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses nothing out of a fight', function()
@@ -509,7 +511,7 @@ describe('THF\'s Auto Buff Mode with Warrior as the sub job', function()
         gs:console('gs c set TreasureMode None')
         gs:console('gs c set AutoBuffMode Auto')
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     pending('uses nothing while the sub job\'s abilities are restricted: job_check_buff in data/THF.lua checks only '
@@ -522,9 +524,9 @@ describe('THF\'s status line', function()
         if setup then
             setup(gs)
         end
-        jobby.chat(gs)
+        gs:chat()
         gs:console('gs c update user')
-        local lines = jobby.chat(gs)
+        local lines = gs:chat()
         return lines[#lines]
     end
 

@@ -8,8 +8,6 @@ local gear = {'Naegling', 'Crocea Mors', 'Murgleis', 'Regal Gem', 'Ullr', 'Zodia
     'Blacksh. Hairpin', 'Moonshade Earring', 'Brutal Earring', 'Cessance Earring', 'Odnowa Earring +1',
     'Ishvara Earring', 'Telos Earring'}
 
-local actions_of = jobby.action_names
-
 local function without(names, removed)
     local kept = {}
     for _, name in ipairs(names) do
@@ -51,7 +49,7 @@ describe('RDM\'s weapon skill filter', function()
         local gs = boot({tp = 1000, abilities = known})
         gs:type('/ws "' .. typed .. '" <t>')
         local traffic = gs:traffic()
-        return actions_of(traffic), traffic
+        return gs:actions(traffic), traffic
     end
 
     it('sends Black Halo in place of Savage Blade with a club\'s weapon skills', function()
@@ -115,13 +113,13 @@ describe('RDM\'s Phalanx', function()
         local gs = boot()
         jobby.target_a_player(gs)
         gs:type('/ma "Phalanx" <t>')
-        assert.same({'Phalanx II'}, actions_of(gs:traffic()))
+        assert.same({'Phalanx II'}, gs:actions())
     end)
 
     it('cast on oneself is cast as it is', function()
         local gs = boot()
         gs:type('/ma "Phalanx" <me>')
-        assert.same({'Phalanx'}, actions_of(gs:traffic()))
+        assert.same({'Phalanx'}, gs:actions())
     end)
 end)
 
@@ -129,16 +127,16 @@ describe('RDM\'s Convert', function()
     it('is stopped with no MP, with a notice', function()
         local gs = boot()
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 0, 0
-        jobby.chat(gs)
+        gs:chat()
         gs:type('/ja "Convert" <me>')
         assert.same({}, gs:traffic())
-        assert.same({'Abort: Convert will fail with 0 MP.'}, jobby.chat(gs))
+        assert.same({'Abort: Convert will fail with 0 MP.'}, gs:chat())
     end)
 
     it('goes out with MP', function()
         local gs = boot()
         gs:type('/ja "Convert" <me>')
-        assert.same({'Convert'}, actions_of(gs:traffic()))
+        assert.same({'Convert'}, gs:actions())
     end)
 
     local function convert(tp, mode, items)
@@ -827,7 +825,7 @@ describe('RDM\'s elemental commands', function()
             end
         end
         gs:console('gs c elemental ' .. name)
-        return jobby.actions(gs), gs
+        return gs:actions(), gs
     end
 
     -- The actions the command sent, with their targets. setup, when given, runs just before the command.
@@ -838,7 +836,7 @@ describe('RDM\'s elemental commands', function()
             setup(gs)
         end
         gs:console('gs c elemental ' .. name)
-        return jobby.action_entries(gs), gs
+        return gs:action_entries(), gs
     end
 
     it('enspell casts the enspell of the element on oneself', function()
@@ -862,14 +860,14 @@ describe('RDM\'s elemental commands', function()
         local gs = boot_ticking({sub_job = 'SCH', buffs = {'Aurorastorm'}})
         gs:console('gs c set ElementalMode Light')
         gs:console('gs c elemental weather me')
-        assert.same({'Klimaform'}, jobby.actions(gs))
+        assert.same({'Klimaform'}, gs:actions())
     end)
 
     it('weather casts the storm again once Klimaform is up', function()
         local gs = boot_ticking({sub_job = 'SCH', buffs = {'Aurorastorm', 'Klimaform'}})
         gs:console('gs c set ElementalMode Light')
         gs:console('gs c elemental weather me')
-        assert.same({'Aurorastorm'}, jobby.actions(gs))
+        assert.same({'Aurorastorm'}, gs:actions())
     end)
 
     it('nuke casts the highest tier Jobby can cast, Fire V, at the target', function()
@@ -889,10 +887,10 @@ describe('RDM\'s elemental commands', function()
     it('nuke says so when Jobby hasn\'t the MP for any tier', function()
         local actions, gs = sent('Fire', 'nuke', function(gs)
             gs.game.player.vitals.mp = 5
-            jobby.chat(gs)
+            gs:chat()
         end)
         assert.same({}, actions)
-        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, jobby.chat(gs))
+        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, gs:chat())
     end)
 
     it('nuke goes down a tier when that one is on recast', function()
@@ -916,10 +914,10 @@ describe('RDM\'s elemental commands', function()
         gs:console('gs c set ElementalMode Light')
         gs.game:start_spell_recast('Banish', 10)
         gs.game:start_spell_recast('Banish II', 10)
-        jobby.chat(gs)
+        gs:chat()
         gs:console('gs c elemental nuke')
-        assert.same({}, jobby.actions(gs))
-        assert.same({'Abort: Banishes on cooldown or not enough MP.'}, jobby.chat(gs))
+        assert.same({}, gs:actions())
+        assert.same({'Abort: Banishes on cooldown or not enough MP.'}, gs:chat())
     end)
 
     it('hands a command it doesn\'t know on to Sel\'s elemental commands', function()
@@ -936,10 +934,10 @@ describe('RDM\'s elemental commands', function()
         for spell, seconds in pairs(recasts) do
             gs.game:start_spell_recast(spell, seconds)
         end
-        jobby.chat(gs)
+        gs:chat()
         gs:console('gs c elemental nuke')
-        assert.same({}, jobby.actions(gs))
-        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, jobby.chat(gs))
+        assert.same({}, gs:actions())
+        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, gs:chat())
     end)
 end)
 
@@ -966,80 +964,86 @@ describe('RDM\'s Auto Arts', function()
     end
 
     it('uses Composure with Auto Arts on and Auto Buff Mode on', function()
-        assert.same({'Composure'}, actions_of(jobby.until_action(arts({buffs = buffed}))))
+        local gs = arts({buffs = buffed})
+        gs:play_until_action()
+        assert.same({'Composure'}, gs:actions())
     end)
 
     it('uses Composure in a fight with Auto Buff Mode off', function()
         local gs = arts({}, false)
         gs:monster_hits()
-        assert.same({'Composure'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Composure'}, gs:actions())
     end)
 
     it('uses nothing out of a fight with Auto Buff Mode off', function()
         local gs = arts({}, false)
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses Composure ahead of the spells of gs c buffup', function()
         local gs = arts({}, false)
         gs:console('gs c buffup')
-        assert.same({'Composure'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Composure'}, gs:actions())
     end)
 
     it('uses no Composure with Composure up', function()
         local gs = arts({buffs = with_buffed('Composure')})
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses no Composure while it is on recast', function()
         local gs = arts({buffs = buffed})
         gs.game:start_ability_recast('Composure', 60)
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses Light Arts after Composure with Scholar as the sub job', function()
         local gs = arts({sub_job = 'SCH', buffs = with_buffed('Composure')})
-        assert.same({'Light Arts'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Light Arts'}, gs:actions())
     end)
 
     it('uses no Light Arts with Light Arts up', function()
         local gs = arts({sub_job = 'SCH', buffs = with_buffed('Composure', 'Light Arts')})
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses no Light Arts with Dark Arts up', function()
         local gs = arts({sub_job = 'SCH', buffs = with_buffed('Composure', 'Dark Arts')})
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses no Light Arts while the sub job\'s abilities are restricted', function()
         local gs = arts({sub_job = 'SCH', buffs = with_buffed('Composure', 'SJ Restriction')})
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses nothing in town', function()
         local gs = arts({zone = 230})
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses no Composure with Auto Arts off, under Auto Buff Mode', function()
         local gs = boot_ticking({buffs = buffed})
         gs:console('gs c set AutoBuffMode Auto')
         gs:play(3)
-        assert.same({}, actions_of(gs:traffic()))
+        assert.same({}, gs:actions())
     end)
 
     it('uses no Composure with Auto Arts off, under gs c buffup, which goes straight to its spells', function()
         local gs = boot_ticking({buffs = {'Haste'}})
         gs:console('gs c buffup')
-        assert.same({'Refresh III'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Refresh III'}, gs:actions())
     end)
 end)
 
@@ -1051,7 +1055,9 @@ describe('RDM\'s Auto Buff Mode', function()
     end
 
     it('AutoMelee starts with Phalanx II', function()
-        assert.same({'Phalanx II'}, actions_of(jobby.until_action(buffing('AutoMelee'))))
+        local gs = buffing('AutoMelee')
+        gs:play_until_action()
+        assert.same({'Phalanx II'}, gs:actions())
     end)
 
     it('AutoMelee goes on to Temper II with Phalanx, Haste and Refresh up', function()
@@ -1059,17 +1065,20 @@ describe('RDM\'s Auto Buff Mode', function()
         for _, buff in ipairs({'Phalanx', 'Haste', 'Refresh'}) do
             gs:gain_buff(buff)
         end
-        assert.same({'Temper II'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Temper II'}, gs:actions())
     end)
 
     it('AutoMage starts with Phalanx II too, and goes on to Gain-INT', function()
         local gs = buffing('AutoMage')
-        assert.same({'Phalanx II'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Phalanx II'}, gs:actions())
         gs:finish_action()
         for _, buff in ipairs({'Phalanx', 'Haste', 'Refresh'}) do
             gs:gain_buff(buff)
         end
-        assert.same({'Gain-INT'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Gain-INT'}, gs:actions())
     end)
 
     it('has the modes Off, Auto, AutoMelee and AutoMage', function()
@@ -1089,7 +1098,8 @@ describe('RDM\'s buff up', function()
     it('is told by name which list to cast: Odin starts with Refresh III', function()
         local gs = boot_ticking()
         gs:console('gs c buffup Odin')
-        assert.same({'Refresh III'}, actions_of(jobby.until_action(gs)))
+        gs:play_until_action()
+        assert.same({'Refresh III'}, gs:actions())
     end)
 end)
 
@@ -1097,7 +1107,7 @@ describe('RDM\'s status line', function()
     it('says the casting and idle modes, as a caster\'s does', function()
         local gs = boot()
         gs:console('gs c update user')
-        assert.same({'Melee, Casting [Normal], Idle [Normal]'}, jobby.chat(gs))
+        assert.same({'Melee, Casting [Normal], Idle [Normal]'}, gs:chat())
     end)
 end)
 

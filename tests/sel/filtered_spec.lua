@@ -4,7 +4,7 @@ local commy = require('commy')
 local function try(gs, line)
     local typed = commy.record_input(gs)
     gs:type(line)
-    return typed, commy.chat(gs)
+    return typed, gs:chat()
 end
 
 describe('Sel, for a spell Commy can\'t cast', function()
