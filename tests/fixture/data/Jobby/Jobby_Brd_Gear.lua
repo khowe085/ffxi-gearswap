@@ -30,9 +30,9 @@ function init_gear_sets()
 	sets.precast.FC['Horde Lullaby'] = {head = 'Bendis\'s Hairpin', ring1 = "Tyrant's Ring"}
 	sets.precast.FC.Cure = {head = "Bendis's Hairpin"}
 
-	sets.midcast.SongEffect = {main = 'Carnwenhan', body = 'Sapphire Platemail'}
+	sets.midcast.SongEffect = {main = 'Carnwenhan', body = 'Sapphire Platemail', legs = 'Volte Brais'}
 	sets.midcast.SongEffect.Resistant = {main = 'Carnwenhan', body = 'Ruby Robe'}
-	sets.midcast.SongDebuff = {main = 'Carnwenhan', body = 'Diamond Haramaki'}
+	sets.midcast.SongDebuff = {main = 'Carnwenhan', body = 'Diamond Haramaki', hands = 'Volte Bracers'}
 	sets.midcast.SongDebuff.Resistant = {main = 'Carnwenhan', body = 'Jadeite Cuirie'}
 	sets.midcast.SongDebuff.DW = {waist = 'Prosilio Belt'}
 	sets.midcast.DaurdablaDummy = {body = 'Rage Platemail'}

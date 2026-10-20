@@ -33,6 +33,7 @@ function init_gear_sets()
 	sets.MaxTP = {ear1 = 'Ishvara Earring'}
 	sets.AccMaxTP = {ear1 = 'Brutal Earring'}
 
+	sets.midcast.Cure = {head = 'Volte Cap'}
 	sets.midcast.HB_Trigger = {head = 'Vishap Armet +3'}
 	sets.HealingBreath = {neck = "Orunmila's Torque"}
 	sets.SmitingBreath = {back = 'Aptitude Mantle'}

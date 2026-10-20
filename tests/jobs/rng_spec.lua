@@ -25,16 +25,23 @@ end
 -- with wearing over the idle set, and these:
 --   ammunition  the ammunition Jobby has, every kind above unless given
 --   counts      how many of an ammunition there are, in place of 99
+--   without     the pieces of the gear above that Jobby hasn't
 local function boot(options)
     options = options or {}
+    local without = {}
+    for _, name in ipairs(options.without or {}) do
+        without[name] = true
+    end
     local items = {}
     for _, name in ipairs(gear) do
-        items[#items + 1] = name
+        if not without[name] then
+            items[#items + 1] = name
+        end
     end
     for _, name in ipairs(options.ammunition or ammunition) do
         items[#items + 1] = {name = name, count = (options.counts or {})[name] or 99}
     end
-    options.ammunition, options.counts = nil, nil
+    options.ammunition, options.counts, options.without = nil, nil, nil
     options.items = items
     options.wearing = jobby.worn_by(options.wearing, own_idle)
     options.sub_job = options.sub_job or 'NIN'
@@ -72,7 +79,8 @@ describe('data/RNG.lua', function()
     end)
 
     it('knows no type of ranged weapon when none is in the range slot', function()
-        local gs = boot({wearing = {range = 'empty'}})
+        local gs = boot({without = {"Judge's Bow"}, wearing = {range = 'empty'}})
+        assert.is_nil(gs:worn().range)
         assert.equal('None', gs.user.RangedWeaponType)
     end)
 end)
@@ -120,6 +128,10 @@ describe('RNG\'s ranged attack', function()
         gs:type('/ra <t>')
         assert.equal('Jadeite Cuirie', gs:worn().body)
     end)
+
+    pending('has Chrono Arrow once an update has put the idle set\'s bow in an empty range slot: job_update in '
+        .. 'data/RNG.lua takes the type of the ranged weapon before Sel\'s update puts the idle set on, so the type '
+        .. 'stays None, and do_ammo_checks raises an error indexing DefaultAmmo with it')
 
     it('has the default ammunition of the weapon back once it is done, over the accuracy ranged mode\'s', function()
         local gs = boot()
@@ -217,7 +229,8 @@ describe('RNG\'s default ammunition', function()
     end)
 
     it('is not put on once there is no weapon in the range slot', function()
-        local gs = boot({wearing = {range = 'empty'}})
+        local gs = boot({without = {"Judge's Bow"}, wearing = {range = 'empty'}})
+        assert.is_nil(gs:worn().range)
         gs:type('/ja "Barrage" <me>')
         gs:finish_action()
         assert.equal('Staunch Tathlum +1', gs:worn().ammo)

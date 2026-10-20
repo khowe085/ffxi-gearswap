@@ -4,7 +4,8 @@ local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's H
     'Sapphire Platemail', 'Jadeite Cuirie', 'Diamond Haramaki', 'Ruby Robe', 'Volte Jupon', 'Sapphire Gauntlets',
     'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers', 'Jadeite Chausses', 'Diamond Hiza.', 'Volte Hose',
     'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Sune-Ate', 'Volte Boots', "Orunmila's Torque", 'Phrenic Torque',
-    'Aptitude Mantle', 'Null Shawl', 'Prosilio Belt', "Tyrant's Ring", 'Ishvara Earring', 'Brutal Earring'}
+    'Aptitude Mantle', 'Null Shawl', 'Prosilio Belt', "Tyrant's Ring", 'Ishvara Earring', 'Brutal Earring',
+    'Volte Brais', 'Volte Bracers', 'Telchine Braconi'}
 
 -- What the idle set of Jobby's summoner gear file wears besides every gear file's.
 local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
@@ -111,10 +112,11 @@ describe('SMN\'s blood pact with Astral Conduit up and not enough MP for it twic
         assert.same({'Convert'}, gs:actions())
     end)
 
-    it('is Convert with a sub job of RDM and Convert ready', function()
+    it('is the pact itself, not Convert, with 400 HP or less', function()
+        gs.game.player.vitals.hp = 400
         gs:type('/pet "Flaming Crush" <t>')
-        assert.same({'Not enough MP to Pact while using Conduit, Converting!'}, gs:chat())
-        assert.same({'Convert'}, gs:actions())
+        assert.same({}, gs:chat())
+        assert.same({'Flaming Crush'}, gs:actions())
     end)
 
     it('is Convert only with AutoConvert on', function()
@@ -188,9 +190,11 @@ describe('SMN\'s blood pacts, once the pact is done', function()
         assert.same(with_ifrit({body = 'Diamond Haramaki', legs = 'Diamond Hiza.'}), pact('/pet "Lunar Cry" <t>'))
     end)
 
-    it('wear the AM set of the pact\'s name over the rest with Aftermath level 3', function()
+    it('wear the AM set of the pact\'s name with Aftermath level 3, over the pact\'s set and under the avatar\'s '
+        .. 'set of the map', function()
         gs:gain_buff('Aftermath: Lv.3')
-        assert.same(with_ifrit({hands = 'Diamond Kote', legs = 'Jadeite Chausses', waist = 'Prosilio Belt'}), pact('/pet "Flaming Crush" <t>'))
+        assert.same(with_ifrit({hands = 'Volte Bracers', legs = 'Jadeite Chausses', waist = 'Prosilio Belt'}),
+            pact('/pet "Flaming Crush" <t>'))
     end)
 
     it('wear the AM set of the map with Aftermath level 3, when the pact has no AM set of its own', function()
@@ -359,17 +363,20 @@ describe('SMN\'s Pact Spam Mode', function()
         assert.same({'Poison Nails'}, gs:actions())
     end)
 
-    it('waits for the pact recast', function()
+    it('waits for the pact recast, without trying the pact', function()
         gs.game:start_ability_recast('Poison Nails', 30)
+        gs:chat()
         gs:pet_readies('Poison Nails', 'ability')
         gs:pet_finishes('Poison Nails', 'ability')
         assert.same({}, gs:actions())
+        assert.same({}, gs:chat())
     end)
 
     it('is for rage pacts only', function()
         gs:pet_readies('Inferno Howl', 'ability', {target = 'player'})
         gs:pet_finishes('Inferno Howl', 'ability', {target = 'player'})
         assert.same({}, gs:actions())
+        assert.same({}, gs:typed())
     end)
 
     it('does nothing when it is off', function()
@@ -459,7 +466,7 @@ describe('SMN\'s idle set with no avatar out', function()
 end)
 
 describe('SMN\'s casting in the Proc casting mode', function()
-    it('takes the Proc sets for a spell, in place of the sets of its own', function()
+    it('takes the Proc sets for a spell, in place of the sets of its spell map', function()
         local gs = boot()
         gs:console('gs c set CastingMode Proc')
         gs:type('/ma "Cure III" <me>')
@@ -467,7 +474,7 @@ describe('SMN\'s casting in the Proc casting mode', function()
         assert.equal('Ruby Robe', gs:worn().body)
     end)
 
-    it('takes the spell\'s own sets in another mode', function()
+    it('takes the sets of the spell\'s map in another mode', function()
         local gs = boot()
         gs:type('/ma "Cure III" <me>')
         assert.equal('Volte Cap', gs:traffic()[1].equip.head)
@@ -660,12 +667,13 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
         assert.same({}, gs:actions())
     end)
 
-    it('is left alone while it is on recast', function()
+    it('is left alone while it is on recast, without trying it', function()
         gs:give_pet({name = 'Ifrit'})
         gs.game:start_ability_recast("Avatar's Favor", 30)
         gs:traffic()
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 
     it('is left alone with AutoFavor off', function()
@@ -681,12 +689,13 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
         assert.same({}, gs:actions())
     end)
 
-    it('is left alone under amnesia', function()
+    it('is left alone under amnesia, without trying it', function()
         gs:give_pet({name = 'Ifrit'})
         gs:gain_buff('amnesia')
         gs:traffic()
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 end)
 

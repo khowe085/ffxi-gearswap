@@ -16,10 +16,10 @@ local function worn(changes)
     return jobby.worn_by(changes, idle)
 end
 
--- Jobby as a ninja with the idle set on, over a sub job of WAR unless the options say otherwise. options are
--- jobby.boot's, and tools: the ninja tools Jobby has, as jobby.boot's items, the universal ones of each kind in the
--- inventory unless given.
-local function boot(options)
+-- The boot options of Jobby as a ninja with the idle set on, over a sub job of WAR unless the options say otherwise.
+-- options are jobby.boot's, and tools: the ninja tools Jobby has, as jobby.boot's items, the universal ones of each
+-- kind in the inventory unless given.
+local function boot_options(options)
     options = options or {}
     local items = {}
     for _, name in ipairs(gear) do
@@ -32,7 +32,15 @@ local function boot(options)
     options.items = items
     options.wearing = own_idle
     options.sub_job = options.sub_job or 'WAR'
-    return jobby.boot('NIN', options)
+    return options
+end
+
+local function boot(options)
+    return jobby.boot('NIN', boot_options(options))
+end
+
+local function boot_ticking(options)
+    return jobby.boot_ticking('NIN', boot_options(options))
 end
 
 describe('data/NIN.lua', function()
@@ -256,19 +264,21 @@ describe('NIN\'s stance, kept by the tick', function()
         assert.same({}, gs:actions())
     end)
 
-    it('waits while Innin is on recast', function()
+    it('waits while Innin is on recast, without trying it', function()
         gs:monster_hits()
         gs.game:start_ability_recast('Innin', 30)
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 
-    it('waits while Yonin is on recast in the Yonin stance', function()
+    it('waits while Yonin is on recast in the Yonin stance, without trying it', function()
         gs:console('gs c set Stance Yonin')
         gs:monster_hits()
         gs.game:start_ability_recast('Yonin', 30)
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 end)
 
@@ -379,14 +389,12 @@ describe('NIN\'s buffup', function()
         assert.same({'Kakka: Ichi'}, gs:actions())
     end)
 
-    it('is done once both are up', function()
-        gs:gain_buff('Subtle Blow Plus')
-        gs:gain_buff('Store TP')
-        gs:traffic()
-        gs:play(5.5)
+    it('is done once both are up, which is said', function()
+        gs = boot_ticking({buffs = {'Subtle Blow Plus', 'Store TP'}})
+        gs:console('gs c buffup')
+        gs:play(1)
         assert.same({}, gs:actions())
-        local lines = gs:chat()
-        assert.equal('All Default buffs are up!', lines[#lines])
+        assert.same({'All Default buffs are up!'}, gs:chat())
     end)
 end)
 
@@ -430,12 +438,13 @@ describe('NIN\'s shadows kept by AutoShadowMode', function()
         assert.same({'Utsusemi: Ichi'}, gs:actions())
     end)
 
-    it('are nothing when all three are on recast', function()
+    it('are nothing, nor tried, when all three are on recast', function()
         gs.game:start_spell_recast('Utsusemi: San', 60)
         gs.game:start_spell_recast('Utsusemi: Ni', 60)
         gs.game:start_spell_recast('Utsusemi: Ichi', 60)
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 
     it('are nothing with two up and San on recast, as Ni waits for fewer than two', function()

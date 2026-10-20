@@ -5,7 +5,7 @@ local gear = {"Judge's Sword", 'Aern Sword', 'Trainee Sword', "Charmer's Merlin"
     'Diamond Haramaki', 'Sapphire Gauntlets', 'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers',
     'Jadeite Chausses', 'Diamond Hiza.', 'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Sune-Ate',
     "Orunmila's Torque", 'Phrenic Torque', 'Aptitude Mantle', 'Prosilio Belt', 'Moonshade Earring', 'Ishvara Earring',
-    'Brutal Earring', 'Lugra Earring +1', "Hecate's Earring", 'Pixie Earring'}
+    'Brutal Earring', 'Lugra Earring +1', "Hecate's Earring", 'Pixie Earring', 'Malignance Tights'}
 
 -- What the idle set of Jobby's beastmaster gear file wears besides every gear file's.
 local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
@@ -98,18 +98,24 @@ describe('BST\'s ready charges', function()
 
     it('take 5 seconds less a timer with Charmer\'s Merlin in the ready recast set', function()
         gs.user.sets.midcast.Pet.ReadyRecast.main = "Charmer's Merlin"
+        gs.game:start_ability_recast('Sic', 14)
+        assert.equal(2, charges())
         gs.game:start_ability_recast('Sic', 15)
         assert.equal(1, charges())
     end)
 
     it('take 5 seconds less a timer with Desultor Tassets in the ready recast set', function()
         gs.user.sets.midcast.Pet.ReadyRecast.legs = 'Desultor Tassets'
+        gs.game:start_ability_recast('Sic', 14)
+        assert.equal(2, charges())
         gs.game:start_ability_recast('Sic', 15)
         assert.equal(1, charges())
     end)
 
     it('take 5 seconds less a timer with Gleti\'s Breeches in the ready recast set', function()
         gs.user.sets.midcast.Pet.ReadyRecast.legs = "Gleti's Breeches"
+        gs.game:start_ability_recast('Sic', 14)
+        assert.equal(2, charges())
         gs.game:start_ability_recast('Sic', 15)
         assert.equal(1, charges())
     end)
@@ -186,9 +192,15 @@ describe('BST\'s Bestial Loyalty and Call Beast', function()
             feet = 'Jadeite Jambeaux'}, precast(boot(), '/ja "Bestial Loyalty" <me>'))
     end)
 
-    it('wear the same sets for Call Beast', function()
+    it('wear the same sets for Call Beast without the jug of a better pet', function()
         assert.same({head = "Bendis's Hairpin", hands = 'Diamond Kote', legs = 'Diamond Hiza.',
             feet = 'Jadeite Jambeaux'}, precast(boot(), '/ja "Call Beast" <me>'))
+    end)
+
+    it('wear the set of the jug pet chosen for Call Beast, even with the jug of the better pet in the bags', function()
+        local gs = boot({food = {{name = 'Bubbly Broth', count = 12}}})
+        assert.same({head = "Bendis's Hairpin", hands = 'Diamond Kote', legs = 'Diamond Hiza.',
+            feet = 'Jadeite Jambeaux'}, precast(gs, '/ja "Call Beast" <me>'))
     end)
 
     it('wear the set of the better pet when the jug of it is in the bags', function()
@@ -528,7 +540,8 @@ describe('BST\'s ready command', function()
 
     pending('sends the move of the kind named alone, nothing for a kind it doesn\'t know or one the pet has no move '
         .. 'of, and only Fight for an idle pet, and says once why it is turned down: job_self_command in data/BST.lua '
-        .. 'doesn\'t mark ready as handled, so Sel calls handle_ready again with the kind taken off, which sends the '
+        .. 'doesn\'t mark ready as handled, so Sel takes ready off the command and calls handle_ready again with the '
+        .. 'kind as the first word, and handle_ready reads the kind from the second, finds none, and sends the '
         .. 'default move, or says again why not')
 end)
 
@@ -672,10 +685,11 @@ describe('BST\'s Reward, kept by the tick', function()
         assert.same({}, gs:actions())
     end)
 
-    it('waits while Reward is on recast', function()
+    it('waits while Reward is on recast, without trying it', function()
         gs.game:start_ability_recast('Reward', 30)
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 
     it('waits with AutoRewardMode off', function()
@@ -684,18 +698,20 @@ describe('BST\'s Reward, kept by the tick', function()
         assert.same({}, gs:actions())
     end)
 
-    it('waits under amnesia', function()
+    it('waits under amnesia, without trying it', function()
         gs:gain_buff('amnesia')
         gs:traffic()
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 
-    it('waits under impairment', function()
+    it('waits under impairment, without trying it', function()
         gs:gain_buff('impairment')
         gs:traffic()
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 
     -- With only Pet Food Zeta in the bags, so that the food looked for is the reward mode's.
@@ -738,11 +754,12 @@ describe('BST\'s pet, called by the tick under AutoCallPet', function()
         assert.same({'Call Beast'}, gs:actions())
     end)
 
-    it('is not called when both are on recast', function()
+    it('is not called, nor tried, when both are on recast', function()
         gs.game:start_ability_recast('Bestial Loyalty', 60)
         gs.game:start_ability_recast('Call Beast', 60)
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 
     it('is not called in town', function()
@@ -779,12 +796,13 @@ describe('BST\'s ready moves, kept by the tick under AutoReadyMode', function()
         assert.same({'Foot Kick'}, gs:actions())
     end)
 
-    it('are none for an engaged pet with no charge', function()
+    it('are none, nor tried, for an engaged pet with no charge', function()
         gs:give_pet({name = 'DroopyDortwin', status = 1})
         gs.game:start_ability_recast('Sic', 57)
         gs:traffic()
         gs:play(5.5)
         assert.same({}, gs:actions())
+        assert.same({}, jobby.refusals(gs))
     end)
 
     it('are Fight for an idle pet with a monster targeted', function()

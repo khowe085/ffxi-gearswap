@@ -350,7 +350,8 @@ describe('SAM\'s engaged set', function()
         assert.same(engaged_with({body = 'Jadeite Cuirie'}), gs:worn())
     end)
 
-    it('takes Hasso\'s set rather than Third Eye\'s with Hasso, Seigan and Third Eye up', function()
+    it('looks for Hasso before Seigan and Third Eye, taking Hasso\'s set with all three up, though the game never '
+        .. 'has Hasso and Seigan up at once', function()
         gs:gain_buff('Hasso')
         gs:gain_buff('Seigan')
         gs:gain_buff('Third Eye')

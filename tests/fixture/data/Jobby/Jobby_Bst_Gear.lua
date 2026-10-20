@@ -28,7 +28,7 @@ function init_gear_sets()
 	sets.engaged = {head = "Bendis's Hairpin", body = 'Diamond Haramaki'}
 
 	sets.precast.JA.Reward = {legs = 'Sapphire Trousers'}
-	sets.precast.JA.Reward.Theta = {ammo = 'Pet Food Theta', feet = 'Sapphire Leggings'}
+	sets.precast.JA.Reward.Theta = {ammo = 'Pet Food Theta', legs = 'Malignance Tights', feet = 'Sapphire Leggings'}
 	sets.precast.JA.Reward.Zeta = {ammo = 'Pet Food Zeta', feet = 'Jadeite Jambeaux'}
 	sets.precast.JA.Reward.Eta = {ammo = 'Pet Food Eta', feet = 'Diamond Sune-Ate'}
 	sets.precast.JA.Reward.DW = {sub = 'Aern Sword'}
