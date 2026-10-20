@@ -158,7 +158,7 @@ describe('an effusion', function()
         local gs = boot({engaged = true, obi = true, buffs = {'Lux'}})
         gs:set_day(6)
         gs:type('/ja "Lunge" <t>')
-        assert.equal('Hachirin-no-Obi', jobby.layer(gs:worn()).waist)
+        assert.equal('Hachirin-no-Obi', gs:worn().waist)
     end)
 
     it('wears them without the Hachirin-no-Obi when no rune matches', function()

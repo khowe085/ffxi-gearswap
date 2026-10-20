@@ -450,8 +450,7 @@ describe('WHM\'s status line', function()
     it('says the casting and idle modes, as a caster\'s does', function()
         local gs = boot()
         gs:console('gs c update user')
-        local lines = gs:chat()
-        assert.is_truthy(lines[#lines]:find('Casting [Normal], Idle [Normal]', 1, true), lines[#lines])
+        assert.same({'Casting [Normal], Idle [Normal]'}, gs:chat())
     end)
 end)
 
@@ -653,12 +652,14 @@ end)
 
 describe('WHM\'s elemental commands', function()
     local function nuke(mode, command, options)
+        options = options or {}
         local gs = boot_ticking({sub_job = 'BLM'})
         gs:console('gs c set ElementalMode ' .. mode)
-        if options and options.recasts then
-            for spell, seconds in pairs(options.recasts) do
-                gs.game:start_spell_recast(spell, seconds)
-            end
+        for spell, seconds in pairs(options.recasts or {}) do
+            gs.game:start_spell_recast(spell, seconds)
+        end
+        if options.setup then
+            options.setup(gs)
         end
         gs:console('gs c elemental ' .. command)
         return gs:action_entries(), gs
@@ -704,8 +705,8 @@ describe('WHM\'s elemental commands', function()
         assert.same(at_the_toad('Fire'), (nuke('Fire', 'nuke', {recasts = {['Fire II'] = 10}})))
     end)
 
-    -- Sel's handle_elemental goes on to its own nuke here too, but picks the same tier, and Sel drops a spell of the
-    -- name it is already casting.
+    -- Sel's handle_elemental goes on to its own nuke here too, which for nuke picks the same tier, and Sel drops a
+    -- spell of the name it is already casting.
     it('casts nothing more once the nuke is done in another mode', function()
         local _, gs = nuke('Fire', 'nuke')
         gs:finish_action()
@@ -720,17 +721,17 @@ describe('WHM\'s elemental commands', function()
         assert.same(at_the_toad('Fire II'), (nuke('Fire', 'smallnuke')))
     end)
 
+    pending('casts nothing more once Stone II is done for a smallnuke in the Earth mode, from a level 53 Black Mage '
+        .. 'sub job: handle_job_elemental in data/WHM.lua returns nothing once it has cast, so Sel\'s '
+        .. 'handle_elemental goes on to its own nuke, which ignores smallnuke and starts at tier III, and its '
+        .. 'MiniQueue casts Stone III, which the sub job has from 51, once Stone II is done')
+
     it('casts nothing, and says nothing, when every light nuke is on recast', function()
-        local gs = boot_ticking({sub_job = 'BLM'})
-        gs:console('gs c set ElementalMode Light')
-        gs.game:start_spell_recast('Holy II', 10)
-        gs.game:start_spell_recast('Holy', 10)
-        gs.game:start_spell_recast('Banish III', 10)
-        gs.game:start_spell_recast('Banish II', 10)
-        gs.game:start_spell_recast('Banish', 10)
-        gs:chat()
-        gs:console('gs c elemental nuke')
-        assert.same({}, gs:actions())
+        local recasts = {['Holy II'] = 10, ['Holy'] = 10, ['Banish III'] = 10, ['Banish II'] = 10, ['Banish'] = 10}
+        local actions, gs = nuke('Light', 'nuke', {recasts = recasts, setup = function(gs)
+            gs:chat()
+        end})
+        assert.same({}, actions)
         assert.same({}, gs:chat())
     end)
 
@@ -742,13 +743,10 @@ describe('WHM\'s elemental commands', function()
     end)
 
     it('says so when every tier is on recast', function()
-        local gs = boot_ticking({sub_job = 'BLM'})
-        gs:console('gs c set ElementalMode Fire')
-        gs.game:start_spell_recast('Fire II', 10)
-        gs.game:start_spell_recast('Fire', 10)
-        gs:chat()
-        gs:console('gs c elemental nuke')
-        assert.same({}, gs:actions())
+        local actions, gs = nuke('Fire', 'nuke', {recasts = {['Fire II'] = 10, ['Fire'] = 10}, setup = function(gs)
+            gs:chat()
+        end})
+        assert.same({}, actions)
         assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, gs:chat())
     end)
 end)

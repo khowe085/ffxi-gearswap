@@ -115,7 +115,8 @@ describe('THF\'s weapon skill set by Sneak Attack and Trick Attack', function()
         assert.equal('Moonbeam Cape', worn.back)
     end)
 
-    it('is sets.precast.WS for a weapon skill with none of its own', function()
+    it('is sets.precast.WS, with sets.buff[\'Sneak Attack\'] over it under Sneak Attack, for a weapon skill with none '
+        .. 'of its own', function()
         gs:gain_buff('Sneak Attack')
         assert.same(jobby.worn_by(jobby.full_idle, {neck = 'Fotia Gorget', ear1 = 'Moonshade Earring',
             ear2 = 'Brutal Earring', body = 'Adamantite Armor'}), weaponskill(gs, '/ws "Mandalic Stab" <t>'))

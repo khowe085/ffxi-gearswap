@@ -145,14 +145,7 @@ end)
 local ifrit_idle = {back = 'Aptitude Mantle', feet = 'Sapphire Leggings', legs = 'Sapphire Trousers'}
 
 local function with_ifrit(changes)
-    local set = {}
-    for slot, item in pairs(ifrit_idle) do
-        set[slot] = item
-    end
-    for slot, item in pairs(changes or {}) do
-        set[slot] = item
-    end
-    return worn(set)
+    return worn(jobby.worn_by(ifrit_idle, changes))
 end
 
 describe('SMN\'s blood pacts, once the pact is done', function()

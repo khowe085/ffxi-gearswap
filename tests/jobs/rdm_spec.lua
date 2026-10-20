@@ -109,11 +109,11 @@ describe('RDM\'s weapon skill filter', function()
 end)
 
 describe('RDM\'s Phalanx', function()
-    it('cast on another player is cast as Phalanx II instead', function()
+    it('cast on another player is cast as Phalanx II instead, on that player', function()
         local gs = boot()
         jobby.target_a_player(gs)
         gs:type('/ma "Phalanx" <t>')
-        assert.same({'Phalanx II'}, gs:actions())
+        assert.same({{action = 'Phalanx II', target = 'Pal'}}, gs:action_entries())
     end)
 
     it('cast on oneself is cast as it is', function()
@@ -776,7 +776,7 @@ describe('RDM\'s melee set with an enspell up and an Enspell weapon set', functi
         assert.equal('Hachirin-no-Obi', worn.waist)
     end)
 
-    it('has no waist piece laid over it on another day in another weather', function()
+    it('has Orpheus\'s Sash, and no obi, laid over it on another day with no weather', function()
         local worn = engaged({weather = 0, day = 1})
         assert.equal("Orpheus's Sash", worn.waist)
         local plain = engaged({items = without(gear, {["Orpheus's Sash"] = true}), weather = 0, day = 1})
@@ -786,6 +786,10 @@ describe('RDM\'s melee set with an enspell up and an Enspell weapon set', functi
     it('has Zodiac Ring laid over it on the enspell element\'s day when the set leaves the ring slot alone', function()
         assert.equal('Zodiac Ring', engaged().right_ring)
     end)
+
+    pending('has Zodiac Ring laid over it on the enspell element\'s day when the set names ring2: '
+        .. 'job_customize_melee_set in data/RDM.lua equips the ring itself, and Sel equips the set it returns after, '
+        .. 'so the set\'s ring2 takes the slot back')
 
     it('has no Zodiac Ring laid over it in an accuracy offense mode', function()
         assert.equal('Stikini Ring +1', engaged({offense = 'Acc'}).right_ring)

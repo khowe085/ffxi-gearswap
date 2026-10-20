@@ -23,7 +23,7 @@ end
 
 local light_day, light_weather = 6, 16
 
--- The worn gear in a slot once the spell has been cast and its midcast set is on.
+-- The gear worn once the spell has been cast and its midcast set is on.
 local function worn_after(gs, line)
     gs:type(line)
     return gs:worn()
@@ -478,6 +478,10 @@ describe('BLM\'s Manawell', function()
         gs:type('/ma "Meteor" <t>')
         assert.same({'Meteor'}, gs:actions())
     end)
+
+    pending('is followed a second later by Thunder VI, in the OccultAcumen casting mode when Jobby hasn\'t the MP: '
+        .. 'job_pretarget in data/BLM.lua types the spell again without quotes, so GearSwap reads Thunder with a '
+        .. 'target named VI, finds no such target and lets the line through unhandled')
 end)
 
 describe('BLM\'s Auto Arts', function()
@@ -586,16 +590,15 @@ describe('BLM\'s Auto Buff Mode', function()
 end)
 
 describe('BLM\'s elemental commands', function()
-    local function command(mode, name, recasts, mp)
+    local function command(mode, name, options)
+        options = options or {}
         local gs = boot_ticking({sub_job = 'WHM'})
         gs:console('gs c set ElementalMode ' .. mode)
-        if recasts then
-            for spell, seconds in pairs(recasts) do
-                gs.game:start_spell_recast(spell, seconds)
-            end
+        for spell, seconds in pairs(options.recasts or {}) do
+            gs.game:start_spell_recast(spell, seconds)
         end
-        if mp then
-            gs.game.player.vitals.mp = mp
+        if options.setup then
+            options.setup(gs)
         end
         gs:console('gs c elemental ' .. name)
         return gs:action_entries(), gs
@@ -611,11 +614,13 @@ describe('BLM\'s elemental commands', function()
     end)
 
     it('goes down a tier when that one is on recast', function()
-        assert.same(at_the_toad('Fire V'), (command('Fire', 'nuke', {['Fire VI'] = 10})))
+        assert.same(at_the_toad('Fire V'), (command('Fire', 'nuke', {recasts = {['Fire VI'] = 10}})))
     end)
 
     it('goes down a tier when Jobby hasn\'t the MP', function()
-        assert.same(at_the_toad('Fire V'), (command('Fire', 'nuke', nil, 338)))
+        assert.same(at_the_toad('Fire V'), (command('Fire', 'nuke', {setup = function(gs)
+            gs.game.player.vitals.mp = 338
+        end})))
     end)
 
     pending('nukes with Fire VI with just its cost in MP, 339: handle_job_elemental in data/BLM.lua takes a tier only '
@@ -637,14 +642,10 @@ describe('BLM\'s elemental commands', function()
         for _, spell in ipairs({'Fire VI', 'Fire V', 'Fire IV', 'Fire III', 'Fire II', 'Fire'}) do
             recasts[spell] = 10
         end
-        local gs = boot_ticking()
-        gs:console('gs c set ElementalMode Fire')
-        for spell, seconds in pairs(recasts) do
-            gs.game:start_spell_recast(spell, seconds)
-        end
-        gs:chat()
-        gs:console('gs c elemental nuke')
-        assert.same({}, gs:actions())
+        local actions, gs = command('Fire', 'nuke', {recasts = recasts, setup = function(gs)
+            gs:chat()
+        end})
+        assert.same({}, actions)
         assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, gs:chat())
     end)
 
@@ -653,7 +654,7 @@ describe('BLM\'s elemental commands', function()
     end)
 
     it('goes down to Banish when Banish II is on recast in the Light mode', function()
-        assert.same(at_the_toad('Banish'), (command('Light', 'nuke', {['Banish II'] = 10})))
+        assert.same(at_the_toad('Banish'), (command('Light', 'nuke', {recasts = {['Banish II'] = 10}})))
     end)
 
     it('casts the ancient magic of the element', function()
@@ -669,10 +670,11 @@ describe('BLM\'s elemental commands', function()
     end)
 
     it('goes down the aoe tiers on recast', function()
-        assert.same(at_the_toad('Firaga III'), (command('Fire', 'aga', {['Firaja'] = 10})))
-        assert.same(at_the_toad('Firaga II'), (command('Fire', 'aga', {['Firaja'] = 10, ['Firaga III'] = 10})))
+        assert.same(at_the_toad('Firaga III'), (command('Fire', 'aga', {recasts = {['Firaja'] = 10}})))
+        assert.same(at_the_toad('Firaga II'),
+            (command('Fire', 'aga', {recasts = {['Firaja'] = 10, ['Firaga III'] = 10}})))
         assert.same(at_the_toad('Firaga'),
-            (command('Fire', 'aga', {['Firaja'] = 10, ['Firaga III'] = 10, ['Firaga II'] = 10})))
+            (command('Fire', 'aga', {recasts = {['Firaja'] = 10, ['Firaga III'] = 10, ['Firaga II'] = 10}})))
     end)
 
     it('casts the -ja nuke for aja', function()
@@ -680,26 +682,20 @@ describe('BLM\'s elemental commands', function()
     end)
 
     it('says so when every aoe tier is on recast', function()
-        local gs = boot_ticking()
-        gs:console('gs c set ElementalMode Fire')
-        gs.game:start_spell_recast('Firaja', 10)
-        gs.game:start_spell_recast('Firaga III', 10)
-        gs.game:start_spell_recast('Firaga II', 10)
-        gs.game:start_spell_recast('Firaga', 10)
-        gs:chat()
-        gs:console('gs c elemental aga')
-        assert.same({}, gs:actions())
+        local recasts = {['Firaja'] = 10, ['Firaga III'] = 10, ['Firaga II'] = 10, ['Firaga'] = 10}
+        local actions, gs = command('Fire', 'aga', {recasts = recasts, setup = function(gs)
+            gs:chat()
+        end})
+        assert.same({}, actions)
         assert.same({'Abort: All Fire aoe nukes on cooldown or or not enough MP.'}, gs:chat())
     end)
 
     it('says so when both Banishes are on recast in the Light mode', function()
-        local gs = boot_ticking()
-        gs:console('gs c set ElementalMode Light')
-        gs.game:start_spell_recast('Banish', 10)
-        gs.game:start_spell_recast('Banish II', 10)
-        gs:chat()
-        gs:console('gs c elemental nuke')
-        assert.same({}, gs:actions())
+        local recasts = {['Banish'] = 10, ['Banish II'] = 10}
+        local actions, gs = command('Light', 'nuke', {recasts = recasts, setup = function(gs)
+            gs:chat()
+        end})
+        assert.same({}, actions)
         assert.same({'Abort: Banishes on cooldown or not enough MP.'}, gs:chat())
     end)
 
@@ -715,8 +711,7 @@ describe('BLM\'s status line', function()
     it('says the casting and idle modes, as a caster\'s does', function()
         local gs = boot()
         gs:console('gs c update user')
-        local lines = gs:chat()
-        assert.is_truthy(lines[#lines]:find('Casting [Normal], Idle [Normal]', 1, true), lines[#lines])
+        assert.same({'Casting [Normal], Idle [Normal]'}, gs:chat())
     end)
 end)
 
