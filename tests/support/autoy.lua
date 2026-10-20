@@ -12,7 +12,7 @@ local autoy = {}
 autoy.gear = {
     {name = 'Naegling'}, {name = 'Crocea Mors'}, {name = 'Ammurapi Shield'}, {name = 'Nyame Helm'},
     {name = "Bunzi's Hat"}, {name = "Judge's Bow"},
-    {name = 'Malignance Chapeau'},
+    {name = 'Malignance Chapeau'}, {name = 'Daybreak'},
 }
 
 -- Boots Autoy, a red mage with a white mage sub unless the options say otherwise.

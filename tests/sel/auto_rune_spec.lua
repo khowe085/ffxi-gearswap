@@ -4,6 +4,10 @@ local function on_me(name)
     return {{action = name, target = 'Autoy'}}
 end
 
+-- The abilities a rune fencer sub job at 49 has: the runes, Vallation and Pflug, but not Valiance, which comes at 50.
+local run_sub_abilities = {'Ignis', 'Gelus', 'Flabra', 'Tellus', 'Sulpor', 'Unda', 'Lux', 'Tenebrae', 'Vallation',
+    'Pflug'}
+
 -- Autoy as a red mage with a rune fencer sub unless the options say otherwise, AutoRuneMode set to the mode given.
 -- The rune element is Ignis unless set.
 local function boot(mode, options)
@@ -57,24 +61,15 @@ describe('AutoRuneMode', function()
     end)
 
     it('goes on to Pflug in combat under Full once the runes are up', function()
-        local gs = boot('Full', {buffs = {'Ignis', 'Ignis'}})
+        local gs = boot('Full', {buffs = {'Ignis', 'Ignis'}, abilities = run_sub_abilities})
         gs:monster_hits()
         gs:traffic()
         gs:play(1)
         assert.same(on_me('Pflug'), gs:action_entries())
     end)
 
-    it('goes on to Valiance in combat under Full once Pflug is up', function()
-        local gs = boot('Full', {buffs = {'Ignis', 'Ignis', 'Pflug'}})
-        gs:monster_hits()
-        gs:traffic()
-        gs:play(1)
-        assert.same(on_me('Valiance'), gs:action_entries())
-    end)
-
-    it('goes on to Vallation instead while Valiance is on recast', function()
-        local gs = boot('Full', {buffs = {'Ignis', 'Ignis', 'Pflug'}})
-        gs.game:start_ability_recast('Valiance', 60)
+    it('goes on to Vallation in combat under Full once Pflug is up, as Valiance is out of a sub job\'s reach', function()
+        local gs = boot('Full', {buffs = {'Ignis', 'Ignis', 'Pflug'}, abilities = run_sub_abilities})
         gs:monster_hits()
         gs:traffic()
         gs:play(1)
@@ -82,7 +77,7 @@ describe('AutoRuneMode', function()
     end)
 
     it('uses no ward out of combat under Full', function()
-        local gs = boot('Full', {buffs = {'Ignis', 'Ignis'}})
+        local gs = boot('Full', {buffs = {'Ignis', 'Ignis'}, abilities = run_sub_abilities})
         gs:play(3)
         assert.same({}, gs:action_entries())
     end)

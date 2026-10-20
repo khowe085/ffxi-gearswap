@@ -1,12 +1,4 @@
-local harness = require('harness')
 local plain = require('plain')
-
-local function boot_corey()
-    return harness.boot({
-        character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
-        items = {{name = 'Nyame Helm'}, {name = 'Nyame Mail'}},
-    })
-end
 
 describe('the zone-in packet', function()
     it('gives the player its id, index, name and jobs', function()
@@ -80,7 +72,7 @@ describe('the zone-in packet', function()
     end)
 
     it('loads the file of the new job when the job changed', function()
-        local gs = boot_corey()
+        local gs = plain.boot_corey()
         local old_user = gs.user
         gs:send_zone_in({['Main Job'] = 4})
         assert.equal('Corey_BLM.lua', gs.env.current_file)
@@ -89,7 +81,7 @@ describe('the zone-in packet', function()
     end)
 
     it('keeps the file when the job is the same', function()
-        local gs = boot_corey()
+        local gs = plain.boot_corey()
         local user = gs.env.user_env
         gs:send_zone_in()
         assert.equal(user, gs.env.user_env)
@@ -97,7 +89,7 @@ describe('the zone-in packet', function()
     end)
 
     it('leaves the file as it is when the user file is disabled and the job changed', function()
-        local gs = boot_corey()
+        local gs = plain.boot_corey()
         gs:console('gs disable')
         gs:send_zone_in({['Main Job'] = 4})
         assert.equal('Corey_WHM.lua', gs.env.current_file)

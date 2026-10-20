@@ -1,4 +1,3 @@
-local harness = require('harness')
 local lfs = require('lfs')
 local plain = require('plain')
 local testy = require('testy')
@@ -380,12 +379,7 @@ describe('gs export of the sets', function()
     end)
 
     it('says so when no file is loaded', function()
-        local gs = harness.boot({
-            character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
-            items = {{name = 'Nyame Helm'}},
-        })
-        gs:change_main_job('MON')
-        gs:chat_lines()
+        local gs = plain.boot_without_a_file()
         assert.same({'GearSwap: Cannot export the sets table of the current file because there is no file loaded.'},
             export(gs, 'sets'))
     end)

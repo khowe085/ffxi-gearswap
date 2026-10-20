@@ -1,21 +1,8 @@
-local harness = require('harness')
 local plain = require('plain')
 
 local function boot(file)
     local gs = plain.boot(file or 'Testy_Events.lua')
     plain.events(gs)
-    return gs
-end
-
-local function boot_corey_without_a_file()
-    local gs = harness.boot({
-        character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
-        items = {{name = 'Nyame Helm'}, {name = 'Nyame Mail'}},
-    })
-    gs:change_main_job('MON')
-    assert.is_nil(gs.env.user_env, 'Corey has a file for the monipulator')
-    gs:printed()
-    gs:chat_lines()
     return gs
 end
 
@@ -390,19 +377,27 @@ describe('gs naked', function()
         gs:console('gs naked')
         gs:console('gs enable')
         assert.is_false(gs.env.gearswap_disabled)
+        gs:console('gs equip sets.precast.FastCast')
         gs:chat_lines()
+        gs:traffic()
         gs:console('gs naked')
         assert.same({'GearSwap: Naked on, user file disabled until the next gs naked.'}, gs:chat())
+        assert.same({{equip = {head = 'empty', neck = 'empty', left_ring = 'empty'}}}, gs:traffic())
+        assert.same({}, gs:worn())
     end)
 
-    it('is over for a user file load, which turns the user file on', function()
+    it('is over for a user file load, which turns the user file on: the next gs naked takes everything off again', function()
         local gs = boot('Testy_WHM.lua')
         gs:console('gs naked')
         gs:console('gs load Testy_Sets')
         assert.is_false(gs.env.gearswap_disabled)
+        gs:console('gs equip sets.idle')
         gs:chat_lines()
+        gs:traffic()
         gs:console('gs naked')
         assert.same({'GearSwap: Naked on, user file disabled until the next gs naked.'}, gs:chat())
+        assert.same({{equip = {head = 'empty'}}}, gs:traffic())
+        assert.same({}, gs:worn())
     end)
 
     it('says so when the user file has no naked set', function()
@@ -415,7 +410,7 @@ describe('gs naked', function()
     end)
 
     it('says so when no file is loaded', function()
-        local gs = boot_corey_without_a_file()
+        local gs = plain.boot_without_a_file()
         gs:console('gs naked')
         assert.same({'GearSwap: There is nothing to equip because there is no file loaded.'}, gs:chat())
     end)
@@ -573,20 +568,20 @@ end)
 
 describe('with no file loaded', function()
     it('a spell is still sent by GearSwap, with no hooks to call', function()
-        local gs = boot_corey_without_a_file()
+        local gs = plain.boot_without_a_file()
         assert.is_true(gs:type('/ma "Cure III" <me>'))
         assert.same({{action = 'Cure III', target = 'Corey'}}, gs:traffic())
     end)
 
     it('gs c passes nothing on and says nothing', function()
-        local gs = boot_corey_without_a_file()
+        local gs = plain.boot_without_a_file()
         assert.has_no.errors(function() gs:console('gs c anything') end)
         assert.same({}, gs:printed())
         assert.same({}, gs:chat_lines())
     end)
 
     it('a change to a job that has a file loads it', function()
-        local gs = boot_corey_without_a_file()
+        local gs = plain.boot_without_a_file()
         gs:change_main_job('BLM')
         assert.equal('Corey_BLM.lua', gs.env.current_file)
     end)

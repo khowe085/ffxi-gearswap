@@ -625,6 +625,12 @@ describe('AutoRuneMode', function()
             assert.same({}, first_actions(gs))
         end)
 
+        it('uses Valiance, ahead of Vallation, in combat with Pflug up', function()
+            local gs = full({buffs = {'Pflug'}})
+            gs.user.in_combat = true
+            assert.same({'Valiance'}, first_actions(gs))
+        end)
+
         it('uses no ward in combat with Pflug and a ward up', function()
             local gs = full({buffs = {'Pflug', 'Vallation'}})
             gs.user.in_combat = true

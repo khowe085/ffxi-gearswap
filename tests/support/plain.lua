@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------------------------------------------
 -- What the specs of GearSwap itself share: Testy as a white mage on one of the plain user files in
 -- tests/fixture/data/Testy, a refresh of GearSwap's globals, and a look at the events and the hooks' calls such a file
--- notes, and at their names.
+-- notes, and at their names. Corey, on a file of Corey's own or with no file loaded.
 -------------------------------------------------------------------------------------------------------------------
 
 local assert = require('luassert')
@@ -18,6 +18,24 @@ function plain.boot(file, overrides)
         plain.load(gs, file)
         gs:forget()
     end
+    return gs
+end
+
+-- Corey as a white mage on Corey_WHM.lua, with the items given, a Nyame Helm and a Nyame Mail unless they are.
+function plain.boot_corey(items)
+    return harness.boot({
+        character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
+        items = items or {{name = 'Nyame Helm'}, {name = 'Nyame Mail'}},
+    })
+end
+
+-- Corey changed to a monipulator, which Corey has no file for: GearSwap with no file loaded. Everything up to then
+-- is taken as read.
+function plain.boot_without_a_file()
+    local gs = plain.boot_corey()
+    gs:change_main_job('MON')
+    assert.is_nil(gs.env.user_env, 'Corey has a file for the monipulator')
+    gs:forget()
     return gs
 end
 

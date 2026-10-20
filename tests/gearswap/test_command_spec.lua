@@ -1,4 +1,3 @@
-local harness = require('harness')
 local plain = require('plain')
 
 local calls, names = plain.calls, plain.names
@@ -308,8 +307,11 @@ describe('the hold after gs test', function()
     it('is not started over by gs enable with a slot, which leaves the hold as it is', function()
         local gs = boot()
         gs_test(gs, 'set sets.precast.FastCast')
+        gs:advance(20)
         gs:console('gs enable head')
         assert.is_true(gs.env.gearswap_disabled)
+        gs:advance(10.1)
+        assert.is_false(gs.env.gearswap_disabled)
     end)
 
     it('is not entered when the user file was already disabled: nothing is tested', function()
@@ -321,12 +323,7 @@ describe('the hold after gs test', function()
     end)
 
     it('is not entered when no file is loaded', function()
-        local gs = harness.boot({
-            character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
-            items = {{name = 'Nyame Helm'}},
-        })
-        gs:change_main_job('MON')
-        gs:chat_lines()
+        local gs = plain.boot_without_a_file()
         assert.same({'GearSwap: There is nothing to test because there is no file loaded.'}, gs_test(gs, 'set sets.idle'))
     end)
 

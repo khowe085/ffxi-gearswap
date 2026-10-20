@@ -91,10 +91,7 @@ describe('gs stash', function()
     end)
 
     it('says so when the job has no file, and moves nothing', function()
-        local gs = require('harness').boot({
-            character = 'Corey', main_job = 'WHM', sub_job = 'RDM', expect_file = 'Corey_WHM.lua',
-            items = {{name = 'Nyame Helm', bag = 'wardrobe2'}},
-        })
+        local gs = plain.boot_corey({{name = 'Nyame Helm', bag = 'wardrobe2'}})
         assert.same({'GearSwap: stash cannot read the MON file: GearSwap finds no file for it. Nothing moved.'},
             run(gs, 'gs stash mon'))
         assert.same({}, gs.game:bag_names('case'))

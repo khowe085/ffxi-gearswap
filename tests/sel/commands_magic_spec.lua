@@ -181,17 +181,15 @@ describe('gs c smartcure', function()
         assert.same({'/ma "Cure II" ' .. gs.game.player.id}, typed_for(gs, 'gs c smartcure Commy'))
     end)
 
-    it('picks its target by <stal> when the target is a monster, and cures the one picked', function()
+    it('picks its target by <stal> when the target is a monster, and cures the one picked in place of the emote the '
+        .. 'pick sends', function()
         gs.game.target_index = gs.game.monster.index
         assert.same({'/dance motion <stal>'}, typed_for(gs, 'gs c smartcure'))
         local typed = commy.record_input(gs)
         local packets = gs.user.packets
-        gs:run(function()
-            local picked = packets.build(packets.new('outgoing', 0x05D, {['Target ID'] = gs.game.player.id,
-                ['Target Index'] = gs.game.player.index, ['Emote'] = 31, ['Type'] = 2}))
-            gs.game:send_from_client(0x05D, picked:sub(5))
-            gs.game:settle()
-        end)
+        local picked = packets.build(packets.new('outgoing', 0x05D, {['Target ID'] = gs.game.player.id,
+            ['Target Index'] = gs.game.player.index, ['Emote'] = 31, ['Type'] = 2}))
+        assert.is_true(gs:send_from_client(0x05D, picked:sub(5)))
         assert.same({'/ma "Cure" ' .. gs.game.player.id}, typed)
     end)
 end)
