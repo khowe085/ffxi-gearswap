@@ -5,7 +5,7 @@ local gear = {'Daybreak', 'Ammurapi Shield', "Terra's Staff", 'Kupo Shield', 'Vo
     "Combatant's Torque", 'Karieyh Ring', 'Chirich Ring +1', 'Null Belt', 'Null Shawl', 'Amin Turban',
     'Ischkur Turban', 'Azimuth Turban', 'Blistering Sallet', 'Blistering Sallet +1', 'Alhazen Hat', 'Alhazen Hat +1',
     'Sukeroku Hachi.', "Bendis's Hairpin", 'Blacksh. Hairpin', 'Moonshade Earring', 'Brutal Earring',
-    'Cessance Earring'}
+    'Cessance Earring', 'Regal Cuffs'}
 
 local actions_of = jobby.action_names
 
@@ -179,11 +179,13 @@ describe('BLM\'s casting modes', function()
         assert.equal('Volte Cap', worn_after(gs, '/ma "Fire" <t>').head)
     end)
 
-    it('Proc and OccultAcumen leave the nuke sets and burst sets off', function()
-        local gs = boot()
-        gs:console('gs c set CastingMode Proc')
-        gs:console('gs c set MagicBurstMode Lock')
-        assert.equal('Nyame Gauntlets', worn_after(gs, '/ma "Fire" <t>').hands)
+    it('Proc and OccultAcumen leave the burst sets off', function()
+        for _, mode in ipairs({'Proc', 'OccultAcumen'}) do
+            local gs = boot()
+            gs:console('gs c set CastingMode ' .. mode)
+            gs:console('gs c set MagicBurstMode Lock')
+            assert.equal('Nyame Gauntlets', worn_after(gs, '/ma "Fire" <t>').hands, mode)
+        end
     end)
 end)
 
@@ -204,7 +206,7 @@ describe('BLM\'s Death Mode', function()
     end)
 
     it('puts sets.precast.FC.Death on for any spell', function()
-        assert.equal('Volte Bracers', death_cast('Cure IV'):worn().hands)
+        assert.equal('Volte Bracers', death_cast('Cure IV'):traffic()[1].equip.hands)
     end)
 
     it('puts the spell\'s own Death precast set over it, when the gear file has one', function()
@@ -240,6 +242,7 @@ describe('BLM\'s Death Mode', function()
     it('puts only sets.midcast.Death on for Death itself', function()
         local worn = death_cast('Death'):worn()
         assert.equal('Blistering Sallet', worn.head)
+        assert.equal('Regal Cuffs', worn.hands)
     end)
 
     it('takes the Death sets over the Proc casting mode', function()
@@ -420,6 +423,9 @@ describe('BLM\'s Sleep timers', function()
         gs:interrupt_action()
         assert.same({}, jobby.commands(gs))
     end)
+
+    pending('starts no timer with Use Custom Timers off: job_aftercast in data/BLM.lua never reads '
+        .. 'state.UseCustomTimers, so each Sleep that lands starts one')
 end)
 
 describe('BLM\'s Manawell', function()

@@ -1,7 +1,6 @@
 -- Jobby's warrior gear file, loaded by the real data/WAR.lua for the tests of what that file does on top of Sel.
 -- Each set that the job file looks for wears pieces that tell it apart from the others, from the gear the tests give
--- Jobby. The sets of one kind (engaged, weapon skill) each name the same slots, so whichever was on before, the
--- one chosen shows whole.
+-- Jobby. The engaged sets name the same slots, so whichever was on before, the one chosen shows whole.
 
 function user_job_setup()
 	state.OffenseMode:options('Normal', 'Acc')
@@ -35,7 +34,7 @@ function init_gear_sets()
 	sets.DayWSEars = {ear1 = 'Cessance Earring'}
 	sets.AccDayWSEars = {ear1 = 'Odnowa Earring +1'}
 	sets.WSMighty = {legs = 'Volte Hose'}
-	sets.WSCharge = {hands = 'Volte Bracers'}
+	sets.WSCharge = {neck = "Combatant's Torque"}
 	sets.WSMightyCharge = {feet = 'Volte Boots'}
 	sets.ACCWSMighty = {}
 	sets.AccWSMighty = {ring2 = 'Chirich Ring +1'}

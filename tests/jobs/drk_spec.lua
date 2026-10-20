@@ -603,6 +603,14 @@ describe('DRK\'s Auto Buff Mode in a fight', function()
         assert.same({'Scarlet Delirium'}, actions_of(jobby.until_action(gs)))
     end)
 
+    it('leaves Berserk and Aggressor, a War sub job\'s, to the weapon skills too when the gear file has an Auto WS '
+        .. 'Buff list', function()
+        local gs = buffing({sub_job = 'WAR', buffs = buffed}, true)
+        gs:gain_buff('Scarlet Delirium')
+        gs:play(3)
+        assert.same({}, actions_of(gs:traffic()))
+    end)
+
     it('uses Last Resort again with Auto WS Buff off', function()
         local gs = buffing({buffs = buffed}, true)
         gs:console('gs c toggle AutoWSBuff')
@@ -623,6 +631,9 @@ describe('DRK\'s Auto Buff Mode in a fight', function()
         gs:play(3)
         assert.same({}, actions_of(gs:traffic()))
     end)
+
+    pending('uses no Berserk or Aggressor while the sub job\'s abilities are restricted: job_check_buff in '
+        .. 'data/DRK.lua checks only that the sub job is Warrior, so it tries Berserk under SJ Restriction')
 end)
 
 describe('DRK\'s buff spells', function()

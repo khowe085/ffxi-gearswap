@@ -1,7 +1,9 @@
 -- Jobby's red mage gear file, loaded by the real data/RDM.lua for the tests of what that file does on top of Sel.
 -- Each set that the job file looks for wears pieces that tell it apart from the others, in a slot of its own where
 -- two of them can be on together. The engaged sets name the same slots, so whichever was on before, the one chosen
--- shows whole.
+-- shows whole. The job file lays an enhancing spell's own set again over what Sel put on, so the sets of Haste,
+-- Enspell and Refresh name the slots of the DW, SIRD and Self_Refresh sets Sel lays as well: those show only when the
+-- job file lays them too. The sets of Convert, Haste and Phalanx II name a weapon, so that the weapon lock shows.
 
 function user_job_setup()
 	state.OffenseMode:options('Normal', 'Acc')
@@ -19,7 +21,7 @@ function init_gear_sets()
 	sets.weapons.Ullr = {main = 'Naegling', range = empty}
 
 	sets.precast.FC = {neck = 'Fotia Gorget'}
-	sets.precast.JA.Convert = {main = 'Murgleis'}
+	sets.precast.JA.Convert = {main = 'Murgleis', sub = 'Kupo Shield'}
 
 	sets.precast.WS = {head = 'Volte Cap', ear1 = 'Moonshade Earring', ear2 = 'Brutal Earring'}
 	sets.precast.WS.Acc = set_combine(sets.precast.WS, {body = 'Volte Jupon'})
@@ -33,7 +35,7 @@ function init_gear_sets()
 	sets.midcast.Cure = {head = 'Blistering Sallet +1'}
 	sets.midcast.LightWeatherCure = {head = 'Alhazen Hat'}
 	sets.midcast.LightDayCure = {head = 'Alhazen Hat +1'}
-	sets.midcast.MeleeCure = {head = 'Sukeroku Hachi.'}
+	sets.midcast.MeleeCure = {head = 'Sukeroku Hachi.', range = 'Ullr'}
 	sets.midcast.MeleeLightWeatherCure = {head = "Bendis's Hairpin"}
 	sets.midcast.MeleeLightDayCure = {head = 'Blacksh. Hairpin'}
 
@@ -48,13 +50,16 @@ function init_gear_sets()
 	sets.buff.Saboteur = {legs = 'Volte Hose'}
 
 	sets.midcast['Enhancing Magic'] = {head = 'Volte Cap'}
-	sets.midcast['Haste'] = {body = 'Volte Jupon'}
+	sets.midcast['Haste'] = {main = 'Crocea Mors', body = 'Volte Jupon', neck = 'Loricate Torque +1'}
 	sets.midcast['Haste'].SIRD = {body = 'Adamantite Armor'}
-	sets.midcast['Haste'].DW = {feet = 'Volte Boots'}
-	sets.midcast.Enspell = {main = 'Crocea Mors', hands = 'Volte Bracers'}
+	sets.midcast['Haste'].DW = {neck = "Combatant's Torque"}
+	sets.midcast.Enspell = {main = 'Crocea Mors', hands = 'Volte Bracers', body = 'Volte Jupon',
+		legs = 'Nyame Flanchard'}
 	sets.midcast.Enspell.SIRD = {main = 'Crocea Mors', hands = 'Volte Bracers', body = 'Adamantite Armor'}
 	sets.midcast.Enspell.DW = {legs = 'Volte Hose'}
 	sets.midcast['Temper II'] = {main = 'Crocea Mors'}
+	sets.midcast['Phalanx II'] = {main = 'Crocea Mors'}
+	sets.midcast.Refresh = {ring1 = 'Chirich Ring +1'}
 	sets.midcast['Stoneskin'] = {legs = 'Volte Hose'}
 	sets.Self_Phalanx = {main = 'Crocea Mors', waist = 'Null Belt'}
 	sets.Self_Phalanx.DW = {neck = "Combatant's Torque"}

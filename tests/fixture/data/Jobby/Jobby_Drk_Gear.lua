@@ -20,6 +20,7 @@ function init_gear_sets()
 
 	sets.precast.FC = {neck = 'Fotia Gorget'}
 	sets.midcast['Dark Magic'] = {head = 'Volte Cap'}
+	sets.midcast.Aspir = {main = 'Apocalypse'}
 	sets.buff['Dark Seal'] = {hands = 'Volte Bracers'}
 	sets.buff['Nether Void'] = {legs = 'Volte Hose'}
 	sets.DrainWeapon = {main = 'Apocalypse', ring1 = 'Karieyh Ring'}

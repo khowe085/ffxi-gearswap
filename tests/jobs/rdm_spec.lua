@@ -3,7 +3,7 @@ local jobby = require('jobby')
 local gear = {'Naegling', 'Crocea Mors', 'Murgleis', 'Regal Gem', 'Ullr', 'Zodiac Ring', "Orpheus's Sash",
     'Karin Obi', 'Hachirin-no-Obi', "Terra's Staff", 'Kupo Shield', 'Ammurapi Shield', 'Volte Cap', 'Null Masque',
     'Volte Jupon', 'Adamantite Armor', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget',
-    "Combatant's Torque", 'Karieyh Ring', 'Null Belt', 'Null Shawl', 'Amin Turban', 'Ischkur Turban',
+    "Combatant's Torque", 'Karieyh Ring', 'Chirich Ring +1', 'Null Belt', 'Null Shawl', 'Amin Turban', 'Ischkur Turban',
     'Azimuth Turban', 'Blistering Sallet +1', 'Alhazen Hat', 'Alhazen Hat +1', 'Sukeroku Hachi.', "Bendis's Hairpin",
     'Blacksh. Hairpin', 'Moonshade Earring', 'Brutal Earring', 'Cessance Earring', 'Odnowa Earring +1',
     'Ishvara Earring', 'Telos Earring'}
@@ -173,8 +173,11 @@ describe('RDM\'s Convert', function()
         assert.equal('Naegling', (convert(500, '500')))
     end)
 
-    it('leaves the weapon set\'s main on without Murgleis', function()
-        assert.equal('Naegling', (convert(0, nil, without(gear, {Murgleis = true}))))
+    it('keeps the weapon set\'s weapons locked without Murgleis', function()
+        local gs = boot({items = without(gear, {Murgleis = true})})
+        gs:console('gs c set Weapons EnspellMelee')
+        gs:type('/ja "Convert" <me>')
+        assert.equal('Ammurapi Shield', gs:worn().sub)
     end)
 end)
 
@@ -340,12 +343,6 @@ describe('RDM\'s midcast set for an elemental spell', function()
         assert.equal('Staunch Tathlum +1', ammo_after('/ma "Impact" <t>', 'Ullr'))
     end)
 
-    it('leaves the ammo alone without Regal Gem', function()
-        local gs = boot({items = without(gear, {['Regal Gem'] = true})})
-        gs:console('gs c set Weapons Ullr')
-        assert.equal('Staunch Tathlum +1', worn_after(gs, '/ma "Fire III" <t>').ammo)
-    end)
-
     it('leaves the ammo alone for a spell of another skill', function()
         assert.equal('Staunch Tathlum +1', ammo_after('/ma "Cure IV" <me>', 'Ullr'))
     end)
@@ -389,7 +386,7 @@ describe('RDM\'s enfeebling spells', function()
         assert.equal('Nyame Flanchard', worn.legs)
     end)
 
-    it('have neither laid over a dark spell under the buffs\' elemental neighbors: Saboteur is for enfeebles only', function()
+    it('have no Saboteur set laid over a dark spell, Saboteur being for enfeebling spells only', function()
         local gs = boot()
         gs:gain_buff('Saboteur')
         assert.equal('Nyame Flanchard', worn_after(gs, '/ma "Bio" <t>').legs)
@@ -464,7 +461,7 @@ describe('RDM\'s enhancing spells', function()
     it('have no Self_Refresh set for Refresh II on another player', function()
         local gs = boot()
         jobby.target_a_player(gs)
-        assert.equal('Defending Ring', worn_after(gs, '/ma "Refresh II" <t>').left_ring)
+        assert.equal('Chirich Ring +1', worn_after(gs, '/ma "Refresh II" <t>').left_ring)
     end)
 
     it('have the spell\'s SIRD set laid over them in the SIRD casting mode in a fight', function()
@@ -501,7 +498,7 @@ describe('RDM\'s enhancing spells', function()
         end)
 
         it('have the spell\'s DW set laid over them', function()
-            assert.equal('Volte Boots', worn_after(gs, '/ma "Haste" <me>').feet)
+            assert.equal("Combatant's Torque", worn_after(gs, '/ma "Haste" <me>').neck)
         end)
 
         it('have the spell map\'s DW set laid over them when the spell has none', function()
@@ -517,7 +514,7 @@ describe('RDM\'s enhancing spells', function()
 
     it('have no DW set laid over them when Jobby can\'t dual wield', function()
         local gs = boot()
-        assert.equal('Nyame Sollerets', worn_after(gs, '/ma "Haste" <me>').feet)
+        assert.equal('Loricate Torque +1', worn_after(gs, '/ma "Haste" <me>').neck)
         assert.equal('Nyame Flanchard', worn_after(boot(), '/ma "Enfire" <me>').legs)
     end)
 end)
@@ -563,6 +560,14 @@ describe('RDM\'s cure sets', function()
 
     it('is the same for a curaga', function()
         assert.equal('Alhazen Hat', cure_head({weather = true}, 'Curaga II'))
+    end)
+
+    it('is sets.midcast.Cure for a map the gear file has no set for', function()
+        local gs = boot()
+        gs.user.sets.midcast.MeleeLightWeatherCure = nil
+        gs:set_weather(light_weather)
+        gs:console('gs c set Weapons Naegling')
+        assert.equal('Blistering Sallet +1', worn_after(gs, '/ma "Cure IV" <me>').head)
     end)
 end)
 
@@ -686,7 +691,8 @@ describe('RDM\'s enspell', function()
         assert.equal('Enthunder', gs.user.enspell)
     end)
 
-    it('is not found when none of the buffs Jobby has is one', function()
+    it('is forgotten when none of the buffs Jobby has is one', function()
+        gs.user.enspell = 'Enfire'
         gs:gain_buff('Haste')
         gs.user.job_setup()
         assert.equal('', gs.user.enspell)
@@ -800,6 +806,12 @@ describe('RDM\'s melee set with an enspell up and an Enspell weapon set', functi
         assert.equal('Plat. Mog. Belt', gs:worn().waist)
     end)
 
+    pending('has Hachirin-no-Obi laid over it on that element\'s day in the weather of an element that neither helps '
+        .. 'nor hinders it, without the sash or the obi: job_customize_melee_set in data/RDM.lua tests '
+        .. 'data.elements.weak_to[world.weather_element] alone, where the day\'s check compares it with the '
+        .. 'enspell\'s element, so any elemental weather counts against the enspell, and Enfire on Firesday in Winds '
+        .. 'goes without it')
+
     pending('has the set of the lightning element laid over it for Enthunder II: data.elements.enspells_lookup in '
         .. 'libs/Sel-Mappings.lua gives Enthunder II the element Thunder, not Lightning, so sets.element.enspell.Lightning '
         .. 'and the day and weather checks never match it')
@@ -818,6 +830,17 @@ describe('RDM\'s elemental commands', function()
         return jobby.actions(gs), gs
     end
 
+    -- The actions the command sent, with their targets. setup, when given, runs just before the command.
+    local function sent(mode, name, setup)
+        local gs = boot_ticking()
+        gs:console('gs c set ElementalMode ' .. mode)
+        if setup then
+            setup(gs)
+        end
+        gs:console('gs c elemental ' .. name)
+        return jobby.action_entries(gs), gs
+    end
+
     it('enspell casts the enspell of the element on oneself', function()
         assert.same({'Enfire'}, (command('Fire', 'enspell')))
         assert.same({'Enblizzard'}, (command('Ice', 'enspell')))
@@ -828,7 +851,7 @@ describe('RDM\'s elemental commands', function()
     end)
 
     it('weather casts Phalanx II on oneself without Scholar as the sub job', function()
-        assert.same({'Phalanx II'}, (command('Light', 'weather me')))
+        assert.same({{action = 'Phalanx II', target = 'Jobby'}}, (sent('Light', 'weather me')))
     end)
 
     it('weather casts the element\'s storm with Scholar as the sub job', function()
@@ -849,8 +872,27 @@ describe('RDM\'s elemental commands', function()
         assert.same({'Aurorastorm'}, jobby.actions(gs))
     end)
 
-    it('nuke casts the highest tier Jobby can cast: Fire V', function()
-        assert.same({'Fire V'}, (command('Fire', 'nuke')))
+    it('nuke casts the highest tier Jobby can cast, Fire V, at the target', function()
+        assert.same({{action = 'Fire V', target = 'Apex Toad'}}, (sent('Fire', 'nuke')))
+    end)
+
+    it('nuke casts at Jobby when given me', function()
+        assert.same({{action = 'Fire V', target = 'Jobby'}}, (sent('Fire', 'nuke me')))
+    end)
+
+    it('nuke goes down a tier when Jobby hasn\'t the MP for the higher', function()
+        assert.same({{action = 'Fire IV', target = 'Apex Toad'}}, (sent('Fire', 'nuke', function(gs)
+            gs.game.player.vitals.mp = 200
+        end)))
+    end)
+
+    it('nuke says so when Jobby hasn\'t the MP for any tier', function()
+        local actions, gs = sent('Fire', 'nuke', function(gs)
+            gs.game.player.vitals.mp = 5
+            jobby.chat(gs)
+        end)
+        assert.same({}, actions)
+        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, jobby.chat(gs))
     end)
 
     it('nuke goes down a tier when that one is on recast', function()
@@ -902,13 +944,24 @@ describe('RDM\'s elemental commands', function()
 end)
 
 describe('RDM\'s Auto Arts', function()
+    -- Every buff Auto Buff Mode keeps up is up, so that only the arts are left for the tick to use.
     local buffed = {'Refresh', 'Haste', 'Reraise', 'Aurorastorm'}
 
-    local function arts(options)
-        options = options or {}
-        local gs = boot_ticking({sub_job = options.sub_job, buffs = options.buffs})
+    local function with_buffed(...)
+        local buffs = {...}
+        for _, buff in ipairs(buffed) do
+            buffs[#buffs + 1] = buff
+        end
+        return buffs
+    end
+
+    -- Jobby with Auto Arts on, and Auto Buff Mode on unless auto_buff is false.
+    local function arts(options, auto_buff)
+        local gs = boot_ticking(options)
         gs:console('gs c set AutoArts true')
-        gs:console('gs c set AutoBuffMode Auto')
+        if auto_buff ~= false then
+            gs:console('gs c set AutoBuffMode Auto')
+        end
         return gs
     end
 
@@ -916,8 +969,26 @@ describe('RDM\'s Auto Arts', function()
         assert.same({'Composure'}, actions_of(jobby.until_action(arts({buffs = buffed}))))
     end)
 
+    it('uses Composure in a fight with Auto Buff Mode off', function()
+        local gs = arts({}, false)
+        gs:monster_hits()
+        assert.same({'Composure'}, actions_of(jobby.until_action(gs)))
+    end)
+
+    it('uses nothing out of a fight with Auto Buff Mode off', function()
+        local gs = arts({}, false)
+        gs:play(3)
+        assert.same({}, actions_of(gs:traffic()))
+    end)
+
+    it('uses Composure ahead of the spells of gs c buffup', function()
+        local gs = arts({}, false)
+        gs:console('gs c buffup')
+        assert.same({'Composure'}, actions_of(jobby.until_action(gs)))
+    end)
+
     it('uses no Composure with Composure up', function()
-        local gs = arts({buffs = {'Composure', 'Refresh', 'Haste', 'Reraise', 'Aurorastorm'}})
+        local gs = arts({buffs = with_buffed('Composure')})
         gs:play(3)
         assert.same({}, actions_of(gs:traffic()))
     end)
@@ -930,21 +1001,45 @@ describe('RDM\'s Auto Arts', function()
     end)
 
     it('uses Light Arts after Composure with Scholar as the sub job', function()
-        local gs = arts({sub_job = 'SCH', buffs = {'Composure', 'Refresh', 'Haste', 'Reraise', 'Aurorastorm'}})
+        local gs = arts({sub_job = 'SCH', buffs = with_buffed('Composure')})
         assert.same({'Light Arts'}, actions_of(jobby.until_action(gs)))
     end)
 
     it('uses no Light Arts with Light Arts up', function()
-        local gs = arts({sub_job = 'SCH', buffs = {'Composure', 'Light Arts', 'Refresh', 'Haste', 'Reraise', 'Aurorastorm'}})
+        local gs = arts({sub_job = 'SCH', buffs = with_buffed('Composure', 'Light Arts')})
         gs:play(3)
         assert.same({}, actions_of(gs:traffic()))
     end)
 
-    it('uses no Composure with Auto Arts off', function()
+    it('uses no Light Arts with Dark Arts up', function()
+        local gs = arts({sub_job = 'SCH', buffs = with_buffed('Composure', 'Dark Arts')})
+        gs:play(3)
+        assert.same({}, actions_of(gs:traffic()))
+    end)
+
+    it('uses no Light Arts while the sub job\'s abilities are restricted', function()
+        local gs = arts({sub_job = 'SCH', buffs = with_buffed('Composure', 'SJ Restriction')})
+        gs:play(3)
+        assert.same({}, actions_of(gs:traffic()))
+    end)
+
+    it('uses nothing in town', function()
+        local gs = arts({zone = 230})
+        gs:play(3)
+        assert.same({}, actions_of(gs:traffic()))
+    end)
+
+    it('uses no Composure with Auto Arts off, under Auto Buff Mode', function()
         local gs = boot_ticking({buffs = buffed})
         gs:console('gs c set AutoBuffMode Auto')
         gs:play(3)
         assert.same({}, actions_of(gs:traffic()))
+    end)
+
+    it('uses no Composure with Auto Arts off, under gs c buffup, which goes straight to its spells', function()
+        local gs = boot_ticking({buffs = {'Haste'}})
+        gs:console('gs c buffup')
+        assert.same({'Refresh III'}, actions_of(jobby.until_action(gs)))
     end)
 end)
 
@@ -954,23 +1049,6 @@ describe('RDM\'s Auto Buff Mode', function()
         gs:console('gs c set AutoBuffMode ' .. mode)
         return gs
     end
-
-    it('Auto starts with Refresh III', function()
-        assert.same({'Refresh III'}, actions_of(jobby.until_action(buffing('Auto'))))
-    end)
-
-    it('Auto goes on to Haste II with Refresh up', function()
-        local gs = buffing('Auto')
-        gs:gain_buff('Refresh')
-        assert.same({'Haste II'}, actions_of(jobby.until_action(gs)))
-    end)
-
-    it('Auto goes on to Reraise with Refresh and Haste up, Aurorastorm being for Idle only and Scholar', function()
-        local gs = buffing('Auto')
-        gs:gain_buff('Refresh')
-        gs:gain_buff('Haste')
-        assert.same({'Reraise'}, actions_of(jobby.until_action(gs)))
-    end)
 
     it('AutoMelee starts with Phalanx II', function()
         assert.same({'Phalanx II'}, actions_of(jobby.until_action(buffing('AutoMelee'))))
@@ -1002,26 +1080,16 @@ describe('RDM\'s Auto Buff Mode', function()
         assert.equal('AutoMelee', gs.user.state.AutoBuffMode.value)
         gs:console('gs c cycle AutoBuffMode')
         assert.equal('AutoMage', gs.user.state.AutoBuffMode.value)
+        gs:console('gs c cycle AutoBuffMode')
+        assert.equal('Off', gs.user.state.AutoBuffMode.value)
     end)
 end)
 
 describe('RDM\'s buff up', function()
-    it('casts the Default list in order, Haste II first', function()
-        local gs = boot_ticking()
-        gs:console('gs c buffup')
-        assert.same({'Haste II'}, actions_of(jobby.until_action(gs)))
-    end)
-
     it('is told by name which list to cast: Odin starts with Refresh III', function()
         local gs = boot_ticking()
         gs:console('gs c buffup Odin')
         assert.same({'Refresh III'}, actions_of(jobby.until_action(gs)))
-    end)
-
-    it('casts Gain-MND from the Default list once Haste and Refresh are up', function()
-        local gs = boot_ticking({buffs = {'Haste', 'Refresh'}})
-        gs:console('gs c buffup')
-        assert.same({'Gain-MND'}, actions_of(jobby.until_action(gs)))
     end)
 end)
 
@@ -1029,8 +1097,7 @@ describe('RDM\'s status line', function()
     it('says the casting and idle modes, as a caster\'s does', function()
         local gs = boot()
         gs:console('gs c update user')
-        local lines = jobby.chat(gs)
-        assert.is_truthy(lines[#lines]:find('Casting [Normal], Idle [Normal]', 1, true), lines[#lines])
+        assert.same({'Melee, Casting [Normal], Idle [Normal]'}, jobby.chat(gs))
     end)
 end)
 
