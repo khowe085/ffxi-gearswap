@@ -29,11 +29,14 @@ function plain.load(gs, file)
 end
 
 -- Has GearSwap bring its globals up to date, as it does before it hands the user file a command (gs c refresh). The
--- events the user file noted until then, the command among them, are taken as read.
+-- events and calls the user file noted until then, the command among them, are taken as read.
 function plain.refresh(gs)
     gs:console('gs c refresh')
     if gs.user.events then
         plain.events(gs)
+    end
+    if gs.user.calls then
+        plain.calls(gs)
     end
 end
 

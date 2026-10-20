@@ -62,9 +62,10 @@ describe('Sel\'s weapon lock', function()
         assert.same({'Daybreak', 'Kaykaus Mitra +1'}, {worn.main, worn.head})
     end)
 
-    pending('as docs/frameworks/sel.md:61 has it, lets each set\'s weapons go on with Weapons None or UnlockWeapons '
-        .. 'on, with no exception while engaged: data/User/User-Globals.lua\'s engaged hold (hold_engaged_weapons) '
-        .. 'keeps the weapons in hand while engaged, so the doc and the code disagree until one is settled')
+    pending('as docs/frameworks/sel.md\'s "The weapon lock" has it, lets each set\'s weapons go on with Weapons None '
+        .. 'or UnlockWeapons on, with no exception while engaged: data/User/User-Globals.lua\'s engaged hold '
+        .. '(hold_engaged_weapons) keeps the weapons in hand while engaged, so the doc and the code disagree until one '
+        .. 'is settled')
 end)
 
 describe('Sel\'s weapon set with UnlockWeapons on', function()

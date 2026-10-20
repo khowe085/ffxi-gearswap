@@ -236,6 +236,12 @@ describe('what the client sends in the stand-in game', function()
         assert.is_nil(game.last_packets.incoming[0x050])
     end)
 
+    it('of its own says whether a handler blocked it', function()
+        local game = boot()
+        game:register('outgoing chunk', function(id) return id == 0x0B6 end)
+        assert.same({true, false}, {game:send_from_client(0x0B6, ''), game:send_from_client(0x0B7, '')})
+    end)
+
     it('names what it asks for as it stood when it went, whatever happens to the item after', function()
         local gs = harness.boot(testy.whm())
         local slot = gs.game:find_item('inventory', "Bunzi's Hat")

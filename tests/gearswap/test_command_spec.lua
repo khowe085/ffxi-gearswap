@@ -6,7 +6,6 @@ local calls, names = plain.calls, plain.names
 local function boot(file)
     local gs = plain.boot(file or 'Testy_WHM.lua')
     calls(gs)
-    gs:chat_lines()
     return gs
 end
 

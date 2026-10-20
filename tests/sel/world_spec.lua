@@ -185,19 +185,17 @@ describe('Sel in Ghoyu\'s Reverie', function()
 end)
 
 describe('Sel on Asura', function()
-    -- The client sending a tell (0x0B6) to the player named: 3, the name in 15 bytes, and the message.
+    -- The client sending a tell (0x0B6) to the player named: 3, the name in 15 bytes, and the message. Returns whether
+    -- the tell was stopped.
     local function tell(gs, name, message)
-        gs:run(function()
-            gs.game:send_from_client(0x0B6, string.char(3, 0) .. name .. string.char(0):rep(15 - #name) .. message
-                .. string.char(0))
-            gs.game:settle()
-        end)
+        return gs:send_from_client(0x0B6, string.char(3, 0) .. name .. string.char(0):rep(15 - #name) .. message
+            .. string.char(0))
     end
 
     it('stops a tell to Mytha that names a third-party tool, and says why', function()
         local gs = commy.boot_war()
         gs.game:set_info({server = 31})
-        tell(gs, 'Mytha', 'is there an addon for this?')
+        assert.is_true(tell(gs, 'Mytha', 'is there an addon for this?'))
         assert.same({'Message Aborted: Please do not message me about anything third party ingame. -50DKP',
             'Contact me on Discord: KalesAndRancor#5410 or https://discord.gg/ug6xtvQ'}, gs:chat())
     end)
@@ -205,8 +203,7 @@ describe('Sel on Asura', function()
     it('lets any other tell go', function()
         local gs = commy.boot_war()
         gs.game:set_info({server = 31})
-        tell(gs, 'Mytha', 'hello')
-        tell(gs, 'Vanar', 'is there an addon for this?')
+        assert.same({false, false}, {tell(gs, 'Mytha', 'hello'), tell(gs, 'Vanar', 'is there an addon for this?')})
         assert.same({}, gs:chat())
     end)
 end)
@@ -217,8 +214,9 @@ describe('Sel on loading', function()
         gs:console('gs c set Weapons Naegling')
         gs:advance(harness.sel_load_time - 0.1)
         assert.equal('Naegling', gs.user.state.Weapons.value)
+        gs:commands()
         gs:advance(0.2)
-        assert.truthy(table.concat(gs.game.commands, '\n'):find('gs c weapons initialize', 1, true))
+        assert.truthy(table.concat(gs:commands(), '\n'):find('gs c weapons initialize', 1, true))
         assert.is_false(gs.user.can_dual_wield)
         assert.equal('None', gs.user.state.Weapons.value)
     end)

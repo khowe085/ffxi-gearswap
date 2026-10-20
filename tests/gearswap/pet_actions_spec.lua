@@ -9,17 +9,6 @@ local function boot()
     return gs
 end
 
-local function pet_acts(gs, fields)
-    local pet = gs.game.pet
-    local act = {actor_id = pet.id, category = fields.category, param = fields.param or 0, recast = 0,
-        targets = {{id = fields.target_id or gs.game.monster.id, actions = {{message = fields.message or 0,
-            param = fields.value or 0, reaction = 0, animation = 0, effect = 0, stagger = 0}}}}}
-    gs:run(function()
-        gs.game:send_action_packet(act)
-        gs.game:settle()
-    end)
-end
-
 describe('a pet command typed in the chat', function()
     it('goes out at the target as the ability it is, after the precast gear', function()
         local gs = boot()
@@ -97,7 +86,7 @@ describe('a pet\'s action', function()
 
     it('being readied tells the user file pet_midcast with the move and who it is for', function()
         local gs = boot_with_pet()
-        pet_acts(gs, {category = 7, param = 0, value = 257, message = 43})
+        gs:pet_readies('Foot Kick')
         local got = calls(gs)
         assert.same({{event = 'pet_midcast', name = 'Foot Kick', target = 'Apex Toad'}}, {{event = got[1].event, name = got[1].name, target = got[1].target}})
         assert.is_true((gs.user.pet_midaction()))
@@ -105,16 +94,16 @@ describe('a pet\'s action', function()
 
     it('being readied is a monster move to the hooks', function()
         local gs = boot_with_pet()
-        pet_acts(gs, {category = 7, value = 258, message = 43})
+        gs:pet_readies('Dust Cloud')
         local got = calls(gs)[1]
         assert.same({'Dust Cloud', 'Monster Move'}, {got.name, got.action_type})
     end)
 
     it('being done tells the user file pet_aftercast, and the pet is no longer in midaction', function()
         local gs = boot_with_pet()
-        pet_acts(gs, {category = 7, value = 257, message = 43})
+        gs:pet_readies('Foot Kick')
         calls(gs)
-        pet_acts(gs, {category = 11, param = 257, value = 120, message = 185})
+        gs:pet_finishes('Foot Kick')
         local got = calls(gs)
         assert.same({'pet_aftercast', 'Foot Kick'}, {got[1].event, got[1].name})
         assert.is_false(gs.user.pet_midaction())
@@ -122,9 +111,14 @@ describe('a pet\'s action', function()
 
     it('being interrupted tells the user file pet_aftercast, marked interrupted', function()
         local gs = boot_with_pet()
-        pet_acts(gs, {category = 7, value = 257, message = 43})
+        gs:pet_readies('Foot Kick')
         calls(gs)
-        pet_acts(gs, {category = 7, param = 28787, value = 257, message = 43})
+        gs:run(function()
+            gs.game:send_action_packet({actor_id = gs.game.pet.id, category = 7, param = 28787, recast = 0,
+                targets = {{id = gs.game.monster.id, actions = {{message = 43, param = 257, reaction = 0, animation = 0,
+                effect = 0, stagger = 0}}}}})
+            gs.game:settle()
+        end)
         local got = calls(gs)
         assert.same({'pet_aftercast', 'Foot Kick', true}, {got[1].event, got[1].name, got[1].interrupted})
     end)
@@ -144,7 +138,7 @@ describe('a pet\'s action', function()
     it('is left alone while the user file is disabled', function()
         local gs = boot_with_pet()
         gs:console('gs disable')
-        pet_acts(gs, {category = 7, value = 257, message = 43})
+        gs:pet_readies('Foot Kick')
         assert.same({}, calls(gs))
     end)
 

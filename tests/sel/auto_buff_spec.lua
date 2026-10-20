@@ -67,7 +67,8 @@ describe('AutoBuffMode, User-Globals.lua\'s check_buff on Sel\'s tick', function
     end)
 
     it('casts nothing while Off', function()
-        local gs = autoy.boot()
+        local gs = boot('Auto')
+        gs:console('gs c set AutoBuffMode Off')
         gs:play(3)
         assert.same({}, gs:action_entries())
     end)

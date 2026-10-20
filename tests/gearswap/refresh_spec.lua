@@ -1,11 +1,8 @@
 local harness = require('harness')
 local lfs = require('lfs')
 local plain = require('plain')
-local testy = require('testy')
 
-local function refresh(gs)
-    gs:console('gs c refresh')
-end
+local refresh = plain.refresh
 
 local function boot()
     local gs = plain.boot()

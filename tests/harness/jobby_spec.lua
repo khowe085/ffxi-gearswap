@@ -3,7 +3,7 @@ local harness = require('harness')
 local jobby = require('jobby')
 
 describe('the stand-in game for the job files\' tests', function()
-    it('gives a blue mage every blue spell it knows in its set, past twenty, with empty slots as 512 below that', function()
+    it('gives a blue mage every blue spell it knows in its set, past twenty', function()
         local game = Game.new({res = harness.resources(), main_job = 'BLU'})
         local blue = 0
         for id in pairs(game.spells) do

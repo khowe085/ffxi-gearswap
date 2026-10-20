@@ -1,4 +1,5 @@
 local commy = require('commy')
+local harness = require('harness')
 
 local idle = commy.rdm_idle
 
@@ -260,19 +261,20 @@ describe('Sel\'s weapon sets for dual wield', function()
     it('named for dual wield are passed over when set by name', function()
         gs:console('gs c set Weapons DualWeapons')
         assert.equal('Naegling', gs.user.state.Weapons.value)
+        assert.same(commy.worn_by(idle, {main = 'Naegling'}), gs:worn())
     end)
 
     it('with a weapon in the sub are passed over when set by name, as User-Globals.lua has it', function()
         gs:console('gs c set Weapons Swords')
         assert.equal('Crocea', gs.user.state.Weapons.value)
-        assert.equal('Ammurapi Shield', gs:worn().sub)
+        assert.same(commy.worn_by(idle, {main = 'Crocea Mors'}), gs:worn())
     end)
 
     -- Sel looks for the trait with set_dual_wield five seconds after it loads; until then it takes Commy to have none.
     it('are stopped at by a cycle once Commy has the Dual Wield trait', function()
         gs.game:set_job_traits({'Dual Wield'})
-        gs.user.set_dual_wield()
-        gs.game:settle()
+        gs:advance(harness.sel_load_time)
+        assert.is_true(gs.user.can_dual_wield)
         gs:console('gs c set Weapons None')
         local seen = {}
         for _ = 1, 3 do

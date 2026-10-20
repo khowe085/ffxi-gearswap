@@ -1,15 +1,10 @@
-local harness = require('harness')
-local testy = require('testy')
 local Game = require('game')
+local plain = require('plain')
 
 -- Testy on the plain user file Testy_WHM.lua with only these items, then switched to Testy_Equip.lua, whose sets
 -- the tests put on with gs equip.
 local function boot(items, wearing)
-    local gs = harness.boot(testy.whm({items = items, wearing = wearing or {}}))
-    gs:console('gs load Testy_Equip.lua')
-    assert.equal('Testy_Equip.lua', gs.env.current_file)
-    gs:traffic()
-    return gs
+    return plain.boot('Testy_Equip.lua', {items = items, wearing = wearing or {}})
 end
 
 local function equip(gs, set)

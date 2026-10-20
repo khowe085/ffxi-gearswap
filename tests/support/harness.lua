@@ -865,11 +865,13 @@ function Session:send_party_buffs(members)
     end)
 end
 
--- A packet the client sends of its own, as the bytes after its header (see Game:send_from_client).
+-- A packet the client sends of its own, as the bytes after its header (see Game:send_from_client). Returns whether
+-- a handler blocked it.
 function Session:send_from_client(id, body)
-    self:run(function()
-        self.game:send_from_client(id, body)
+    return self:run(function()
+        local blocked = self.game:send_from_client(id, body)
         self.game:settle()
+        return blocked
     end)
 end
 
