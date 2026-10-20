@@ -53,8 +53,8 @@ commy.rdm_idle = {main = 'Daybreak', sub = 'Ammurapi Shield', ammo = 'Staunch Ta
 local rdm_items = {
     'Naegling', 'Crocea Mors', 'Daybreak', "Bunzi's Rod", 'Ammurapi Shield', 'Staunch Tathlum +1', 'Nyame Helm',
     "Bunzi's Hat", 'Malignance Chapeau', 'Kaykaus Mitra +1', 'Volte Cap', 'Nyame Mail', 'Malignance Tabard',
-    'Atrophy Tabard +3', 'Lethargy Sayon +3', 'Nyame Gauntlets', 'Kaykaus Cuffs', 'Chironic Gloves',
-    'Telchine Gloves', "Bunzi's Gloves", 'Regal Cuffs', 'Amalric Gages', "Shrieker's Cuffs", 'Nyame Flanchard',
+    'Atrophy Tabard +3', 'Lethargy Sayon +3', 'Nyame Gauntlets', 'Chironic Gloves',
+    'Telchine Gloves', 'Regal Cuffs', 'Amalric Gages', 'Nyame Flanchard',
     'Telchine Braconi', 'Chironic Hose', 'Malignance Tights', 'Volte Brais', "Bunzi's Pants",
     'Lengo Pants', 'Psycloth Lappas', 'Merlinic Shalwar', 'Kaykaus Tights', 'Querkening Brais', 'Volte Hose',
     'Nyame Sollerets', 'Malignance Boots', 'Volte Boots', 'Loricate Torque +1', 'Sanctity Necklace',
@@ -100,20 +100,11 @@ function commy.boot_war(overrides)
     end)
 end
 
--- The idle set of tests/fixture/data/Commy/Commy_Thf_Gear.lua.
-commy.thf_idle = {head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard',
-    feet = 'Nyame Sollerets', waist = 'Plat. Mog. Belt'}
-
-local thf_items = {
-    'Nyame Helm', 'Volte Cap', 'Nyame Mail', 'Malignance Tabard', 'Nyame Gauntlets', 'Nyame Flanchard', 'Volte Hose',
-    'Nyame Sollerets', 'Sanctity Necklace', 'Plat. Mog. Belt', 'Chaac Belt', "Medada's Ring", 'Moonlight Cape',
-}
-
--- Commy as a thief with warrior as sub job and 1000 TP, on the real data/THF.lua with Commy_Thf_Gear.lua, with the
--- idle set on and nothing sent or said yet.
+-- Commy as a thief with warrior as sub job and 1000 TP, on the real data/THF.lua with Commy_Thf_Gear.lua, holding no
+-- gear, and nothing sent or said yet.
 function commy.boot_thf(overrides)
     return boot(options_for({character = 'Commy', main_job = 'THF', sub_job = 'WAR', tp = 1000,
-        expect_file = 'THF.lua'}, thf_items, overrides))
+        expect_file = 'THF.lua'}, {}, overrides))
 end
 
 -- A melee hit of Commy's on the monster, as the action packet the server sends of it.

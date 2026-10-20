@@ -34,11 +34,14 @@ describe('AutoRuneMode', function()
         assert.same({}, gs:action_entries())
     end)
 
+    -- Sel refuses an ability on recast with an "Abort: ..." line, so this reads the chat too.
     it('calls none while runes are on recast', function()
         local gs = boot('Runes')
         gs.game:start_ability_recast('Ignis', 5)
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:action_entries())
+        assert.same({}, gs:chat())
     end)
 
     it('calls none without a rune fencer', function()

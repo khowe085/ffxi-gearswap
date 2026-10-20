@@ -28,11 +28,14 @@ describe('AutoShadowMode, for a red mage with no utsusemi', function()
         assert.same({}, gs:action_entries())
     end)
 
+    -- Sel refuses a spell on recast with an "Abort: ..." line, so this reads the chat too.
     it('casts nothing while Blink is on recast', function()
         local gs = boot()
         gs.game:start_spell_recast('Blink', 20)
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:action_entries())
+        assert.same({}, gs:chat())
     end)
 
     it('casts Blink ahead of AutoBuffMode\'s spells', function()

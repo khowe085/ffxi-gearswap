@@ -12,6 +12,9 @@ local function engaged(sub_job, tp, line, options)
     return gs
 end
 
+-- Sel refuses an ability on recast with an "Abort: ..." line, so a test of a recast holding a mode back reads the
+-- chat too.
+
 describe('AutoJumpMode, with a dragoon sub', function()
     local function jumper(tp, options)
         return engaged('DRG', tp, 'gs c toggle AutoJumpMode', options)
@@ -34,8 +37,10 @@ describe('AutoJumpMode, with a dragoon sub', function()
         local gs = jumper(0)
         gs.game:start_ability_recast('Jump', 60)
         gs.game:start_ability_recast('High Jump', 60)
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:action_entries())
+        assert.same({}, gs:chat())
     end)
 
     it('jumps not at all at 501 TP', function()
@@ -85,8 +90,10 @@ describe('AutoSambaMode, with a dancer sub', function()
     it('uses none while sambas are on recast', function()
         local gs = dancer(1000)
         gs.game:start_ability_recast('Haste Samba', 60)
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:action_entries())
+        assert.same({}, gs:chat())
     end)
 
     it('uses none while idle', function()
@@ -139,8 +146,10 @@ describe('AutoSubMode, with a scholar sub', function()
     it('leaves it while it is on recast', function()
         local gs = scholar()
         gs.game:start_ability_recast('Sublimation', 30)
+        gs:chat()
         gs:play(3)
         assert.same({}, gs:action_entries())
+        assert.same({}, gs:chat())
     end)
 
     it('uses none under SJ Restriction', function()

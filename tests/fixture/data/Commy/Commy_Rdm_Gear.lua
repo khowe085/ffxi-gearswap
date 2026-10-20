@@ -33,9 +33,6 @@ function init_gear_sets()
 
 	-- A set for each spell map, on a slot the sets above leave alone.
 	sets.midcast.CureNuke = {legs = 'Merlinic Shalwar'}
-	sets.midcast.MeleeCure = {hands = 'Kaykaus Cuffs'}
-	sets.midcast.LightWeatherCure = {hands = "Bunzi's Gloves"}
-	sets.midcast.LightDayCure = {hands = "Shrieker's Cuffs"}
 	sets.midcast.BarElement = {legs = 'Telchine Braconi'}
 	sets.midcast.Enspell = {legs = 'Chironic Hose'}
 	sets.midcast.StatusRemoval = {legs = 'Malignance Tights'}

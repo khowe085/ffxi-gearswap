@@ -127,12 +127,15 @@ describe('Auto WS, User-Globals.lua\'s weapon skill on TP', function()
         assert.same({}, gs:action_entries())
     end)
 
+    -- Sel refuses a weapon skill typed while amnesic with an "Abort: ..." line, so this reads the chat too.
     it('holds back while amnesic', function()
         local gs = boot('Savage Blade 1000')
         gs:gain_buff('amnesia')
         gs:traffic()
+        gs:chat()
         gs:set_tp(1000)
         assert.same({}, gs:action_entries())
+        assert.same({}, gs:chat())
     end)
 
     it('waits for 3000 TP on an AM3 choice, to build Aftermath: Lv.3', function()
