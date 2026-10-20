@@ -1,19 +1,7 @@
 local harness = require('harness')
 local plain = require('plain')
 
-local function calls(gs)
-    local list = gs.user.calls
-    gs.user.calls = {}
-    return list
-end
-
-local function events(list)
-    local result = {}
-    for i, entry in ipairs(list) do
-        result[i] = entry.event
-    end
-    return result
-end
+local calls, events = plain.calls, plain.names
 
 local function boot()
     local gs = plain.boot('Testy_Actions.lua')

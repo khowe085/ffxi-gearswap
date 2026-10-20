@@ -49,13 +49,18 @@ describe('an equip request the server doesn\'t answer', function()
     it('is dropped slot by slot: another slot\'s request, newer, is kept', function()
         local gs = boot()
         gs.game.refuse_equips = true
+        gs.user.sets.rod = {main = "Bunzi's Rod"}
         gs:console('gs equip sets.precast.FastCast')
-        gs:advance(2)
-        gs:console('gs equip sets.engaged')
         gs:traffic()
+        gs:advance(2)
+        gs:console('gs equip sets.rod')
+        assert.same({{equip = {main = "Bunzi's Rod"}}}, gs:traffic())
         gs:advance(1.5)
         gs:console('gs equip sets.precast.FastCast')
         assert.same({{equip = fast_cast}}, gs:traffic())
+        gs:console('gs equip sets.rod')
+        assert.same({}, gs:traffic())
+        assert.equal("Bunzi's Rod", gs.user.player.equipment.main)
     end)
 end)
 
@@ -82,6 +87,19 @@ describe('an equip request the server answers', function()
         end
         assert.equal(3, head_requests)
         assert.equal("Bunzi's Hat", gs:worn().head)
+    end)
+
+    it('of three pieces or more, refused, is dropped at once: the equipset reply says what is worn, so the pieces are '
+        .. 'sent again', function()
+        local gs = boot()
+        gs.game.refuse_equips = true
+        gs.user.sets.three = {main = "Bunzi's Rod", head = "Bunzi's Hat", ring1 = 'Kishar Ring'}
+        local three = {main = "Bunzi's Rod", head = "Bunzi's Hat", left_ring = 'Kishar Ring'}
+        gs:console('gs equip sets.three')
+        assert.same({{equip = three}}, gs:traffic())
+        gs:console('gs equip sets.three')
+        assert.same({{equip = three}}, gs:traffic())
+        assert.equal('Nyame Helm', gs.user.player.equipment.head)
     end)
 end)
 

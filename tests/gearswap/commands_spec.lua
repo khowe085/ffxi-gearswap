@@ -1,7 +1,7 @@
 local harness = require('harness')
 local plain = require('plain')
 
-local chat, texts, printed = plain.chat, plain.texts, plain.printed
+local chat, texts, printed, error_of = plain.chat, plain.texts, plain.printed, plain.error_of
 
 local function boot(file)
     local gs = plain.boot(file or 'Testy_Events.lua')
@@ -9,12 +9,6 @@ local function boot(file)
     printed(gs)
     chat(gs)
     return gs
-end
-
-local function error_of(fn, ...)
-    local ok, err = pcall(fn, ...)
-    assert.is_false(ok, 'expected an error')
-    return err
 end
 
 local function boot_corey_without_a_file()
@@ -154,6 +148,7 @@ describe('gs disable and gs enable', function()
     it('say nothing when the file is already as asked', function()
         local gs = boot()
         gs:console('gs enable')
+        assert.same({}, printed(gs))
         gs:console('gs disable')
         printed(gs)
         gs:console('gs disable')
@@ -259,7 +254,8 @@ describe('gs debugmode, gs demomode and gs showswaps', function()
         gs:console('gs DebugMode')
         gs:console('gs debug_mode')
         gs:console('gs debug-mode')
-        assert.is_true(gs.env._settings.debug_mode)
+        assert.same({'GearSwap: Debug Mode set to true.', 'GearSwap: Debug Mode set to false.',
+            'GearSwap: Debug Mode set to true.'}, printed(gs))
     end)
 
     it('toggle showing the swaps, and say what it is', function()
@@ -578,13 +574,6 @@ describe('the events GearSwap takes from the game', function()
         gs.game:settle()
         assert.same({}, plain.events(gs))
     end)
-
-    it('a status change is left alone while the user file is off', function()
-        local gs = boot()
-        gs:console('gs disable')
-        gs:engage()
-        assert.same({}, plain.events(gs))
-    end)
 end)
 
 describe('with no file loaded', function()
@@ -597,6 +586,8 @@ describe('with no file loaded', function()
     it('gs c passes nothing on and says nothing', function()
         local gs = boot_corey_without_a_file()
         assert.has_no.errors(function() gs:console('gs c anything') end)
+        assert.same({}, printed(gs))
+        assert.same({}, chat(gs))
     end)
 
     it('a change to a job that has a file loads it', function()

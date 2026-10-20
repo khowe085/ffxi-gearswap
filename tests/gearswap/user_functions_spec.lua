@@ -10,13 +10,7 @@ local function command(gs, text)
     gs:console('gs c ' .. text)
 end
 
-local function error_of(fn, ...)
-    local ok, err = pcall(fn, ...)
-    assert.is_false(ok, 'expected an error')
-    return err
-end
-
-local chat, texts = plain.chat, plain.texts
+local chat, texts, error_of = plain.chat, plain.texts, plain.error_of
 
 describe('equip', function()
     it('puts on the set it is given', function()
@@ -417,6 +411,9 @@ describe('show_swaps and debug_mode', function()
         local gs = boot()
         assert.matches('was passed an invalid value %(bad%)', error_of(gs.console, gs, 'gs c debug_mode bad'))
     end)
+
+    pending('debug_mode with something that is not a boolean names debug_mode() in its error: debug_mode in '
+        .. 'user_functions.lua raises the message of show_swaps, which names show_swaps()')
 end)
 
 describe('set_language', function()

@@ -369,8 +369,16 @@ describe('the party and the alliance', function()
 
     it('has the leader of the party, and of the alliance', function()
         local gs = boot()
+        local carol = gs.game:add_party_member({name = 'Carol', slot = 'a10'})
+        local get_party = gs.game.get_party
+        gs.game.get_party = function(game)
+            local party = get_party(game)
+            party.alliance_leader, party.party2_leader = game.player.id, carol.id
+            return party
+        end
         refresh(gs)
-        assert.equal('Testy', gs.user.alliance[1].leader.name)
+        local alliance = gs.user.alliance
+        assert.same({'Testy', 'Carol', 'Testy'}, {alliance[1].leader.name, alliance[2].leader.name, alliance.leader.name})
     end)
 
     it('is the same table, kept up to date, for the user file that has it', function()
@@ -416,12 +424,18 @@ describe('reloading the user file', function()
 end)
 
 describe('refresh_globals', function()
-    local function watch_hp(gs)
+    -- Notes what read gives, run among the user file's globals, each time the game raises zone change.
+    local function watch(gs, read)
         local seen = {}
-        gs.user.windower.register_event('zone change', setfenv(function()
-            seen[#seen + 1] = player.hp
-        end, gs.user))
+        setfenv(read, gs.user)
+        gs.user.windower.register_event('zone change', function()
+            seen[#seen + 1] = read()
+        end)
         return seen
+    end
+
+    local function watch_hp(gs)
+        return watch(gs, function() return player.hp end)
     end
 
     it('is done by an event the user file registered when the game raised it', function()
@@ -435,14 +449,15 @@ describe('refresh_globals', function()
 
     it('is not done by an event a twentieth of a second after the last', function()
         local gs = boot()
-        local seen = watch_hp(gs)
+        local seen = watch(gs, function() return world.day end)
         gs:advance(1)
-        gs.game.player.vitals.hp = 700
         gs.game:fire('zone change', 230, 100)
-        gs.game.player.vitals.hp = 650
+        gs.game:set_info({day = 1})
         gs:advance(0.04)
         gs.game:fire('zone change', 230, 100)
-        assert.same({700, 700}, seen)
+        gs:advance(0.02)
+        gs.game:fire('zone change', 230, 100)
+        assert.same({'Firesday', 'Firesday', 'Earthsday'}, seen)
     end)
 
     it('does the part that reads the player only when more than half a second has gone by', function()

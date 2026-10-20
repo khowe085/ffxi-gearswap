@@ -2,20 +2,7 @@ local harness = require('harness')
 local plain = require('plain')
 
 local chat, texts = plain.chat, plain.texts
-
-local function calls(gs)
-    local list = gs.user.calls
-    gs.user.calls = {}
-    return list
-end
-
-local function names(list)
-    local result = {}
-    for i, entry in ipairs(list) do
-        result[i] = entry.event
-    end
-    return result
-end
+local calls, names = plain.calls, plain.names
 
 local function boot(file)
     local gs = plain.boot(file or 'Testy_WHM.lua')
@@ -202,7 +189,7 @@ describe('gs test of an action', function()
         assert.same({'GearSwap: Usage: //gs test set <set>  or  //gs test [precast|midcast] <action>'}, gs_test(gs, 'precast'))
     end)
 
-    it('keeps what the hooks would send out of the game while it runs, and sends it again after', function()
+    it('keeps what the hooks send out of the game while it runs, but not once they run for a real cast after it', function()
         local gs = boot_actions()
         gs.user.knobs.echo_in_precast = true
         gs_test(gs, 'precast Cure III')
@@ -223,9 +210,7 @@ describe('gs test of an action', function()
     it('raises the error a hook raises', function()
         local gs = boot_actions()
         gs.user.precast = function() error('the hook failed') end
-        local ok, err = pcall(gs.console, gs, 'gs test precast Cure III')
-        assert.is_false(ok)
-        assert.matches('the hook failed', err)
+        assert.matches('the hook failed', plain.error_of(gs.console, gs, 'gs test precast Cure III'))
     end)
 end)
 
@@ -313,12 +298,16 @@ describe('the hold after gs test', function()
         assert.same({}, calls(gs))
     end)
 
-    it('is cut short by a user file load, which turns the user file on', function()
+    it('lets a user file load turn the user file on', function()
         local gs = boot()
         gs_test(gs, 'set sets.precast.FastCast')
         gs:console('gs load Testy_Events')
         assert.is_false(gs.env.gearswap_disabled)
     end)
+
+    pending('is ended by a user file load, so 30 seconds on nothing is said and the new file is told of no status '
+        .. 'change: load_user_files ends the audit and the gs naked hold but not this one, whose timer still says the '
+        .. 'user file is back on and calls status_change')
 
     it('is not started over by gs enable with a slot, which leaves the hold as it is', function()
         local gs = boot()

@@ -204,18 +204,18 @@ describe('the outgoing job change packet (0x100)', function()
     end)
 
     pending('leaves the user file as it is while the user file is disabled, as the zone-in packet does: the handler '
-        .. 'in packet_parsing.lua loads the new job\'s file, which enables it again, before it looks at '
-        .. 'gearswap_disabled')
+        .. 'in packet_parsing.lua queues the new job\'s load_user_files with send_command before it looks at '
+        .. 'gearswap_disabled, and the queued load turns the user file on again')
 end)
 
 describe('the system message packet (0x053)', function()
     it('ends a trust summon that was refused, as an interrupted action', function()
         local gs = plain.boot()
-        gs:type('/ma "Cure III" <me>')
+        gs:type('/ma "Joachim" <me>')
         gs.user.calls = {}
         gs:send(0x053, {['Message ID'] = 0x12D})
         local last = gs.user.calls[#gs.user.calls]
-        assert.same({'aftercast', 'Cure III', true}, {last.event, last.name, last.interrupted})
+        assert.same({'aftercast', 'Joachim', true}, {last.event, last.name, last.interrupted})
     end)
 
     it('says nothing for another message', function()

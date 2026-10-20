@@ -2,20 +2,7 @@ local plain = require('plain')
 local testy = require('testy')
 
 local chat, texts = plain.chat, plain.texts
-
-local function calls(gs)
-    local list = gs.user.calls
-    gs.user.calls = {}
-    return list
-end
-
-local function events(list)
-    local result = {}
-    for i, entry in ipairs(list) do
-        result[i] = entry.event
-    end
-    return result
-end
+local calls, events = plain.calls, plain.names
 
 -- Testy on the user file Testy_Actions.lua, the game then told it is these jobs: the file doesn't depend on the job.
 local function boot(jobs, extra_items)

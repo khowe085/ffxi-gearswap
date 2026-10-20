@@ -234,13 +234,14 @@ describe('gs export of what is worn', function()
 
     it('names a second export of the same name by the time too, and writes over the first with overwrite', function()
         local gs = boot()
+        local second = 'Testy_twice ' .. gs.game.clock .. '.lua'
         export(gs, 'file twice')
         export(gs, 'file twice')
         assert.is_true(written(gs, 'Testy_twice.lua'))
-        assert.is_true(written(gs, 'Testy_twice 1000.lua'))
-        os.remove(folder(gs) .. 'Testy_twice 1000.lua')
+        assert.is_true(written(gs, second))
+        os.remove(folder(gs) .. second)
         assert.matches('Will overwrite existing files with same name.', export(gs, 'file twice overwrite')[1], 1, true)
-        assert.is_false(written(gs, 'Testy_twice 1000.lua'))
+        assert.is_false(written(gs, second))
         os.remove(folder(gs) .. 'Testy_twice.lua')
     end)
 
@@ -268,9 +269,9 @@ describe('gs export of what is worn', function()
     pending('refuses compact with bgwiki: the check for it is given only compact, so it never counts two')
     pending('refuses two of a file name, copy, mainjob and mainsubjob together: the check counts what it filters with #, '
         .. 'which finds none in a list that starts with false (and a file name is a string it never counts)')
-    pending('writes a compact set of the items of the inventory, the wearable pieces, all, or the sets table: it reads '
-        .. 'item_list[slot] for each slot, which for a slot with no piece reads a function of the table library and '
-        .. 'raises an error, and for the sets table calls rekey on a table that has no such method')
+    pending('writes a compact set of the items of the inventory, the wearable pieces, all, or the sets table: for '
+        .. 'items with no ranged piece among them, item_list.range is the table library\'s range function, whose name '
+        .. 'it reads and raises an error, and for the sets table it calls rekey on a table that has no such method')
 end)
 
 -- Splits an export that groups its items by bag into the lines of each bag.
@@ -395,4 +396,8 @@ describe('gs export of the sets', function()
 
     pending('writes a piece that has its augments under the key augment, a single one: unpack_names reads the augment '
         .. 'from a variable it never sets (export.lua names augment instead of tab_level.augment) and raises an error')
+
+    pending('writes a piece the set names a bag for as the piece alone: unpack_names takes every string in a set for '
+        .. 'a piece\'s name but the values augment, augments and priority, so the bag of {name = ..., bag = '
+        .. '\'wardrobe2\'} is written as an item of its own, bag="wardrobe2"')
 end)
