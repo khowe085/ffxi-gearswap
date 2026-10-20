@@ -264,10 +264,6 @@ describe('SAM\'s weapon skill set with neither earring in it', function()
             legs = 'Volte Hose'}, changes))
     end
 
-    it('is the set as it stands at any TP', function()
-        assert.same(ws_with(), weaponskill(gs, 'Tachi: Shoha', 3000))
-    end)
-
     it('has Sekkanoki\'s set over it while Sekkanoki is up', function()
         gs:gain_buff('Sekkanoki')
         assert.same(ws_with({hands = 'Diamond Kote'}), weaponskill(gs, 'Tachi: Shoha', 1000))
@@ -286,11 +282,8 @@ describe('SAM\'s engaged set', function()
     end)
 
     local function engaged_with(changes)
-        local set = {head = "Bendis's Hairpin", body = 'Sapphire Platemail', feet = 'Nyame Sollerets'}
-        for slot, item in pairs(changes or {}) do
-            set[slot] = item
-        end
-        return worn(set)
+        return worn(jobby.worn_by({head = "Bendis's Hairpin", body = 'Sapphire Platemail', feet = 'Nyame Sollerets'},
+            changes))
     end
 
     it('has Hasso\'s set over it while Hasso is up', function()

@@ -155,7 +155,7 @@ describe('MNK\'s weapon skill set', function()
         assert.equal('Volte Jupon', worn.body)
     end)
 
-    it('swaps in sets.MaxTP, not sets.AccMaxTP, under Sneak Attack', function()
+    it('swaps in sets.MaxTP, not sets.AccMaxTP, under Sneak Attack in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Sneak Attack')
         gs.game.player.vitals.tp = 3000

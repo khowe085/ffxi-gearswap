@@ -537,7 +537,7 @@ describe('PLD\'s Cover', function()
     end)
 end)
 
--- Nothing in the job file or in Sel calls check_flash; a macro could.
+-- Nothing in the job file or in Sel calls check_flash.
 describe('PLD\'s check_flash', function()
     local gs
     before_each(function()

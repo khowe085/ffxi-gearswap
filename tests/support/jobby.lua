@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------------------------------------------
 -- Jobby, the made-up character the tests of the job files in data/ play (tests/jobs): the boot options for each job,
 -- over the fixture gear file tests/fixture/data/Jobby/Jobby_<Job>_Gear.lua that job loads, and the sets as they are
--- worn; what Jobby is told and types but the lines User-Globals.lua gives five seconds after a load; and what a test
--- gives him besides: the Dual Wield trait, and another player as his target.
+-- worn; what Jobby is told and types but the lines User-Globals.lua gives five seconds after his file first loads; and
+-- what a test gives him besides: the Dual Wield trait, and another player as his target.
 -------------------------------------------------------------------------------------------------------------------
 
 local harness = require('harness')
@@ -93,43 +93,63 @@ function jobby.target_a_player(gs, fields)
     return pal
 end
 
--- What the gs validate that User-Globals.lua runs five seconds after the file loads says of Jobby, who has every
--- piece.
-local validate_report = {['GearSwap: Checking for items in gear sets that are not in your inventory.'] = true,
-    ['GearSwap: Final count = 0'] = true}
+-- What User-Globals.lua gives five seconds after Jobby's file first loads: the report of the gs validate it runs, when
+-- Jobby has every piece the sets name, and the /lockstyle on it types, the first the game is given, since Sel's own
+-- waits fifteen seconds after a load. A later load or sub job change gives them again, and those are kept.
+local load_report = {'GearSwap: Checking for items in gear sets that are not in your inventory.',
+    'GearSwap: Final count = 0'}
+local load_lock = {'/lockstyle on'}
 
--- The lines put in the chat since it was last read, but the report of that gs validate; only those the pattern finds,
--- when one is given. Sel begins each line that turns an action down with Abort, and most job files do too, but not
--- SMN.lua's for an avatar already out, BST.lua's for a weapon skill out of range or DRG.lua's for every jump on recast.
+-- The lines just read of one of the game's lists, but the first entry in the whole list of each of the lines given.
+-- text_of gives an entry's text as the lines read give it.
+local function but_the_first(list, read, lines, text_of)
+    local left = {}
+    for _, line in ipairs(lines) do
+        left[line] = true
+    end
+    local first = {}
+    for i, entry in ipairs(list) do
+        local text = text_of(entry)
+        if left[text] then
+            first[i] = true
+            left[text] = nil
+        end
+    end
+    local start = #list - #read
+    local kept = {}
+    for i, line in ipairs(read) do
+        if not first[start + i] then
+            kept[#kept + 1] = line
+        end
+    end
+    return kept
+end
+
+-- An entry of the chat log's text, as Session:chat gives it.
+local function chat_text(entry)
+    return (tostring(entry.text):gsub('^\31.', ''):gsub('\30\1$', ''))
+end
+
+local function as_is(line)
+    return line
+end
+
+-- The lines put in the chat since it was last read, but that gs validate's report; only those the pattern finds, when
+-- one is given. Many lines that turn an action down begin with Abort, but not all, so a test of a guard whose refusal
+-- says something else matches that line.
 function jobby.said(gs, pattern)
     local lines = {}
-    for _, line in ipairs(gs:chat()) do
-        if not validate_report[line] and (not pattern or line:find(pattern)) then
+    for _, line in ipairs(but_the_first(gs.game.chat_log, gs:chat(), load_report, chat_text)) do
+        if not pattern or line:find(pattern) then
             lines[#lines + 1] = line
         end
     end
     return lines
 end
 
--- The lines typed since this was last asked that reached the game, but the /lockstyle on that User-Globals.lua types
--- along with that gs validate: the first the game was given, since Sel's own waits fifteen seconds after a load.
+-- The lines typed since this was last asked that reached the game, but that /lockstyle on.
 function jobby.typed(gs)
-    local typed = gs:typed()
-    local load_lock
-    for i, line in ipairs(gs.game.typed) do
-        if line == '/lockstyle on' then
-            load_lock = i
-            break
-        end
-    end
-    local first = #gs.game.typed - #typed
-    local lines = {}
-    for i, line in ipairs(typed) do
-        if first + i ~= load_lock then
-            lines[#lines + 1] = line
-        end
-    end
-    return lines
+    return but_the_first(gs.game.typed, gs:typed(), load_lock, as_is)
 end
 
 -- Jobby has the Dual Wield trait from now on, as Sel finds out when it looks, with nothing sent since. Sel starts the

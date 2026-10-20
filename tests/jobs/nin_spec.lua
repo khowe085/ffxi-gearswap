@@ -164,11 +164,7 @@ describe('NIN\'s engaged set', function()
     end)
 
     local function engaged_with(changes)
-        local set = {head = "Bendis's Hairpin", body = 'Sapphire Platemail'}
-        for slot, item in pairs(changes or {}) do
-            set[slot] = item
-        end
-        return worn(set)
+        return worn(jobby.worn_by({head = "Bendis's Hairpin", body = 'Sapphire Platemail'}, changes))
     end
 
     it('has Yonin\'s set over it while Yonin is up', function()

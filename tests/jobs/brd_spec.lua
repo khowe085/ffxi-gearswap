@@ -84,7 +84,8 @@ describe('BRD\'s songs on a monster', function()
         assert.same({head = "Bendis's Hairpin", left_ring = "Tyrant's Ring"}, gs:traffic()[1].equip)
     end)
 
-    it('take the debuff class set, then the song\'s own set over it', function()
+    it('take the debuff class set, then the song\'s own set over it, and no dual wielder\'s set over them for a '
+        .. 'character who can\'t dual wield', function()
         gs:type('/ma "Foe Lullaby" <t>')
         assert.same(worn({head = "Theia's Hairpin", main = 'Carnwenhan', body = 'Diamond Haramaki',
             hands = 'Sapphire Gauntlets', waist = 'Null Belt'}), gs:worn())
@@ -101,11 +102,6 @@ describe('BRD\'s songs on a monster', function()
         gs:type('/ma "Foe Lullaby" <t>')
         assert.same(worn({head = "Theia's Hairpin", main = 'Carnwenhan', body = 'Jadeite Cuirie',
             hands = 'Jadeite Gloves'}), gs:worn())
-    end)
-
-    it('have no dual wielder\'s set over them for a character who can\'t dual wield', function()
-        gs:type('/ma "Foe Lullaby" <t>')
-        assert.equal('Null Belt', gs:worn().waist)
     end)
 
     it('have the dual wielder\'s set over them for a character who can', function()

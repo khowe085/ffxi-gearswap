@@ -138,7 +138,8 @@ describe('BST\'s Reward', function()
         gs = boot()
     end)
 
-    it('has the set of the reward mode, with Reward\'s own over it, before it goes out', function()
+    it('has the set of the reward mode, with Reward\'s own over it and no dual wield set for a character who can\'t '
+        .. 'dual wield, before it goes out', function()
         gs:type('/ja "Reward" <me>')
         local traffic = gs:traffic()
         assert.same({sub = 'Sacro Bulwark', legs = 'Sapphire Trousers', ammo = 'Pet Food Theta',
@@ -163,12 +164,6 @@ describe('BST\'s Reward', function()
     pending('has the dual wield set\'s sub over Reward\'s own, for a character who can dual wield: job_precast in '
         .. 'data/BST.lua equips sets.precast.JA.Reward.DW itself, and Sel\'s precast then lays sets.precast.JA.Reward '
         .. 'over it, so a sub in Reward\'s own set wins')
-
-    it('has no dual wield set for a character who can\'t', function()
-        gs:type('/ja "Reward" <me>')
-        assert.same({sub = 'Sacro Bulwark', legs = 'Sapphire Trousers', ammo = 'Pet Food Theta',
-            feet = 'Sapphire Leggings'}, gs:traffic()[1].equip)
-    end)
 end)
 
 describe('BST\'s Spur', function()
@@ -281,11 +276,7 @@ end)
 
 -- What Jobby wears with a pet out in the Tank pet mode, idle: the set of a pet idle, and the Tank set under it.
 local function with_pet(changes)
-    local set = {sub = 'Sacro Bulwark', back = 'Aptitude Mantle', ring1 = "Tyrant's Ring"}
-    for slot, item in pairs(changes or {}) do
-        set[slot] = item
-    end
-    return worn(set)
+    return worn(jobby.worn_by({sub = 'Sacro Bulwark', back = 'Aptitude Mantle', ring1 = "Tyrant's Ring"}, changes))
 end
 
 describe('BST\'s ready moves, as Jobby commands them', function()
@@ -617,7 +608,8 @@ describe('BST\'s idle set with a pet out', function()
     pending('is the set for the DD pet mode as soon as that mode is set: job_state_change in data/BST.lua looks for '
         .. 'the field PetMode, and Sel hands it the mode\'s description, Pet Mode')
 
-    it('is the engaged pet set for the mode, while the pet is engaged', function()
+    it('is the engaged pet set for the mode, with no dual wield set for a character who can\'t dual wield, while the '
+        .. 'pet is engaged', function()
         gs:give_pet({name = 'DroopyDortwin'})
         gs:set_pet_status(1)
         assert.same(with_pet({waist = 'Prosilio Belt'}), gs:worn())
@@ -651,12 +643,6 @@ describe('BST\'s idle set with a pet out', function()
     pending('has the dual wield pet set\'s sub over the pet idle set\'s, idle or engaged, for a character who can '
         .. 'dual wield: job_customize_idle_set in data/BST.lua equips sets.idle.Pet.DW or sets.idle.Pet.Engaged.DW '
         .. 'itself, and Sel then equips the idle set it hands back over it, so a sub in the pet idle set wins')
-
-    it('has no dual wield set for a character who can\'t', function()
-        gs:give_pet({name = 'DroopyDortwin'})
-        gs:set_pet_status(1)
-        assert.same(with_pet({waist = 'Prosilio Belt'}), gs:worn())
-    end)
 
     it('is the pet idle set at once for a pet that was out when GearSwap loaded', function()
         gs = boot({pet = {name = 'DroopyDortwin'}})
@@ -859,8 +845,9 @@ describe('BST\'s weapon skill sets', function()
         gs = boot()
     end)
 
-    -- A level 99 beastmaster with a sword and no shield or second weapon is fencing, which adds the 400 TP of its
-    -- third tier to the 250 of Moonshade Earring; Sel counts none of the job point gifts (see the pending below).
+    -- A level 99 beastmaster with a sword and a shield, or nothing, in the off hand is fencing, which adds the 400 TP
+    -- of its third tier to the 250 of Moonshade Earring; Sel counts none of the job point gifts (see the pending
+    -- below).
     it('keep Moonshade Earring at 3200 TP with its bonus and Fencer\'s', function()
         local set = weaponskill(gs, 'Savage Blade', 2550)
         assert.same({'Moonshade Earring', 'Etiolation Earring'}, {set.left_ear, set.right_ear})

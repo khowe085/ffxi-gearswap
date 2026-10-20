@@ -255,7 +255,7 @@ describe('a weapon skill under AutoBuffMode with the TP to spare for a step', fu
     end)
 
     it('goes out with both flourishes up at any finishing move count of three and up', function()
-        for _, buff in ipairs({'Finishing Move 4', 'Finishing Move 5', 'Finishing Move (6+)'}) do
+        for _, buff in ipairs({'Finishing Move 3', 'Finishing Move 4', 'Finishing Move 5', 'Finishing Move (6+)'}) do
             local gs = buffer({buffs = {buff, 'Building Flourish', 'Climactic Flourish'}})
             assert.same({'Rudra\'s Storm'}, weaponskill(gs))
         end
@@ -679,12 +679,9 @@ describe('the tick of a dancer', function()
 end)
 
 describe('Curing Waltz by a dancer on himself', function()
-    -- missing HP of the 1500 and TP; the waltz asked for, the one used when it differs
-    local function waltz(missing, tp, asked, options)
-        options = options or {}
-        options.tp = tp
-        options.hp = 1500 - missing
-        local gs = boot(options)
+    -- missing HP of the 1500 and TP; the waltz asked for
+    local function waltz(missing, tp, asked)
+        local gs = boot({tp = tp, hp = 1500 - missing})
         gs:type(('/ja "%s" <me>'):format(asked))
         return gs
     end

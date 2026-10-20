@@ -35,6 +35,37 @@ describe('the stand-in game for the job files\' tests', function()
     end)
 end)
 
+describe('what Jobby types and is told', function()
+    -- Every piece the WAR gear file names, so that the gs validate finds none missing.
+    local gear = {'Naegling', 'Conqueror', 'Volte Cap', 'Null Masque', 'Volte Jupon', 'Adamantite Armor',
+        'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget', "Combatant's Torque", 'Null Belt',
+        'Moonshade Earring', 'Brutal Earring', 'Lugra Earring', 'Cessance Earring', 'Odnowa Earring +1', 'Karieyh Ring',
+        'Chirich Ring +1'}
+
+    local gs
+    before_each(function()
+        gs = jobby.boot('WAR', {items = gear})
+        gs:play(harness.sel_load_time + 1)
+    end)
+
+    it('leaves out the /lockstyle on User-Globals.lua types five seconds after the load, and keeps a later one',
+        function()
+        assert.equal('/lockstyle on', gs.game.typed[#gs.game.typed])
+        assert.same({}, jobby.typed(gs))
+        gs:console('input /lockstyle on')
+        assert.same({'/lockstyle on'}, jobby.typed(gs))
+    end)
+
+    it('leaves out the report of the gs validate User-Globals.lua runs five seconds after the load, and keeps a later '
+        .. 'one', function()
+        assert.is_truthy(tostring(gs.game.chat_log[#gs.game.chat_log].text):find('GearSwap: Final count = 0', 1, true))
+        assert.same({}, jobby.said(gs))
+        gs:console('gs validate')
+        assert.same({'GearSwap: Checking for items in gear sets that are not in your inventory.',
+            'GearSwap: Final count = 0'}, jobby.said(gs))
+    end)
+end)
+
 describe('a layer of sets', function()
     it('names the slots as the game does, so a later set\'s ear1 takes the place of an earlier left_ear', function()
         assert.same({left_ear = 'B', head = 'H'}, jobby.layer({left_ear = 'A', head = 'H'}, {ear1 = 'B'}))

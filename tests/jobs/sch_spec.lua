@@ -11,7 +11,7 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
 -- these besides:
 --   mp         the MP of the 1000 he has
 --   friend     true for a party member, Friend, near him
---   stranger   the squared distance of another player, Stranger, who is not in the party, true for 4 yalms
+--   stranger   true for another player, Stranger, 4 yalms off, who is not in the party
 local function boot(options)
     options = options or {}
     local gs = jobby.boot('SCH', {items = pieces, sub_job = options.sub_job or 'RDM', tp = options.tp,
@@ -24,8 +24,7 @@ local function boot(options)
         gs.game:add_party_member({name = 'Friend'})
     end
     if options.stranger then
-        gs.game:add_party_member({name = 'Stranger', in_party = false,
-            distance = type(options.stranger) == 'number' and options.stranger or 16})
+        gs.game:add_party_member({name = 'Stranger', in_party = false, distance = 16})
     end
     gs:console('gs c update')
     gs:forget()

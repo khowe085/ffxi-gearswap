@@ -136,7 +136,8 @@ describe('RNG\'s ranged attack', function()
 
     pending('has Chrono Arrow once an update has put the idle set\'s bow in an empty range slot: job_update in '
         .. 'data/RNG.lua takes the type of the ranged weapon before Sel\'s update puts the idle set on, so the type is '
-        .. 'None until the weapons are next set up, and do_ammo_checks raises an error indexing DefaultAmmo with it')
+        .. 'None until it is next taken, at the next update or change of weapons, and do_ammo_checks raises an error '
+        .. 'indexing DefaultAmmo with it')
 
     it('has the default ammunition of the weapon back once it is done, over the accuracy ranged mode\'s', function()
         local gs = boot()

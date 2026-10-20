@@ -46,7 +46,7 @@ local function blue_over_fast_cast(gs, ...)
 end
 
 -- The actions the tick sent in its first moments: it starts five seconds after the file loads, and acts again once
--- the first action's delay is over, a second later.
+-- the first action's delay is over.
 local function first_actions(gs)
     gs:play(harness.sel_load_time + 0.3)
     return gs:actions()

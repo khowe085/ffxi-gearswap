@@ -27,7 +27,7 @@ local function boot_buffing(options)
     return gs
 end
 
--- What the weapon skill's precast put on over the idle set, once it has gone out.
+-- What is worn once the weapon skill has gone out: its precast set over what was on before.
 local function weaponskill(gs, line)
     gs:type(line)
     local traffic = gs:traffic()
@@ -613,6 +613,7 @@ describe('WAR\'s Warcry bookkeeping', function()
     end)
 
     it('notes nobody when Warcry comes up from another\'s use', function()
+        gs.user.lastwarcry = 'Jobby'
         gs.game:start_ability_recast('Warcry', 297)
         gs:gain_buff('Warcry')
         assert.equal('', gs.user.lastwarcry)
