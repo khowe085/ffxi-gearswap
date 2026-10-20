@@ -181,7 +181,7 @@ describe('Sel\'s status box', function()
         assert.is_false(shows(commy.boot_war(), 'Rune'))
     end)
 
-    pending('lays display.labels over its own labels: update_job_states combines them with lables, a misspelt name '
-        .. 'that is nil, so only display.labels\' labels are left and the box stops on an error at the first mode '
-        .. 'they don\'t name')
+    pending('lays display.labels over its own labels: update_job_states combines them with set_combine, which keeps '
+        .. 'only gear slots, so no label is left, display.labels\' or its own (passed as lables, a misspelt name that '
+        .. 'is nil), and the box stops on an error at the first label it shows')
 end)

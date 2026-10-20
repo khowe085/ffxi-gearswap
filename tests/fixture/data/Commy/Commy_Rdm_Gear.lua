@@ -10,16 +10,17 @@ function user_job_setup()
 	state.PhysicalDefenseMode:options('PDT')
 	state.MagicalDefenseMode:options('MDT')
 	state.ResistDefenseMode:options('MEVA')
-	state.Weapons:options('None', 'Naegling', 'DualWeapons', 'Swords', 'Crocea', 'Club')
+	state.Weapons:options('None', 'DualWeapons', 'Naegling', 'Swords', 'Crocea', 'Club')
 	state.Passive:options('None', 'Emp')
 end
 
 function init_gear_sets()
 	sets.weapons.Naegling = {main = 'Naegling', sub = 'Ammurapi Shield'}
 	sets.weapons.Crocea = {main = 'Crocea Mors', sub = 'Ammurapi Shield'}
-	-- Sets a red mage with a white mage sub job can't dual wield: one Sel tells by its name, one User-Globals.lua by its
-	-- sub. There is no sets.weapons.Club.
-	sets.weapons.DualWeapons = {main = 'Naegling', sub = 'Crocea Mors'}
+	-- Sets passed over while a red mage with a white mage sub job can't dual wield: DualWeapons by Sel, by its name
+	-- alone, since its sub is a shield; Swords by User-Globals.lua, by the weapon in its sub. There is no
+	-- sets.weapons.Club.
+	sets.weapons.DualWeapons = {main = 'Naegling', sub = 'Ammurapi Shield'}
 	sets.weapons.Swords = {main = 'Crocea Mors', sub = 'Naegling'}
 
 	sets.precast.FC = {head = "Bunzi's Hat", ring1 = 'Kishar Ring'}

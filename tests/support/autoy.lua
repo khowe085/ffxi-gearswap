@@ -12,6 +12,7 @@ local autoy = {}
 autoy.gear = {
     {name = 'Naegling'}, {name = 'Crocea Mors'}, {name = 'Ammurapi Shield'}, {name = 'Nyame Helm'},
     {name = "Bunzi's Hat"}, {name = "Judge's Bow"},
+    {name = 'Malignance Chapeau'},
 }
 
 -- Seconds after GearSwap loads that Sel's tick first acts, and that Sel sets up the weapon modes

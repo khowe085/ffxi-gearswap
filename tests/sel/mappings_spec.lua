@@ -86,7 +86,7 @@ describe('Sel\'s spell map', function()
     end)
 
     it('is none for a spell outside the maps, which keeps the idle set\'s legs and hands', function()
-        local worn = midcast(gs, '/ma "Haste" <me>')
+        local worn = midcast(gs, '/ma "Aquaveil" <me>')
         assert.same({'Nyame Flanchard', 'Nyame Gauntlets'}, {worn.legs, worn.hands})
     end)
 end)

@@ -70,7 +70,8 @@ describe('Sel\'s tick', function()
         assert.same(refresh, autoy.actions(gs))
     end)
 
-    it('runs the gear file\'s user_job_tick first, which holds the rest back by returning true', function()
+    it('runs the gear file\'s user_job_tick after pre_tick\'s checks and ahead of the rest, which it holds back by '
+        .. 'returning true', function()
         local gs = boot()
         local ticks = 0
         gs.user.user_job_tick = function()

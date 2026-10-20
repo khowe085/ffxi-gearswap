@@ -38,9 +38,9 @@ describe('Sel\'s precast set for a spell', function()
             precast(gs, '/ma "Haste" <me>'))
     end)
 
-    it('is sets.precast.FC[name] ahead of the skill\'s set', function()
-        assert.same({head = "Bunzi's Hat", left_ring = 'Kishar Ring', body = 'Lethargy Sayon +3'},
-            precast(gs, '/ma "Refresh" <me>'))
+    it('is sets.precast.FC[name] ahead of the spell map\'s set and the skill\'s', function()
+        assert.same({head = 'Kaykaus Mitra +1', left_ring = 'Kishar Ring', body = 'Lethargy Sayon +3'},
+            precast(gs, '/ma "Refresh II" <me>'))
     end)
 
     it('is sets.precast.FC[spell map] for a spell Sel maps', function()
@@ -65,9 +65,9 @@ describe('Sel\'s midcast set for a spell', function()
             midcast(gs, '/ma "Fire III" <t>'))
     end)
 
-    it('is sets.midcast[name], over FastRecast', function()
+    it('is sets.midcast[name] ahead of the spell map\'s set, over FastRecast', function()
         assert.same(testy.worn_by(testy.rdm_idle, {head = 'Malignance Chapeau', body = 'Atrophy Tabard +3',
-            ring1 = 'Kishar Ring'}), midcast(gs, '/ma "Refresh" <me>'))
+            ring1 = 'Kishar Ring'}), midcast(gs, '/ma "Cure II" <me>'))
     end)
 
     it('is sets.midcast[spell map] for a spell Sel maps', function()

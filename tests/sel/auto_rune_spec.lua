@@ -91,4 +91,8 @@ describe('AutoRuneMode', function()
         gs:play(3)
         assert.same({}, autoy.actions(gs))
     end)
+
+    pending('lets the rest of the tick go on once three custom runes are up: check_rune in libs/Sel-Utility.lua '
+        .. 'returns true from its third rune\'s branch whether or not it called one, so pre_tick stops the tick there '
+        .. 'every frame, nothing after it acts (AutoTrustMode calls no trust) and in_combat is never reset')
 end)

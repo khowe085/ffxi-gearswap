@@ -69,6 +69,17 @@ describe('Auto WS, User-Globals.lua\'s weapon skill on TP', function()
         assert.same(savage_blade, autoy.actions(gs))
     end)
 
+    it('sends another on a TP change just past the two seconds', function()
+        local gs = boot('Savage Blade 1000')
+        gs:set_tp(1000)
+        gs:finish_action()
+        gs:traffic()
+        gs:advance(2.1)
+        gs:set_tp(1100)
+        gs:play(3)
+        assert.same(savage_blade, autoy.actions(gs))
+    end)
+
     it('holds back while another action is under way', function()
         local gs = boot('Savage Blade 1000')
         gs:type('/ma "Haste" <me>')
@@ -78,18 +89,28 @@ describe('Auto WS, User-Globals.lua\'s weapon skill on TP', function()
         assert.same({}, autoy.actions(gs))
     end)
 
-    it('holds back when the target is farther than 19.7 yalms past its size', function()
-        local gs = boot('Savage Blade 1000')
-        gs.game.monster.distance = 21 ^ 2
+    -- The toad's size is 1 yalm.
+    it('holds back when the target is farther than 19.7 yalms past its size, even for a ranged weapon skill', function()
+        local gs = boot()
+        gs:console('gs c set Weapons Bow')
+        gs:console('gs c set AutoWS Flaming Arrow 1000')
+        gs.game.monster.distance = 20.8 ^ 2
+        gs:traffic()
         gs:set_tp(1000)
         assert.same({}, autoy.actions(gs))
+        gs.game.monster.distance = 20.6 ^ 2
+        gs:set_tp(1100)
+        assert.same({{action = 'Flaming Arrow', target = 'Apex Toad'}}, autoy.actions(gs))
     end)
 
     it('holds back out of melee range, 3.2 yalms past the target\'s size, for a melee weapon skill', function()
         local gs = boot('Savage Blade 1000')
-        gs.game.monster.distance = 6 ^ 2
+        gs.game.monster.distance = 4.3 ^ 2
         gs:set_tp(1000)
         assert.same({}, autoy.actions(gs))
+        gs.game.monster.distance = 4.1 ^ 2
+        gs:set_tp(1100)
+        assert.same(savage_blade, autoy.actions(gs))
     end)
 
     it('holds back when the target is dead', function()
