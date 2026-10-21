@@ -464,6 +464,11 @@ describe('SMN\'s idle set with no avatar out', function()
         assert.equal('Etiolation Earring', gs:worn().left_ear)
     end)
 
+    pending('has no sets.latent_refresh_grip over it with the weapons locked to Bunzi\'s Rod but UnlockWeapons on: '
+        .. 'job_customize_idle_set in data/SMN.lua looks at the idle set\'s main, Terra\'s Staff, and with '
+        .. 'UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
+        .. 'sets.latent_refresh_grip with Bunzi\'s Rod in hand')
+
     it('has sets.buff.Sublimation over it while Sublimation is charging', function()
         gs:gain_buff('Sublimation: Activated')
         assert.equal('Brutal Earring', gs:worn().right_ear)

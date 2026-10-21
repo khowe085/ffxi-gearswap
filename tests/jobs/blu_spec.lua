@@ -255,9 +255,9 @@ describe('a weapon skill when a club is in hand', function()
     end
 end)
 
-describe('a sword\'s weapon skill with no club in hand', function()
+describe('a sword\'s weapon skill with a dagger in hand', function()
     -- With a dagger in hand the game lists a dagger's weapon skills: no club's, and no Chant du Cygne.
-    it('is left alone, and Sel turns it down', function()
+    it('is left alone by the job file, and Sel turns it down', function()
         local gs = boot({'Foot Kick'}, {tp = 1000, wearing = {main = 'Qutrub Knife'}})
         gs:type('/ws "Chant du Cygne" <t>')
         assert.same({}, gs:traffic())
@@ -280,44 +280,42 @@ describe('a weapon skill at the TP cap', function()
 
     it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
         local gs = engaged({tp = 2951})
-        gs:type('/ws "Chant du Cygne" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Chant du Cygne'], sets_of(gs).MaxTP), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Chant du Cygne'], sets_of(gs).MaxTP),
+            jobby.weaponskill(gs, '/ws "Chant du Cygne" <t>'))
     end)
 
     it('trades it when the Moonshade Earring is in the other ear too', function()
         local gs = engaged({tp = 3000})
-        gs:type('/ws "Savage Blade" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Savage Blade'], sets_of(gs).MaxTP), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Savage Blade'], sets_of(gs).MaxTP),
+            jobby.weaponskill(gs, '/ws "Savage Blade" <t>'))
     end)
 
     it('keeps the Moonshade Earring at 2950 TP', function()
         local gs = engaged({tp = 2950})
-        gs:type('/ws "Chant du Cygne" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Chant du Cygne']), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Chant du Cygne']),
+            jobby.weaponskill(gs, '/ws "Chant du Cygne" <t>'))
     end)
 
     it('wears sets.AccMaxTP in the Acc offense mode', function()
         local gs = engaged({tp = 3000})
         gs:console('gs c set OffenseMode Acc')
         gs:traffic()
-        gs:type('/ws "Chant du Cygne" <t>')
         assert.same(jobby.worn_by(idle,
             jobby.layer(sets_of(gs).engaged.Acc, sets_of(gs).precast.WS['Chant du Cygne'], sets_of(gs).AccMaxTP)),
-            gs:worn())
+            jobby.weaponskill(gs, '/ws "Chant du Cygne" <t>'))
     end)
 
     it('keeps the set of a weapon skill with no Moonshade Earring', function()
         local gs = engaged({tp = 3000})
-        gs:type('/ws "Requiescat" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Requiescat), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Requiescat), jobby.weaponskill(gs, '/ws "Requiescat" <t>'))
     end)
 
     it('is followed by sets.Learning in the learning mode', function()
         local gs = engaged({tp = 2000})
         gs:console('gs c toggle LearningMode')
         gs:traffic()
-        gs:type('/ws "Requiescat" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Requiescat, sets_of(gs).Learning), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Requiescat, sets_of(gs).Learning),
+            jobby.weaponskill(gs, '/ws "Requiescat" <t>'))
     end)
 end)
 
@@ -346,7 +344,7 @@ describe('a blue healing spell', function()
     it('wears the unlocked set again once UnlockWeapons is on', function()
         local gs = boot({'Pollen'})
         gs:console('gs c set Weapons Naegling')
-        gs:console('gs c set UnlockWeapons true')
+        gs:console('gs c toggle UnlockWeapons')
         gs:traffic()
         local worn = midcast_worn(gs, '/ma "Pollen" <me>')
         assert.equal('Volte Bracers', worn.hands)
@@ -497,7 +495,12 @@ describe('the idle set under half MP', function()
 
     pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff but UnlockWeapons '
         .. 'on: job_customize_idle_set in data/BLU.lua looks at the idle set\'s main, and with UnlockWeapons on Sel '
-        .. 'lays the weapon set over the idle set after it, so the grip goes on with Naegling in hand')
+        .. 'lays the weapon set over the idle set after it, so the job file adds sets.latent_refresh_grip with '
+        .. 'Naegling in hand')
+
+    pending('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on when the idle set '
+        .. 'names no main: job_customize_idle_set in data/BLU.lua looks at the idle set\'s main, and Sel lays the '
+        .. 'weapon set over the idle set only after it, so the job file adds no grip set with Gozuki Mezuki in hand')
 
     it('wears no sets.latent_refresh_grip with a weapon in the idle set that is no staff', function()
         local gs = boot({'Foot Kick'})

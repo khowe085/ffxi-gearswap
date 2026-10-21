@@ -119,7 +119,7 @@ describe('a cure by a scholar', function()
 
         it('wears sets.midcast.Cure again with UnlockWeapons on', function()
             local gs = locked()
-            gs:console('gs c set UnlockWeapons true')
+            gs:console('gs c toggle UnlockWeapons')
             gs:traffic()
             local worn = cure(gs)
             assert.equal('Gelatinous Ring', worn.left_ring)
@@ -597,7 +597,13 @@ describe('the idle set of a scholar', function()
 
     pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff but UnlockWeapons '
         .. 'on: job_customize_idle_set in data/SCH.lua looks at the idle set\'s main, and with UnlockWeapons on Sel '
-        .. 'lays the weapon set over the idle set after it, so the grip goes on with Bunzi\'s Rod in hand')
+        .. 'lays the weapon set over the idle set after it, so the job file adds sets.latent_refresh_grip with '
+        .. 'Bunzi\'s Rod in hand')
+
+    pending('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on when the idle set '
+        .. 'names no main: job_customize_idle_set in data/SCH.lua looks at the idle set\'s main, and Sel lays the '
+        .. 'weapon set over the idle set only after it, so the job file adds neither the grip set nor sets.TPEat with '
+        .. 'Gozuki Mezuki in hand')
 
     it('wears no sets.latent_refresh in the DT idle mode', function()
         local gs = boot()
@@ -632,7 +638,7 @@ describe('the idle set of a scholar', function()
     end)
 
     it('wears sets.TPEat over the latent refresh set under half MP with some TP and a main weapon in the idle set', function()
-        local gs = boot({tp = 100})
+        local gs = boot({tp = 11})
         sets_of(gs).idle.main = "Bunzi's Rod"
         low_mp(gs)
         assert.same(jobby.worn_by(idle,

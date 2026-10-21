@@ -11,7 +11,7 @@ function user_job_setup()
 	state.WeaponskillMode:options('Match', 'Normal', 'Acc')
 	state.CastingMode:options('Normal', 'Resistant', 'SIRD')
 	state.IdleMode:options('Normal', 'DT', 'Sphere')
-	state.Weapons:options('None', 'Naegling', 'Crocea', 'EnspellMelee', 'Ullr')
+	state.Weapons:options('None', 'Naegling', 'Crocea', 'EnspellMelee', 'Ullr', 'Staff')
 end
 
 function init_gear_sets()
@@ -19,6 +19,7 @@ function init_gear_sets()
 	sets.weapons.Crocea = {main = 'Crocea Mors'}
 	sets.weapons.EnspellMelee = {main = 'Crocea Mors', sub = 'Ammurapi Shield'}
 	sets.weapons.Ullr = {main = 'Naegling', range = empty}
+	sets.weapons.Staff = {main = 'Gozuki Mezuki'}
 
 	sets.precast.FC = {neck = 'Fotia Gorget'}
 	sets.precast.JA.Convert = {main = 'Murgleis', sub = 'Kupo Shield'}

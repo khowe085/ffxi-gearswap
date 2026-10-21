@@ -332,38 +332,38 @@ describe('a weapon skill under AutoBuffMode with the TP to spare for a step', fu
 end)
 
 describe('a weapon skill by a dancer', function()
-    local function weaponskill(tp, ...)
+    -- Jobby engaged with that TP, once the commands given have run: the session, and what is worn once Rudra's Storm
+    -- is out.
+    local function ws(tp, ...)
         local gs = boot({tp = tp, engaged = true})
         for _, command in ipairs({...}) do
             gs:console(command)
         end
         gs:traffic()
-        gs:type('/ws "Rudra\'s Storm" <t>')
-        return gs
+        return gs, jobby.weaponskill(gs, '/ws "Rudra\'s Storm" <t>')
     end
 
     it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
-        local gs = weaponskill(2951)
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Rudra\'s Storm'], sets_of(gs).MaxTP), gs:worn())
+        local gs, worn = ws(2951)
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Rudra\'s Storm'], sets_of(gs).MaxTP), worn)
     end)
 
     it('trades it for sets.AccMaxTP in the Acc offense mode', function()
-        local gs = weaponskill(3000, 'gs c set OffenseMode Acc')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Rudra\'s Storm'], sets_of(gs).AccMaxTP), gs:worn())
+        local gs, worn = ws(3000, 'gs c set OffenseMode Acc')
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Rudra\'s Storm'], sets_of(gs).AccMaxTP), worn)
     end)
 
     it('keeps the Moonshade Earring at 2950 TP', function()
-        local gs = weaponskill(2950)
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Rudra\'s Storm']), gs:worn())
+        local gs, worn = ws(2950)
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Rudra\'s Storm']), worn)
     end)
 
     it('wears sets.buff["Climactic Flourish"] over the weapon skill set while that is up', function()
         local gs = boot({tp = 2000, engaged = true})
         gs:gain_buff('Climactic Flourish')
         gs:traffic()
-        gs:type('/ws "Rudra\'s Storm" <t>')
         assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Rudra\'s Storm'], sets_of(gs).buff['Climactic Flourish']),
-            gs:worn())
+            jobby.weaponskill(gs, '/ws "Rudra\'s Storm" <t>'))
     end)
 
     describe('with a Climactic Flourish up and AutoBuffMode on', function()
@@ -390,8 +390,8 @@ describe('a weapon skill by a dancer', function()
             return gs
         end
 
-        it('is followed by Reverse Flourish, with three finishing moves and the TP spent', function()
-            local gs = finished({buffs = {'Finishing Move 3'}})
+        it('is followed by Reverse Flourish, with three finishing moves and 998 TP left', function()
+            local gs = finished({buffs = {'Finishing Move 3'}, tp_left = 998})
             assert.same({'Reverse Flourish'}, gs:actions())
         end)
 
@@ -736,6 +736,11 @@ describe('Curing Waltz by a dancer on himself', function()
         local gs = waltz(400, 199, 'Curing Waltz II')
         assert.same({}, gs:actions())
         assert.same({'Abort: Insufficient TP [199] to waltz.'}, gs:chat())
+    end)
+
+    it('goes out with 200 TP, as Curing Waltz, the tier that buys', function()
+        local gs = waltz(400, 200, 'Curing Waltz II')
+        assert.same({'Curing Waltz'}, gs:actions())
     end)
 
     it('is downgraded to what the TP buys, with a word of it', function()

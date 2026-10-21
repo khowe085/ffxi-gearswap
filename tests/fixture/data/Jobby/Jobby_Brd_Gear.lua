@@ -20,6 +20,7 @@ function init_gear_sets()
 		ring2 = 'Stikini Ring +1', back = 'Mecisto. Mantle'}
 	sets.idle.DT = set_combine(sets.idle, {body = 'Sapphire Platemail'})
 	sets.latent_refresh = {waist = 'Prosilio Belt'}
+	sets.latent_refresh_grip = {ring2 = 'Gelatinous Ring'}
 	sets.TPEat = {neck = "Orunmila's Torque"}
 	sets.buff.Sublimation = {back = 'Aptitude Mantle'}
 	sets.buff.DTSublimation = {back = 'Aptitude Mantle', neck = "Orunmila's Torque"}

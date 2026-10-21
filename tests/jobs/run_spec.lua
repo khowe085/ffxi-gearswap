@@ -347,6 +347,15 @@ describe('the idle set of a rune fencer', function()
             gs:worn())
     end)
 
+    pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff or great sword but '
+        .. 'UnlockWeapons on: job_customize_idle_set in data/RUN.lua looks at the idle set\'s main, and with '
+        .. 'UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
+        .. 'sets.latent_refresh_grip with Naegling, a one-handed sword, in hand')
+
+    pending('wears sets.latent_refresh_grip with the weapons locked to a great sword but UnlockWeapons on when the '
+        .. 'idle set names no main: job_customize_idle_set in data/RUN.lua looks at the idle set\'s main, and Sel lays '
+        .. 'the weapon set over the idle set only after it, so the job file adds no grip set with Epeolatry in hand')
+
     it('wears no sets.latent_refresh_grip with a weapon in the idle set that is no staff or great sword', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Naegling'
@@ -393,22 +402,21 @@ describe('a weapon skill by a rune fencer at the TP cap', function()
 
     it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
         local gs = engaged(2951)
-        gs:type('/ws "Resolution" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Resolution, sets_of(gs).MaxTP), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Resolution, sets_of(gs).MaxTP),
+            jobby.weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 
     it('trades it for sets.AccMaxTP in the Acc offense mode', function()
         local gs = engaged(3000)
         gs:console('gs c set OffenseMode Acc')
         gs:traffic()
-        gs:type('/ws "Resolution" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Resolution, sets_of(gs).AccMaxTP), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Resolution, sets_of(gs).AccMaxTP),
+            jobby.weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 
     it('keeps the Moonshade Earring at 2950 TP', function()
         local gs = engaged(2950)
-        gs:type('/ws "Resolution" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Resolution), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Resolution), jobby.weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 end)
 

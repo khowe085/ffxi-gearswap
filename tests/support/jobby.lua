@@ -107,11 +107,17 @@ function jobby.boot_ticking(job, options)
     return gs
 end
 
--- What is worn once the weapon skill typed (a line such as '/ws "Savage Blade" <t>') has gone out. The test fails
--- when it didn't, or when another action went out since the actions were last read.
-function jobby.weaponskill(gs, line)
+-- What is worn once the weapon skill typed (a line such as '/ws "Savage Blade" <t>') has gone out. A TP given is the TP
+-- Jobby has as he types it. The test fails when the line isn't in that form, when the weapon skill didn't go out, or
+-- when another action went out since the actions were last read.
+function jobby.weaponskill(gs, line, tp)
+    local name = line:match('^/ws "(.-)"')
+    assert(name, 'a weapon skill is typed as /ws "Name", not as ' .. line)
+    if tp then
+        gs.game.player.vitals.tp = tp
+    end
     gs:type(line)
-    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
+    assert.same({name}, gs:actions(), 'the weapon skill typed didn\'t go out alone')
     return gs:worn()
 end
 

@@ -1,7 +1,7 @@
 local jobby = require('jobby')
 
-local gear = {'Daybreak', 'Ammurapi Shield', "Terra's Staff", 'Enki Strap', 'Volte Cap', 'Null Masque',
-    'Volte Jupon', 'Adamantite Armor', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget',
+local gear = {'Daybreak', "Terra's Staff", 'Enki Strap', 'Volte Cap', 'Null Masque', 'Volte Jupon',
+    'Adamantite Armor', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget',
     "Combatant's Torque", 'Karieyh Ring', 'Chirich Ring +1', 'Null Belt', 'Null Shawl', 'Amin Turban',
     'Ischkur Turban', 'Azimuth Turban', 'Blistering Sallet', 'Blistering Sallet +1', 'Alhazen Hat', 'Alhazen Hat +1',
     'Sukeroku Hachi.', "Bendis's Hairpin", 'Blacksh. Hairpin', 'Moonshade Earring', 'Brutal Earring',
@@ -356,13 +356,30 @@ describe('BLM\'s idle set', function()
             {main = "Terra's Staff", waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
     end)
 
-    it('has no grip over it with the weapons locked', function()
+    it('has no grip over the Sphere idle set with the weapons locked to a staff', function()
         gs:console('gs c set IdleMode Sphere')
-        gs:console('gs c set Weapons Club')
+        gs:console('gs c set Weapons Staff')
         low_mp()
-        assert.same(jobby.worn_by(idle,
-            {main = 'Daybreak', sub = 'Ammurapi Shield', waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {main = 'Gozuki Mezuki', waist = 'Null Belt'}), gs:worn())
     end)
+
+    it('has the grip over the Sphere idle set with the weapons locked to a staff but UnlockWeapons on', function()
+        gs:console('gs c set IdleMode Sphere')
+        gs:console('gs c set Weapons Staff')
+        gs:console('gs c toggle UnlockWeapons')
+        low_mp()
+        assert.same(jobby.worn_by(idle, {main = 'Gozuki Mezuki', waist = 'Null Belt', sub = 'Enki Strap'}),
+            gs:worn())
+    end)
+
+    pending('has no grip over the Sphere idle set with the weapons locked to Daybreak but UnlockWeapons on: '
+        .. 'job_customize_idle_set in data/BLM.lua looks at the idle set\'s main, Terra\'s Staff, and with '
+        .. 'UnlockWeapons on Sel lays the weapon set over the idle set after it, so the idle set asks for Enki Strap '
+        .. 'beside Daybreak, a club, which the game refuses')
+
+    pending('has the grip over the Normal idle set, which names no main, with the weapons locked to a staff but '
+        .. 'UnlockWeapons on: job_customize_idle_set in data/BLM.lua looks at the idle set\'s main, and Sel lays the '
+        .. 'weapon set over the idle set only after it, so the job file adds no grip with Gozuki Mezuki in hand')
 
     it('has sets.buff.Sublimation over it while Sublimation charges', function()
         gs:gain_buff('Sublimation: Activated')
