@@ -148,8 +148,8 @@ end
 -- options: res (the raw resource tables), paths (addon and windower, for the API), name, id, index, main_job,
 -- main_job_level, sub_job, sub_job_level, race, status, zone, items ({name=, bag=, extdata=, count=}, bag by its API
 -- name, inventory unless given), wearing (slot name to the item's position in items), buffs (names), spells and
--- abilities (the names known; every one the resources hold unless given), tp (0 unless given), merits (the player's
--- merit levels by name, none unless given).
+-- abilities (the names known; unless given, every spell and job ability the resources hold, and the weapon skills of
+-- the weapons in hand), tp (0 unless given), merits (the player's merit levels by name, none unless given).
 function Game.new(options)
     local game = setmetatable({}, Game)
     game.res = options.res
@@ -232,20 +232,23 @@ function Game.new(options)
             game.spells[id] = true
         end
     end
-    game.job_abilities, game.weapon_skills, game.job_traits = {}, {}, {}
+    game.job_abilities, game.job_traits = {}, {}
     local abilities = options.abilities
     for id, ability in pairs(res.job_abilities) do
         if type(ability) == 'table' and (not abilities or abilities[ability.en]) then
             game.job_abilities[#game.job_abilities + 1] = id
         end
     end
-    for id, skill in pairs(res.weapon_skills) do
-        if type(skill) == 'table' and (not abilities or abilities[skill.en]) then
-            game.weapon_skills[#game.weapon_skills + 1] = id
-        end
-    end
     table.sort(game.job_abilities)
-    table.sort(game.weapon_skills)
+    if abilities then
+        game.weapon_skills = {}
+        for id, skill in pairs(res.weapon_skills) do
+            if type(skill) == 'table' and abilities[skill.en] then
+                game.weapon_skills[#game.weapon_skills + 1] = id
+            end
+        end
+        table.sort(game.weapon_skills)
+    end
 
     game.bags = {}
     for id, bag in pairs(res.bags) do
@@ -493,6 +496,35 @@ function Game:mjob_data()
         set[slot] = set[slot] or 512
     end
     return {spells = set}
+end
+
+-- What get_abilities reports of the weapon skills, by id: those of the main hand's weapon type, hand-to-hand's with
+-- nothing in it, and those of the ranged weapon's. The game lists only those whose skill the character has enough of,
+-- and some only with one weapon, not every one of its type (Mystic Boon with Yagrush, a relic, mythic or empyrean
+-- weapon's own); the stand-in has no skill levels and the resources don't say which weapon, so it lists every one of
+-- the type. The abilities a boot names stand whatever is in hand.
+function Game:weapon_skills_in_hand()
+    if self.weapon_skills then
+        return copy(self.weapon_skills)
+    end
+    local function skill_in(slot_name)
+        local spot = self.equipment[slot_ids[slot_name]]
+        return spot and self.res.items[self.bags[spot.bag].items[spot.slot].id].skill
+    end
+    local hand_to_hand = 1
+    local types = {[skill_in('main') or hand_to_hand] = true}
+    local ranged = skill_in('range')
+    if ranged then
+        types[ranged] = true
+    end
+    local known = {}
+    for id, skill in pairs(self.res.weapon_skills) do
+        if type(skill) == 'table' and types[skill.skill] then
+            known[#known + 1] = id
+        end
+    end
+    table.sort(known)
+    return known
 end
 
 -- The recast of each job ability the character knows, by recast id, in seconds: every one ready.
@@ -1159,7 +1191,7 @@ function Game:make_windower(paths)
             get_party = function() return game:get_party() end,
             get_spells = function() return copy(game.spells) end,
             get_abilities = function()
-                return {job_abilities = copy(game.job_abilities), weapon_skills = copy(game.weapon_skills),
+                return {job_abilities = copy(game.job_abilities), weapon_skills = game:weapon_skills_in_hand(),
                     job_traits = copy(game.job_traits)}
             end,
             get_spell_recasts = function()

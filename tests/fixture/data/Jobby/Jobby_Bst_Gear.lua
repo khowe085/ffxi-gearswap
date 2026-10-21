@@ -9,9 +9,12 @@ function user_job_setup()
 	state.PhysicalDefenseMode:options('PDT')
 	state.CorrelationMode = M{['description'] = 'Correlation Mode', 'Neutral', 'Favorable'}
 	state.ExtraMeleeMode = M{['description'] = 'Extra Melee Mode', 'None'}
+	state.Weapons:options('None', 'Axe')
 end
 
 function init_gear_sets()
+	sets.weapons.Axe = {main = "Charmer's Merlin"}
+
 	sets.idle = {main = "Judge's Sword", sub = 'Kupo Shield', head = 'Nyame Helm', body = 'Nyame Mail',
 		hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard', feet = 'Nyame Sollerets', neck = 'Loricate Torque +1',
 		waist = 'Plat. Mog. Belt', ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring', ring1 = 'Defending Ring',

@@ -33,6 +33,9 @@ local function boot(options)
     return gs
 end
 
+-- What every Jobby gear file's idle set wears, as the game shows it worn, with the dancer's dagger in hand.
+local idle = jobby.worn_by(jobby.idle, jobby.weapons.DNC)
+
 local function sets_of(gs)
     return gs.user.sets
 end
@@ -44,7 +47,7 @@ local function first_actions(gs)
 end
 
 local function engaged_worn(gs, ...)
-    return jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, ...))
+    return jobby.worn_by(idle, jobby.layer(sets_of(gs).engaged, ...))
 end
 
 describe('a step', function()
@@ -463,27 +466,27 @@ describe('the dances', function()
     it('put sets.engaged.Saber on the engaged dancer while Saber Dance is up', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Saber Dance')
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged.Saber)), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).engaged.Saber)), gs:worn())
     end)
 
     it('put sets.engaged.Fan on the engaged dancer while Fan Dance is up', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Fan Dance')
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged.Fan)), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).engaged.Fan)), gs:worn())
     end)
 
     it('put sets.engaged back when the dance ends', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Saber Dance')
         gs:lose_buff('Saber Dance')
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged)), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).engaged)), gs:worn())
     end)
 
     it('put sets.buff["Saber Dance"] over the engaged set in a defense mode', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Saber Dance')
         gs:console('gs c set DefenseMode Physical')
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged.Saber, sets_of(gs).buff['Saber Dance'],
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).engaged.Saber, sets_of(gs).buff['Saber Dance'],
             sets_of(gs).defense.PDT)), gs:worn())
     end)
 
@@ -491,14 +494,14 @@ describe('the dances', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Climactic Flourish')
         gs:console('gs c set DefenseMode Physical')
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, sets_of(gs).buff['Climactic Flourish'],
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).engaged, sets_of(gs).buff['Climactic Flourish'],
             sets_of(gs).defense.PDT)), gs:worn())
     end)
 
     it('put no buff set over the engaged set without a defense mode', function()
         local gs = boot({engaged = true})
         gs:gain_buff('Climactic Flourish')
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged)), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).engaged)), gs:worn())
     end)
 
     describe('kept up by the tick', function()
@@ -759,14 +762,14 @@ describe('Curing Waltz by a dancer on himself', function()
 
     it('wears sets.precast.Waltz and sets.Self_Waltz', function()
         local gs = waltz(400, 1500, 'Curing Waltz II')
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.Waltz, sets_of(gs).Self_Waltz)),
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).precast.Waltz, sets_of(gs).Self_Waltz)),
             gs:worn())
     end)
 
     it('wears the set of Healing Waltz for it, and no Self_Waltz', function()
         local gs = boot({tp = 1500, hp = 1450})
         gs:type('/ja "Healing Waltz" <me>')
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.Waltz['Healing Waltz'])), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).precast.Waltz['Healing Waltz'])), gs:worn())
     end)
 
     it('is not refined with the Refine Waltz state off', function()
@@ -826,7 +829,7 @@ describe('Curing Waltz by a dancer on a party member', function()
 
     it('wears sets.precast.Waltz without the self waltz set', function()
         local gs = waltz_on_friend(600, 'Curing Waltz II')
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).precast.Waltz)), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).precast.Waltz)), gs:worn())
     end)
 end)
 

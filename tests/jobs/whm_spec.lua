@@ -313,8 +313,10 @@ describe('WHM\'s Proc casting mode', function()
 end)
 
 describe('WHM\'s weapon skill set', function()
+    -- Mystic Boon is a club's.
     local function mystic_boon(tp)
         local gs = boot({tp = tp})
+        gs:console('gs c set Weapons Daybreak')
         gs:type('/ws "Mystic Boon" <t>')
         return gs:worn()
     end

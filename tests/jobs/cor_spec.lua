@@ -31,6 +31,9 @@ local function boot(options)
     return jobby.boot('COR', options)
 end
 
+-- What every Jobby gear file's idle set wears, as the game shows it worn, with the corsair's dagger in hand.
+local idle = jobby.worn_by(jobby.idle, jobby.weapons.COR)
+
 local function sets_of(gs)
     return gs.user.sets
 end
@@ -39,7 +42,7 @@ local gun = {range = 'Death Penalty', ammo = 'Eminent Bullet'}
 
 -- What is worn once the action's sets are on, with the gun and its bullet worn over the idle set.
 local function worn_with(...)
-    return jobby.worn_by(jobby.idle, jobby.layer(gun, ...))
+    return jobby.worn_by(idle, jobby.layer(gun, ...))
 end
 
 -- What went out since last asked: each run of equip requests, and the name of each action.

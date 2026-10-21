@@ -66,6 +66,39 @@ describe('what Jobby types and is told', function()
     end)
 end)
 
+describe('Jobby\'s weapon', function()
+    local function copies(gs, name)
+        local count = 0
+        for _, item in pairs(gs.game.bags[gs.game:bag_id('inventory')].items) do
+            if gs.game.res.items[item.id].en == name then
+                count = count + 1
+            end
+        end
+        return count
+    end
+
+    it('is the job\'s, in hand over the idle set from the boot', function()
+        local gs = jobby.boot('WAR')
+        assert.same(jobby.worn_by(jobby.full_idle, {main = 'Ragnarok'}), gs:worn())
+        assert.equal(1, copies(gs, 'Ragnarok'))
+    end)
+
+    it('is in the inventory once when the items name it too', function()
+        assert.equal(1, copies(jobby.boot('WAR', {items = {'Ragnarok'}}), 'Ragnarok'))
+    end)
+
+    it('gives way to the weapon a boot wears, or to none', function()
+        local axe = jobby.boot('WAR', {items = {'Conqueror'}, wearing = {main = 'Conqueror'}})
+        assert.equal('Conqueror', axe:worn().main)
+        assert.is_nil(jobby.boot('WAR', {wearing = {main = 'empty'}}):worn().main)
+    end)
+
+    it('is none for a job that has none named, whose hands are empty', function()
+        assert.is_nil(jobby.weapons.MNK)
+        assert.is_nil(jobby.boot('MNK'):worn().main)
+    end)
+end)
+
 describe('a layer of sets', function()
     it('names the slots as the game does, so a later set\'s ear1 takes the place of an earlier left_ear', function()
         assert.same({left_ear = 'B', head = 'H'}, jobby.layer({left_ear = 'A', head = 'H'}, {ear1 = 'B'}))

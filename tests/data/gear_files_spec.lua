@@ -34,13 +34,37 @@ end
 -- The sub job each job plays, WAR unless named.
 local sub_jobs = {RDM = 'WHM', WAR = 'WHM'}
 
--- An action each job types, Savage Blade unless named.
-local actions = {
+-- A spell each job casts. One not named uses the first weapon skill the game lists for the weapons in hand.
+local spells = {
     BLU = {'/ma', 'Subduction', '<t>'},
     RDM = {'/ma', 'Refresh', '<me>'},
-    THF = {'/ws', 'Rudra\'s Storm', '<t>'},
 }
-local default_action = {'/ws', 'Savage Blade', '<t>'}
+
+-- Whether the test resources hold an item of that name, as the game can make no other.
+local function known_item(gs, name)
+    for _, item in pairs(gs.game.res.items) do
+        if type(item) == 'table' and item.en and item.en:lower() == name:lower() then
+            return true
+        end
+    end
+    return false
+end
+
+-- The pieces that decide which weapon skills the game lists, main and range, of the weapon set the gear file starts
+-- in (sets.weapons, by state.Weapons as the file loads), those the test resources hold, by slot. None when it starts
+-- with no weapon set, and the hands are empty.
+local function starting_weapons(gs)
+    local set = gs.user.state.Weapons and gs.user.sets.weapons[gs.user.state.Weapons.value]
+    local held = {}
+    for _, slot in ipairs({'main', 'range'}) do
+        local piece = type(set) == 'table' and set[slot]
+        local name = type(piece) == 'table' and piece.name or piece
+        if type(name) == 'string' and known_item(gs, name) then
+            held[slot] = name
+        end
+    end
+    return held
+end
 
 -- The sets init_gear_sets in the gear file assigns by a plain dotted name ('precast.FC', 'idle'), each once. Only
 -- the function's own statements count, those as little indented as any, so a set made only under an if, as for one
@@ -110,12 +134,20 @@ describe('the gear file', function()
     for _, character in ipairs(characters()) do
         for _, file in ipairs(gear_files(character)) do
             it(file.path .. ' loads and builds its sets', function()
-                local action = actions[file.job] or default_action
-                -- User-Globals.lua holds back a weapon skill under 1000 TP.
-                local gs = harness.boot({
-                    character = character, main_job = file.job, sub_job = sub_jobs[file.job] or 'WAR',
-                    expect_file = file.job .. '.lua', tp = action[1] == '/ws' and 1000 or nil,
-                })
+                local spell = spells[file.job]
+                local function boot(weapons)
+                    local items = {}
+                    for _, name in pairs(weapons) do
+                        items[#items + 1] = {name = name}
+                    end
+                    -- User-Globals.lua holds back a weapon skill under 1000 TP.
+                    return harness.boot({
+                        character = character, main_job = file.job, sub_job = sub_jobs[file.job] or 'WAR',
+                        expect_file = file.job .. '.lua', tp = not spell and 1000 or nil, items = items,
+                        wearing = weapons,
+                    })
+                end
+                local gs = boot(starting_weapons(boot({})))
                 assert.same({}, errors(gs))
                 local defined_in = debug.getinfo(gs.user.init_gear_sets, 'S').source
                 assert.equal(file.path, harness.repo_paths(defined_in:sub(2)))
@@ -129,6 +161,7 @@ describe('the gear file', function()
                 gs:engage()
                 gs:disengage()
                 gs:traffic()
+                local action = spell or {'/ws', gs.game.res.weapon_skills[gs.game:weapon_skills_in_hand()[1]].en, '<t>'}
                 assert.is_true(gs:type(('%s "%s" %s'):format(unpack(action))))
                 assert.same({action[2]}, gs:actions())
                 gs:finish_action()

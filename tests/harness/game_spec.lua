@@ -359,6 +359,89 @@ describe('the server\'s answer to an equip request for the sub slot in the stand
     end)
 end)
 
+describe('the weapon skills the stand-in game lists', function()
+    -- Testy, a level 99 warrior wearing those pieces (slot to name), knowing the abilities given (a set of names),
+    -- or, unless given, those the game finds for what he wears.
+    local function boot(wearing, abilities)
+        local items, positions = {}, {}
+        for slot, name in pairs(wearing or {}) do
+            items[#items + 1] = {name = name}
+            positions[slot] = #items
+        end
+        return Game.new({res = harness.resources(), main_job = 'WAR', items = items, wearing = positions,
+            abilities = abilities})
+    end
+
+    local function names(ids)
+        local res = harness.resources()
+        local found = {}
+        for _, id in ipairs(ids) do
+            found[#found + 1] = res.weapon_skills[id].en
+        end
+        table.sort(found)
+        return found
+    end
+
+    local function listed(game)
+        return names(game.windower.ffxi.get_abilities().weapon_skills)
+    end
+
+    -- The names of the weapon skills of those skills (by id) that the test resources hold.
+    local function of_skills(...)
+        local skills = {}
+        for _, skill in ipairs({...}) do
+            skills[skill] = true
+        end
+        local ids = {}
+        for id, entry in pairs(harness.resources().weapon_skills) do
+            if type(entry) == 'table' and skills[entry.skill] then
+                ids[#ids + 1] = id
+            end
+        end
+        return names(ids)
+    end
+
+    local hand_to_hand, dagger, sword, staff, archery = 1, 2, 3, 12, 25
+
+    it('are those of the main hand\'s weapon', function()
+        assert.same(of_skills(sword), listed(boot({main = "Judge's Sword"})))
+    end)
+
+    it('are hand-to-hand\'s with nothing in the main hand', function()
+        assert.same(of_skills(hand_to_hand), listed(boot()))
+    end)
+
+    it('are the ranged weapon\'s besides the main hand\'s', function()
+        assert.same(of_skills(sword, archery), listed(boot({main = "Judge's Sword", range = "Judge's Bow"})))
+    end)
+
+    it('are hand-to-hand\'s and the ranged weapon\'s with nothing in the main hand', function()
+        assert.same(of_skills(hand_to_hand, archery), listed(boot({range = "Judge's Bow"})))
+    end)
+
+    it('take nothing from the ammo', function()
+        assert.same(of_skills(hand_to_hand), listed(boot({ammo = 'Bronze Bullet'})))
+    end)
+
+    it('follow the main hand when it changes', function()
+        local game = Game.new({res = harness.resources(), main_job = 'WAR',
+            items = {{name = "Judge's Sword"}, {name = 'Qutrub Knife'}}, wearing = {main = 1}})
+        local bag_slot = assert(game:find_item('inventory', 'Qutrub Knife'))
+        game.windower.packets.inject_outgoing(0x050,
+            string.char(0x50, 4, 0, 0, bag_slot, Game.slot_ids.main, game:bag_id('inventory'), 0))
+        game:settle()
+        assert.same({main = 'Qutrub Knife'}, game:worn())
+        assert.same(of_skills(dagger), listed(game))
+    end)
+
+    it('are those the boot names, whatever is in hand', function()
+        local known = {['Savage Blade'] = true, ["Rudra's Storm"] = true}
+        assert.same({"Rudra's Storm", 'Savage Blade'}, listed(boot({main = "Terra's Staff"}, known)))
+        assert.same({"Rudra's Storm", 'Savage Blade'}, listed(boot({}, known)))
+        assert.same(of_skills(staff), listed(boot({main = "Terra's Staff"})))
+    end)
+end)
+
 describe('what the stand-in game reports of itself', function()
     it('has a target arrow at rest, with no offset', function()
         local game = Game.new({res = harness.resources()})

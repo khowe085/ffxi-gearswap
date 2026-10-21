@@ -11,7 +11,8 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
 --   engaged    true to engage the monster
 --   obi        true for a Hachirin-no-Obi among the pieces
 --   hp, mp     the HP and MP of the 1500 and 1000 he has
---   wielding   the weapon in hand: Epeolatry, a two-handed great sword, or Naegling, a one-handed sword
+--   wielding   the weapon in hand: Epeolatry, a two-handed great sword, unless given; Naegling, a one-handed sword;
+--              or 'empty'
 local function boot(options)
     options = options or {}
     local items = {}
@@ -49,8 +50,11 @@ local function first_actions(gs)
     return gs:actions()
 end
 
+-- What every Jobby gear file's idle set wears, as the game shows it worn, with the rune fencer's great sword in hand.
+local idle = jobby.worn_by(jobby.idle, jobby.weapons.RUN)
+
 local function engaged_worn(gs, ...)
-    return jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, ...))
+    return jobby.worn_by(idle, jobby.layer(sets_of(gs).engaged, ...))
 end
 
 describe('Valiance', function()
@@ -269,7 +273,7 @@ describe('the engaged set of a rune fencer', function()
     it('is sets.engaged.MP while the extra defense mode is MP', function()
         local gs = boot({engaged = true})
         gs:console('gs c set ExtraDefenseMode MP')
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged.MP)), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).engaged.MP)), gs:worn())
     end)
 
     it('is sets.engaged again when the extra defense mode goes back to None', function()
@@ -290,7 +294,7 @@ describe('the engaged set of a rune fencer', function()
         local gs = boot({engaged = true})
         gs:console('gs c set ExtraDefenseMode MP')
         gs:console('gs c set DefenseMode Physical')
-        assert.same(jobby.worn_by(jobby.idle,
+        assert.same(jobby.worn_by(idle,
             jobby.layer(sets_of(gs).engaged.MP, sets_of(gs).defense.PDT, sets_of(gs).MP)), gs:worn())
     end)
 end)
@@ -305,14 +309,14 @@ describe('the idle set of a rune fencer', function()
     it('wears sets.latent_refresh under half MP', function()
         local gs = boot()
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
     end)
 
     it('wears sets.latent_refresh_grip too with a great sword in the idle set and the weapons free', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Epeolatry'
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
             {main = 'Epeolatry'})), gs:worn())
     end)
 
@@ -320,12 +324,12 @@ describe('the idle set of a rune fencer', function()
         local gs = boot()
         gs:console('gs c set IdleMode DT')
         low_mp(gs)
-        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.DT)), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).idle.DT)), gs:worn())
     end)
 
     it('wears no sets.latent_refresh above half MP', function()
         local gs = boot()
-        assert.same(jobby.worn_by(jobby.idle), gs:worn())
+        assert.same(jobby.worn_by(idle), gs:worn())
     end)
 end)
 
@@ -487,7 +491,7 @@ describe('the tick of a rune fencer', function()
     end)
 
     it('takes none up with nothing in hand', function()
-        local gs = boot({sub_job = 'SAM', engaged = true})
+        local gs = boot({sub_job = 'SAM', engaged = true, wielding = 'empty'})
         gs:console('gs c set Stance Hasso')
         assert.same({}, first_actions(gs))
     end)

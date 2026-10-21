@@ -19,6 +19,12 @@ local function boot_ticking(options)
     return jobby.boot_ticking('DRK', options)
 end
 
+-- What the idle set of Jobby's dark knight gear file wears, as the game shows it worn, with his scythe in hand.
+local idle = jobby.worn_by(jobby.full_idle, jobby.weapons.DRK)
+
+-- Worn at the boot for a great sword's weapon skill.
+local great_sword = {main = 'Ragnarok'}
+
 local function weaponskill(gs, line)
     gs:type(line)
     local traffic = gs:traffic()
@@ -32,14 +38,19 @@ local function engaged_with(changes)
     for slot, item in pairs(changes or {}) do
         set[slot] = item
     end
-    return jobby.worn_by(jobby.full_idle, set)
+    return jobby.worn_by(idle, set)
 end
 
 describe('DRK\'s weapon skill under Auto Buff Mode', function()
+    local function buffing(wearing)
+        local booted = boot({tp = 1000, wearing = wearing})
+        booted:console('gs c set AutoBuffMode Auto')
+        return booted
+    end
+
     local gs
     before_each(function()
-        gs = boot({tp = 1000})
-        gs:console('gs c set AutoBuffMode Auto')
+        gs = buffing()
     end)
 
     it('is held for Consume Mana for Entropy when Consume Mana is ready', function()
@@ -77,16 +88,22 @@ describe('DRK\'s weapon skill under Auto Buff Mode', function()
     end)
 
     it('is not held for Consume Mana for another weapon skill', function()
+        gs = buffing(great_sword)
         gs:type('/ws "Torcleaver" <t>')
         assert.same({'Torcleaver'}, gs:actions())
     end)
 end)
 
 describe('DRK\'s weapon skill under Auto Buff Mode with Samurai as the sub job', function()
+    local function buffing(wearing)
+        local booted = boot({tp = 2500, sub_job = 'SAM', wearing = wearing})
+        booted:console('gs c set AutoBuffMode Auto')
+        return booted
+    end
+
     local gs
     before_each(function()
-        gs = boot({tp = 2500, sub_job = 'SAM'})
-        gs:console('gs c set AutoBuffMode Auto')
+        gs = buffing(great_sword)
     end)
 
     it('is held for Sekkanoki with over 1850 TP', function()
@@ -132,6 +149,7 @@ describe('DRK\'s weapon skill under Auto Buff Mode with Samurai as the sub job',
     end)
 
     it('is held for Consume Mana first for Entropy, ahead of the sub job\'s abilities', function()
+        gs = buffing()
         gs:type('/ws "Entropy" <t>')
         assert.same({'Consume Mana'}, gs:actions())
     end)
@@ -139,13 +157,13 @@ end)
 
 describe('DRK\'s weapon skill in the gear file\'s Auto WS Buff list', function()
     it('is held for Last Resort', function()
-        local gs = boot({tp = 1000})
+        local gs = boot({tp = 1000, wearing = great_sword})
         gs:type('/ws "Resolution" <t>')
         assert.same({'Last Resort'}, gs:actions())
     end)
 
     it('goes out 1.1 seconds after Last Resort', function()
-        local gs = boot({tp = 1000})
+        local gs = boot({tp = 1000, wearing = great_sword})
         gs:type('/ws "Resolution" <t>')
         gs:traffic()
         gs:finish_action()
@@ -158,14 +176,14 @@ describe('DRK\'s weapon skill in the gear file\'s Auto WS Buff list', function()
     end)
 
     it('goes out at once with Last Resort up', function()
-        local gs = boot({tp = 1000})
+        local gs = boot({tp = 1000, wearing = great_sword})
         gs:gain_buff('Last Resort')
         gs:type('/ws "Resolution" <t>')
         assert.same({'Resolution'}, gs:actions())
     end)
 
     it('goes out at once with Auto WS Buff off', function()
-        local gs = boot({tp = 1000})
+        local gs = boot({tp = 1000, wearing = great_sword})
         gs:console('gs c toggle AutoWSBuff')
         gs:type('/ws "Resolution" <t>')
         assert.same({'Resolution'}, gs:actions())
@@ -290,8 +308,8 @@ describe('DRK\'s Dark Seal and Nether Void gear', function()
 end)
 
 describe('DRK\'s weapon skill set', function()
-    local function ws(tp, line, setup)
-        local gs = boot({tp = tp})
+    local function ws(tp, line, setup, wearing)
+        local gs = boot({tp = tp, wearing = wearing})
         if setup then
             setup(gs)
         end
@@ -337,15 +355,15 @@ describe('DRK\'s weapon skill set', function()
     end)
 
     it('has Lugra Earring in the set swapped for sets.DayWSEars by day', function()
-        assert.equal('Cessance Earring', ws(1000, '/ws "Torcleaver" <t>').left_ear)
+        assert.equal('Cessance Earring', ws(1000, '/ws "Torcleaver" <t>', nil, great_sword).left_ear)
     end)
 
     it('keeps Lugra Earring on at night', function()
-        assert.equal('Lugra Earring', ws(1000, '/ws "Torcleaver" <t>', at_night).left_ear)
+        assert.equal('Lugra Earring', ws(1000, '/ws "Torcleaver" <t>', at_night, great_sword).left_ear)
     end)
 
     it('swaps in sets.AccDayWSEars with Lugra Earring by day in an accuracy offense mode', function()
-        assert.equal('Odnowa Earring +1', ws(1000, '/ws "Torcleaver" <t>', acc).left_ear)
+        assert.equal('Odnowa Earring +1', ws(1000, '/ws "Torcleaver" <t>', acc, great_sword).left_ear)
     end)
 
     it('swaps in sets.DayWSEars by day below the cap when the set has Moonshade Earring and Lugra Earring', function()
@@ -420,20 +438,20 @@ describe('DRK\'s idle set', function()
     it('has sets.latent_refresh over it under 51% MP', function()
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
         gs:console('gs c update')
-        assert.same(jobby.worn_by(jobby.full_idle, {waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {waist = 'Null Belt'}), gs:worn())
     end)
 
     it('has no latent refresh set over it at 51% MP', function()
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 510, 51
         gs:console('gs c update')
-        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(idle), gs:worn())
     end)
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')
         gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
         gs:console('gs c update')
-        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(idle), gs:worn())
     end)
 end)
 
