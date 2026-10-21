@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------------------------------------------------
--- Testy, the made-up character the tests play: the gear each job's fixture user file wears, and the boot options
--- that give it to them.
+-- Testy, the made-up character the tests play: the gear each job's fixture user file wears, the boot options that
+-- give it to them, and the boot the red mage's tests share.
 -------------------------------------------------------------------------------------------------------------------
 
 local testy = {}
@@ -73,6 +73,14 @@ function testy.rdm(overrides)
         options[k] = v
     end
     return options
+end
+
+-- Testy as a red mage with the idle set on, and what was sent until then taken as read.
+function testy.boot_rdm()
+    local gs = require('harness').boot(testy.rdm())
+    gs:console('gs c update')
+    gs:traffic()
+    return gs
 end
 
 return testy

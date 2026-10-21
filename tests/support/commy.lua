@@ -140,4 +140,21 @@ function commy.record_input(gs)
     return lines
 end
 
+-- Runs a gs c command, lets a moment pass, and returns what was typed for it and what was said in the chat log.
+function commy.run(gs, command)
+    local typed = commy.record_input(gs)
+    gs:console(command)
+    gs:advance(0.1)
+    return typed, gs:chat()
+end
+
+function commy.typed_for(gs, command)
+    return (commy.run(gs, command))
+end
+
+function commy.said_for(gs, command)
+    local _, said = commy.run(gs, command)
+    return said
+end
+
 return commy

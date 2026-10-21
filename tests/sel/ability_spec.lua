@@ -1,13 +1,6 @@
-local harness = require('harness')
 local testy = require('testy')
 
--- Testy as a red mage with the idle set on.
-local function boot()
-    local gs = harness.boot(testy.rdm())
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
-end
+local boot = testy.boot_rdm
 
 describe('Sel\'s precast set for a job ability', function()
     local gs

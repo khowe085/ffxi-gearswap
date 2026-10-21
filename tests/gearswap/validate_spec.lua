@@ -83,6 +83,10 @@ describe('gs validate', function()
         }, validate(gs, 'sets -kishar'))
     end)
 
+    pending('takes a word to look for and a word to leave out in either order: tryfilter in validate.lua sets pass to '
+        .. 'false at the first word with a - and never back, so a word to look for after it leaves out what it finds: '
+        .. 'gs validate -mitra kishar lists nothing, where gs validate kishar -mitra lists Kishar Ring')
+
     it('says there is nothing to validate when no file is loaded', function()
         local gs = plain.boot_without_a_file()
         assert.same({'GearSwap: There is nothing to validate because there is no file loaded.'}, validate(gs))

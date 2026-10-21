@@ -1,13 +1,6 @@
-local harness = require('harness')
 local testy = require('testy')
 
--- Testy as a red mage with the idle set on.
-local function boot()
-    local gs = harness.boot(testy.rdm())
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
-end
+local boot = testy.boot_rdm
 
 -- The Cure III midcast set over its precast set over the idle set, with these weapons in hand.
 local function curing_with(main)

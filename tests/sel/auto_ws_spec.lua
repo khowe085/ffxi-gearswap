@@ -208,9 +208,10 @@ end)
 
 describe('AutoWSRestore under Auto WS', function()
     -- The game lists only the weapon skills of the weapon in hand: of those the restore picks from, Sanguine Blade
-    -- is a sword's. Mystic Boon comes only with Yagrush, a white mage's club, so the boot names it among the abilities,
-    -- and Daybreak is there for its AutoWS_List choice.
+    -- is a sword's, which the bow set's Naegling gives. Mystic Boon comes only with Yagrush, a white mage's club, so
+    -- the boot names it among the abilities, and Daybreak is there for its AutoWS_List choice.
     local sword = {abilities = {'Savage Blade', 'Sanguine Blade'}}
+    local bow = {weapons = 'Bow', abilities = {'Flaming Arrow', 'Sanguine Blade'}}
     local club = {weapons = 'Daybreak', abilities = {'Black Halo', 'Mystic Boon'}}
 
     it('uses Sanguine Blade in place of the choice under 41% HP', function()
@@ -235,7 +236,7 @@ describe('AutoWSRestore under Auto WS', function()
     end)
 
     it('keeps to a ranged choice under 41% HP out of melee range, where it restores nothing', function()
-        local gs = boot('Flaming Arrow 1000', {weapons = 'Bow'})
+        local gs = boot('Flaming Arrow 1000', bow)
         gs.game.monster.distance = 15 ^ 2
         gs.game.player.vitals.hpp = 40
         gs:set_tp(1000)

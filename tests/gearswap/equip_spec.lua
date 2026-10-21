@@ -314,6 +314,11 @@ describe('a piece GearSwap can\'t put on', function()
         assert.same({}, gs:traffic())
     end)
 
+    pending('because the job can\'t wear it, debug mode says why: unpack_equip_list matches the name against '
+        .. 'item_id, which nothing sets, instead of item_tab.id, so no reason reaches the error list and the piece is '
+        .. 'only listed among the gear not equipped; with item_tab.id there, the same loop would hand name_match the '
+        .. 'nil name of each slot the set leaves out, which raises an error')
+
     it('because it is only in the safe leaves the slot as it was', function()
         local gs = boot({{name = 'Nyame Helm'}, {name = 'Kaykaus Mitra +1', bag = 'safe'}}, {head = 'Nyame Helm'})
         equip(gs, 'mitra')

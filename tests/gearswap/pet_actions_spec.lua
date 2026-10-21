@@ -87,7 +87,8 @@ describe('a pet\'s action', function()
         local gs = boot_with_pet()
         gs:pet_readies('Foot Kick')
         local got = calls(gs)
-        assert.same({{event = 'pet_midcast', name = 'Foot Kick', target = 'Apex Toad'}}, {{event = got[1].event, name = got[1].name, target = got[1].target}})
+        assert.same({'pet_midcast'}, events(got))
+        assert.same({'Foot Kick', 'Apex Toad'}, {got[1].name, got[1].target})
         assert.is_true((gs.user.pet_midaction()))
     end)
 
@@ -104,7 +105,8 @@ describe('a pet\'s action', function()
         calls(gs)
         gs:pet_finishes('Foot Kick')
         local got = calls(gs)
-        assert.same({'pet_aftercast', 'Foot Kick'}, {got[1].event, got[1].name})
+        assert.same({'pet_aftercast'}, events(got))
+        assert.equal('Foot Kick', got[1].name)
         assert.is_false(gs.user.pet_midaction())
     end)
 
@@ -149,8 +151,10 @@ describe('a pet\'s action', function()
     end)
 
     pending('stops being in midaction when pet_midaction(false) is called: user_pet_midaction sets the flag on '
-        .. 'command_registry itself, not on the entry it found, and the scan that follows (and every later pet_midaction) '
-        .. 'indexes that boolean and raises an error')
+        .. 'command_registry itself, not on the entry it found, so the entry stays flagged and a boolean joins the '
+        .. 'entries; the scan that follows, and every later pet_midaction, says the pet is still in midaction if pairs '
+        .. 'comes to the entry first, and raises an error indexing the boolean if it comes to that first, as it does '
+        .. 'on the stand-in, and only the error once the entry is dropped as stale')
 end)
 
 describe('a Monipulator\'s skill typed in the chat', function()
