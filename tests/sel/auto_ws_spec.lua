@@ -278,7 +278,7 @@ describe('Sel\'s own auto weapon skill under User-Globals.lua', function()
     it('uses no weapon skill from the tick, whatever the TP', function()
         local gs = boot()
         gs.user.state.AutoWSMode:set(true)
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         gs:play(2)
         assert.same({}, gs:action_entries())
     end)

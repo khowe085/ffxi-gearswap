@@ -375,7 +375,7 @@ describe('THF\'s Sneak Attack and Trick Attack gear', function()
     end)
 
     it('is gone from the states once a weapon skill has gone out', function()
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:gain_buff('Sneak Attack')
         gs:gain_buff('Trick Attack')
         gs:gain_buff('Feint')
@@ -387,7 +387,7 @@ describe('THF\'s Sneak Attack and Trick Attack gear', function()
     end)
 
     it('is off again once a weapon skill has gone out, the engaged set coming back', function()
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:gain_buff('Sneak Attack')
         gs:type('/ws "Rudra\'s Storm" <t>')
         gs:finish_action()
@@ -395,7 +395,7 @@ describe('THF\'s Sneak Attack and Trick Attack gear', function()
     end)
 
     it('is kept in the states when the weapon skill is interrupted', function()
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:gain_buff('Sneak Attack')
         gs:type('/ws "Rudra\'s Storm" <t>')
         gs:interrupt_action()

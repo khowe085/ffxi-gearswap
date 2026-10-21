@@ -48,6 +48,25 @@ describe('the stand-in game\'s party', function()
         assert.equal(25, friend.hpp)
     end)
 
+    it('gives a member\'s HP, MP and TP on the party list only, as Windower does: their mob has the HP percent and '
+        .. 'none of them', function()
+        local gs = harness.boot(testy.whm())
+        gs.game:add_party_member({name = 'Alice', hp = 800, mp = 300, tp = 1200})
+        local ffxi = gs.game.windower.ffxi
+        for _, mob in ipairs({ffxi.get_mob_by_name('Alice'), ffxi.get_mob_by_target('<p1>'), ffxi.get_party().p1.mob}) do
+            assert.equal(80, mob.hpp)
+            assert.same({}, {hp = mob.hp, max_hp = mob.max_hp, mp = mob.mp, max_mp = mob.max_mp, tp = mob.tp})
+        end
+    end)
+
+    it('gives the player\'s TP in the player and the party list, not on the player\'s mob', function()
+        local gs = harness.boot(testy.whm({tp = 1000}))
+        local ffxi = gs.game.windower.ffxi
+        local mob = ffxi.get_mob_by_target('<me>')
+        assert.same({1000, 1000}, {ffxi.get_player().vitals.tp, ffxi.get_party().p0.tp})
+        assert.same({}, {hp = mob.hp, mp = mob.mp, tp = mob.tp})
+    end)
+
     it('has a member of another party in the slot it is given, and not in the count of the first', function()
         local gs = harness.boot(testy.whm())
         gs.game:add_party_member({name = 'Carol', slot = 'a10'})

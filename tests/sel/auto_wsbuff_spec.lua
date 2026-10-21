@@ -8,7 +8,7 @@ local function boot(options)
     local gs = autoy.boot(options)
     gs:console('gs c set Weapons Naegling')
     gs:engage()
-    gs.game.player.vitals.tp = 1000
+    gs:set_tp(1000)
     gs:traffic()
     return gs
 end
@@ -123,7 +123,7 @@ describe('Auto WS Buff, User-Globals.lua\'s buff before a weapon skill', functio
         local gs = boot()
         weaponskill_after_buff(gs)
         gs:finish_action()
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:advance(3)
         gs:traffic()
         gs:type('/ws "Savage Blade" <t>')
@@ -134,7 +134,7 @@ end)
 describe('User-Globals.lua\'s TP check on a weapon skill', function()
     it('drops a weapon skill typed under 1000 TP before any set goes on', function()
         local gs = boot()
-        gs.game.player.vitals.tp = 999
+        gs:set_tp(999)
         assert.is_true(gs:type('/ws "Requiescat" <t>'))
         assert.same({}, gs:traffic())
     end)

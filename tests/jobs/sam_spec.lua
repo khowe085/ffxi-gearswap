@@ -37,7 +37,7 @@ end)
 describe('SAM\'s weapon skill with AutoBuffMode off', function()
     it('goes out with its set, whatever the TP and recasts', function()
         local gs = boot()
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         assert.is_true(gs:type('/ws "Tachi: Shoha" <t>'))
         assert.same({
             {equip = {head = "Theia's Hairpin", neck = "Orunmila's Torque", hands = 'Volte Bracers',
@@ -56,40 +56,40 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
     end)
 
     it('is held back for Sekkanoki with more than 1850 TP', function()
-        gs.game.player.vitals.tp = 1851
+        gs:set_tp(1851)
         assert.is_true(gs:type('/ws "Tachi: Shoha" <t>'))
         assert.same({{action = 'Sekkanoki', target = 'Jobby'}}, gs:traffic())
     end)
 
     it('is held back for Meditate with 1850 TP or less', function()
-        gs.game.player.vitals.tp = 1850
+        gs:set_tp(1850)
         gs:type('/ws "Tachi: Shoha" <t>')
         assert.same({{action = 'Meditate', target = 'Jobby'}}, gs:traffic())
     end)
 
     it('is held back for Meditate when Sekkanoki is on recast', function()
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         gs.game:start_ability_recast('Sekkanoki', 60)
         gs:type('/ws "Tachi: Shoha" <t>')
         assert.same({{action = 'Meditate', target = 'Jobby'}}, gs:traffic())
     end)
 
     it('is held back for Hagakure with less than 1500 TP once Meditate is on recast', function()
-        gs.game.player.vitals.tp = 1499
+        gs:set_tp(1499)
         gs.game:start_ability_recast('Meditate', 60)
         gs:type('/ws "Tachi: Shoha" <t>')
         assert.same({{action = 'Hagakure', target = 'Jobby'}}, gs:traffic())
     end)
 
     it('is not held back for Hagakure with 1500 TP', function()
-        gs.game.player.vitals.tp = 1500
+        gs:set_tp(1500)
         gs.game:start_ability_recast('Meditate', 60)
         gs:type('/ws "Tachi: Shoha" <t>')
         assert.same({'Tachi: Shoha'}, gs:actions())
     end)
 
     it('is not held back for Hagakure while Sekkanoki is up', function()
-        gs.game.player.vitals.tp = 1499
+        gs:set_tp(1499)
         gs.game:start_ability_recast('Meditate', 60)
         gs:gain_buff('Sekkanoki')
         gs:traffic()
@@ -98,7 +98,7 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
     end)
 
     it('goes out when Sekkanoki, Meditate and Hagakure are all on recast', function()
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs.game:start_ability_recast('Sekkanoki', 60)
         gs.game:start_ability_recast('Meditate', 60)
         gs.game:start_ability_recast('Hagakure', 60)
@@ -107,7 +107,7 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
     end)
 
     it('is typed again 1.1 seconds after Sekkanoki goes out, and then waits for Meditate', function()
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         gs:type('/ws "Tachi: Shoha" <t>')
         gs:traffic()
         gs.game:start_ability_recast('Sekkanoki', 60)
@@ -119,7 +119,7 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
     end)
 
     it('is typed again after Sekkanoki and Meditate, and goes out', function()
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         gs:type('/ws "Tachi: Shoha" <t>')
         gs.game:start_ability_recast('Sekkanoki', 60)
         gs:finish_action()
@@ -138,7 +138,7 @@ describe('SAM\'s weapon skill typed with a spear in hand', function()
     before_each(function()
         gs = boot()
         gs:console('gs c set Weapons Spear')
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
     end)
 
     for tachi, spear in pairs({['Tachi: Fudo'] = 'Stardiver', ['Tachi: Shoha'] = 'Impulse Drive',
@@ -429,19 +429,19 @@ describe('SAM after a weapon skill with Meikyo Shisui up', function()
     before_each(function()
         gs = boot()
         gs:gain_buff('Meikyo Shisui')
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:type('/ws "Tachi: Shoha" <t>')
         gs:commands()
     end)
 
     it('cancels Meikyo Shisui with less than 750 TP left', function()
-        gs.game.player.vitals.tp = 749
+        gs:set_tp(749)
         gs:finish_action()
         assert.same({'cancel Meikyo Shisui'}, gs:commands())
     end)
 
     it('leaves Meikyo Shisui with 750 TP left', function()
-        gs.game.player.vitals.tp = 750
+        gs:set_tp(750)
         gs:finish_action()
         assert.same({}, gs:commands())
     end)
@@ -450,10 +450,10 @@ end)
 describe('SAM after a weapon skill without Meikyo Shisui', function()
     it('leaves it alone with little TP left', function()
         local gs = boot()
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:type('/ws "Tachi: Shoha" <t>')
         gs:commands()
-        gs.game.player.vitals.tp = 0
+        gs:set_tp(0)
         gs:finish_action()
         assert.same({}, gs:commands())
     end)

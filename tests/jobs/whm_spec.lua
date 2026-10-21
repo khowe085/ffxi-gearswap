@@ -317,7 +317,7 @@ describe('WHM\'s weapon skill set', function()
     local function judgment(tp)
         local gs = boot()
         gs:console('gs c set Weapons Daybreak')
-        gs.game.player.vitals.tp = tp
+        gs:set_tp(tp)
         return jobby.weaponskill(gs, '/ws "Judgment" <t>')
     end
 
@@ -388,7 +388,7 @@ describe('WHM\'s idle set', function()
     end)
 
     it('has sets.TPEat over it too with TP', function()
-        gs.game.player.vitals.tp = 300
+        gs:set_tp(300)
         low_mp()
         assert.same(idle_with({waist = 'Null Belt', sub = 'Enki Strap', ear1 = 'Cessance Earring'}), gs:worn())
     end)
@@ -406,20 +406,20 @@ describe('WHM\'s idle set', function()
     end)
 
     it('has sets.TPEat over it with 1 TP', function()
-        gs.game.player.vitals.tp = 1
+        gs:set_tp(1)
         low_mp()
         assert.equal('Cessance Earring', gs:worn().left_ear)
     end)
 
     it('has no sets.TPEat over it with no TP', function()
-        gs.game.player.vitals.tp = 0
+        gs:set_tp(0)
         low_mp()
         assert.equal('Etiolation Earring', gs:worn().left_ear)
     end)
 
     it('has only sets.latent_refresh over it with the weapons locked to a staff', function()
         gs:console('gs c set Weapons Staff')
-        gs.game.player.vitals.tp = 300
+        gs:set_tp(300)
         low_mp()
         assert.same(idle_with({main = 'Gozuki Mezuki', waist = 'Null Belt'}), gs:worn())
     end)
@@ -427,7 +427,7 @@ describe('WHM\'s idle set', function()
     it('has the grip and sets.TPEat over it with the weapons locked to a staff but UnlockWeapons on', function()
         gs:console('gs c set Weapons Staff')
         gs:console('gs c toggle UnlockWeapons')
-        gs.game.player.vitals.tp = 300
+        gs:set_tp(300)
         low_mp()
         assert.same(idle_with({main = 'Gozuki Mezuki', waist = 'Null Belt', sub = 'Enki Strap',
             ear1 = 'Cessance Earring'}), gs:worn())

@@ -145,7 +145,7 @@ describe('RDM\'s Convert', function()
     local function convert(tp, mode)
         local gs = boot()
         gs:console('gs c set Weapons Naegling')
-        gs.game.player.vitals.tp = tp
+        gs:set_tp(tp)
         if mode then
             gs:console('gs c set MurgleisMode ' .. mode)
         end
@@ -187,7 +187,7 @@ describe('RDM\'s buff weapons', function()
     local function main_after(line, tp, mode)
         local gs = boot()
         gs:console('gs c set Weapons Naegling')
-        gs.game.player.vitals.tp = tp
+        gs:set_tp(tp)
         if mode then
             gs:console('gs c set BuffWeaponsMode ' .. mode)
         end
@@ -613,7 +613,7 @@ describe('RDM\'s idle set', function()
 
     it('has sets.TPEat over it too with more than 10 TP', function()
         gs:console('gs c set IdleMode Sphere')
-        gs.game.player.vitals.tp = 11
+        gs:set_tp(11)
         low_mp()
         assert.same(jobby.worn_by(idle, {main = "Terra's Staff", waist = 'Null Belt', sub = 'Enki Strap',
             ear1 = 'Cessance Earring'}), gs:worn())
@@ -621,7 +621,7 @@ describe('RDM\'s idle set', function()
 
     it('has no sets.TPEat over it with 10 TP', function()
         gs:console('gs c set IdleMode Sphere')
-        gs.game.player.vitals.tp = 10
+        gs:set_tp(10)
         low_mp()
         assert.same(jobby.worn_by(idle,
             {main = "Terra's Staff", waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
@@ -630,7 +630,7 @@ describe('RDM\'s idle set', function()
     it('has no grip or sets.TPEat over the Sphere idle set with the weapons locked to a staff', function()
         gs:console('gs c set IdleMode Sphere')
         gs:console('gs c set Weapons Staff')
-        gs.game.player.vitals.tp = 300
+        gs:set_tp(300)
         low_mp()
         assert.same(jobby.worn_by(idle, {main = 'Gozuki Mezuki', waist = 'Null Belt'}), gs:worn())
     end)
@@ -640,7 +640,7 @@ describe('RDM\'s idle set', function()
         gs:console('gs c set IdleMode Sphere')
         gs:console('gs c set Weapons Staff')
         gs:console('gs c toggle UnlockWeapons')
-        gs.game.player.vitals.tp = 300
+        gs:set_tp(300)
         low_mp()
         assert.same(jobby.worn_by(idle, {main = 'Gozuki Mezuki', waist = 'Null Belt', sub = 'Enki Strap',
             ear1 = 'Cessance Earring'}), gs:worn())

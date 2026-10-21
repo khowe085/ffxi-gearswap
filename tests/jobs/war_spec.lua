@@ -66,7 +66,7 @@ describe('WAR\'s Berserk', function()
     local function berserk(tp, conqueror_mode)
         local gs = boot()
         gs:console('gs c set Weapons Naegling')
-        gs.game.player.vitals.tp = tp
+        gs:set_tp(tp)
         if conqueror_mode then
             gs:console('gs c set ConquerorMode ' .. conqueror_mode)
         end
@@ -153,13 +153,13 @@ describe('WAR\'s weapon skill under Auto Buff Mode', function()
     end)
 
     it('is held for Warcry at 2249 TP', function()
-        gs.game.player.vitals.tp = 2249
+        gs:set_tp(2249)
         gs:type('/ws "Resolution" <t>')
         assert.same({'Warcry'}, gs:actions())
     end)
 
     it('goes out at once with 2250 TP', function()
-        gs.game.player.vitals.tp = 2250
+        gs:set_tp(2250)
         gs:type('/ws "Resolution" <t>')
         assert.same({'Resolution'}, gs:actions())
     end)
@@ -190,7 +190,7 @@ describe('WAR\'s weapon skill under Auto Buff Mode with Samurai as the sub job',
     end)
 
     it('is held for Meditate with 1850 TP or less', function()
-        gs.game.player.vitals.tp = 1850
+        gs:set_tp(1850)
         gs:gain_buff('Warcry')
         gs:type('/ws "Resolution" <t>')
         assert.same({'Meditate'}, gs:actions())
@@ -317,26 +317,26 @@ describe('WAR\'s weapon skill set', function()
     end)
 
     it('swaps Moonshade Earring for sets.DayMaxTPWSEars by day when TP, with Moonshade\'s 250, is over 3200', function()
-        gs.game.player.vitals.tp = 2951
+        gs:set_tp(2951)
         assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
             ear1 = 'Cessance Earring', ear2 = 'Brutal Earring', hands = 'Volte Bracers'}),
             jobby.weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 
     it('keeps Moonshade Earring on at 2950 TP, which Moonshade makes 3200', function()
-        gs.game.player.vitals.tp = 2950
+        gs:set_tp(2950)
         assert.equal('Moonshade Earring', jobby.weaponskill(gs, '/ws "Resolution" <t>').left_ear)
     end)
 
     it('swaps Moonshade Earring for sets.MaxTP at night', function()
         gs:set_time(22 * 60)
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         assert.equal('Lugra Earring', jobby.weaponskill(gs, '/ws "Resolution" <t>').left_ear)
     end)
 
     it('swaps in sets.AccDayMaxTPWSEars by day when the offense mode is an accuracy one', function()
         gs:console('gs c set OffenseMode Acc')
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         local worn = jobby.weaponskill(gs, '/ws "Resolution" <t>')
         assert.equal('Odnowa Earring +1', worn.left_ear)
         assert.equal('Adamantite Armor', worn.body)
@@ -345,7 +345,7 @@ describe('WAR\'s weapon skill set', function()
     it('swaps in sets.AccMaxTP at night when the offense mode is an accuracy one', function()
         gs:set_time(22 * 60)
         gs:console('gs c set OffenseMode Acc')
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         local worn = jobby.weaponskill(gs, '/ws "Resolution" <t>')
         assert.equal('Lugra Earring', worn.left_ear)
         assert.equal('Adamantite Armor', worn.body)
@@ -354,7 +354,7 @@ describe('WAR\'s weapon skill set', function()
     it('swaps in sets.DayMaxTPWSEars, not sets.AccDayMaxTPWSEars, by day under Sneak Attack in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Sneak Attack')
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         local worn = jobby.weaponskill(gs, '/ws "Resolution" <t>')
         assert.equal('Cessance Earring', worn.left_ear)
     end)
@@ -376,7 +376,7 @@ describe('WAR\'s weapon skill set', function()
     -- Upheaval is a great axe's. Changing the weapon takes the TP, so it is given again after.
     local function upheaval(gs)
         gs:console('gs c set Weapons Conqueror')
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         return jobby.weaponskill(gs, '/ws "Upheaval" <t>')
     end
 

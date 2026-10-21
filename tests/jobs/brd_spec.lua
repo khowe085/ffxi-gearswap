@@ -444,22 +444,22 @@ describe('BRD\'s Carnwenhan, with the weapons locked to a sword', function()
 
     it('goes on with the 300 mode under 300 TP', function()
         gs:console('gs c set CarnMode 300')
-        gs.game.player.vitals.tp = 299
+        gs:set_tp(299)
         assert.equal('Carnwenhan', main_in_song('Valor Minuet V'))
     end)
 
     it('stays out with the 300 mode from 300 TP', function()
         gs:console('gs c set CarnMode 300')
-        gs.game.player.vitals.tp = 300
+        gs:set_tp(300)
         assert.equal("Judge's Sword", main_in_song('Valor Minuet V'))
     end)
 
     it('goes on with the 1000 mode under 1000 TP, and stays out from there', function()
         gs:console('gs c set CarnMode 1000')
-        gs.game.player.vitals.tp = 999
+        gs:set_tp(999)
         assert.equal('Carnwenhan', main_in_song('Valor Minuet V'))
         gs:finish_action()
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         assert.equal("Judge's Sword", main_in_song('Blade Madrigal'))
     end)
 
@@ -545,14 +545,14 @@ describe('BRD\'s idle set', function()
 
     it('has sets.TPEat over it with TP, low MP and no weapons locked', function()
         gs.game.player.vitals.mpp = 50
-        gs.game.player.vitals.tp = 11
+        gs:set_tp(11)
         update()
         assert.same(worn({waist = 'Prosilio Belt', neck = "Orunmila's Torque"}), gs:worn())
     end)
 
     it('has no sets.TPEat over it with 10 TP or less', function()
         gs.game.player.vitals.mpp = 50
-        gs.game.player.vitals.tp = 10
+        gs:set_tp(10)
         update()
         assert.same(worn({waist = 'Prosilio Belt'}), gs:worn())
     end)
@@ -560,7 +560,7 @@ describe('BRD\'s idle set', function()
     it('has no sets.TPEat over it while the weapons are locked', function()
         gs:console('gs c set Weapons Sword')
         gs.game.player.vitals.mpp = 50
-        gs.game.player.vitals.tp = 500
+        gs:set_tp(500)
         update()
         assert.same(worn({waist = 'Prosilio Belt'}), gs:worn())
     end)
@@ -569,7 +569,7 @@ describe('BRD\'s idle set', function()
         gs:console('gs c set Weapons Sword')
         gs:console('gs c toggle UnlockWeapons')
         gs.game.player.vitals.mpp = 50
-        gs.game.player.vitals.tp = 500
+        gs:set_tp(500)
         update()
         assert.same(worn({waist = 'Prosilio Belt', neck = "Orunmila's Torque"}), gs:worn())
     end)

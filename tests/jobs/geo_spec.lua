@@ -227,7 +227,7 @@ describe('the weapons of a geomancer casting Geomancy', function()
     local function indi_with_club(mode, tp)
         local gs = boot()
         gs:console('gs c set Weapons Club')
-        gs.game.player.vitals.tp = tp
+        gs:set_tp(tp)
         gs:console('gs c set UnlockGeomancy ' .. mode)
         gs:traffic()
         gs:type('/ma "Indi-Torpor" <me>')
@@ -633,7 +633,7 @@ describe('the idle set of a geomancer', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Daybreak'
         gs:console('gs c set Weapons Club')
-        gs.game.player.vitals.tp = 500
+        gs:set_tp(500)
         low_mp(gs)
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
             gs:worn())
@@ -644,7 +644,7 @@ describe('the idle set of a geomancer', function()
         sets_of(gs).idle.main = 'Daybreak'
         gs:console('gs c set Weapons Club')
         gs:console('gs c toggle UnlockWeapons')
-        gs.game.player.vitals.tp = 500
+        gs:set_tp(500)
         low_mp(gs)
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).TPEat,
             {main = "Bunzi's Rod"})), gs:worn())

@@ -6,7 +6,7 @@ local function boot()
     local gs = testy.boot_rdm()
     gs:console('gs c set Weapons Naegling')
     gs:engage()
-    gs.game.player.vitals.tp = 1000
+    gs:set_tp(1000)
     gs:traffic()
     return gs
 end
