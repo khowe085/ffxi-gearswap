@@ -237,16 +237,41 @@ local function autoxp_action(name)
 	local spell_id = get_spell_id_by_name(name)
 	if spell_id then return {command = '/ma "'..name..'"', spell = name, id = spell_id} end
 	local ability_id = get_ability_id_by_name(name)
-	if ability_id then return {command = '/ja "'..name..'"', ability = name, recast = res.job_abilities[ability_id].recast_id} end
+	if ability_id then
+		local ability = res.job_abilities[ability_id]
+		return {command = '/ja "'..name..'"', ability = name, recast = ability.recast_id, tp = ability.tp_cost or 0}
+	end
 end
 
---Blue magic can only be cast while it's set, and a ranged attack needs something in the ammo slot.
+--What each kind of ranged weapon fires, by the range_type and ammo_type of Windower's item resources.
+local autoxp_ammo_types = {Bow = 'Arrow', Crossbow = 'Bolt', Gun = 'Bullet', Cannon = 'Shell'}
+
+local function autoxp_throwing(item)
+	return item ~= nil and res.skills[item.skill] ~= nil and res.skills[item.skill].en == 'Throwing'
+end
+
+--A thrown weapon in the range slot (a boomerang) or the ammo slot (shuriken) fires by itself; a bow, crossbow or
+--gun needs its own kind of ammo.
+local function autoxp_can_shoot()
+	local range = res.items:with('en', player.equipment.range)
+	local ammo = res.items:with('en', player.equipment.ammo)
+	if not range then return autoxp_throwing(ammo) end
+	if autoxp_throwing(range) then return true end
+	local wanted = autoxp_ammo_types[range.range_type]
+	return wanted ~= nil and ammo ~= nil and ammo.ammo_type == wanted
+end
+
+local function autoxp_blue_set(job_data, id)
+	return job_data ~= nil and job_data.spells ~= nil and table.contains(job_data.spells, id)
+end
+
+--Blue magic can only be cast while it's set.
 local function autoxp_usable(action)
 	if action.ability then return silent_can_ability(action.ability) end
-	if not action.spell then return player.equipment.ammo ~= 'empty' end
+	if not action.spell then return autoxp_can_shoot() end
 	if res.spells[action.id].type ~= 'BlueMagic' then return silent_can_cast(action.spell) end
-	return (player.main_job_id == 16 and table.contains(windower.ffxi.get_mjob_data().spells, action.id))
-		or (player.sub_job_id == 16 and table.contains(windower.ffxi.get_sjob_data().spells, action.id))
+	return (player.main_job_id == 16 and autoxp_blue_set(windower.ffxi.get_mjob_data(), action.id))
+		or (player.sub_job_id == 16 and autoxp_blue_set(windower.ffxi.get_sjob_data(), action.id))
 end
 
 --Why the action has to wait ('recast' when that's all it waits on), or nil when it can go now.
@@ -258,6 +283,7 @@ local function autoxp_wait_reason(action)
 		if windower.ffxi.get_spell_recasts()[action.id] >= spell_latency then return 'recast' end
 	elseif action.ability then
 		if silent_check_amnesia() then return 'abilities are blocked' end
+		if action.tp > player.tp then return 'not enough TP' end
 		--Sel caches an ability as usable until the next zone, but level sync can take it away before then.
 		local recast = windower.ffxi.get_ability_recasts()[action.recast]
 		if not recast then return "can't be used" end
@@ -317,7 +343,7 @@ local function autoxp_start()
 		pull = autoxp_action(s.Pull),
 		heal = s.Heal and autoxp_action(s.Heal),
 		healer_id = s.Healer and get_spell_id_by_name(s.Healer),
-		retry_at = 0, pull_until = 0, dismiss_at = 0, check_at = 0, trust_calls = {},
+		retry_at = 0, pull_until = 0, dismiss_at = 0, check_at = 0, heal_at = 0, trust_calls = {},
 	}
 	autoxp.healer_name = autoxp.healer_id and res.spells[autoxp.healer_id].party_name
 	if s.Trusts then state.AutoTrustMode:set(s.Trusts) end
@@ -361,8 +387,9 @@ local function autoxp_note(text)
 	add_to_chat(122, 'Auto XP: '..text)
 end
 
+--heal_at spaces out the sends: a Heal that Sel's precast refuses starts no recast and no cast delay.
 local function autoxp_heal_first()
-	return autoxp_running() and autoxp.heal and autoxp.low_since
+	return autoxp_running() and autoxp.heal and autoxp.low_since and os.clock() >= autoxp.heal_at
 		and os.clock() - autoxp.low_since > AutoXP_Settings.HealSeconds and not autoxp_wait_reason(autoxp.heal)
 end
 
@@ -372,7 +399,8 @@ end
 --party again.
 local function autoxp_callable_trust()
 	local list = trust_lists[state.AutoTrustMode.value]
-	if not list or windower.ffxi.get_party().p5 then return end
+	if not list then return end
+	local room = not windower.ffxi.get_party().p5
 	local known, recasts = windower.ffxi.get_spells(), windower.ffxi.get_spell_recasts()
 	local callable
 	for _, name in ipairs(list) do
@@ -381,7 +409,7 @@ local function autoxp_callable_trust()
 			local calls = autoxp.trust_calls[name] or 0
 			if have_trust(res.spells[id].party_name) then
 				autoxp.trust_calls[name] = nil
-			elseif recasts[id] < spell_latency then
+			elseif room and recasts[id] < spell_latency then
 				if calls == 2 then
 					autoxp.trust_calls[name] = 3
 					add_to_chat(122, "Auto XP: can't call "..name..', going on without it.')
@@ -394,8 +422,9 @@ local function autoxp_callable_trust()
 	return callable
 end
 
+--Only while the AutoTrustMode list still holds the healer, so it's called again once dismissed.
 local function autoxp_low_healer()
-	if not autoxp.healer_name then return end
+	if not autoxp.healer_name or not table.contains(trust_lists[state.AutoTrustMode.value] or {}, AutoXP_Settings.Healer) then return end
 	local party = windower.ffxi.get_party()
 	for slot = 1, 5 do
 		local member = party['p'..slot]
@@ -450,6 +479,7 @@ function user_tick()
 
 	if autoxp_heal_first() then
 		windower.chat.input(autoxp.heal.command..' <me>')
+		autoxp.heal_at = os.clock() + 3
 		add_tick_delay()
 		return true
 	end

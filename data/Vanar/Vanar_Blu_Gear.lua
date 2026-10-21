@@ -557,7 +557,7 @@ AutoWS_List = {
 	['Maxentius Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
 }
 
---gs c toggle AutoXP; the Auto XP comment in User-Globals.lua says what each field does. Plenilune Embrace has to be set.
+--gs c toggle AutoXP; the Auto XP comment in User-Globals.lua says what each field does. Glutinous Dart and Plenilune Embrace have to be set.
 AutoXP_Settings = {
 	Trusts = 'Default',
 	Healer = 'Yoran-Oran (UC)',
