@@ -21,7 +21,10 @@ Branch `selindrile` holds a copy of https://github.com/Selindrile/GearSwap laid 
 Re-apply these after copying in an upstream version of the file, unless upstream has made the same fix.
 
 - `data/BLU.lua`: `'Orcish Counterstance'` → `'O. Counterstance'` in `blue_magic_maps.Buff` (Windower's resources name for spell 696).
-- `libs/Sel-Display.lua`: in `update_job_states`, the `Weapons` entry shows "Locked" (white) when `state.UnlockWeapons` is off, so the HUD always shows the weapon lock state; upstream shows only "Unlocked".
+- `libs/Sel-Display.lua`: in `update_job_states`:
+  - The two loop bodies are the local functions `append_bool` and `append_mode`, so the line can be built in a fixed order for every job: Auto Trust, Auto Buff, Offense and Weapons (each only if the job lists it), then Auto WS, then the job's booleans and its other modes in its `init_job_states` order. Upstream prints all the booleans, then all the modes, in the job's order.
+  - Auto WS is `state.AutoWS`, the melee auto-ws mode from `data/User/User-Globals.lua`, drawn whenever it exists: `Auto WS: <choice>`, white at OFF and yellow otherwise. Upstream has no such mode.
+  - The `Weapons` entry reads `Weapons: <weapon> (L)` (white) or `(U)` (light blue) from `state.UnlockWeapons`, so the line always shows the weapon lock state, with the `state.WeaponSets` name before the weapon when it isn't Default or None. Upstream prints "Unlocked" and the `WeaponSets` name before the label, and nothing when locked.
 - `libs/Sel-Utility.lua`: in `check_recast`, the two MiniQueue branches that held a job ability or spell with under 5 seconds of recast and sent it when ready are commented out. Such a press is now refused with "waiting on recast" like a longer recast, so a held press can't go off after the player has moved on to another action.
 
 ## Pulling in later upstream commits

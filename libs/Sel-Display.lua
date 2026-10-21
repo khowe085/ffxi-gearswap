@@ -226,7 +226,7 @@ function update_job_states()
 	end
 
 	-- Construct and append info for boolean states
-	for i,n in pairs(stateBool) do
+	local function append_bool(n)
 
 		-- Define color for modal state
 		if state[n].index then
@@ -277,9 +277,9 @@ function update_job_states()
 		-- Append basic formatted boolean state
 
 	end
-		stateBox:append(display.colors.White)
+
 	-- Construct and append info for modal states
-	for i,n in ipairs(stateList) do
+	local function append_mode(n)
 
 		-- Format total haste and delay reduction as percentages
 		if n == 'TotalHaste' or n == 'DelayReduction' then
@@ -319,17 +319,19 @@ function update_job_states()
 					stateBox:append('Ammo: '..statusammo..'    ')
 				end
 		elseif n == 'Weapons' then
-			if state.UnlockWeapons.value then
-				stateBox:append(string.format("%sUnlocked ", display.colors.LightBlue))
-			else
-				stateBox:append(string.format("%sLocked ", display.colors.White))
-			end
+			stateBox:append(string.format("%s%s: ", display.colors.White, labels[n]))
 			
 			if state.WeaponSets.value ~= 'Default' and state.WeaponSets.value ~= 'None' then
 				stateBox:append(string.format("%s%s ", display.colors.White, state.WeaponSets.value))
 			end
 			
-			stateBox:append(string.format("%s%s: ${%s}    ", display.colors.White, labels[n], n))
+			stateBox:append(string.format("${%s} ", n))
+			
+			if state.UnlockWeapons.value then
+				stateBox:append(string.format("%s(U)    ", display.colors.LightBlue))
+			else
+				stateBox:append(string.format("%s(L)    ", display.colors.White))
+			end
 		elseif n == 'OffenseMode' then
 			if state.DefenseMode.value ~= 'None' then
 				stateBox:append(string.format("%sDefense Active: ", display.colors.White))
@@ -455,6 +457,29 @@ function update_job_states()
 			stateBox:append(string.format("%s%s: ${%s}    ", display.colors.White, labels[n], n))
 		end
 	end
+
+	local leading_modes = {'AutoTrustMode','AutoBuffMode','OffenseMode','Weapons'}
+
+	for i,n in ipairs(leading_modes) do
+		if table.contains(stateList, n) then append_mode(n) end
+	end
+
+	-- state.AutoWS is User-Globals' melee auto-ws mode, which no job lists.
+	if state.AutoWS then
+		local color = state.AutoWS.value == 'OFF' and display.colors.White or display.colors.Yellow
+		stateBox:append(string.format("%sAuto WS: %s%s    ", color, state.AutoWS.value, display.colors.OffWhite))
+	end
+
+	for i,n in ipairs(stateBool) do
+		append_bool(n)
+	end
+
+	stateBox:append(display.colors.White)
+
+	for i,n in ipairs(stateList) do
+		if not table.contains(leading_modes, n) then append_mode(n) end
+	end
+
 	-- Update and display current info
 	stateBox:update(info)
 	stateBox:show()
