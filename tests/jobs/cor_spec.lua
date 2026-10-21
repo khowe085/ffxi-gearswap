@@ -565,16 +565,14 @@ end)
 describe('a weapon skill when a dagger weapon skill is known', function()
     -- The job file takes Wasp Sting (weapon skill 16) known as a dagger in hand, and sends the dagger's weapon skill
     -- for a sword's.
-    local known = {'Wasp Sting', 'Evisceration', 'Aeolian Edge'}
-
     it('is Evisceration in place of Savage Blade', function()
-        local gs = boot({tp = 1000, abilities = known})
+        local gs = boot({tp = 1000})
         gs:type('/ws "Savage Blade" <t>')
         assert.same({'Evisceration'}, gs:actions())
     end)
 
     it('is Aeolian Edge in place of Circle Blade', function()
-        local gs = boot({tp = 1000, abilities = known})
+        local gs = boot({tp = 1000})
         gs:type('/ws "Circle Blade" <t>')
         assert.same({'Aeolian Edge'}, gs:actions())
     end)
@@ -583,5 +581,6 @@ describe('a weapon skill when a dagger weapon skill is known', function()
         local gs = boot({tp = 1000, abilities = {'Evisceration', 'Aeolian Edge'}})
         gs:type('/ws "Savage Blade" <t>')
         assert.same({}, gs:actions())
+        assert.same({"Abort: You don't have access to [Savage Blade]."}, gs:chat())
     end)
 end)

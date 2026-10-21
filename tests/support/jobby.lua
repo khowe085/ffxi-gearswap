@@ -24,9 +24,10 @@ jobby.full_idle = testy.worn_by(jobby.idle, {ammo = 'Staunch Tathlum +1', back =
 jobby.worn_by = testy.worn_by
 
 -- The weapon each job's boot puts in Jobby's hand, over the idle set, since the game lets him use only the weapon
--- skills of the weapons he holds: one of the type whose weapon skills that job's tests type. The jobs not named hold
--- what their gear file's idle set does, or nothing, which is hand-to-hand. A boot's wearing can name another, or
--- 'empty'.
+-- skills of the weapons he holds: one of the type whose weapon skills the job's tests type, for each job whose tests
+-- type one other than hand-to-hand's and whose gear file's idle set names no weapon (an idle set's weapon would take
+-- its place at the first update). The jobs not named hold what their gear file's idle set does, or nothing, which is
+-- hand-to-hand. A boot's wearing can name another, or 'empty'.
 jobby.weapons = {BLM = {main = 'Gozuki Mezuki'}, BLU = {main = "Judge's Sword"}, COR = {main = 'Qutrub Knife'},
     DNC = {main = 'Qutrub Knife'}, DRK = {main = 'Apocalypse'}, PLD = {main = "Judge's Sword"},
     RDM = {main = "Judge's Sword"}, RUN = {main = 'Epeolatry'}, SCH = {main = "Terra's Staff"},
@@ -59,8 +60,9 @@ end
 -- Boots Jobby as that job, with the pieces of the idle sets, the job's weapon and the items given in the inventory and
 -- every gear file's idle set and the job's weapon on, and has Sel update the gear once, with nothing sent, typed, run
 -- or said since. options are a boot's (see harness.boot), with these in place of the harness's:
---   items     the names of the pieces Jobby has besides the idle sets' and the weapon, or {name =, bag =, count =}
---             for one that needs more
+--   items     the names of the pieces Jobby has besides the idle sets', or {name =, bag =, count =} for one that
+--             needs more; the job's weapon is added only when the items don't name it, so a test that holds it in
+--             both hands names it twice
 --   wearing   slot name to the name of an item, worn when GearSwap loads over the idle set and the weapon
 --   sub_job   WHM unless given
 function jobby.boot(job, options)

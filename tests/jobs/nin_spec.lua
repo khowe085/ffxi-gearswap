@@ -164,7 +164,7 @@ describe('NIN\'s engaged set', function()
     end)
 
     local function engaged_with(changes)
-        return worn(jobby.worn_by({head = "Bendis's Hairpin", body = 'Sapphire Platemail'}, changes))
+        return worn(jobby.layer({head = "Bendis's Hairpin", body = 'Sapphire Platemail'}, changes))
     end
 
     it('has Yonin\'s set over it while Yonin is up', function()

@@ -25,10 +25,10 @@ local idle = jobby.worn_by(jobby.full_idle, jobby.weapons.DRK)
 -- Worn at the boot for a great sword's weapon skill.
 local great_sword = {main = 'Ragnarok'}
 
+-- What is worn once the weapon skill typed has gone out.
 local function weaponskill(gs, line)
     gs:type(line)
-    local traffic = gs:traffic()
-    assert.is_truthy(traffic[#traffic] and traffic[#traffic].action, 'the weapon skill didn\'t go out')
+    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
     return gs:worn()
 end
 

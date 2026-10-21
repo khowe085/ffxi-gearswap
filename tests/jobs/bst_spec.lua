@@ -130,6 +130,39 @@ describe('BST\'s ready charges', function()
         gs.game:start_ability_recast('Sic', 11)
         assert.equal(1, charges())
     end)
+
+    it('take 5 seconds less a timer with Charmer\'s Merlin in the weapon set', function()
+        gs:console('gs c set Weapons Axe')
+        gs:chat()
+        gs.game:start_ability_recast('Sic', 14)
+        assert.equal(2, charges())
+        gs.game:start_ability_recast('Sic', 15)
+        assert.equal(1, charges())
+    end)
+
+    pending('take 5 seconds less a timer with Charmer\'s Merlin in the weapon set\'s off hand: get_ready_charge_timer '
+        .. 'in data/BST.lua compares the weapon set\'s main with Charmer\'s Merlin twice, and never its sub')
+
+    it('take 5 seconds less a timer with Charmer\'s Merlin in the off hand of the dual wield ready recast set, once '
+        .. 'Jobby can dual wield', function()
+        jobby.can_dual_wield(gs)
+        gs:chat()
+        gs.game:start_ability_recast('Sic', 14)
+        assert.equal(2, charges())
+        gs.game:start_ability_recast('Sic', 15)
+        assert.equal(1, charges())
+    end)
+
+    it('take 5 seconds less a timer with Desultor Tassets in the dual wield ready recast set, once Jobby can dual '
+        .. 'wield', function()
+        gs.user.sets.midcast.Pet.ReadyRecastDW = {legs = 'Desultor Tassets'}
+        jobby.can_dual_wield(gs)
+        gs:chat()
+        gs.game:start_ability_recast('Sic', 14)
+        assert.equal(2, charges())
+        gs.game:start_ability_recast('Sic', 15)
+        assert.equal(1, charges())
+    end)
 end)
 
 describe('BST\'s Reward', function()
@@ -278,7 +311,7 @@ end)
 
 -- What Jobby wears with a pet out in the Tank pet mode, idle: the set of a pet idle, and the Tank set under it.
 local function with_pet(changes)
-    return worn(jobby.worn_by({sub = 'Sacro Bulwark', back = 'Aptitude Mantle', ring1 = "Tyrant's Ring"}, changes))
+    return worn(jobby.layer({sub = 'Sacro Bulwark', back = 'Aptitude Mantle', ring1 = "Tyrant's Ring"}, changes))
 end
 
 describe('BST\'s ready moves, as Jobby commands them', function()

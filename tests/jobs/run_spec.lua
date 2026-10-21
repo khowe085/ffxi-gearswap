@@ -4,7 +4,7 @@ local jobby = require('jobby')
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
     'Adamantite Armor', "Orunmila's Torque", 'Weike Torque', 'Sortiarius Earring', 'Beatific Earring',
     'Pensee Earring', 'Moonshade Earring', 'Lunette Ring', "Medada's Ring", 'Wanion Belt', 'Prodigious Mantle',
-    'Desultor Tassets', 'Epeolatry', 'Naegling'}
+    'Desultor Tassets', 'Epeolatry', 'Naegling', 'Gozuki Mezuki'}
 
 -- Jobby as a rune fencer with the idle set on. The options are those of a boot (sub_job, tp, buffs) and these
 -- besides:
@@ -161,8 +161,10 @@ describe('an effusion', function()
     it('wears them with the Hachirin-no-Obi when a rune of the day\'s element is up', function()
         local gs = boot({engaged = true, obi = true, buffs = {'Lux'}})
         gs:set_day(6)
+        gs:traffic()
         gs:type('/ja "Lunge" <t>')
-        assert.equal('Hachirin-no-Obi', gs:worn().waist)
+        assert.same(jobby.layer(sets_of(gs).precast.Effusion, sets_of(gs).element.Light, {waist = 'Hachirin-no-Obi'}),
+            gs:traffic()[1].equip)
     end)
 
     it('wears them without the Hachirin-no-Obi when no rune matches', function()
@@ -318,6 +320,29 @@ describe('the idle set of a rune fencer', function()
         low_mp(gs)
         assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
             {main = 'Epeolatry'})), gs:worn())
+    end)
+
+    it('wears sets.latent_refresh_grip too with a staff in the idle set and the weapons free', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Gozuki Mezuki'
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+            {main = 'Gozuki Mezuki'})), gs:worn())
+    end)
+
+    it('wears no sets.latent_refresh_grip with a weapon set locking the weapons', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Epeolatry'
+        gs:console('gs c set Weapons Epeolatry')
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
+    end)
+
+    it('wears no sets.latent_refresh_grip with a weapon in the idle set that is no staff or great sword', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Naegling'
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'Naegling'})), gs:worn())
     end)
 
     it('wears no sets.latent_refresh in the DT idle mode', function()
@@ -633,6 +658,13 @@ describe('AutoRuneMode', function()
             local gs = full({buffs = {'Pflug'}})
             gs.user.in_combat = true
             assert.same({'Valiance'}, first_actions(gs))
+        end)
+
+        it('uses Vallation in combat with Pflug up while Valiance is on recast', function()
+            local gs = full({buffs = {'Pflug'}})
+            gs.user.in_combat = true
+            gs.game:start_ability_recast('Valiance', 100)
+            assert.same({'Vallation'}, first_actions(gs))
         end)
 
         it('uses no ward in combat with Pflug and a ward up', function()
