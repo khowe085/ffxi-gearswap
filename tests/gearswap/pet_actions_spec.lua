@@ -76,9 +76,9 @@ describe('a beast pet command typed as /bstpet and a number', function()
 end)
 
 describe('a pet\'s action', function()
-    local function boot_with_pet()
+    local function boot_with_pet(name)
         local gs = boot()
-        gs.game:place_pet({name = 'Carbuncle'})
+        gs.game:place_pet({name = name or 'Carbuncle'})
         plain.refresh(gs)
         return gs
     end
@@ -108,18 +108,21 @@ describe('a pet\'s action', function()
         assert.is_false(gs.user.pet_midaction())
     end)
 
-    pending('being interrupted tells the user file pet_aftercast, marked interrupted: the server\'s packet for an '
-        .. 'interruption carries no message, and get_spell (helper_functions.lua) looks a category 7 action with '
-        .. 'none up among the weapon skills only, so a TP move, a monster ability, or a blood pact, a job ability, '
-        .. 'is not found, nothing is told and the pet stays in midaction')
+    pending('being interrupted while it readies a move (a TP move or a blood pact) tells the user file '
+        .. 'pet_aftercast, marked interrupted: the server\'s packet for an interruption carries no message, and '
+        .. 'get_spell (helper_functions.lua) looks a category 7 action with none up among the weapon skills only, so '
+        .. 'a TP move, a monster ability, or a blood pact, a job ability, is not found, nothing is told and the pet '
+        .. 'stays in midaction until GearSwap drops the entry as stale, the next time it looks in its registry once 10 '
+        .. 'seconds have passed for a TP move, or 5 for a blood pact')
 
     it('being interrupted while it casts a spell tells the user file pet_aftercast, marked interrupted', function()
-        local gs = boot_with_pet()
+        local gs = boot_with_pet('FireSpirit')
         gs:pet_readies('Fire', 'spell')
         calls(gs)
         gs:pet_acts('Fire', 'spell', 'interrupt')
         local got = calls(gs)
-        assert.same({'pet_aftercast', 'Fire', true}, {got[1].event, got[1].name, got[1].interrupted})
+        assert.same({'pet_aftercast'}, events(got))
+        assert.same({'Fire', true}, {got[1].name, got[1].interrupted})
         assert.is_false(gs.user.pet_midaction())
     end)
 

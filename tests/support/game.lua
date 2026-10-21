@@ -500,9 +500,10 @@ end
 
 -- What get_abilities reports of the weapon skills, by id: those of the main hand's weapon type, hand-to-hand's with
 -- nothing in it, and those of the ranged weapon's. The game lists only those whose skill the character has enough of,
--- and some only with one weapon, not every one of its type (Mystic Boon with Yagrush, a relic, mythic or empyrean
--- weapon's own); the stand-in has no skill levels and the resources don't say which weapon, so it lists every one of
--- the type. The abilities a boot names stand whatever is in hand.
+-- those that need merits or a quest only with them (Requiescat, Savage Blade), and some only with one weapon, not
+-- every one of its type (Mystic Boon with Yagrush, a relic, mythic or empyrean weapon's own); the stand-in looks at no
+-- skill levels, merits or quests, and the resources don't say which weapon, so it lists every one of the type. The
+-- abilities a boot names stand whatever is in hand.
 function Game:weapon_skills_in_hand()
     if self.weapon_skills then
         return copy(self.weapon_skills)

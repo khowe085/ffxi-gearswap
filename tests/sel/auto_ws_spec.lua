@@ -208,7 +208,8 @@ end)
 
 describe('AutoWSRestore under Auto WS', function()
     -- The game lists only the weapon skills of the weapon in hand: of those the restore picks from, Sanguine Blade
-    -- is a sword's, Mystic Boon a club's.
+    -- is a sword's. Mystic Boon comes only with Yagrush, a white mage's club, so the boot names it among the abilities,
+    -- and Daybreak is there for its AutoWS_List choice.
     local sword = {abilities = {'Savage Blade', 'Sanguine Blade'}}
     local club = {weapons = 'Daybreak', abilities = {'Black Halo', 'Mystic Boon'}}
 
@@ -233,14 +234,22 @@ describe('AutoWSRestore under Auto WS', function()
         assert.same(savage_blade, gs:action_entries())
     end)
 
-    it('uses Mystic Boon in place of the choice under 31% MP with a club', function()
+    it('keeps to a ranged choice under 41% HP out of melee range, where it restores nothing', function()
+        local gs = boot('Flaming Arrow 1000', {weapons = 'Bow'})
+        gs.game.monster.distance = 15 ^ 2
+        gs.game.player.vitals.hpp = 40
+        gs:set_tp(1000)
+        assert.same({{action = 'Flaming Arrow', target = 'Apex Toad'}}, gs:action_entries())
+    end)
+
+    it('uses Mystic Boon in place of the choice under 31% MP when the game lists Mystic Boon', function()
         local gs = boot('Black Halo 1000', club)
         gs.game.player.vitals.mpp = 30
         gs:set_tp(1000)
         assert.same({{action = 'Mystic Boon', target = 'Apex Toad'}}, gs:action_entries())
     end)
 
-    it('keeps to the choice at 31% MP with a club', function()
+    it('keeps to the choice at 31% MP when the game lists Mystic Boon', function()
         local gs = boot('Black Halo 1000', club)
         gs.game.player.vitals.mpp = 31
         gs:set_tp(1000)

@@ -50,9 +50,8 @@ describe('the user file GearSwap loads for a job', function()
         'White Mage.lua', 'default.lua'}
 
     it('tries each name in turn, the character and the job\'s short name first and default last', function()
-        for first = 1, #names - 1 do
-            install('Lookup', names[first])
-            install('Lookup', names[first + 1])
+        for _, name in ipairs(names) do
+            install('Lookup', name)
         end
         for i, name in ipairs(names) do
             assert.equal('Lookup/' .. name, (loaded_for('Lookup')), 'the file the ' .. i .. 'th name should load')

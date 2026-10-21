@@ -4,7 +4,8 @@ local function on_me(name)
     return {{action = name, target = 'Autoy'}}
 end
 
--- The abilities a rune fencer sub job at 49 has: the runes, Vallation and Pflug, but not Valiance, which comes at 50.
+-- The abilities Autoy knows here, and no others, not even the red mage's own: the runes, Vallation and Pflug, which a
+-- rune fencer sub job at 49 has, but not Valiance, which comes at 50.
 local run_sub_abilities = {'Ignis', 'Gelus', 'Flabra', 'Tellus', 'Sulpor', 'Unda', 'Lux', 'Tenebrae', 'Vallation',
     'Pflug'}
 
