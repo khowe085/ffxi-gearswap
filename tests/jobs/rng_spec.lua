@@ -54,7 +54,7 @@ local function boot(options)
     return jobby.boot('RNG', options)
 end
 
--- The ammunition on once the ranged attack or weapon skill has been typed.
+-- The ammunition on once the ranged attack has been typed.
 local function ammo_after(gs, line)
     gs:type(line)
     return gs:worn().ammo
@@ -159,32 +159,22 @@ describe('RNG\'s ranged weapon skill', function()
     end)
 
     it('has Chrono Bullet when it is not elemental', function()
-        assert.equal('Chrono Bullet', ammo_after(gs, '/ws "Last Stand" <t>'))
+        assert.equal('Chrono Bullet', jobby.weaponskill(gs, '/ws "Last Stand" <t>').ammo)
     end)
 
     it('has Eradicating Bullet when it is not elemental, in the accuracy weapon skill mode', function()
         gs:console('gs c set WeaponskillMode Acc')
-        assert.equal('Eradicating Bullet', ammo_after(gs, '/ws "Last Stand" <t>'))
+        assert.equal('Eradicating Bullet', jobby.weaponskill(gs, '/ws "Last Stand" <t>').ammo)
     end)
 
     it('has Devastating Bullet when it is elemental', function()
-        assert.equal('Devastating Bullet', ammo_after(gs, '/ws "Wildfire" <t>'))
+        assert.equal('Devastating Bullet', jobby.weaponskill(gs, '/ws "Wildfire" <t>').ammo)
     end)
 
     it('has the gear file\'s MagicAcc ammunition, Eminent Bullet, when it is elemental, in the accuracy weapon '
         .. 'skill mode', function()
         gs:console('gs c set WeaponskillMode Acc')
-        assert.equal('Eminent Bullet', ammo_after(gs, '/ws "Wildfire" <t>'))
-    end)
-
-    it('has Chrono Arrow with a bow, whatever its kind', function()
-        -- Flaming Arrow is elemental, Apex Arrow not.
-        for _, name in ipairs({'Apex Arrow', 'Flaming Arrow'}) do
-            local archer = boot()
-            archer:console('gs c set Weapons Bow')
-            archer.game.player.vitals.tp = 1000
-            assert.equal('Chrono Arrow', ammo_after(archer, '/ws "' .. name .. '" <t>'), name)
-        end
+        assert.equal('Eminent Bullet', jobby.weaponskill(gs, '/ws "Wildfire" <t>').ammo)
     end)
 
     it('has the ammunition of the weapon back once it is done, over the weapon skill\'s', function()
@@ -198,13 +188,25 @@ describe('RNG\'s ranged weapon skill', function()
         .. 'data/RNG.lua means: uses_ammo, which decides whether it is called, is false while Unlimited Shot is up')
 end)
 
+describe('RNG\'s ranged weapon skill with a bow', function()
+    it('has Chrono Arrow, whatever its kind', function()
+        -- Flaming Arrow is elemental, Apex Arrow not.
+        for _, name in ipairs({'Apex Arrow', 'Flaming Arrow'}) do
+            local gs = boot()
+            gs:console('gs c set Weapons Bow')
+            gs.game.player.vitals.tp = 1000
+            assert.equal('Chrono Arrow', jobby.weaponskill(gs, '/ws "' .. name .. '" <t>').ammo, name)
+        end
+    end)
+end)
+
 describe('RNG\'s weapon skill of another skill', function()
     local function ammo_for(weapons)
         local gs = boot()
         gs:console('gs c set Weapons ' .. weapons)
         gs.game.player.vitals.tp = 1000
         gs:traffic()
-        return ammo_after(gs, '/ws "Savage Blade" <t>')
+        return jobby.weaponskill(gs, '/ws "Savage Blade" <t>').ammo
     end
 
     it('has Hauksbok Arrow with a bow', function()
@@ -219,9 +221,9 @@ describe('RNG\'s weapon skill of another skill', function()
         assert.equal('Hauksbok Bolt', ammo_for('Crossbow'))
     end)
 
-    it('leaves the ammunition when Jobby has none of the Hauksbok kind', function()
-        local gs = boot({ammunition = {}, tp = 1000})
-        assert.equal('Staunch Tathlum +1', ammo_after(gs, '/ws "Savage Blade" <t>'))
+    it('leaves the ammunition with a bow when the only Hauksbok ammunition Jobby has is a gun\'s', function()
+        local gs = boot({ammunition = {'Hauksbok Bullet'}, tp = 1000})
+        assert.equal('Staunch Tathlum +1', jobby.weaponskill(gs, '/ws "Savage Blade" <t>').ammo)
     end)
 end)
 
@@ -230,6 +232,7 @@ describe('RNG\'s default ammunition', function()
         local gs = boot()
         gs:console('gs c toggle UseDefaultAmmo')
         assert.equal('Staunch Tathlum +1', ammo_after(gs, '/ra <t>'))
+        assert.same({'category 16'}, gs:actions())
     end)
 
     it('is put on after any action that is done, once the range slot holds a weapon', function()
@@ -249,7 +252,7 @@ describe('RNG\'s default ammunition', function()
 end)
 
 describe('RNG\'s warning of low ammunition', function()
-    it('names the ammunition that is on and how much is left, under 15', function()
+    it('names the ammunition the shot takes and how much of it is left, under 15, when that is the one on', function()
         local gs = boot({counts = {['Chrono Arrow'] = 14}, wearing = {ammo = 'Chrono Arrow'}})
         gs:type('/ra <t>')
         assert.same({"Ammo 'Chrono Arrow' running low: (14) remaining."}, gs:chat())
@@ -260,6 +263,10 @@ describe('RNG\'s warning of low ammunition', function()
         gs:type('/ra <t>')
         assert.same({}, gs:chat())
     end)
+
+    pending('names the ammunition the shot takes when another is on, such as Eradicating Bullet in the accuracy '
+        .. 'ranged mode with Chrono Bullet on: do_ammo_checks in data/RNG.lua counts player.equipment.ammo, the '
+        .. 'ammunition on before the shot, not the one it has just equipped')
 end)
 
 -- The monster is this far away, in yalms.
@@ -542,9 +549,8 @@ describe('RNG\'s Moonshade Earring at 3200 TP with its bonus', function()
     end)
 
     local function ears_after(name, tp)
-        gs.game.player.vitals.tp = tp
-        gs:type('/ws "' .. name .. '" <t>')
-        return {gs:worn().left_ear, gs:worn().right_ear}
+        local worn = jobby.weaponskill(gs, '/ws "' .. name .. '" <t>', tp)
+        return {worn.left_ear, worn.right_ear}
     end
 
     it('stays in the weapon skill set up to that', function()

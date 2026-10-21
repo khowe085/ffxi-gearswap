@@ -160,7 +160,7 @@ describe('MNK\'s weapon skill set', function()
     end)
 
     it('has sets.buff.ImpetusWS laid over it for Ascetic\'s Fury with Impetus up', function()
-        -- The game gives Ascetic's Fury only with Glanzfaust in hand.
+        -- The game gives Ascetic's Fury only with Glanzfaust in hand, short of Unlocking a Myth.
         gs = boot({tp = 1000, wearing = {main = 'Glanzfaust'}})
         gs:gain_buff('Impetus')
         assert.equal("Combatant's Torque", jobby.weaponskill(gs, '/ws "Ascetic\'s Fury" <t>').neck)

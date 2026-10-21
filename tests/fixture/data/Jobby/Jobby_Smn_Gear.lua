@@ -34,6 +34,7 @@ function init_gear_sets()
 	sets.perp.Ifrit = {legs = 'Sapphire Trousers'}
 
 	sets.latent_refresh = {ear1 = 'Ishvara Earring'}
+	sets.latent_refresh_grip = {ring2 = 'Gelatinous Ring'}
 	sets.buff.Sublimation = {ear2 = 'Brutal Earring'}
 
 	sets.precast.FC = {head = "Bendis's Hairpin"}

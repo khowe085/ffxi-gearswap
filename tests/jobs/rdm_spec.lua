@@ -6,7 +6,7 @@ local gear = {'Naegling', 'Crocea Mors', 'Murgleis', 'Regal Gem', 'Ullr', 'Zodia
     "Combatant's Torque", 'Karieyh Ring', 'Chirich Ring +1', 'Null Belt', 'Null Shawl', 'Amin Turban', 'Ischkur Turban',
     'Azimuth Turban', 'Blistering Sallet +1', 'Alhazen Hat', 'Alhazen Hat +1', 'Sukeroku Hachi.', "Bendis's Hairpin",
     'Blacksh. Hairpin', 'Moonshade Earring', 'Brutal Earring', 'Cessance Earring', 'Odnowa Earring +1',
-    'Ishvara Earring', 'Telos Earring'}
+    'Ishvara Earring', 'Telos Earring', 'Gozuki Mezuki'}
 
 local function without(names, removed)
     local kept = {}
@@ -265,7 +265,7 @@ describe('RDM\'s Chainspell and Spontaneity', function()
 end)
 
 describe('RDM\'s weapon skill set', function()
-    local function weaponskill(tp, line, mode)
+    local function ws(tp, line, mode)
         local gs = boot({tp = tp})
         if mode then
             gs:console('gs c set OffenseMode ' .. mode)
@@ -274,15 +274,15 @@ describe('RDM\'s weapon skill set', function()
     end
 
     it('keeps Moonshade Earring on at 2749 TP, which Moonshade makes under 3000', function()
-        assert.equal('Moonshade Earring', weaponskill(2749, '/ws "Savage Blade" <t>').left_ear)
+        assert.equal('Moonshade Earring', ws(2749, '/ws "Savage Blade" <t>').left_ear)
     end)
 
     it('swaps Moonshade Earring for sets.MaxTP at 2750 TP, which Moonshade makes 3000', function()
-        assert.equal('Cessance Earring', weaponskill(2750, '/ws "Savage Blade" <t>').left_ear)
+        assert.equal('Cessance Earring', ws(2750, '/ws "Savage Blade" <t>').left_ear)
     end)
 
     it('swaps in sets.AccMaxTP at the cap in an accuracy offense mode', function()
-        assert.equal('Odnowa Earring +1', weaponskill(3000, '/ws "Savage Blade" <t>', 'Acc').left_ear)
+        assert.equal('Odnowa Earring +1', ws(3000, '/ws "Savage Blade" <t>', 'Acc').left_ear)
     end)
 
     it('swaps in sets.MaxTP, not sets.AccMaxTP, under Sneak Attack in an accuracy offense mode', function()
@@ -293,11 +293,11 @@ describe('RDM\'s weapon skill set', function()
     end)
 
     it('swaps in sets.MagicalMaxTP at the cap for an elemental weapon skill', function()
-        assert.equal('Ishvara Earring', weaponskill(3000, '/ws "Seraph Blade" <t>').left_ear)
+        assert.equal('Ishvara Earring', ws(3000, '/ws "Seraph Blade" <t>').left_ear)
     end)
 
     it('swaps in sets.MagicalAccMaxTP at the cap for an elemental weapon skill in an accuracy offense mode', function()
-        assert.equal('Telos Earring', weaponskill(3000, '/ws "Seraph Blade" <t>', 'Acc').left_ear)
+        assert.equal('Telos Earring', ws(3000, '/ws "Seraph Blade" <t>', 'Acc').left_ear)
     end)
 
     -- A gear file with no sets for the magical weapon skills.
@@ -627,18 +627,34 @@ describe('RDM\'s idle set', function()
             {main = "Terra's Staff", waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
     end)
 
-    it('has no grip or sets.TPEat over it with the weapons locked', function()
+    it('has no grip or sets.TPEat over the Sphere idle set with the weapons locked to a staff', function()
         gs:console('gs c set IdleMode Sphere')
-        gs:console('gs c set Weapons Naegling')
+        gs:console('gs c set Weapons Staff')
         gs.game.player.vitals.tp = 300
         low_mp()
-        assert.same(jobby.worn_by(idle, {main = 'Naegling', waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {main = 'Gozuki Mezuki', waist = 'Null Belt'}), gs:worn())
+    end)
+
+    it('has the grip and sets.TPEat over the Sphere idle set with the weapons locked to a staff but UnlockWeapons on',
+        function()
+        gs:console('gs c set IdleMode Sphere')
+        gs:console('gs c set Weapons Staff')
+        gs:console('gs c toggle UnlockWeapons')
+        gs.game.player.vitals.tp = 300
+        low_mp()
+        assert.same(jobby.worn_by(idle, {main = 'Gozuki Mezuki', waist = 'Null Belt', sub = 'Enki Strap',
+            ear1 = 'Cessance Earring'}), gs:worn())
     end)
 
     pending('has no grip over the Sphere idle set with the weapons locked to Naegling but UnlockWeapons on: '
         .. 'job_customize_idle_set in data/RDM.lua looks at the idle set\'s main, Terra\'s Staff, and with '
-        .. 'UnlockWeapons on Sel lays the weapon set over the idle set after it, so Enki Strap goes on with Naegling, '
-        .. 'a one-handed sword')
+        .. 'UnlockWeapons on Sel lays the weapon set over the idle set after it, so the idle set asks for Enki Strap '
+        .. 'beside Naegling, a one-handed sword, which the game refuses')
+
+    pending('has the grip over the Normal idle set, which names no main, with the weapons locked to a staff but '
+        .. 'UnlockWeapons on: job_customize_idle_set in data/RDM.lua looks at the idle set\'s main, and Sel lays the '
+        .. 'weapon set over the idle set only after it, so the job file adds neither the grip nor sets.TPEat with '
+        .. 'Gozuki Mezuki in hand')
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')

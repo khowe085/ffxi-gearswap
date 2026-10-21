@@ -168,6 +168,11 @@ describe('BST\'s ready charges', function()
         .. 'and wears the dual wield ready recast set, Aern Sword in its off hand, in its place: '
         .. 'get_ready_charge_timer in data/BST.lua goes on to sets.midcast.Pet.ReadyRecast\'s main when the dual wield '
         .. 'set\'s off hand isn\'t Charmer\'s Merlin, and never reads the dual wield set\'s main')
+
+    pending('take no 5 seconds off a timer for the Desultor Tassets of the ready recast set once Jobby can dual wield '
+        .. 'and wears the dual wield ready recast set, with other legs, in its place: get_ready_charge_timer in '
+        .. 'data/BST.lua goes on to sets.midcast.Pet.ReadyRecast\'s legs when the dual wield set\'s are neither '
+        .. 'Desultor Tassets nor Gleti\'s Breeches')
 end)
 
 describe('BST\'s Reward', function()
@@ -874,12 +879,6 @@ describe('BST\'s ready moves, kept by the tick under AutoReadyMode', function()
     end)
 end)
 
--- What is worn once the weapon skill is out, with the TP Jobby has.
-local function weaponskill(gs, name, tp)
-    gs.game.player.vitals.tp = tp
-    return jobby.weaponskill(gs, '/ws "' .. name .. '" <t>')
-end
-
 describe('BST\'s weapon skill sets', function()
     local gs
     before_each(function()
@@ -890,12 +889,12 @@ describe('BST\'s weapon skill sets', function()
     -- of its third tier to the 250 of Moonshade Earring; Sel counts none of the job point gifts (see the pending
     -- below).
     it('keep Moonshade Earring at 3200 TP with its bonus and Fencer\'s', function()
-        local set = weaponskill(gs, 'Savage Blade', 2550)
+        local set = jobby.weaponskill(gs, '/ws "Savage Blade" <t>', 2550)
         assert.same({'Moonshade Earring', 'Etiolation Earring'}, {set.left_ear, set.right_ear})
     end)
 
     it('give way to sets.MaxTP above that', function()
-        local set = weaponskill(gs, 'Savage Blade', 2551)
+        local set = jobby.weaponskill(gs, '/ws "Savage Blade" <t>', 2551)
         assert.same({'Ishvara Earring', 'Etiolation Earring'}, {set.left_ear, set.right_ear})
     end)
 
@@ -905,37 +904,37 @@ describe('BST\'s weapon skill sets', function()
 
     it('give way to sets.AccMaxTP above that in an accuracy mode', function()
         gs:console('gs c set OffenseMode Acc')
-        local set = weaponskill(gs, 'Savage Blade', 2551)
+        local set = jobby.weaponskill(gs, '/ws "Savage Blade" <t>', 2551)
         assert.same({'Brutal Earring', 'Etiolation Earring'}, {set.left_ear, set.right_ear})
     end)
 
     it('have sets.DayWSEars over Lugra Earring by day', function()
         gs:console('gs c set Weapons Axe')
-        local set = weaponskill(gs, 'Cloudsplitter', 1000)
+        local set = jobby.weaponskill(gs, '/ws "Cloudsplitter" <t>', 1000)
         assert.same({"Hecate's Earring", 'Etiolation Earring'}, {set.left_ear, set.right_ear})
     end)
 
     it('keep Lugra Earring at night', function()
         gs:set_time(22 * 60)
         gs:console('gs c set Weapons Axe')
-        local set = weaponskill(gs, 'Cloudsplitter', 1000)
+        local set = jobby.weaponskill(gs, '/ws "Cloudsplitter" <t>', 1000)
         assert.same({'Lugra Earring +1', 'Etiolation Earring'}, {set.left_ear, set.right_ear})
     end)
 
     it('have sets.AccDayWSEars over Lugra Earring by day in an accuracy mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs:console('gs c set Weapons Axe')
-        local set = weaponskill(gs, 'Cloudsplitter', 1000)
+        local set = jobby.weaponskill(gs, '/ws "Cloudsplitter" <t>', 1000)
         assert.same({'Pixie Earring', 'Etiolation Earring'}, {set.left_ear, set.right_ear})
     end)
 
     it('have sets.buff.Killer Instinct over them while Killer Instinct is up', function()
         gs:gain_buff('Killer Instinct')
-        assert.equal('Aptitude Mantle', weaponskill(gs, 'Savage Blade', 1000).back)
+        assert.equal('Aptitude Mantle', jobby.weaponskill(gs, '/ws "Savage Blade" <t>', 1000).back)
     end)
 
     it('have none of that without Killer Instinct', function()
-        assert.equal('Moonbeam Cape', weaponskill(gs, 'Savage Blade', 1000).back)
+        assert.equal('Moonbeam Cape', jobby.weaponskill(gs, '/ws "Savage Blade" <t>', 1000).back)
     end)
 end)
 

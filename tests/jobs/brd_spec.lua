@@ -274,7 +274,9 @@ describe('BRD\'s song on a party member', function()
         gs:finish_action()
         gs:gain_buff('Pianissimo')
         gs:traffic()
-        gs:advance(1.2)
+        gs:advance(1.0)
+        assert.same({}, gs:action_entries())
+        gs:advance(0.2)
         assert.same({{action = 'Mage\'s Ballad', target = 'Friend'}}, gs:action_entries())
     end)
 
@@ -571,6 +573,11 @@ describe('BRD\'s idle set', function()
         update()
         assert.same(worn({waist = 'Prosilio Belt', neck = "Orunmila's Torque"}), gs:worn())
     end)
+
+    pending('has no sets.latent_refresh_grip over it with a staff in the idle set and the weapons locked to Judge\'s '
+        .. 'Sword but UnlockWeapons on: job_customize_idle_set in data/BRD.lua looks at the idle set\'s main, and with '
+        .. 'UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
+        .. 'sets.latent_refresh_grip with Judge\'s Sword in hand')
 
     it('has sets.buff.Sublimation over it while Sublimation is charging', function()
         gs:gain_buff('Sublimation: Activated')

@@ -6,11 +6,12 @@ function user_job_setup()
 	state.OffenseMode:options('None')
 	state.CastingMode:options('Normal', 'Proc')
 	state.IdleMode:options('Normal', 'DT')
-	state.Weapons:options('None', 'Daybreak')
+	state.Weapons:options('None', 'Daybreak', 'Staff')
 end
 
 function init_gear_sets()
-	sets.weapons.Daybreak = {main = 'Daybreak', sub = 'Ammurapi Shield'}
+	sets.weapons.Daybreak = {main = 'Daybreak'}
+	sets.weapons.Staff = {main = 'Gozuki Mezuki'}
 
 	sets.precast.FC = {neck = 'Fotia Gorget'}
 	sets.precast.FC.Proc = {neck = "Combatant's Torque"}

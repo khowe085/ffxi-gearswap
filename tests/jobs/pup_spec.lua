@@ -663,25 +663,23 @@ describe('a weapon skill by a puppetmaster at the TP cap', function()
 
     it('trades the Moonshade Earring for sets.MaxTP from 2951 TP', function()
         local gs = engaged(2951)
-        gs:type('/ws "Victory Smite" <t>')
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'],
-            sets_of(gs).MaxTP)), gs:worn())
+            sets_of(gs).MaxTP)), jobby.weaponskill(gs, '/ws "Victory Smite" <t>'))
     end)
 
     it('trades it for sets.AccMaxTP in the Acc offense mode', function()
         local gs = engaged(3000)
         gs:console('gs c set OffenseMode Acc')
         gs:traffic()
-        gs:type('/ws "Victory Smite" <t>')
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'],
-            sets_of(gs).AccMaxTP)), gs:worn())
+            sets_of(gs).AccMaxTP)), jobby.weaponskill(gs, '/ws "Victory Smite" <t>'))
     end)
 
     it('keeps the Moonshade Earring at 2950 TP', function()
         local gs = engaged(2950)
-        gs:type('/ws "Victory Smite" <t>')
         assert.same(jobby.worn_by(jobby.idle,
-            jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'])), gs:worn())
+            jobby.layer(sets_of(gs).engaged, sets_of(gs).precast.WS['Victory Smite'])),
+            jobby.weaponskill(gs, '/ws "Victory Smite" <t>'))
     end)
 end)
 

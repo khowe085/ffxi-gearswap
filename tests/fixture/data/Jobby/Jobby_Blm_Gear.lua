@@ -7,11 +7,12 @@ function user_job_setup()
 	state.CastingMode:options('Normal', 'Resistant', 'Proc', 'OccultAcumen')
 	state.IdleMode:options('Normal', 'DT', 'Sphere')
 	state.PhysicalDefenseMode:options('PDT')
-	state.Weapons:options('None', 'Club')
+	state.Weapons:options('None', 'Club', 'Staff')
 end
 
 function init_gear_sets()
-	sets.weapons.Club = {main = 'Daybreak', sub = 'Ammurapi Shield'}
+	sets.weapons.Club = {main = 'Daybreak'}
+	sets.weapons.Staff = {main = 'Gozuki Mezuki'}
 
 	sets.precast.FC = {neck = 'Fotia Gorget'}
 	sets.precast.FC.Death = {hands = 'Volte Bracers'}

@@ -125,12 +125,6 @@ describe('DRG\'s weapon skill with a sub job of WAR and AutoBuffMode on', functi
     end)
 end)
 
--- What is worn once the weapon skill is out, with the TP Jobby has.
-local function weaponskill(gs, name, tp)
-    gs.game.player.vitals.tp = tp
-    return jobby.weaponskill(gs, '/ws "' .. name .. '" <t>')
-end
-
 describe('DRG\'s weapon skill set with Moonshade Earring in it', function()
     local gs
     before_each(function()
@@ -139,18 +133,18 @@ describe('DRG\'s weapon skill set with Moonshade Earring in it', function()
 
     it('keeps Moonshade at 3200 TP with its bonus', function()
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Moonshade Earring', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Stardiver', 2950))
+            jobby.weaponskill(gs, '/ws "Stardiver" <t>', 2950))
     end)
 
     it('gives way to sets.MaxTP above that', function()
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Ishvara Earring', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Stardiver', 2951))
+            jobby.weaponskill(gs, '/ws "Stardiver" <t>', 2951))
     end)
 
     it('gives way to sets.AccMaxTP above that in an accuracy mode', function()
         gs:console('gs c set OffenseMode Acc')
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Brutal Earring', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Stardiver', 3000))
+            jobby.weaponskill(gs, '/ws "Stardiver" <t>', 3000))
     end)
 end)
 
@@ -353,7 +347,9 @@ describe('DRG\'s Restoring Breath with a wyvern hurt', function()
         gs.game:start_ability_recast('Spirit Bond', 60)
         gs:finish_action()
         gs:traffic()
-        gs:advance(1.2)
+        gs:advance(1.0)
+        assert.same({}, gs:actions())
+        gs:advance(0.2)
         assert.same({'Restoring Breath'}, gs:actions())
     end)
 

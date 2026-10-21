@@ -112,7 +112,9 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
         gs:traffic()
         gs.game:start_ability_recast('Sekkanoki', 60)
         gs:finish_action()
-        gs:advance(1.2)
+        gs:advance(1.0)
+        assert.same({}, gs:actions())
+        gs:advance(0.2)
         assert.same({'Meditate'}, gs:actions())
     end)
 
@@ -164,12 +166,6 @@ describe('SAM\'s weapon skill typed without a spear in hand', function()
     end)
 end)
 
--- What is worn once the weapon skill is out, with the TP Jobby has.
-local function weaponskill(gs, name, tp)
-    gs.game.player.vitals.tp = tp
-    return jobby.weaponskill(gs, '/ws "' .. name .. '" <t>')
-end
-
 describe('SAM\'s weapon skill set with Moonshade Earring in it', function()
     local gs
     before_each(function()
@@ -178,32 +174,32 @@ describe('SAM\'s weapon skill set with Moonshade Earring in it', function()
 
     it('keeps Moonshade at 3200 TP with its bonus', function()
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Moonshade Earring', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Tachi: Fudo', 2950))
+            jobby.weaponskill(gs, '/ws "Tachi: Fudo" <t>', 2950))
     end)
 
     it('gives way to sets.MaxTP above 3200 TP with its bonus', function()
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Ishvara Earring', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Tachi: Fudo', 2951))
+            jobby.weaponskill(gs, '/ws "Tachi: Fudo" <t>', 2951))
     end)
 
     it('gives way to sets.AccMaxTP above that TP in an accuracy mode', function()
         gs:console('gs c set OffenseMode Acc')
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Brutal Earring', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Tachi: Fudo', 3000))
+            jobby.weaponskill(gs, '/ws "Tachi: Fudo" <t>', 3000))
     end)
 
     it('gives way to sets.DayMaxTPWSEars by day when sets.MaxTP holds Lugra Earring', function()
         gs.user.sets.MaxTP = {ear1 = 'Lugra Earring +1'}
         gs:set_time(12 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Beastly Earring', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Tachi: Fudo', 3000))
+            jobby.weaponskill(gs, '/ws "Tachi: Fudo" <t>', 3000))
     end)
 
     it('gives way to sets.MaxTP itself at night when it holds Lugra Earring', function()
         gs.user.sets.MaxTP = {ear1 = 'Lugra Earring +1'}
         gs:set_time(22 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Lugra Earring +1', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Tachi: Fudo', 3000))
+            jobby.weaponskill(gs, '/ws "Tachi: Fudo" <t>', 3000))
     end)
 
     it('gives way to sets.AccDayMaxTPWSEars by day in an accuracy mode when sets.AccMaxTP holds Lugra Earring', function()
@@ -211,7 +207,7 @@ describe('SAM\'s weapon skill set with Moonshade Earring in it', function()
         gs:console('gs c set OffenseMode Acc')
         gs:set_time(12 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Stealth Earring', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Tachi: Fudo', 3000))
+            jobby.weaponskill(gs, '/ws "Tachi: Fudo" <t>', 3000))
     end)
 
     it('gives way to sets.AccMaxTP itself at night in an accuracy mode when it holds Lugra Earring', function()
@@ -219,7 +215,7 @@ describe('SAM\'s weapon skill set with Moonshade Earring in it', function()
         gs:console('gs c set OffenseMode Acc')
         gs:set_time(22 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Lugra Earring +1', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Tachi: Fudo', 3000))
+            jobby.weaponskill(gs, '/ws "Tachi: Fudo" <t>', 3000))
     end)
 end)
 
@@ -232,20 +228,20 @@ describe('SAM\'s weapon skill set with Lugra Earring in it', function()
     it('gives way to sets.DayWSEars by day', function()
         gs:set_time(12 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = "Hecate's Earring", ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Tachi: Gekko', 1000))
+            jobby.weaponskill(gs, '/ws "Tachi: Gekko" <t>', 1000))
     end)
 
     it('gives way to sets.AccDayWSEars by day in an accuracy mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs:set_time(12 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Pixie Earring', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Tachi: Gekko', 1000))
+            jobby.weaponskill(gs, '/ws "Tachi: Gekko" <t>', 1000))
     end)
 
     it('stays at night', function()
         gs:set_time(22 * 60)
         assert.same(worn({head = "Theia's Hairpin", ear1 = 'Lugra Earring +1', ear2 = 'Etiolation Earring'}),
-            weaponskill(gs, 'Tachi: Gekko', 1000))
+            jobby.weaponskill(gs, '/ws "Tachi: Gekko" <t>', 1000))
     end)
 end)
 
@@ -268,12 +264,12 @@ describe('SAM\'s weapon skill set with neither earring in it', function()
 
     it('has Sekkanoki\'s set over it while Sekkanoki is up', function()
         gs:gain_buff('Sekkanoki')
-        assert.same(ws_with({hands = 'Diamond Kote'}), weaponskill(gs, 'Tachi: Shoha', 1000))
+        assert.same(ws_with({hands = 'Diamond Kote'}), jobby.weaponskill(gs, '/ws "Tachi: Shoha" <t>', 1000))
     end)
 
     it('has Sengikori\'s set over it while Sengikori is up', function()
         gs:gain_buff('Sengikori')
-        assert.same(ws_with({legs = 'Diamond Hiza.'}), weaponskill(gs, 'Tachi: Shoha', 1000))
+        assert.same(ws_with({legs = 'Diamond Hiza.'}), jobby.weaponskill(gs, '/ws "Tachi: Shoha" <t>', 1000))
     end)
 end)
 

@@ -606,7 +606,13 @@ describe('the idle set of a geomancer', function()
 
     pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff but UnlockWeapons '
         .. 'on: job_customize_idle_set in data/GEO.lua looks at the idle set\'s main, and with UnlockWeapons on Sel '
-        .. 'lays the weapon set over the idle set after it, so the grip goes on with Bunzi\'s Rod in hand')
+        .. 'lays the weapon set over the idle set after it, so the job file adds sets.latent_refresh_grip with '
+        .. 'Bunzi\'s Rod in hand')
+
+    pending('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on when the idle set '
+        .. 'names no main: job_customize_idle_set in data/GEO.lua looks at the idle set\'s main, and Sel lays the '
+        .. 'weapon set over the idle set only after it, so the job file adds neither the grip set nor sets.TPEat with '
+        .. 'Gozuki Mezuki in hand')
 
     it('wears sets.TPEat too with more than 10 TP and a weapon in the idle set', function()
         local gs = boot({tp = 11})

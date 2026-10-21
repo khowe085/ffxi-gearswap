@@ -106,11 +106,34 @@ describe('a weapon skill Jobby types', function()
             jobby.weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 
+    it('gives what is worn once it has gone out with the TP given, which Jobby has as he types it', function()
+        local gs = jobby.boot('WAR', {items = {'Volte Bracers'}})
+        assert.same(jobby.worn_by(jobby.full_idle, {main = 'Ragnarok', hands = 'Volte Bracers'}),
+            jobby.weaponskill(gs, '/ws "Resolution" <t>', 1000))
+    end)
+
     it('fails the test when it doesn\'t go out', function()
         local gs = jobby.boot('WAR', {tp = 999})
         local ok, failure = pcall(jobby.weaponskill, gs, '/ws "Resolution" <t>')
         assert.is_false(ok)
-        assert.matches('the weapon skill typed didn\'t go out', tostring(failure), 1, true)
+        assert.matches('the weapon skill typed didn\'t go out alone', tostring(failure), 1, true)
+    end)
+
+    it('fails the test when another action went out since the actions were last read', function()
+        local gs = jobby.boot('WAR', {tp = 1000})
+        gs:type('/ja "Berserk" <me>')
+        gs:finish_action()
+        local ok, failure = pcall(jobby.weaponskill, gs, '/ws "Resolution" <t>')
+        assert.is_false(ok)
+        assert.matches('the weapon skill typed didn\'t go out alone', tostring(failure), 1, true)
+    end)
+
+    it('fails the test for a line not in the /ws "Name" form, though nothing went out', function()
+        local gs = jobby.boot('WAR', {tp = 999})
+        local ok, failure = pcall(jobby.weaponskill, gs, '/weaponskill "Resolution" <t>')
+        assert.is_false(ok)
+        assert.matches('a weapon skill is typed as /ws "Name", not as /weaponskill "Resolution" <t>', tostring(failure),
+            1, true)
     end)
 end)
 

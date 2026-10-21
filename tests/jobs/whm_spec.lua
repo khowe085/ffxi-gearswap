@@ -1,6 +1,6 @@
 local jobby = require('jobby')
 
-local gear = {"Terra's Staff", 'Daybreak', 'Ammurapi Shield', 'Enki Strap', 'Volte Cap', 'Null Masque',
+local gear = {"Terra's Staff", 'Daybreak', 'Gozuki Mezuki', 'Enki Strap', 'Volte Cap', 'Null Masque',
     'Amin Turban', 'Ischkur Turban', 'Azimuth Turban', 'Blistering Sallet', 'Blistering Sallet +1', 'Alhazen Hat',
     'Alhazen Hat +1', 'Sukeroku Hachi.', "Bendis's Hairpin", 'Blacksh. Hairpin', 'Pixie Hairpin +1',
     "Theia's Hairpin +1", 'Imp. Wing Hairpin', 'Volte Boots', 'Volte Hose', 'Volte Bracers', 'Volte Jupon',
@@ -417,12 +417,26 @@ describe('WHM\'s idle set', function()
         assert.equal('Etiolation Earring', gs:worn().left_ear)
     end)
 
-    it('has only sets.latent_refresh over it with the weapons locked', function()
-        gs:console('gs c set Weapons Daybreak')
+    it('has only sets.latent_refresh over it with the weapons locked to a staff', function()
+        gs:console('gs c set Weapons Staff')
         gs.game.player.vitals.tp = 300
         low_mp()
-        assert.same(idle_with({main = 'Daybreak', sub = 'Ammurapi Shield', waist = 'Null Belt'}), gs:worn())
+        assert.same(idle_with({main = 'Gozuki Mezuki', waist = 'Null Belt'}), gs:worn())
     end)
+
+    it('has the grip and sets.TPEat over it with the weapons locked to a staff but UnlockWeapons on', function()
+        gs:console('gs c set Weapons Staff')
+        gs:console('gs c toggle UnlockWeapons')
+        gs.game.player.vitals.tp = 300
+        low_mp()
+        assert.same(idle_with({main = 'Gozuki Mezuki', waist = 'Null Belt', sub = 'Enki Strap',
+            ear1 = 'Cessance Earring'}), gs:worn())
+    end)
+
+    pending('has no grip over it with the weapons locked to Daybreak but UnlockWeapons on: job_customize_idle_set in '
+        .. 'data/WHM.lua looks at the idle set\'s main, Terra\'s Staff, and with UnlockWeapons on Sel lays the weapon '
+        .. 'set over the idle set after it, so the idle set asks for Enki Strap beside Daybreak, a club, which the '
+        .. 'game refuses')
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')

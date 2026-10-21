@@ -11,11 +11,12 @@ function user_job_setup()
 	state.MagicalDefenseMode:options('MDT')
 	state.ResistDefenseMode:options('MEVA')
 	state.ExtraDefenseMode:options('None', 'MP')
-	state.Weapons:options('None', 'Epeolatry')
+	state.Weapons:options('None', 'Epeolatry', 'Naegling')
 end
 
 function init_gear_sets()
 	sets.weapons.Epeolatry = {main = 'Epeolatry'}
+	sets.weapons.Naegling = {main = 'Naegling'}
 
 	sets.idle = {head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard',
 		feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt', ear1 = 'Etiolation Earring',

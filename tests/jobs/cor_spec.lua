@@ -524,42 +524,42 @@ describe('a weapon skill at the TP cap', function()
 
     it('wears sets.MagicalMaxTP for an elemental weapon skill', function()
         local gs = engaged(3000)
-        gs:type('/ws "Leaden Salute" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Leaden Salute'], sets_of(gs).MagicalMaxTP), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Leaden Salute'], sets_of(gs).MagicalMaxTP),
+            jobby.weaponskill(gs, '/ws "Leaden Salute" <t>'))
     end)
 
     it('wears sets.MagicalAccMaxTP for it in the Acc offense mode', function()
         local gs = engaged(3000)
         gs:console('gs c set OffenseMode Acc')
         gs:traffic()
-        gs:type('/ws "Leaden Salute" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Leaden Salute'], sets_of(gs).MagicalAccMaxTP), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Leaden Salute'], sets_of(gs).MagicalAccMaxTP),
+            jobby.weaponskill(gs, '/ws "Leaden Salute" <t>'))
     end)
 
     it('wears sets.MaxTP for a melee weapon skill', function()
         local gs = engaged(3000)
-        gs:type('/ws "Evisceration" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration, sets_of(gs).MaxTP), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration, sets_of(gs).MaxTP),
+            jobby.weaponskill(gs, '/ws "Evisceration" <t>'))
     end)
 
     it('wears sets.AccMaxTP for it in the Acc offense mode', function()
         local gs = engaged(3000)
         gs:console('gs c set OffenseMode Acc')
         gs:traffic()
-        gs:type('/ws "Evisceration" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration, sets_of(gs).AccMaxTP), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration, sets_of(gs).AccMaxTP),
+            jobby.weaponskill(gs, '/ws "Evisceration" <t>'))
     end)
 
     it('swaps from 3000 TP with the Moonshade Earring counted in', function()
         local gs = engaged(2750)
-        gs:type('/ws "Evisceration" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration, sets_of(gs).MaxTP), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration, sets_of(gs).MaxTP),
+            jobby.weaponskill(gs, '/ws "Evisceration" <t>'))
     end)
 
     it('keeps the Moonshade Earring below that', function()
         local gs = engaged(2749)
-        gs:type('/ws "Evisceration" <t>')
-        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration), gs:worn())
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration),
+            jobby.weaponskill(gs, '/ws "Evisceration" <t>'))
     end)
 
     pending('wears sets.RangedMaxTP for a ranged weapon skill: job_post_precast in data/COR.lua tests spell.skill '
