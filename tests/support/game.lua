@@ -508,17 +508,17 @@ end
 
 -- What get_abilities reports of the weapon skills, by id: those of the main hand's weapon type, hand-to-hand's with
 -- nothing in it, and those of the ranged weapon's. The game lists only those whose skill the character has enough of,
--- those that need merits or a quest only with them (Requiescat, Savage Blade), and some only with one weapon, not
--- every one of its type (Mystic Boon with Yagrush, a relic, mythic or aeonic weapon's own); the stand-in looks at no
--- skill levels, merits or quests, and the resources don't say which weapon, so it lists every one of the type. The
--- abilities a boot names stand whatever is in hand.
+-- a relic or mythic weapon's own only with that weapon in hand (Mystic Boon with Yagrush), and some others only with a
+-- merit or a quest (Requiescat, Savage Blade). The stand-in models none of these: it looks at no skill levels, merits
+-- or quests, and the resources don't name a weapon skill's weapon, so it lists every one of the type. The abilities a
+-- boot names stand whatever is in hand.
 function Game:weapon_skills_in_hand()
     if self.weapon_skills then
         return copy(self.weapon_skills)
     end
     local function skill_in(slot_name)
-        local spot = self.equipment[slot_ids[slot_name]]
-        return spot and self.res.items[self.bags[spot.bag].items[spot.slot].id].skill
+        local entry = self:worn_entry(slot_name)
+        return entry and entry.skill
     end
     local hand_to_hand = 1
     local types = {[skill_in('main') or hand_to_hand] = true}
@@ -832,6 +832,35 @@ function Game:deliver_incoming(id, data, injected)
     end
 end
 
+-- The resource entry of the item worn in that slot (by GearSwap's name for it), nil when the slot is empty.
+function Game:worn_entry(slot_name)
+    local spot = self.equipment[slot_ids[slot_name]]
+    return spot and self.res.items[self.bags[spot.bag].items[spot.slot].id]
+end
+
+-- The weapons that take both hands, by their skill. With one in the main hand the sub slot takes a grip and nothing
+-- else, and a grip goes only beside one of them (docs/gear-notes.md, Serenity and the grips). A hand-to-hand weapon
+-- takes both hands too, and the stand-in takes nothing in the sub slot beside one, which the docs don't cover. The game
+-- also takes the sub slot's piece off when a two-handed weapon goes in the main hand; the stand-in leaves it on.
+local two_handed = {['Great Sword'] = true, ['Great Axe'] = true, Scythe = true, Polearm = true,
+    ['Great Katana'] = true, Staff = true}
+
+-- Whether the item, by its resource entry, can go in the sub slot with what the main hand holds. A weapon there
+-- takes the Dual Wield trait as well; a shield or a grip doesn't. A grip is a sub slot piece with neither a skill nor a
+-- shield size.
+function Game:fits_beside_the_main_hand(entry)
+    local main = self:worn_entry('main')
+    local main_skill = main and self.res.skills[main.skill].en
+    local weapon = (entry.skill or 0) > 0
+    local grip = not weapon and not entry.shield_size
+    if main_skill == 'Hand-to-Hand' then
+        return false
+    elseif two_handed[main_skill] then
+        return grip
+    end
+    return not grip and (not weapon or self:has_job_trait('Dual Wield'))
+end
+
 -- Whether the item in that bag and bag slot can go in the equipment slot, as the server judges it.
 function Game:wearable(bag_id, bag_slot, slot_id)
     local bag = self.bags[bag_id]
@@ -840,8 +869,7 @@ function Game:wearable(bag_id, bag_slot, slot_id)
     if not entry or not entry.slots or not has_bit(entry.slots, slot_id) or not self.res.bags[bag_id].equippable then
         return false
     end
-    -- A weapon in the sub slot takes the Dual Wield trait; a shield or a grip, which has no skill, doesn't.
-    if slot_names[slot_id] == 'sub' and (entry.skill or 0) > 0 and not self:has_job_trait('Dual Wield') then
+    if slot_names[slot_id] == 'sub' and not self:fits_beside_the_main_hand(entry) then
         return false
     end
     local player = self.player
@@ -887,18 +915,6 @@ function Game:equip_chunk(chunk)
     self.equipment[slot_id] = {bag = bag_id, slot = bag_slot}
     self.bags[bag_id].items[bag_slot].status = 5
     return string.char(bag_slot, slot_id, bag_id, 0), not again and equipping_resets_tp[slot_id]
-end
-
--- TP goes to 0, as the server sets it when a weapon changes, and tells of it with the char update; Windower's tp
--- change event follows. With no TP to lose nothing changes, and nothing is told.
-function Game:reset_tp()
-    local old = self.player.vitals.tp
-    if old == 0 then
-        return
-    end
-    self.player.vitals.tp = 0
-    self:send_char_update()
-    self:enqueue('event', 'tp change', 0, old)
 end
 
 -- The equipset reply (0x117): the request as it came, then what is worn in each slot.
@@ -953,7 +969,7 @@ function Game:serve(id, data, packet)
             self:receive(0x050, reply)
         end
         if resets_tp then
-            self:reset_tp()
+            self:set_tp(0)
         end
     elseif id == 0x051 then
         for i = 1, data:byte(5) do
@@ -962,7 +978,7 @@ function Game:serve(id, data, packet)
                 self:receive(0x050, reply)
             end
             if resets_tp then
-                self:reset_tp()
+                self:set_tp(0)
             end
         end
         self:receive(0x117, self:equipset_reply(data))
@@ -1357,11 +1373,17 @@ function Game:start_spell_recast(name, seconds)
     self.spells_ready_at[id] = self.clock + seconds
 end
 
--- The character's TP changes, as it does with each hit and weapon skill, and Windower's tp change event follows.
+-- The character's TP changes, as it does with each hit and weapon skill and when a weapon changes: the server tells of
+-- it with the char update, and Windower's tp change event follows, as the game settles. A TP that stays as it was is
+-- told of by neither.
 function Game:set_tp(tp)
     local old = self.player.vitals.tp
+    if tp == old then
+        return
+    end
     self.player.vitals.tp = tp
-    self:fire('tp change', tp, old)
+    self:send_char_update()
+    self:enqueue('event', 'tp change', tp, old)
 end
 
 -- The character starts walking, and moves on until it stands again.
@@ -1468,18 +1490,24 @@ function Game:change_sub_job(short, level)
 end
 
 -- Changes the character's main job (by its short name) and its level, as at a Moogle: the client asks with the job
--- change packet (0x100), the server takes every piece off, and answers with the char stats packet.
+-- change packet (0x100), the server takes every piece off and answers with the char stats packet, and the TP goes
+-- with a main or sub weapon taken off, as it does when an equip request takes one off.
 function Game:change_main_job(short, level)
     local id = job_id(self.res, short)
     self:send_from_client(0x100, string.char(id, self.player.sub_job_id, 0, 0))
+    local resets_tp = false
     for slot_id, spot in pairs(self.equipment) do
         self.bags[spot.bag].items[spot.slot].status = 0
         self.equipment[slot_id] = nil
+        resets_tp = resets_tp or taking_off_resets_tp[slot_id] == true
     end
     self.player.main_job_id = id
     self.player.main_job_level = level or 99
     self.player.jobs[short] = self.player.main_job_level
     self:send_char_stats()
+    if resets_tp then
+        self:set_tp(0)
+    end
 end
 
 -------------------------------------------------------------------------------------------------------------------

@@ -2,6 +2,29 @@ local Game = require('game')
 local harness = require('harness')
 local testy = require('testy')
 
+-- Testy as a level 99 warrior wearing those pieces (slot to name), with the fields given laid over the game's options
+-- (tp, abilities and the like).
+local function warrior(wearing, fields)
+    local options = {res = harness.resources(), main_job = 'WAR', items = {}, wearing = {}}
+    for slot, name in pairs(wearing or {}) do
+        options.items[#options.items + 1] = {name = name}
+        options.wearing[slot] = #options.items
+    end
+    for key, value in pairs(fields or {}) do
+        options[key] = value
+    end
+    return Game.new(options)
+end
+
+-- The TP the last char update (0x0DF) the server sent gives, nil when it sent none.
+local function char_update_tp(game)
+    local sent = game.last_packets.incoming[0x0DF]
+    if sent then
+        local b1, b2, b3, b4 = sent[1]:byte(0x11, 0x14)
+        return b1 + 256 * b2 + 65536 * b3 + 16777216 * b4
+    end
+end
+
 describe('the stand-in game', function()
     it('stops a clock whose timers never run out, rather than running for ever', function()
         local game = Game.new({res = harness.resources()})
@@ -69,8 +92,27 @@ describe('the stand-in game', function()
         local seen
         game:register('tp change', function(new, old) seen = {new, old} end)
         game:set_tp(1000)
+        game:settle()
         assert.same({1000, 400}, seen)
         assert.equal(1000, game.windower.ffxi.get_player().vitals.tp)
+    end)
+
+    it('tells of a TP change with the char update first, so GearSwap has the new TP by the tp change event', function()
+        local gs = harness.boot(testy.whm())
+        local seen
+        gs.game:register('tp change', function() seen = {char_update_tp(gs.game), gs.env.player.tp} end)
+        gs:set_tp(1500)
+        assert.same({1500, 1500}, seen)
+    end)
+
+    it('tells nothing of a TP that stays as it was', function()
+        local game = Game.new({res = harness.resources(), tp = 400})
+        local told = 0
+        game:register('tp change', function() told = told + 1 end)
+        game:set_tp(400)
+        game:settle()
+        assert.equal(0, told)
+        assert.is_nil(char_update_tp(game))
     end)
 
     it('moves the character on while it walks, and keeps it where it stood after', function()
@@ -199,6 +241,28 @@ describe('the stand-in game', function()
         game:settle()
         assert.same({}, game:worn())
         assert.same({0, 0}, {game.windower.ffxi.get_items().equipment.head, game.bags[0].items[1].status})
+    end)
+
+    -- Testy, a warrior with 1000 TP wearing those pieces (slot to name), changes his main job to monk. Returns the TP
+    -- then and the tp change events the change fired, each {new TP, old TP}.
+    local function change_job(wearing)
+        local game = warrior(wearing, {tp = 1000})
+        local told = {}
+        game:register('tp change', function(new, old) told[#told + 1] = {new, old} end)
+        game:change_main_job('MNK')
+        game:settle()
+        return game.windower.ffxi.get_player().vitals.tp, told, game
+    end
+
+    it('takes the TP with the weapon on a change of main job, as the char update and the tp change event tell', function()
+        local tp, told, game = change_job({main = 'Ragnarok', head = 'Nyame Helm'})
+        assert.same({0, 0, {{0, 1000}}}, {tp, char_update_tp(game), told})
+    end)
+
+    it('keeps the TP on a change of main job with no main or sub weapon to take off, the stand-in\'s choice where the '
+        .. 'doc names only weapons taken off', function()
+        local tp, told = change_job({head = 'Nyame Helm'})
+        assert.same({1000, {}}, {tp, told})
     end)
 end)
 
@@ -329,11 +393,14 @@ describe('the server\'s answer to an equip request in the stand-in game', functi
 end)
 
 describe('the server\'s answer to an equip request for the sub slot in the stand-in game', function()
-    -- Testy, a level 99 white mage holding that main weapon, with the job traits given (none unless given), asks the
-    -- server for the item in the sub slot. Returns what is worn.
-    local function sub(main, item, traits)
-        local game = Game.new({res = harness.resources(), main_job = 'WHM', items = {{name = main}, {name = item}},
-            wearing = {main = 1}})
+    -- Testy, a level 99 white mage (or of the job given) holding that main weapon (nothing when nil), with the job
+    -- traits given (none unless given), asks the server for the item in the sub slot. Returns what is worn.
+    local function sub(main, item, traits, job)
+        local items, wearing = {{name = item}}, {}
+        if main then
+            items[2], wearing.main = {name = main}, 2
+        end
+        local game = Game.new({res = harness.resources(), main_job = job or 'WHM', items = items, wearing = wearing})
         game:set_job_traits(traits or {})
         local bag_slot = assert(game:find_item('inventory', item))
         game.windower.packets.inject_outgoing(0x050,
@@ -356,6 +423,28 @@ describe('the server\'s answer to an equip request for the sub slot in the stand
 
     it('puts a grip on without the Dual Wield trait', function()
         assert.same({main = "Terra's Staff", sub = 'Enki Strap'}, sub("Terra's Staff", 'Enki Strap'))
+    end)
+
+    it('refuses a shield with a two-handed weapon', function()
+        assert.same({main = "Terra's Staff"}, sub("Terra's Staff", 'Kupo Shield'))
+    end)
+
+    it('refuses a weapon with a two-handed weapon, whatever the Dual Wield trait', function()
+        assert.same({main = "Terra's Staff"}, sub("Terra's Staff", "Bunzi's Rod", {'Dual Wield'}))
+    end)
+
+    it('refuses a grip with a one-handed weapon', function()
+        assert.same({main = 'Daybreak'}, sub('Daybreak', 'Enki Strap'))
+    end)
+
+    it('refuses a grip with nothing in the main hand', function()
+        assert.same({}, sub(nil, 'Enki Strap'))
+    end)
+
+    it('refuses a shield, a grip and a weapon with a hand-to-hand weapon', function()
+        assert.same({{main = 'Glanzfaust'}, {main = 'Glanzfaust'}, {main = 'Glanzfaust'}},
+            {sub('Glanzfaust', 'Kupo Shield', {}, 'MNK'), sub('Glanzfaust', 'Mephitis Grip', {}, 'MNK'),
+            sub('Glanzfaust', 'Qutrub Knife', {'Dual Wield'}, 'MNK')})
     end)
 end)
 
@@ -390,15 +479,6 @@ describe('the TP after an equip request in the stand-in game', function()
 
     local function tp(game)
         return game.windower.ffxi.get_player().vitals.tp
-    end
-
-    -- The TP the last char update (0x0DF) the server sent gives, nil when it sent none.
-    local function char_update_tp(game)
-        local sent = game.last_packets.incoming[0x0DF]
-        if sent then
-            local b1, b2, b3, b4 = sent[1]:byte(0x11, 0x14)
-            return b1 + 256 * b2 + 65536 * b3 + 16777216 * b4
-        end
     end
 
     it('goes to 0 when a piece goes in the main hand, as the char update tells, and Windower\'s tp change event '
@@ -509,13 +589,7 @@ describe('the weapon skills the stand-in game lists', function()
     -- Testy, a level 99 warrior wearing those pieces (slot to name), knowing the abilities given (a set of names),
     -- or, unless given, those the game finds for what he wears.
     local function boot(wearing, abilities)
-        local items, positions = {}, {}
-        for slot, name in pairs(wearing or {}) do
-            items[#items + 1] = {name = name}
-            positions[slot] = #items
-        end
-        return Game.new({res = harness.resources(), main_job = 'WAR', items = items, wearing = positions,
-            abilities = abilities})
+        return warrior(wearing, {abilities = abilities})
     end
 
     local function names(ids)
