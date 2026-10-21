@@ -1,0 +1,61 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=4
+|desc=Delivers a fourfold attack. Chance of critical hit varies with TP.
+|mp=98 MP
+|blupoint=5
+|cast=2 seconds
+|recast=42.5 seconds
+|target=Single
+|range=
+|stats=[[STR]] +3 [[CHR]] +3
+|effects=
+|duration=
+|trait=Skillchain Bonus
+|level=96
+|mtype=Demons
+|family=Demon
+|wsc=30% [[STR]] 
+|ftp=
+|ftp0=1.1875, ~{{question}}% Crit Rate
+|ftp150=1.1875, ~33% Crit Rate
+|ftp300=1.1875, ~{{question}}% Crit Rate
+|ftp350=1.1875, ~{{question}}% Crit Rate
+|scprop={{Liquefaction}} [[Liquefaction]] / {{Scission}} [[Scission]]
+|ve=
+|ce=
+}}
+==Notes==
+*25% attack bonus in addition to a possible critical hit
+**Will not deliver a critical hit without [[Chain Affinity]] or [[Efflux]].
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Melee Job Demons
+|Spell Level=96
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Kindred Vanguard
+|Level=75-95
+|Zone=Dynamis - Xarcabard
+|SpawnCondition=
+|Map=Dynamis-Xarcabard-NMs.gif
+}}
+{{Learning Blue Magic Row
+|Monster=Kindred Vanguard
+|Level=75-95
+|Zone=Dynamis - Tavnazia
+|SpawnCondition=
+|Map=Dynamis-Tavnazia-_NMs2.gif
+}}
+}}
+
+== References ==
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4894908&viewfull=1#post4894908 Matching spell names to magic data- Kegsay BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4896365&viewfull=1#post4896365 Set point cost- Foldypaws BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4897402&viewfull=1#post4897402 Stat Modifiers- Prothescar BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4898122&viewfull=1#post4898122 Job Traits- Prothescar BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4900325&viewfull=1#post4900325 Physical damage type- Prothescar BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4899648&viewfull=1#post4899648 Spell modifiers- Prothescar BGForums]
+[[Category:Blue Magic]][[Category:Spells]]

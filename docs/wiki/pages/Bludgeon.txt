@@ -1,0 +1,130 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Blunt
+|nohits=3
+|desc=Delivers a threefold attack. [[Accuracy]] varies with [[TP]].
+|mp=16
+|blupoint=2
+|cast=0.5 seconds
+|recast=11.75 seconds
+|target=Single
+|range=4.5
+|stats=[[STR]]+1
+|effects=
+|duration=
+|trait=Undead Killer
+|level=18
+|mtype=Arcana
+|family=Cardian
+|blucap=
+|fstrcap=
+|tm=
+|primod=
+|element=
+|flv=
+|wsc=30% [[CHR]]
+|ftp=
+|ftp0=1.0
+|ftp150=1.0
+|ftp300=1.0
+|ftp350=1.0
+|scprop={{Liquefaction}} [[Liquefaction]]
+|ve=
+|ce=
+}}
+*~33% [[Attack]] bonus.
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Cardian
+|Spell Level=18
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Two of Batons (Monster)
+|Level=1-5
+|Zone=Outer Horutoto Ruins
+|SpawnCondition=(F-11) [[West Sarutabaruta]] entrance
+|Map=Outer Horutoto Ruins-map4.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Three of Batons (Monster)
+|Level=5-9
+|Zone=Outer Horutoto Ruins
+|SpawnCondition=(F-11) [[West Sarutabaruta]] entrance
+|Map=Outer Horutoto Ruins-map4.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Four of Batons (Monster)
+|Level=10-14
+|Zone=Outer Horutoto Ruins
+|SpawnCondition=(F-11) [[West Sarutabaruta]] entrance
+|Map=Outer Horutoto Ruins-map4.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Five of Batons (Monster)
+|Level=15-19
+|Zone=Outer Horutoto Ruins
+|SpawnCondition=(F-11) [[West Sarutabaruta]] entrance
+|Map=Outer Horutoto Ruins-map4.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Six of Batons (Monster)
+|Level=20-24
+|Zone=Outer Horutoto Ruins
+|SpawnCondition=(F-11) [[West Sarutabaruta]] entrance
+|Map=Outer Horutoto Ruins-map4.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Ten of Batons (Monster)
+|Level=40-44
+|Zone=Outer Horutoto Ruins
+|SpawnCondition=(F-11) [[West Sarutabaruta]] entrance
+|Map=Outer Horutoto Ruins-map4.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Ten of Swords (Monster)
+|Level=40-44
+|Zone=Outer Horutoto Ruins
+|SpawnCondition=(F-11) [[West Sarutabaruta]] entrance
+|Map=Outer Horutoto Ruins-map4.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=King of Batons (Monster)
+|Level=?
+|Zone=Balga's Dais
+|SpawnCondition=[[KSNM]] 30 [[Royale Ramble]]
+|Map=Balga's Dais-map.jpg
+|NM=NM
+}}
+{{Learning Blue Magic Row
+|Monster=King of Coins (Monster)
+|Level=?
+|Zone=Balga's Dais
+|SpawnCondition=[[KSNM]] 30 [[Royale Ramble]]
+|Map=Balga's Dais-map.jpg
+|NM=NM
+}}
+{{Learning Blue Magic Row
+|Monster=King of Cups (Monster)
+|Level=?
+|Zone=Balga's Dais
+|SpawnCondition=[[KSNM]] 30 [[Royale Ramble]]
+|Map=Balga's Dais-map.jpg
+|NM=NM
+}}
+{{Learning Blue Magic Row
+|Monster=King of Swords (Monster)
+|Level=?
+|Zone=Balga's Dais
+|SpawnCondition=[[KSNM]] 30 [[Royale Ramble]]
+|Map=Balga's Dais-map.jpg
+|NM=NM
+}}
+}}
+'''Note:''' Silence is helpful in forcing them to use Bludgeon.
+*Cardians of Batons/Cups/Coins/Swords may be found together in the same areas. Twos through Tens may all be found in different parts of the same tower. All can use Bludgeon for you to learn.
+*Higher level cardians are periodically fought throughout [[Windurst Missions]], 6-1, 8-2 , 9-2.
+*King Cardians in the [[KSNM]] [[Royale Ramble]] via a [[Lachesis Orb]] have [[regain]].
+
+[[Category:Blue Magic]]
+[[Category:Spells]]

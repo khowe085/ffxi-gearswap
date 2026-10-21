@@ -1,0 +1,69 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Piercing
+|nohits=5
+|desc=Delivers a fivefold attack. Additional effect: Poison. Accuracy varies with TP.
+|mp=74 MP
+|blupoint=5
+|cast=0.5 seconds
+|recast=32.75 seconds
+|target=Single
+|range=
+|stats=[[INT]] +1 [[MND]] -1
+|effects=[[Poison (Status)|Poison]]
+|duration=3 minutes
+|trait=Accuracy Bonus
+|level=72
+|mtype=Luminians
+|family=Aern
+|wsc=20% [[STR]] 20% [[DEX]]
+|ftp=
+|ftp0=1.5
+|ftp150=1.5
+|ftp300=1.5
+|ftp350=1.5
+|scprop={{Distortion}} [[Distortion]]
+|ve=
+|ce=
+}}
+==Notes==
+*This spell posses a -10% attack penalty.
+*Poison DoT is Level/5 + 3, capping at 22/[[tick]].
+==Spell Obtainment==
+'''This spell may only be learned from Black Mage, Thief and Bard type Aerns. You can identify them by the dagger that they carry.'''
+{{Learning Blue Magic Table
+|Learned From=Aern
+|Spell Level=72
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Ul'aern
+|Level=68-71
+|Zone=Al'Taieu
+|SpawnCondition=
+|Map=Al'Taieu-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Om'aern
+|Level=76
+|Zone=Al'Taieu
+|SpawnCondition=
+|Map=Al'Taieu-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Aw'aern
+|Level=81-84
+|Zone=The Garden of Ru'Hmet
+|SpawnCondition=
+|Map=The Garden of Ru'Hmet-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Eschan Il'aern
+|Level=115-119
+|Zone=Escha - Ru'Aun
+|SpawnCondition=#9
+|Map=Escha Ru'Aun marked.png
+}}
+}}
+[[Category:Blue Magic]]
+[[category:Spells]]

@@ -1,0 +1,73 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=3
+|desc=Delivers a threefold attack on a single target. Additional effect: Plague
+|mp=28 MP
+|blupoint=2
+|cast=0.5 seconds
+|recast=15 seconds
+|target=Single
+|range=~6.5'
+|stats=[[HP]] +15 [[MP]] -5 [[INT]] -1
+|effects=[[Plague]]
+|duration=40-60 seconds
+|trait=Dual Wield
+|level=89
+|mtype=Lizards
+|family=Peiste
+|wsc=20% [[STR]] 50% [[VIT]] 
+|ftp=1.09375
+|scprop={{Liquefaction}} [[Liquefaction]] / {{Detonation}} [[Detonation]]
+|ve=
+|ce=
+}}
+==Notes==
+*[[Plague]] effect is -6MP/[[tick]] and -100TP/[[tick]].
+*As with all Blue Magic additional effects, [[Plague]] does not always land on the target. This is especially true with Notorious and high level monsters.
+**[[Magic Accuracy]] and [[Blue Magic Skill]] increase the odds of landing the additional effect.
+* Bug: In the English localization, the spell description is incorrect. As of June 2022, the spell description says "Delivers a threefold attack. Additional effect: Plague. '''Chance of effect''' varies with TP.". 
+** It should read "Delivers a threefold attack. Additional effect: Plague. '''Effect duration''' varies with TP." (difference bolded). The help text on the quick menu is correct.
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Peiste
+|Spell Level=89
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Peiste
+|Level=67-71
+|Zone=Grauberg (S)
+|SpawnCondition=
+|Map=Grauberg-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Peiste
+|Level=74-77
+|Zone=Pashhow Marshlands (S)
+|SpawnCondition=
+|Map=Pashhow Marshlands (S) Map.png
+}}
+{{Learning Blue Magic Row
+|Monster=Maritime Peiste 
+|Level=75-90
+|Zone=Abyssea - Misareaux
+|SpawnCondition=Conflux #07
+|Map=Abyssea - Misareaux-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Gukumatz 
+|Level=
+|Zone=Abyssea - Misareaux
+|SpawnCondition=Conflux #07
+|Map=Abyssea - Misareaux-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Mountain Peiste 
+|Level=102-104
+|Zone=Morimar Basalt Fields
+|SpawnCondition=Bivouac #5
+|Map=Updated_marked_map_morimar_basalt_fields.jpeg
+}}
+}}
+[[Category:Spells]] [[Category:Blue Magic]]

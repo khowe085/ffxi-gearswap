@@ -1,0 +1,60 @@
+{{Disambiguation|Cannonball (Monster)}}{{Blue Magic
+|class=damage
+|type=Physical
+|damage=H2H
+|nohits=1
+|desc=Damage varies with TP.
+|mp=66 MP
+|blupoint=3
+|cast=0.5 seconds
+|recast=28.5 seconds
+|target=Single
+|range=~21'
+|stats=[[STR]] +1 [[DEX]] +1
+|effects=
+|duration=
+|trait=
+|level=70
+|family=Wamouracampa
+|mtype=Vermin
+|wsc=50% [[STR]] 50% [[VIT]]
+|ftp=
+|ftp0=1.75
+|ftp150=2.125
+|ftp300=2.75
+|ftp350=2.875
+|scprop={{Fusion}} [[Fusion]]
+|ve=
+|ce=
+}}
+==Notes==
+*Cannonball uses the caster's defense as a modifier of its attack.
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Wamouracampa
+|Spell Level=70
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Wamouracampa
+|Level=73-76
+|Zone=Halvung
+|SpawnCondition=
+|Map=Halvung-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Wamoura Prince
+|Level=79-81
+|Zone=Mount Zhayolm
+|SpawnCondition=UNM Warp #135 Sarama
+|Map=Mount Zhayolm-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Gullycampa
+|Level=75-90
+|Zone=Abyssea - Attohwa
+|SpawnCondition=Conflux #07
+|Map=Abyssea - Attohwa-Map.jpg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

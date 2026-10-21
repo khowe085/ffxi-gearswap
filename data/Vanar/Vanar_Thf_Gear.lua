@@ -57,12 +57,12 @@ function init_gear_sets()
 
 	sets.precast.Step = {ammo="Honed Tathlum",
 		head="Nyame Helm",neck="Sanctity Necklace",ear1="Alabaster Earring",ear2="Skulk. Earring +1",
-		body="Gleti's Cuirass",hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Rajas Ring",
+		body="Gleti's Cuirass",hands="Adhemar Wrist. +1",ring1="Lehko's Ring",ring2="Murky Ring",
 		back={name="Toutatis's Cape",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','Crit.hit rate+10'}},waist="Eschan Stone",legs="Nyame Flanchard",feet="Gleti's Boots"}
 
 	sets.precast.JA['Violent Flourish'] = {ammo="Honed Tathlum",
 		head="Nyame Helm",neck="Sanctity Necklace",ear1="Alabaster Earring",ear2="Skulk. Earring +1",
-		body="Gleti's Cuirass",hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Rajas Ring",
+		body="Gleti's Cuirass",hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Murky Ring",
 		back={name="Toutatis's Cape",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','Crit.hit rate+10'}},waist="Eschan Stone",legs="Nyame Flanchard",feet="Gleti's Boots"}
 		
 	sets.precast.JA['Animated Flourish'] = sets.TreasureHunter
@@ -117,7 +117,7 @@ function init_gear_sets()
 		head="Nyame Helm",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Skulk. Earring +1",
 		body="Nyame Mail",hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Epaminondas's Ring",
 		back={name="Toutatis's Cape",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','Crit.hit rate+10'}},waist="Eschan Stone",legs="Nyame Flanchard",feet="Nyame Sollerets"}
-	sets.precast.WS.Acc = set_combine(sets.precast.WS, {ear1="Alabaster Earring",body="Gleti's Cuirass",ring2="Karieyh Ring",feet="Gleti's Boots"})
+	sets.precast.WS.Acc = set_combine(sets.precast.WS, {ear1="Alabaster Earring",body="Gleti's Cuirass",hands="Adhemar Wrist. +1",ring2="Murky Ring",feet="Gleti's Boots"})
 
 	-- Specific weaponskill sets.  Uses the base set if an appropriate WSMod version isn't found.
 	sets.precast.WS["Rudra's Storm"] = set_combine(sets.precast.WS, {})
@@ -126,8 +126,8 @@ function init_gear_sets()
 	sets.precast.WS["Rudra's Storm"].TA = sets.precast.WS["Rudra's Storm"].SA
 	sets.precast.WS["Rudra's Storm"].SATA = sets.precast.WS["Rudra's Storm"].SA
 	
-	sets.precast.WS["Evisceration"] = set_combine(sets.precast.WS, {body="Gleti's Cuirass",hands="Gleti's Gauntlets",ring2="Karieyh Ring",waist="Fotia Belt",legs="Gleti's Breeches",feet="Gleti's Boots"})
-	sets.precast.WS["Evisceration"].Acc = set_combine(sets.precast.WS.Acc, {hands="Gleti's Gauntlets",legs="Gleti's Breeches"})
+	sets.precast.WS["Evisceration"] = set_combine(sets.precast.WS, {body="Gleti's Cuirass",hands="Adhemar Wrist. +1",ring2="Murky Ring",waist="Fotia Belt",legs="Gleti's Breeches",feet="Gleti's Boots"})
+	sets.precast.WS["Evisceration"].Acc = set_combine(sets.precast.WS.Acc, {hands="Adhemar Wrist. +1",legs="Gleti's Breeches"})
 	sets.precast.WS["Evisceration"].SA = set_combine(sets.precast.WS["Rudra's Storm"], {})
 	sets.precast.WS["Evisceration"].TA = sets.precast.WS["Rudra's Storm"].SA
 	sets.precast.WS["Evisceration"].SATA = sets.precast.WS["Rudra's Storm"].SA
@@ -232,12 +232,12 @@ function init_gear_sets()
 	-- Normal melee group
 	sets.engaged = {ammo="Honed Tathlum",
 		head="Nyame Helm",neck="Sanctity Necklace",ear1="Alabaster Earring",ear2="Skulk. Earring +1",
-		body="Gleti's Cuirass",hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Murky Ring",
-		back={name="Toutatis's Cape",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','Crit.hit rate+10'}},waist="Eschan Stone",legs="Nyame Flanchard",feet="Gleti's Boots"}
-		
+		body="Gleti's Cuirass",hands="Adhemar Wrist. +1",ring1="Lehko's Ring",ring2="Murky Ring",
+		back={name="Toutatis's Cape",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','Crit.hit rate+10'}},waist="Eschan Stone",legs="Nyame Flanchard",feet="Nyame Sollerets"}
+
 	sets.engaged.Acc = {ammo="Honed Tathlum",
 		head="Nyame Helm",neck="Sanctity Necklace",ear1="Alabaster Earring",ear2="Skulk. Earring +1",
-		body="Gleti's Cuirass",hands="Gleti's Gauntlets",ring1="Lehko's Ring",ring2="Rajas Ring",
+		body="Gleti's Cuirass",hands="Adhemar Wrist. +1",ring1="Lehko's Ring",ring2="Murky Ring",
 		back={name="Toutatis's Cape",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','Crit.hit rate+10'}},waist="Eschan Stone",legs="Gleti's Breeches",feet="Gleti's Boots"}
 
 	sets.engaged.DT = {ammo="Honed Tathlum",

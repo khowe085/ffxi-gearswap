@@ -1,0 +1,71 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Piercing
+|nohits=4
+|desc=Delivers a fourfold attack. Damage varies with TP.
+|mp=91 MP
+|blupoint=4
+|cast=1 second
+|recast=31.75 seconds
+|target=Single
+|range=
+|stats=[[DEX]] +3 [[CHR]] -2
+|effects=
+|duration=
+|trait=Dual Wield
+|level=85
+|mtype=Empty
+|family=Gorger
+|wsc=32% STR 32% VIT
+|ftp=
+|ftp0=1.25
+|ftp150=1.5
+|ftp300=1.75
+|ftp350=2.0
+|scprop={{Distortion}} [[Distortion]] / {{Scission}} [[Scission]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Gorger
+|Spell Level=85
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Gorger
+|Level=29-41
+|Zone=Promyvion - Dem
+|SpawnCondition=
+|Map=Promyvion_-_Dem-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Satiator
+|Level=38
+|Zone=Promyvion - Dem
+|SpawnCondition=
+|Map=Promyvion_-_Dem-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Gorger
+|Level=54-60
+|Zone=Promyvion - Vahzl
+|SpawnCondition=
+|Map=Promyvion_-_Vahzl-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Hadal Satiator
+|Level=
+|Zone=Abyssea - Konschtat
+|SpawnCondition=Resting nearby with an [[Azure demilune abyssite]]
+|Map=Abyssea - Konschtat-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Hadal Mirror
+|Level=
+|Zone=Abyssea - Konschtat
+|SpawnCondition=Spawns when [[Hadal Satiator]] uses Fission ability
+|Map=Abyssea - Konschtat-Map.jpg
+}}
+}}
+[[Category:Spells]] [[Category:Blue Magic]]

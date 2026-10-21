@@ -1,0 +1,137 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|desc=Damages enemies within area of effect with a twofold attack. Damage varies  with TP.
+|mp=24 MP
+|blupoint=2
+|cast= 1 second
+|recast=19.75 seconds
+|target=AoE Conal
+|range=13.7'
+|stats=[[VIT]] +1
+|effects=
+|duration=
+|trait=Lizard Killer
+|level=20
+|mtype=Beast
+|family=Tiger
+|wsc=30% [[DEX]]
+|ftp=
+|ftp0=1.4375
+|ftp150=1.4375
+|ftp300=1.4375
+|ftp350=1.4375
+|scprop={{Scission}} [[Scission]]
+|ve=
+|ce=
+}}
+==Notes==
+*Additional TP during [[Chain Affinity]] does not directly increase [[fTP]]. It is possible that TP increases [[attack]].
+
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Tiger
+|Spell Level=20
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Forest Tiger
+|Level=22-25
+|Zone=Jugner Forest
+|SpawnCondition=
+|Map=Jugner Forest.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Forest Tiger
+|Level=22-25
+|Zone=Carpenters' Landing
+|SpawnCondition=
+|Map=Carpenters Landing-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Sabertooth Tiger
+|Level=28-32
+|Zone=Batallia Downs
+|SpawnCondition=
+|Map=Batilla Downs.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Sabertooth Tiger
+|Level=28-32
+|Zone=Sauromugue Champaign
+|SpawnCondition=
+|Map=Sauromugue Champaign-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Sabertooth Tiger
+|Level=28-33
+|Zone=Carpenters' Landing
+|SpawnCondition=
+|Map=Carpenters Landing-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Tundra Tiger
+|Level=34-37
+|Zone=Beaucedine Glacier
+|SpawnCondition=
+|Map=Beaucedine Glacier-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Uleguerand Tiger
+|Level=59-62
+|Zone=Uleguerand Range
+|SpawnCondition=
+|Map=Uleguerand Range-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Wajaom Tiger
+|Level=65-68
+|Zone=Bhaflau Thickets
+|SpawnCondition=
+|Map=Bhaflau Thickets-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Wajaom Tiger
+|Level=65-68
+|Zone=Wajaom Woodlands
+|SpawnCondition=
+|Map=Wajaom Woodlands-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Cave Tiger
+|Level=73-76
+|Zone=Aydeewa Subterrane
+|SpawnCondition=
+|Map=Aydeewa Subterrane-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Ovinnik
+|Level=77-79
+|Zone=Kuftal Tunnel
+|SpawnCondition=
+|Map=Kuftal Tunnel-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Angler Tiger
+|Level=?
+|Zone=Abyssea - La Theine
+|SpawnCondition=Conflux #2
+|Map=Abyssea - La Theine-Map.jpg
+}}{{Learning Blue Magic Row
+|Monster=Ashen Tiger
+|Level=111-113
+|Zone=Kamihr Drifts
+|SpawnCondition=
+|Map=Updated_marked_map_kamihr_drifts.jpeg
+}}{{Learning Blue Magic Row
+|Monster=Yaguarogui
+|Level=
+|Zone=Abyssea - Uleguerand
+|SpawnCondition=
+|Map=Abyssea_-_Uleguerand-Map.jpg
+}}
+
+
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

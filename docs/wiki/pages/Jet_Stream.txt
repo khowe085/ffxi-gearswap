@@ -1,0 +1,59 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Blunt
+|nohits=3
+|desc=Delivers a threefold attack. Accuracy varies with TP.
+|mp=47 MP
+|blupoint=4
+|cast=0.5 seconds
+|recast=23 seconds
+|target=Single
+|range=12.5
+|stats=[[DEX]] +2
+|effects=
+|duration=
+|trait=Rapid Shot
+|level=38
+|mtype=Birds
+|family=Flock Bat
+|wsc=30% [[AGI]]
+|ftp=
+|ftp0=1.125
+|ftp150=1.125
+|ftp300=1.125
+|ftp350=1.125
+|scprop={{Impaction}} [[Impaction]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Flock Bat
+|Spell Level=38
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Dark Bats
+|Level=25-27
+|Zone=Qufim Island
+|SpawnCondition=
+|Map=Qufim Island-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Lesser Gaylas
+|Level=40-42
+|Zone=Behemoth's Dominion
+|SpawnCondition=
+|Map=Behemoth's Dominion-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Slough Bats
+|Level=80-95
+|Zone=Abyssea - Vunkerl
+|SpawnCondition=#5, head north
+|Map=Abyssea - Vunkerl-map.jpg
+}}
+}}
+
+[[Category:Blue Magic]]
+[[Category:Spells]]
