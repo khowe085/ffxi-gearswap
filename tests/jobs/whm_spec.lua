@@ -315,8 +315,9 @@ end)
 describe('WHM\'s weapon skill set', function()
     -- Mystic Boon is a club's.
     local function mystic_boon(tp)
-        local gs = boot({tp = tp})
+        local gs = boot()
         gs:console('gs c set Weapons Daybreak')
+        gs.game.player.vitals.tp = tp
         gs:type('/ws "Mystic Boon" <t>')
         return gs:worn()
     end

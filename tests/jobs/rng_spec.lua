@@ -179,6 +179,8 @@ describe('RNG\'s ranged weapon skill', function()
 
     it('has Chrono Arrow with a bow, whatever its kind', function()
         gs:console('gs c set Weapons Bow')
+        -- The change of weapons took the TP.
+        gs.game.player.vitals.tp = 1000
         assert.equal('Chrono Arrow', ammo_after(gs, '/ws "Apex Arrow" <t>'))
     end)
 

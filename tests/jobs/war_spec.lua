@@ -75,8 +75,9 @@ end)
 
 describe('WAR\'s Berserk', function()
     local function berserk(tp, conqueror_mode)
-        local gs = boot({tp = tp})
+        local gs = boot()
         gs:console('gs c set Weapons Naegling')
+        gs.game.player.vitals.tp = tp
         if conqueror_mode then
             gs:console('gs c set ConquerorMode ' .. conqueror_mode)
         end
@@ -383,9 +384,10 @@ describe('WAR\'s weapon skill set', function()
         assert.equal('Odnowa Earring +1', weaponskill(gs, '/ws "Ground Strike" <t>').left_ear)
     end)
 
-    -- Upheaval is a great axe's.
+    -- Upheaval is a great axe's. Changing the weapon takes the TP, so it is given again after.
     local function upheaval(gs)
         gs:console('gs c set Weapons Conqueror')
+        gs.game.player.vitals.tp = 1000
         return weaponskill(gs, '/ws "Upheaval" <t>')
     end
 

@@ -15,4 +15,10 @@ describe('a boot', function()
         local gs = harness.boot(testy.whm({items = {{name = "Alaunus's Cape", augments = {'MND+20'}}}, wearing = {}}))
         assert.equal('C', debug.getinfo(gs.env._raw.string.find, 'S').what)
     end)
+
+    it('refuses abilities that name one the test resources hold as neither a job ability nor a weapon skill', function()
+        assert.has_no.errors(function() harness.boot(testy.whm({abilities = {'Penury', 'Rock Crusher'}})) end)
+        assert.has_error(function() harness.boot(testy.whm({abilities = {'Penury', 'Starburst'}})) end,
+            'the test resources have no job ability or weapon skill named "Starburst"')
+    end)
 end)

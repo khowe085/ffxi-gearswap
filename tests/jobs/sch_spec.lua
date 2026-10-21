@@ -932,9 +932,9 @@ describe('gs c elemental skillchain on a scholar', function()
         assert.same({"Abort: You don't have enough TP for this skillchain."}, gs:chat())
     end)
 
-    it('says so when the weapon skill is not known', function()
+    it('says so when the weapon skill is not known, with a club in hand', function()
         local gs = jobby.boot('SCH', {items = pieces, sub_job = 'RDM', tp = 1000, buffs = {'Dark Arts'},
-            abilities = {'Starburst', 'Penury'}})
+            wearing = {main = "Bunzi's Rod"}})
         gs:console('gs c update')
         gs:traffic()
         gs:chat()

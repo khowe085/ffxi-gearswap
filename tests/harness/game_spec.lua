@@ -359,6 +359,129 @@ describe('the server\'s answer to an equip request for the sub slot in the stand
     end)
 end)
 
+describe('the TP after an equip request in the stand-in game', function()
+    -- Testy, a level 99 ranger with the TP given (1000 unless given) holding Judge's Sword and Kupo Shield, with
+    -- Judge's Bow and Chrono Arrow on and Qutrub Knife, Gandiva and Hauksbok Arrow in the inventory. Returns the game
+    -- and the tp change events it fires from then on, each {new TP, old TP}.
+    local function boot(tp)
+        local items = {{name = "Judge's Sword"}, {name = 'Kupo Shield'}, {name = "Judge's Bow"}, {name = 'Chrono Arrow'},
+            {name = 'Qutrub Knife'}, {name = 'Gandiva'}, {name = 'Hauksbok Arrow'}}
+        local game = Game.new({res = harness.resources(), main_job = 'RNG', tp = tp or 1000, items = items,
+            wearing = {main = 1, sub = 2, range = 3, ammo = 4}})
+        local told = {}
+        game:register('tp change', function(new, old) told[#told + 1] = {new, old} end)
+        return game, told
+    end
+
+    -- The bytes of one equip request: the inventory slot of the item named in that slot, or 0 for 'empty'.
+    local function chunk(game, slot, name)
+        local bag_slot = name == 'empty' and 0 or assert(game:find_item('inventory', name))
+        return string.char(bag_slot, Game.slot_ids[slot], game:bag_id('inventory'), 0)
+    end
+
+    -- Asks the server for each {slot, item name or 'empty'} in an equip request (0x050) of its own, as GearSwap does
+    -- for fewer than three, and lets the game settle.
+    local function ask(game, ...)
+        for _, request in ipairs({...}) do
+            game.windower.packets.inject_outgoing(0x050, string.char(0x50, 4, 0, 0) .. chunk(game, request[1], request[2]))
+        end
+        game:settle()
+    end
+
+    local function tp(game)
+        return game.windower.ffxi.get_player().vitals.tp
+    end
+
+    -- The TP the last char update (0x0DF) the server sent gives, nil when it sent none.
+    local function char_update_tp(game)
+        local sent = game.last_packets.incoming[0x0DF]
+        if sent then
+            local b1, b2, b3, b4 = sent[1]:byte(0x11, 0x14)
+            return b1 + 256 * b2 + 65536 * b3 + 16777216 * b4
+        end
+    end
+
+    it('goes to 0 when a piece goes in the main hand, as the char update tells, and Windower\'s tp change event '
+        .. 'follows', function()
+        local game, told = boot()
+        ask(game, {'main', 'Qutrub Knife'})
+        assert.equal('Qutrub Knife', game:worn().main)
+        assert.same({0, 0, {{0, 1000}}}, {tp(game), char_update_tp(game), told})
+    end)
+
+    it('goes to 0 when a piece goes in the sub slot or the range slot', function()
+        local game = boot()
+        game:set_job_traits({'Dual Wield'})
+        ask(game, {'sub', 'Qutrub Knife'})
+        local ranged = boot()
+        ask(ranged, {'range', 'Gandiva'})
+        assert.same({'Qutrub Knife', 'Gandiva'}, {game:worn().sub, ranged:worn().range})
+        assert.same({0, 0}, {tp(game), tp(ranged)})
+    end)
+
+    it('goes to 0 when the main or the sub weapon is taken off', function()
+        local game = boot()
+        ask(game, {'main', 'empty'})
+        local shield = boot()
+        ask(shield, {'sub', 'empty'})
+        assert.same({0, 0}, {tp(game), tp(shield)})
+    end)
+
+    it('stays when the ammo changes or is taken off', function()
+        local game, told = boot()
+        ask(game, {'ammo', 'Hauksbok Arrow'})
+        assert.equal('Hauksbok Arrow', game:worn().ammo)
+        ask(game, {'ammo', 'empty'})
+        assert.same({1000, {}}, {tp(game), told})
+    end)
+
+    it('stays when the ranged weapon is taken off, since only taking off the main or sub weapon resets it', function()
+        local game = boot()
+        ask(game, {'range', 'empty'})
+        assert.is_nil(game:worn().range)
+        assert.equal(1000, tp(game))
+    end)
+
+    it('stays when the pieces in the weapon slots are asked for again where they are', function()
+        local game, told = boot()
+        ask(game, {'main', "Judge's Sword"}, {'sub', 'Kupo Shield'}, {'range', "Judge's Bow"})
+        assert.same({1000, {}}, {tp(game), told})
+    end)
+
+    it('stays when the server refuses the request', function()
+        local game = boot()
+        game.refuse_equips = true
+        ask(game, {'main', 'Qutrub Knife'})
+        assert.equal("Judge's Sword", game:worn().main)
+        assert.equal(1000, tp(game))
+    end)
+
+    it('stays at 0, with nothing told, when there is none to lose', function()
+        local game, told = boot(0)
+        ask(game, {'main', 'Qutrub Knife'})
+        assert.same({0, {}}, {tp(game), told})
+        assert.is_nil(char_update_tp(game))
+    end)
+
+    it('goes to 0 once for an equipset that changes two weapons', function()
+        local game, told = boot()
+        local chunks = chunk(game, 'main', 'Qutrub Knife') .. chunk(game, 'range', 'Gandiva')
+            .. chunk(game, 'ammo', 'Hauksbok Arrow')
+        game.windower.packets.inject_outgoing(0x051, string.char(0x51, 0x24, 0, 0, 3, 0, 0, 0) .. chunks)
+        game:settle()
+        assert.same({main = 'Qutrub Knife', sub = 'Kupo Shield', range = 'Gandiva', ammo = 'Hauksbok Arrow'},
+            game:worn())
+        assert.same({0, {{0, 1000}}}, {tp(game), told})
+    end)
+
+    it('goes to 0 for GearSwap too, which the char update tells', function()
+        local gs = harness.boot(testy.whm({tp = 1000}))
+        gs:console('gs equip sets.engaged')
+        assert.equal("Bunzi's Rod", gs:worn().main)
+        assert.same({0, 0}, {gs.env.player.tp, gs.env.player.vitals.tp})
+    end)
+end)
+
 describe('the weapon skills the stand-in game lists', function()
     -- Testy, a level 99 warrior wearing those pieces (slot to name), knowing the abilities given (a set of names),
     -- or, unless given, those the game finds for what he wears.
