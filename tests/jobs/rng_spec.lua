@@ -22,8 +22,8 @@ end
 
 -- What is worn with sets.midcast.RA over the idle set, and these changes over that.
 local function shot_with(changes)
-    return worn(jobby.layer({body = 'Sapphire Platemail', hands = 'Volte Bracers', legs = 'Volte Hose',
-        neck = 'Fotia Gorget', back = 'Moonbeam Cape'}, changes))
+    return jobby.worn_by(worn({body = 'Sapphire Platemail', hands = 'Volte Bracers', legs = 'Volte Hose',
+        neck = 'Fotia Gorget', back = 'Moonbeam Cape'}), changes)
 end
 
 -- Jobby as a ranger with the idle set on, Staunch Tathlum +1 for ammo and 99 of each ammunition, over a sub job of
@@ -168,20 +168,23 @@ describe('RNG\'s ranged weapon skill', function()
     end)
 
     it('has Devastating Bullet when it is elemental', function()
-        assert.equal('Devastating Bullet', ammo_after(gs, '/ws "Trueflight" <t>'))
+        assert.equal('Devastating Bullet', ammo_after(gs, '/ws "Wildfire" <t>'))
     end)
 
     it('has the gear file\'s MagicAcc ammunition, Eminent Bullet, when it is elemental, in the accuracy weapon '
         .. 'skill mode', function()
         gs:console('gs c set WeaponskillMode Acc')
-        assert.equal('Eminent Bullet', ammo_after(gs, '/ws "Trueflight" <t>'))
+        assert.equal('Eminent Bullet', ammo_after(gs, '/ws "Wildfire" <t>'))
     end)
 
     it('has Chrono Arrow with a bow, whatever its kind', function()
-        gs:console('gs c set Weapons Bow')
-        -- The change of weapons took the TP.
-        gs.game.player.vitals.tp = 1000
-        assert.equal('Chrono Arrow', ammo_after(gs, '/ws "Apex Arrow" <t>'))
+        -- Flaming Arrow is elemental, Apex Arrow not.
+        for _, name in ipairs({'Apex Arrow', 'Flaming Arrow'}) do
+            local archer = boot()
+            archer:console('gs c set Weapons Bow')
+            archer.game.player.vitals.tp = 1000
+            assert.equal('Chrono Arrow', ammo_after(archer, '/ws "' .. name .. '" <t>'), name)
+        end
     end)
 
     it('has the ammunition of the weapon back once it is done, over the weapon skill\'s', function()
@@ -491,18 +494,19 @@ describe('RNG\'s statusammo command', function()
         assert.equal('Chrono Bullet', ammo_after(gs, '/ra <t>'))
     end)
 
-    it('takes Hauksbok Bullet, which is rare, off before the shot, and warns', function()
+    it('leaves the ammo slot empty for the shot in place of Hauksbok Bullet, which is rare, and warns', function()
         gs:console('gs c statusammo Hauksbok Bullet')
         gs:traffic()
         gs:type('/ra <t>')
         local traffic = gs:traffic()
         assert.same({'empty', 'category 16'}, {traffic[1].equip.ammo, traffic[2].action})
+        assert.is_nil(gs:worn().ammo)
         assert.same({'Warning: Rare ammo is set to fire, Defaulting!'}, jobby.said(gs, '^Warning'))
     end)
 
     pending('takes Hauksbok ammunition, which is rare, off before the shot, and warns, with the weapons set to None: '
-        .. 'Sel\'s panic_swap_ammo reads sets.weapons[state.Weapons.value], and there is no set for None, so the shot '
-        .. 'stops in an error')
+        .. 'Sel\'s panic_swap_ammo reads sets.weapons[state.Weapons.value], and there is no set for None, so precast '
+        .. 'raises an error')
 end)
 
 describe('RNG\'s update', function()
@@ -548,7 +552,7 @@ describe('RNG\'s Moonshade Earring at 3200 TP with its bonus', function()
     end)
 
     it('stays in the set of an elemental weapon skill up to that', function()
-        assert.same({'Moonshade Earring', 'Etiolation Earring'}, ears_after('Trueflight', 2950))
+        assert.same({'Moonshade Earring', 'Etiolation Earring'}, ears_after('Wildfire', 2950))
     end)
 
     it('gives way to sets.MaxTP for a weapon skill that is neither ranged nor elemental', function()
@@ -561,12 +565,12 @@ describe('RNG\'s Moonshade Earring at 3200 TP with its bonus', function()
     end)
 
     it('gives way to sets.MagicalMaxTP for an elemental weapon skill', function()
-        assert.same({"Hecate's Earring", 'Etiolation Earring'}, ears_after('Trueflight', 3000))
+        assert.same({"Hecate's Earring", 'Etiolation Earring'}, ears_after('Wildfire', 3000))
     end)
 
     it('gives way to sets.MagicalAccMaxTP for that in an accuracy mode', function()
         gs:console('gs c set WeaponskillMode Acc')
-        assert.same({'Pixie Earring', 'Etiolation Earring'}, ears_after('Trueflight', 3000))
+        assert.same({'Pixie Earring', 'Etiolation Earring'}, ears_after('Wildfire', 3000))
     end)
 
     pending('gives way to sets.RangedMaxTP for a ranged weapon skill that is not elemental, and sets.RangedAccMaxTP in an '

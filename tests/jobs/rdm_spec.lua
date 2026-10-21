@@ -1,8 +1,8 @@
 local jobby = require('jobby')
 
 local gear = {'Naegling', 'Crocea Mors', 'Murgleis', 'Regal Gem', 'Ullr', 'Zodiac Ring', "Orpheus's Sash",
-    'Karin Obi', 'Hachirin-no-Obi', "Terra's Staff", 'Kupo Shield', 'Ammurapi Shield', 'Volte Cap', 'Null Masque',
-    'Volte Jupon', 'Adamantite Armor', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget',
+    'Karin Obi', 'Hachirin-no-Obi', "Terra's Staff", 'Enki Strap', 'Kupo Shield', 'Ammurapi Shield', 'Volte Cap',
+    'Null Masque', 'Volte Jupon', 'Adamantite Armor', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget',
     "Combatant's Torque", 'Karieyh Ring', 'Chirich Ring +1', 'Null Belt', 'Null Shawl', 'Amin Turban', 'Ischkur Turban',
     'Azimuth Turban', 'Blistering Sallet +1', 'Alhazen Hat', 'Alhazen Hat +1', 'Sukeroku Hachi.', "Bendis's Hairpin",
     'Blacksh. Hairpin', 'Moonshade Earring', 'Brutal Earring', 'Cessance Earring', 'Odnowa Earring +1',
@@ -142,8 +142,8 @@ describe('RDM\'s Convert', function()
         assert.same({'Convert'}, gs:actions())
     end)
 
-    local function convert(tp, mode, items)
-        local gs = boot({items = items})
+    local function convert(tp, mode)
+        local gs = boot()
         gs:console('gs c set Weapons Naegling')
         gs.game.player.vitals.tp = tp
         if mode then
@@ -270,8 +270,7 @@ describe('RDM\'s weapon skill set', function()
         if mode then
             gs:console('gs c set OffenseMode ' .. mode)
         end
-        gs:type(line)
-        return gs:worn()
+        return jobby.weaponskill(gs, line)
     end
 
     it('keeps Moonshade Earring on at 2749 TP, which Moonshade makes under 3000', function()
@@ -290,7 +289,7 @@ describe('RDM\'s weapon skill set', function()
         local gs = boot({tp = 3000})
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Sneak Attack')
-        assert.equal('Cessance Earring', worn_after(gs, '/ws "Savage Blade" <t>').left_ear)
+        assert.equal('Cessance Earring', jobby.weaponskill(gs, '/ws "Savage Blade" <t>').left_ear)
     end)
 
     it('swaps in sets.MagicalMaxTP at the cap for an elemental weapon skill', function()
@@ -305,14 +304,14 @@ describe('RDM\'s weapon skill set', function()
     it('swaps in sets.MaxTP at the cap for an elemental weapon skill when the gear file has no magical sets', function()
         local gs = boot({tp = 3000})
         gs.user.sets.MagicalMaxTP, gs.user.sets.MagicalAccMaxTP = nil, nil
-        assert.equal('Cessance Earring', worn_after(gs, '/ws "Seraph Blade" <t>').left_ear)
+        assert.equal('Cessance Earring', jobby.weaponskill(gs, '/ws "Seraph Blade" <t>').left_ear)
     end)
 
     it('swaps in sets.MagicalMaxTP in an accuracy offense mode when the gear file has no accuracy one', function()
         local gs = boot({tp = 3000})
         gs.user.sets.MagicalAccMaxTP = nil
         gs:console('gs c set OffenseMode Acc')
-        assert.equal('Ishvara Earring', worn_after(gs, '/ws "Seraph Blade" <t>').left_ear)
+        assert.equal('Ishvara Earring', jobby.weaponskill(gs, '/ws "Seraph Blade" <t>').left_ear)
     end)
 end)
 
@@ -609,14 +608,14 @@ describe('RDM\'s idle set', function()
         gs:console('gs c set IdleMode Sphere')
         low_mp()
         assert.same(jobby.worn_by(idle,
-            {main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'}), gs:worn())
+            {main = "Terra's Staff", waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
     end)
 
     it('has sets.TPEat over it too with more than 10 TP', function()
         gs:console('gs c set IdleMode Sphere')
         gs.game.player.vitals.tp = 11
         low_mp()
-        assert.same(jobby.worn_by(idle, {main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield',
+        assert.same(jobby.worn_by(idle, {main = "Terra's Staff", waist = 'Null Belt', sub = 'Enki Strap',
             ear1 = 'Cessance Earring'}), gs:worn())
     end)
 
@@ -625,7 +624,7 @@ describe('RDM\'s idle set', function()
         gs.game.player.vitals.tp = 10
         low_mp()
         assert.same(jobby.worn_by(idle,
-            {main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'}), gs:worn())
+            {main = "Terra's Staff", waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
     end)
 
     it('has no grip or sets.TPEat over it with the weapons locked', function()
@@ -635,6 +634,11 @@ describe('RDM\'s idle set', function()
         low_mp()
         assert.same(jobby.worn_by(idle, {main = 'Naegling', waist = 'Null Belt'}), gs:worn())
     end)
+
+    pending('has no grip over the Sphere idle set with the weapons locked to Naegling but UnlockWeapons on: '
+        .. 'job_customize_idle_set in data/RDM.lua looks at the idle set\'s main, Terra\'s Staff, and with '
+        .. 'UnlockWeapons on Sel lays the weapon set over the idle set after it, so Enki Strap goes on with Naegling, '
+        .. 'a one-handed sword')
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')

@@ -6,7 +6,7 @@ function user_job_setup()
 	state.HybridMode:options('Normal')
 	state.CastingMode:options('Normal', 'Resistant', 'Proc', 'OccultAcumen')
 	state.IdleMode:options('Normal', 'DT')
-	state.Weapons:options('None', 'Staff')
+	state.Weapons:options('None', 'Club', 'Staff')
 end
 
 function init_gear_sets()
@@ -15,7 +15,8 @@ function init_gear_sets()
 	gear.obi_low_nuke_waist = 'Plat. Mog. Belt'
 	gear.obi_high_nuke_waist = 'Hachirin-no-Obi'
 
-	sets.weapons.Staff = {main = 'Bunzi\'s Rod'}
+	sets.weapons.Club = {main = 'Bunzi\'s Rod'}
+	sets.weapons.Staff = {main = 'Gozuki Mezuki'}
 
 	sets.idle = {head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard',
 		feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt', ear1 = 'Etiolation Earring',
@@ -25,6 +26,7 @@ function init_gear_sets()
 	sets.idle.DT.Indi = set_combine(sets.idle.DT, {legs = 'Volte Hose', feet = 'Volte Boots'})
 	sets.latent_refresh = {waist = 'Wanion Belt'}
 	sets.latent_refresh_grip = {ring2 = 'Gelatinous Ring'}
+	sets.TPEat = {neck = 'Sanctity Necklace'}
 	sets.buff.Sublimation = {ring2 = 'Lunette Ring'}
 	sets.buff.DTSublimation = {ring2 = 'Pernicious Ring'}
 

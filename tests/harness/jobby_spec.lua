@@ -99,6 +99,21 @@ describe('Jobby\'s weapon', function()
     end)
 end)
 
+describe('a weapon skill Jobby types', function()
+    it('gives what is worn once it has gone out', function()
+        local gs = jobby.boot('WAR', {tp = 1000, items = {'Volte Bracers'}})
+        assert.same(jobby.worn_by(jobby.full_idle, {main = 'Ragnarok', hands = 'Volte Bracers'}),
+            jobby.weaponskill(gs, '/ws "Resolution" <t>'))
+    end)
+
+    it('fails the test when it doesn\'t go out', function()
+        local gs = jobby.boot('WAR', {tp = 999})
+        local ok, failure = pcall(jobby.weaponskill, gs, '/ws "Resolution" <t>')
+        assert.is_false(ok)
+        assert.matches('the weapon skill typed didn\'t go out', tostring(failure), 1, true)
+    end)
+end)
+
 describe('a layer of sets', function()
     it('names the slots as the game does, so a later set\'s ear1 takes the place of an earlier left_ear', function()
         assert.same({left_ear = 'B', head = 'H'}, jobby.layer({left_ear = 'A', head = 'H'}, {ear1 = 'B'}))

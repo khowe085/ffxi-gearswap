@@ -37,13 +37,6 @@ local function tag_the_monster(gs)
     gs.user.info.tagged_mobs[gs.game.monster.id] = gs.user.os.time()
 end
 
--- What is worn once the weapon skill typed has gone out.
-local function weaponskill(gs, line)
-    gs:type(line)
-    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
-    return gs:worn()
-end
-
 describe('THF\'s weapon skill filter', function()
     it('sends Savage Blade in place of Rudra\'s Storm when Jobby has a sword\'s weapon skills', function()
         local gs = boot({tp = 1000, abilities = {'Fast Blade', 'Savage Blade'}})
@@ -73,7 +66,7 @@ describe('THF\'s weapon skill set by Sneak Attack and Trick Attack', function()
     end)
 
     local function ws()
-        return weaponskill(gs, '/ws "Rudra\'s Storm" <t>')
+        return jobby.weaponskill(gs, '/ws "Rudra\'s Storm" <t>')
     end
 
     it('is sets.precast.WS[name] with neither up', function()
@@ -125,7 +118,7 @@ describe('THF\'s weapon skill set by Sneak Attack and Trick Attack', function()
         gs:gain_buff('Sneak Attack')
         assert.equal("Combatant's Torque", gs:worn().neck)
         assert.same(jobby.worn_by(idle, {neck = 'Fotia Gorget', ear1 = 'Moonshade Earring',
-            ear2 = 'Brutal Earring', body = 'Adamantite Armor'}), weaponskill(gs, '/ws "Mandalic Stab" <t>'))
+            ear2 = 'Brutal Earring', body = 'Adamantite Armor'}), jobby.weaponskill(gs, '/ws "Evisceration" <t>'))
     end)
 end)
 
@@ -138,7 +131,7 @@ describe('THF\'s Moonshade swap at the cap', function()
         if setup then
             setup(gs)
         end
-        return weaponskill(gs, '/ws "Rudra\'s Storm" <t>').left_ear
+        return jobby.weaponskill(gs, '/ws "Rudra\'s Storm" <t>').left_ear
     end
 
     it('keeps Moonshade Earring on at 2750 TP, which Moonshade and Fencer make 3200', function()
@@ -173,7 +166,7 @@ describe('THF\'s treasure hunter gear for a weapon skill', function()
         local gs = boot({tp = tp or 1000})
         tag_the_monster(gs)
         gs:console('gs c set TreasureMode ' .. mode)
-        return weaponskill(gs, line)
+        return jobby.weaponskill(gs, line)
     end
 
     it('goes over Aeolian Edge in the Tag mode, on a monster already hit', function()
@@ -268,7 +261,7 @@ describe('THF\'s Ambush Mode', function()
         if setup then
             setup(gs)
         end
-        return weaponskill(gs, '/ws "Rudra\'s Storm" <t>')
+        return jobby.weaponskill(gs, '/ws "Rudra\'s Storm" <t>')
     end
 
     it('puts sets.Ambush on for a weapon skill', function()
@@ -285,7 +278,7 @@ describe('THF\'s Ambush Mode', function()
 
     it('puts no sets.Ambush on for a weapon skill with the mode off', function()
         local gs = boot({tp = 1000})
-        assert.equal('Nyame Sollerets', weaponskill(gs, '/ws "Rudra\'s Storm" <t>').feet)
+        assert.equal('Nyame Sollerets', jobby.weaponskill(gs, '/ws "Rudra\'s Storm" <t>').feet)
     end)
 
     it('lays sets.Ambush over the melee set', function()

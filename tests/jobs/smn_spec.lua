@@ -155,7 +155,7 @@ end)
 local ifrit_idle = {back = 'Aptitude Mantle', feet = 'Sapphire Leggings', legs = 'Sapphire Trousers'}
 
 local function with_ifrit(changes)
-    return worn(jobby.layer(ifrit_idle, changes))
+    return jobby.worn_by(worn(ifrit_idle), changes)
 end
 
 describe('SMN\'s blood pacts, once the pact is done', function()

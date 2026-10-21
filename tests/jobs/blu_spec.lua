@@ -6,7 +6,7 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
     'Beatific Earring', 'Choleric Earring', 'Pensee Earring', 'Moonshade Earring', 'Lunette Ring', 'Pernicious Ring',
     'Gelatinous Ring', 'Cacoethic Ring', 'Petrov Ring', 'Fortified Ring', 'Vertigo Ring', 'Dhanurveda Ring',
     'Wanion Belt', 'Prodigious Mantle', 'Malignance Chapeau', 'Malignance Tabard', 'Naegling', 'Gozuki Mezuki',
-    'Fotia Gorget', 'Sanctity Necklace', "Combatant's Torque", "Bunzi's Rod"}
+    'Fotia Gorget', 'Sanctity Necklace', "Combatant's Torque", "Bunzi's Rod", 'Qutrub Knife'}
 
 -- The boot options of Jobby as a blue mage, knowing only the spells named, which the game gives him in his blue magic
 -- set.
@@ -253,9 +253,12 @@ describe('a weapon skill when a club is in hand', function()
             assert.same({{action = club, target = 'Apex Toad'}}, gs:traffic())
         end)
     end
+end)
 
-    it('is left alone when no club weapon skill is known', function()
-        local gs = boot({'Foot Kick'}, {tp = 1000, abilities = {'Requiescat'}})
+describe('a sword\'s weapon skill with no club in hand', function()
+    -- With a dagger in hand the game lists a dagger's weapon skills: no club's, and no Chant du Cygne.
+    it('is left alone, and Sel turns it down', function()
+        local gs = boot({'Foot Kick'}, {tp = 1000, wearing = {main = 'Qutrub Knife'}})
         gs:type('/ws "Chant du Cygne" <t>')
         assert.same({}, gs:traffic())
         assert.same({}, gs:commands())
@@ -481,6 +484,20 @@ describe('the idle set under half MP', function()
         low_mp(gs)
         assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'Naegling'})), gs:worn())
     end)
+
+    it('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on', function()
+        local gs = boot({'Foot Kick'})
+        sets_of(gs).idle.main = 'Gozuki Mezuki'
+        gs:console('gs c set Weapons Staff')
+        gs:console('gs c toggle UnlockWeapons')
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+            {main = 'Gozuki Mezuki'})), gs:worn())
+    end)
+
+    pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff but UnlockWeapons '
+        .. 'on: job_customize_idle_set in data/BLU.lua looks at the idle set\'s main, and with UnlockWeapons on Sel '
+        .. 'lays the weapon set over the idle set after it, so the grip goes on with Naegling in hand')
 
     it('wears no sets.latent_refresh_grip with a weapon in the idle set that is no staff', function()
         local gs = boot({'Foot Kick'})

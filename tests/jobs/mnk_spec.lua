@@ -2,7 +2,7 @@ local jobby = require('jobby')
 
 local gear = {'Volte Cap', 'Null Masque', 'Volte Jupon', 'Adamantite Armor', 'Volte Bracers', 'Volte Hose',
     'Volte Boots', 'Fotia Gorget', "Combatant's Torque", 'Null Belt', 'Fotia Belt', 'Moonshade Earring',
-    'Brutal Earring', 'Cessance Earring', 'Odnowa Earring +1', 'Karieyh Ring', 'Null Shawl'}
+    'Brutal Earring', 'Cessance Earring', 'Odnowa Earring +1', 'Karieyh Ring', 'Null Shawl', 'Glanzfaust'}
 
 local function boot(options)
     options = options or {}
@@ -22,13 +22,6 @@ local function boot_buffing(options)
     gs:console('gs c set AutoBuffMode Auto')
     gs:monster_hits()
     return gs
-end
-
--- What is worn once the weapon skill typed is out.
-local function weaponskill(gs, line)
-    gs:type(line)
-    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
-    return gs:worn()
 end
 
 local function engaged_with(changes)
@@ -133,23 +126,23 @@ describe('MNK\'s weapon skill set', function()
     it('is sets.precast.WS[name]', function()
         assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', neck = 'Fotia Gorget',
             ear1 = 'Moonshade Earring', ear2 = 'Brutal Earring', waist = 'Fotia Belt'}),
-            weaponskill(gs, '/ws "Victory Smite" <t>'))
+            jobby.weaponskill(gs, '/ws "Victory Smite" <t>'))
     end)
 
     it('swaps Moonshade Earring for sets.MaxTP when TP, with Moonshade\'s 250, is over 3200', function()
         gs.game.player.vitals.tp = 2951
-        assert.equal('Cessance Earring', weaponskill(gs, '/ws "Victory Smite" <t>').left_ear)
+        assert.equal('Cessance Earring', jobby.weaponskill(gs, '/ws "Victory Smite" <t>').left_ear)
     end)
 
     it('keeps Moonshade Earring on at 2950 TP', function()
         gs.game.player.vitals.tp = 2950
-        assert.equal('Moonshade Earring', weaponskill(gs, '/ws "Victory Smite" <t>').left_ear)
+        assert.equal('Moonshade Earring', jobby.weaponskill(gs, '/ws "Victory Smite" <t>').left_ear)
     end)
 
     it('swaps in sets.AccMaxTP at the cap in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs.game.player.vitals.tp = 3000
-        local worn = weaponskill(gs, '/ws "Victory Smite" <t>')
+        local worn = jobby.weaponskill(gs, '/ws "Victory Smite" <t>')
         assert.equal('Odnowa Earring +1', worn.left_ear)
         assert.equal('Volte Jupon', worn.body)
     end)
@@ -158,54 +151,56 @@ describe('MNK\'s weapon skill set', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Sneak Attack')
         gs.game.player.vitals.tp = 3000
-        assert.equal('Cessance Earring', weaponskill(gs, '/ws "Victory Smite" <t>').left_ear)
+        assert.equal('Cessance Earring', jobby.weaponskill(gs, '/ws "Victory Smite" <t>').left_ear)
     end)
 
     it('has sets.buff.ImpetusWS laid over it for Victory Smite with Impetus up', function()
         gs:gain_buff('Impetus')
-        assert.equal("Combatant's Torque", weaponskill(gs, '/ws "Victory Smite" <t>').neck)
+        assert.equal("Combatant's Torque", jobby.weaponskill(gs, '/ws "Victory Smite" <t>').neck)
     end)
 
     it('has sets.buff.ImpetusWS laid over it for Ascetic\'s Fury with Impetus up', function()
+        -- The game gives Ascetic's Fury only with Glanzfaust in hand.
+        gs = boot({tp = 1000, wearing = {main = 'Glanzfaust'}})
         gs:gain_buff('Impetus')
-        assert.equal("Combatant's Torque", weaponskill(gs, '/ws "Ascetic\'s Fury" <t>').neck)
+        assert.equal("Combatant's Torque", jobby.weaponskill(gs, '/ws "Ascetic\'s Fury" <t>').neck)
     end)
 
     it('has no Impetus set laid over it without Impetus', function()
-        assert.equal('Fotia Gorget', weaponskill(gs, '/ws "Victory Smite" <t>').neck)
+        assert.equal('Fotia Gorget', jobby.weaponskill(gs, '/ws "Victory Smite" <t>').neck)
     end)
 
     it('has no Impetus set laid over it for another weapon skill', function()
         gs:gain_buff('Impetus')
-        assert.equal('Fotia Gorget', weaponskill(gs, '/ws "Dragon Kick" <t>').neck)
+        assert.equal('Fotia Gorget', jobby.weaponskill(gs, '/ws "Dragon Kick" <t>').neck)
     end)
 
     it('has sets.buff.Footwork laid over it for Dragon Kick with Footwork up, there being no sets.buff.FootworkWS', function()
         gs:gain_buff('Footwork')
-        assert.equal('Volte Boots', weaponskill(gs, '/ws "Dragon Kick" <t>').feet)
+        assert.equal('Volte Boots', jobby.weaponskill(gs, '/ws "Dragon Kick" <t>').feet)
     end)
 
     it('has sets.buff.Footwork laid over it for Tornado Kick with Footwork up', function()
         gs:gain_buff('Footwork')
-        assert.equal('Volte Boots', weaponskill(gs, '/ws "Tornado Kick" <t>').feet)
+        assert.equal('Volte Boots', jobby.weaponskill(gs, '/ws "Tornado Kick" <t>').feet)
     end)
 
     it('has no Footwork set laid over it for another weapon skill', function()
         gs:gain_buff('Footwork')
-        assert.equal('Nyame Sollerets', weaponskill(gs, '/ws "Victory Smite" <t>').feet)
+        assert.equal('Nyame Sollerets', jobby.weaponskill(gs, '/ws "Victory Smite" <t>').feet)
     end)
 
     -- A gear file that has no sets.buff.ImpetusWS, or has one for Footwork, which this one doesn't.
     it('has sets.buff.Impetus laid over it for Victory Smite when the gear file has no ImpetusWS set', function()
         gs.user.sets.buff.ImpetusWS = nil
         gs:gain_buff('Impetus')
-        assert.equal('Null Shawl', weaponskill(gs, '/ws "Victory Smite" <t>').back)
+        assert.equal('Null Shawl', jobby.weaponskill(gs, '/ws "Victory Smite" <t>').back)
     end)
 
     it('has sets.buff.FootworkWS laid over it for Dragon Kick with Footwork up when the gear file has one', function()
         gs.user.sets.buff.FootworkWS = {hands = 'Volte Bracers'}
         gs:gain_buff('Footwork')
-        local worn = weaponskill(gs, '/ws "Dragon Kick" <t>')
+        local worn = jobby.weaponskill(gs, '/ws "Dragon Kick" <t>')
         assert.equal('Volte Bracers', worn.hands)
         assert.equal('Nyame Sollerets', worn.feet)
     end)

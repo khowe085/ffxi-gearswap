@@ -1,6 +1,6 @@
 local jobby = require('jobby')
 
-local gear = {'Daybreak', 'Ammurapi Shield', "Terra's Staff", 'Kupo Shield', 'Volte Cap', 'Null Masque',
+local gear = {'Daybreak', 'Ammurapi Shield', "Terra's Staff", 'Enki Strap', 'Volte Cap', 'Null Masque',
     'Volte Jupon', 'Adamantite Armor', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget',
     "Combatant's Torque", 'Karieyh Ring', 'Chirich Ring +1', 'Null Belt', 'Null Shawl', 'Amin Turban',
     'Ischkur Turban', 'Azimuth Turban', 'Blistering Sallet', 'Blistering Sallet +1', 'Alhazen Hat', 'Alhazen Hat +1',
@@ -38,7 +38,7 @@ describe('BLM\'s cure sets', function()
         gs:set_weather(setup.weather and light_weather or 0)
         gs:set_day(setup.day and light_day or 0)
         if setup.weapons then
-            gs:console('gs c set Weapons Staff')
+            gs:console('gs c set Weapons Club')
         end
         return worn_after(gs, '/ma "' .. (spell or 'Cure IV') .. '" <me>').head
     end
@@ -78,7 +78,7 @@ describe('BLM\'s cure sets', function()
 
     it('is sets.midcast.Cure again with the weapons unlocked', function()
         local gs = boot()
-        gs:console('gs c set Weapons Staff')
+        gs:console('gs c set Weapons Club')
         gs:console('gs c toggle UnlockWeapons')
         assert.equal('Blistering Sallet +1', worn_after(gs, '/ma "Cure IV" <me>').head)
     end)
@@ -353,12 +353,12 @@ describe('BLM\'s idle set', function()
         gs:console('gs c set IdleMode Sphere')
         low_mp()
         assert.same(jobby.worn_by(idle,
-            {main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'}), gs:worn())
+            {main = "Terra's Staff", waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
     end)
 
     it('has no grip over it with the weapons locked', function()
         gs:console('gs c set IdleMode Sphere')
-        gs:console('gs c set Weapons Staff')
+        gs:console('gs c set Weapons Club')
         low_mp()
         assert.same(jobby.worn_by(idle,
             {main = 'Daybreak', sub = 'Ammurapi Shield', waist = 'Null Belt'}), gs:worn())
@@ -380,8 +380,7 @@ end)
 describe('BLM\'s weapon skill set', function()
     local function myrkr(tp)
         local gs = boot({tp = tp})
-        gs:type('/ws "Myrkr" <me>')
-        return gs:worn()
+        return jobby.weaponskill(gs, '/ws "Myrkr" <me>')
     end
 
     it('keeps Moonshade Earring on at 2950 TP, which Moonshade makes 3200', function()

@@ -25,13 +25,6 @@ local idle = jobby.worn_by(jobby.full_idle, jobby.weapons.DRK)
 -- Worn at the boot for a great sword's weapon skill.
 local great_sword = {main = 'Ragnarok'}
 
--- What is worn once the weapon skill typed has gone out.
-local function weaponskill(gs, line)
-    gs:type(line)
-    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
-    return gs:worn()
-end
-
 -- What is worn with the idle set on and the engaged set over it.
 local function engaged_with(changes)
     local set = {head = 'Volte Cap', body = 'Volte Jupon'}
@@ -314,7 +307,7 @@ describe('DRK\'s weapon skill set', function()
         if setup then
             setup(gs)
         end
-        return weaponskill(gs, line)
+        return jobby.weaponskill(gs, line)
     end
 
     local function acc(gs)

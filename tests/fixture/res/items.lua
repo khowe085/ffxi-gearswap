@@ -93,6 +93,7 @@ return {
     [18987] = {id=18987,en="Death Penalty",ja="デスペナルティ",enl="Death Penalty",jal="デスペナルティ",category="Weapon",damage=40,delay=480,flags=63552,jobs=131072,level=75,races=510,range_type="Gun",skill=26,slots=4,stack=1,targets=0,type=4},
     [19185] = {id=19185,en="Automat. Oil +3",ja="ルブリカント+3",enl="can of automaton oil +3",jal="ルブリカント+3",category="Weapon",damage=572,delay=84,flags=2052,jobs=262144,level=80,races=510,skill=0,slots=8,stack=12,targets=0,type=4},
     [19802] = {id=19802,en="Orichalc. Bullet",ja="オリハルブレット",enl="orichalcum bullet",jal="オリハルブレット",ammo_type="Bullet",category="Weapon",damage=89,delay=240,flags=2052,jobs=133120,level=97,races=510,skill=26,slots=8,stack=99,targets=0,type=4},
+    [20510] = {id=20510,en="Glanzfaust",ja="グランツファウスト",enl="Glanzfaust",jal="グランツファウスト",category="Weapon",damage=173,delay=366,flags=63552,item_level=119,jobs=4,level=99,races=510,skill=1,slots=1,stack=1,targets=0,type=4},
     [20576] = {id=20576,en="Qutrub Knife",ja="クトゥルブナイフ",enl="Qutrub knife",jal="クトゥルブナイフ",category="Weapon",damage=1,delay=180,flags=63552,jobs=8388606,level=1,races=510,skill=2,slots=3,stack=1,targets=0,type=4},
     [20586] = {id=20586,en="Carnwenhan",ja="カルンウェナン",enl="Carnwenhan",jal="カルンウェナン",category="Weapon",damage=116,delay=186,flags=63552,item_level=119,jobs=1024,level=99,races=510,skill=2,slots=3,stack=1,targets=0,type=4},
     [20674] = {id=20674,en="Aern Sword",ja="アーンソード",enl="Aern sword",jal="アーンソード",category="Weapon",damage=1,delay=240,flags=63552,jobs=8388606,level=1,races=510,skill=3,slots=3,stack=1,targets=0,type=4},
