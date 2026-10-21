@@ -93,10 +93,7 @@ function jobby.boot(job, options)
         end
     end
     boot.wearing = testy.worn_by(testy.worn_by(jobby.idle, weapons), (options or {}).wearing)
-    local gs = harness.boot(boot)
-    gs:console('gs c update')
-    gs:forget()
-    return gs
+    return harness.boot_updated(boot)
 end
 
 -- As boot, and past the seconds Sel waits after loading before its tick acts, with nothing sent since.
@@ -119,6 +116,18 @@ function jobby.weaponskill(gs, line, tp)
     gs:type(line)
     assert.same({name}, gs:actions(), 'the weapon skill typed didn\'t go out alone')
     return gs:worn()
+end
+
+-- The pieces GearSwap asked the server to put in the sub slot since its traffic was last read, in order: a test of
+-- a piece the server refuses there reads them, since what is worn doesn't show it.
+function jobby.subs_asked(gs)
+    local subs = {}
+    for _, entry in ipairs(gs:traffic()) do
+        if entry.equip and entry.equip.sub then
+            subs[#subs + 1] = entry.equip.sub
+        end
+    end
+    return subs
 end
 
 -- What Jobby has targeted is another player, Pal, standing in front of him, who isn't in the party. fields are over

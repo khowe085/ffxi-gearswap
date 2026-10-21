@@ -6,7 +6,7 @@ local gear = {"Terra's Staff", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's H
     'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers', 'Jadeite Chausses', 'Diamond Hiza.', 'Volte Hose',
     'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Sune-Ate', 'Volte Boots', "Orunmila's Torque", 'Phrenic Torque',
     'Aptitude Mantle', 'Null Shawl', 'Prosilio Belt', "Tyrant's Ring", 'Ishvara Earring', 'Brutal Earring',
-    'Volte Brais', 'Volte Bracers', 'Telchine Braconi', "Bunzi's Rod"}
+    'Volte Brais', 'Volte Bracers', 'Telchine Braconi', "Bunzi's Rod", 'Gelatinous Ring'}
 
 -- What the idle set of Jobby's summoner gear file wears besides every gear file's.
 local own_idle = {main = "Terra's Staff", back = 'Mecisto. Mantle'}
@@ -464,10 +464,29 @@ describe('SMN\'s idle set with no avatar out', function()
         assert.equal('Etiolation Earring', gs:worn().left_ear)
     end)
 
-    pending('has no sets.latent_refresh_grip over it with the weapons locked to Bunzi\'s Rod but UnlockWeapons on: '
-        .. 'job_customize_idle_set in data/SMN.lua looks at the idle set\'s main, Terra\'s Staff, and with '
-        .. 'UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
+    it('has sets.latent_refresh_grip over it too under 51% MP, with Terra\'s Staff in it and the weapons free',
+        function()
+        gs.game.player.vitals.mpp = 50
+        gs:console('gs c update')
+        assert.same(worn({ear1 = 'Ishvara Earring', ring2 = 'Gelatinous Ring'}), gs:worn())
+    end)
+
+    it('has no sets.latent_refresh_grip over it under 51% MP with a weapon set locking the weapons', function()
+        gs:console('gs c set Weapons Club')
+        gs.game.player.vitals.mpp = 50
+        gs:console('gs c update')
+        assert.same(worn({main = "Bunzi's Rod", ear1 = 'Ishvara Earring'}), gs:worn())
+    end)
+
+    pending('has no sets.latent_refresh_grip over it under 51% MP with the weapons locked to Bunzi\'s Rod but '
+        .. 'UnlockWeapons on: job_customize_idle_set in data/SMN.lua looks at the idle set\'s main, Terra\'s Staff, '
+        .. 'and with UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
         .. 'sets.latent_refresh_grip with Bunzi\'s Rod in hand')
+
+    pending('has sets.latent_refresh_grip over it under 51% MP with a main in it that is no staff and the weapons '
+        .. 'locked to a staff but UnlockWeapons on: job_customize_idle_set in data/SMN.lua looks at the idle set\'s '
+        .. 'main, and Sel lays the weapon set over the idle set only after it, so the job file adds no grip set with '
+        .. 'the staff in hand')
 
     it('has sets.buff.Sublimation over it while Sublimation is charging', function()
         gs:gain_buff('Sublimation: Activated')

@@ -585,7 +585,8 @@ describe('the idle set of a scholar', function()
             gs:worn())
     end)
 
-    it('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on', function()
+    it('wears sets.latent_refresh_grip with a staff in the idle set and the weapons locked to a staff but '
+        .. 'UnlockWeapons on', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Gozuki Mezuki'
         gs:console('gs c set Weapons Staff')
@@ -595,10 +596,10 @@ describe('the idle set of a scholar', function()
             {main = 'Gozuki Mezuki'})), gs:worn())
     end)
 
-    pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff but UnlockWeapons '
-        .. 'on: job_customize_idle_set in data/SCH.lua looks at the idle set\'s main, and with UnlockWeapons on Sel '
-        .. 'lays the weapon set over the idle set after it, so the job file adds sets.latent_refresh_grip with '
-        .. 'Bunzi\'s Rod in hand')
+    pending('wears no sets.latent_refresh_grip with a staff in the idle set and the weapons locked to a weapon that is '
+        .. 'no staff but UnlockWeapons on: job_customize_idle_set in data/SCH.lua looks at the idle set\'s main, and '
+        .. 'with UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
+        .. 'sets.latent_refresh_grip with Bunzi\'s Rod in hand')
 
     pending('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on when the idle set '
         .. 'names no main: job_customize_idle_set in data/SCH.lua looks at the idle set\'s main, and Sel lays the '
@@ -637,7 +638,8 @@ describe('the idle set of a scholar', function()
         assert.same(jobby.worn_by(idle), gs:worn())
     end)
 
-    it('wears sets.TPEat over the latent refresh set under half MP with some TP and a main weapon in the idle set', function()
+    it('wears sets.TPEat over the latent refresh set under half MP with more than 10 TP and a main weapon in the idle '
+        .. 'set', function()
         local gs = boot({tp = 11})
         sets_of(gs).idle.main = "Bunzi's Rod"
         low_mp(gs)
@@ -645,7 +647,7 @@ describe('the idle set of a scholar', function()
             jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).TPEat, {main = "Bunzi's Rod"})), gs:worn())
     end)
 
-    it('wears no sets.TPEat with no TP to spare', function()
+    it('wears no sets.TPEat with 10 TP', function()
         local gs = boot({tp = 10})
         sets_of(gs).idle.main = "Bunzi's Rod"
         low_mp(gs)

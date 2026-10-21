@@ -328,9 +328,11 @@ function Game:player_mob()
     }
 end
 
--- What Windower's mob tables leave out of what the game holds of another player. A mob table gives the HP percent but
--- no HP, MP or TP, the player's own included: another player's reach the client only in the party's packets, so only
--- the party list gives them.
+-- What the stand-in's mob tables leave out of what the game holds of another player, whose HP, MP and TP the party
+-- list gives. Windower's mob tables give the HP percent and no HP or MP, the player's own included. They carry a tp
+-- and an mpp too, which GearSwap leaves out when it copies the player's mob table over player (refresh.lua), so they
+-- aren't the character's, and nothing says what they hold: the stand-in leaves the tp out of other players' mobs and
+-- the player's, and gives the player's the character's MP percent, choices of its own.
 local party_only = {hp = true, max_hp = true, mp = true, max_mp = true, tp = true}
 
 -- The mob table of another mob the game holds, as Windower gives it.
@@ -344,13 +346,24 @@ local function mob_of(other)
     return mob
 end
 
+-- The pet's mob table. Its tp is ten times the pet's TP, as GearSwap reads it: refresh.lua divides a pet mob's tp by
+-- 10 before the TP the pet packets gave takes its place. Nothing says what Windower gives there, so the scale is the
+-- stand-in's choice, made to agree with the packets.
+function Game:pet_mob()
+    local mob = copy(self.pet)
+    if mob.tp then
+        mob.tp = mob.tp * 10
+    end
+    return mob
+end
+
 function Game:mobs()
     local mobs = {[self.player.index] = self:player_mob()}
     if self.monster then
         mobs[self.monster.index] = copy(self.monster)
     end
     if self.pet then
-        mobs[self.pet.index] = copy(self.pet)
+        mobs[self.pet.index] = self:pet_mob()
     end
     for _, other in ipairs(self.others) do
         mobs[other.index] = mob_of(other)
@@ -391,7 +404,7 @@ function Game:mob_by_target(target)
     elseif target == 'st' then
         return self.subtarget_index and self:mobs()[self.subtarget_index]
     elseif target == 'pet' then
-        return self.pet and copy(self.pet)
+        return self.pet and self:pet_mob()
     elseif target:match('^[pa]%d+$') then
         local member = self:get_party()[target]
         return member and member.mob
@@ -911,11 +924,14 @@ end
 
 -- Carries out one equip request, as four bytes: bag slot, equipment slot, bag. Returns the bytes of each equip packet
 -- (0x050) the server confirms it with, none when it refuses it, as it refuses every one in a game with refuse_equips
--- set; and whether it resets TP, which equipping a piece where it already is doesn't. A change in the main hand takes
--- off a sub slot piece that no longer fits beside it, and the server tells of that after the main hand. The game takes
--- a shield or a weapon off for a two-handed weapon (docs/gear-notes.md, Serenity), and a grip, which goes only beside a
--- two-handed weapon, comes off when the main hand no longer holds one. The docs don't say what a hand-to-hand weapon
--- put in does to the sub slot's piece: the stand-in takes it off, as it takes none beside one.
+-- set; and whether it resets TP, which equipping a piece where it already is doesn't. A piece worn in another slot
+-- moves, and the server tells of that slot emptied before the slot the piece went to. A change in the main hand takes
+-- off a sub slot piece that no longer fits beside it, and the server tells of that after the main hand. Nothing in the
+-- repo gives the order of these replies, so both are the stand-in's choice; GearSwap marks the piece of a slot it is
+-- told emptied as not worn, so told of the emptied slot last, it would take a piece that moved for one not worn. The
+-- game takes a shield or a weapon off for a two-handed weapon (docs/gear-notes.md, Serenity), and a grip, which goes
+-- only beside a two-handed weapon, comes off when the main hand no longer holds one. The docs don't say what a
+-- hand-to-hand weapon put in does to the sub slot's piece: the stand-in takes it off, as it takes none beside one.
 function Game:equip_chunk(chunk)
     if self.refuse_equips then
         return {}
@@ -931,15 +947,18 @@ function Game:equip_chunk(chunk)
         return {}
     else
         changed = not (current ~= nil and current.bag == bag_id and current.slot == bag_slot)
+        replies = {}
         for other, spot in pairs(self.equipment) do
             if spot.bag == bag_id and spot.slot == bag_slot and other ~= slot_id then
                 self.equipment[other] = nil
+                replies[#replies + 1] = string.char(0, other, 0, 0)
             end
         end
         self:take_off(slot_id)
         self.equipment[slot_id] = {bag = bag_id, slot = bag_slot}
         self.bags[bag_id].items[bag_slot].status = 5
-        replies, resets_tp = {string.char(bag_slot, slot_id, bag_id, 0)}, changed and equipping_resets_tp[slot_id]
+        replies[#replies + 1] = string.char(bag_slot, slot_id, bag_id, 0)
+        resets_tp = changed and equipping_resets_tp[slot_id]
     end
     local sub = changed and slot_id == slot_ids.main and self:worn_entry('sub')
     if sub and not self:fits_beside_the_main_hand(sub) then
@@ -1528,9 +1547,8 @@ function Game:change_main_job(short, level)
     local id = job_id(self.res, short)
     self:send_from_client(0x100, string.char(id, self.player.sub_job_id, 0, 0))
     local resets_tp = false
-    for slot_id, spot in pairs(self.equipment) do
-        self.bags[spot.bag].items[spot.slot].status = 0
-        self.equipment[slot_id] = nil
+    for slot_id in pairs(self.equipment) do
+        self:take_off(slot_id)
         resets_tp = resets_tp or taking_off_resets_tp[slot_id] == true
     end
     self.player.main_job_id = id
@@ -1579,9 +1597,9 @@ function Game:send_pet_info(tp)
 end
 
 -- Puts a pet at the player's side, with no packet to tell of it, as one already out when GearSwap loads. fields over
--- the defaults: id, index, name, hpp, mpp, tp (3000 is full; the pet's mob has none unless given), status (0 idle,
--- 1 engaged), distance (squared, as Windower gives it; 2 yalms unless given), x (as far along x as the distance says
--- unless given), y, model_size. Returns the pet as the game holds it.
+-- the defaults: id, index, name, hpp, mpp, tp (3000 is full; none unless given, and its mob carries it as
+-- Game:pet_mob says), status (0 idle, 1 engaged), distance (squared, as Windower gives it; 2 yalms unless given), x (as
+-- far along x as the distance says unless given), y, model_size. Returns the pet as the game holds it.
 function Game:place_pet(fields)
     local pet = {
         id = 0x1069100, index = 0x402, name = 'Pet', is_npc = true, spawn_type = 16, race = 0, status = 0, hpp = 100,
@@ -1628,7 +1646,7 @@ function Game:set_pet_status(status)
     self:settle()
 end
 
--- The pet's TP changes.
+-- The pet's TP changes, on its mob too.
 function Game:set_pet_tp(tp)
     self.pet.tp = tp
     self:send_pet_info(tp)

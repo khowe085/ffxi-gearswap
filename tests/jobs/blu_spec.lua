@@ -483,7 +483,8 @@ describe('the idle set under half MP', function()
         assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'Naegling'})), gs:worn())
     end)
 
-    it('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on', function()
+    it('wears sets.latent_refresh_grip with a staff in the idle set and the weapons locked to a staff but '
+        .. 'UnlockWeapons on', function()
         local gs = boot({'Foot Kick'})
         sets_of(gs).idle.main = 'Gozuki Mezuki'
         gs:console('gs c set Weapons Staff')
@@ -493,10 +494,10 @@ describe('the idle set under half MP', function()
             {main = 'Gozuki Mezuki'})), gs:worn())
     end)
 
-    pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff but UnlockWeapons '
-        .. 'on: job_customize_idle_set in data/BLU.lua looks at the idle set\'s main, and with UnlockWeapons on Sel '
-        .. 'lays the weapon set over the idle set after it, so the job file adds sets.latent_refresh_grip with '
-        .. 'Naegling in hand')
+    pending('wears no sets.latent_refresh_grip with a staff in the idle set and the weapons locked to a weapon that is '
+        .. 'no staff but UnlockWeapons on: job_customize_idle_set in data/BLU.lua looks at the idle set\'s main, and '
+        .. 'with UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
+        .. 'sets.latent_refresh_grip with Naegling in hand')
 
     pending('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on when the idle set '
         .. 'names no main: job_customize_idle_set in data/BLU.lua looks at the idle set\'s main, and Sel lays the '
@@ -521,7 +522,7 @@ describe('gs c curecheat', function()
         gs:console('gs c curecheat')
         assert.same({{equip = {neck = 'Loricate Torque'}}}, gs:traffic())
         gs:advance(1)
-        assert.same({'Magic Fruit'}, gs:actions())
+        assert.same({{action = 'Magic Fruit', target = 'Jobby'}}, gs:action_entries())
     end)
 
     it('says so when there is no sets.HPDown', function()

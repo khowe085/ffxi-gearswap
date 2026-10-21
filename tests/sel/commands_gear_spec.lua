@@ -251,6 +251,54 @@ describe('gs c weapons initialize, for a red mage whose gear file names default 
     end)
 end)
 
+describe('gs c weapons initialize, for a red mage whose gear file names weapon sets Default and Dual', function()
+    -- Commy with the weapon sets and the default weapons for each named as a gear file names them in user_job_setup.
+    local function boot(sub_job)
+        local gs = commy.boot_rdm({sub_job = sub_job})
+        gs.user.state.WeaponSets:options('Default', 'Dual')
+        gs.user.weapon_sets = {Default = {'Naegling', 'Crocea'}, Dual = {'DualWeapons', 'Swords'}}
+        gs.user.default_weapons = 'Crocea'
+        gs.user.default_dual_weapons = 'Swords'
+        return gs
+    end
+
+    -- The weapon set, the Weapons options it gave and the one chosen, and the weapons in hand.
+    local function weapons(gs)
+        local state = gs.user.state
+        return {set = state.WeaponSets.value, options = {state.Weapons[1], state.Weapons[2], state.Weapons[3]},
+            value = state.Weapons.value, main = gs:worn().main, sub = gs:worn().sub}
+    end
+
+    it('takes the Default set\'s weapons, from their first, with a mage\'s sub job', function()
+        local gs = boot('WHM')
+        gs:console('gs c weapons initialize')
+        assert.same({set = 'Default', options = {'Naegling', 'Crocea'}, value = 'Naegling', main = 'Naegling',
+            sub = 'Ammurapi Shield'}, weapons(gs))
+    end)
+
+    it('takes the Default set\'s weapons and puts the default weapons in hand with a sub job that is no mage\'s',
+        function()
+        local gs = boot('WAR')
+        gs:console('gs c weapons initialize')
+        assert.same({set = 'Default', options = {'Naegling', 'Crocea'}, value = 'Crocea', main = 'Crocea Mors',
+            sub = 'Ammurapi Shield'}, weapons(gs))
+    end)
+
+    it('takes the Dual set\'s weapons and puts the default dual wield weapons in hand once Commy can dual wield, as '
+        .. 'five seconds after a load', function()
+        local gs = boot('NIN')
+        gs.game:set_job_traits({'Dual Wield'})
+        gs:advance(harness.sel_load_time)
+        assert.same({set = 'Dual', options = {'DualWeapons', 'Swords'}, value = 'Swords', main = 'Murgleis',
+            sub = 'Crocea Mors'}, weapons(gs))
+    end)
+
+    pending('stops a cycle of the weapon sets when each is named for dual wield and Commy can\'t dual wield: '
+        .. 'state_change in Sel-Include.lua checks the index of the weapon set the cycle started from against '
+        .. 'state.Weapons.index, not state.WeaponSets.index, so unless Weapons stands at that index it cycles the '
+        .. 'weapon sets for ever')
+end)
+
 describe('Sel\'s weapon sets for dual wield', function()
     local gs
     before_each(function()

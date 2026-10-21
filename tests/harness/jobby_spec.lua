@@ -123,13 +123,21 @@ describe('a weapon skill Jobby types', function()
         assert.matches('the weapon skill typed didn\'t go out alone', tostring(failure), 1, true)
     end)
 
-    it('fails the test when another action went out since the actions were last read', function()
+    it('fails the test when another action went out since the actions were last read, though the weapon skill went '
+        .. 'out too', function()
         local gs = jobby.boot('WAR', {tp = 1000})
         gs:type('/ja "Berserk" <me>')
         gs:finish_action()
+        -- Past the moment after an ability in which Sel holds the next action back.
+        gs:advance(1)
         local ok, failure = pcall(jobby.weaponskill, gs, '/ws "Resolution" <t>')
         assert.is_false(ok)
         assert.matches('the weapon skill typed didn\'t go out alone', tostring(failure), 1, true)
+        local served = {}
+        for i, action in ipairs(gs.game.actions) do
+            served[i] = action.name
+        end
+        assert.same({'Berserk', 'Resolution'}, served)
     end)
 
     it('fails the test for a line not in the /ws "Name" form, though nothing went out', function()

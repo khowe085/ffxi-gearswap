@@ -48,8 +48,8 @@ describe('the stand-in game\'s party', function()
         assert.equal(25, friend.hpp)
     end)
 
-    it('gives a member\'s HP, MP and TP on the party list only, as Windower does: their mob has the HP percent and '
-        .. 'none of them', function()
+    it('gives a member\'s HP, MP and TP on the party list only: their mob has the HP percent and no HP or MP, as '
+        .. 'Windower\'s has, and no TP, the stand-in\'s choice', function()
         local gs = harness.boot(testy.whm())
         gs.game:add_party_member({name = 'Alice', hp = 800, mp = 300, tp = 1200})
         local ffxi = gs.game.windower.ffxi
@@ -59,7 +59,8 @@ describe('the stand-in game\'s party', function()
         end
     end)
 
-    it('gives the player\'s TP in the player and the party list, not on the player\'s mob', function()
+    it('gives the player\'s TP in the player and the party list, and the player\'s mob no HP or MP, as Windower\'s '
+        .. 'has, and no TP, the stand-in\'s choice', function()
         local gs = harness.boot(testy.whm({tp = 1000}))
         local ffxi = gs.game.windower.ffxi
         local mob = ffxi.get_mob_by_target('<me>')

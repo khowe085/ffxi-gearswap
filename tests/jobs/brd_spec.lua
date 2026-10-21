@@ -5,7 +5,7 @@ local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's H
     'Jadeite Cuirie', 'Jadeite Chausses', 'Diamond Haramaki', 'Sapphire Gauntlets', 'Jadeite Gloves',
     'Diamond Kote', 'Sapphire Trousers', 'Diamond Hiza.', 'Diamond Sune-Ate', "Orunmila's Torque", 'Prosilio Belt',
     "Tyrant's Ring", 'Aptitude Mantle', 'Carnwenhan', 'Daurdabla', 'Miracle Cheer', 'Marsyas', 'Ruby Robe',
-    'Rage Platemail', 'Volte Brais', 'Volte Bracers', 'Terpander', 'Null Belt'}
+    'Rage Platemail', 'Volte Brais', 'Volte Bracers', 'Terpander', 'Null Belt', 'Gelatinous Ring'}
 
 -- What the idle set of Jobby's bard gear file wears besides every gear file's.
 local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
@@ -574,10 +574,14 @@ describe('BRD\'s idle set', function()
         assert.same(worn({waist = 'Prosilio Belt', neck = "Orunmila's Torque"}), gs:worn())
     end)
 
-    pending('has no sets.latent_refresh_grip over it with a staff in the idle set and the weapons locked to Judge\'s '
-        .. 'Sword but UnlockWeapons on: job_customize_idle_set in data/BRD.lua looks at the idle set\'s main, and with '
-        .. 'UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
+    pending('has no sets.latent_refresh_grip over it under 51% MP with a staff in the idle set and the weapons locked '
+        .. 'to Judge\'s Sword but UnlockWeapons on: job_customize_idle_set in data/BRD.lua looks at the idle set\'s '
+        .. 'main, and with UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
         .. 'sets.latent_refresh_grip with Judge\'s Sword in hand')
+
+    pending('has sets.latent_refresh_grip over it under 51% MP with the weapons locked to a staff but UnlockWeapons '
+        .. 'on: job_customize_idle_set in data/BRD.lua looks at the idle set\'s main, Judge\'s Sword, and Sel lays '
+        .. 'the weapon set over the idle set only after it, so the job file adds no grip set with the staff in hand')
 
     it('has sets.buff.Sublimation over it while Sublimation is charging', function()
         gs:gain_buff('Sublimation: Activated')

@@ -594,7 +594,8 @@ describe('the idle set of a geomancer', function()
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'Daybreak'})), gs:worn())
     end)
 
-    it('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on', function()
+    it('wears sets.latent_refresh_grip with a staff in the idle set and the weapons locked to a staff but '
+        .. 'UnlockWeapons on', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Gozuki Mezuki'
         gs:console('gs c set Weapons Staff')
@@ -604,10 +605,10 @@ describe('the idle set of a geomancer', function()
             {main = 'Gozuki Mezuki'})), gs:worn())
     end)
 
-    pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff but UnlockWeapons '
-        .. 'on: job_customize_idle_set in data/GEO.lua looks at the idle set\'s main, and with UnlockWeapons on Sel '
-        .. 'lays the weapon set over the idle set after it, so the job file adds sets.latent_refresh_grip with '
-        .. 'Bunzi\'s Rod in hand')
+    pending('wears no sets.latent_refresh_grip with a staff in the idle set and the weapons locked to a weapon that is '
+        .. 'no staff but UnlockWeapons on: job_customize_idle_set in data/GEO.lua looks at the idle set\'s main, and '
+        .. 'with UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
+        .. 'sets.latent_refresh_grip with Bunzi\'s Rod in hand')
 
     pending('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on when the idle set '
         .. 'names no main: job_customize_idle_set in data/GEO.lua looks at the idle set\'s main, and Sel lays the '

@@ -1,12 +1,7 @@
 local commy = require('commy')
 
 -- What is worn once the spell is out: the midcast set, with the spell map's set in it, over the idle set.
-local function midcast(gs, line)
-    local sent = #gs.game.actions
-    gs:type(line)
-    assert.equal(sent + 1, #gs.game.actions, 'the spell didn\'t go out')
-    return gs:worn()
-end
+local midcast = commy.cast
 
 describe('Sel\'s spell map', function()
     local gs
@@ -17,8 +12,9 @@ describe('Sel\'s spell map', function()
         gs:traffic()
     end)
 
-    it('BarElement is the midcast set of each bar-element spell', function()
-        for _, spell in ipairs({'Barfire', 'Barblizzard', 'Baraero', 'Barstone', 'Barthunder', 'Barwater'}) do
+    it('BarElement is the midcast set of each bar-element spell, the -ra ones too', function()
+        for _, spell in ipairs({'Barfire', 'Barblizzard', 'Baraero', 'Barstone', 'Barthunder', 'Barwater', 'Barfira',
+                'Barblizzara', 'Baraera', 'Barstonra', 'Barthundra', 'Barwatera'}) do
             assert.equal('Telchine Braconi', midcast(gs, ('/ma "%s" <me>'):format(spell)).legs, spell)
             gs:finish_action()
             gs:advance(5)

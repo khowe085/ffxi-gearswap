@@ -39,15 +39,12 @@ end
 
 -- The line /checkparam <me> answers with: message 712 to 715 from the player to themselves.
 local function checkparam(gs, message, first, second, fields)
-    gs:run(function()
-        local values = {message_id = message, actor_id = gs.game.player.id, target_id = gs.game.player.id,
-            param_1 = first, param_2 = second}
-        for key, value in pairs(fields or {}) do
-            values[key] = value
-        end
-        gs.game:send_action_message(values)
-        gs.game:settle()
-    end)
+    local values = {message_id = message, actor_id = gs.game.player.id, target_id = gs.game.player.id,
+        param_1 = first, param_2 = second}
+    for key, value in pairs(fields or {}) do
+        values[key] = value
+    end
+    gs:send_action_message(values)
 end
 
 local function typed_checkparam(gs)
