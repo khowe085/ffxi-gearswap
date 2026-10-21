@@ -384,7 +384,7 @@ describe('a weapon skill by a dancer', function()
             gs:type('/ws "Rudra\'s Storm" <t>')
             assert.same({'Rudra\'s Storm'}, gs:actions())
             gs:chat()
-            gs.game.player.vitals.tp = options.tp_left or 0
+            gs:set_tp(options.tp_left or 0)
             gs:finish_action()
             gs:play(7)
             return gs
@@ -416,7 +416,7 @@ describe('a weapon skill by a dancer', function()
         local gs = boot({tp = 2000, engaged = true, buffs = {'Climactic Flourish', 'Finishing Move 3'}})
         gs:type('/ws "Rudra\'s Storm" <t>')
         gs:traffic()
-        gs.game.player.vitals.tp = 0
+        gs:set_tp(0)
         gs:finish_action()
         gs:play(7)
         assert.same({}, gs:actions())

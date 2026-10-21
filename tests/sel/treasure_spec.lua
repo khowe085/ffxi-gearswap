@@ -56,7 +56,7 @@ describe('Sel\'s Treasure Hunter in Tag mode', function()
 
     it('lays it over a weapon skill\'s precast set at a monster it hasn\'t tagged', function()
         gs:console('gs c set Weapons Naegling')
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:traffic()
         gs:type('/ws "Savage Blade" <t>')
         assert.same({

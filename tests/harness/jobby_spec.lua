@@ -106,10 +106,14 @@ describe('a weapon skill Jobby types', function()
             jobby.weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 
-    it('gives what is worn once it has gone out with the TP given, which Jobby has as he types it', function()
+    it('gives what is worn once it has gone out with the TP given, which Jobby has as he types it, told as the game '
+        .. 'tells a change of TP', function()
         local gs = jobby.boot('WAR', {items = {'Volte Bracers'}})
+        local told
+        gs.game:register('tp change', function(new) told = new end)
         assert.same(jobby.worn_by(jobby.full_idle, {main = 'Ragnarok', hands = 'Volte Bracers'}),
             jobby.weaponskill(gs, '/ws "Resolution" <t>', 1000))
+        assert.equal(1000, told)
     end)
 
     it('fails the test when it doesn\'t go out', function()

@@ -7,7 +7,7 @@ local function engaged(sub_job, tp, line, options)
     local gs = autoy.boot(options)
     gs:console(line)
     gs:engage()
-    gs.game.player.vitals.tp = tp
+    gs:set_tp(tp)
     gs:traffic()
     return gs
 end

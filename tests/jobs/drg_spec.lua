@@ -74,26 +74,26 @@ describe('DRG\'s weapon skill with a sub job of SAM and AutoBuffMode on', functi
     end)
 
     it('is held back for Sekkanoki with more than 1850 TP', function()
-        gs.game.player.vitals.tp = 1851
+        gs:set_tp(1851)
         assert.is_true(gs:type('/ws "Stardiver" <t>'))
         assert.same({'Sekkanoki'}, gs:actions())
     end)
 
     it('is held back for Meditate with 1850 TP or less', function()
-        gs.game.player.vitals.tp = 1850
+        gs:set_tp(1850)
         gs:type('/ws "Stardiver" <t>')
         assert.same({'Meditate'}, gs:actions())
     end)
 
     it('is held back for Meditate when Sekkanoki is on recast', function()
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         gs.game:start_ability_recast('Sekkanoki', 60)
         gs:type('/ws "Stardiver" <t>')
         assert.same({'Meditate'}, gs:actions())
     end)
 
     it('goes out when Sekkanoki and Meditate are on recast', function()
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         gs.game:start_ability_recast('Sekkanoki', 60)
         gs.game:start_ability_recast('Meditate', 60)
         gs:type('/ws "Stardiver" <t>')
@@ -102,14 +102,14 @@ describe('DRG\'s weapon skill with a sub job of SAM and AutoBuffMode on', functi
 
     it('goes out under SJ Restriction', function()
         gs:gain_buff('SJ Restriction')
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         gs:type('/ws "Stardiver" <t>')
         assert.same({'Stardiver'}, gs:actions())
     end)
 
     it('goes out with AutoBuffMode off', function()
         gs:console('gs c set AutoBuffMode Off')
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         gs:type('/ws "Stardiver" <t>')
         assert.same({'Stardiver'}, gs:actions())
     end)
@@ -119,7 +119,7 @@ describe('DRG\'s weapon skill with a sub job of WAR and AutoBuffMode on', functi
     it('goes out whatever the TP, with no Sekkanoki or Meditate to hold it back', function()
         local gs = boot()
         gs:console('gs c set AutoBuffMode Auto')
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         gs:type('/ws "Stardiver" <t>')
         assert.same({'Stardiver'}, gs:actions())
     end)

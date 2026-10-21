@@ -98,7 +98,7 @@ describe('SMN\'s blood pact with Astral Conduit up and not enough MP for it twic
     end)
 
     it('goes out, and Myrkr after it with the TP for Myrkr, which is said', function()
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:type('/pet "Flaming Crush" <t>')
         assert.same({'Not enough MP to Pact while using Conduit, using Myrkr!'}, gs:chat())
         assert.same({'Flaming Crush'}, gs:actions())
@@ -107,7 +107,7 @@ describe('SMN\'s blood pact with Astral Conduit up and not enough MP for it twic
     end)
 
     it('is Convert, not Myrkr, with less than 1000 TP and more than 400 HP', function()
-        gs.game.player.vitals.tp = 999
+        gs:set_tp(999)
         gs.game.player.vitals.hp = 401
         gs:type('/pet "Flaming Crush" <t>')
         assert.same({'Not enough MP to Pact while using Conduit, Converting!'}, gs:chat())
@@ -118,7 +118,7 @@ describe('SMN\'s blood pact with Astral Conduit up and not enough MP for it twic
         gs:console('gs c set Weapons Club')
         gs:traffic()
         gs:chat()
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:type('/pet "Flaming Crush" <t>')
         assert.same({'Not enough MP to Pact while using Conduit, Converting!'}, gs:chat())
         assert.same({'Convert'}, gs:actions())

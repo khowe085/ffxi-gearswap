@@ -154,7 +154,7 @@ describe('RNG\'s ranged weapon skill', function()
     before_each(function()
         gs = boot()
         gs:console('gs c set Weapons Gun')
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:traffic()
     end)
 
@@ -194,7 +194,7 @@ describe('RNG\'s ranged weapon skill with a bow', function()
         for _, name in ipairs({'Apex Arrow', 'Flaming Arrow'}) do
             local gs = boot()
             gs:console('gs c set Weapons Bow')
-            gs.game.player.vitals.tp = 1000
+            gs:set_tp(1000)
             assert.equal('Chrono Arrow', jobby.weaponskill(gs, '/ws "' .. name .. '" <t>').ammo, name)
         end
     end)
@@ -204,7 +204,7 @@ describe('RNG\'s weapon skill of another skill', function()
     local function ammo_for(weapons)
         local gs = boot()
         gs:console('gs c set Weapons ' .. weapons)
-        gs.game.player.vitals.tp = 1000
+        gs:set_tp(1000)
         gs:traffic()
         return jobby.weaponskill(gs, '/ws "Savage Blade" <t>').ammo
     end

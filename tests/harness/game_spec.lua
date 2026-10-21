@@ -446,6 +446,93 @@ describe('the server\'s answer to an equip request for the sub slot in the stand
             {sub('Glanzfaust', 'Kupo Shield', {}, 'MNK'), sub('Glanzfaust', 'Mephitis Grip', {}, 'MNK'),
             sub('Glanzfaust', 'Qutrub Knife', {'Dual Wield'}, 'MNK')})
     end)
+
+    it('puts a weapon on with the Dual Wield trait and nothing in the main hand, the stand-in\'s choice where the docs '
+        .. 'don\'t say whether the game takes a sub weapon without a main one', function()
+        assert.same({sub = "Bunzi's Rod"}, sub(nil, "Bunzi's Rod", {'Dual Wield'}))
+    end)
+end)
+
+describe('the sub slot when the main hand changes in the stand-in game', function()
+    -- Testy, a level 99 white mage (or of the job given) holding the main weapon and the sub slot piece given, with
+    -- the job traits given (none unless given), asks the server for the item named in the main hand, or for the main
+    -- hand 'empty'. Returns what is worn then, and what each equip packet (0x050) the server answered with put on, in
+    -- order: {slot, item or 'empty'}.
+    local function change_main(main, sub, new_main, options)
+        options = options or {}
+        local items = {{name = main}, {name = sub}}
+        if new_main ~= 'empty' then
+            items[3] = {name = new_main}
+        end
+        local game = Game.new({res = harness.resources(), main_job = options.job or 'WHM', items = items,
+            wearing = {main = 1, sub = 2}})
+        game:set_job_traits(options.traits or {})
+        local replies = {}
+        game:register('incoming chunk', function(id, data)
+            if id == 0x050 then
+                local item = data:byte(5) ~= 0 and game.bags[data:byte(7)].items[data:byte(5)]
+                replies[#replies + 1] = {Game.slot_names[data:byte(6)], item and game.res.items[item.id].en or 'empty'}
+            end
+        end)
+        local bag_slot = new_main == 'empty' and 0 or 3
+        game.windower.packets.inject_outgoing(0x050,
+            string.char(0x50, 4, 0, 0, bag_slot, Game.slot_ids.main, game:bag_id('inventory'), 0))
+        game:settle()
+        return game:worn(), replies
+    end
+
+    it('takes a shield off for a two-handed weapon, and says so after the main hand', function()
+        local worn, replies = change_main('Daybreak', 'Ammurapi Shield', "Terra's Staff")
+        assert.same({main = "Terra's Staff"}, worn)
+        assert.same({{'main', "Terra's Staff"}, {'sub', 'empty'}}, replies)
+    end)
+
+    it('takes a weapon off for a two-handed weapon, whatever the Dual Wield trait', function()
+        assert.same({main = "Terra's Staff"},
+            (change_main('Daybreak', "Bunzi's Rod", "Terra's Staff", {traits = {'Dual Wield'}})))
+    end)
+
+    it('takes a shield or a weapon off for a hand-to-hand weapon', function()
+        assert.same({{main = 'Glanzfaust'}, {main = 'Glanzfaust'}},
+            {(change_main("Judge's Sword", 'Kupo Shield', 'Glanzfaust', {job = 'MNK'})),
+            (change_main("Judge's Sword", 'Qutrub Knife', 'Glanzfaust', {job = 'MNK', traits = {'Dual Wield'}}))})
+    end)
+
+    it('takes a grip off for a one-handed weapon, and with the two-handed weapon it went beside', function()
+        local worn, replies = change_main("Terra's Staff", 'Enki Strap', 'empty')
+        assert.same({}, worn)
+        assert.same({{'main', 'empty'}, {'sub', 'empty'}}, replies)
+        assert.same({main = 'Daybreak'}, (change_main("Terra's Staff", 'Enki Strap', 'Daybreak')))
+    end)
+
+    it('keeps a grip on for another two-handed weapon, and a shield or a weapon for another one-handed one', function()
+        local worn, replies = change_main("Terra's Staff", 'Enki Strap', 'Gozuki Mezuki')
+        assert.same({main = 'Gozuki Mezuki', sub = 'Enki Strap'}, worn)
+        assert.same({{'main', 'Gozuki Mezuki'}}, replies)
+        assert.same({{main = "Bunzi's Rod", sub = 'Ammurapi Shield'}, {main = 'Daybreak', sub = 'Qutrub Knife'}},
+            {(change_main('Daybreak', 'Ammurapi Shield', "Bunzi's Rod")),
+            (change_main("Bunzi's Rod", 'Qutrub Knife', 'Daybreak', {traits = {'Dual Wield'}}))})
+    end)
+
+    it('keeps a shield or a weapon on when the main weapon comes off, the stand-in\'s choice where the docs don\'t say '
+        .. 'whether the game takes them off', function()
+        assert.same({{sub = 'Ammurapi Shield'}, {sub = "Bunzi's Rod"}},
+            {(change_main('Daybreak', 'Ammurapi Shield', 'empty')),
+            (change_main('Daybreak', "Bunzi's Rod", 'empty', {traits = {'Dual Wield'}}))})
+    end)
+
+    it('tells GearSwap of a piece it takes off, so a set that names it puts it on again', function()
+        local options = testy.whm()
+        options.items[#options.items + 1] = {name = "Terra's Staff"}
+        local gs = harness.boot(options)
+        gs.user.sets.staff = {main = "Terra's Staff"}
+        gs:console('gs equip sets.staff')
+        assert.is_nil(gs:worn().sub)
+        gs:traffic()
+        gs:console('gs equip sets.idle')
+        assert.same({{equip = {main = 'Daybreak', sub = 'Ammurapi Shield'}}}, gs:traffic())
+        assert.equal('Ammurapi Shield', gs:worn().sub)
+    end)
 end)
 
 describe('the TP after an equip request in the stand-in game', function()

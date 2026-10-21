@@ -130,18 +130,18 @@ describe('MNK\'s weapon skill set', function()
     end)
 
     it('swaps Moonshade Earring for sets.MaxTP when TP, with Moonshade\'s 250, is over 3200', function()
-        gs.game.player.vitals.tp = 2951
+        gs:set_tp(2951)
         assert.equal('Cessance Earring', jobby.weaponskill(gs, '/ws "Victory Smite" <t>').left_ear)
     end)
 
     it('keeps Moonshade Earring on at 2950 TP', function()
-        gs.game.player.vitals.tp = 2950
+        gs:set_tp(2950)
         assert.equal('Moonshade Earring', jobby.weaponskill(gs, '/ws "Victory Smite" <t>').left_ear)
     end)
 
     it('swaps in sets.AccMaxTP at the cap in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         local worn = jobby.weaponskill(gs, '/ws "Victory Smite" <t>')
         assert.equal('Odnowa Earring +1', worn.left_ear)
         assert.equal('Volte Jupon', worn.body)
@@ -150,7 +150,7 @@ describe('MNK\'s weapon skill set', function()
     it('swaps in sets.MaxTP, not sets.AccMaxTP, under Sneak Attack in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Sneak Attack')
-        gs.game.player.vitals.tp = 3000
+        gs:set_tp(3000)
         assert.equal('Cessance Earring', jobby.weaponskill(gs, '/ws "Victory Smite" <t>').left_ear)
     end)
 

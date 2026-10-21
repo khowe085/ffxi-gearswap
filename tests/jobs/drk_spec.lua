@@ -105,7 +105,7 @@ describe('DRK\'s weapon skill under Auto Buff Mode with Samurai as the sub job',
     end)
 
     it('is held for Sekkanoki at 1851 TP', function()
-        gs.game.player.vitals.tp = 1851
+        gs:set_tp(1851)
         gs:type('/ws "Torcleaver" <t>')
         assert.same({'Sekkanoki'}, gs:actions())
     end)
@@ -117,7 +117,7 @@ describe('DRK\'s weapon skill under Auto Buff Mode with Samurai as the sub job',
     end)
 
     it('is held for Meditate with 1850 TP or less', function()
-        gs.game.player.vitals.tp = 1850
+        gs:set_tp(1850)
         gs:type('/ws "Torcleaver" <t>')
         assert.same({'Meditate'}, gs:actions())
     end)
@@ -187,7 +187,7 @@ describe('DRK\'s drain, absorb and dread spikes with the weapons locked', functi
     local function main_after(line, tp, mode)
         local gs = boot()
         gs:console('gs c set Weapons Ragnarok')
-        gs.game.player.vitals.tp = tp
+        gs:set_tp(tp)
         if mode then
             gs:console('gs c set DrainSwapWeaponMode ' .. mode)
         end

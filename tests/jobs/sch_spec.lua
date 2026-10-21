@@ -657,7 +657,7 @@ describe('the idle set of a scholar', function()
         local gs = boot()
         sets_of(gs).idle.main = "Bunzi's Rod"
         gs:console('gs c set Weapons Club')
-        gs.game.player.vitals.tp = 100
+        gs:set_tp(100)
         low_mp(gs)
         assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
             gs:worn())
@@ -668,7 +668,7 @@ describe('the idle set of a scholar', function()
         sets_of(gs).idle.main = "Bunzi's Rod"
         gs:console('gs c set Weapons Club')
         gs:console('gs c toggle UnlockWeapons')
-        gs.game.player.vitals.tp = 100
+        gs:set_tp(100)
         low_mp(gs)
         assert.same(jobby.worn_by(idle,
             jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).TPEat, {main = "Bunzi's Rod"})), gs:worn())

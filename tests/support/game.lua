@@ -321,11 +321,27 @@ function Game:player_mob()
     local player = self.player
     return {
         id = player.id, index = player.index, name = player.name, is_npc = false, spawn_type = 13, race = player.race,
-        status = player.status, hpp = player.vitals.hpp, mpp = player.vitals.mpp, tp = player.vitals.tp,
+        status = player.status, hpp = player.vitals.hpp, mpp = player.vitals.mpp,
         distance = 0, x = self:player_x(), y = 0, z = 0, facing = 0, claim_id = 0, valid_target = true, in_party = true,
         in_alliance = true, model_size = 1, target_index = self.target_index or 0,
         pet_index = self.pet and self.pet.index,
     }
+end
+
+-- What Windower's mob tables leave out of what the game holds of another player. A mob table gives the HP percent but
+-- no HP, MP or TP, the player's own included: another player's reach the client only in the party's packets, so only
+-- the party list gives them.
+local party_only = {hp = true, max_hp = true, mp = true, max_mp = true, tp = true}
+
+-- The mob table of another mob the game holds, as Windower gives it.
+local function mob_of(other)
+    local mob = {}
+    for key, value in pairs(other) do
+        if not party_only[key] then
+            mob[key] = copy(value)
+        end
+    end
+    return mob
 end
 
 function Game:mobs()
@@ -337,7 +353,7 @@ function Game:mobs()
         mobs[self.pet.index] = copy(self.pet)
     end
     for _, other in ipairs(self.others) do
-        mobs[other.index] = copy(other)
+        mobs[other.index] = mob_of(other)
     end
     return mobs
 end
@@ -465,7 +481,7 @@ function Game:get_party()
     for _, other in ipairs(self.others) do
         local slot = other.slot or other.in_party and 'p' .. party.party1_count
         if slot then
-            party[slot] = {name = other.name, mob = copy(other), hp = other.hp, mp = other.mp, tp = other.tp,
+            party[slot] = {name = other.name, mob = mob_of(other), hp = other.hp, mp = other.mp, tp = other.tp,
                 hpp = other.hpp, mpp = other.mpp, zone = self.zone}
             local number = slot:match('^p') and 1 or slot:match('^a1') and 2 or 3
             party['party' .. number .. '_count'] = party['party' .. number .. '_count'] + 1
@@ -508,10 +524,10 @@ end
 
 -- What get_abilities reports of the weapon skills, by id: those of the main hand's weapon type, hand-to-hand's with
 -- nothing in it, and those of the ranged weapon's. The game lists only those whose skill the character has enough of,
--- a relic or mythic weapon's own only with that weapon in hand (Mystic Boon with Yagrush), and some others only with a
--- merit or a quest (Requiescat, Savage Blade). The stand-in models none of these: it looks at no skill levels, merits
--- or quests, and the resources don't name a weapon skill's weapon, so it lists every one of the type. The abilities a
--- boot names stand whatever is in hand.
+-- a relic or mythic weapon's own only with that weapon in hand (Mystic Boon with Yagrush), short of Unlocking a Myth
+-- for a mythic one's, and some others only with a merit or a quest (Requiescat, Savage Blade). The stand-in models none
+-- of these: it looks at no skill levels, merits or quests, and the resources don't name a weapon skill's weapon, so it
+-- lists every one of the type. The abilities a boot names stand whatever is in hand.
 function Game:weapon_skills_in_hand()
     if self.weapon_skills then
         return copy(self.weapon_skills)
@@ -840,14 +856,14 @@ end
 
 -- The weapons that take both hands, by their skill. With one in the main hand the sub slot takes a grip and nothing
 -- else, and a grip goes only beside one of them (docs/gear-notes.md, Serenity and the grips). A hand-to-hand weapon
--- takes both hands too, and the stand-in takes nothing in the sub slot beside one, which the docs don't cover. The game
--- also takes the sub slot's piece off when a two-handed weapon goes in the main hand; the stand-in leaves it on.
+-- takes both hands too, and the stand-in takes nothing in the sub slot beside one, which the docs don't cover.
 local two_handed = {['Great Sword'] = true, ['Great Axe'] = true, Scythe = true, Polearm = true,
     ['Great Katana'] = true, Staff = true}
 
 -- Whether the item, by its resource entry, can go in the sub slot with what the main hand holds. A weapon there
 -- takes the Dual Wield trait as well; a shield or a grip doesn't. A grip is a sub slot piece with neither a skill nor a
--- shield size.
+-- shield size. With nothing in the main hand a shield or a weapon fits, the stand-in's choice where the docs don't say
+-- whether the game takes them without a main weapon.
 function Game:fits_beside_the_main_hand(entry)
     local main = self:worn_entry('main')
     local main_skill = main and self.res.skills[main.skill].en
@@ -884,37 +900,53 @@ end
 local equipping_resets_tp = {[slot_ids.main] = true, [slot_ids.sub] = true, [slot_ids.range] = true}
 local taking_off_resets_tp = {[slot_ids.main] = true, [slot_ids.sub] = true}
 
--- Carries out one equip request, as four bytes: bag slot, equipment slot, bag. Returns the bytes to confirm it
--- with, or nil when the server refuses it, as it refuses every one in a game with refuse_equips set; and whether it
--- resets TP, which equipping a piece where it already is doesn't.
-function Game:equip_chunk(chunk)
-    if self.refuse_equips then
-        return nil
-    end
-    local bag_slot, slot_id, bag_id = chunk:byte(1), chunk:byte(2), chunk:byte(3)
+-- Takes the piece in that equipment slot off, if there is one.
+function Game:take_off(slot_id)
     local current = self.equipment[slot_id]
-    if bag_slot == 0 then
-        if current then
-            self.bags[current.bag].items[current.slot].status = 0
-        end
-        self.equipment[slot_id] = nil
-        return string.char(0, slot_id, 0, 0), current ~= nil and taking_off_resets_tp[slot_id]
-    end
-    if not self:wearable(bag_id, bag_slot, slot_id) then
-        return nil
-    end
-    local again = current ~= nil and current.bag == bag_id and current.slot == bag_slot
-    for other, spot in pairs(self.equipment) do
-        if spot.bag == bag_id and spot.slot == bag_slot and other ~= slot_id then
-            self.equipment[other] = nil
-        end
-    end
     if current then
         self.bags[current.bag].items[current.slot].status = 0
     end
-    self.equipment[slot_id] = {bag = bag_id, slot = bag_slot}
-    self.bags[bag_id].items[bag_slot].status = 5
-    return string.char(bag_slot, slot_id, bag_id, 0), not again and equipping_resets_tp[slot_id]
+    self.equipment[slot_id] = nil
+end
+
+-- Carries out one equip request, as four bytes: bag slot, equipment slot, bag. Returns the bytes of each equip packet
+-- (0x050) the server confirms it with, none when it refuses it, as it refuses every one in a game with refuse_equips
+-- set; and whether it resets TP, which equipping a piece where it already is doesn't. A change in the main hand takes
+-- off a sub slot piece that no longer fits beside it, and the server tells of that after the main hand. The game takes
+-- a shield or a weapon off for a two-handed weapon (docs/gear-notes.md, Serenity), and a grip, which goes only beside a
+-- two-handed weapon, comes off when the main hand no longer holds one. The docs don't say what a hand-to-hand weapon
+-- put in does to the sub slot's piece: the stand-in takes it off, as it takes none beside one.
+function Game:equip_chunk(chunk)
+    if self.refuse_equips then
+        return {}
+    end
+    local bag_slot, slot_id, bag_id = chunk:byte(1), chunk:byte(2), chunk:byte(3)
+    local current = self.equipment[slot_id]
+    local changed, replies, resets_tp
+    if bag_slot == 0 then
+        changed = current ~= nil
+        self:take_off(slot_id)
+        replies, resets_tp = {string.char(0, slot_id, 0, 0)}, changed and taking_off_resets_tp[slot_id]
+    elseif not self:wearable(bag_id, bag_slot, slot_id) then
+        return {}
+    else
+        changed = not (current ~= nil and current.bag == bag_id and current.slot == bag_slot)
+        for other, spot in pairs(self.equipment) do
+            if spot.bag == bag_id and spot.slot == bag_slot and other ~= slot_id then
+                self.equipment[other] = nil
+            end
+        end
+        self:take_off(slot_id)
+        self.equipment[slot_id] = {bag = bag_id, slot = bag_slot}
+        self.bags[bag_id].items[bag_slot].status = 5
+        replies, resets_tp = {string.char(bag_slot, slot_id, bag_id, 0)}, changed and equipping_resets_tp[slot_id]
+    end
+    local sub = changed and slot_id == slot_ids.main and self:worn_entry('sub')
+    if sub and not self:fits_beside_the_main_hand(sub) then
+        self:take_off(slot_ids.sub)
+        replies[#replies + 1] = string.char(0, slot_ids.sub, 0, 0)
+    end
+    return replies, resets_tp
 end
 
 -- The equipset reply (0x117): the request as it came, then what is worn in each slot.
@@ -964,8 +996,8 @@ end
 -- or refused; an action taken in, and a moogle's menu opened for a talk to one; a move between bags made.
 function Game:serve(id, data, packet)
     if id == 0x050 then
-        local reply, resets_tp = self:equip_chunk(data:sub(5, 8))
-        if reply then
+        local replies, resets_tp = self:equip_chunk(data:sub(5, 8))
+        for _, reply in ipairs(replies) do
             self:receive(0x050, reply)
         end
         if resets_tp then
@@ -973,8 +1005,8 @@ function Game:serve(id, data, packet)
         end
     elseif id == 0x051 then
         for i = 1, data:byte(5) do
-            local reply, resets_tp = self:equip_chunk(data:sub(5 + 4 * i, 8 + 4 * i))
-            if reply then
+            local replies, resets_tp = self:equip_chunk(data:sub(5 + 4 * i, 8 + 4 * i))
+            for _, reply in ipairs(replies) do
                 self:receive(0x050, reply)
             end
             if resets_tp then
@@ -1680,7 +1712,8 @@ end
 -- a10 to a15 and a20 to a25 for the alliance's other parties) unless in_party is false. fields over the defaults:
 -- name, id, index, hp (of the 1000 they have), mp, tp, hpp (that of the HP unless given), status, distance (squared,
 -- as Windower gives it), x, y, slot, leader (true for one who leads their party), alliance_leader (true for one who
--- leads the alliance). Returns the player as the game holds them.
+-- leads the alliance). The HP, MP and TP are on their party list entry, not on their mob. Returns the player as the
+-- game holds them.
 function Game:add_party_member(fields)
     fields = fields or {}
     local own_party = fields.in_party ~= false and (not fields.slot or fields.slot:match('^p') ~= nil)
