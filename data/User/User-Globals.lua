@@ -31,8 +31,8 @@ food_lists = {
 }
 state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Attack','Oden'}
 trust_lists = {
-	Default = {'Yoran-Oran (UC)','Koru-Moru','Qultada','Ulmia','Joachim'},
-	Limbus = {'Yoran-Oran (UC)','Qultada','Ulmia'},
+	Default = {'Sylvie (UC)','Qultada','Ulmia','Joachim','Cherukiki'},
+	Limbus = {'Sylvie (UC)','Qultada','Ulmia'},
 }
 state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus'}
 send_command('bind f6 gs c cycle AutoTrustMode') --Cycles through Off and the trust_lists entries, summoning that list's trusts automatically.
