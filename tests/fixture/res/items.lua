@@ -110,6 +110,7 @@ return {
     [21396] = {id=21396,en="Regal Gem",ja="王将の玉",enl="regal gem",jal="王将の玉",category="Weapon",damage=0,delay=999,flags=63568,jobs=32,level=99,races=510,skill=0,slots=8,stack=1,targets=0,type=4},
     [21398] = {id=21398,en="Marsyas",ja="マルシュアス",enl="Marsyas",jal="マルシュアス",category="Weapon",damage=3,delay=240,flags=63552,jobs=1024,level=99,races=510,skill=42,slots=4,stack=1,targets=0,type=4},
     [21407] = {id=21407,en="Terpander",ja="テルパンダー",enl="Terpander",jal="テルパンダー",category="Weapon",damage=0,delay=999,flags=63556,jobs=1024,level=99,races=510,skill=41,slots=4,stack=1,targets=0,type=4},
+    [21429] = {id=21429,en="Mephitis Grip",ja="メフィテスグリップ",enl="mephitis grip",jal="メフィテスグリップ",category="Weapon",damage=0,delay=0,flags=63572,jobs=8388606,level=99,races=510,skill=0,slots=2,stack=1,targets=0,type=4},
     [21482] = {id=21482,en="Compensator",ja="コンペンセーター",enl="compensator",jal="コンペンセーター",category="Weapon",damage=89,delay=480,flags=30805,item_level=119,jobs=131072,level=99,races=510,range_type="Gun",skill=26,slots=4,stack=1,targets=0,type=4},
     [21584] = {id=21584,en="Setan Kober",ja="セタンコーベル",enl="Setan Kober",jal="セタンコーベル",category="Weapon",damage=132,delay=189,flags=2080,item_level=119,jobs=524288,level=99,races=510,skill=2,slots=3,stack=1,targets=0,type=4},
     [21621] = {id=21621,en="Naegling",ja="ネイグリング",enl="Naegling",jal="ネイグリング",category="Weapon",damage=166,delay=240,flags=63552,item_level=119,jobs=4419554,level=99,races=510,skill=3,slots=3,stack=1,targets=0,type=4},
