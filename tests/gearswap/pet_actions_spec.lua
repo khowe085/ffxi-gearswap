@@ -152,9 +152,13 @@ describe('a pet\'s action', function()
 
     pending('stops being in midaction when pet_midaction(false) is called: user_pet_midaction sets the flag on '
         .. 'command_registry itself, not on the entry it found, so the entry stays flagged and a boolean joins the '
-        .. 'entries; the scan that follows, and every later pet_midaction, says the pet is still in midaction if pairs '
-        .. 'comes to the entry first, and raises an error indexing the boolean if it comes to that first, as it does '
-        .. 'on the stand-in, and only the error once the entry is dropped as stale')
+        .. 'entries. The call raises an error indexing the boolean, in its first loop when pairs comes to the boolean '
+        .. 'after the entry, and in the scan that follows when before, as on the stand-in. Every later '
+        .. 'pet_midaction() says the pet is still in midaction if pairs comes to the entry first, and raises if it '
+        .. 'comes to the boolean first, as on the stand-in; once the entry is dropped as stale, it only raises. The '
+        .. 'boolean breaks the registry\'s other unguarded scans too: midaction(false), and inside GearSwap\'s packet '
+        .. 'handlers delete_by_id on every death message, find_by_time on an unable-to-use message when pairs comes to '
+        .. 'the boolean before an entry with a timestamp, and the scan on gaining a status such as sleep or stun')
 end)
 
 describe('a Monipulator\'s skill typed in the chat', function()

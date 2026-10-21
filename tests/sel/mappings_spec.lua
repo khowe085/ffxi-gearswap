@@ -17,12 +17,12 @@ describe('Sel\'s spell map', function()
         gs:traffic()
     end)
 
-    it('BarElement is the midcast set of a bar-element spell', function()
-        assert.equal('Telchine Braconi', midcast(gs, '/ma "Barfire" <me>').legs)
-    end)
-
     it('BarElement is the midcast set of each bar-element spell', function()
-        assert.equal('Telchine Braconi', midcast(gs, '/ma "Barblizzard" <me>').legs)
+        for _, spell in ipairs({'Barfire', 'Barblizzard', 'Baraero', 'Barstone', 'Barthunder', 'Barwater'}) do
+            assert.equal('Telchine Braconi', midcast(gs, ('/ma "%s" <me>'):format(spell)).legs, spell)
+            gs:finish_action()
+            gs:advance(5)
+        end
     end)
 
     it('Enspell is the midcast set of an enspell', function()

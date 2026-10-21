@@ -75,11 +75,11 @@ function testy.rdm(overrides)
     return options
 end
 
--- Testy as a red mage with the idle set on, and what was sent until then taken as read.
+-- Testy as a red mage with the idle set on, and everything until then taken as read.
 function testy.boot_rdm()
     local gs = require('harness').boot(testy.rdm())
     gs:console('gs c update')
-    gs:traffic()
+    gs:forget()
     return gs
 end
 

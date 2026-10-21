@@ -8,12 +8,16 @@ local function wearing_th(gs)
     return worn.head == 'Volte Cap' and worn.legs == 'Volte Hose'
 end
 
--- Casts Dia at the monster and returns whether sets.TreasureHunter was on for it, once it was out.
-local function dia_wears_th(gs)
+-- Casts the spell at the monster and returns whether sets.TreasureHunter was on for it, once it was out.
+local function spell_wears_th(gs, name)
     local sent = #gs.game.actions
-    gs:type('/ma "Dia" <t>')
-    assert.equal(sent + 1, #gs.game.actions, 'Dia didn\'t go out')
+    gs:type(('/ma "%s" <t>'):format(name))
+    assert.equal(sent + 1, #gs.game.actions, name .. ' didn\'t go out')
     return wearing_th(gs)
+end
+
+local function dia_wears_th(gs)
+    return spell_wears_th(gs, 'Dia')
 end
 
 -- Casts Dia at the monster and lets it land, which tags the monster.
@@ -74,7 +78,7 @@ describe('Sel\'s Treasure Hunter in Tag mode', function()
 
     it('forgets every monster on zoning', function()
         tag_with_dia(gs)
-        gs:change_zone(288)
+        gs:change_zone(100)
         assert.is_true(dia_wears_th(gs))
     end)
 
@@ -171,5 +175,90 @@ describe('Sel\'s Treasure Hunter in None mode', function()
         gs:finish_action()
         gs:engage()
         assert.is_false(wearing_th(gs))
+    end)
+end)
+
+-- Commy holding a bow, with Dia and Savage Blade in TH_Whitelist, as a gear file names them in user_job_setup.
+local function boot_with_whitelist()
+    local gs = commy.boot_rdm({extra_items = {{name = "Judge's Bow"}}, wearing = {range = "Judge's Bow"}})
+    gs.user.TH_Whitelist = gs.user.S{'Dia', 'Savage Blade'}
+    return gs
+end
+
+describe('User-Globals.lua\'s Treasure Hunter with a TH_Whitelist in Tag mode', function()
+    local gs
+    before_each(function()
+        gs = boot_with_whitelist()
+    end)
+
+    it('lays sets.TreasureHunter over the midcast set of a spell on the list at a monster it hasn\'t tagged', function()
+        assert.is_true(dia_wears_th(gs))
+    end)
+
+    it('leaves it off a spell not on the list', function()
+        assert.is_false(spell_wears_th(gs, 'Bio'))
+    end)
+
+    it('takes the monster for tagged once a spell on the list lands', function()
+        tag_with_dia(gs)
+        assert.is_false(dia_wears_th(gs))
+    end)
+
+    it('doesn\'t take the monster for tagged by a spell not on the list', function()
+        assert.is_false(spell_wears_th(gs, 'Bio'))
+        gs:finish_action()
+        gs:advance(5)
+        assert.is_true(dia_wears_th(gs))
+    end)
+
+    -- The gear put on before the weapon skill went out, with Naegling in hand.
+    local function weaponskill_precast(line)
+        gs:console('gs c set Weapons Naegling')
+        gs:set_tp(1000)
+        gs:traffic()
+        gs:type(line)
+        local traffic = gs:traffic()
+        assert.is_truthy(traffic[2] and traffic[2].action, 'the weapon skill didn\'t go out')
+        return traffic[1].equip
+    end
+
+    it('lays it over the precast set of a weapon skill on the list', function()
+        assert.same({head = 'Volte Cap', body = 'Atrophy Tabard +3', legs = 'Volte Hose'},
+            weaponskill_precast('/ws "Savage Blade" <t>'))
+    end)
+
+    it('leaves it off a weapon skill not on the list', function()
+        assert.same({head = 'Kaykaus Mitra +1', body = 'Atrophy Tabard +3'},
+            weaponskill_precast('/ws "Vorpal Blade" <t>'))
+    end)
+
+    it('lays it over a ranged attack\'s precast set at a monster it hasn\'t tagged', function()
+        gs:type('/ra <t>')
+        assert.same({
+            {equip = {head = 'Volte Cap', legs = 'Volte Hose'}},
+            {action = 'category 16', target = 'Apex Toad'},
+        }, gs:traffic())
+    end)
+
+    it('leaves it off when Commy engages', function()
+        gs:engage()
+        assert.same(commy.worn_by(idle, {range = "Judge's Bow", head = "Bunzi's Hat", body = 'Lethargy Sayon +3'}),
+            gs:worn())
+    end)
+
+    it('doesn\'t take the monster for tagged by a melee hit', function()
+        gs:engage()
+        commy.hit(gs)
+        assert.is_true(dia_wears_th(gs))
+    end)
+end)
+
+describe('User-Globals.lua\'s Treasure Hunter with a TH_Whitelist in None mode', function()
+    it('leaves sets.TreasureHunter off a ranged attack', function()
+        local gs = boot_with_whitelist()
+        gs:console('gs c set TreasureMode None')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same({{action = 'category 16', target = 'Apex Toad'}}, gs:traffic())
     end)
 end)

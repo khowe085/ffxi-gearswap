@@ -12,6 +12,12 @@ describe('a session\'s readers of what GearSwap did', function()
         assert.same({{}, {}, {}, {}, {}}, {gs:printed(), gs:chat(), gs:typed(), gs:commands(), gs:traffic()})
     end)
 
+    it('start after the red mage\'s boot the specs share, with the update it runs taken as read', function()
+        local gs = testy.boot_rdm()
+        assert.truthy(gs:log():find('command: gs c update', 1, true))
+        assert.same({{}, {}, {}, {}, {}}, {gs:printed(), gs:chat(), gs:typed(), gs:commands(), gs:traffic()})
+    end)
+
     it('give each line of chat once, without the codes that color it, and leave the chat log whole', function()
         local gs = boot()
         gs.game.windower.add_to_chat(1, '\31\200hello\30\1')

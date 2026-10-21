@@ -96,6 +96,11 @@ describe('Sel\'s midcast set for a spell', function()
         assert.same(testy.worn_by(testy.rdm_idle, {head = 'Malignance Chapeau', body = 'Lethargy Sayon +3',
             ring1 = 'Kishar Ring'}), midcast(gs, '/ma "Haste" <me>'))
     end)
+
+    pending('as the "Midcast of a spell" row of docs/frameworks/sel.md\'s "How Sel picks a set" has it, is '
+        .. 'sets.midcast itself for a spell that matches nothing: filter_midcast in libs/Sel-Include.lua puts '
+        .. 'sets.midcast.FastRecast on first for every spell, so such a spell wears FastRecast, and the doc and the '
+        .. 'code disagree until one is settled')
 end)
 
 describe('a spell under Sel', function()

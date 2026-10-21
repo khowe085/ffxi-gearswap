@@ -1,10 +1,6 @@
 local commy = require('commy')
 
--- Runs a gs c command and returns what Sel said in the chat log for it.
-local function said(gs, command)
-    gs:console(command)
-    return gs:chat()
-end
+local said = commy.said_for
 
 describe('gs c cycle', function()
     local gs
@@ -164,8 +160,7 @@ describe('gs c value', function()
     end)
 
     it('shows a mode\'s description, options and current option', function()
-        gs:console('gs c set IdleMode DT')
-        gs:chat()
+        said(gs, 'gs c set IdleMode DT')
         assert.same({'Idle Mode: {Normal, DT, Refresh} (DT)'}, said(gs, 'gs c value IdleMode'))
     end)
 
@@ -226,17 +221,14 @@ describe('a change of mode', function()
     end)
 
     it('of ElementalMode says what the new element is strong and weak against', function()
-        gs:console('gs c cycle ElementalMode')
-        gs:advance(0.1)
-        assert.same({'Elemental Mode is now Ice.', '<Ice> (Strong vs Wind, Weak vs Fire)'}, gs:chat())
+        assert.same({'Elemental Mode is now Ice.', '<Ice> (Strong vs Wind, Weak vs Fire)'},
+            said(gs, 'gs c cycle ElementalMode'))
     end)
 
     it('of RuneElement says what the new rune resists and deals', function()
-        gs:console('gs c set RuneElement Unda')
-        gs:advance(0.1)
         assert.same({'Rune Element is now Unda.',
             'Unda Resists: <Fire> (Addle, Amnesia, Plague), Deals: <Water> (Strong vs Fire, Weak vs Lightning)'},
-            gs:chat())
+            said(gs, 'gs c set RuneElement Unda'))
     end)
 
     it('of Weapons to one with no set warns of it and sets Weapons back to its default', function()
@@ -271,9 +263,7 @@ describe('gs c display commands', function()
     end)
 
     it('DisplayElement says what the element is strong and weak against', function()
-        gs:console('gs c set ElementalMode Lightning')
-        gs:advance(0.1)
-        gs:chat()
+        said(gs, 'gs c set ElementalMode Lightning')
         assert.same({'<Lightning> (Strong vs Water, Weak vs Earth)'}, said(gs, 'gs c DisplayElement'))
     end)
 

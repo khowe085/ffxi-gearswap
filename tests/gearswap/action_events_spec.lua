@@ -139,7 +139,10 @@ describe('a packet another addon injected', function()
 end)
 
 describe('an action that never ends', function()
-    -- GearSwap keeps a spell for its cast time and a tenth more, and two seconds: 4.75 for Cure III's 2.5.
+    -- GearSwap keeps a spell for its cast time and a tenth more, and two seconds: 4.75 for Cure III's 2.5. It drops a
+    -- stale entry only when it looks up a key the registry doesn't hold, as equip_sets does for an event with no entry
+    -- (command_registry[nil]), and midaction() reads the registry with pairs, which drops nothing, so each test has
+    -- GearSwap refresh before it asks.
     it('is forgotten after the time it should take, and a bit more', function()
         local gs = boot()
         gs:type('/ma "Cure III" <me>')

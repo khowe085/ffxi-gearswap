@@ -138,16 +138,19 @@ end)
 
 describe('gs c smartcure', function()
     local gs
-    before_each(function()
-        gs = commy.boot_rdm()
-        gs.game.target_index = nil
-    end)
 
     -- Commy's HP at the percentage, of a maximum of 1800.
     local function at(hpp)
         gs.game.player.vitals.hpp = hpp
         gs.game.player.vitals.hp = 1800 * hpp / 100
     end
+
+    before_each(function()
+        gs = commy.boot_rdm()
+        gs.game.target_index = nil
+        gs.game.player.vitals.max_hp = 1800
+        at(100)
+    end)
 
     it('casts Cure on Commy when Commy has no target and is missing under 170 HP', function()
         assert.same({'/ma "Cure" ' .. gs.game.player.id}, typed_for(gs, 'gs c smartcure'))
