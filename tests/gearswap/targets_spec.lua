@@ -660,7 +660,7 @@ describe('an item typed in the chat', function()
             local mark = #gs.game.sent
             assert.is_true(gs:type('/item "Remedy" ' .. npc.id))
             assert.same({}, sent_since(gs, mark, 0x36))
-            assert.matches('Target out of range', gs.game.chat_log[1].text)
+            assert.same({'Target out of range.'}, gs:chat())
         end)
 
         it('that the character doesn\'t have is left to the game', function()
@@ -699,8 +699,7 @@ describe('an item typed in the chat', function()
             assert.is_true(gs:type('/item "Remedy" <t>'))
             assert.same({}, sent_since(gs, mark, 0x36))
             assert.same({'pretarget'}, events(calls(gs)))
-            assert.same({1}, {#gs.game.chat_log})
-            assert.matches('Target out of range', gs.game.chat_log[1].text)
+            assert.same({'Target out of range.'}, gs:chat())
         end)
 
         it('that the character doesn\'t have goes nowhere, and no packet is sent', function()

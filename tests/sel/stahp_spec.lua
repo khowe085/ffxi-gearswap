@@ -67,8 +67,7 @@ describe('Sel\'s AutoAcceptRaiseMode', function()
     -- The server's offer of a raise (0x0F9): Commy, and the kind of raise.
     local function offer_raise(gs)
         local player = gs.game.player
-        gs:receive(0x0F9, string.char(player.id % 256, math.floor(player.id / 256) % 256,
-            math.floor(player.id / 65536) % 256, 0, player.index % 256, math.floor(player.index / 256), 1, 0))
+        gs:send(0x0F9, {['ID'] = player.id, ['Index'] = player.index, ['Category'] = 1})
     end
 
     it('accepts a raise when it is on', function()

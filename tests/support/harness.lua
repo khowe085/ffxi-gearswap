@@ -445,7 +445,8 @@ local beginning_category = {[3] = 8, [7] = 7, [16] = 12}
 --   wearing        slot name to the name of an item in items, worn when GearSwap loads
 --   buffs          the names of the buffs up when GearSwap loads
 --   zone           the id of the zone the character is in, Escha - Zi'Tah (288) unless given
---   spells, abilities   the names the character knows; every one the test resources hold unless given
+--   spells, abilities   the names the character knows; unless given, every spell and job ability the test resources
+--                       hold, and the weapon skills of the weapons in hand (see Game:weapon_skills_in_hand)
 --   merits         the character's merit levels by name, none unless given
 --   pet            the fields of a pet at the character's side when GearSwap loads (see Game:place_pet)
 --   expect_file    the user file GearSwap should load, by its name in data/

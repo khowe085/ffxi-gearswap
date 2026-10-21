@@ -130,41 +130,42 @@ describe('the pet\'s status in an NPC update (0x00E)', function()
         return gs, pet
     end
 
-    -- The client gives the pet's mob the status in the update once the addon has seen it, and only when the mask
-    -- says the update carries one.
-    local function update(gs, pet, status, mask)
-        mask = mask or 4
-        gs:send(0x00E, {['NPC'] = pet.id, ['Index'] = pet.index, ['Mask'] = mask, ['Status'] = status})
-        if math.floor(mask / 4) % 2 == 1 then
-            gs.game.pet.status = status
-        end
-        gs:next_packet()
-    end
-
     it('tells the user file the pet engaged, with its new status and the old', function()
-        local gs, pet = boot_with_pet()
-        update(gs, pet, 1)
+        local gs = boot_with_pet()
+        gs:set_pet_status(1)
         assert.same({{event = 'pet_status_change', new = 'Engaged', old = 'Idle'}}, plain.events(gs))
     end)
 
     it('tells it the pet stopped, from Engaged to Idle', function()
-        local gs, pet = boot_with_pet()
-        update(gs, pet, 1)
+        local gs = boot_with_pet()
+        gs:set_pet_status(1)
         plain.events(gs)
-        update(gs, pet, 0)
+        gs:set_pet_status(0)
         assert.same({{event = 'pet_status_change', new = 'Idle', old = 'Engaged'}}, plain.events(gs))
     end)
 
     it('tells it the pet is resting', function()
-        local gs, pet = boot_with_pet()
-        update(gs, pet, 33)
+        local gs = boot_with_pet()
+        gs:set_pet_status(33)
         assert.same({{event = 'pet_status_change', new = 'Resting', old = 'Idle'}}, plain.events(gs))
     end)
 
+    it('tells it the pet is dead', function()
+        local gs = boot_with_pet()
+        gs:set_pet_status(2)
+        assert.same({{event = 'pet_status_change', new = 'Dead', old = 'Idle'}}, plain.events(gs))
+    end)
+
+    it('tells it the pet is sitting', function()
+        local gs = boot_with_pet()
+        gs:set_pet_status(47)
+        assert.same({{event = 'pet_status_change', new = 'Sitting', old = 'Idle'}}, plain.events(gs))
+    end)
+
     it('changing while the user file is disabled is told with the first packet after gs enable', function()
-        local gs, pet = boot_with_pet()
+        local gs = boot_with_pet()
         gs:console('gs disable')
-        update(gs, pet, 1)
+        gs:set_pet_status(1)
         gs:console('gs enable')
         assert.same({}, plain.events(gs))
         gs:next_packet()
@@ -177,20 +178,21 @@ describe('the pet\'s status in an NPC update (0x00E)', function()
         .. 'Idle')
 
     it('says nothing of a status that is none of those', function()
-        local gs, pet = boot_with_pet()
-        update(gs, pet, 5)
+        local gs = boot_with_pet()
+        gs:set_pet_status(5)
         assert.same({}, plain.events(gs))
     end)
 
     it('says nothing when the status is the pet\'s own', function()
-        local gs, pet = boot_with_pet()
-        update(gs, pet, 0)
+        local gs = boot_with_pet()
+        gs:set_pet_status(0)
         assert.same({}, plain.events(gs))
     end)
 
     it('says nothing when the update has no status in it', function()
         local gs, pet = boot_with_pet()
-        update(gs, pet, 1, 1)
+        gs:send(0x00E, {['NPC'] = pet.id, ['Index'] = pet.index, ['Mask'] = 1, ['Status'] = 1})
+        gs:next_packet()
         assert.same({}, plain.events(gs))
     end)
 

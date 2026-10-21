@@ -133,7 +133,8 @@ describe('the gear file', function()
 
     for _, character in ipairs(characters()) do
         for _, file in ipairs(gear_files(character)) do
-            it(file.path .. ' loads and builds its sets', function()
+            it(file.path .. ' loads, builds its sets and gets through a status change and an action without an '
+                .. 'error', function()
                 local spell = spells[file.job]
                 local function boot(weapons)
                     local items = {}
@@ -161,7 +162,12 @@ describe('the gear file', function()
                 gs:engage()
                 gs:disengage()
                 gs:traffic()
-                local action = spell or {'/ws', gs.game.res.weapon_skills[gs.game:weapon_skills_in_hand()[1]].en, '<t>'}
+                local action = spell
+                if not action then
+                    local in_hand = assert(gs.game:weapon_skills_in_hand()[1],
+                        'the test resources hold no weapon skill of the weapons in hand')
+                    action = {'/ws', gs.game.res.weapon_skills[in_hand].en, '<t>'}
+                end
                 assert.is_true(gs:type(('%s "%s" %s'):format(unpack(action))))
                 assert.same({action[2]}, gs:actions())
                 gs:finish_action()

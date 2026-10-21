@@ -51,9 +51,14 @@ describe('Sel\'s Treasure Hunter in Tag mode', function()
     end)
 
     it('lays it over a weapon skill\'s precast set at a monster it hasn\'t tagged', function()
+        gs:console('gs c set Weapons Naegling')
         gs.game.player.vitals.tp = 1000
+        gs:traffic()
         gs:type('/ws "Savage Blade" <t>')
-        assert.same({head = 'Volte Cap', body = 'Atrophy Tabard +3', legs = 'Volte Hose'}, gs:traffic()[1].equip)
+        assert.same({
+            {equip = {head = 'Volte Cap', body = 'Atrophy Tabard +3', legs = 'Volte Hose'}},
+            {action = 'Savage Blade', target = 'Apex Toad'},
+        }, gs:traffic())
     end)
 
     it('leaves it off a spell at Commy', function()

@@ -17,7 +17,7 @@ describe('a spell typed in the chat', function()
             {action = 'Cure III', target = 'Testy'},
             {equip = {head = 'Kaykaus Mitra +1'}},
         }, gs:traffic())
-        assert.same({}, gs.game.typed)
+        assert.same({}, gs:typed())
     end)
 
     it('hands pretarget, precast and midcast the spell and its target', function()
@@ -147,7 +147,7 @@ describe('a line GearSwap has no action for', function()
     it('reaches the game as it was typed', function()
         local gs = plain.boot()
         assert.equal('/echo hello', gs:type('/echo hello'))
-        assert.same({'/echo hello'}, gs.game.typed)
+        assert.same({'/echo hello'}, gs:typed())
         assert.same({}, gs:traffic())
     end)
 end)

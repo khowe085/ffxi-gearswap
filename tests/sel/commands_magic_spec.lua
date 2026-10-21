@@ -183,14 +183,15 @@ describe('gs c smartcure', function()
 
     it('picks its target by <stal> when the target is a monster, and cures the one picked in place of the emote the '
         .. 'pick sends', function()
+        local ally = gs.game:add_party_member({name = 'Pally'})
         gs.game.target_index = gs.game.monster.index
         assert.same({'/dance motion <stal>'}, typed_for(gs, 'gs c smartcure'))
         local typed = commy.record_input(gs)
         local packets = gs.user.packets
-        local picked = packets.build(packets.new('outgoing', 0x05D, {['Target ID'] = gs.game.player.id,
-            ['Target Index'] = gs.game.player.index, ['Emote'] = 31, ['Type'] = 2}))
+        local picked = packets.build(packets.new('outgoing', 0x05D, {['Target ID'] = ally.id,
+            ['Target Index'] = ally.index, ['Emote'] = 31, ['Type'] = 2}))
         assert.is_true(gs:send_from_client(0x05D, picked:sub(5)))
-        assert.same({'/ma "Cure" ' .. gs.game.player.id}, typed)
+        assert.same({'/ma "Cure" ' .. ally.id}, typed)
     end)
 end)
 
