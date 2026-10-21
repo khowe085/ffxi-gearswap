@@ -73,7 +73,7 @@ function init_gear_sets()
 	sets.idle.DT = set_combine(sets.idle, {head = 'Null Masque'})
 	sets.idle.Sphere = set_combine(sets.idle, {main = "Terra's Staff"})
 	sets.latent_refresh = {waist = 'Null Belt'}
-	sets.latent_refresh_grip = {sub = 'Kupo Shield'}
+	sets.latent_refresh_grip = {sub = 'Enki Strap'}
 	sets.TPEat = {ear1 = 'Cessance Earring'}
 	sets.buff.Sublimation = {back = 'Null Shawl'}
 	sets.buff.DTSublimation = {back = 'Null Shawl', ring1 = 'Karieyh Ring'}

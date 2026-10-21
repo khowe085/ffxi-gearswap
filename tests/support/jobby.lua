@@ -1,10 +1,12 @@
 -------------------------------------------------------------------------------------------------------------------
 -- Jobby, the made-up character the tests of the job files in data/ play (tests/jobs): the boot options for each job,
 -- over the fixture gear file tests/fixture/data/Jobby/Jobby_<Job>_Gear.lua that job loads, and the sets as they are
--- worn; what Jobby is told and types but the lines User-Globals.lua gives five seconds after his file first loads; and
--- what a test gives him besides: the Dual Wield trait, and another player as his target.
+-- worn; what Jobby is told and types but the lines User-Globals.lua gives five seconds after his file first loads; what
+-- is worn once a weapon skill he types has gone out; and what a test gives him besides: the Dual Wield trait, and
+-- another player as his target.
 -------------------------------------------------------------------------------------------------------------------
 
+local assert = require('luassert')
 local harness = require('harness')
 local testy = require('testy')
 
@@ -103,6 +105,14 @@ function jobby.boot_ticking(job, options)
     gs:play(harness.sel_load_time + 1)
     gs:forget()
     return gs
+end
+
+-- What is worn once the weapon skill typed (a line such as '/ws "Savage Blade" <t>') has gone out. The test fails
+-- when it didn't, or when another action went out since the actions were last read.
+function jobby.weaponskill(gs, line)
+    gs:type(line)
+    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
+    return gs:worn()
 end
 
 -- What Jobby has targeted is another player, Pal, standing in front of him, who isn't in the party. fields are over

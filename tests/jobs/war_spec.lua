@@ -30,17 +30,6 @@ local function boot_buffing(options)
     return gs
 end
 
--- What is worn once the weapon skill typed has gone out: its precast set over what was on before.
-local function weaponskill(gs, line)
-    gs:type(line)
-    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
-    return gs:worn()
-end
-
-local function with_ws(changes)
-    return jobby.worn_by(idle, changes)
-end
-
 describe('WAR\'s weapon skill filter', function()
     it('sends Resolution in place of Upheaval when Jobby has the great sword weapon skills', function()
         local gs = boot({tp = 1000, abilities = great_sword})
@@ -87,12 +76,12 @@ describe('WAR\'s Berserk', function()
 
     it('puts Conqueror on through the weapon lock while TP is under 250, the first Conqueror Mode', function()
         local gs = berserk(0)
-        assert.same(with_ws({main = 'Conqueror', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {main = 'Conqueror', body = 'Volte Jupon'}), gs:worn())
     end)
 
     it('leaves the weapon set\'s main on with TP of 250 or more', function()
         local gs = berserk(250)
-        assert.same(with_ws({main = 'Naegling', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {main = 'Naegling', body = 'Volte Jupon'}), gs:worn())
     end)
 
     it('puts Conqueror on in Conqueror Mode 1000 with TP under 1000', function()
@@ -324,31 +313,31 @@ describe('WAR\'s weapon skill set', function()
     it('is sets.precast.WS[name] with no cap TP, Moonshade Earring in it', function()
         assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
             ear1 = 'Moonshade Earring', ear2 = 'Brutal Earring', hands = 'Volte Bracers'}),
-            weaponskill(gs, '/ws "Resolution" <t>'))
+            jobby.weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 
     it('swaps Moonshade Earring for sets.DayMaxTPWSEars by day when TP, with Moonshade\'s 250, is over 3200', function()
         gs.game.player.vitals.tp = 2951
         assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
             ear1 = 'Cessance Earring', ear2 = 'Brutal Earring', hands = 'Volte Bracers'}),
-            weaponskill(gs, '/ws "Resolution" <t>'))
+            jobby.weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 
     it('keeps Moonshade Earring on at 2950 TP, which Moonshade makes 3200', function()
         gs.game.player.vitals.tp = 2950
-        assert.equal('Moonshade Earring', weaponskill(gs, '/ws "Resolution" <t>').left_ear)
+        assert.equal('Moonshade Earring', jobby.weaponskill(gs, '/ws "Resolution" <t>').left_ear)
     end)
 
     it('swaps Moonshade Earring for sets.MaxTP at night', function()
         gs:set_time(22 * 60)
         gs.game.player.vitals.tp = 3000
-        assert.equal('Lugra Earring', weaponskill(gs, '/ws "Resolution" <t>').left_ear)
+        assert.equal('Lugra Earring', jobby.weaponskill(gs, '/ws "Resolution" <t>').left_ear)
     end)
 
     it('swaps in sets.AccDayMaxTPWSEars by day when the offense mode is an accuracy one', function()
         gs:console('gs c set OffenseMode Acc')
         gs.game.player.vitals.tp = 3000
-        local worn = weaponskill(gs, '/ws "Resolution" <t>')
+        local worn = jobby.weaponskill(gs, '/ws "Resolution" <t>')
         assert.equal('Odnowa Earring +1', worn.left_ear)
         assert.equal('Adamantite Armor', worn.body)
     end)
@@ -357,7 +346,7 @@ describe('WAR\'s weapon skill set', function()
         gs:set_time(22 * 60)
         gs:console('gs c set OffenseMode Acc')
         gs.game.player.vitals.tp = 3000
-        local worn = weaponskill(gs, '/ws "Resolution" <t>')
+        local worn = jobby.weaponskill(gs, '/ws "Resolution" <t>')
         assert.equal('Lugra Earring', worn.left_ear)
         assert.equal('Adamantite Armor', worn.body)
     end)
@@ -366,29 +355,29 @@ describe('WAR\'s weapon skill set', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Sneak Attack')
         gs.game.player.vitals.tp = 3000
-        local worn = weaponskill(gs, '/ws "Resolution" <t>')
+        local worn = jobby.weaponskill(gs, '/ws "Resolution" <t>')
         assert.equal('Cessance Earring', worn.left_ear)
     end)
 
     it('has Lugra Earring in the set swapped for sets.DayWSEars by day', function()
-        assert.equal('Cessance Earring', weaponskill(gs, '/ws "Ground Strike" <t>').left_ear)
+        assert.equal('Cessance Earring', jobby.weaponskill(gs, '/ws "Ground Strike" <t>').left_ear)
     end)
 
     it('keeps Lugra Earring on at night', function()
         gs:set_time(22 * 60)
-        assert.equal('Lugra Earring', weaponskill(gs, '/ws "Ground Strike" <t>').left_ear)
+        assert.equal('Lugra Earring', jobby.weaponskill(gs, '/ws "Ground Strike" <t>').left_ear)
     end)
 
     it('swaps in sets.AccDayWSEars with Lugra Earring by day in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
-        assert.equal('Odnowa Earring +1', weaponskill(gs, '/ws "Ground Strike" <t>').left_ear)
+        assert.equal('Odnowa Earring +1', jobby.weaponskill(gs, '/ws "Ground Strike" <t>').left_ear)
     end)
 
     -- Upheaval is a great axe's. Changing the weapon takes the TP, so it is given again after.
     local function upheaval(gs)
         gs:console('gs c set Weapons Conqueror')
         gs.game.player.vitals.tp = 1000
-        return weaponskill(gs, '/ws "Upheaval" <t>')
+        return jobby.weaponskill(gs, '/ws "Upheaval" <t>')
     end
 
     it('swaps in sets.DayWSEars by day below the cap when the set has Moonshade Earring and Lugra Earring', function()
@@ -662,32 +651,32 @@ describe('WAR\'s weapon skill set with state.Buff.Charge kept', function()
     end)
 
     it('has sets.WSCharge laid over it', function()
-        assert.equal("Combatant's Torque", weaponskill(gs, '/ws "Resolution" <t>').neck)
+        assert.equal("Combatant's Torque", jobby.weaponskill(gs, '/ws "Resolution" <t>').neck)
     end)
 
     it('has sets.WSMightyCharge laid over it in place of sets.WSCharge with Mighty Strikes up too', function()
         gs:gain_buff('Mighty Strikes')
-        local worn = weaponskill(gs, '/ws "Resolution" <t>')
+        local worn = jobby.weaponskill(gs, '/ws "Resolution" <t>')
         assert.equal('Volte Boots', worn.feet)
         assert.equal('Fotia Gorget', worn.neck)
     end)
 
     it('has sets.ACCWSCharge laid over it in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
-        assert.equal('Null Belt', weaponskill(gs, '/ws "Resolution" <t>').waist)
+        assert.equal('Null Belt', jobby.weaponskill(gs, '/ws "Resolution" <t>').waist)
     end)
 
     it('has sets.ACCWSMightyCharge laid over it in an accuracy offense mode with Mighty Strikes up too', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Mighty Strikes')
-        assert.equal('Karieyh Ring', weaponskill(gs, '/ws "Resolution" <t>').left_ring)
+        assert.equal('Karieyh Ring', jobby.weaponskill(gs, '/ws "Resolution" <t>').left_ring)
     end)
 
     it('has the plain sets laid over it under Sneak Attack in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Sneak Attack')
         gs:gain_buff('Mighty Strikes')
-        assert.equal('Volte Boots', weaponskill(gs, '/ws "Resolution" <t>').feet)
+        assert.equal('Volte Boots', jobby.weaponskill(gs, '/ws "Resolution" <t>').feet)
     end)
 end)
 
@@ -700,18 +689,18 @@ describe('WAR\'s weapon skill set under Mighty Strikes', function()
 
     it('has sets.WSMighty laid over it', function()
         gs:gain_buff('Mighty Strikes')
-        assert.equal('Volte Hose', weaponskill(gs, '/ws "Resolution" <t>').legs)
+        assert.equal('Volte Hose', jobby.weaponskill(gs, '/ws "Resolution" <t>').legs)
     end)
 
     it('has no sets.WSMighty laid over it without Mighty Strikes', function()
-        assert.equal('Nyame Flanchard', weaponskill(gs, '/ws "Resolution" <t>').legs)
+        assert.equal('Nyame Flanchard', jobby.weaponskill(gs, '/ws "Resolution" <t>').legs)
     end)
 
     it('has sets.AccWSMighty laid over it in an accuracy offense mode when the gear file names sets.ACCWSMighty too, '
         .. 'as the job file tests that one', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Mighty Strikes')
-        assert.equal('Chirich Ring +1', weaponskill(gs, '/ws "Resolution" <t>').right_ring)
+        assert.equal('Chirich Ring +1', jobby.weaponskill(gs, '/ws "Resolution" <t>').right_ring)
     end)
 
     pending('has sets.AccWSMighty laid over it in an accuracy offense mode when the gear file names only that: '

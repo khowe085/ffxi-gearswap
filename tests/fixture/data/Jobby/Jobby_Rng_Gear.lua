@@ -46,7 +46,7 @@ function init_gear_sets()
 
 	sets.precast.WS = {neck = "Orunmila's Torque"}
 	sets.precast.WS['Last Stand'] = {neck = "Orunmila's Torque", ear1 = 'Moonshade Earring', ear2 = 'Etiolation Earring'}
-	sets.precast.WS['Trueflight'] = {neck = "Orunmila's Torque", ear1 = 'Moonshade Earring', ear2 = 'Etiolation Earring'}
+	sets.precast.WS['Wildfire'] = {neck = "Orunmila's Torque", ear1 = 'Moonshade Earring', ear2 = 'Etiolation Earring'}
 	sets.precast.WS['Savage Blade'] = {neck = "Orunmila's Torque", ear1 = 'Moonshade Earring', ear2 = 'Etiolation Earring'}
 	sets.RangedMaxTP = {ear1 = 'Ishvara Earring'}
 	sets.RangedAccMaxTP = {ear1 = 'Brutal Earring'}

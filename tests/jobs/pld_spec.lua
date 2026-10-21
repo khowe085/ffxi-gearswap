@@ -22,13 +22,6 @@ end
 -- What the idle set of Jobby's paladin gear file wears, as the game shows it worn, with his sword in hand.
 local idle = jobby.worn_by(jobby.full_idle, jobby.weapons.PLD)
 
--- What is worn once the weapon skill typed has gone out.
-local function weaponskill(gs, line)
-    gs:type(line)
-    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
-    return gs:worn()
-end
-
 -- What is worn with the idle set on and the engaged set over it.
 local function engaged_with(changes)
     local set = {head = 'Volte Cap', body = 'Volte Jupon'}
@@ -124,7 +117,7 @@ describe('PLD\'s weapon skill set', function()
         if setup then
             setup(gs)
         end
-        return weaponskill(gs, line)
+        return jobby.weaponskill(gs, line)
     end
 
     local function acc(gs)

@@ -155,7 +155,8 @@ end)
 
 describe('SAM\'s weapon skill typed without a spear in hand', function()
     -- Stardiver is a spear's, but the job file takes only Double Thrust for a spear in hand.
-    it('is left alone, and Sel turns it down as one Jobby doesn\'t have', function()
+    it('is left alone when Jobby hasn\'t Double Thrust, which the job file takes for a spear, whatever other spear '
+        .. 'weapon skills he has, and Sel turns it down', function()
         local gs = boot({abilities = {'Stardiver'}, tp = 1000})
         gs:type('/ws "Tachi: Fudo" <t>')
         assert.same({}, gs:actions())
@@ -166,8 +167,7 @@ end)
 -- What is worn once the weapon skill is out, with the TP Jobby has.
 local function weaponskill(gs, name, tp)
     gs.game.player.vitals.tp = tp
-    gs:type('/ws "' .. name .. '" <t>')
-    return gs:worn()
+    return jobby.weaponskill(gs, '/ws "' .. name .. '" <t>')
 end
 
 describe('SAM\'s weapon skill set with Moonshade Earring in it', function()
@@ -262,8 +262,8 @@ describe('SAM\'s weapon skill set with neither earring in it', function()
 
     -- What is worn with sets.precast.WS on, and these changes over it.
     local function ws_with(changes)
-        return worn(jobby.layer({head = "Theia's Hairpin", neck = "Orunmila's Torque", hands = 'Volte Bracers',
-            legs = 'Volte Hose'}, changes))
+        return jobby.worn_by(worn({head = "Theia's Hairpin", neck = "Orunmila's Torque", hands = 'Volte Bracers',
+            legs = 'Volte Hose'}), changes)
     end
 
     it('has Sekkanoki\'s set over it while Sekkanoki is up', function()
@@ -284,8 +284,8 @@ describe('SAM\'s engaged set', function()
     end)
 
     local function engaged_with(changes)
-        return worn(jobby.layer({head = "Bendis's Hairpin", body = 'Sapphire Platemail', feet = 'Nyame Sollerets'},
-            changes))
+        return jobby.worn_by(worn({head = "Bendis's Hairpin", body = 'Sapphire Platemail', feet = 'Nyame Sollerets'}),
+            changes)
     end
 
     it('has Hasso\'s set over it while Hasso is up', function()

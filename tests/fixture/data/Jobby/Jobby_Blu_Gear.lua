@@ -8,11 +8,12 @@ function user_job_setup()
 	state.WeaponskillMode:options('Match', 'Normal', 'Acc')
 	state.CastingMode:options('Normal', 'Resistant', 'Proc')
 	state.IdleMode:options('Normal', 'DT')
-	state.Weapons:options('None', 'Naegling')
+	state.Weapons:options('None', 'Naegling', 'Staff')
 end
 
 function init_gear_sets()
 	sets.weapons.Naegling = {main = 'Naegling'}
+	sets.weapons.Staff = {main = 'Gozuki Mezuki'}
 
 	sets.idle = {head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets', legs = 'Nyame Flanchard',
 		feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt', ear1 = 'Etiolation Earring',

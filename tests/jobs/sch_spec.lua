@@ -7,7 +7,7 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
     'Cacoethic Ring', 'Petrov Ring', 'Fortified Ring', 'Vertigo Ring', 'Dhanurveda Ring', 'Wanion Belt',
     'Prodigious Mantle', "Bunzi's Rod", 'Gozuki Mezuki', 'Kishar Ring'}
 
--- Jobby as a scholar with the idle set on. The options are those of a boot (sub_job, tp, buffs, spells) and
+-- Jobby as a scholar with the idle set on. The options are those of a boot (sub_job, tp, buffs, spells, wearing) and
 -- these besides:
 --   mp         the MP of the 1000 he has
 --   friend     true for a party member, Friend, near him
@@ -15,7 +15,7 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
 local function boot(options)
     options = options or {}
     local gs = jobby.boot('SCH', {items = pieces, sub_job = options.sub_job or 'RDM', tp = options.tp,
-        buffs = options.buffs, spells = options.spells})
+        buffs = options.buffs, spells = options.spells, wearing = options.wearing})
     if options.mp then
         gs.game.player.vitals.mp = options.mp
         gs.game.player.vitals.mpp = math.floor(options.mp / 10)
@@ -95,7 +95,7 @@ describe('a cure by a scholar', function()
     describe('with a weapon set locking the weapons', function()
         local function locked()
             local gs = boot()
-            gs:console('gs c set Weapons Staff')
+            gs:console('gs c set Weapons Club')
             gs:traffic()
             return gs
         end
@@ -579,11 +579,25 @@ describe('the idle set of a scholar', function()
     it('wears no sets.latent_refresh_grip with a weapon set locking the weapons', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Gozuki Mezuki'
-        gs:console('gs c set Weapons Staff')
+        gs:console('gs c set Weapons Club')
         low_mp(gs)
         assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
             gs:worn())
     end)
+
+    it('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Gozuki Mezuki'
+        gs:console('gs c set Weapons Staff')
+        gs:console('gs c toggle UnlockWeapons')
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+            {main = 'Gozuki Mezuki'})), gs:worn())
+    end)
+
+    pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff but UnlockWeapons '
+        .. 'on: job_customize_idle_set in data/SCH.lua looks at the idle set\'s main, and with UnlockWeapons on Sel '
+        .. 'lays the weapon set over the idle set after it, so the grip goes on with Bunzi\'s Rod in hand')
 
     it('wears no sets.latent_refresh in the DT idle mode', function()
         local gs = boot()
@@ -631,6 +645,27 @@ describe('the idle set of a scholar', function()
         low_mp(gs)
         assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
             gs:worn())
+    end)
+
+    it('wears no sets.TPEat with a weapon set locking the weapons', function()
+        local gs = boot()
+        sets_of(gs).idle.main = "Bunzi's Rod"
+        gs:console('gs c set Weapons Club')
+        gs.game.player.vitals.tp = 100
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
+            gs:worn())
+    end)
+
+    it('wears sets.TPEat with the weapons locked but UnlockWeapons on', function()
+        local gs = boot()
+        sets_of(gs).idle.main = "Bunzi's Rod"
+        gs:console('gs c set Weapons Club')
+        gs:console('gs c toggle UnlockWeapons')
+        gs.game.player.vitals.tp = 100
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle,
+            jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).TPEat, {main = "Bunzi's Rod"})), gs:worn())
     end)
 end)
 
@@ -933,13 +968,8 @@ describe('gs c elemental skillchain on a scholar', function()
     end)
 
     it('says so when the weapon skill is not known, with a club in hand', function()
-        local gs = jobby.boot('SCH', {items = pieces, sub_job = 'RDM', tp = 1000, buffs = {'Dark Arts'},
-            wearing = {main = "Bunzi's Rod"}})
-        gs:console('gs c update')
-        gs:traffic()
-        gs:chat()
-        gs:console('gs c elemental wsskillchain')
-        assert.same({}, gs:actions())
+        local gs = skillchainer({tp = 1000, wearing = {main = "Bunzi's Rod"}})
+        assert.same({}, chain(gs, 'wsskillchain'))
         assert.equal("Abort: You don't have access to [Rock Crusher].", gs:chat()[1])
     end)
 

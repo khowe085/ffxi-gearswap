@@ -336,8 +336,8 @@ describe('the bullets a ranged action needs', function()
     end)
 
     pending('swap a Rare bullet worn for the default one with no weapon set: panic_swap_ammo in libs/Sel-Utility.lua '
-        .. 'reads sets.weapons[state.Weapons.value], and with Weapons at None there is no such set, so a ranged attack '
-        .. 'with Animikii Bullet worn stops in an error')
+        .. 'reads sets.weapons[state.Weapons.value], and with Weapons at None there is no such set, so precast raises '
+        .. 'an error for a ranged attack with Animikii Bullet worn')
 
     it('for a weapon skill may be the one worn when it is the ranged attack bullet', function()
         local gs = boot({tp = 1000, bullets = {['Eminent Bullet'] = 40}})
@@ -485,6 +485,10 @@ describe('a Corsair roll with a weapon set locking the gun', function()
     it('leaves the gun on over the TP the compensator mode names', function()
         assert.equal('Death Penalty', locked('1000', 1500).range)
     end)
+
+    it('leaves the gun on at the TP the compensator mode names', function()
+        assert.equal('Death Penalty', locked('1000', 1000).range)
+    end)
 end)
 
 describe('Fold', function()
@@ -562,7 +566,7 @@ describe('a weapon skill at the TP cap', function()
         .. 'against 26, but GearSwap gives a weapon skill its skill by name, so Last Stand takes sets.MaxTP')
 end)
 
-describe('a weapon skill when a dagger weapon skill is known', function()
+describe('a weapon skill when a dagger is in hand', function()
     -- The job file takes Wasp Sting (weapon skill 16) known as a dagger in hand, and sends the dagger's weapon skill
     -- for a sword's.
     it('is Evisceration in place of Savage Blade', function()
@@ -577,7 +581,8 @@ describe('a weapon skill when a dagger weapon skill is known', function()
         assert.same({'Aeolian Edge'}, gs:actions())
     end)
 
-    it('is left alone without it', function()
+    it('is left alone when the game lists no Wasp Sting, though it lists the weapon skills sent in its place',
+        function()
         local gs = boot({tp = 1000, abilities = {'Evisceration', 'Aeolian Edge'}})
         gs:type('/ws "Savage Blade" <t>')
         assert.same({}, gs:actions())

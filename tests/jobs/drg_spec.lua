@@ -128,8 +128,7 @@ end)
 -- What is worn once the weapon skill is out, with the TP Jobby has.
 local function weaponskill(gs, name, tp)
     gs.game.player.vitals.tp = tp
-    gs:type('/ws "' .. name .. '" <t>')
-    return gs:worn()
+    return jobby.weaponskill(gs, '/ws "' .. name .. '" <t>')
 end
 
 describe('DRG\'s weapon skill set with Moonshade Earring in it', function()

@@ -4,7 +4,7 @@ local jobby = require('jobby')
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
     'Adamantite Armor', "Orunmila's Torque", 'Weike Torque', 'Choleric Earring', 'Lunette Ring', 'Pernicious Ring',
     'Gelatinous Ring', 'Wanion Belt', 'Daybreak', "Bunzi's Rod", 'Vertigo Ring', 'Dhanurveda Ring', 'Petrov Ring',
-    'Gozuki Mezuki'}
+    'Gozuki Mezuki', 'Sanctity Necklace'}
 
 -- Jobby as a geomancer with the idle set on, who has claimed the toad, his battle target. The options are those of a
 -- boot (sub_job, tp, buffs) and these besides:
@@ -224,9 +224,9 @@ describe('a Geo spell', function()
 end)
 
 describe('the weapons of a geomancer casting Geomancy', function()
-    local function indi_with_staff(mode, tp)
+    local function indi_with_club(mode, tp)
         local gs = boot()
-        gs:console('gs c set Weapons Staff')
+        gs:console('gs c set Weapons Club')
         gs.game.player.vitals.tp = tp
         gs:console('gs c set UnlockGeomancy ' .. mode)
         gs:traffic()
@@ -235,24 +235,29 @@ describe('the weapons of a geomancer casting Geomancy', function()
     end
 
     it('are freed for the spell\'s set in the Always mode, and back in hand once it is done', function()
-        local gs = indi_with_staff('Always', 0)
+        local gs = indi_with_club('Always', 0)
         assert.equal('Daybreak', gs:worn().main)
         gs:finish_action()
         assert.equal("Bunzi's Rod", gs:worn().main)
     end)
 
     it('stay locked in the Never mode', function()
-        local gs = indi_with_staff('Never', 0)
+        local gs = indi_with_club('Never', 0)
         assert.equal("Bunzi's Rod", gs:worn().main)
     end)
 
     it('are freed in a TP mode with less TP than it names', function()
-        local gs = indi_with_staff('500', 300)
+        local gs = indi_with_club('500', 300)
         assert.equal('Daybreak', gs:worn().main)
     end)
 
     it('stay locked in a TP mode with more TP than it names', function()
-        local gs = indi_with_staff('500', 800)
+        local gs = indi_with_club('500', 800)
+        assert.equal("Bunzi's Rod", gs:worn().main)
+    end)
+
+    it('stay locked in a TP mode with the TP it names', function()
+        local gs = indi_with_club('500', 500)
         assert.equal("Bunzi's Rod", gs:worn().main)
     end)
 end)
@@ -576,7 +581,7 @@ describe('the idle set of a geomancer', function()
     it('wears no sets.latent_refresh_grip with a weapon set locking the weapons', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Gozuki Mezuki'
-        gs:console('gs c set Weapons Staff')
+        gs:console('gs c set Weapons Club')
         low_mp(gs)
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
             gs:worn())
@@ -587,6 +592,56 @@ describe('the idle set of a geomancer', function()
         sets_of(gs).idle.main = 'Daybreak'
         low_mp(gs)
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'Daybreak'})), gs:worn())
+    end)
+
+    it('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Gozuki Mezuki'
+        gs:console('gs c set Weapons Staff')
+        gs:console('gs c toggle UnlockWeapons')
+        low_mp(gs)
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+            {main = 'Gozuki Mezuki'})), gs:worn())
+    end)
+
+    pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff but UnlockWeapons '
+        .. 'on: job_customize_idle_set in data/GEO.lua looks at the idle set\'s main, and with UnlockWeapons on Sel '
+        .. 'lays the weapon set over the idle set after it, so the grip goes on with Bunzi\'s Rod in hand')
+
+    it('wears sets.TPEat too with more than 10 TP and a weapon in the idle set', function()
+        local gs = boot({tp = 11})
+        sets_of(gs).idle.main = 'Daybreak'
+        low_mp(gs)
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).TPEat,
+            {main = 'Daybreak'})), gs:worn())
+    end)
+
+    it('wears no sets.TPEat with 10 TP', function()
+        local gs = boot({tp = 10})
+        sets_of(gs).idle.main = 'Daybreak'
+        low_mp(gs)
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'Daybreak'})), gs:worn())
+    end)
+
+    it('wears no sets.TPEat with a weapon set locking the weapons', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Daybreak'
+        gs:console('gs c set Weapons Club')
+        gs.game.player.vitals.tp = 500
+        low_mp(gs)
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
+            gs:worn())
+    end)
+
+    it('wears sets.TPEat with the weapons locked but UnlockWeapons on', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Daybreak'
+        gs:console('gs c set Weapons Club')
+        gs:console('gs c toggle UnlockWeapons')
+        gs.game.player.vitals.tp = 500
+        low_mp(gs)
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).TPEat,
+            {main = "Bunzi's Rod"})), gs:worn())
     end)
 
     it('wears sets.buff.Sublimation while Sublimation is charging', function()

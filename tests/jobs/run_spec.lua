@@ -161,7 +161,6 @@ describe('an effusion', function()
     it('wears them with the Hachirin-no-Obi when a rune of the day\'s element is up', function()
         local gs = boot({engaged = true, obi = true, buffs = {'Lux'}})
         gs:set_day(6)
-        gs:traffic()
         gs:type('/ja "Lunge" <t>')
         assert.same(jobby.layer(sets_of(gs).precast.Effusion, sets_of(gs).element.Light, {waist = 'Hachirin-no-Obi'}),
             gs:traffic()[1].equip)
@@ -336,6 +335,16 @@ describe('the idle set of a rune fencer', function()
         gs:console('gs c set Weapons Epeolatry')
         low_mp(gs)
         assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
+    end)
+
+    it('wears sets.latent_refresh_grip with the weapons locked but UnlockWeapons on', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Epeolatry'
+        gs:console('gs c set Weapons Epeolatry')
+        gs:console('gs c toggle UnlockWeapons')
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip)),
+            gs:worn())
     end)
 
     it('wears no sets.latent_refresh_grip with a weapon in the idle set that is no staff or great sword', function()
@@ -665,6 +674,10 @@ describe('AutoRuneMode', function()
             gs.user.in_combat = true
             gs.game:start_ability_recast('Valiance', 100)
             assert.same({'Vallation'}, first_actions(gs))
+            -- Not the job file's filter turning a Valiance typed on its recast into Vallation.
+            for _, command in ipairs(gs:commands()) do
+                assert.not_equal('input /ja "Vallation" <me>', command)
+            end
         end)
 
         it('uses no ward in combat with Pflug and a ward up', function()

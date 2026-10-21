@@ -163,6 +163,11 @@ describe('BST\'s ready charges', function()
         gs.game:start_ability_recast('Sic', 15)
         assert.equal(1, charges())
     end)
+
+    pending('take no 5 seconds off a timer for the Charmer\'s Merlin of the ready recast set once Jobby can dual wield '
+        .. 'and wears the dual wield ready recast set, Aern Sword in its off hand, in its place: '
+        .. 'get_ready_charge_timer in data/BST.lua goes on to sets.midcast.Pet.ReadyRecast\'s main when the dual wield '
+        .. 'set\'s off hand isn\'t Charmer\'s Merlin, and never reads the dual wield set\'s main')
 end)
 
 describe('BST\'s Reward', function()
@@ -313,7 +318,7 @@ end)
 
 -- What Jobby wears with a pet out in the Tank pet mode, idle: the set of a pet idle, and the Tank set under it.
 local function with_pet(changes)
-    return worn(jobby.layer({sub = 'Sacro Bulwark', back = 'Aptitude Mantle', ring1 = "Tyrant's Ring"}, changes))
+    return jobby.worn_by(worn({sub = 'Sacro Bulwark', back = 'Aptitude Mantle', ring1 = "Tyrant's Ring"}), changes)
 end
 
 describe('BST\'s ready moves, as Jobby commands them', function()
@@ -872,8 +877,7 @@ end)
 -- What is worn once the weapon skill is out, with the TP Jobby has.
 local function weaponskill(gs, name, tp)
     gs.game.player.vitals.tp = tp
-    gs:type('/ws "' .. name .. '" <t>')
-    return gs:worn()
+    return jobby.weaponskill(gs, '/ws "' .. name .. '" <t>')
 end
 
 describe('BST\'s weapon skill sets', function()

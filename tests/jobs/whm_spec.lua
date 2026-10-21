@@ -1,6 +1,6 @@
 local jobby = require('jobby')
 
-local gear = {"Terra's Staff", 'Daybreak', 'Ammurapi Shield', 'Kupo Shield', 'Volte Cap', 'Null Masque',
+local gear = {"Terra's Staff", 'Daybreak', 'Ammurapi Shield', 'Enki Strap', 'Volte Cap', 'Null Masque',
     'Amin Turban', 'Ischkur Turban', 'Azimuth Turban', 'Blistering Sallet', 'Blistering Sallet +1', 'Alhazen Hat',
     'Alhazen Hat +1', 'Sukeroku Hachi.', "Bendis's Hairpin", 'Blacksh. Hairpin', 'Pixie Hairpin +1',
     "Theia's Hairpin +1", 'Imp. Wing Hairpin', 'Volte Boots', 'Volte Hose', 'Volte Bracers', 'Volte Jupon',
@@ -313,21 +313,20 @@ describe('WHM\'s Proc casting mode', function()
 end)
 
 describe('WHM\'s weapon skill set', function()
-    -- Mystic Boon is a club's.
-    local function mystic_boon(tp)
+    -- Judgment is a club's, so Daybreak takes the place of the idle set's staff.
+    local function judgment(tp)
         local gs = boot()
         gs:console('gs c set Weapons Daybreak')
         gs.game.player.vitals.tp = tp
-        gs:type('/ws "Mystic Boon" <t>')
-        return gs:worn()
+        return jobby.weaponskill(gs, '/ws "Judgment" <t>')
     end
 
     it('keeps Moonshade Earring on at 2950 TP, which Moonshade makes 3200', function()
-        assert.equal('Moonshade Earring', mystic_boon(2950).left_ear)
+        assert.equal('Moonshade Earring', judgment(2950).left_ear)
     end)
 
     it('swaps Moonshade Earring for sets.MaxTP over 3200 TP counting Moonshade\'s 250', function()
-        assert.equal('Cessance Earring', mystic_boon(2951).left_ear)
+        assert.equal('Cessance Earring', judgment(2951).left_ear)
     end)
 end)
 
@@ -385,13 +384,13 @@ describe('WHM\'s idle set', function()
 
     it('has sets.latent_refresh and the grip over it under 51% MP, the staff being in the idle set', function()
         low_mp()
-        assert.same(idle_with({waist = 'Null Belt', sub = 'Kupo Shield'}), gs:worn())
+        assert.same(idle_with({waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
     end)
 
     it('has sets.TPEat over it too with TP', function()
         gs.game.player.vitals.tp = 300
         low_mp()
-        assert.same(idle_with({waist = 'Null Belt', sub = 'Kupo Shield', ear1 = 'Cessance Earring'}), gs:worn())
+        assert.same(idle_with({waist = 'Null Belt', sub = 'Enki Strap', ear1 = 'Cessance Earring'}), gs:worn())
     end)
 
     it('has no latent refresh set over it at 51% MP', function()
