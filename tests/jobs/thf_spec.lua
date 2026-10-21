@@ -37,10 +37,10 @@ local function tag_the_monster(gs)
     gs.user.info.tagged_mobs[gs.game.monster.id] = gs.user.os.time()
 end
 
+-- What is worn once the weapon skill typed has gone out.
 local function weaponskill(gs, line)
     gs:type(line)
-    local traffic = gs:traffic()
-    assert.is_truthy(traffic[#traffic] and traffic[#traffic].action, 'the weapon skill didn\'t go out')
+    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
     return gs:worn()
 end
 
@@ -118,9 +118,12 @@ describe('THF\'s weapon skill set by Sneak Attack and Trick Attack', function()
         assert.equal('Moonbeam Cape', worn.back)
     end)
 
-    it('is sets.precast.WS, with sets.buff[\'Sneak Attack\'] over it under Sneak Attack, for a weapon skill with none '
+    it('is sets.precast.WS under Sneak Attack, laid over the Sneak Attack set already on, for a weapon skill with none '
         .. 'of its own', function()
+        -- The Sneak Attack set names the weapon skill set's neck too, so the one laid last shows.
+        gs.user.sets.buff['Sneak Attack'] = {body = 'Adamantite Armor', neck = "Combatant's Torque"}
         gs:gain_buff('Sneak Attack')
+        assert.equal("Combatant's Torque", gs:worn().neck)
         assert.same(jobby.worn_by(idle, {neck = 'Fotia Gorget', ear1 = 'Moonshade Earring',
             ear2 = 'Brutal Earring', body = 'Adamantite Armor'}), weaponskill(gs, '/ws "Mandalic Stab" <t>'))
     end)
@@ -533,16 +536,15 @@ describe('THF\'s status line', function()
         end
         gs:chat()
         gs:console('gs c update user')
-        local lines = gs:chat()
-        return lines[#lines]
+        return gs:chat()
     end
 
     it('says the melee modes, the weapon skill mode and the treasure mode', function()
-        assert.equal('Melee: Normal, WS: Match, TH: Tag', status())
+        assert.same({'Melee: Normal, WS: Match, TH: Tag'}, status())
     end)
 
     it('names the hybrid mode and the treasure mode in use', function()
-        assert.equal('Melee: Acc/DT, WS: Normal, TH: SATA', status(function(gs)
+        assert.same({'Melee: Acc/DT, WS: Normal, TH: SATA'}, status(function(gs)
             gs:console('gs c set OffenseMode Acc')
             gs:console('gs c set HybridMode DT')
             gs:console('gs c set WeaponskillMode Normal')
@@ -551,31 +553,31 @@ describe('THF\'s status line', function()
     end)
 
     it('names the defense mode', function()
-        assert.equal('Melee: Normal, WS: Match, Defense: Physical (PDT), TH: Tag', status(function(gs)
+        assert.same({'Melee: Normal, WS: Match, Defense: Physical (PDT), TH: Tag'}, status(function(gs)
             gs:console('gs c set DefenseMode Physical')
         end))
     end)
 
     it('says when kiting is on', function()
-        assert.equal('Melee: Normal, WS: Match, Kiting, TH: Tag', status(function(gs)
+        assert.same({'Melee: Normal, WS: Match, Kiting, TH: Tag'}, status(function(gs)
             gs:console('gs c toggle Kiting')
         end))
     end)
 
     it('names the combat form, which a weapon set with an engaged set of its name gives', function()
-        assert.equal('Melee (Knife): Normal, WS: Match, TH: Tag', status(function(gs)
+        assert.same({'Melee (Knife): Normal, WS: Match, TH: Tag'}, status(function(gs)
             gs:console('gs c set Weapons Knife')
         end))
     end)
 
     it('names the player targeting mode', function()
-        assert.equal('Melee: Normal, WS: Match, Target PC: stpt, TH: Tag', status(function(gs)
+        assert.same({'Melee: Normal, WS: Match, Target PC: stpt, TH: Tag'}, status(function(gs)
             gs:console('gs c set PCTargetMode stpt')
         end))
     end)
 
     it('says when non-player characters are targeted', function()
-        assert.equal('Melee: Normal, WS: Match, Target NPCs, TH: Tag', status(function(gs)
+        assert.same({'Melee: Normal, WS: Match, Target NPCs, TH: Tag'}, status(function(gs)
             gs:console('gs c toggle SelectNPCTargets')
         end))
     end)

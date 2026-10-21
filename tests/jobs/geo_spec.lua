@@ -572,6 +572,22 @@ describe('the idle set of a geomancer', function()
             {main = 'Gozuki Mezuki'})), gs:worn())
     end)
 
+    it('wears no sets.latent_refresh_grip with a weapon set locking the weapons', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Gozuki Mezuki'
+        gs:console('gs c set Weapons Staff')
+        low_mp(gs)
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
+            gs:worn())
+    end)
+
+    it('wears no sets.latent_refresh_grip with a weapon in the idle set that is no staff', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Daybreak'
+        low_mp(gs)
+        assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'Daybreak'})), gs:worn())
+    end)
+
     it('wears sets.buff.Sublimation while Sublimation is charging', function()
         local gs = boot({buffs = {'Sublimation: Activated'}})
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).buff.Sublimation)), gs:worn())

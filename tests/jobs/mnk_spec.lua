@@ -24,11 +24,10 @@ local function boot_buffing(options)
     return gs
 end
 
--- What is worn once the weapon skill is out.
+-- What is worn once the weapon skill typed is out.
 local function weaponskill(gs, line)
     gs:type(line)
-    local traffic = gs:traffic()
-    assert.is_truthy(traffic[#traffic] and traffic[#traffic].action, 'the weapon skill didn\'t go out')
+    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
     return gs:worn()
 end
 

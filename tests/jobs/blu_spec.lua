@@ -6,7 +6,7 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
     'Beatific Earring', 'Choleric Earring', 'Pensee Earring', 'Moonshade Earring', 'Lunette Ring', 'Pernicious Ring',
     'Gelatinous Ring', 'Cacoethic Ring', 'Petrov Ring', 'Fortified Ring', 'Vertigo Ring', 'Dhanurveda Ring',
     'Wanion Belt', 'Prodigious Mantle', 'Malignance Chapeau', 'Malignance Tabard', 'Naegling', 'Gozuki Mezuki',
-    'Fotia Gorget', 'Sanctity Necklace', "Combatant's Torque"}
+    'Fotia Gorget', 'Sanctity Necklace', "Combatant's Torque", "Bunzi's Rod"}
 
 -- The boot options of Jobby as a blue mage, knowing only the spells named, which the game gives him in his blue magic
 -- set.
@@ -238,19 +238,17 @@ describe('a spell that needs Unbridled Learning', function()
 end)
 
 describe('a weapon skill when a club is in hand', function()
-    -- Shining Strike is a club weapon skill: with it known and the sword ones not, the job file sends the club's
-    -- counterpart, so one macro does for either weapon.
+    -- The game lists a club's weapon skills, Shining Strike among them, and no sword's: the job file takes Shining
+    -- Strike for a club and sends the club's counterpart of a sword's, so one macro does for either weapon.
     local counterparts = {
         {'Chant du Cygne', 'Realmrazer'}, {'Sanguine Blade', 'Flash Nova'}, {'Flat Blade', 'Brainshaker'},
         {'Expiacion', 'Judgment'}, {'Vorpal Blade', 'True Strike'}, {'Savage Blade', 'Black Halo'},
     }
-    local club_skills = {'Shining Strike', 'Realmrazer', 'Flash Nova', 'Brainshaker', 'Judgment', 'True Strike',
-        'Black Halo'}
 
     for _, pair in ipairs(counterparts) do
         local sword, club = unpack(pair)
         it(('is %s in place of %s'):format(club, sword), function()
-            local gs = boot({'Foot Kick'}, {tp = 1000, abilities = club_skills})
+            local gs = boot({'Foot Kick'}, {tp = 1000, wearing = {main = "Bunzi's Rod"}})
             gs:type(('/ws "%s" <t>'):format(sword))
             assert.same({{action = club, target = 'Apex Toad'}}, gs:traffic())
         end)

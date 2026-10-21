@@ -6,9 +6,12 @@ function user_job_setup()
 	state.CastingMode:options('Normal', 'Resistant', 'Proc')
 	state.IdleMode:options('Normal', 'DT')
 	state.PhysicalDefenseMode:options('PDT')
+	state.Weapons:options('None', 'Club')
 end
 
 function init_gear_sets()
+	sets.weapons.Club = {main = "Bunzi's Rod"}
+
 	sets.idle = {main = "Terra's Staff", head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets',
 		legs = 'Nyame Flanchard', feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt',
 		ear1 = 'Etiolation Earring', ear2 = 'Loquac. Earring', ring1 = 'Defending Ring', ring2 = 'Stikini Ring +1',

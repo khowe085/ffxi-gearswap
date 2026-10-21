@@ -6,7 +6,7 @@ local gear = {"Terra's Staff", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's H
     'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers', 'Jadeite Chausses', 'Diamond Hiza.', 'Volte Hose',
     'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Sune-Ate', 'Volte Boots', "Orunmila's Torque", 'Phrenic Torque',
     'Aptitude Mantle', 'Null Shawl', 'Prosilio Belt', "Tyrant's Ring", 'Ishvara Earring', 'Brutal Earring',
-    'Volte Brais', 'Volte Bracers', 'Telchine Braconi'}
+    'Volte Brais', 'Volte Bracers', 'Telchine Braconi', "Bunzi's Rod"}
 
 -- What the idle set of Jobby's summoner gear file wears besides every gear file's.
 local own_idle = {main = "Terra's Staff", back = 'Mecisto. Mantle'}
@@ -114,6 +114,16 @@ describe('SMN\'s blood pact with Astral Conduit up and not enough MP for it twic
         assert.same({'Convert'}, gs:actions())
     end)
 
+    it('is Convert, not Myrkr, with the TP for Myrkr but a club in hand, as Myrkr is a staff\'s', function()
+        gs:console('gs c set Weapons Club')
+        gs:traffic()
+        gs:chat()
+        gs.game.player.vitals.tp = 1000
+        gs:type('/pet "Flaming Crush" <t>')
+        assert.same({'Not enough MP to Pact while using Conduit, Converting!'}, gs:chat())
+        assert.same({'Convert'}, gs:actions())
+    end)
+
     it('is the pact itself, not Convert, with 400 HP or less', function()
         gs.game.player.vitals.hp = 400
         gs:type('/pet "Flaming Crush" <t>')
@@ -145,7 +155,7 @@ end)
 local ifrit_idle = {back = 'Aptitude Mantle', feet = 'Sapphire Leggings', legs = 'Sapphire Trousers'}
 
 local function with_ifrit(changes)
-    return worn(jobby.worn_by(ifrit_idle, changes))
+    return worn(jobby.layer(ifrit_idle, changes))
 end
 
 describe('SMN\'s blood pacts, once the pact is done', function()

@@ -8,12 +8,13 @@ function user_job_setup()
 	state.IdleMode:options('Normal', 'DT')
 	state.PhysicalDefenseMode:options('PDT', 'PDTReraise')
 	state.MagicalDefenseMode:options('MDT', 'MDTReraise')
-	state.Weapons:options('None', 'Masamune', 'Sword')
+	state.Weapons:options('None', 'Masamune', 'Sword', 'Spear')
 end
 
 function init_gear_sets()
 	sets.weapons.Masamune = {main = 'Masamune'}
 	sets.weapons.Sword = {main = "Judge's Sword"}
+	sets.weapons.Spear = {main = 'Pitchfork +1'}
 
 	sets.idle = {main = 'Masamune', head = 'Nyame Helm', body = 'Nyame Mail', hands = 'Nyame Gauntlets',
 		legs = 'Nyame Flanchard', feet = 'Nyame Sollerets', neck = 'Loricate Torque +1', waist = 'Plat. Mog. Belt',

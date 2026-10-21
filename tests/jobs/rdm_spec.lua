@@ -779,7 +779,7 @@ describe('RDM\'s melee set with an enspell up and an Enspell weapon set', functi
         assert.equal('Hachirin-no-Obi', worn.waist)
     end)
 
-    it('has Orpheus\'s Sash, and no obi, laid over it on another day with no weather', function()
+    it('has Orpheus\'s Sash laid over it on another day with no weather, and no obi without the sash', function()
         local worn = engaged({weather = 0, day = 1})
         assert.equal("Orpheus's Sash", worn.waist)
         local plain = engaged({items = without(gear, {["Orpheus's Sash"] = true}), weather = 0, day = 1})

@@ -22,7 +22,7 @@ end
 
 -- What is worn with sets.midcast.RA over the idle set, and these changes over that.
 local function shot_with(changes)
-    return worn(jobby.worn_by({body = 'Sapphire Platemail', hands = 'Volte Bracers', legs = 'Volte Hose',
+    return worn(jobby.layer({body = 'Sapphire Platemail', hands = 'Volte Bracers', legs = 'Volte Hose',
         neck = 'Fotia Gorget', back = 'Moonbeam Cape'}, changes))
 end
 
@@ -489,8 +489,18 @@ describe('RNG\'s statusammo command', function()
         assert.equal('Chrono Bullet', ammo_after(gs, '/ra <t>'))
     end)
 
-    pending('shoots Hauksbok ammunition, which is rare, with the weapons set to None: Sel\'s panic_swap_ammo reads '
-        .. 'sets.weapons[state.Weapons.value], and there is no set for None')
+    it('takes Hauksbok Bullet, which is rare, off before the shot, and warns', function()
+        gs:console('gs c statusammo Hauksbok Bullet')
+        gs:traffic()
+        gs:type('/ra <t>')
+        local traffic = gs:traffic()
+        assert.same({'empty', 'category 16'}, {traffic[1].equip.ammo, traffic[2].action})
+        assert.same({'Warning: Rare ammo is set to fire, Defaulting!'}, jobby.said(gs, '^Warning'))
+    end)
+
+    pending('takes Hauksbok ammunition, which is rare, off before the shot, and warns, with the weapons set to None: '
+        .. 'Sel\'s panic_swap_ammo reads sets.weapons[state.Weapons.value], and there is no set for None, so the shot '
+        .. 'stops in an error')
 end)
 
 describe('RNG\'s update', function()

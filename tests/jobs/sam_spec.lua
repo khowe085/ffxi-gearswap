@@ -6,7 +6,7 @@ local gear = {'Masamune', "Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin"
     'Jadeite Chausses', 'Diamond Haramaki', 'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Kote', 'Diamond Hiza.',
     'Diamond Sune-Ate', "Orunmila's Torque", 'Moonshade Earring', 'Lugra Earring +1', 'Ishvara Earring',
     'Brutal Earring', "Hecate's Earring", 'Pixie Earring', 'Beastly Earring', 'Stealth Earring', 'Volte Bracers',
-    'Volte Hose', 'Volte Jupon'}
+    'Volte Hose', 'Volte Jupon', 'Pitchfork +1'}
 
 -- What the idle set of Jobby's samurai gear file wears besides every gear file's.
 local own_idle = {main = 'Masamune', back = 'Mecisto. Mantle'}
@@ -131,12 +131,12 @@ describe('SAM\'s weapon skill with AutoBuffMode on', function()
 end)
 
 describe('SAM\'s weapon skill typed with a spear in hand', function()
-    -- A spear's weapon skills are the ones Jobby knows, Double Thrust among them, and no Tachi.
-    local spear_skills = {'Double Thrust', 'Stardiver', 'Impulse Drive', 'Penta Thrust', 'Sonic Thrust', 'Leg Sweep'}
-
+    -- The game lists a spear's weapon skills, Double Thrust among them, and no Tachi.
     local gs
     before_each(function()
-        gs = boot({abilities = spear_skills, tp = 1000})
+        gs = boot()
+        gs:console('gs c set Weapons Spear')
+        gs.game.player.vitals.tp = 1000
     end)
 
     for tachi, spear in pairs({['Tachi: Fudo'] = 'Stardiver', ['Tachi: Shoha'] = 'Impulse Drive',
@@ -154,10 +154,12 @@ describe('SAM\'s weapon skill typed with a spear in hand', function()
 end)
 
 describe('SAM\'s weapon skill typed without a spear in hand', function()
-    it('is left to GearSwap, which finds Jobby doesn\'t have it', function()
-        local gs = boot({abilities = {'Stardiver'}})
+    -- Stardiver is a spear's, but the job file takes only Double Thrust for a spear in hand.
+    it('is left alone, and Sel turns it down as one Jobby doesn\'t have', function()
+        local gs = boot({abilities = {'Stardiver'}, tp = 1000})
         gs:type('/ws "Tachi: Fudo" <t>')
         assert.same({}, gs:actions())
+        assert.same({"Abort: You don't have access to [Tachi: Fudo]."}, gs:chat())
     end)
 end)
 
@@ -260,7 +262,7 @@ describe('SAM\'s weapon skill set with neither earring in it', function()
 
     -- What is worn with sets.precast.WS on, and these changes over it.
     local function ws_with(changes)
-        return worn(jobby.worn_by({head = "Theia's Hairpin", neck = "Orunmila's Torque", hands = 'Volte Bracers',
+        return worn(jobby.layer({head = "Theia's Hairpin", neck = "Orunmila's Torque", hands = 'Volte Bracers',
             legs = 'Volte Hose'}, changes))
     end
 
@@ -282,7 +284,7 @@ describe('SAM\'s engaged set', function()
     end)
 
     local function engaged_with(changes)
-        return worn(jobby.worn_by({head = "Bendis's Hairpin", body = 'Sapphire Platemail', feet = 'Nyame Sollerets'},
+        return worn(jobby.layer({head = "Bendis's Hairpin", body = 'Sapphire Platemail', feet = 'Nyame Sollerets'},
             changes))
     end
 

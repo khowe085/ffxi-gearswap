@@ -22,10 +22,10 @@ end
 -- What the idle set of Jobby's paladin gear file wears, as the game shows it worn, with his sword in hand.
 local idle = jobby.worn_by(jobby.full_idle, jobby.weapons.PLD)
 
+-- What is worn once the weapon skill typed has gone out.
 local function weaponskill(gs, line)
     gs:type(line)
-    local traffic = gs:traffic()
-    assert.is_truthy(traffic[#traffic] and traffic[#traffic].action, 'the weapon skill didn\'t go out')
+    assert.same({line:match('^/ws "(.-)"')}, gs:actions(), 'the weapon skill typed didn\'t go out')
     return gs:worn()
 end
 
@@ -719,16 +719,15 @@ describe('PLD\'s status line', function()
         end
         gs:chat()
         gs:console('gs c update user')
-        local lines = gs:chat()
-        return lines[#lines]
+        return gs:chat()
     end
 
     it('says the melee modes and the weapon skill mode', function()
-        assert.equal('Melee: Normal, WS: Match', status())
+        assert.same({'Melee: Normal, WS: Match'}, status())
     end)
 
     it('names the hybrid mode in use', function()
-        assert.equal('Melee: Acc/DT, WS: Normal', status(function(gs)
+        assert.same({'Melee: Acc/DT, WS: Normal'}, status(function(gs)
             gs:console('gs c set OffenseMode Acc')
             gs:console('gs c set HybridMode DT')
             gs:console('gs c set WeaponskillMode Normal')
@@ -736,38 +735,38 @@ describe('PLD\'s status line', function()
     end)
 
     it('names the defense mode and the extra defense mode', function()
-        assert.equal('Melee: Normal, WS: Match, Defense: Physical (PDT), Extra: Aegis', status(function(gs)
+        assert.same({'Melee: Normal, WS: Match, Defense: Physical (PDT), Extra: Aegis'}, status(function(gs)
             gs:console('gs c set DefenseMode Physical')
             gs:console('gs c set ExtraDefenseMode Aegis')
         end))
     end)
 
     it('says when kiting is on', function()
-        assert.equal('Melee: Normal, WS: Match, Kiting', status(function(gs)
+        assert.same({'Melee: Normal, WS: Match, Kiting'}, status(function(gs)
             gs:console('gs c toggle Kiting')
         end))
     end)
 
     it('names the combat form, which a weapon set with an engaged set of its name gives', function()
-        assert.equal('Melee (Kheshig): Normal, WS: Match', status(function(gs)
+        assert.same({'Melee (Kheshig): Normal, WS: Match'}, status(function(gs)
             gs:console('gs c set Weapons Kheshig')
         end))
     end)
 
     it('names the player targeting mode', function()
-        assert.equal('Melee: Normal, WS: Match, Target PC: stal', status(function(gs)
+        assert.same({'Melee: Normal, WS: Match, Target PC: stal'}, status(function(gs)
             gs:console('gs c set PCTargetMode stal')
         end))
     end)
 
     it('says when non-player characters are targeted', function()
-        assert.equal('Melee: Normal, WS: Match, Target NPCs', status(function(gs)
+        assert.same({'Melee: Normal, WS: Match, Target NPCs'}, status(function(gs)
             gs:console('gs c toggle SelectNPCTargets')
         end))
     end)
 
     it('says when Auto Defense Mode is on', function()
-        assert.equal('Melee: Normal, WS: Match, Auto Defense: On', status(function(gs)
+        assert.same({'Melee: Normal, WS: Match, Auto Defense: On'}, status(function(gs)
             gs:console('gs c toggle AutoDefenseMode')
         end))
     end)
