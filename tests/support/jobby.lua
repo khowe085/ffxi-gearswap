@@ -59,7 +59,8 @@ end
 
 -- Boots Jobby as that job, with the pieces of the idle sets, the job's weapon and the items given in the inventory and
 -- every gear file's idle set and the job's weapon on, and has Sel update the gear once, with nothing sent, typed, run
--- or said since. options are a boot's (see harness.boot), with these in place of the harness's:
+-- or said since. A weapon the idle set names and the boot doesn't put on is in hand by then, which takes the TP the
+-- boot gave. options are a boot's (see harness.boot), with these in place of the harness's:
 --   items     the names of the pieces Jobby has besides the idle sets', or {name =, bag =, count =} for one that
 --             needs more; the job's weapon is added only when the items don't name it, so a test that holds it in
 --             both hands names it twice

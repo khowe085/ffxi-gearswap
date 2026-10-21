@@ -192,8 +192,9 @@ end)
 
 describe('DRK\'s drain, absorb and dread spikes with the weapons locked', function()
     local function main_after(line, tp, mode)
-        local gs = boot({tp = tp})
+        local gs = boot()
         gs:console('gs c set Weapons Ragnarok')
+        gs.game.player.vitals.tp = tp
         if mode then
             gs:console('gs c set DrainSwapWeaponMode ' .. mode)
         end

@@ -234,9 +234,11 @@ function Game.new(options)
     end
     game.job_abilities, game.job_traits = {}, {}
     local abilities = options.abilities
+    local found = {}
     for id, ability in pairs(res.job_abilities) do
         if type(ability) == 'table' and (not abilities or abilities[ability.en]) then
             game.job_abilities[#game.job_abilities + 1] = id
+            found[ability.en] = true
         end
     end
     table.sort(game.job_abilities)
@@ -245,9 +247,15 @@ function Game.new(options)
         for id, skill in pairs(res.weapon_skills) do
             if type(skill) == 'table' and abilities[skill.en] then
                 game.weapon_skills[#game.weapon_skills + 1] = id
+                found[skill.en] = true
             end
         end
         table.sort(game.weapon_skills)
+        for name in pairs(abilities) do
+            if not found[name] then
+                error(('the test resources have no job ability or weapon skill named %q'):format(name), 2)
+            end
+        end
     end
 
     game.bags = {}
@@ -841,8 +849,15 @@ function Game:wearable(bag_id, bag_slot, slot_id)
         and has_bit(entry.races, player.race)
 end
 
+-- Equipping anything in the main, sub or range slot resets TP to 0, and so does taking off the main or sub weapon
+-- (docs/ffxi-mechanics.md, TP reset). An ammo change doesn't. The game takes off a ranged weapon that new ammo doesn't
+-- fit, which does, but the stand-in leaves the weapon on.
+local equipping_resets_tp = {[slot_ids.main] = true, [slot_ids.sub] = true, [slot_ids.range] = true}
+local taking_off_resets_tp = {[slot_ids.main] = true, [slot_ids.sub] = true}
+
 -- Carries out one equip request, as four bytes: bag slot, equipment slot, bag. Returns the bytes to confirm it
--- with, or nil when the server refuses it, as it refuses every one in a game with refuse_equips set.
+-- with, or nil when the server refuses it, as it refuses every one in a game with refuse_equips set; and whether it
+-- resets TP, which equipping a piece where it already is doesn't.
 function Game:equip_chunk(chunk)
     if self.refuse_equips then
         return nil
@@ -854,11 +869,12 @@ function Game:equip_chunk(chunk)
             self.bags[current.bag].items[current.slot].status = 0
         end
         self.equipment[slot_id] = nil
-        return string.char(0, slot_id, 0, 0)
+        return string.char(0, slot_id, 0, 0), current ~= nil and taking_off_resets_tp[slot_id]
     end
     if not self:wearable(bag_id, bag_slot, slot_id) then
         return nil
     end
+    local again = current ~= nil and current.bag == bag_id and current.slot == bag_slot
     for other, spot in pairs(self.equipment) do
         if spot.bag == bag_id and spot.slot == bag_slot and other ~= slot_id then
             self.equipment[other] = nil
@@ -869,7 +885,19 @@ function Game:equip_chunk(chunk)
     end
     self.equipment[slot_id] = {bag = bag_id, slot = bag_slot}
     self.bags[bag_id].items[bag_slot].status = 5
-    return string.char(bag_slot, slot_id, bag_id, 0)
+    return string.char(bag_slot, slot_id, bag_id, 0), not again and equipping_resets_tp[slot_id]
+end
+
+-- TP goes to 0, as the server sets it when a weapon changes, and tells of it with the char update; Windower's tp
+-- change event follows. With no TP to lose nothing changes, and nothing is told.
+function Game:reset_tp()
+    local old = self.player.vitals.tp
+    if old == 0 then
+        return
+    end
+    self.player.vitals.tp = 0
+    self:send_char_update()
+    self:enqueue('event', 'tp change', 0, old)
 end
 
 -- The equipset reply (0x117): the request as it came, then what is worn in each slot.
@@ -919,18 +947,26 @@ end
 -- or refused; an action taken in, and a moogle's menu opened for a talk to one; a move between bags made.
 function Game:serve(id, data, packet)
     if id == 0x050 then
-        local reply = self:equip_chunk(data:sub(5, 8))
+        local reply, resets_tp = self:equip_chunk(data:sub(5, 8))
         if reply then
             self:receive(0x050, reply)
         end
+        if resets_tp then
+            self:reset_tp()
+        end
     elseif id == 0x051 then
+        local resets_tp = false
         for i = 1, data:byte(5) do
-            local reply = self:equip_chunk(data:sub(5 + 4 * i, 8 + 4 * i))
+            local reply, resets = self:equip_chunk(data:sub(5 + 4 * i, 8 + 4 * i))
             if reply then
                 self:receive(0x050, reply)
             end
+            resets_tp = resets_tp or resets
         end
         self:receive(0x117, self:equipset_reply(data))
+        if resets_tp then
+            self:reset_tp()
+        end
     elseif id == 0x01A then
         local action = packet.action
         self.actions[#self.actions + 1] = action
@@ -1085,6 +1121,17 @@ function Game:send_char_stats()
     body = put(body, 0x05, u32(player.vitals.max_hp) .. u32(player.vitals.max_mp))
     body = put(body, 0x0D, string.char(player.main_job_id, player.main_job_level, player.sub_job_id, player.sub_job_level))
     return self:receive(0x061, body)
+end
+
+-- The char update (0x0DF) the server sends when the player's HP, MP or TP changes: the vitals, then the jobs and
+-- their levels.
+function Game:send_char_update()
+    local player, vitals = self.player, self.player.vitals
+    local body = string.char(0):rep(0x22)
+    body = put(body, 0x05, u32(player.id) .. u32(vitals.hp) .. u32(vitals.mp) .. u32(vitals.tp) .. u16(player.index)
+        .. string.char(vitals.hpp, vitals.mpp))
+    body = put(body, 0x21, string.char(player.main_job_id, player.main_job_level, player.sub_job_id, player.sub_job_level))
+    return self:receive(0x0DF, body)
 end
 
 -------------------------------------------------------------------------------------------------------------------

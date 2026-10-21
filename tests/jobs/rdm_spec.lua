@@ -143,8 +143,9 @@ describe('RDM\'s Convert', function()
     end)
 
     local function convert(tp, mode, items)
-        local gs = boot({tp = tp, items = items})
+        local gs = boot({items = items})
         gs:console('gs c set Weapons Naegling')
+        gs.game.player.vitals.tp = tp
         if mode then
             gs:console('gs c set MurgleisMode ' .. mode)
         end
@@ -184,8 +185,9 @@ end)
 
 describe('RDM\'s buff weapons', function()
     local function main_after(line, tp, mode)
-        local gs = boot({tp = tp})
+        local gs = boot()
         gs:console('gs c set Weapons Naegling')
+        gs.game.player.vitals.tp = tp
         if mode then
             gs:console('gs c set BuffWeaponsMode ' .. mode)
         end

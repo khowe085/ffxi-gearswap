@@ -279,10 +279,12 @@ describe('BST\'s weapon skill', function()
     local gs
     before_each(function()
         gs = boot()
-        gs.game.player.vitals.tp = 1000
     end)
 
+    -- The actions that went out for the weapon skill typed at the target that many yalms off, with 1000 TP given after
+    -- any change of weapons, which takes the TP.
     local function aimed_from(yalms, line)
+        gs.game.player.vitals.tp = 1000
         gs.game.monster.distance = yalms * yalms
         gs.env.refresh_globals()
         gs:type(line or '/ws "Savage Blade" <t>')

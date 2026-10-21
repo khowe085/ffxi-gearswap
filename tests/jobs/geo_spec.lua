@@ -225,8 +225,9 @@ end)
 
 describe('the weapons of a geomancer casting Geomancy', function()
     local function indi_with_staff(mode, tp)
-        local gs = boot({tp = tp})
+        local gs = boot()
         gs:console('gs c set Weapons Staff')
+        gs.game.player.vitals.tp = tp
         gs:console('gs c set UnlockGeomancy ' .. mode)
         gs:traffic()
         gs:type('/ma "Indi-Torpor" <me>')
