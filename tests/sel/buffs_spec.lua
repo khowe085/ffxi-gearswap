@@ -5,10 +5,7 @@ local idle = commy.rdm_idle
 -- What is worn once Slow is out at the monster: the enfeebling midcast set over the idle set, and what the buffs
 -- Sel tracks add to it.
 local function slow(gs)
-    local sent = #gs.game.actions
-    gs:type('/ma "Slow" <t>')
-    assert.equal(sent + 1, #gs.game.actions, 'Slow didn\'t go out')
-    return gs:worn()
+    return commy.cast(gs, '/ma "Slow" <t>')
 end
 
 describe('Sel\'s tracking of a buff the job file watches', function()

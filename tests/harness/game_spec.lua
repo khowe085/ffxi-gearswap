@@ -16,6 +16,19 @@ local function warrior(wearing, fields)
     return Game.new(options)
 end
 
+-- What each equip packet (0x050) the server sends from now on puts on, in order, as {slot, item or 'empty'}: the list
+-- fills as the packets come.
+local function equip_replies(game)
+    local replies = {}
+    game:register('incoming chunk', function(id, data)
+        if id == 0x050 then
+            local item = data:byte(5) ~= 0 and game.bags[data:byte(7)].items[data:byte(5)]
+            replies[#replies + 1] = {Game.slot_names[data:byte(6)], item and game.res.items[item.id].en or 'empty'}
+        end
+    end)
+    return replies
+end
+
 -- The TP the last char update (0x0DF) the server sent gives, nil when it sent none.
 local function char_update_tp(game)
     local sent = game.last_packets.incoming[0x0DF]
@@ -467,13 +480,7 @@ describe('the sub slot when the main hand changes in the stand-in game', functio
         local game = Game.new({res = harness.resources(), main_job = options.job or 'WHM', items = items,
             wearing = {main = 1, sub = 2}})
         game:set_job_traits(options.traits or {})
-        local replies = {}
-        game:register('incoming chunk', function(id, data)
-            if id == 0x050 then
-                local item = data:byte(5) ~= 0 and game.bags[data:byte(7)].items[data:byte(5)]
-                replies[#replies + 1] = {Game.slot_names[data:byte(6)], item and game.res.items[item.id].en or 'empty'}
-            end
-        end)
+        local replies = equip_replies(game)
         local bag_slot = new_main == 'empty' and 0 or 3
         game.windower.packets.inject_outgoing(0x050,
             string.char(0x50, 4, 0, 0, bag_slot, Game.slot_ids.main, game:bag_id('inventory'), 0))
@@ -481,7 +488,8 @@ describe('the sub slot when the main hand changes in the stand-in game', functio
         return game:worn(), replies
     end
 
-    it('takes a shield off for a two-handed weapon, and says so after the main hand', function()
+    it('takes a shield off for a two-handed weapon, and says so after the main hand, the stand-in\'s choice of order',
+        function()
         local worn, replies = change_main('Daybreak', 'Ammurapi Shield', "Terra's Staff")
         assert.same({main = "Terra's Staff"}, worn)
         assert.same({{'main', "Terra's Staff"}, {'sub', 'empty'}}, replies)
@@ -492,7 +500,8 @@ describe('the sub slot when the main hand changes in the stand-in game', functio
             (change_main('Daybreak', "Bunzi's Rod", "Terra's Staff", {traits = {'Dual Wield'}})))
     end)
 
-    it('takes a shield or a weapon off for a hand-to-hand weapon', function()
+    it('takes a shield or a weapon off for a hand-to-hand weapon, the stand-in\'s choice where the docs don\'t say what '
+        .. 'the game does', function()
         assert.same({{main = 'Glanzfaust'}, {main = 'Glanzfaust'}},
             {(change_main("Judge's Sword", 'Kupo Shield', 'Glanzfaust', {job = 'MNK'})),
             (change_main("Judge's Sword", 'Qutrub Knife', 'Glanzfaust', {job = 'MNK', traits = {'Dual Wield'}}))})
@@ -532,6 +541,32 @@ describe('the sub slot when the main hand changes in the stand-in game', functio
         gs:console('gs equip sets.idle')
         assert.same({{equip = {main = 'Daybreak', sub = 'Ammurapi Shield'}}}, gs:traffic())
         assert.equal('Ammurapi Shield', gs:worn().sub)
+    end)
+end)
+
+describe('a piece asked for in another slot than the one it is worn in, in the stand-in game', function()
+    it('moves there, and the server tells of the slot it left emptied before the one it went to, the stand-in\'s '
+        .. 'choice of order', function()
+        local game = Game.new({res = harness.resources(), items = {{name = 'Stikini Ring +1'}}, wearing = {left_ring = 1}})
+        local replies = equip_replies(game)
+        game.windower.packets.inject_outgoing(0x050,
+            string.char(0x50, 4, 0, 0, 1, Game.slot_ids.right_ring, game:bag_id('inventory'), 0))
+        game:settle()
+        assert.same({right_ring = 'Stikini Ring +1'}, game:worn())
+        assert.same({{'left_ring', 'empty'}, {'right_ring', 'Stikini Ring +1'}}, replies)
+    end)
+
+    it('tells GearSwap of the slot the piece left, so a set that names the piece there puts it back', function()
+        local gs = harness.boot(testy.whm({wearing = testy.worn_by(testy.whm_idle, {sub = "Bunzi's Rod"})}))
+        gs.game:set_job_traits({'Dual Wield'})
+        gs.user.sets.rod = {main = "Bunzi's Rod"}
+        gs.user.sets.dual = {main = 'Daybreak', sub = "Bunzi's Rod"}
+        gs:console('gs equip sets.rod')
+        assert.same({"Bunzi's Rod"}, {gs:worn().main, gs:worn().sub})
+        gs:traffic()
+        gs:console('gs equip sets.dual')
+        assert.same({{equip = {main = 'Daybreak', sub = "Bunzi's Rod"}}}, gs:traffic())
+        assert.same({'Daybreak', "Bunzi's Rod"}, {gs:worn().main, gs:worn().sub})
     end)
 end)
 

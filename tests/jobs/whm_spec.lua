@@ -317,8 +317,7 @@ describe('WHM\'s weapon skill set', function()
     local function judgment(tp)
         local gs = boot()
         gs:console('gs c set Weapons Daybreak')
-        gs:set_tp(tp)
-        return jobby.weaponskill(gs, '/ws "Judgment" <t>')
+        return jobby.weaponskill(gs, '/ws "Judgment" <t>', tp)
     end
 
     it('keeps Moonshade Earring on at 2950 TP, which Moonshade makes 3200', function()
@@ -385,6 +384,14 @@ describe('WHM\'s idle set', function()
     it('has sets.latent_refresh and the grip over it under 51% MP, the staff being in the idle set', function()
         low_mp()
         assert.same(idle_with({waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
+    end)
+
+    it('has no grip over it under 51% MP when its main is no staff', function()
+        gs.user.sets.idle.main = 'Daybreak'
+        gs:traffic()
+        low_mp()
+        assert.same({}, jobby.subs_asked(gs))
+        assert.equal('Daybreak', gs:worn().main)
     end)
 
     it('has sets.TPEat over it too with TP', function()

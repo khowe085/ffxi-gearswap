@@ -611,6 +611,15 @@ describe('RDM\'s idle set', function()
             {main = "Terra's Staff", waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
     end)
 
+    it('has no grip over the Sphere idle set under 51% MP when its main is no staff', function()
+        gs:console('gs c set IdleMode Sphere')
+        gs.user.sets.idle.Sphere.main = 'Naegling'
+        gs:traffic()
+        low_mp()
+        assert.same({}, jobby.subs_asked(gs))
+        assert.equal('Naegling', gs:worn().main)
+    end)
+
     it('has sets.TPEat over it too with more than 10 TP', function()
         gs:console('gs c set IdleMode Sphere')
         gs:set_tp(11)

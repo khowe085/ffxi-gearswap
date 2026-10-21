@@ -526,6 +526,18 @@ function harness.boot(options)
     return session
 end
 
+-- Boots as harness.boot does, for a Sel character: runs before_update with the session when one is given, has Sel put
+-- on the set it picks (gs c update), and takes everything so far as read.
+function harness.boot_updated(options, before_update)
+    local session = harness.boot(options)
+    if before_update then
+        before_update(session)
+    end
+    session:console('gs c update')
+    session:forget()
+    return session
+end
+
 -- Runs fn, and gives any error it raises the repo's paths.
 function Session:run(fn)
     local results = {xpcall(fn, debug.traceback)}
@@ -714,27 +726,21 @@ end
 function Session:finish_action(fields)
     fields = fields or {}
     local action = assert(self.game.actions[#self.game.actions], 'GearSwap sent no action to finish')
-    self:run(function()
-        self.game:send_action_packet({
-            category = finishing_category[action.category], param = action.param, recast = 0,
-            targets = {{id = action.target_id, actions = {{message = fields.message or 0, param = fields.value or 0,
-                reaction = 0, animation = 0, effect = 0, stagger = 0}}}},
-        })
-        self.game:settle()
-    end)
+    self:send_action_packet({
+        category = finishing_category[action.category], param = action.param, recast = 0,
+        targets = {{id = action.target_id, actions = {{message = fields.message or 0, param = fields.value or 0,
+            reaction = 0, animation = 0, effect = 0, stagger = 0}}}},
+    })
 end
 
 -- Answers the last action GearSwap sent with the packet that says it was interrupted.
 function Session:interrupt_action()
     local action = assert(self.game.actions[#self.game.actions], 'GearSwap sent no action to interrupt')
-    self:run(function()
-        self.game:send_action_packet({
-            category = assert(beginning_category[action.category], 'that action can\'t be interrupted'), param = 28787,
-            targets = {{id = action.target_id, actions = {{message = 0, param = action.param, reaction = 0,
-                animation = 0, effect = 0, stagger = 0}}}},
-        })
-        self.game:settle()
-    end)
+    self:send_action_packet({
+        category = assert(beginning_category[action.category], 'that action can\'t be interrupted'), param = 28787,
+        targets = {{id = action.target_id, actions = {{message = 0, param = action.param, reaction = 0,
+            animation = 0, effect = 0, stagger = 0}}}},
+    })
 end
 
 function Session:engage()
@@ -835,6 +841,22 @@ end
 function Session:receive(id, body)
     self:run(function()
         self.game:receive(id, body)
+        self.game:settle()
+    end)
+end
+
+-- The server tells of an action in the action packet (see Game:send_action_packet), or sends a message about one
+-- (see Game:send_action_message).
+function Session:send_action_packet(act)
+    self:run(function()
+        self.game:send_action_packet(act)
+        self.game:settle()
+    end)
+end
+
+function Session:send_action_message(fields)
+    self:run(function()
+        self.game:send_action_message(fields)
         self.game:settle()
     end)
 end
@@ -948,17 +970,14 @@ function Session:pet_acts(name, kind, phase, fields)
     local move = Game.find_by_name(self.game.res[kind.resource], name, kind.resource)
     local packet = kind[phase]
     local game = self.game
-    self:run(function()
-        local target = fields.target == 'player' and game.player or game.monster
-        local action = {message = fields.message or packet.message, param = phase ~= 'finish' and move or 100,
-            reaction = 0, animation = 0, effect = 0, stagger = 0}
-        game:send_action_packet({
-            actor_id = fields.actor_id or game.pet.id, category = fields.category or packet.category,
-            param = phase == 'finish' and move or phase == 'interrupt' and 28787 or 0,
-            targets = {{id = target.id, actions = {action}}},
-        })
-        game:settle()
-    end)
+    local target = fields.target == 'player' and game.player or game.monster
+    local action = {message = fields.message or packet.message, param = phase ~= 'finish' and move or 100,
+        reaction = 0, animation = 0, effect = 0, stagger = 0}
+    self:send_action_packet({
+        actor_id = fields.actor_id or game.pet.id, category = fields.category or packet.category,
+        param = phase == 'finish' and move or phase == 'interrupt' and 28787 or 0,
+        targets = {{id = target.id, actions = {action}}},
+    })
 end
 
 -- The pet readies a move of its own, as kind says ('monster', the default, 'ability' or 'spell'), on the monster.

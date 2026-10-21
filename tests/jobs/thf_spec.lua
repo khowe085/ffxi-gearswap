@@ -443,9 +443,8 @@ describe('THF\'s treasure hunter gear on engaging', function()
     it('goes off once the player\'s first melee hit lands', function()
         local gs = boot()
         gs:engage()
-        gs.game:send_action_packet({category = 1, targets = {{id = gs.game.monster.id,
+        gs:send_action_packet({category = 1, targets = {{id = gs.game.monster.id,
             actions = {{message = 1, param = 10, reaction = 8, animation = 0, effect = 0, stagger = 0}}}}})
-        gs.game:settle()
         assert.is_false(gs.user.state.th_gear_is_locked)
         assert.same(engaged_with({}), gs:worn())
     end)

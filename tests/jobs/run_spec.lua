@@ -337,7 +337,8 @@ describe('the idle set of a rune fencer', function()
         assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
     end)
 
-    it('wears sets.latent_refresh_grip with the weapons locked but UnlockWeapons on', function()
+    it('wears sets.latent_refresh_grip with a great sword in the idle set and the weapons locked to a great sword but '
+        .. 'UnlockWeapons on', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Epeolatry'
         gs:console('gs c set Weapons Epeolatry')
@@ -347,10 +348,10 @@ describe('the idle set of a rune fencer', function()
             gs:worn())
     end)
 
-    pending('wears no sets.latent_refresh_grip with the weapons locked to a weapon that is no staff or great sword but '
-        .. 'UnlockWeapons on: job_customize_idle_set in data/RUN.lua looks at the idle set\'s main, and with '
-        .. 'UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
-        .. 'sets.latent_refresh_grip with Naegling, a one-handed sword, in hand')
+    pending('wears no sets.latent_refresh_grip with a great sword in the idle set and the weapons locked to a weapon '
+        .. 'that is no staff or great sword but UnlockWeapons on: job_customize_idle_set in data/RUN.lua looks at the '
+        .. 'idle set\'s main, and with UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job '
+        .. 'file adds sets.latent_refresh_grip with Naegling, a one-handed sword, in hand')
 
     pending('wears sets.latent_refresh_grip with the weapons locked to a great sword but UnlockWeapons on when the '
         .. 'idle set names no main: job_customize_idle_set in data/RUN.lua looks at the idle set\'s main, and Sel lays '

@@ -54,9 +54,9 @@ local function boot(options)
     return jobby.boot('RNG', options)
 end
 
--- The ammunition on once the ranged attack has been typed.
-local function ammo_after(gs, line)
-    gs:type(line)
+-- The ammunition on once a ranged attack at the target has been typed.
+local function ammo_after_shot(gs)
+    gs:type('/ra <t>')
     return gs:worn().ammo
 end
 
@@ -92,13 +92,13 @@ describe('data/RNG.lua', function()
 end)
 
 describe('RNG\'s ranged attack', function()
-    local function ammo_for(weapons, line, mode)
+    local function ammo_for(weapons, mode)
         local gs = boot()
         gs:console('gs c set Weapons ' .. weapons)
         if mode then
             gs:console('gs c set RangedMode ' .. mode)
         end
-        return ammo_after(gs, line or '/ra <t>')
+        return ammo_after_shot(gs)
     end
 
     it('has Chrono Arrow with a bow', function()
@@ -114,7 +114,7 @@ describe('RNG\'s ranged attack', function()
     end)
 
     it('has Eradicating Bullet with a gun in the accuracy ranged mode', function()
-        assert.equal('Eradicating Bullet', ammo_for('Gun', nil, 'Acc'))
+        assert.equal('Eradicating Bullet', ammo_for('Gun', 'Acc'))
     end)
 
     it('takes the precast and midcast sets of ranged attacks, the weapon\'s set in precast', function()
@@ -194,8 +194,7 @@ describe('RNG\'s ranged weapon skill with a bow', function()
         for _, name in ipairs({'Apex Arrow', 'Flaming Arrow'}) do
             local gs = boot()
             gs:console('gs c set Weapons Bow')
-            gs:set_tp(1000)
-            assert.equal('Chrono Arrow', jobby.weaponskill(gs, '/ws "' .. name .. '" <t>').ammo, name)
+            assert.equal('Chrono Arrow', jobby.weaponskill(gs, '/ws "' .. name .. '" <t>', 1000).ammo, name)
         end
     end)
 end)
@@ -204,9 +203,8 @@ describe('RNG\'s weapon skill of another skill', function()
     local function ammo_for(weapons)
         local gs = boot()
         gs:console('gs c set Weapons ' .. weapons)
-        gs:set_tp(1000)
         gs:traffic()
-        return jobby.weaponskill(gs, '/ws "Savage Blade" <t>').ammo
+        return jobby.weaponskill(gs, '/ws "Savage Blade" <t>', 1000).ammo
     end
 
     it('has Hauksbok Arrow with a bow', function()
@@ -231,7 +229,7 @@ describe('RNG\'s default ammunition', function()
     it('is left alone with UseDefaultAmmo off, which leaves the ammunition Jobby had on', function()
         local gs = boot()
         gs:console('gs c toggle UseDefaultAmmo')
-        assert.equal('Staunch Tathlum +1', ammo_after(gs, '/ra <t>'))
+        assert.equal('Staunch Tathlum +1', ammo_after_shot(gs))
         assert.same({'category 16'}, gs:actions())
     end)
 
@@ -446,12 +444,11 @@ describe('RNG\'s ranged attack with Flurry', function()
 
     -- Friend casts Flurry on Jobby, as the server tells of it, and Flurry is up.
     local function flurried(spell_id)
-        gs.game:send_action_packet({
+        gs:send_action_packet({
             actor_id = gs.game.others[1].id, category = 4, param = spell_id,
             targets = {{id = gs.game.player.id, actions = {{message = 230, param = 265, reaction = 0, animation = 0,
                 effect = 0, stagger = 0}}}},
         })
-        gs.game:settle()
         gs:gain_buff('Flurry')
     end
 
@@ -492,13 +489,13 @@ describe('RNG\'s statusammo command', function()
 
     it('names the ammunition to shoot, over the default', function()
         gs:console('gs c statusammo Devastating Bullet')
-        assert.equal('Devastating Bullet', ammo_after(gs, '/ra <t>'))
+        assert.equal('Devastating Bullet', ammo_after_shot(gs))
     end)
 
     it('names no ammunition when it is given none', function()
         gs:console('gs c statusammo Devastating Bullet')
         gs:console('gs c statusammo')
-        assert.equal('Chrono Bullet', ammo_after(gs, '/ra <t>'))
+        assert.equal('Chrono Bullet', ammo_after_shot(gs))
     end)
 
     it('leaves the ammo slot empty for the shot in place of Hauksbok Bullet, which is rare, and warns', function()
@@ -549,8 +546,8 @@ describe('RNG\'s Moonshade Earring at 3200 TP with its bonus', function()
     end)
 
     local function ears_after(name, tp)
-        local worn = jobby.weaponskill(gs, '/ws "' .. name .. '" <t>', tp)
-        return {worn.left_ear, worn.right_ear}
+        local set = jobby.weaponskill(gs, '/ws "' .. name .. '" <t>', tp)
+        return {set.left_ear, set.right_ear}
     end
 
     it('stays in the weapon skill set up to that', function()

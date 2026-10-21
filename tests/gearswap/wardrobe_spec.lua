@@ -329,6 +329,27 @@ describe('gs stash', function()
             end
         end)
 
+        it('prints nothing for it', function()
+            local gs = boot()
+            run(gs, 'gs stash pld')
+            assert.same({}, gs:printed())
+        end)
+
+        it('reads a Sel job file, with the gear file it loads, and sends nothing to the game for it', function()
+            local gs = boot({{name = 'Naegling', bag = 'wardrobe2'}, {name = 'Crocea Mors', bag = 'wardrobe2'},
+                {name = 'Malignance Chapeau', bag = 'wardrobe2'}, {name = 'Malignance Tabard', bag = 'wardrobe2'},
+                {name = 'Atrophy Tabard +3', bag = 'wardrobe2'}, {name = 'Lethargy Sayon +3', bag = 'wardrobe2'},
+                {name = "Sucellos's Cape", bag = 'wardrobe2'}})
+            local lines = run(gs, 'gs stash rdm')
+            assert.equal('GearSwap: RDM.lua uses 25 pieces.', lines[1])
+            assert.same({'Atrophy Tabard +3', "Bunzi's Hat", "Bunzi's Rod", 'Crocea Mors', 'Kaykaus Mitra +1', 'Kishar Ring',
+                'Lethargy Sayon +3', 'Malignance Chapeau', 'Malignance Tabard', 'Naegling', "Sucellos's Cape"},
+                gs.game:bag_names('case'))
+            assert.same({'gs stash rdm'}, gs:commands())
+            assert.same({}, gs:typed())
+            assert.same({}, gs:traffic())
+        end)
+
         it('reads it as the main job it is for', function()
             local gs = boot({{name = 'Nyame Helm', bag = 'wardrobe2'}})
             run(gs, 'gs stash pld')
@@ -356,10 +377,27 @@ describe('gs stash', function()
             assert.is_not.equal('Kaykaus Mitra +1', gs.env.equip_list.head)
         end)
 
-        it('has no event of it run when the game raises it', function()
+        it('leaves none of its gear for gs enable to put on in a slot that was disabled', function()
+            local gs = boot()
+            gs:console('gs disable head')
+            run(gs, 'gs stash pld')
+            gs:traffic()
+            gs:console('gs enable head')
+            assert.same({}, gs:traffic())
+        end)
+
+        it('has no event of it run when the game raises it, a raw one or not', function()
             local gs = boot()
             run(gs, 'gs stash pld')
             assert.has_no.errors(function() gs.game:fire('zone change', 230, 100) end)
+        end)
+
+        it('hands none of its handlers a gs command GearSwap doesn\'t know', function()
+            local gs = boot()
+            run(gs, 'gs stash pld')
+            gs:printed()
+            gs:console('gs paladin')
+            assert.same({'GearSwap: Command not found'}, gs:printed())
         end)
 
         it('leaves the action in progress in midaction', function()
@@ -367,6 +405,15 @@ describe('gs stash', function()
             gs:type('/ma "Cure III" <me>')
             gs:console('gs stash pld')
             assert.is_true((gs.user.midaction()))
+        end)
+
+        it('leaves the pet\'s action in progress in pet_midaction', function()
+            local gs = boot()
+            gs.game:place_pet({name = 'Carbuncle'})
+            plain.refresh(gs)
+            gs:pet_readies('Foot Kick')
+            gs:console('gs stash pld')
+            assert.is_true((gs.user.pet_midaction()))
         end)
 
         it('leaves GearSwap\'s settings, globals and language as they were', function()
@@ -377,13 +424,26 @@ describe('gs stash', function()
             assert.equal('english', gs.env.language)
         end)
 
-        it('makes no text box and sends no message to other addons', function()
+        it('makes no text box or primitive and sends no message to other addons', function()
             local gs = boot()
             local sent = {}
             gs.game.windower.send_ipc_message = function(message) sent[#sent + 1] = message end
             run(gs, 'gs stash pld')
             assert.same({}, gs.env.__raw.text.registry)
+            assert.same({}, gs.env.__raw.prim.registry)
             assert.same({}, sent)
+        end)
+
+        it('leaves the loaded file\'s text boxes to it, so a Sel file\'s status box goes when the file unloads',
+            function()
+            local gs = testy.boot_rdm()
+            gs:console('gs stash whm')
+            gs:console('gs reload')
+            local boxes = 0
+            for _ in pairs(gs.env.__raw.text.registry) do
+                boxes = boxes + 1
+            end
+            assert.equal(1, boxes)
         end)
     end)
 end)

@@ -4,6 +4,8 @@
 -- helpers those tests share.
 -------------------------------------------------------------------------------------------------------------------
 
+local assert = require('luassert')
+local harness = require('harness')
 local testy = require('testy')
 
 local commy = {}
@@ -30,18 +32,6 @@ local function options_for(job, items, overrides)
         end
     end
     return options
-end
-
--- Boots GearSwap with the options, puts the set Sel picks on, and starts the session with everything so far taken as
--- read.
-local function boot(options, before_update)
-    local gs = require('harness').boot(options)
-    if before_update then
-        before_update(gs)
-    end
-    gs:console('gs c update')
-    gs:forget()
-    return gs
 end
 
 -- The idle set of tests/fixture/data/Commy/Commy_Rdm_Gear.lua.
@@ -72,7 +62,7 @@ end
 
 -- Commy as a red mage with the idle set on, and nothing sent or said yet.
 function commy.boot_rdm(overrides)
-    return boot(commy.rdm(overrides))
+    return harness.boot_updated(commy.rdm(overrides))
 end
 
 -- The idle set of tests/fixture/data/Commy/Commy_War_Gear.lua.
@@ -96,7 +86,7 @@ end
 
 -- Commy as a warrior at noon, with the idle set on, and nothing sent or said yet.
 function commy.boot_war(overrides)
-    return boot(commy.war(overrides), function(gs)
+    return harness.boot_updated(commy.war(overrides), function(gs)
         gs:set_time(12 * 60)
     end)
 end
@@ -104,27 +94,29 @@ end
 -- Commy as a thief with warrior as sub job and 1000 TP, on the real data/THF.lua with Commy_Thf_Gear.lua, holding no
 -- gear, and nothing sent or said yet.
 function commy.boot_thf(overrides)
-    return boot(options_for({character = 'Commy', main_job = 'THF', sub_job = 'WAR', tp = 1000,
+    return harness.boot_updated(options_for({character = 'Commy', main_job = 'THF', sub_job = 'WAR', tp = 1000,
         expect_file = 'THF.lua'}, {}, overrides))
 end
 
 -- A melee hit of Commy's on the monster, as the action packet the server sends of it.
 function commy.hit(gs)
-    gs:run(function()
-        gs.game:send_action_packet({category = 1, param = 0, targets = {{id = gs.game.monster.id, actions = {{
-            message = 1, param = 100, reaction = 0, animation = 0, effect = 0, stagger = 0}}}}})
-        gs.game:settle()
-    end)
+    gs:send_action_packet({category = 1, param = 0, targets = {{id = gs.game.monster.id, actions = {{
+        message = 1, param = 100, reaction = 0, animation = 0, effect = 0, stagger = 0}}}}})
 end
 
 -- Commy defeats the monster: it is left at 0% HP, and the server's message says it was defeated.
 function commy.defeat(gs)
-    gs:run(function()
-        gs.game.monster.hpp = 0
-        gs.game:send_action_message({target_id = gs.game.monster.id, target_index = gs.game.monster.index,
-            message_id = 6})
-        gs.game:settle()
-    end)
+    gs.game.monster.hpp = 0
+    gs:send_action_message({target_id = gs.game.monster.id, target_index = gs.game.monster.index, message_id = 6})
+end
+
+-- What is worn once the spell typed (a line such as '/ma "Slow" <t>') has gone out: its midcast set over what was
+-- worn. The test fails when no action, or more than one, went out for it.
+function commy.cast(gs, line)
+    local sent = #gs.game.actions
+    gs:type(line)
+    assert.equal(sent + 1, #gs.game.actions, line .. ' didn\'t go out alone')
+    return gs:worn()
 end
 
 -- Notes each line typed through windower.chat.input from here on, as it is typed, whether GearSwap then takes it as

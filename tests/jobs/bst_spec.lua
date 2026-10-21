@@ -170,9 +170,9 @@ describe('BST\'s ready charges', function()
         .. 'set\'s off hand isn\'t Charmer\'s Merlin, and never reads the dual wield set\'s main')
 
     pending('take no 5 seconds off a timer for the Desultor Tassets of the ready recast set once Jobby can dual wield '
-        .. 'and wears the dual wield ready recast set, with other legs, in its place: get_ready_charge_timer in '
-        .. 'data/BST.lua goes on to sets.midcast.Pet.ReadyRecast\'s legs when the dual wield set\'s are neither '
-        .. 'Desultor Tassets nor Gleti\'s Breeches')
+        .. 'and wears the dual wield ready recast set, with other legs or none, in its place: get_ready_charge_timer '
+        .. 'in data/BST.lua goes on to sets.midcast.Pet.ReadyRecast\'s legs when the dual wield set names no legs or '
+        .. 'names neither Desultor Tassets nor Gleti\'s Breeches')
 end)
 
 describe('BST\'s Reward', function()

@@ -10,9 +10,7 @@ end
 
 -- Casts the spell at the monster and returns whether sets.TreasureHunter was on for it, once it was out.
 local function spell_wears_th(gs, name)
-    local sent = #gs.game.actions
-    gs:type(('/ma "%s" <t>'):format(name))
-    assert.equal(sent + 1, #gs.game.actions, name .. ' didn\'t go out')
+    commy.cast(gs, ('/ma "%s" <t>'):format(name))
     return wearing_th(gs)
 end
 
@@ -178,9 +176,9 @@ describe('Sel\'s Treasure Hunter in None mode', function()
     end)
 end)
 
--- Commy holding a bow, with Dia and Savage Blade in TH_Whitelist, as a gear file names them in user_job_setup.
+-- Commy with Dia and Savage Blade in TH_Whitelist, as a gear file names them in user_job_setup.
 local function boot_with_whitelist()
-    local gs = commy.boot_rdm({extra_items = {{name = "Judge's Bow"}}, wearing = {range = "Judge's Bow"}})
+    local gs = commy.boot_rdm()
     gs.user.TH_Whitelist = gs.user.S{'Dia', 'Savage Blade'}
     return gs
 end
@@ -209,6 +207,27 @@ describe('User-Globals.lua\'s Treasure Hunter with a TH_Whitelist in Tag mode', 
         gs:finish_action()
         gs:advance(5)
         assert.is_true(dia_wears_th(gs))
+    end)
+
+    it('keeps a tagged monster tagged when a spell not on the list lands on it', function()
+        tag_with_dia(gs)
+        assert.is_false(spell_wears_th(gs, 'Bio'))
+        gs:finish_action()
+        gs:advance(5)
+        assert.is_false(dia_wears_th(gs))
+    end)
+
+    it('takes every monster an area spell on the list lands on for tagged', function()
+        gs.user.TH_Whitelist = gs.user.S{'Dia', 'Diaga', 'Savage Blade'}
+        local other = gs.game:add_mob({name = 'Apex Bat', monster = true, distance = 9})
+        assert.is_true(spell_wears_th(gs, 'Diaga'))
+        -- The server tells of Diaga landing on both monsters.
+        local landed = {message = 2, param = 0, reaction = 0, animation = 0, effect = 0, stagger = 0}
+        gs:send_action_packet({category = 4, param = 33, recast = 0,
+            targets = {{id = gs.game.monster.id, actions = {landed}}, {id = other.id, actions = {landed}}}})
+        gs:advance(5)
+        gs.game:target(other.index)
+        assert.is_false(dia_wears_th(gs))
     end)
 
     -- The gear put on before the weapon skill went out, with Naegling in hand.
@@ -240,10 +259,16 @@ describe('User-Globals.lua\'s Treasure Hunter with a TH_Whitelist in Tag mode', 
         }, gs:traffic())
     end)
 
+    it('leaves it off a ranged attack at a monster it tagged', function()
+        tag_with_dia(gs)
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same({{action = 'category 16', target = 'Apex Toad'}}, gs:traffic())
+    end)
+
     it('leaves it off when Commy engages', function()
         gs:engage()
-        assert.same(commy.worn_by(idle, {range = "Judge's Bow", head = "Bunzi's Hat", body = 'Lethargy Sayon +3'}),
-            gs:worn())
+        assert.same(commy.worn_by(idle, {head = "Bunzi's Hat", body = 'Lethargy Sayon +3'}), gs:worn())
     end)
 
     it('doesn\'t take the monster for tagged by a melee hit', function()

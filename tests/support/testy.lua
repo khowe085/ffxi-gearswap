@@ -77,10 +77,7 @@ end
 
 -- Testy as a red mage with the idle set on, and everything until then taken as read.
 function testy.boot_rdm()
-    local gs = require('harness').boot(testy.rdm())
-    gs:console('gs c update')
-    gs:forget()
-    return gs
+    return require('harness').boot_updated(testy.rdm())
 end
 
 return testy

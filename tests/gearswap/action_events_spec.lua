@@ -10,13 +10,9 @@ end
 
 -- The packet the server sends about an action of the player's, as the fields say.
 local function server_act(gs, fields)
-    local act = {category = fields.category, param = fields.param or 0, recast = 0,
+    gs:send_action_packet({category = fields.category, param = fields.param or 0, recast = 0,
         targets = {{id = fields.target_id or gs.game.player.id, actions = {{message = fields.message or 0,
-            param = fields.value or 0, reaction = 0, animation = 0, effect = 0, stagger = 0}}}}}
-    gs:run(function()
-        gs.game:send_action_packet(act)
-        gs.game:settle()
-    end)
+            param = fields.value or 0, reaction = 0, animation = 0, effect = 0, stagger = 0}}}}})
 end
 
 describe('the spell a hook is handed', function()
@@ -262,10 +258,7 @@ describe('a pet\'s command ended by the server', function()
 
     it('when the target dies is told to pet_aftercast', function()
         local gs = boot_with_pet()
-        gs:run(function()
-            gs.game:send_action_message({message_id = 6, actor_id = gs.game.player.id, target_id = gs.game.monster.id})
-            gs.game:settle()
-        end)
+        gs:send_action_message({message_id = 6, actor_id = gs.game.player.id, target_id = gs.game.monster.id})
         assert.same({'pet_aftercast'}, events(calls(gs)))
     end)
 
@@ -278,11 +271,7 @@ describe('a pet\'s command ended by the server', function()
 
     it('when the server says the player can\'t, from the pet, is told to pet_aftercast, marked interrupted', function()
         local gs = boot_with_pet()
-        local pet = gs.game.pet
-        gs:run(function()
-            gs.game:send_action_message({message_id = 17, actor_id = pet.id, target_id = gs.game.monster.id})
-            gs.game:settle()
-        end)
+        gs:send_action_message({message_id = 17, actor_id = gs.game.pet.id, target_id = gs.game.monster.id})
         local got = calls(gs)[1]
         assert.same({'pet_aftercast', true}, {got.event, got.interrupted})
     end)
