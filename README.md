@@ -12,7 +12,7 @@ Every mode below can be changed in game with `//gs c toggle <Mode>` (on/off mode
 | `!F7` | set | DefenseMode Resist | Turns on the resist defense set |
 | `!^F7` | cycle | ResistDefenseMode | MEVA, then per job |
 | `F9` | cycle | Weapons | The job file's weapon sets |
-| `^F9` | cycle | AutoWS | OFF, then the current weapon set's `AutoWS_List` choices; back to OFF on a weapon change |
+| `^F9` | cycle | AutoWS | OFF, then the current weapon set's `AutoWS_List` choices; back to OFF on a weapon change, unless AutoXP is on and the new weapon set has its WS choice |
 | `!F9` | toggle | UnlockWeapons | off, on (RDM starts on). Lets sets change main and sub out of combat; while engaged they stay put |
 | `@F9` | cycle | RangedMode | Set per job |
 | `F10` | cycle | AutoBuffMode | Off, Auto, then the job's other buff lists |
@@ -30,7 +30,7 @@ Every mode below can be changed in game with `//gs c toggle <Mode>` (on/off mode
 | `@F12` | cycle | IdleMode | Set per job |
 | `@ScrollLock` | cycle | Passive | None, then per job |
 
-F8 is left free for the game's nearest-enemy targeting. WeaponskillMode has no key or alias: it stays on Match, which picks the weapon skill set named for the current OffenseMode (or RangedMode, for a ranged weapon skill) and Normal otherwise. Each Vanar gear file lists its offense modes as weapon skill modes after Match, because Match only takes a mode the list holds.
+F8 is left free for the game's nearest-enemy targeting, which AutoXP presses to find its next monster. WeaponskillMode has no key or alias: it stays on Match, which picks the weapon skill set named for the current OffenseMode (or RangedMode, for a ranged weapon skill) and Normal otherwise. Each Vanar gear file lists its offense modes as weapon skill modes after Match, because Match only takes a mode the list holds.
 
 Other keys for every job: `Pause` runs `gs c update user`, `!@^F12` reloads GearSwap, `!@^Pause` runs `gs org`, `!@^Backspace` runs `gs c buffup`.
 
@@ -55,6 +55,7 @@ Their other keys use job abilities or spells directly and change no mode.
 | AutoWSBuff | on, off | Uses Last Resort, Berserk, Warcry or Aggressor before a weaponskill in the job file's `ws_buff_list` |
 | AutoWSRestore | on, off | Lets AutoWS use Sanguine Blade, Catastrophe, Entropy or Mystic Boon at low HP or MP |
 | AutoWSMode | off, on | Only drives RngHelper's ranged auto-ws, and stays off without RngHelper |
+| AutoXP | off, on | Pulls and fights nearby monsters from the gear file's `AutoXP_Settings` (the Auto XP comment in `User-Globals.lua` lists its fields): sets AutoTrustMode, AutoBuffMode and AutoWS from it, calls missing trusts (going on without one on recast, or one two calls didn't bring in), presses F8, uses Pull on an unclaimed monster in range and engages it once claimed. Between pulls it dismisses and calls again a healer trust low on MP; once HP stays low, Heal goes first whenever it's ready, and no pull goes out until HP is back above HealHPP. Off puts the three modes back; zoning or dying turns it off |
 | RngHelper, RngHelperQuickDraw | off, on | Ranged attack helper |
 | AutoLockstyle, ReEquip | on, off | Lockstyle on load and weapon change, re-equip weapons when bare |
 | AutoArts | off, on | Composure, Light or Dark Arts, Afflatus Solace and Addendum upkeep. Off stops them entirely, AutoBuffMode and `gs c buffup` included |
