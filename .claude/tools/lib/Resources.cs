@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace GearTools;
 
-// Windower's resource files, which fetch-sources.cs puts in the cache. They hold what //gs export leaves out:
+// Windower's resource files, which fetch-sources.cs writes into docs/windower. They hold what //gs export leaves out:
 // each item's id, jobs, slots, level and help text.
 sealed class Resources
 {
@@ -34,10 +34,8 @@ sealed class Resources
 
 	public static Resources Load()
 	{
-		var itemsPath = Tool.InCache("res", "items.lua");
-		var descriptionsPath = Tool.InCache("res", "item_descriptions.lua");
-		if (File.Exists(itemsPath) is false || File.Exists(descriptionsPath) is false)
-			Tool.Fail("Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
+		var itemsPath = Windower("items.lua");
+		var descriptionsPath = Windower("item_descriptions.lua");
 
 		var text = "(?:[^\"\\\\]|\\\\.)*";
 		var descriptionLine = new Regex("^\\s*\\[(\\d+)\\] = \\{id=\\d+,en=\"(" + text + ")\"");
@@ -73,22 +71,29 @@ sealed class Resources
 			}
 		}
 		if (byName.Count == 0)
-			Tool.Fail(".claude/cache/res/items.lua holds no weapon or armor. Fetch it again: dotnet run --no-cache .claude/tools/fetch-sources.cs -- --refresh");
+			Tool.Fail("docs/windower/items.lua holds no weapon or armor. Write it again: dotnet run .claude/gear.cs -- fetch-sources");
 		return new Resources(byName);
 	}
 
 	public static List<string> BlueSpells()
 	{
-		var path = Tool.InCache("res", "spells.lua");
-		if (File.Exists(path) is false)
-			Tool.Fail("Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
+		var path = Windower("spells.lua");
 		var spells = File.ReadLines(path)
 			.Where(line => line.Contains("type=\"BlueMagic\""))
 			.Select(line => Unescape(Regex.Match(line, "\\ben=\"((?:[^\"\\\\]|\\\\.)*)\"").Groups[1].Value))
 			.ToList();
 		if (spells.Count == 0)
-			Tool.Fail(".claude/cache/res/spells.lua holds no blue spell. Fetch it again: dotnet run --no-cache .claude/tools/fetch-sources.cs -- --refresh");
+			Tool.Fail("docs/windower/spells.lua holds no blue spell. Write it again: dotnet run .claude/gear.cs -- fetch-sources");
 		return spells;
+	}
+
+	// A resource file's path. One that isn't there stops the tool.
+	static string Windower(string file)
+	{
+		var path = Tool.InRepo("docs", "windower", file);
+		if (File.Exists(path) is false)
+			Tool.Fail($"Windower's {file} isn't in docs/windower. Run: dotnet run .claude/gear.cs -- fetch-sources");
+		return path;
 	}
 
 	// Every weapon or armor piece with this name or log name, ignoring case, which is how GearSwap matches the

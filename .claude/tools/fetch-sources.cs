@@ -1,9 +1,11 @@
-// Fills .claude/cache with the outside sources the other tools and the docs read: Windower's resource files and
-// the two IzaKastra repos, each at the commit docs/ffxi-mechanics.md cites file and line numbers from.
+// Writes the outside sources the other tools read into docs/: Windower's resource files into docs/windower, from the
+// branch head of Windower/Resources, and wsdist's gear data, gear.py, into docs/wsdist, from IzaKastra/wsdist_beta at
+// the commit docs/ffxi-mechanics.md cites file and line numbers from. Run it after a game update; the update-ext-data
+// skill runs it with the rest of the outside data.
 //
-//   dotnet run --no-cache .claude/tools/fetch-sources.cs [-- --refresh]
+//   dotnet run .claude/gear.cs -- fetch-sources
 //
-// Without --refresh it only fetches what is missing. The cache is git-ignored; nothing here is checked in.
+// It writes nothing unless it got every file.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -14,49 +16,57 @@ using System.IO;
 using System.Net.Http;
 using GearTools;
 
-Tool.Init();
-var cli = new Arguments(args, [], ["--refresh"]);
-var refresh = cli.Flag("--refresh");
-
-// Windower's resources follow the live game, so they are taken from the branch head, not pinned.
-string[] resourceFiles = ["items.lua", "item_descriptions.lua", "spells.lua"];
-var resourceDir = Tool.InCache("res");
-Directory.CreateDirectory(resourceDir);
-using var http = new HttpClient();
-foreach (var file in resourceFiles)
+new Arguments(args, [], []);
+var resources = Sources.ResourceFiles.Select(file => (Path: Tool.InRepo("docs", "windower", file), Bytes: Download(file))).ToList();
+var checkout = Sources.Checkout("wsdist_beta");
+byte[]? gear;
+try
 {
-	var path = Path.Combine(resourceDir, file);
-	if (File.Exists(path) && refresh is false)
-	{
-		Console.WriteLine($"res/{file}: present ({new FileInfo(path).Length / 1024} KB, from {File.GetLastWriteTime(path):yyyy-MM-dd})");
-		continue;
-	}
-	byte[] bytes;
+	var fetched = Path.Combine(checkout, "gear.py");
+	gear = File.Exists(fetched) ? File.ReadAllBytes(fetched) : null;
+}
+finally
+{
+	Sources.RemoveCheckout(checkout);
+}
+var commit = Sources.Pin("wsdist_beta").Commit[..7];
+if (gear is null)
+	Tool.Fail($"wsdist_beta has no gear.py at {commit}.");
+
+foreach (var resource in resources)
+{
+	Write(resource.Path, resource.Bytes);
+	Console.WriteLine($"{Tool.RepoRelative(resource.Path)}: downloaded ({resource.Bytes.Length / 1024} KB)");
+}
+var gearPath = Tool.InRepo("docs", "wsdist", "gear.py");
+Write(gearPath, gear);
+Console.WriteLine($"{Tool.RepoRelative(gearPath)}: from wsdist_beta at {commit} ({gear.Length / 1024} KB)");
+
+// A download that fails stops the tool, before anything is written.
+static byte[] Download(string file)
+{
 	try
 	{
-		bytes = await http.GetByteArrayAsync("https://raw.githubusercontent.com/Windower/Resources/master/resources_data/" + file);
+		using var http = new HttpClient();
+		return http.GetByteArrayAsync(Sources.ResourcesUrl + file).GetAwaiter().GetResult();
 	}
 	catch (Exception problem) when (problem is HttpRequestException or TaskCanceledException)
 	{
-		Tool.Fail($"res/{file}: couldn't download it. {problem.Message}");
+		Tool.Fail($"Windower's {file}: couldn't download it. {problem.Message}");
 		throw;
 	}
-	await File.WriteAllBytesAsync(path, bytes);
-	Console.WriteLine($"res/{file}: downloaded ({bytes.Length / 1024} KB)");
 }
 
-// docs/ffxi-mechanics.md quotes these two by file and line, so a different commit would make its references wrong.
-FetchRepo("wsdist_beta", "https://github.com/IzaKastra/wsdist_beta", "d12ac5923ccace977ad55d172c8698b5886b9e4f");
-FetchRepo("bg_job_guides", "https://github.com/IzaKastra/bg_job_guides", "f264ae4f3bceb4d6e98bb7df5c4c22b21315c407");
-
-void FetchRepo(string name, string url, string commit)
+// Windows won't replace a file another tool has open, and says so.
+static void Write(string path, byte[] bytes)
 {
 	try
 	{
-		Console.WriteLine($"{name}: {GitSource.Fetch(Tool.InCache(name), url, commit)}");
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+		File.WriteAllBytes(path, bytes);
 	}
-	catch (InvalidOperationException problem)
+	catch (Exception problem) when (problem is IOException or UnauthorizedAccessException)
 	{
-		Tool.Fail($"{name}: {problem.Message}");
+		Tool.Fail($"{Tool.RepoRelative(path)}: couldn't write it. {problem.Message}");
 	}
 }

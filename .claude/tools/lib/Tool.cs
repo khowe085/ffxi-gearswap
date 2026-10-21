@@ -10,42 +10,24 @@ using System.Text.RegularExpressions;
 
 namespace GearTools;
 
-// What every tool in this folder shares: where the repo and the cache are, and how a tool stops.
+// What every tool in this folder shares: where the repo is, and how a tool stops.
 static class Tool
 {
 	public static string RepoRoot { get; }
 
-	public static string ToolsDir { get; }
-
-	public static string CacheDir { get; }
-
 	static Tool()
 	{
-		// dotnet run builds a file-based app into a temp folder, so the assembly's own path says nothing about the
-		// repo. It passes the app's source folder here instead: this folder, or tests/ under it.
+		// A build doesn't sit beside its source, so the assembly's own path says nothing about the repo. dotnet passes
+		// the app's source folder here instead: this folder, or tests/ under it.
 		var entryDir = AppContext.GetData("EntryPointFileDirectoryPath") as string;
 		var tools = ToolsFolderFrom(entryDir, "") ?? ToolsFolderFrom(Environment.CurrentDirectory, Path.Combine(".claude", "tools"));
 		if (tools is null)
 			Fail("Can't find .claude/tools: run the tool from inside the repo.");
-		ToolsDir = tools;
-		// The tests (tests/run-tests.cs) point the tools at a made-up repo and cache with these two variables.
+		// The tests (tests/run-tests.cs) point the tools at a made-up repo with this variable.
 		RepoRoot = Environment.GetEnvironmentVariable("GEAR_TOOLS_ROOT") ?? Path.GetFullPath(Path.Combine(tools, "..", ".."));
-		CacheDir = Environment.GetEnvironmentVariable("GEAR_TOOLS_CACHE") ?? Path.Combine(RepoRoot, ".claude", "cache");
-	}
-
-	// Call first in every tool. dotnet run rebuilds a file-based app only when the app's own file changes, so after
-	// an edit under lib/ a plain run would go on using the old build. This stops it and says how to rebuild.
-	public static void Init()
-	{
-		var built = File.GetLastWriteTimeUtc(Path.Combine(AppContext.BaseDirectory, typeof(Tool).Assembly.GetName().Name + ".dll"));
-		var sources = Directory.GetFiles(Path.Combine(ToolsDir, "lib"), "*.cs").Append(Path.Combine(ToolsDir, "Directory.Build.props"));
-		if (sources.Max(File.GetLastWriteTimeUtc) > built)
-			Fail("This build is older than .claude/tools/lib. Run the tool again with: dotnet run --no-cache <tool>.cs");
 	}
 
 	public static string InRepo(params string[] parts) => Path.Combine([RepoRoot, .. parts]);
-
-	public static string InCache(params string[] parts) => Path.Combine([CacheDir, .. parts]);
 
 	// A path as the docs write it: relative to the repo, with forward slashes.
 	public static string RepoRelative(string path) => Path.GetRelativePath(RepoRoot, path).Replace('\\', '/');

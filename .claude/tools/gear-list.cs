@@ -4,8 +4,8 @@
 // own slots count, not what it takes from its base. It reads the tables under the list's "## <Slot> (<count>)"
 // headings; a table anywhere else in the file isn't part of the list.
 //
-//   dotnet run --no-cache .claude/tools/gear-list.cs -- --in <sets.json> [--in <sets.json> ...] [--print | --json]
-//                                                     [--export <path>]
+//   dotnet run .claude/gear.cs -- gear-list --in <sets.json> [--in <sets.json> ...] [--print | --json]
+//                                          [--export <path>]
 //
 // --print writes the table the sets call for, to paste over the list's sections, or to start the list from when the
 // character has none yet. --json writes the problems as findings (lib/Dto.cs) and nothing else. Without --export it
@@ -20,7 +20,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--in", "--export"], ["--print", "--json"]);
 if (cli.Flag("--print") && cli.Flag("--json"))
 	Tool.Fail("--print writes a table and --json writes findings; give one of them.");

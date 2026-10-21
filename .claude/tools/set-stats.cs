@@ -4,8 +4,8 @@
 // values from docs/gear-notes.md).
 // The gear-optimizer agent reports its shortfalls from these numbers.
 //
-//   dotnet run --no-cache .claude/tools/set-stats.cs -- --in <sets.json> [--set <regex>] [--extra <stats.json>]
-//                                                     [--json] [--export <path>]
+//   dotnet run .claude/gear.cs -- set-stats --in <sets.json> [--set <regex>] [--extra <stats.json>]
+//                                          [--json] [--export <path>]
 //
 // --set keeps the sets whose name matches. --extra is { "<item>": { "<stat>": <value>, ... } }, by the name the export
 // prints, with the stat names the output uses (FC, DT, Macc and so on). --json writes [ { "set", "stats", "warnings" } ].
@@ -23,7 +23,6 @@ using System.IO;
 using System.Text.Json;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, ["--in", "--set", "--extra", "--export"], ["--json"]);
 var input = cli.Option("--in");
 if (input is null)

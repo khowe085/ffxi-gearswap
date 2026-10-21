@@ -3,7 +3,7 @@
 // for each item, from that character's newest export and from the Ranks table in <Character>_notes.md, since
 // //gs export never shows a rank.
 //
-//   dotnet run --no-cache .claude/tools/rank-doc.cs [-- --check]
+//   dotnet run .claude/gear.cs -- rank-doc [--check]
 //
 // When the player reports a new rank: change its row in the Ranks table, run this, then correct what the character's
 // notes and gear notes say about that piece, and look again at the sets that wear it. Both documents are generated; don't edit them. A Ranks
@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using System.IO;
 using GearTools;
 
-Tool.Init();
 var cli = new Arguments(args, [], ["--check"]);
 
 // Oboro's augments (JSE necks, Ultimate Weapons, Unity weapons) rank up too, but bg-wiki gives only the maximum, not

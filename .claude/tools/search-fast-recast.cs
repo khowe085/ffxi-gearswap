@@ -2,9 +2,9 @@
 // Copy it for a new question: change what is read from each piece and the formula in Score, and keep the shape (prune
 // each slot, then try every combination). It shares nothing with the other tools, so a copy runs from any folder.
 //
-//   dotnet run --no-cache .claude/tools/owned-gear.cs -- --job BLU --json --sets <sets.json> > pieces.json
-//   dotnet run --no-cache .claude/tools/search-fast-recast.cs -- pieces.json --job BLU [--hidden <values.json>]
-//                                                               [--exclude <regex>] [--traits 5,15,20,25] [--table]
+//   dotnet run .claude/gear.cs -- owned-gear --job BLU --json --sets <sets.json> > pieces.json
+//   dotnet run .claude/gear.cs -- search-fast-recast pieces.json --job BLU [--hidden <values.json>]
+//                                                   [--exclude <regex>] [--traits 5,15,20,25] [--table]
 //
 // --hidden gives the Fast Cast a piece's help text hides ("Enhances "Fast Cast" effect"), as { "<item>": <value> }:
 // the values in docs/gear-notes.md, and a path piece's at the character's rank. --exclude keeps out the pieces whose

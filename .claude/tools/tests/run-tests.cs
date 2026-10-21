@@ -1,15 +1,16 @@
-// Tests for the tools in the folder above. They run against the small made-up character under fixture/ (Testy),
-// never against the real data: the shared code is called directly, and each tool is run as it is from the command
-// line, pointed at a copy of the fixture, once as it stands and once with mistakes put in that the tool has to
-// report.
+// Tests for the tools in the folder above. They run against the small made-up character under fixture/ (Testy), never
+// against the real data: the shared code is called directly, and each tool is run as it is from the command line,
+// pointed at a copy of the fixture, once as it stands and once with mistakes put in that the tool has to report.
 //
-//   dotnet run --no-cache .claude/tools/tests/run-tests.cs [-- <text>]
+//   dotnet run .claude/gear.cs -- test tools [--filter <text>]
 //
-// With <text>, only the tests whose name contains it run. Exit code 1 when a test fails. Nothing here uses the
-// network: wiki.cs and rank-tables.cs ask a stand-in for bg-wiki on this machine, and they and fetch-sources.cs
-// are also run with the network cut off, to see them stop. The git sources are fetched from repositories made here.
-// That leaves two things no test runs: a download of Windower's resources that works, and the wait after bg-wiki
-// answers 429.
+// The launcher brings every tool's build up to date before the tests start, so running a tool here starts its build in
+// the checkout's .claude/cache/builds rather than building it. The tests run side by side, each on what it makes for
+// itself; the few that change what the others read run after them, one at a time. With --filter, only the tests whose
+// name holds the text run. Exit code 1 when a test fails. Nothing here uses the network: wiki.cs and rank-tables.cs ask
+// a stand-in for bg-wiki on this machine, Windower's resource files come from a stand-in too, and the git sources are
+// fetched from repositories made here. No test cuts the network off to see a tool stop on a site it can't reach, and
+// none waits out bg-wiki's 429.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -26,17 +27,29 @@ using GearTools;
 var testsDir = AppContext.GetData("EntryPointFileDirectoryPath") as string ?? Path.Combine(Environment.CurrentDirectory, ".claude", "tools", "tests");
 var toolsDir = Path.GetFullPath(Path.Combine(testsDir, ".."));
 var fixtureDir = Path.Combine(testsDir, "fixture");
+var buildsDir = Path.GetFullPath(Path.Combine(toolsDir, "..", "cache", "builds"));
 var workDir = Path.Combine(Path.GetTempPath(), "gear-tools-tests-" + Environment.ProcessId);
+var unbuilt = Directory.GetFiles(toolsDir, "*.cs").Select(Path.GetFileNameWithoutExtension).Where(tool => File.Exists(Path.Combine(buildsDir, tool!, tool + ".dll")) is false).ToList();
+if (unbuilt.Count > 0)
+{
+	Console.Error.WriteLine($"No build of {string.Join(", ", unbuilt)}. Build the tools first: dotnet run .claude/gear.cs -- build");
+	return 2;
+}
 
-// The shared code reads the repo and the cache named here, so set them before anything touches it.
+// The shared code reads the repo named here, so set it before anything touches it.
 var pristine = NewSandbox();
 Environment.SetEnvironmentVariable("GEAR_TOOLS_ROOT", pristine.Repo);
-Environment.SetEnvironmentVariable("GEAR_TOOLS_CACHE", pristine.Cache);
-// The tests call the shared code in this process, so a build older than lib/ would test the old code.
-Tool.Init();
 
 var tests = new List<KeyValuePair<string, Action>>();
+// The tests that change what the others read, which run after them, one at a time.
+var alone = new HashSet<string>();
 void Test(string name, Action body) => tests.Add(KeyValuePair.Create(name, body));
+
+void TestAlone(string name, Action body)
+{
+	Test(name, body);
+	alone.Add(name);
+}
 
 // The sets files Testy_gear_list.md is written from.
 string[] testySets = ["--in", "sets/Testy_BLU.json", "--in", "sets/Testy_RDM.json"];
@@ -659,7 +672,7 @@ Test("sel-sets stops on a gear file it can't find or doesn't know the character 
 	Stops(pristine.Run("sel-sets", "data/Testy/Testy-Globals.lua", "BLU"), "Testy-Globals.lua isn't named like a Sel gear file (<Character>_<Job>_Gear.lua).");
 	Stops(pristine.Run("sel-sets", "data/Testy/Testy_Blu_Gear.lua", "XYZ"), "XYZ isn't a job.");
 	Stops(pristine.Run("sel-sets", "data/Testy/Testy_Blu_Gear.lua", "RDM"), "Testy_Blu_Gear.lua is a BLU gear file, not RDM.");
-	Stops(pristine.Run("sel-sets", "data/Testy/Testy_Blu_Gear.lua"), "Give the gear file and the job: sel-sets.cs -- <gear file> <JOB> [--out <sets.json>]");
+	Stops(pristine.Run("sel-sets", "data/Testy/Testy_Blu_Gear.lua"), "Give the gear file and the job: dotnet run .claude/gear.cs -- sel-sets <gear file> <JOB> [--out <sets.json>]");
 });
 
 Test("StatBook totals a set's stats from the help text, the copy's augments and the values it is given", () =>
@@ -959,7 +972,7 @@ Test("set-stats adds what the character's rank file gives, and warns of a rank t
 	}
 });
 
-Test("Characters finds each folder that holds a character's notes or gear list, and names its documents", () =>
+TestAlone("Characters finds each folder that holds a character's notes or gear list, and names its documents", () =>
 {
 	Equal("Testy", string.Join(" ", Characters.All()));
 	// A folder of Lua files alone, as data/User is, holds no character's documents.
@@ -1371,11 +1384,11 @@ Test("a tool stops on a value it can't use: a character, an export, a slot, a jo
 	Stops(pristine.Run("owned-gear", "--slot", "bogus"), "bogus isn't a slot. Slots: main sub range ammo head neck ear body hands ring back waist legs feet");
 	Stops(pristine.Run("owned-gear", "--job", "XYZ"), "XYZ isn't a job. Jobs: WAR MNK");
 	Stops(pristine.Run("sims"), "Name the job: --job rdm");
-	Stops(pristine.Run("sims", "--job", "nope"), "No simulated sets for nope in .claude/cache/bg_job_guides. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
+	Stops(pristine.Run("sims", "--job", "nope"), "No simulated sets for nope in docs/wiki/simulated-sets.");
 	Stops(pristine.Run("sims", "--job", "rdm", "--set", "zzzz"), "No set on the rdm page has \"zzzz\" in its name.");
 	Stops(pristine.Run("wsdist-gear"), "Give one regex to match item names against, or --check-nyame.");
 	Stops(pristine.Run("wsdist-gear", "nyame", "helm"), "Give one regex to match item names against, or --check-nyame.");
-	Stops(pristine.Run("wiki"), "Name at least one page: dotnet run --no-cache .claude/tools/wiki.cs -- \"Nyame Helm\"");
+	Stops(pristine.Run("wiki"), "Name at least one page: dotnet run .claude/gear.cs -- wiki \"Nyame Helm\"");
 	// With exports for two characters, a tool has to be told whose to read. A sets file says whose it is.
 	var two = NewSandbox();
 	File.Copy(Path.Combine(two.Repo, "data", "export", "Testy 2026-01-02 08-00-00.lua"), Path.Combine(two.Repo, "data", "export", "Ghost 2026-02-01 08-00-00.lua"));
@@ -1396,22 +1409,97 @@ Test("a tool stops when the file it checks isn't there or isn't named, or holds 
 	Stops(sandbox.Run("check-export"), "Name the sets file to check: --in <sets.json>");
 });
 
-Test("a tool that finds part of the cache missing names the command that fills it", () =>
+Test("a tool names the command that writes what docs/windower or docs/wsdist lacks", () =>
 {
 	var sandbox = NewSandbox();
-	File.Delete(Path.Combine(sandbox.Cache, "res", "spells.lua"));
-	Stops(sandbox.Run("check-blu-spells"), "Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
-	File.Delete(Path.Combine(sandbox.Cache, "res", "items.lua"));
-	Stops(sandbox.Run("owned-gear"), "Windower's resources aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
-	Directory.Delete(Path.Combine(sandbox.Cache, "ranks"), true);
-	Stops(sandbox.Run("rank-doc", "--check"), "bg-wiki's rank tables aren't in .claude/cache. Run: dotnet run --no-cache .claude/tools/rank-tables.cs");
-	Directory.Delete(Path.Combine(sandbox.Cache, "wsdist_beta"), true);
-	Stops(sandbox.Run("wsdist-gear", "nyame"), "wsdist isn't in .claude/cache. Run: dotnet run --no-cache .claude/tools/fetch-sources.cs");
-	// doc-lint goes on without the simulated sets, and says so.
-	Directory.Delete(Path.Combine(sandbox.Cache, "bg_job_guides"), true);
-	var lint = sandbox.Run("doc-lint");
-	Equal(0, lint.ExitCode);
-	Contains(lint.Output, "Simulated sets not checked: .claude/cache/bg_job_guides is missing. Run fetch-sources.cs.");
+	File.Delete(Path.Combine(sandbox.Repo, "docs", "windower", "spells.lua"));
+	Stops(sandbox.Run("check-blu-spells", "--in", "sets/Testy_BLU.json"), "Windower's spells.lua isn't in docs/windower. Run: dotnet run .claude/gear.cs -- fetch-sources");
+	File.Delete(Path.Combine(sandbox.Repo, "docs", "windower", "items.lua"));
+	Stops(sandbox.Run("owned-gear"), "Windower's items.lua isn't in docs/windower. Run: dotnet run .claude/gear.cs -- fetch-sources");
+	File.Delete(Path.Combine(sandbox.Repo, "docs", "wsdist", "gear.py"));
+	Stops(sandbox.Run("wsdist-gear", "nyame"), "wsdist's gear.py isn't in docs/wsdist. Run: dotnet run .claude/gear.cs -- fetch-sources");
+});
+
+Test("fetch-sources writes Windower's resources into docs/windower, and wsdist's gear data at its pinned commit into docs/wsdist", () =>
+{
+	using var site = ResourceSite();
+	var fixtureDocs = Path.Combine(fixtureDir, "repo", "docs");
+	var wsdist = NewGitRepo("wsdist-for-docs", Path.Combine(fixtureDocs, "wsdist"));
+	var sandbox = NewSandbox();
+	var windower = Path.Combine(sandbox.Repo, "docs", "windower");
+	foreach (var file in Directory.GetFiles(windower))
+		File.WriteAllText(file, "stale\n");
+	var gear = Path.Combine(sandbox.Repo, "docs", "wsdist", "gear.py");
+	File.WriteAllText(gear, "stale\n");
+	var run = sandbox.RunWithSources(site, wsdist, "fetch-sources");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "docs/windower/items.lua: downloaded (");
+	Contains(run.Output, "docs/wsdist/gear.py: from wsdist_beta at " + wsdist.Commit[..7]);
+	string Text(string path) => File.ReadAllText(path).Replace("\r\n", "\n");
+	foreach (var file in Directory.GetFiles(windower))
+		Equal(Text(Path.Combine(fixtureDocs, "windower", Path.GetFileName(file))), Text(file));
+	Equal(Text(Path.Combine(fixtureDocs, "wsdist", "gear.py")), Text(gear));
+	Equal("/res/items.lua /res/item_descriptions.lua /res/spells.lua", string.Join(" ", site.Requests));
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
+Test("fetch-sources writes nothing unless it gets every file", () =>
+{
+	var sandbox = NewSandbox();
+	string Docs() => string.Join("|", Directory.GetFiles(Path.Combine(sandbox.Repo, "docs"), "*", SearchOption.AllDirectories)
+		.Order(StringComparer.Ordinal)
+		.Select(file => Path.GetRelativePath(sandbox.Repo, file) + ":" + File.ReadAllText(file)));
+	var before = Docs();
+	using var noSpells = new StandInSite(request => request.EndsWith("/spells.lua") ? new StandInReply(404, "") : new StandInReply(200, "downloaded\n"));
+	var wsdist = NewGitRepo("wsdist-not-written", Path.Combine(fixtureDir, "repo", "docs", "wsdist"));
+	Stops(sandbox.RunWithSources(noSpells, wsdist, "fetch-sources"), "spells.lua: couldn't download it.");
+	Equal(before, Docs());
+	using var everyFile = new StandInSite(request => new StandInReply(200, "downloaded\n"));
+	var noGear = NewGitRepo("wsdist-without-gear");
+	Stops(sandbox.RunWithSources(everyFile, noGear, "fetch-sources"), "wsdist_beta has no gear.py at " + noGear.Commit[..7]);
+	Equal(before, Docs());
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
+Test("simulated-sets leaves no checkout behind when it stops", () =>
+{
+	var upstream = Path.Combine(workDir, "bg-job-guides-without-jobs");
+	Directory.CreateDirectory(upstream);
+	File.WriteAllText(Path.Combine(upstream, "README.md"), "# Backups\n");
+	var guides = NewGitRepo("guides-without-jobs", upstream);
+	var sandbox = NewSandbox();
+	Stops(sandbox.RunWithRepo("bg_job_guides", guides, "simulated-sets"), "bg_job_guides has no job's page at " + guides.Commit[..7]);
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+	Stops(sandbox.RunWithoutGit("simulated-sets"), "bg_job_guides: couldn't run git");
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
+Test("rank-doc names the command that reads bg-wiki's rank tables when docs/wiki has none", () =>
+{
+	var sandbox = NewSandbox();
+	File.Delete(Path.Combine(sandbox.Repo, "docs", "wiki", "rank-tables.json"));
+	Stops(sandbox.Run("rank-doc", "--check"), "bg-wiki's rank tables aren't in docs/wiki. Run: dotnet run .claude/gear.cs -- rank-tables");
+});
+
+Test("simulated-sets writes each job's simulated sets from bg_job_guides at its commit into docs/wiki, and drops a job's that is gone", () =>
+{
+	// The repository keeps a page for each job, named for it, and a README and a main page beside them.
+	var upstream = Path.Combine(workDir, "bg-job-guides-upstream");
+	Directory.CreateDirectory(upstream);
+	File.WriteAllText(Path.Combine(upstream, "rdm.md"), "rdm sets\n");
+	File.WriteAllText(Path.Combine(upstream, "blu.md"), "blu sets\n");
+	File.WriteAllText(Path.Combine(upstream, "README.md"), "# Backups\n");
+	File.WriteAllText(Path.Combine(upstream, "main_page.md"), "All Jobs Gear Sets\n");
+	var guides = NewGitRepo("guides-for-docs", upstream);
+	var sandbox = NewSandbox();
+	var sets = Path.Combine(sandbox.Repo, "docs", "wiki", "simulated-sets");
+	Directory.CreateDirectory(sets);
+	File.WriteAllText(Path.Combine(sets, "war.txt"), "a job the repository no longer has");
+	var run = sandbox.RunWithRepo("bg_job_guides", guides, "simulated-sets");
+	Equal(0, run.ExitCode);
+	Equal("blu.txt rdm.txt", string.Join(" ", Directory.GetFiles(sets).Select(Path.GetFileName).Order(StringComparer.Ordinal)));
+	Equal("rdm sets\n", File.ReadAllText(Path.Combine(sets, "rdm.txt")));
+	Contains(run.Output, "2 jobs' simulated sets from bg_job_guides at " + guides.Commit[..7]);
 });
 
 Test("a tool stops, and says what is missing, when the repository lacks a folder or a file it reads", () =>
@@ -1421,15 +1509,16 @@ Test("a tool stops, and says what is missing, when the repository lacks a folder
 	var export = noExports.Run("check-export", "--in", "sets/Testy_RDM.json");
 	Equal(2, export.ExitCode);
 	Contains(export.Output, "data/export holds no //gs export");
+	// The docs go, and what docs/wiki holds from bg-wiki stays.
 	var noDocs = NewSandbox();
-	Directory.Delete(Path.Combine(noDocs.Repo, "docs"), true);
+	foreach (var doc in Directory.GetFiles(Path.Combine(noDocs.Repo, "docs"), "*.md", SearchOption.AllDirectories))
+		File.Delete(doc);
 	var lint = noDocs.Run("doc-lint");
 	Equal(1, lint.ExitCode);
 	Contains(lint.Output, "link to a missing file, ../../docs/rank-augments.md");
 	var nyame = noDocs.Run("wsdist-gear", "--check-nyame");
 	Equal(2, nyame.ExitCode);
 	Contains(nyame.Output, "docs/rank-augments.md is missing");
-	// rank-doc makes the folder its document goes in.
 	Equal(0, noDocs.Run("rank-doc").ExitCode);
 	True(File.Exists(Path.Combine(noDocs.Repo, "docs", "rank-augments.md")), "rank-doc didn't write docs/rank-augments.md");
 });
@@ -1437,23 +1526,23 @@ Test("a tool stops, and says what is missing, when the repository lacks a folder
 Test("a tool stops when a file it reads holds nothing it can use", () =>
 {
 	var ranks = NewSandbox();
-	File.WriteAllText(Path.Combine(ranks.Cache, "ranks", "ranks.json"), "{ not json");
-	Stops(ranks.Run("rank-doc", "--check"), "ranks.json can't be read");
-	File.WriteAllText(Path.Combine(ranks.Cache, "ranks", "ranks.json"), "null");
-	Stops(ranks.Run("rank-doc", "--check"), "ranks.json can't be read");
+	File.WriteAllText(Path.Combine(ranks.Repo, "docs", "wiki", "rank-tables.json"), "{ not json");
+	Stops(ranks.Run("rank-doc", "--check"), "rank-tables.json can't be read");
+	File.WriteAllText(Path.Combine(ranks.Repo, "docs", "wiki", "rank-tables.json"), "null");
+	Stops(ranks.Run("rank-doc", "--check"), "rank-tables.json can't be read");
 	var items = NewSandbox();
-	File.WriteAllText(Path.Combine(items.Cache, "res", "items.lua"), "");
-	Stops(items.Run("owned-gear"), "res/items.lua holds no weapon or armor");
+	File.WriteAllText(Path.Combine(items.Repo, "docs", "windower", "items.lua"), "");
+	Stops(items.Run("owned-gear"), "docs/windower/items.lua holds no weapon or armor");
 	var spells = NewSandbox();
-	File.WriteAllText(Path.Combine(spells.Cache, "res", "spells.lua"), "");
-	Stops(spells.Run("check-blu-spells"), "res/spells.lua holds no blue spell");
+	File.WriteAllText(Path.Combine(spells.Repo, "docs", "windower", "spells.lua"), "");
+	Stops(spells.Run("check-blu-spells"), "docs/windower/spells.lua holds no blue spell");
 	var wsdist = NewSandbox();
-	File.WriteAllText(Path.Combine(wsdist.Cache, "wsdist_beta", "gear.py"), "Naegling = {\"Name\":\"Naegling\", \"DMG\":166}\n");
+	File.WriteAllText(Path.Combine(wsdist.Repo, "docs", "wsdist", "gear.py"), "Naegling = {\"Name\":\"Naegling\", \"DMG\":166}\n");
 	Stops(wsdist.Run("wsdist-gear", "--check-nyame"), "gear.py has no ranked Nyame entry");
-	File.WriteAllText(Path.Combine(wsdist.Cache, "wsdist_beta", "gear.py"), "");
-	Stops(wsdist.Run("wsdist-gear", "nyame"), "wsdist_beta holds no item entry");
+	File.WriteAllText(Path.Combine(wsdist.Repo, "docs", "wsdist", "gear.py"), "");
+	Stops(wsdist.Run("wsdist-gear", "nyame"), "docs/wsdist/gear.py holds no item entry");
 	var page = NewSandbox();
-	File.WriteAllText(Path.Combine(page.Cache, "bg_job_guides", "rdm.md"), "");
+	File.WriteAllText(Path.Combine(page.Repo, "docs", "wiki", "simulated-sets", "rdm.txt"), "");
 	Stops(page.Run("sims", "--job", "rdm"), "holds no simulated set");
 	var export = NewSandbox();
 	File.WriteAllText(Path.Combine(export.Repo, "data", "export", "Testy 2026-01-02 08-00-00.lua"), "garbage");
@@ -1461,28 +1550,6 @@ Test("a tool stops when a file it reads holds nothing it can use", () =>
 	var setless = NewSandbox();
 	File.WriteAllText(Path.Combine(setless.Repo, "sets", "Testy_RDM.json"), "null");
 	Stops(setless.Run("check-export", "--in", "sets/Testy_RDM.json"), "sets/Testy_RDM.json can't be read as a sets file");
-});
-
-Test("a tool that needs the network stops with exit code 2 when it can't be reached", () =>
-{
-	var sandbox = NewSandbox();
-	var tables = Path.Combine(sandbox.Cache, "ranks", "ranks.json");
-	var saved = File.ReadAllText(tables);
-	var wiki = sandbox.RunOffline("wiki", "Nyame Helm");
-	Equal(2, wiki.ExitCode);
-	Contains(wiki.Output, "Couldn't reach bg-wiki");
-	var ranks = sandbox.RunOffline("rank-tables");
-	Equal(2, ranks.ExitCode);
-	Contains(ranks.Output, "Couldn't reach bg-wiki");
-	Equal(saved, File.ReadAllText(tables));
-	var sources = sandbox.RunOffline("fetch-sources", "--refresh");
-	Equal(2, sources.ExitCode);
-	Contains(sources.Output, "res/items.lua: couldn't download it");
-	// Without --refresh the resources in the cache stay as they are, and the first repository git can't fetch stops it.
-	var repositories = sandbox.RunOffline("fetch-sources");
-	Equal(2, repositories.ExitCode);
-	Contains(repositories.Output, "res/items.lua: present (");
-	Contains(repositories.Output, "wsdist_beta: git fetch --quiet --depth 1 --filter=blob:none origin d12ac5923ccace977ad55d172c8698b5886b9e4f failed in ");
 });
 
 Test("wiki saves each page under the name it was asked by, says which it couldn't find, and asks once", () =>
@@ -1493,26 +1560,34 @@ Test("wiki saves each page under the name it was asked by, says which it couldn'
 		"pages":[{"title":"Nyame Helm","revisions":[{"slots":{"main":{"content":"helm text"}}}]},
 		{"title":"Obstin. Sash","revisions":[{"slots":{"main":{"content":"sash text"}}}]},
 		{"title":"Category:Enspell","revisions":[{"slots":{"main":{"content":"enspell text"}}}]},
+		{"title":"titles","revisions":[{"slots":{"main":{"content":"titles page"}}}]},
 		{"title":"No Such Page","missing":true}]}}
 		""";
 	using var site = new StandInSite(request => new StandInReply(200, reply));
 	var sandbox = NewSandbox();
-	var run = sandbox.RunAgainst(site, "wiki", "Nyame Helm", "Obstinate Sash", "Category:Enspell", "No Such Page");
+	var run = sandbox.RunAgainst(site, "wiki", "Nyame Helm", "Obstinate Sash", "Category:Enspell", "titles", "No Such Page");
 	Equal(1, run.ExitCode);
-	Contains(run.Output, "saved   ../cache/wiki/Nyame_Helm.txt (9 chars)\n");
-	Contains(run.Output, "saved   ../cache/wiki/Obstinate_Sash.txt (9 chars) (the page is \"Obstin. Sash\")");
-	Contains(run.Output, "saved   ../cache/wiki/Category_Enspell.txt (12 chars)");
+	Contains(run.Output, "saved   docs/wiki/pages/Nyame_Helm.txt (9 chars)\n");
+	Contains(run.Output, "saved   docs/wiki/pages/Obstinate_Sash.txt (9 chars) (the page is \"Obstin. Sash\")");
+	Contains(run.Output, "saved   docs/wiki/pages/Category_Enspell.txt (12 chars)");
 	Contains(run.Output, "MISSING No Such Page: bg-wiki has no page by that name");
-	Equal("sash text", File.ReadAllText(Path.Combine(sandbox.Cache, "wiki", "Obstinate_Sash.txt")));
+	var pages = Path.Combine(sandbox.Repo, "docs", "wiki", "pages");
+	Equal("sash text", File.ReadAllText(Path.Combine(pages, "Obstinate_Sash.txt")));
+	Equal("titles page", File.ReadAllText(Path.Combine(pages, "titles.txt")));
+	// The titles the pages were saved under, which their file names can't all be read back as.
+	var index = Path.Combine(sandbox.Repo, "docs", "wiki", "page-titles.txt");
+	Equal("Category:Enspell\nNyame Helm\nObstinate Sash\ntitles\n", File.ReadAllText(index).Replace("\r", ""));
 	Equal(1, site.Requests.Count);
-	Contains(site.Requests[0], "titles=Nyame Helm|Obstinate Sash|Category:Enspell|No Such Page");
-	// A page already saved is asked for again only with --refresh.
+	Contains(site.Requests[0], "titles=Nyame Helm|Obstinate Sash|Category:Enspell|titles|No Such Page");
+	// A page already saved is asked for again only with --refresh. Its file's date is when git checked it out, so
+	// none is given.
 	var again = sandbox.RunAgainst(site, "wiki", "Category:Enspell");
 	Equal(0, again.ExitCode);
-	Contains(again.Output, "cached  ../cache/wiki/Category_Enspell.txt (12 bytes, from ");
+	Contains(again.Output, "cached  docs/wiki/pages/Category_Enspell.txt (12 bytes)\n");
 	Equal(1, site.Requests.Count);
 	Equal(0, sandbox.RunAgainst(site, "wiki", "--refresh", "Category:Enspell").ExitCode);
 	Equal(2, site.Requests.Count);
+	Equal("Category:Enspell\nNyame Helm\nObstinate Sash\ntitles\n", File.ReadAllText(index).Replace("\r", ""));
 });
 
 Test("wiki stops when bg-wiki answers with an error, in HTTP or in its reply", () =>
@@ -1522,7 +1597,7 @@ Test("wiki stops when bg-wiki answers with an error, in HTTP or in its reply", (
 	Stops(sandbox.RunAgainst(busy, "wiki", "Nyame Helm"), "bg-wiki answered 503 for http://127.0.0.1:");
 	using var refusing = new StandInSite(request => new StandInReply(200, """{"error":{"code":"maxlag","info":"Waiting for a database server"}}"""));
 	Stops(sandbox.RunAgainst(refusing, "wiki", "Nyame Helm"), "bg-wiki's API answered with an error, maxlag: Waiting for a database server");
-	Equal(0, Directory.GetFiles(Path.Combine(sandbox.Cache, "wiki")).Length);
+	Equal(0, Directory.GetFiles(Path.Combine(sandbox.Repo, "docs", "wiki", "pages")).Length);
 });
 
 Test("rank-tables saves the rank table of every exported item whose page has one", () =>
@@ -1539,7 +1614,7 @@ Test("rank-tables saves the rank table of every exported item whose page has one
 	Contains(run.Output, "No bg-wiki page under the export's name for: Rumination Sash, Almace, Ammurapi Shield, ");
 	Equal(1, site.Requests.Count);
 	Contains(site.Requests[0], "titles=Rumination Sash|Naegling|Almace|");
-	var path = Path.Combine(sandbox.Cache, "ranks", "ranks.json");
+	var path = Path.Combine(sandbox.Repo, "docs", "wiki", "rank-tables.json");
 	using var saved = JsonDocument.Parse(File.ReadAllText(path));
 	Equal(DateTime.Today.ToString("yyyy-MM-dd"), saved.RootElement.GetProperty("Fetched").GetString());
 	var items = saved.RootElement.GetProperty("Items");
@@ -2090,7 +2165,7 @@ Test("doc-lint counts a pipe inside a code span as a cell, as the page does", ()
 Test("doc-lint knows an owned piece that a simulated set names by its long name", () =>
 {
 	var sandbox = NewSandbox();
-	var page = Path.Combine(sandbox.Cache, "bg_job_guides", "blu.md");
+	var page = Path.Combine(sandbox.Repo, "docs", "wiki", "simulated-sets", "blu.txt");
 	File.WriteAllText(page, File.ReadAllText(page).Replace("|Head = Nyame Helm", "|Head = Nyame Helm\n            |Hands = Hashishin Bazubands +3"));
 	var run = sandbox.Run("doc-lint");
 	Equal(1, run.ExitCode);
@@ -2167,7 +2242,7 @@ Test("wsdist-gear finds an item's entries, and checks Nyame's against the rank d
 	Equal(0, clean.ExitCode);
 	Contains(clean.Output, "2 ranked Nyame entries checked; differences: 0");
 	var sandbox = NewSandbox();
-	File.WriteAllText(Path.Combine(sandbox.Cache, "wsdist_beta", "gear.py"), File.ReadAllText(Path.Combine(sandbox.Cache, "wsdist_beta", "gear.py")).Replace("\"Attack\":30+20", "\"Attack\":30+19"));
+	File.WriteAllText(Path.Combine(sandbox.Repo, "docs", "wsdist", "gear.py"), File.ReadAllText(Path.Combine(sandbox.Repo, "docs", "wsdist", "gear.py")).Replace("\"Attack\":30+20", "\"Attack\":30+19"));
 	var wrong = sandbox.Run("wsdist-gear", "--check-nyame");
 	Equal(1, wrong.ExitCode);
 	Contains(wrong.Output, "gear.py:8 Nyame Helm R15B: wsdist adds Attack 19, Ranged Attack 20, Weapon Skill Damage 7 | bg-wiki Attack 20, Ranged Attack 20, Weapon Skill Damage 7");
@@ -2177,7 +2252,7 @@ Test("wsdist-gear finds an item's entries, and checks Nyame's against the rank d
 Test("wsdist-gear --check-nyame says what it can't compare and what it can't read", () =>
 {
 	var sandbox = NewSandbox();
-	File.AppendAllText(Path.Combine(sandbox.Cache, "wsdist_beta", "gear.py"), "Nyame_Mail15B = {\"Name\":\"Nyame Mail\", \"Name2\":\"Nyame Mail R15B\", \"Rank\":15, \"Accuracy\":40}\n");
+	File.AppendAllText(Path.Combine(sandbox.Repo, "docs", "wsdist", "gear.py"), "Nyame_Mail15B = {\"Name\":\"Nyame Mail\", \"Name2\":\"Nyame Mail R15B\", \"Rank\":15, \"Accuracy\":40}\n");
 	sandbox.Edit("docs/rank-augments.md", "| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage +7% |", "| 15 | Attack+20 Rng. Atk.+20 | Weapon skill damage up 7% |");
 	sandbox.Edit("docs/rank-augments.md", "| 15 | \"Mag. Atk. Bns.\"+20 | INT/MND/CHR+5 |", "| 15 | \"Mag. Atk. Bns.\"+20 | Enmity+5 |");
 	var run = sandbox.Run("wsdist-gear", "--check-nyame");
@@ -2232,64 +2307,85 @@ Test("search-fast-recast stops with its usage line on a --hidden file that isn't
 	Stops(pristine.Run("search-fast-recast", pieces, "--job", "BLU", "--hidden", broken), "Give the file owned-gear.cs --json wrote");
 });
 
-Test("a tool built before an edit to the shared code stops until it is rebuilt", () =>
-{
-	var sandbox = NewSandbox();
-	var copy = Path.Combine(sandbox.Repo, ".claude", "tools");
-	Directory.CreateDirectory(Path.Combine(copy, "lib"));
-	foreach (var file in Directory.GetFiles(Path.Combine(toolsDir, "lib"), "*.cs"))
-		File.Copy(file, Path.Combine(copy, "lib", Path.GetFileName(file)));
-	File.Copy(Path.Combine(toolsDir, "Directory.Build.props"), Path.Combine(copy, "Directory.Build.props"));
-	File.Copy(Path.Combine(toolsDir, "check-blu-spells.cs"), Path.Combine(copy, "check-blu-spells.cs"));
-	var tool = Path.Combine(copy, "check-blu-spells.cs");
-	Equal(0, sandbox.RunFile(tool, true, "--in", "sets/Testy_BLU.json").ExitCode);
-	Equal(0, sandbox.RunFile(tool, false, "--in", "sets/Testy_BLU.json").ExitCode);
-	File.SetLastWriteTimeUtc(Path.Combine(copy, "lib", "Wiki.cs"), DateTime.UtcNow.AddSeconds(5));
-	var stale = sandbox.RunFile(tool, false, "--in", "sets/Testy_BLU.json");
-	Equal(2, stale.ExitCode);
-	Contains(stale.Output, "This build is older than .claude/tools/lib. Run the tool again with: dotnet run --no-cache");
-	File.SetLastWriteTimeUtc(Path.Combine(copy, "lib", "Wiki.cs"), DateTime.UtcNow.AddSeconds(-1));
-	Equal(0, sandbox.RunFile(tool, true, "--in", "sets/Testy_BLU.json").ExitCode);
-});
-
 // ---------------------------------------------------------------- running them
 
 var filter = args.Length > 0 ? args[0] : "";
+var chosen = tests.Where(test => test.Key.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+// A filter that matches nothing is a mistake, not a run with nothing wrong.
+if (chosen.Count == 0)
+{
+	Console.Error.WriteLine($"No test's name holds \"{filter}\".");
+	RemoveWorkDir();
+	return 2;
+}
+// Each test works on what it makes for itself, so they run side by side. They wait on the tools they start, so they
+// run on threads of their own, which leaves the thread pool to the stand-in sites and the reads of the tools' output.
+var problems = new string?[chosen.Count];
+var took = new TimeSpan[chosen.Count];
+var together = Enumerable.Range(0, chosen.Count).Where(i => alone.Contains(chosen[i].Key) is false).ToList();
+var next = -1;
+var workers = Enumerable.Range(0, Environment.ProcessorCount).Select(_ => new Thread(() =>
+{
+	for (var n = Interlocked.Increment(ref next); n < together.Count; n = Interlocked.Increment(ref next))
+		RunTest(together[n]);
+})).ToList();
+workers.ForEach(worker => worker.Start());
+workers.ForEach(worker => worker.Join());
+foreach (var i in Enumerable.Range(0, chosen.Count).Except(together))
+	RunTest(i);
 var failed = 0;
-var ran = 0;
-foreach (var test in tests.Where(test => test.Key.Contains(filter, StringComparison.OrdinalIgnoreCase)))
+for (var i = 0; i < chosen.Count; i++)
 {
-	ran++;
-	try
+	// How long a test took, side by side with the others, shows which ones hold the run up.
+	var outcome = $"{chosen[i].Key} ({took[i].TotalSeconds:0.00} s)";
+	if (problems[i] is null)
 	{
-		test.Value();
-		Console.WriteLine("PASS " + test.Key);
+		Console.WriteLine("PASS " + outcome);
+		continue;
 	}
-	catch (Exception problem)
-	{
-		failed++;
-		Console.WriteLine("FAIL " + test.Key);
-		Console.WriteLine("     " + problem.Message.Replace("\n", "\n     "));
-	}
+	failed++;
+	Console.WriteLine("FAIL " + outcome);
+	Console.WriteLine("     " + problems[i]!.Replace("\n", "\n     "));
 }
-try
-{
-	ForceDelete(workDir);
-}
-catch (IOException)
-{
-	// A folder git or dotnet still holds open is left for the system to clear with the rest of the temp folder.
-}
+var ran = chosen.Count;
+RemoveWorkDir();
 Console.WriteLine($"{ran - failed} of {ran} tests passed");
 return failed > 0 ? 1 : 0;
 
 // ---------------------------------------------------------------- helpers
 
+void RemoveWorkDir()
+{
+	try
+	{
+		ForceDelete(workDir);
+	}
+	catch (IOException)
+	{
+		// A folder git or dotnet still holds open is left for the system to clear with the rest of the temp folder.
+	}
+}
+
+// Runs one of the chosen tests, and keeps what went wrong and how long it took.
+void RunTest(int i)
+{
+	var watch = Stopwatch.StartNew();
+	try
+	{
+		chosen[i].Value();
+	}
+	catch (Exception problem)
+	{
+		problems[i] = problem.Message;
+	}
+	took[i] = watch.Elapsed;
+}
+
 Sandbox NewSandbox()
 {
-	var sandbox = new Sandbox(Path.Combine(workDir, "sandbox-" + Guid.NewGuid().ToString("N")[..8]), toolsDir);
+	var sandbox = new Sandbox(Path.Combine(workDir, "sandbox-" + Guid.NewGuid().ToString("N")[..8]), buildsDir);
 	CopyFolder(Path.Combine(fixtureDir, "repo"), sandbox.Repo);
-	CopyFolder(Path.Combine(fixtureDir, "cache"), sandbox.Cache);
+	Directory.CreateDirectory(sandbox.Temp);
 	return sandbox;
 }
 
@@ -2300,7 +2396,7 @@ void CopyFolder(string from, string to)
 		var target = Path.Combine(to, Path.GetRelativePath(from, file));
 		Directory.CreateDirectory(Path.GetDirectoryName(target)!);
 		// Git may check the fixture out with either line ending; the tests are written against "\n".
-		if (Path.GetExtension(file) is ".lua" or ".md" or ".py" or ".json")
+		if (Path.GetExtension(file) is ".lua" or ".md" or ".py" or ".json" or ".txt")
 		{
 			File.WriteAllText(target, File.ReadAllText(file).Replace("\r\n", "\n"));
 		}
@@ -2321,12 +2417,26 @@ void ForceDelete(string folder)
 	Directory.Delete(folder, true);
 }
 
-// A small repository with one commit, to fetch from without the network.
-GitRepo NewGitRepo(string name)
+// Serves the fixture's resource files under /res/, as Windower's Resources repository serves them.
+StandInSite ResourceSite() => new StandInSite(request =>
+{
+	var file = Path.Combine(fixtureDir, "repo", "docs", "windower", Path.GetFileName(request));
+	return request.StartsWith("/res/") && File.Exists(file) ? new StandInReply(200, File.ReadAllText(file).Replace("\r\n", "\n")) : new StandInReply(404, "");
+});
+
+// A small repository with one commit, to fetch from without the network: the files of the folder given, or one file.
+GitRepo NewGitRepo(string name, string? from = null)
 {
 	var path = Path.Combine(workDir, name);
 	Directory.CreateDirectory(path);
-	File.WriteAllText(Path.Combine(path, "file.txt"), "hello\n");
+	if (from is null)
+	{
+		File.WriteAllText(Path.Combine(path, "file.txt"), "hello\n");
+	}
+	else
+	{
+		CopyFolder(from, path);
+	}
 	string Git(params string[] arguments)
 	{
 		var start = new ProcessStartInfo("git") { WorkingDirectory = path, RedirectStandardOutput = true, RedirectStandardError = true };
@@ -2344,7 +2454,7 @@ GitRepo NewGitRepo(string name)
 	// A fetch that asks for one commit with a blob filter, as GitSource does, needs the source to allow both.
 	Git("config", "uploadpack.allowFilter", "true");
 	Git("config", "uploadpack.allowAnySHA1InWant", "true");
-	Git("add", "file.txt");
+	Git("add", "-A");
 	Git("-c", "user.name=Tests", "-c", "user.email=tests@example.invalid", "-c", "commit.gpgsign=false", "commit", "--quiet", "-m", "One file");
 	return new GitRepo(path, Git("rev-parse", "HEAD"));
 }
@@ -2434,12 +2544,26 @@ sealed class ToolRun
 		StandardOutput = standardOutput;
 		Output = standardOutput + standardError;
 	}
+
+	// Runs a process that redirects both streams to its end.
+	public static ToolRun Of(ProcessStartInfo start)
+	{
+		using var process = Process.Start(start)!;
+		// Read both streams at once, so a full error pipe can't stall the process while this waits on its output.
+		var error = process.StandardError.ReadToEndAsync();
+		var output = process.StandardOutput.ReadToEnd();
+		process.WaitForExit();
+		return new ToolRun(process.ExitCode, output, error.Result);
+	}
 }
 
 // Stands in for bg-wiki's API on this machine: it answers each request with what a test hands it.
 sealed class StandInSite : IDisposable
 {
 	public string Url { get; }
+
+	// The site's address with no path: http://127.0.0.1:<port>/.
+	public string Root { get; }
 
 	// The path and query of each request, unescaped, in the order they came.
 	public List<string> Requests { get; }
@@ -2454,7 +2578,8 @@ sealed class StandInSite : IDisposable
 		// Port 0 leaves the choice of a free port to the system.
 		listener = new TcpListener(IPAddress.Loopback, 0);
 		listener.Start();
-		Url = $"http://127.0.0.1:{((IPEndPoint)listener.LocalEndpoint).Port}/api.php";
+		Root = $"http://127.0.0.1:{((IPEndPoint)listener.LocalEndpoint).Port}/";
+		Url = Root + "api.php";
 		Task.Run(Serve);
 	}
 
@@ -2507,20 +2632,22 @@ sealed class StandInReply
 	}
 }
 
-// A copy of the fixture for one test to read or to break: a small repository and the cache beside it.
+// A copy of the fixture for one test to read or to break: a small repository, and the temp folder of the tools it runs.
 sealed class Sandbox
 {
 	public string Repo { get; }
 
-	public string Cache { get; }
+	// The temp folder of every tool run here, where a test can see what a tool left behind.
+	public string Temp { get; }
 
-	string toolsDir;
+	// Where the launcher keeps a build of each tool, in a folder named for it.
+	string builds;
 
-	public Sandbox(string folder, string toolsDir)
+	public Sandbox(string folder, string builds)
 	{
 		Repo = Path.Combine(folder, "repo");
-		Cache = Path.Combine(folder, "cache");
-		this.toolsDir = toolsDir;
+		Temp = Path.Combine(folder, "temp");
+		this.builds = builds;
 	}
 
 	// Replaces one piece of text in a file of the sandbox's repository. The text has to be there exactly once.
@@ -2534,53 +2661,48 @@ sealed class Sandbox
 		File.WriteAllText(path, text.Replace(oldText, newText));
 	}
 
-	public ToolRun Run(string tool, params string[] arguments) => Start(Path.Combine(toolsDir, tool + ".cs"), true, arguments);
+	public ToolRun Run(string tool, params string[] arguments) => Start(tool, arguments);
 
-	// Runs a tool with its web requests sent to a closed port of this machine, so each fails at once, as it does
-	// with no network.
-	public ToolRun RunOffline(string tool, params string[] arguments) => Start(Path.Combine(toolsDir, tool + ".cs"), true, arguments, offline: true);
+	// Runs a tool with bg-wiki's API answered by a stand-in on this machine.
+	public ToolRun RunAgainst(StandInSite wiki, string tool, params string[] arguments) => Start(tool, arguments, wiki: wiki.Url);
 
-	// Runs a tool with bg-wiki's API answered by a stand-in on this machine. Every other web request goes to the
-	// closed port, so a tool that asked the real site would fail, not reach it.
-	public ToolRun RunAgainst(StandInSite wiki, string tool, params string[] arguments) => Start(Path.Combine(toolsDir, tool + ".cs"), true, arguments, offline: true, wiki: wiki.Url);
+	// Runs a tool with a pinned repository fetched from one made on this machine, at its commit.
+	public ToolRun RunWithRepo(string pin, GitRepo repo, string tool, params string[] arguments) =>
+		Start(tool, arguments, adjust: start => start.Environment["GEAR_TOOLS_REPO_" + pin.ToUpperInvariant()] = $"{repo.Path} {repo.Commit}");
 
-	public ToolRun RunFile(string toolFile, bool rebuild, params string[] arguments) => Start(toolFile, rebuild, arguments);
+	// Runs a tool with Windower's resource files served by a stand-in, and wsdist_beta fetched from a repository made
+	// on this machine.
+	public ToolRun RunWithSources(StandInSite resources, GitRepo wsdist, string tool, params string[] arguments) =>
+		Start(tool, arguments, resources: resources.Root + "res/", adjust: start => start.Environment["GEAR_TOOLS_REPO_WSDIST_BETA"] = $"{wsdist.Path} {wsdist.Commit}");
 
-	ToolRun Start(string toolFile, bool rebuild, string[] arguments, bool offline = false, string? wiki = null)
+	// Runs a tool with nothing on its PATH, so it can't find git.
+	public ToolRun RunWithoutGit(string tool, params string[] arguments) => Start(tool, arguments, adjust: start =>
+	{
+		start.FileName = Environment.ProcessPath!;
+		start.Environment["PATH"] = "";
+	});
+
+	ToolRun Start(string tool, string[] arguments, string? wiki = null, string? resources = null, Action<ProcessStartInfo>? adjust = null)
 	{
 		var start = new ProcessStartInfo("dotnet") { WorkingDirectory = Repo, RedirectStandardOutput = true, RedirectStandardError = true };
-		start.ArgumentList.Add("run");
-		if (rebuild)
-			start.ArgumentList.Add("--no-cache");
-		start.ArgumentList.Add(toolFile);
-		start.ArgumentList.Add("--");
+		start.ArgumentList.Add(Path.Combine(builds, tool, tool + ".dll"));
 		foreach (var argument in arguments)
 			start.ArgumentList.Add(argument);
 		start.Environment["GEAR_TOOLS_ROOT"] = Repo;
-		start.Environment["GEAR_TOOLS_CACHE"] = Cache;
-		if (offline)
-		{
-			// .NET reads these in either case, and takes the lower-case name first where case matters.
-			string[] proxies = ["http_proxy", "https_proxy", "all_proxy", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"];
-			foreach (var proxy in proxies)
-				start.Environment[proxy] = "http://127.0.0.1:1";
-			// The same for git, over any proxy its own configuration names.
-			start.Environment["GIT_CONFIG_COUNT"] = "1";
-			start.Environment["GIT_CONFIG_KEY_0"] = "http.proxy";
-			start.Environment["GIT_CONFIG_VALUE_0"] = "http://127.0.0.1:1";
-			start.Environment.Remove("no_proxy");
-			start.Environment.Remove("NO_PROXY");
-		}
+		start.Environment["TMPDIR"] = Temp;
+		start.Environment["TMP"] = Temp;
+		start.Environment["TEMP"] = Temp;
 		if (wiki is not null)
-		{
 			start.Environment["GEAR_TOOLS_WIKI"] = wiki;
+		if (resources is not null)
+			start.Environment["GEAR_TOOLS_RESOURCES"] = resources;
+		if (wiki is not null || resources is not null)
+		{
+			// The stand-in is on this machine, so a proxy the user has set mustn't stand between.
 			start.Environment["no_proxy"] = "127.0.0.1";
 			start.Environment["NO_PROXY"] = "127.0.0.1";
 		}
-		using var process = Process.Start(start)!;
-		var error = process.StandardError.ReadToEndAsync();
-		var output = process.StandardOutput.ReadToEnd();
-		process.WaitForExit();
-		return new ToolRun(process.ExitCode, output, error.Result);
+		adjust?.Invoke(start);
+		return ToolRun.Of(start);
 	}
 }

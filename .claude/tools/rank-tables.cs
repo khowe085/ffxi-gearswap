@@ -1,7 +1,7 @@
 // Reads bg-wiki's rank-by-rank augment tables ({{Augment Rank Table}}) for every item in the newest export of each
-// character, and saves them to .claude/cache/ranks/ranks.json for rank-doc.cs.
+// character, and saves them to docs/wiki/rank-tables.json for rank-doc.cs.
 //
-//   dotnet run --no-cache .claude/tools/rank-tables.cs
+//   dotnet run .claude/gear.cs -- rank-tables
 //
 // Run it after an export that adds a rank-augmented item, or to pick up a change on bg-wiki. It replaces the saved
 // tables and stamps them with today's date, which rank-doc.cs then prints as the day they were read.
@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using GearTools;
 
-Tool.Init();
 new Arguments(args, [], []);
 var exports = Export.Owners().Select(Export.Latest).ToList();
 var names = exports.SelectMany(Export.Read).Where(line => line.SlotKey != "item").Select(line => line.Name).Distinct().ToList();
