@@ -227,11 +227,27 @@ describe('gs c weapons', function()
         assert.equal('Crocea', gs.user.state.Weapons.value)
         assert.equal('Crocea Mors', gs:worn().main)
     end)
+end)
 
-    it('with initialize, sets Weapons back to its default for a mage with a mage sub job', function()
-        gs:console('gs c weapons Naegling')
+describe('gs c weapons initialize, for a red mage whose gear file names default weapons', function()
+    -- Commy holding Crocea Mors, with the default weapons named as a gear file names them in user_job_setup.
+    local function boot(sub_job)
+        local gs = commy.boot_rdm({sub_job = sub_job})
+        gs.user.default_weapons = 'Naegling'
+        gs:console('gs c weapons Crocea')
+        return gs
+    end
+
+    it('sets Weapons back to its first set with a mage\'s sub job', function()
+        local gs = boot('WHM')
         gs:console('gs c weapons initialize')
         assert.equal('None', gs.user.state.Weapons.value)
+    end)
+
+    it('puts the default weapons in hand with a sub job that is no mage\'s', function()
+        local gs = boot('WAR')
+        gs:console('gs c weapons initialize')
+        assert.same({'Naegling', 'Naegling'}, {gs.user.state.Weapons.value, gs:worn().main})
     end)
 end)
 
@@ -270,8 +286,15 @@ describe('Sel\'s weapon sets for dual wield', function()
         assert.same(commy.worn_by(idle, {main = 'Crocea Mors'}), gs:worn())
     end)
 
+    pending('are passed over when a cycle comes to one named for dual wield right after one with a weapon in the sub: '
+        .. 'User-Globals.lua\'s skip_dual_sets cycles on by the sub alone once Sel\'s check by the name has run, so '
+        .. 'it stops at the one named for dual wield when that one\'s sub is a shield')
+end)
+
+describe('Sel\'s weapon sets for dual wield, with ninja as Commy\'s sub job', function()
     -- Sel looks for the trait with set_dual_wield five seconds after it loads; until then it takes Commy to have none.
     it('are stopped at by a cycle once Commy has the Dual Wield trait', function()
+        local gs = commy.boot_rdm({sub_job = 'NIN'})
         gs.game:set_job_traits({'Dual Wield'})
         gs:advance(harness.sel_load_time)
         assert.is_true(gs.user.can_dual_wield)
@@ -283,8 +306,4 @@ describe('Sel\'s weapon sets for dual wield', function()
         end
         assert.same({'DualWeapons', 'Naegling', 'Swords'}, seen)
     end)
-
-    pending('are passed over when a cycle comes to one named for dual wield right after one with a weapon in the sub: '
-        .. 'User-Globals.lua\'s skip_dual_sets cycles on by the sub alone once Sel\'s check by the name has run, so '
-        .. 'it stops at the one named for dual wield when that one\'s sub is a shield')
 end)

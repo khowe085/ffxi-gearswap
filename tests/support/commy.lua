@@ -140,7 +140,8 @@ function commy.record_input(gs)
     return lines
 end
 
--- Runs a gs c command, lets a moment pass, and returns what was typed for it and what was said in the chat log.
+-- Runs a console command (a gs c command, or input and a line the player types), lets a moment pass, and returns
+-- what was typed for it and what was said in the chat log.
 function commy.run(gs, command)
     local typed = commy.record_input(gs)
     gs:console(command)

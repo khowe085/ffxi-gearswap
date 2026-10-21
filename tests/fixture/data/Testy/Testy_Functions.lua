@@ -55,8 +55,7 @@ function commands.equip_a_name()
 end
 
 function commands.combine()
-    results.combined = set_combine(sets.helm, sets.body, {neck = 'Loricate Torque +1'})
-    results.helm_after = sets.helm.body
+    set_combine(sets.hat, sets.ring)
 end
 
 function commands.combine_a_name()

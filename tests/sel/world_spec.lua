@@ -54,6 +54,11 @@ describe('Sel\'s idle set and the time of day', function()
         assert.same(commy.worn_by(idle, {ring2 = "Medada's Ring"}), gs:worn())
     end)
 
+    pending('as docs/frameworks/sel.md\'s "Sets laid over the chosen set" has it, has the time of day\'s sets, and '
+        .. 'sets.ExtraRegen under 80% HP, laid over it whatever the idle mode, each only when the gear file defines '
+        .. 'it: get_idle_set in libs/Sel-Include.lua lays them only in the Normal idle mode or one whose name holds '
+        .. 'Sphere, and only with no pet out, so the doc and the code disagree until one is settled')
+
     pending('has the time of day\'s set laid over it from the moment Sel loads: classes.Daytime starts false and only '
         .. 'a time change event sets it, so until the first one the idle set has sets.NightIdle over it at noon')
 end)

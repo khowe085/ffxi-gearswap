@@ -83,9 +83,12 @@ describe('gs validate', function()
         }, validate(gs, 'sets -kishar'))
     end)
 
-    pending('takes a word to look for and a word to leave out in either order: tryfilter in validate.lua sets pass to '
-        .. 'false at the first word with a - and never back, so a word to look for after it leaves out what it finds: '
-        .. 'gs validate -mitra kishar lists nothing, where gs validate kishar -mitra lists Kishar Ring')
+    pending('takes a word to look for and a word to leave out in either order, and lists only what has the one and '
+        .. 'not the other: tryfilter in validate.lua sets pass to false at the first word with a - and never back, so '
+        .. 'a word to look for after it leaves out what it finds, and its last line, return not pass, lets through an '
+        .. 'item that has none of the words once any word has a -. With Kishar Ring, Kaykaus Mitra +1 and Nyame Helm '
+        .. 'missing, gs validate kishar -mitra lists Kishar Ring and Nyame Helm, and gs validate -mitra kishar lists '
+        .. 'Nyame Helm alone')
 
     it('says there is nothing to validate when no file is loaded', function()
         local gs = plain.boot_without_a_file()
