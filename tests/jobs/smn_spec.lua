@@ -1,7 +1,7 @@
 local harness = require('harness')
 local jobby = require('jobby')
 
-local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Volte Cap',
+local gear = {"Terra's Staff", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's Hairpin", 'Volte Cap',
     'Sapphire Platemail', 'Jadeite Cuirie', 'Diamond Haramaki', 'Ruby Robe', 'Volte Jupon', 'Sapphire Gauntlets',
     'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers', 'Jadeite Chausses', 'Diamond Hiza.', 'Volte Hose',
     'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Sune-Ate', 'Volte Boots', "Orunmila's Torque", 'Phrenic Torque',
@@ -9,7 +9,7 @@ local gear = {"Judge's Sword", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's H
     'Volte Brais', 'Volte Bracers', 'Telchine Braconi'}
 
 -- What the idle set of Jobby's summoner gear file wears besides every gear file's.
-local own_idle = {main = "Judge's Sword", back = 'Mecisto. Mantle'}
+local own_idle = {main = "Terra's Staff", back = 'Mecisto. Mantle'}
 
 local idle = jobby.worn_by(jobby.idle, own_idle)
 

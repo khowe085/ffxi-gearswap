@@ -21,6 +21,9 @@ local function boot_ticking(options)
     return jobby.boot_ticking('BLM', options)
 end
 
+-- What the idle set of Jobby's black mage gear file wears, as the game shows it worn, with his staff in hand.
+local idle = jobby.worn_by(jobby.full_idle, jobby.weapons.BLM)
+
 local light_day, light_weather = 6, 16
 
 -- The gear worn once the spell has been cast and its midcast set is on.
@@ -198,9 +201,9 @@ describe('BLM\'s Death Mode', function()
     it('wears sets.idle.Death over the idle set', function()
         local gs = boot()
         gs:console('gs c set DeathMode Lock')
-        assert.same(jobby.worn_by(jobby.full_idle, {body = 'Adamantite Armor'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {body = 'Adamantite Armor'}), gs:worn())
         gs:console('gs c set DeathMode Off')
-        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(idle), gs:worn())
     end)
 
     it('puts sets.precast.FC.Death on for any spell', function()
@@ -256,7 +259,7 @@ describe('BLM\'s Death Mode', function()
         local gs = death_cast('Death')
         gs:finish_action()
         assert.equal('Off', gs.user.state.DeathMode.value)
-        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(idle), gs:worn())
     end)
 
     it('stays Single when Death is interrupted', function()
@@ -288,20 +291,20 @@ describe('BLM\'s Mana Wall', function()
     end)
 
     it('has sets.buff[\'Mana Wall\'] laid over the idle set', function()
-        assert.same(jobby.worn_by(jobby.full_idle, {neck = "Combatant's Torque"}), gs:worn())
+        assert.same(jobby.worn_by(idle, {neck = "Combatant's Torque"}), gs:worn())
         gs:lose_buff('Mana Wall')
-        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(idle), gs:worn())
     end)
 
     it('has sets.buff[\'Mana Wall\'] laid over the melee set', function()
         gs:engage()
-        assert.same(jobby.worn_by(jobby.full_idle,
+        assert.same(jobby.worn_by(idle,
             {head = 'Volte Cap', body = 'Volte Jupon', neck = "Combatant's Torque"}), gs:worn())
     end)
 
     it('has sets.buff[\'Mana Wall\'] laid over the defense set', function()
         gs:console('gs c set DefenseMode Physical')
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Null Masque', neck = "Combatant's Torque"}), gs:worn())
+        assert.same(jobby.worn_by(idle, {head = 'Null Masque', neck = "Combatant's Torque"}), gs:worn())
     end)
 
     it('has sets.buff[\'Mana Wall\'] put back after a spell\'s midcast set in a fight in a DT idle mode', function()
@@ -337,19 +340,19 @@ describe('BLM\'s idle set', function()
 
     it('has sets.latent_refresh over it under 51% MP', function()
         low_mp()
-        assert.same(jobby.worn_by(jobby.full_idle, {waist = 'Null Belt'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {waist = 'Null Belt'}), gs:worn())
     end)
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')
         low_mp()
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Null Masque'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {head = 'Null Masque'}), gs:worn())
     end)
 
     it('has sets.latent_refresh and the grip over the Sphere idle set under 51% MP, its main being a staff', function()
         gs:console('gs c set IdleMode Sphere')
         low_mp()
-        assert.same(jobby.worn_by(jobby.full_idle,
+        assert.same(jobby.worn_by(idle,
             {main = "Terra's Staff", waist = 'Null Belt', sub = 'Kupo Shield'}), gs:worn())
     end)
 
@@ -357,19 +360,19 @@ describe('BLM\'s idle set', function()
         gs:console('gs c set IdleMode Sphere')
         gs:console('gs c set Weapons Staff')
         low_mp()
-        assert.same(jobby.worn_by(jobby.full_idle,
+        assert.same(jobby.worn_by(idle,
             {main = 'Daybreak', sub = 'Ammurapi Shield', waist = 'Null Belt'}), gs:worn())
     end)
 
     it('has sets.buff.Sublimation over it while Sublimation charges', function()
         gs:gain_buff('Sublimation: Activated')
-        assert.same(jobby.worn_by(jobby.full_idle, {back = 'Null Shawl'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {back = 'Null Shawl'}), gs:worn())
     end)
 
     it('has sets.buff.DTSublimation over the DT idle set while Sublimation charges', function()
         gs:console('gs c set IdleMode DT')
         gs:gain_buff('Sublimation: Activated')
-        assert.same(jobby.worn_by(jobby.full_idle,
+        assert.same(jobby.worn_by(idle,
             {head = 'Null Masque', back = 'Null Shawl', ring1 = 'Karieyh Ring'}), gs:worn())
     end)
 end)

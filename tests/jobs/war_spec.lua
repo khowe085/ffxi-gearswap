@@ -7,6 +7,9 @@ local gear = {'Naegling', 'Conqueror', 'Volte Cap', 'Null Masque', 'Volte Jupon'
 
 local great_sword = {'Hard Slash', 'Resolution', 'Ground Strike'}
 
+-- What the idle set of Jobby's warrior gear file wears, as the game shows it worn, with his great sword in hand.
+local idle = jobby.worn_by(jobby.full_idle, jobby.weapons.WAR)
+
 local function boot(options)
     options = options or {}
     options.items = gear
@@ -36,7 +39,7 @@ local function weaponskill(gs, line)
 end
 
 local function with_ws(changes)
-    return jobby.worn_by(jobby.full_idle, changes)
+    return jobby.worn_by(idle, changes)
 end
 
 describe('WAR\'s weapon skill filter', function()
@@ -110,7 +113,7 @@ describe('WAR\'s Berserk', function()
     it('puts the weapon set\'s main back once Berserk is done', function()
         local gs = berserk(0)
         gs:finish_action()
-        assert.same(jobby.worn_by(jobby.full_idle, {main = 'Naegling'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {main = 'Naegling'}), gs:worn())
     end)
 
     pending('goes out in Conqueror Mode Always without Conqueror: job_precast in data/WAR.lua then compares the TP '
@@ -239,27 +242,27 @@ describe('WAR\'s melee set', function()
     end)
 
     it('is sets.engaged', function()
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
     end)
 
     it('has sets.buff.Retaliation laid over it while Retaliation is up', function()
         gs:gain_buff('Retaliation')
-        assert.same(jobby.worn_by(jobby.full_idle,
+        assert.same(jobby.worn_by(idle,
             {head = 'Volte Cap', body = 'Volte Jupon', waist = 'Null Belt'}), gs:worn())
         gs:lose_buff('Retaliation')
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
     end)
 
     it('has sets.buff.Restraint laid over it while Restraint is up', function()
         gs:gain_buff('Restraint')
-        assert.same(jobby.worn_by(jobby.full_idle,
+        assert.same(jobby.worn_by(idle,
             {head = 'Volte Cap', body = 'Volte Jupon', ring1 = 'Karieyh Ring'}), gs:worn())
     end)
 
     it('has both laid over it with both buffs up', function()
         gs:gain_buff('Retaliation')
         gs:gain_buff('Restraint')
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', body = 'Volte Jupon', waist = 'Null Belt',
+        assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Volte Jupon', waist = 'Null Belt',
             ring1 = 'Karieyh Ring'}), gs:worn())
     end)
 
@@ -267,38 +270,38 @@ describe('WAR\'s melee set', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Retaliation')
         gs:gain_buff('Restraint')
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', body = 'Adamantite Armor'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Adamantite Armor'}), gs:worn())
     end)
 
     it('leaves the buff sets off in a hybrid mode', function()
         gs:console('gs c set HybridMode DT')
         gs:gain_buff('Retaliation')
         gs:gain_buff('Restraint')
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Null Masque', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {head = 'Null Masque', body = 'Volte Jupon'}), gs:worn())
     end)
 
     it('is sets.engaged.Charge with Brazen Rush up', function()
         gs:gain_buff('Brazen Rush')
-        assert.same(jobby.worn_by(jobby.full_idle,
+        assert.same(jobby.worn_by(idle,
             {head = 'Volte Cap', body = 'Volte Jupon', hands = 'Volte Bracers'}), gs:worn())
     end)
 
     it('is sets.engaged.Charge with Warrior\'s Charge up', function()
         gs:gain_buff('Warrior\'s Charge')
-        assert.same(jobby.worn_by(jobby.full_idle,
+        assert.same(jobby.worn_by(idle,
             {head = 'Volte Cap', body = 'Volte Jupon', hands = 'Volte Bracers'}), gs:worn())
     end)
 
     it('is sets.engaged.Mighty with Mighty Strikes up', function()
         gs:gain_buff('Mighty Strikes')
-        assert.same(jobby.worn_by(jobby.full_idle,
+        assert.same(jobby.worn_by(idle,
             {head = 'Volte Cap', body = 'Volte Jupon', legs = 'Volte Hose'}), gs:worn())
     end)
 
     it('is sets.engaged.Charge.Mighty with both up', function()
         gs:gain_buff('Brazen Rush')
         gs:gain_buff('Mighty Strikes')
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', body = 'Volte Jupon', hands = 'Volte Bracers',
+        assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Volte Jupon', hands = 'Volte Bracers',
             feet = 'Volte Boots'}), gs:worn())
     end)
 
@@ -307,7 +310,7 @@ describe('WAR\'s melee set', function()
         gs:gain_buff('Mighty Strikes')
         gs:lose_buff('Brazen Rush')
         gs:lose_buff('Mighty Strikes')
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Volte Jupon'}), gs:worn())
     end)
 end)
 
@@ -319,14 +322,14 @@ describe('WAR\'s weapon skill set', function()
     end)
 
     it('is sets.precast.WS[name] with no cap TP, Moonshade Earring in it', function()
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
+        assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
             ear1 = 'Moonshade Earring', ear2 = 'Brutal Earring', hands = 'Volte Bracers'}),
             weaponskill(gs, '/ws "Resolution" <t>'))
     end)
 
     it('swaps Moonshade Earring for sets.DayMaxTPWSEars by day when TP, with Moonshade\'s 250, is over 3200', function()
         gs.game.player.vitals.tp = 2951
-        assert.same(jobby.worn_by(jobby.full_idle, {head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
+        assert.same(jobby.worn_by(idle, {head = 'Volte Cap', body = 'Volte Jupon', neck = 'Fotia Gorget',
             ear1 = 'Cessance Earring', ear2 = 'Brutal Earring', hands = 'Volte Bracers'}),
             weaponskill(gs, '/ws "Resolution" <t>'))
     end)
@@ -381,28 +384,34 @@ describe('WAR\'s weapon skill set', function()
         assert.equal('Odnowa Earring +1', weaponskill(gs, '/ws "Ground Strike" <t>').left_ear)
     end)
 
+    -- Upheaval is a great axe's.
+    local function upheaval(gs)
+        gs:console('gs c set Weapons Conqueror')
+        return weaponskill(gs, '/ws "Upheaval" <t>')
+    end
+
     it('swaps in sets.DayWSEars by day below the cap when the set has Moonshade Earring and Lugra Earring', function()
-        local worn = weaponskill(gs, '/ws "Upheaval" <t>')
+        local worn = upheaval(gs)
         assert.equal('Cessance Earring', worn.left_ear)
         assert.equal('Lugra Earring', worn.right_ear)
     end)
 
     it('keeps Moonshade Earring on below the cap at night, with Lugra Earring in the set', function()
         gs:set_time(22 * 60)
-        local worn = weaponskill(gs, '/ws "Upheaval" <t>')
+        local worn = upheaval(gs)
         assert.equal('Moonshade Earring', worn.left_ear)
         assert.equal('Lugra Earring', worn.right_ear)
     end)
 
     it('swaps in sets.AccDayWSEars by day below the cap in an accuracy offense mode, with both earrings in the set', function()
         gs:console('gs c set OffenseMode Acc')
-        assert.equal('Odnowa Earring +1', weaponskill(gs, '/ws "Upheaval" <t>').left_ear)
+        assert.equal('Odnowa Earring +1', upheaval(gs).left_ear)
     end)
 
     it('swaps in sets.DayWSEars, not sets.AccDayWSEars, under Sneak Attack in an accuracy offense mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Sneak Attack')
-        assert.equal('Cessance Earring', weaponskill(gs, '/ws "Upheaval" <t>').left_ear)
+        assert.equal('Cessance Earring', upheaval(gs).left_ear)
     end)
 
     pending('has sets.WSCharge laid over it under Brazen Rush or Warrior\'s Charge: job_post_precast in data/WAR.lua '

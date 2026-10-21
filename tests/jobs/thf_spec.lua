@@ -18,6 +18,9 @@ local function boot_ticking(options)
     return jobby.boot_ticking('THF', options)
 end
 
+-- What the idle set of Jobby's thief gear file wears, as the game shows it worn, with his dagger in hand.
+local idle = jobby.worn_by(jobby.full_idle, jobby.weapons.THF)
+
 local th = {head = 'Null Masque', waist = 'Null Belt'}
 
 -- What is worn with the idle set on and the engaged set over it.
@@ -26,7 +29,7 @@ local function engaged_with(changes)
     for slot, item in pairs(changes or {}) do
         set[slot] = item
     end
-    return jobby.worn_by(jobby.full_idle, set)
+    return jobby.worn_by(idle, set)
 end
 
 -- The monster has been hit before, so Sel puts no treasure hunter gear on for it.
@@ -118,11 +121,13 @@ describe('THF\'s weapon skill set by Sneak Attack and Trick Attack', function()
     it('is sets.precast.WS, with sets.buff[\'Sneak Attack\'] over it under Sneak Attack, for a weapon skill with none '
         .. 'of its own', function()
         gs:gain_buff('Sneak Attack')
-        assert.same(jobby.worn_by(jobby.full_idle, {neck = 'Fotia Gorget', ear1 = 'Moonshade Earring',
+        assert.same(jobby.worn_by(idle, {neck = 'Fotia Gorget', ear1 = 'Moonshade Earring',
             ear2 = 'Brutal Earring', body = 'Adamantite Armor'}), weaponskill(gs, '/ws "Mandalic Stab" <t>'))
     end)
 end)
 
+-- A dagger in one hand and nothing in the other is fencing, and the sub job Warrior gives the first tier of Fencer,
+-- 200 TP.
 describe('THF\'s Moonshade swap at the cap', function()
     local function ear_after(tp, setup)
         local gs = boot({tp = tp})
@@ -133,12 +138,12 @@ describe('THF\'s Moonshade swap at the cap', function()
         return weaponskill(gs, '/ws "Rudra\'s Storm" <t>').left_ear
     end
 
-    it('keeps Moonshade Earring on at 2950 TP, which Moonshade makes 3200', function()
-        assert.equal('Moonshade Earring', ear_after(2950))
+    it('keeps Moonshade Earring on at 2750 TP, which Moonshade and Fencer make 3200', function()
+        assert.equal('Moonshade Earring', ear_after(2750))
     end)
 
-    it('swaps in sets.MaxTP over 3200 TP counting Moonshade\'s 250', function()
-        assert.equal('Cessance Earring', ear_after(2951))
+    it('swaps in sets.MaxTP over 3200 TP counting Moonshade\'s 250 and Fencer\'s 200', function()
+        assert.equal('Cessance Earring', ear_after(2751))
     end)
 
     it('swaps in sets.AccMaxTP in an accuracy offense mode', function()
@@ -242,14 +247,14 @@ describe('THF\'s ranged attack', function()
         tag_the_monster(gs)
         gs:type('/ra <t>')
         assert.same({{action = 'category 16', target = 'Apex Toad'}, {equip = th}}, gs:traffic())
-        assert.same(jobby.worn_by(jobby.full_idle, th), gs:worn())
+        assert.same(jobby.worn_by(idle, th), gs:worn())
     end)
 
     it('wears no treasure hunter set in the None mode', function()
         local gs = boot()
         gs:console('gs c set TreasureMode None')
         gs:type('/ra <t>')
-        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(idle), gs:worn())
     end)
 end)
 
@@ -343,7 +348,7 @@ describe('THF\'s Sneak Attack and Trick Attack gear', function()
     it('is on out of combat too, over the idle set', function()
         gs:disengage()
         gs:gain_buff('Sneak Attack')
-        assert.same(jobby.worn_by(jobby.full_idle, {body = 'Adamantite Armor'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {body = 'Adamantite Armor'}), gs:worn())
     end)
 
     it('keeps the engaged set from changing while Sneak Attack is up', function()
@@ -409,7 +414,7 @@ describe('THF\'s Feint gear', function()
         gs:gain_buff('Feint')
         gs:type('/ja "Provoke" <t>')
         gs:finish_action()
-        assert.same(jobby.worn_by(jobby.full_idle, {legs = 'Volte Hose'}), gs:worn())
+        assert.same(jobby.worn_by(idle, {legs = 'Volte Hose'}), gs:worn())
     end)
 
     it('is not worn after an ability without Feint', function()
@@ -417,7 +422,7 @@ describe('THF\'s Feint gear', function()
         gs:console('gs c set TreasureMode None')
         gs:type('/ja "Provoke" <t>')
         gs:finish_action()
-        assert.same(jobby.worn_by(jobby.full_idle), gs:worn())
+        assert.same(jobby.worn_by(idle), gs:worn())
     end)
 
     it('has the treasure hunter set over it in the SATA mode', function()
@@ -426,7 +431,7 @@ describe('THF\'s Feint gear', function()
         gs:gain_buff('Feint')
         gs:type('/ja "Provoke" <t>')
         gs:finish_action()
-        assert.same(jobby.worn_by(jobby.full_idle,
+        assert.same(jobby.worn_by(idle,
             {legs = 'Volte Hose', head = 'Null Masque', waist = 'Null Belt'}), gs:worn())
     end)
 end)

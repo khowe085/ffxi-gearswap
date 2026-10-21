@@ -23,6 +23,15 @@ jobby.full_idle = testy.worn_by(jobby.idle, {ammo = 'Staunch Tathlum +1', back =
 -- (ring1) or the game's (left_ring), a piece or 'empty'.
 jobby.worn_by = testy.worn_by
 
+-- The weapon each job's boot puts in Jobby's hand, over the idle set, since the game lets him use only the weapon
+-- skills of the weapons he holds: one of the type whose weapon skills that job's tests type. The jobs not named hold
+-- what their gear file's idle set does, or nothing, which is hand-to-hand. A boot's wearing can name another, or
+-- 'empty'.
+jobby.weapons = {BLM = {main = 'Gozuki Mezuki'}, BLU = {main = "Judge's Sword"}, COR = {main = 'Qutrub Knife'},
+    DNC = {main = 'Qutrub Knife'}, DRK = {main = 'Apocalypse'}, PLD = {main = "Judge's Sword"},
+    RDM = {main = "Judge's Sword"}, RUN = {main = 'Epeolatry'}, SCH = {main = "Terra's Staff"},
+    THF = {main = 'Qutrub Knife'}, WAR = {main = 'Ragnarok'}}
+
 -- The pieces of the idle sets, which every job can wear.
 local idle_items = {'Nyame Helm', 'Nyame Mail', 'Nyame Gauntlets', 'Nyame Flanchard', 'Nyame Sollerets',
     'Loricate Torque +1', 'Plat. Mog. Belt', 'Etiolation Earring', 'Loquac. Earring', 'Defending Ring',
@@ -47,12 +56,12 @@ function jobby.layer(...)
     return merged
 end
 
--- Boots Jobby as that job, with the pieces of the idle sets and the items given in the inventory and every gear file's
--- idle set on, and has Sel update the gear once, with nothing sent, typed, run or said since. options are a boot's
--- (see harness.boot), with these in place of the harness's:
---   items     the names of the pieces Jobby has besides the idle sets', or {name =, bag =, count =} for one that
---             needs more
---   wearing   slot name to the name of an item, worn when GearSwap loads over the idle set
+-- Boots Jobby as that job, with the pieces of the idle sets, the job's weapon and the items given in the inventory and
+-- every gear file's idle set and the job's weapon on, and has Sel update the gear once, with nothing sent, typed, run
+-- or said since. options are a boot's (see harness.boot), with these in place of the harness's:
+--   items     the names of the pieces Jobby has besides the idle sets' and the weapon, or {name =, bag =, count =}
+--             for one that needs more
+--   wearing   slot name to the name of an item, worn when GearSwap loads over the idle set and the weapon
 --   sub_job   WHM unless given
 function jobby.boot(job, options)
     local boot = {character = 'Jobby', main_job = job, sub_job = 'WHM', expect_file = job .. '.lua'}
@@ -60,13 +69,25 @@ function jobby.boot(job, options)
         boot[key] = value
     end
     boot.items = {}
+    local had = {}
+    local function add(item)
+        item = type(item) == 'table' and item or {name = item}
+        boot.items[#boot.items + 1] = item
+        had[item.name] = true
+    end
     for _, name in ipairs(idle_items) do
-        boot.items[#boot.items + 1] = {name = name}
+        add(name)
     end
     for _, item in ipairs((options or {}).items or {}) do
-        boot.items[#boot.items + 1] = type(item) == 'table' and item or {name = item}
+        add(item)
     end
-    boot.wearing = testy.worn_by(jobby.idle, (options or {}).wearing)
+    local weapons = jobby.weapons[job] or {}
+    for _, name in pairs(weapons) do
+        if not had[name] then
+            add(name)
+        end
+    end
+    boot.wearing = testy.worn_by(testy.worn_by(jobby.idle, weapons), (options or {}).wearing)
     local gs = harness.boot(boot)
     gs:console('gs c update')
     gs:forget()
