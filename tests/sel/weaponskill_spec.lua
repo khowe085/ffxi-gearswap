@@ -1,11 +1,9 @@
-local harness = require('harness')
 local testy = require('testy')
 
 -- Testy as a red mage with Naegling locked in hand, engaged, with 1000 TP: User-Globals.lua drops a weapon skill
 -- under that before any set goes on.
 local function boot()
-    local gs = harness.boot(testy.rdm())
-    gs:console('gs c update')
+    local gs = testy.boot_rdm()
     gs:console('gs c set Weapons Naegling')
     gs:engage()
     gs.game.player.vitals.tp = 1000

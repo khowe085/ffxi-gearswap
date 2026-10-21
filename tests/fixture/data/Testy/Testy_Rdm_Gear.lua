@@ -32,6 +32,7 @@ function init_gear_sets()
 	sets.precast.WS.Acc = set_combine(sets.precast.WS, {body = 'Malignance Tabard'})
 	sets.precast.WS['Savage Blade'] = set_combine(sets.precast.WS, {head = 'Malignance Chapeau'})
 	sets.precast.WS['Savage Blade'].Acc = set_combine(sets.precast.WS['Savage Blade'], {body = 'Malignance Tabard'})
+	sets.precast.WS['Savage Blade'].Att = set_combine(sets.precast.WS['Savage Blade'], {body = 'Lethargy Sayon +3'})
 
 	sets.midcast.FastRecast = {head = 'Malignance Chapeau'}
 	sets.midcast.Cure = {main = "Bunzi's Rod", head = 'Kaykaus Mitra +1'}

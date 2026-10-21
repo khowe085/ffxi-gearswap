@@ -1,21 +1,6 @@
 local commy = require('commy')
 
--- Runs a gs c command, lets a moment pass, and returns what was typed for it and what was said in the chat log.
-local function run(gs, command)
-    local typed = commy.record_input(gs)
-    gs:console(command)
-    gs:advance(0.1)
-    return typed, gs:chat()
-end
-
-local function typed_for(gs, command)
-    return (run(gs, command))
-end
-
-local function said_for(gs, command)
-    local _, said = run(gs, command)
-    return said
-end
+local typed_for, said_for = commy.typed_for, commy.said_for
 
 describe('gs c elemental', function()
     local gs, monster
@@ -63,6 +48,10 @@ describe('gs c elemental', function()
     it('casts at Commy by me and at the battle target by bt', function()
         assert.same({'/ma "Fire III" ' .. gs.game.player.id}, typed_for(gs, 'gs c elemental tier3 <me>'))
         gs:advance(5)
+        -- Commy claims the toad, which makes it the battle target, and targets nothing, so without bt Sel would cast
+        -- at Commy.
+        gs.game.monster.claim_id = gs.game.player.id
+        gs.game.target_index = nil
         assert.same({'/ma "Fire III" ' .. monster}, typed_for(gs, 'gs c elemental tier3 bt'))
     end)
 
@@ -154,7 +143,7 @@ describe('gs c smartcure', function()
         gs.game.target_index = nil
     end)
 
-    -- Commy's HP at the percentage, of 1800 as smartcure takes it to be with no target.
+    -- Commy's HP at the percentage, of a maximum of 1800.
     local function at(hpp)
         gs.game.player.vitals.hpp = hpp
         gs.game.player.vitals.hp = 1800 * hpp / 100
@@ -176,9 +165,8 @@ describe('gs c smartcure', function()
     end)
 
     it('cures the party member named, by the HP the party reports', function()
-        gs.game.player.vitals.hp = 300
-        gs.game.player.vitals.hpp = 50
-        assert.same({'/ma "Cure II" ' .. gs.game.player.id}, typed_for(gs, 'gs c smartcure Commy'))
+        local ally = gs.game:add_party_member({name = 'Pally', hp = 700})
+        assert.same({'/ma "Cure II" ' .. ally.id}, typed_for(gs, 'gs c smartcure Pally'))
     end)
 
     it('picks its target by <stal> when the target is a monster, and cures the one picked in place of the emote the '

@@ -320,10 +320,9 @@ describe('gs stash', function()
     describe('reading a file it is not running', function()
         it('sends nothing to the game for it, and has none of its commands or chat run', function()
             local gs = boot()
-            local commands, typed = #gs.game.commands, #gs.game.typed
             local lines = run(gs, 'gs stash pld')
-            assert.equal(commands + 1, #gs.game.commands)
-            assert.equal(typed, #gs.game.typed)
+            assert.same({'gs stash pld'}, gs:commands())
+            assert.same({}, gs:typed())
             for _, line in ipairs(lines) do
                 assert.is_nil(line:find('from the paladin file', 1, true), line)
                 assert.is_nil(line:find('from windower', 1, true), line)
@@ -339,11 +338,15 @@ describe('gs stash', function()
 
         it('leaves the loaded file alone', function()
             local gs = boot()
+            gs:console('gs disable body')
             local user = gs.env.user_env
             run(gs, 'gs stash pld')
             assert.equal(user, gs.env.user_env)
             assert.equal('Testy_WHM.lua', gs.env.current_file)
             assert.same({}, gs.env.registered_user_events)
+            local held, slot_ids = gs.env.disable_table, gs.game.slot_ids
+            assert.same({head = false, body = true}, {head = held[slot_ids.head], body = held[slot_ids.body]})
+            assert.is_nil(gs.env.include_user_path)
         end)
 
         it('puts on no gear for it', function()

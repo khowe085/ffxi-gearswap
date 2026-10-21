@@ -1,13 +1,6 @@
-local harness = require('harness')
 local testy = require('testy')
 
--- Testy as a red mage with the idle set on.
-local function boot()
-    local gs = harness.boot(testy.rdm())
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
-end
+local boot = testy.boot_rdm
 
 -- What is worn with this engaged set on over the idle set.
 local function engaged_in(head, body)

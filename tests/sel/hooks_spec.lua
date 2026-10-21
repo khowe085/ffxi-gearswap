@@ -1,13 +1,7 @@
-local harness = require('harness')
 local testy = require('testy')
 
 -- Testy as a red mage with the idle set on. Testy_Rdm_Gear.lua's hooks act on Cure IV, Stoneskin and Haste only.
-local function boot()
-    local gs = harness.boot(testy.rdm())
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
-end
+local boot = testy.boot_rdm
 
 describe('the gear file\'s hooks under Sel', function()
     local gs

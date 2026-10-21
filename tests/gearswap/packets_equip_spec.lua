@@ -21,7 +21,7 @@ describe('an equip request the server doesn\'t answer', function()
         local gs = boot()
         gs.game.refuse_equips = true
         gs:console('gs equip sets.precast.FastCast')
-        gs:console('gs c anything')
+        plain.refresh(gs)
         assert.equal("Bunzi's Hat", gs.user.player.equipment.head)
     end)
 
@@ -40,7 +40,7 @@ describe('an equip request the server doesn\'t answer', function()
         gs.game.refuse_equips = true
         gs:console('gs equip sets.precast.FastCast')
         gs:advance(3.1)
-        gs:console('gs c anything')
+        plain.refresh(gs)
         assert.equal('Nyame Helm', gs.user.player.equipment.head)
     end)
 
@@ -106,7 +106,7 @@ describe('a piece the player puts on by hand', function()
         local gs = boot()
         local slot = gs.game:find_item('inventory', "Bunzi's Hat")
         gs:send_from_client(0x050, string.char(slot, 4, 0, 0))
-        gs:console('gs c anything')
+        plain.refresh(gs)
         assert.equal("Bunzi's Hat", gs.user.player.equipment.head)
     end)
 

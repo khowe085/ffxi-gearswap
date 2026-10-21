@@ -59,12 +59,12 @@ describe('the item packets', function()
 
     it('shows in player.inventory by the item\'s short and long names', function()
         local gs = plain.boot()
-        item_update(gs, {['Count'] = 1, ['Item'] = 26366, ['Bag'] = 0, ['Index'] = 70})
+        item_update(gs, {['Count'] = 1, ['Item'] = 26692, ['Bag'] = 0, ['Index'] = 70})
         plain.refresh(gs)
         local inventory = gs.user.player.inventory
-        assert.equal(26366, inventory['Plat. Mog. Belt'].id)
-        assert.equal(inventory['Plat. Mog. Belt'], inventory['Platinum Moogle Belt'])
-        assert.equal('platinum moogle belt', inventory['Plat. Mog. Belt'].longname)
+        assert.equal(26692, inventory['Blacksh. Hairpin'].id)
+        assert.equal(inventory['Blacksh. Hairpin'], inventory['Blackshell Hairpin'])
+        assert.equal('blackshell hairpin', inventory['Blacksh. Hairpin'].longname)
     end)
 
     it('adds the counts of the stacks of one item in player.inventory', function()

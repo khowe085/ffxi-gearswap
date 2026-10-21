@@ -404,9 +404,11 @@ describe('the TP after an equip request in the stand-in game', function()
     it('goes to 0 when a piece goes in the main hand, as the char update tells, and Windower\'s tp change event '
         .. 'follows', function()
         local game, told = boot()
+        local told_when_the_event_came
+        game:register('tp change', function() told_when_the_event_came = char_update_tp(game) end)
         ask(game, {'main', 'Qutrub Knife'})
         assert.equal('Qutrub Knife', game:worn().main)
-        assert.same({0, 0, {{0, 1000}}}, {tp(game), char_update_tp(game), told})
+        assert.same({0, 0, {{0, 1000}}, 0}, {tp(game), char_update_tp(game), told, told_when_the_event_came})
     end)
 
     it('goes to 0 when a piece goes in the sub slot or the range slot', function()
@@ -435,7 +437,8 @@ describe('the TP after an equip request in the stand-in game', function()
         assert.same({1000, {}}, {tp(game), told})
     end)
 
-    it('stays when the ranged weapon is taken off, since only taking off the main or sub weapon resets it', function()
+    it('stays when the ranged weapon is taken off, the stand-in\'s choice where the doc names only the main and sub '
+        .. 'weapons', function()
         local game = boot()
         ask(game, {'range', 'empty'})
         assert.is_nil(game:worn().range)
@@ -474,11 +477,31 @@ describe('the TP after an equip request in the stand-in game', function()
         assert.same({0, {{0, 1000}}}, {tp(game), told})
     end)
 
-    it('goes to 0 for GearSwap too, which the char update tells', function()
+    -- Testy as a white mage with 1000 TP, 1234 HP (82%) and 567 MP (57%), which the boot doesn't give.
+    local function boot_with_vitals()
         local gs = harness.boot(testy.whm({tp = 1000}))
+        local vitals = gs.game.player.vitals
+        vitals.hp, vitals.mp, vitals.hpp, vitals.mpp = 1234, 567, 82, 57
+        return gs
+    end
+
+    it('goes to 0 for GearSwap too, which the char update tells with the HP and MP as they are', function()
+        local gs = boot_with_vitals()
         gs:console('gs equip sets.engaged')
         assert.equal("Bunzi's Rod", gs:worn().main)
-        assert.same({0, 0}, {gs.env.player.tp, gs.env.player.vitals.tp})
+        local player = gs.env.player
+        assert.same({hp = 1234, mp = 567, max_hp = 1500, max_mp = 1000, hpp = 82, mpp = 57, tp = 0}, player.vitals)
+        assert.same({1234, 567, 82, 57, 0}, {player.hp, player.mp, player.hpp, player.mpp, player.tp})
+    end)
+
+    it('is told in a char update with each field where Windower\'s definitions put it', function()
+        local gs = boot_with_vitals()
+        gs:console('gs equip sets.engaged')
+        local player = gs.game.player
+        local update = gs.env.packets.parse('incoming', gs.game.last_packets.incoming[0x0DF][1])
+        assert.same({player.id, 1234, 567, 0, player.index, 82, 57, player.main_job_id, 99, player.sub_job_id, 49},
+            {update['ID'], update['HP'], update['MP'], update['TP'], update['Index'], update['HPP'], update['MPP'],
+            update['Main job'], update['Main job level'], update['Sub job'], update['Sub job level']})
     end)
 end)
 

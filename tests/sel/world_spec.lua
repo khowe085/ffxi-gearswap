@@ -184,14 +184,14 @@ describe('Sel in Ghoyu\'s Reverie', function()
     end)
 end)
 
-describe('Sel on Asura', function()
-    -- The client sending a tell (0x0B6) to the player named: 3, the name in 15 bytes, and the message. Returns whether
-    -- the tell was stopped.
-    local function tell(gs, name, message)
-        return gs:send_from_client(0x0B6, string.char(3, 0) .. name .. string.char(0):rep(15 - #name) .. message
-            .. string.char(0))
-    end
+-- The client sending a tell (0x0B6) to the player named: 3, the name in 15 bytes, and the message. Returns whether the
+-- tell was stopped.
+local function tell(gs, name, message)
+    return gs:send_from_client(0x0B6, string.char(3, 0) .. name .. string.char(0):rep(15 - #name) .. message
+        .. string.char(0))
+end
 
+describe('Sel on Asura', function()
     it('stops a tell to Mytha that names a third-party tool, and says why', function()
         local gs = commy.boot_war()
         gs.game:set_info({server = 31})
@@ -204,6 +204,15 @@ describe('Sel on Asura', function()
         local gs = commy.boot_war()
         gs.game:set_info({server = 31})
         assert.same({false, false}, {tell(gs, 'Mytha', 'hello'), tell(gs, 'Vanar', 'is there an addon for this?')})
+        assert.same({}, gs:chat())
+    end)
+end)
+
+describe('Sel on another server', function()
+    it('lets a tell to Mytha that names a third-party tool go', function()
+        local gs = commy.boot_war()
+        gs.game:set_info({server = 28})
+        assert.is_false(tell(gs, 'Mytha', 'is there an addon for this?'))
         assert.same({}, gs:chat())
     end)
 end)

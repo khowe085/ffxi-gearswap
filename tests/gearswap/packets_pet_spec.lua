@@ -109,17 +109,6 @@ describe('a pet', function()
         assert.is_false(gs.user.pet.isvalid)
         assert.is_nil(gs.user.pet.name)
     end)
-
-    it('is the target of <pet>, in a spell aimed at it', function()
-        local gs = plain.boot()
-        gs.game:place_pet({name = 'Carbuncle'})
-        gs:type('/ma "Cure III" <pet>')
-        assert.same({
-            {equip = {head = "Bunzi's Hat", left_ring = 'Kishar Ring'}},
-            {action = 'Cure III', target = 'Carbuncle'},
-            {equip = {head = 'Kaykaus Mitra +1'}},
-        }, gs:traffic())
-    end)
 end)
 
 describe('the pet\'s status in an NPC update (0x00E)', function()
@@ -177,9 +166,9 @@ describe('the pet\'s status in an NPC update (0x00E)', function()
         .. 'the first left, so the user file is told only that the pet went from Engaged, which it never heard of, to '
         .. 'Idle')
 
-    it('says nothing of a status that is none of those', function()
+    it('says nothing of a status that is none of those, such as Event', function()
         local gs = boot_with_pet()
-        gs:set_pet_status(5)
+        gs:set_pet_status(4)
         assert.same({}, plain.events(gs))
     end)
 

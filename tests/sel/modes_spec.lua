@@ -214,7 +214,7 @@ describe('Sel\'s boolean mode', function()
         assert.is_true(M(false).has_value)
     end)
 
-    it('can\'t be given a list of options', function()
+    it('can\'t be given a list of options, nor be asked whether it contains one', function()
         local m = M(false)
         assert.equal('Can only revise the options list for a list mode class.', error_of(function() m:options('a') end))
         assert.equal('Cannot test for containment on a boolean mode class.', error_of(function() m:contains('on') end))

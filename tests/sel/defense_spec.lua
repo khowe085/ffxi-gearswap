@@ -1,16 +1,9 @@
-local harness = require('harness')
 local testy = require('testy')
+
+local boot = testy.boot_rdm
 
 local engaged = {head = "Bunzi's Hat", body = 'Lethargy Sayon +3'}
 local pdt = {head = 'Kaykaus Mitra +1', body = 'Malignance Tabard'}
-
--- Testy as a red mage with the idle set on.
-local function boot()
-    local gs = harness.boot(testy.rdm())
-    gs:console('gs c update')
-    gs:traffic()
-    return gs
-end
 
 describe('Sel\'s defense mode', function()
     it('Physical lays sets.defense.PDT over the idle set', function()

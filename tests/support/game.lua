@@ -509,7 +509,7 @@ end
 -- What get_abilities reports of the weapon skills, by id: those of the main hand's weapon type, hand-to-hand's with
 -- nothing in it, and those of the ranged weapon's. The game lists only those whose skill the character has enough of,
 -- those that need merits or a quest only with them (Requiescat, Savage Blade), and some only with one weapon, not
--- every one of its type (Mystic Boon with Yagrush, a relic, mythic or empyrean weapon's own); the stand-in looks at no
+-- every one of its type (Mystic Boon with Yagrush, a relic, mythic or aeonic weapon's own); the stand-in looks at no
 -- skill levels, merits or quests, and the resources don't say which weapon, so it lists every one of the type. The
 -- abilities a boot names stand whatever is in hand.
 function Game:weapon_skills_in_hand()
@@ -850,8 +850,9 @@ function Game:wearable(bag_id, bag_slot, slot_id)
 end
 
 -- Equipping anything in the main, sub or range slot resets TP to 0, and so does taking off the main or sub weapon
--- (docs/ffxi-mechanics.md, TP reset). An ammo change doesn't. The game takes off a ranged weapon that new ammo doesn't
--- fit, which does, but the stand-in leaves the weapon on.
+-- (docs/ffxi-mechanics.md, TP reset). An ammo change doesn't. The doc doesn't say what taking off the ranged weapon
+-- does: the stand-in keeps the TP then, a choice of its own that nothing settles. Nor does it take off a ranged weapon
+-- that new ammo doesn't fit, which the doc says the game does but gives no source for.
 local equipping_resets_tp = {[slot_ids.main] = true, [slot_ids.sub] = true, [slot_ids.range] = true}
 local taking_off_resets_tp = {[slot_ids.main] = true, [slot_ids.sub] = true}
 
@@ -955,18 +956,16 @@ function Game:serve(id, data, packet)
             self:reset_tp()
         end
     elseif id == 0x051 then
-        local resets_tp = false
         for i = 1, data:byte(5) do
-            local reply, resets = self:equip_chunk(data:sub(5 + 4 * i, 8 + 4 * i))
+            local reply, resets_tp = self:equip_chunk(data:sub(5 + 4 * i, 8 + 4 * i))
             if reply then
                 self:receive(0x050, reply)
             end
-            resets_tp = resets_tp or resets
+            if resets_tp then
+                self:reset_tp()
+            end
         end
         self:receive(0x117, self:equipset_reply(data))
-        if resets_tp then
-            self:reset_tp()
-        end
     elseif id == 0x01A then
         local action = packet.action
         self.actions[#self.actions + 1] = action

@@ -1,21 +1,6 @@
 local commy = require('commy')
 
--- Runs a gs c command, lets a moment pass, and returns what was typed for it and what was said in the chat log.
-local function run(gs, command)
-    local typed = commy.record_input(gs)
-    gs:console(command)
-    gs:advance(0.1)
-    return typed, gs:chat()
-end
-
-local function typed_for(gs, command)
-    return (run(gs, command))
-end
-
-local function said_for(gs, command)
-    local _, said = run(gs, command)
-    return said
-end
+local typed_for, said_for = commy.typed_for, commy.said_for
 
 describe('gs c autorunes', function()
     local gs
@@ -249,19 +234,5 @@ end)
 describe('gs c subjobenmity', function()
     it('does as gs c enmity does', function()
         assert.same({'/ma "Flash" <t>'}, typed_for(commy.boot_rdm(), 'gs c subjobenmity'))
-    end)
-end)
-
-describe('gs c buffup', function()
-    it('starts the Default list of buffs when given none', function()
-        local gs = commy.boot_rdm()
-        gs:console('gs c buffup')
-        assert.equal('Default', gs.user.buffup)
-    end)
-
-    it('starts the list of buffs named', function()
-        local gs = commy.boot_rdm()
-        gs:console('gs c buffup MageBuff')
-        assert.equal('MageBuff', gs.user.buffup)
     end)
 end)
