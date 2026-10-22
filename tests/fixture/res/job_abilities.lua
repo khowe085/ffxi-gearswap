@@ -224,6 +224,7 @@ return {
     [513] = {id=513,en="Poison Nails",ja="ポイズンネイル",element=6,icon_id=340,mp_cost=11,prefix="/pet",range=2,recast_id=173,skillchain_a="Transfixion",skillchain_b="",skillchain_c="",targets=32,tp_cost=0,type="BloodPactRage"},
     [518] = {id=518,en="Searing Light",ja="シアリングライト",element=6,icon_id=340,mp_cost=0,prefix="/pet",range=4,recast_id=173,skillchain_a="",skillchain_b="",skillchain_c="",targets=32,tp_cost=0,type="BloodPactRage"},
     [530] = {id=530,en="Lunar Cry",ja="ルナークライ",element=7,icon_id=341,mp_cost=41,prefix="/pet",range=9,recast_id=174,targets=32,tp_cost=0,type="BloodPactWard"},
+    [547] = {id=547,en="Double Punch",ja="ダブルパンチ",element=0,icon_id=342,mp_cost=56,prefix="/pet",range=2,recast_id=173,skillchain_a="Compression",skillchain_b="",skillchain_c="",targets=32,tp_cost=0,type="BloodPactRage"},
     [548] = {id=548,en="Crimson Howl",ja="紅蓮の咆哮",duration=60,element=0,icon_id=342,mp_cost=84,prefix="/pet",range=12,recast_id=174,status=68,targets=1,tp_cost=0,type="BloodPactWard"},
     [550] = {id=550,en="Flaming Crush",ja="フレイムクラッシュ",element=0,icon_id=342,mp_cost=164,prefix="/pet",range=2,recast_id=173,skillchain_a="Fusion",skillchain_b="Reverberation",skillchain_c="",targets=32,tp_cost=0,type="BloodPactRage"},
     [551] = {id=551,en="Meteor Strike",ja="メテオストライク",element=0,icon_id=342,mp_cost=182,prefix="/pet",range=9,recast_id=173,skillchain_a="",skillchain_b="",skillchain_c="",targets=32,tp_cost=0,type="BloodPactRage"},

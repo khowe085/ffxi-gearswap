@@ -32,7 +32,7 @@ describe('Sel\'s tracking of a buff the job file watches', function()
     end)
 
     it('takes it for up as soon as the ability is done on Commy, before the buff comes', function()
-        gs:type('/ja "Saboteur" <me>')
+        gs:type_alone('/ja "Saboteur" <me>')
         gs:finish_action()
         gs:advance(5)
         assert.equal('Malignance Boots', slow(gs).feet)

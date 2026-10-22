@@ -545,8 +545,8 @@ describe('the sub slot when the main hand changes in the stand-in game', functio
 end)
 
 describe('a piece asked for in another slot than the one it is worn in, in the stand-in game', function()
-    it('moves there, and the server tells of the slot it left emptied before the one it went to, the stand-in\'s '
-        .. 'choice of order', function()
+    it('moves there, and the server tells of the slot it left emptied, then of the one it went to, the stand-in\'s '
+        .. 'choice of both the reply and its order', function()
         local game = Game.new({res = harness.resources(), items = {{name = 'Stikini Ring +1'}}, wearing = {left_ring = 1}})
         local replies = equip_replies(game)
         game.windower.packets.inject_outgoing(0x050,
@@ -556,7 +556,8 @@ describe('a piece asked for in another slot than the one it is worn in, in the s
         assert.same({{'left_ring', 'empty'}, {'right_ring', 'Stikini Ring +1'}}, replies)
     end)
 
-    it('tells GearSwap of the slot the piece left, so a set that names the piece there puts it back', function()
+    it('tells GearSwap of the slot the piece left, the stand-in\'s choice, so a set that names the piece there puts it '
+        .. 'back', function()
         local gs = harness.boot(testy.whm({wearing = testy.worn_by(testy.whm_idle, {sub = "Bunzi's Rod"})}))
         gs.game:set_job_traits({'Dual Wield'})
         gs.user.sets.rod = {main = "Bunzi's Rod"}

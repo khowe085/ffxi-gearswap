@@ -36,15 +36,7 @@ end
 -- What every Jobby gear file's idle set wears, as the game shows it worn, with the dancer's dagger in hand.
 local idle = jobby.worn_by(jobby.idle, jobby.weapons.DNC)
 
-local function sets_of(gs)
-    return gs.user.sets
-end
-
--- The actions the tick sent in its first moments (it starts five seconds after the file loads).
-local function first_actions(gs)
-    gs:play(harness.sel_load_time + 0.3)
-    return gs:actions()
-end
+local sets_of, first_actions = jobby.sets_of, jobby.first_actions
 
 local function engaged_worn(gs, ...)
     return jobby.worn_by(idle, jobby.layer(sets_of(gs).engaged, ...))
@@ -153,12 +145,17 @@ describe('gs c step', function()
         assert.equal('Feather Step', gs.user.state.CycleStep.value)
     end)
 
-    it('leaves the cycle step where it is when the step is done after five seconds', function()
+    it('leaves the cycle step where it is when the cycle step is done more than five seconds after the last gs c '
+        .. 'cyclestep', function()
         local gs = boot({buffs = {'Finishing Move 3'}})
         gs:console('gs c cyclestep')
-        gs:advance(6)
         gs:finish_action()
-        assert.equal('Box Step', gs.user.state.CycleStep.value)
+        assert.equal('Feather Step', gs.user.state.CycleStep.value)
+        gs:advance(6)
+        gs:type('/ja "Feather Step" <t>')
+        assert.same({'Box Step', 'Feather Step'}, gs:actions())
+        gs:finish_action()
+        assert.equal('Feather Step', gs.user.state.CycleStep.value)
     end)
 
     it('leaves the cycle step where it is for a step that is not the cycle step', function()
@@ -795,13 +792,7 @@ describe('Curing Waltz by a dancer on a party member', function()
         return gs
     end
 
-    local function targeted(gs)
-        local sent = {}
-        for _, entry in ipairs(gs:action_entries()) do
-            sent[#sent + 1] = entry.action .. ' ' .. entry.target
-        end
-        return sent
-    end
+    local targeted = jobby.targeted
 
     it('is the tier for the HP he is estimated to miss: 400 of 1000 gives Curing Waltz II', function()
         local gs = waltz_on_friend(600, 'Curing Waltz V')
@@ -839,8 +830,10 @@ describe('Curing Waltz by a dancer on a party member', function()
 end)
 
 describe('Curing Waltz by a blue mage with the sub job Dancer', function()
+    -- Jobby has only the abilities the game gives a blue mage with a dancer sub job at 49, whose last waltz is Curing
+    -- Waltz III: Curing Waltz IV comes at 70 and V at 87, and the game refuses them.
     local function waltz(missing, asked)
-        local gs = jobby.boot('BLU', {sub_job = 'DNC', tp = 1500})
+        local gs = jobby.boot('BLU', {sub_job = 'DNC', tp = 1500, abilities = jobby.abilities('BLU', 'DNC')})
         gs.game.player.vitals.hp = 1500 - missing
         gs:console('gs c update')
         gs:traffic()
@@ -848,15 +841,21 @@ describe('Curing Waltz by a blue mage with the sub job Dancer', function()
         return gs
     end
 
-    local tiers = {{100, 'Curing Waltz'}, {200, 'Curing Waltz II'}, {400, 'Curing Waltz III'}}
+    local tiers = {{100, 'Curing Waltz', 'Curing Waltz III'}, {200, 'Curing Waltz II', 'Curing Waltz III'},
+        {400, 'Curing Waltz III', 'Curing Waltz'}}
 
     for _, tier in ipairs(tiers) do
-        local missing, name = unpack(tier)
-        it(('is %s for %d HP missing'):format(name, missing), function()
-            local gs = waltz(missing, 'Curing Waltz V')
+        local missing, name, asked = unpack(tier)
+        it(('is %s for %d HP missing, though %s is asked for'):format(name, missing, asked), function()
+            local gs = waltz(missing, asked)
             assert.same({name}, gs:actions())
         end)
     end
+
+    it('is refused for a tier the sub job doesn\'t have, as the game refuses it', function()
+        local gs = waltz(400, 'Curing Waltz IV')
+        assert.same({}, gs:actions())
+    end)
 
     it('is refused for under 40 HP missing', function()
         local gs = waltz(30, 'Curing Waltz')

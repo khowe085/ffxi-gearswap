@@ -111,11 +111,11 @@ function commy.defeat(gs)
 end
 
 -- What is worn once the spell typed (a line such as '/ma "Slow" <t>') has gone out: its midcast set over what was
--- worn. The test fails when no action, or more than one, went out for it.
+-- worn. The test fails when the line isn't in that form, when the spell didn't go out, or when another action went out
+-- in its place or besides it since the actions were last read (see Session:type_alone).
 function commy.cast(gs, line)
-    local sent = #gs.game.actions
-    gs:type(line)
-    assert.equal(sent + 1, #gs.game.actions, line .. ' didn\'t go out alone')
+    assert(line:match('^/ma "(.-)"'), 'a spell is typed as /ma "Name", not as ' .. line)
+    gs:type_alone(line)
     return gs:worn()
 end
 

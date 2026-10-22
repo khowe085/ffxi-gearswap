@@ -6,7 +6,7 @@ local gear = {"Terra's Staff", 'Mecisto. Mantle', "Bendis's Hairpin", "Theia's H
     'Jadeite Gloves', 'Diamond Kote', 'Sapphire Trousers', 'Jadeite Chausses', 'Diamond Hiza.', 'Volte Hose',
     'Sapphire Leggings', 'Jadeite Jambeaux', 'Diamond Sune-Ate', 'Volte Boots', "Orunmila's Torque", 'Phrenic Torque',
     'Aptitude Mantle', 'Null Shawl', 'Prosilio Belt', "Tyrant's Ring", 'Ishvara Earring', 'Brutal Earring',
-    'Volte Brais', 'Volte Bracers', 'Telchine Braconi', "Bunzi's Rod", 'Gelatinous Ring'}
+    'Volte Brais', 'Volte Bracers', 'Telchine Braconi', "Bunzi's Rod", 'Gelatinous Ring', 'Psycloth Lappas'}
 
 -- What the idle set of Jobby's summoner gear file wears besides every gear file's.
 local own_idle = {main = "Terra's Staff", back = 'Mecisto. Mantle'}
@@ -18,12 +18,26 @@ local function worn(changes)
     return jobby.worn_by(idle, changes)
 end
 
+-- The blood pacts the game lists with each avatar the tests call out, of those the test resources hold: an avatar's
+-- own, which data/SMN.lua's pacts name by kind but for Ifrit's Double Punch.
+local pacts = {
+    Ifrit = {'Double Punch', 'Crimson Howl', 'Flaming Crush', 'Meteor Strike', 'Inferno Howl'},
+    Diabolos = {'Nightmare'},
+    Shiva = {'Sleepga'},
+}
+
 -- Jobby as a summoner with the idle set on, over a sub job of RDM unless the options (jobby.boot's) say otherwise.
+-- With pacts_of, the name of the avatar the test calls out, Jobby has only the abilities the game would give him with
+-- it out (see jobby.abilities), and no weapon skill.
 local function boot(options)
     options = options or {}
     options.items = gear
     options.wearing = own_idle
     options.sub_job = options.sub_job or 'RDM'
+    if options.pacts_of then
+        options.abilities = jobby.abilities('SMN', options.sub_job, unpack(pacts[options.pacts_of]))
+        options.pacts_of = nil
+    end
     return jobby.boot('SMN', options)
 end
 
@@ -158,13 +172,24 @@ local function with_ifrit(changes)
     return jobby.worn_by(worn(ifrit_idle), changes)
 end
 
+-- What Jobby wears with Diabolos out on an Iceday: the avatar set of the pet idle sets, there being no perpetuation set
+-- of Diabolos.
+local diabolos_idle = {back = 'Aptitude Mantle', feet = 'Sapphire Leggings'}
+
 describe('SMN\'s blood pacts, once the pact is done', function()
     local gs
-    before_each(function()
-        gs = boot()
+
+    -- Jobby with the avatar named out, Ifrit unless another is, on an Iceday.
+    local function with_avatar(name)
+        name = name or 'Ifrit'
+        gs = boot({pacts_of = name})
         gs:set_day(4)
-        gs:give_pet({name = 'Ifrit'})
+        gs:give_pet({name = name})
         gs:traffic()
+    end
+
+    before_each(function()
+        with_avatar()
     end)
 
     local function pact(line)
@@ -179,7 +204,7 @@ describe('SMN\'s blood pacts, once the pact is done', function()
 
     it('wear the physical pact set of the map and of the avatar, when the pact has no set of its own', function()
         assert.same(with_ifrit({body = 'Sapphire Platemail', legs = 'Volte Hose'}),
-            pact('/pet "Poison Nails" <t>'))
+            pact('/pet "Double Punch" <t>'))
     end)
 
     it('wear the magical pact set of the map and of the avatar for a magical pact', function()
@@ -191,8 +216,10 @@ describe('SMN\'s blood pacts, once the pact is done', function()
         assert.same(with_ifrit({body = 'Diamond Haramaki'}), pact('/pet "Inferno Howl" <me>'))
     end)
 
-    it('wear the ward set and the avatar\'s ward set for a ward on a monster', function()
-        assert.same(with_ifrit({body = 'Diamond Haramaki', legs = 'Diamond Hiza.'}), pact('/pet "Lunar Cry" <t>'))
+    it('wear the ward set and the avatar\'s ward set for a ward on a monster, Diabolos\'s Nightmare', function()
+        with_avatar('Diabolos')
+        assert.same(jobby.worn_by(worn(diabolos_idle), {body = 'Diamond Haramaki', legs = 'Psycloth Lappas'}),
+            pact('/pet "Nightmare" <t>'))
     end)
 
     it('wear the AM set of the pact\'s name with Aftermath level 3, over the pact\'s set and under the avatar\'s '
@@ -205,7 +232,7 @@ describe('SMN\'s blood pacts, once the pact is done', function()
     it('wear the AM set of the map with Aftermath level 3, when the pact has no AM set of its own', function()
         gs:gain_buff('Aftermath: Lv.3')
         assert.same(with_ifrit({body = 'Sapphire Platemail', legs = 'Volte Hose', hands = 'Jadeite Gloves'}),
-            pact('/pet "Poison Nails" <t>'))
+            pact('/pet "Double Punch" <t>'))
     end)
 
     it('wear no AM set with Aftermath of a lower level', function()
@@ -222,7 +249,7 @@ describe('SMN\'s blood pacts, once the pact is done', function()
     it('wear the Acc set of the map in the Resistant casting mode, when the pact has no Acc set of its own', function()
         gs:console('gs c set CastingMode Resistant')
         assert.same(with_ifrit({body = 'Sapphire Platemail', legs = 'Volte Hose', feet = 'Volte Boots'}),
-            pact('/pet "Poison Nails" <t>'))
+            pact('/pet "Double Punch" <t>'))
     end)
 
     it('wear the Acc set of the map for a magical pact in the Resistant casting mode', function()
@@ -247,7 +274,7 @@ end)
 describe('SMN\'s Astral Conduit', function()
     local gs
     before_each(function()
-        gs = boot()
+        gs = boot({pacts_of = 'Ifrit'})
         gs:set_day(4)
         gs:give_pet({name = 'Ifrit'})
         gs:gain_buff('Astral Conduit')
@@ -300,8 +327,8 @@ describe('SMN\'s Astral Conduit', function()
         gs:advance(4)
         gs:traffic()
         gs:chat()
-        pact('/pet "Poison Nails" <t>')
-        assert.same({'Astral Conduit on, locking your Poison Nails set.'}, gs:chat())
+        pact('/pet "Double Punch" <t>')
+        assert.same({'Astral Conduit on, locking your Double Punch set.'}, gs:chat())
         gs:set_pet_status(1)
         assert.same({'Jadeite Gloves', 'Sapphire Platemail'}, {gs:worn().hands, gs:worn().body})
     end)
@@ -356,23 +383,23 @@ end)
 describe('SMN\'s Pact Spam Mode', function()
     local gs
     before_each(function()
-        gs = boot()
+        gs = boot({pacts_of = 'Ifrit'})
         gs:give_pet({name = 'Ifrit'})
         gs:console('gs c toggle PactSpamMode')
         gs:traffic()
     end)
 
     it('has the avatar do its rage pact again once it is done', function()
-        gs:pet_readies('Poison Nails', 'ability')
-        gs:pet_finishes('Poison Nails', 'ability')
-        assert.same({'Poison Nails'}, gs:actions())
+        gs:pet_readies('Double Punch', 'ability')
+        gs:pet_finishes('Double Punch', 'ability')
+        assert.same({'Double Punch'}, gs:actions())
     end)
 
     it('waits for the pact recast, without trying the pact', function()
-        gs.game:start_ability_recast('Poison Nails', 30)
+        gs.game:start_ability_recast('Double Punch', 30)
         gs:chat()
-        gs:pet_readies('Poison Nails', 'ability')
-        gs:pet_finishes('Poison Nails', 'ability')
+        gs:pet_readies('Double Punch', 'ability')
+        gs:pet_finishes('Double Punch', 'ability')
         assert.same({}, gs:actions())
         assert.same({}, gs:chat())
     end)
@@ -386,8 +413,8 @@ describe('SMN\'s Pact Spam Mode', function()
 
     it('does nothing when it is off', function()
         gs:console('gs c toggle PactSpamMode')
-        gs:pet_readies('Poison Nails', 'ability')
-        gs:pet_finishes('Poison Nails', 'ability')
+        gs:pet_readies('Double Punch', 'ability')
+        gs:pet_finishes('Double Punch', 'ability')
         assert.same({}, gs:actions())
     end)
 end)
@@ -452,20 +479,14 @@ describe('SMN\'s idle set with no avatar out', function()
         gs = boot()
     end)
 
-    it('has sets.latent_refresh over it under 51% MP', function()
-        gs.game.player.vitals.mpp = 50
-        gs:console('gs c update')
-        assert.equal('Ishvara Earring', gs:worn().left_ear)
-    end)
-
     it('has no sets.latent_refresh over it from 51% MP', function()
         gs.game.player.vitals.mpp = 51
         gs:console('gs c update')
         assert.equal('Etiolation Earring', gs:worn().left_ear)
     end)
 
-    it('has sets.latent_refresh_grip over it too under 51% MP, with Terra\'s Staff in it and the weapons free',
-        function()
+    it('has sets.latent_refresh and sets.latent_refresh_grip over it under 51% MP, with Terra\'s Staff in it and the '
+        .. 'weapons free', function()
         gs.game.player.vitals.mpp = 50
         gs:console('gs c update')
         assert.same(worn({ear1 = 'Ishvara Earring', ring2 = 'Gelatinous Ring'}), gs:worn())
@@ -488,7 +509,9 @@ describe('SMN\'s idle set with no avatar out', function()
         .. 'main, and Sel lays the weapon set over the idle set only after it, so the job file adds no grip set with '
         .. 'the staff in hand')
 
-    it('has sets.buff.Sublimation over it while Sublimation is charging', function()
+    it('has sets.buff.Sublimation over it while Sublimation is charging, with Scholar, whose ability it is, as the '
+        .. 'sub job', function()
+        gs = boot({sub_job = 'SCH'})
         gs:gain_buff('Sublimation: Activated')
         assert.equal('Brutal Earring', gs:worn().right_ear)
     end)
@@ -729,9 +752,9 @@ describe('SMN\'s Avatar\'s Favor, kept by the tick', function()
 end)
 
 describe('SMN\'s Sleepga pact', function()
-    it('starts a timer for the sleep on the monster once it is done', function()
-        local gs = boot()
-        gs:give_pet({name = 'Diabolos'})
+    it('starts a timer for the sleep on the monster once Shiva, whose pact it is, has done it', function()
+        local gs = boot({pacts_of = 'Shiva'})
+        gs:give_pet({name = 'Shiva'})
         gs:traffic()
         gs:commands()
         gs:type('/pet "Sleepga" <t>')

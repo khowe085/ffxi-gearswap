@@ -9,8 +9,8 @@ local default_bullets = {['Eminent Bullet'] = 40, ['Orichalc. Bullet'] = 40, ['L
     ['Animikii Bullet'] = 40}
 
 -- Jobby as a corsair with the idle set on, a gun in hand and bullets in the inventory. The options are the boot
--- options and these besides: bullets (the count of each bullet owned, 40 of each by default), ammo (the bullet
--- worn, one of those owned, Eminent Bullet by default) and items (more pieces).
+-- options, a wearing laid over the gun and the bullet, and these besides: bullets (the count of each bullet owned, 40
+-- of each by default), ammo (the bullet worn, one of those owned, Eminent Bullet by default) and items (more pieces).
 local function boot(options)
     options = options or {}
     local items = {}
@@ -25,7 +25,11 @@ local function boot(options)
             items[#items + 1] = {name = name, count = count}
         end
     end
-    options.wearing = {range = 'Death Penalty', ammo = options.ammo or 'Eminent Bullet'}
+    local wearing = {range = 'Death Penalty', ammo = options.ammo or 'Eminent Bullet'}
+    for slot, item in pairs(options.wearing or {}) do
+        wearing[slot] = item
+    end
+    options.wearing = wearing
     options.bullets, options.ammo, options.items = nil, nil, items
     options.sub_job = options.sub_job or 'NIN'
     return jobby.boot('COR', options)
@@ -34,9 +38,7 @@ end
 -- What every Jobby gear file's idle set wears, as the game shows it worn, with the corsair's dagger in hand.
 local idle = jobby.worn_by(jobby.idle, jobby.weapons.COR)
 
-local function sets_of(gs)
-    return gs.user.sets
-end
+local sets_of = jobby.sets_of
 
 local gun = {range = 'Death Penalty', ammo = 'Eminent Bullet'}
 
@@ -232,7 +234,7 @@ describe('a Quick Draw shot', function()
     it('is cast by gs c elemental quickdraw in the element chosen', function()
         local gs = boot()
         gs:console('gs c elemental quickdraw')
-        assert.same({'Fire Shot'}, {gs:traffic()[2].action})
+        assert.equal('Fire Shot', gs:traffic()[2].action)
     end)
 
     it('is cast by gs c elemental quickdraw in another element once it is chosen', function()
@@ -240,26 +242,30 @@ describe('a Quick Draw shot', function()
         gs:console('gs c set ElementalMode Light')
         gs:traffic()
         gs:console('gs c elemental quickdraw')
-        assert.same({'Light Shot'}, {gs:traffic()[2].action})
+        assert.equal('Light Shot', gs:traffic()[2].action)
     end)
 
     pending('says it will use the bullet worn when no Quick Draw bullet is owned: do_ammo_checks in data/COR.lua '
         .. 'has that branch, but job_precast only calls it when uses_ammo (libs/Sel-Utility.lua) holds, and that '
         .. 'is never so for a Corsair shot')
 
-    it('is held back while a Trump Card is fetched from the satchel, and tried again a second later', function()
+    it('is held back while a Trump Card is fetched from the satchel, and goes out when tried again a second later',
+        function()
         local gs = boot({items = {{name = 'Trump Card', bag = 'satchel', count = 10}}})
         gs:type('/ja "Fire Shot" <t>')
         assert.same({}, gs:traffic())
         assert.same({'get "Trump Card" satchel'}, gs:commands())
+        -- The get command brings the cards into the inventory.
+        gs:move_item('Trump Card', 'satchel', 'inventory')
         gs:advance(1)
-        assert.same({'get "Trump Card" satchel'}, gs:commands())
+        assert.same({}, gs:commands())
+        assert.same({'Fire Shot'}, gs:actions())
     end)
 
     it('goes out when the Trump Card is in the inventory', function()
         local gs = boot({items = {{name = 'Trump Card', count = 10}}})
         gs:type('/ja "Fire Shot" <t>')
-        assert.same('Fire Shot', gs:traffic()[2].action)
+        assert.equal('Fire Shot', gs:traffic()[2].action)
         assert.same({}, gs:commands())
     end)
 end)
@@ -268,7 +274,7 @@ describe('the bullets a ranged action needs', function()
     it('are left alone when there are plenty', function()
         local gs = boot()
         gs:type('/ra <t>')
-        assert.same({'category 16'}, {gs:traffic()[2].action})
+        assert.equal('category 16', gs:traffic()[2].action)
         assert.same({}, gs:chat())
     end)
 
@@ -282,7 +288,7 @@ describe('the bullets a ranged action needs', function()
     it('warn at the warning limit, and let the attack go', function()
         local gs = boot({bullets = {['Eminent Bullet'] = 15}})
         gs:type('/ra <t>')
-        assert.same('category 16', gs:traffic()[2].action)
+        assert.equal('category 16', gs:traffic()[2].action)
         local warning = '****  LOW AMMO WARNING: Eminent Bullet ****'
         local border = ('*'):rep(#warning)
         assert.same({border, warning, border}, gs:chat())
@@ -318,7 +324,7 @@ describe('the bullets a ranged action needs', function()
         gs:gain_buff('Triple Shot')
         gs:traffic()
         gs:type('/ra <t>')
-        assert.same('category 16', gs:traffic()[2].action)
+        assert.equal('category 16', gs:traffic()[2].action)
     end)
 
     it('for a ranged weapon skill are the weapon skill bullet', function()
@@ -342,7 +348,7 @@ describe('the bullets a ranged action needs', function()
     it('for a weapon skill may be the one worn when it is the ranged attack bullet', function()
         local gs = boot({tp = 1000, bullets = {['Eminent Bullet'] = 40}})
         gs:type('/ws "Last Stand" <t>')
-        assert.same('Last Stand', gs:traffic()[2].action)
+        assert.equal('Last Stand', gs:traffic()[2].action)
         assert.same({'No weaponskill ammo available, using equipped ammo: (Eminent Bullet)'}, gs:chat())
     end)
 
@@ -581,9 +587,12 @@ describe('a weapon skill when a dagger is in hand', function()
         assert.same({'Aeolian Edge'}, gs:actions())
     end)
 
-    it('is left alone when the game lists no Wasp Sting, though it lists the weapon skills sent in its place',
-        function()
-        local gs = boot({tp = 1000, abilities = {'Evisceration', 'Aeolian Edge'}})
+end)
+
+describe('a weapon skill with no dagger in hand', function()
+    -- With bare hands the game lists hand-to-hand's weapon skills and the gun's: no Wasp Sting, and no Savage Blade.
+    it('is left alone by the job file, and Sel turns it down', function()
+        local gs = boot({tp = 1000, wearing = {main = 'empty'}})
         gs:type('/ws "Savage Blade" <t>')
         assert.same({}, gs:actions())
         assert.same({"Abort: You don't have access to [Savage Blade]."}, gs:chat())

@@ -104,7 +104,8 @@ describe('BRD\'s songs on a monster', function()
             hands = 'Jadeite Gloves'}), gs:worn())
     end)
 
-    it('have the dual wielder\'s set over them for a character who can', function()
+    it('have the dual wielder\'s set over them for a character who can, with the sub job Ninja', function()
+        gs = boot({sub_job = 'NIN'})
         jobby.can_dual_wield(gs)
         gs:type('/ma "Foe Lullaby" <t>')
         assert.equal('Prosilio Belt', gs:worn().waist)
@@ -582,6 +583,13 @@ describe('BRD\'s idle set', function()
     pending('has sets.latent_refresh_grip over it under 51% MP with the weapons locked to a staff but UnlockWeapons '
         .. 'on: job_customize_idle_set in data/BRD.lua looks at the idle set\'s main, Judge\'s Sword, and Sel lays '
         .. 'the weapon set over the idle set only after it, so the job file adds no grip set with the staff in hand')
+end)
+
+describe('BRD\'s idle set with Scholar, whose ability Sublimation is, as the sub job', function()
+    local gs
+    before_each(function()
+        gs = boot({sub_job = 'SCH'})
+    end)
 
     it('has sets.buff.Sublimation over it while Sublimation is charging', function()
         gs:gain_buff('Sublimation: Activated')
@@ -640,8 +648,7 @@ describe('BRD\'s songs kept by AutoSongMode', function()
     end)
 
     it('are given up on a change of zone', function()
-        gs.game:fire('zone change', 100, 288)
-        gs.game:settle()
+        gs:change_zone(100)
         assert.is_false(gs.user.state.AutoSongMode.value)
     end)
 end)

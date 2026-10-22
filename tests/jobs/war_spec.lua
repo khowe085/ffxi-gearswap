@@ -326,9 +326,10 @@ describe('WAR\'s weapon skill set', function()
         assert.equal('Moonshade Earring', jobby.weaponskill(gs, '/ws "Resolution" <t>', 2950).left_ear)
     end)
 
-    it('swaps Moonshade Earring for sets.MaxTP at night', function()
+    it('swaps Moonshade Earring for sets.MaxTP at night, not sets.AccMaxTP', function()
         gs:set_time(22 * 60)
-        assert.equal('Lugra Earring', jobby.weaponskill(gs, '/ws "Resolution" <t>', 3000).left_ear)
+        local worn = jobby.weaponskill(gs, '/ws "Resolution" <t>', 3000)
+        assert.same({'Lugra Earring', 'Volte Jupon'}, {worn.left_ear, worn.body})
     end)
 
     it('swaps in sets.AccDayMaxTPWSEars by day when the offense mode is an accuracy one', function()

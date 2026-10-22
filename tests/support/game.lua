@@ -317,6 +317,10 @@ function Game:get_player()
     return player
 end
 
+-- The player's mob table. As every mob's, it gives the HP percent and no HP or MP. Windower's carries a tp and an mpp
+-- too, which GearSwap leaves out when it copies the player's mob table over player (refresh.lua), so they aren't the
+-- character's, and nothing says what they hold: the stand-in leaves the tp out and gives the character's MP percent,
+-- choices of its own.
 function Game:player_mob()
     local player = self.player
     return {
@@ -329,10 +333,8 @@ function Game:player_mob()
 end
 
 -- What the stand-in's mob tables leave out of what the game holds of another player, whose HP, MP and TP the party
--- list gives. Windower's mob tables give the HP percent and no HP or MP, the player's own included. They carry a tp
--- and an mpp too, which GearSwap leaves out when it copies the player's mob table over player (refresh.lua), so they
--- aren't the character's, and nothing says what they hold: the stand-in leaves the tp out of other players' mobs and
--- the player's, and gives the player's the character's MP percent, choices of its own.
+-- list gives: Windower's mob tables give the HP percent and no HP or MP. They carry a tp too, and nothing says what it
+-- holds; the stand-in leaves it out, a choice of its own.
 local party_only = {hp = true, max_hp = true, mp = true, max_mp = true, tp = true}
 
 -- The mob table of another mob the game holds, as Windower gives it.
@@ -925,13 +927,16 @@ end
 -- Carries out one equip request, as four bytes: bag slot, equipment slot, bag. Returns the bytes of each equip packet
 -- (0x050) the server confirms it with, none when it refuses it, as it refuses every one in a game with refuse_equips
 -- set; and whether it resets TP, which equipping a piece where it already is doesn't. A piece worn in another slot
--- moves, and the server tells of that slot emptied before the slot the piece went to. A change in the main hand takes
--- off a sub slot piece that no longer fits beside it, and the server tells of that after the main hand. Nothing in the
--- repo gives the order of these replies, so both are the stand-in's choice; GearSwap marks the piece of a slot it is
--- told emptied as not worn, so told of the emptied slot last, it would take a piece that moved for one not worn. The
--- game takes a shield or a weapon off for a two-handed weapon (docs/gear-notes.md, Serenity), and a grip, which goes
--- only beside a two-handed weapon, comes off when the main hand no longer holds one. The docs don't say what a
--- hand-to-hand weapon put in does to the sub slot's piece: the stand-in takes it off, as it takes none beside one.
+-- moves there. Nothing in the repo says the server tells of the slot it left, so its reply for that slot emptied is
+-- the stand-in's choice: without it GearSwap would take the piece for worn in both slots, and a later set that names it
+-- in the slot it left, such as one that wears a ring on the other hand, would find nothing to change there. The server
+-- tells of that slot before the slot the piece went to. A change in the main hand takes off a sub slot piece that no
+-- longer fits beside it, and the server tells of that after the main hand. Nothing in the repo gives the order of these
+-- replies, so both are the stand-in's choice; GearSwap marks the piece of a slot it is told emptied as not worn, so
+-- told of the emptied slot last, it would take a piece that moved for one not worn. The game takes a shield or a weapon
+-- off for a two-handed weapon (docs/gear-notes.md, Serenity), and a grip, which goes only beside a two-handed weapon,
+-- comes off when the main hand no longer holds one. The docs don't say what a hand-to-hand weapon put in does to the
+-- sub slot's piece: the stand-in takes it off, as it takes none beside one.
 function Game:equip_chunk(chunk)
     if self.refuse_equips then
         return {}

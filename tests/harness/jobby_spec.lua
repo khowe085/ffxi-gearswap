@@ -120,7 +120,7 @@ describe('a weapon skill Jobby types', function()
         local gs = jobby.boot('WAR', {tp = 999})
         local ok, failure = pcall(jobby.weaponskill, gs, '/ws "Resolution" <t>')
         assert.is_false(ok)
-        assert.matches('the weapon skill typed didn\'t go out alone', tostring(failure), 1, true)
+        assert.matches('/ws "Resolution" <t> didn\'t go out alone', tostring(failure), 1, true)
     end)
 
     it('fails the test when another action went out since the actions were last read, though the weapon skill went '
@@ -132,7 +132,7 @@ describe('a weapon skill Jobby types', function()
         gs:advance(1)
         local ok, failure = pcall(jobby.weaponskill, gs, '/ws "Resolution" <t>')
         assert.is_false(ok)
-        assert.matches('the weapon skill typed didn\'t go out alone', tostring(failure), 1, true)
+        assert.matches('/ws "Resolution" <t> didn\'t go out alone', tostring(failure), 1, true)
         local served = {}
         for i, action in ipairs(gs.game.actions) do
             served[i] = action.name
@@ -146,6 +146,70 @@ describe('a weapon skill Jobby types', function()
         assert.is_false(ok)
         assert.matches('a weapon skill is typed as /ws "Name", not as /weaponskill "Resolution" <t>', tostring(failure),
             1, true)
+    end)
+end)
+
+describe('the pieces asked for in Jobby\'s sub slot', function()
+    -- Jobby as a red mage, with his one-handed sword in hand, and a set that puts a grip beside it, which the server
+    -- refuses: a grip goes only beside a two-handed weapon.
+    local function with_a_grip_set()
+        local gs = jobby.boot('RDM', {items = {'Enki Strap', 'Kupo Shield'}})
+        gs.user.sets.grip = {sub = 'Enki Strap'}
+        return gs
+    end
+
+    it('are those GearSwap asked for, though the server refused them', function()
+        local gs = with_a_grip_set()
+        gs:console('gs equip sets.grip')
+        assert.same({'Enki Strap'}, jobby.subs_asked(gs))
+        assert.same({"Judge's Sword"}, {gs:worn().main, gs:worn().sub})
+    end)
+
+    it('are each request, in order, though nothing was sent between two of them', function()
+        local gs = with_a_grip_set()
+        gs.user.sets.shield = {sub = 'Kupo Shield'}
+        gs:console('gs equip sets.grip')
+        gs:console('gs equip sets.shield')
+        assert.same({'Enki Strap', 'Kupo Shield'}, jobby.subs_asked(gs))
+        assert.equal('Kupo Shield', gs:worn().sub)
+    end)
+
+    it('take the traffic as read', function()
+        local gs = with_a_grip_set()
+        gs:console('gs equip sets.grip')
+        jobby.subs_asked(gs)
+        assert.same({}, gs:traffic())
+    end)
+end)
+
+describe('the job abilities Jobby is given', function()
+    local function set_of(names)
+        local set = {}
+        for _, name in ipairs(names) do
+            set[name] = true
+        end
+        return set
+    end
+
+    it('are all the main job\'s and those of the sub job up to 49: Curing Waltz III and no IV for a blue mage with '
+        .. 'Dancer as the sub job', function()
+        local names = set_of(jobby.abilities('BLU', 'DNC'))
+        assert.is_true(names['Unbridled Learning'] and names['Azure Lore'] and names['Curing Waltz III'])
+        assert.is_nil(names['Curing Waltz IV'] or names['Saber Dance'])
+    end)
+
+    it('have the names given besides, a pet\'s moves', function()
+        local names = set_of(jobby.abilities('BST', 'WAR', 'Foot Kick'))
+        assert.is_true(names['Foot Kick'] and names['Reward'] and names['Provoke'])
+    end)
+
+    it('are each a job ability the test resources hold', function()
+        local res = harness.resources()
+        for _, job in ipairs({'BLU', 'BST', 'DNC', 'NIN', 'PLD', 'RDM', 'SMN', 'WAR', 'WHM'}) do
+            for _, name in ipairs(jobby.abilities(job, job == 'WAR' and 'WHM' or 'WAR')) do
+                assert.has_no.errors(function() Game.find_by_name(res.job_abilities, name, 'job ability') end, name)
+            end
+        end
     end)
 end)
 

@@ -2,8 +2,9 @@
 -- Jobby, the made-up character the tests of the job files in data/ play (tests/jobs): the boot options for each job,
 -- over the fixture gear file tests/fixture/data/Jobby/Jobby_<Job>_Gear.lua that job loads, and the sets as they are
 -- worn; what Jobby is told and types but the lines User-Globals.lua gives five seconds after his file first loads; what
--- is worn once a weapon skill he types has gone out; and what a test gives him besides: the Dual Wield trait, and
--- another player as his target.
+-- is worn once a weapon skill he types has gone out; the pieces GearSwap asked for in the sub slot; the actions sent,
+-- with their targets, and those of the first moments of Sel's tick; and what a test gives him besides: only the job
+-- abilities the game would, the Dual Wield trait, low MP, and another player as his target.
 -------------------------------------------------------------------------------------------------------------------
 
 local assert = require('luassert')
@@ -96,6 +97,45 @@ function jobby.boot(job, options)
     return harness.boot_updated(boot)
 end
 
+-- The job abilities of the test resources that the jobs below have, as FFXI's job ability lists give them: by_49 those
+-- a sub job at 49 has, and past_49 those only the main job at 99 has, the abilities of the levels past 49 and the merit
+-- and special abilities among them. Only the jobs a spec gives Jobby the abilities of (jobby.abilities) are here.
+local job_abilities = {
+    BLU = {by_49 = {'Burst Affinity', 'Chain Affinity'},
+        past_49 = {'Azure Lore', 'Convergence', 'Diffusion', 'Efflux', 'Unbridled Learning', 'Unbridled Wisdom'}},
+    BST = {by_49 = {'Fight', 'Heel', 'Reward', 'Call Beast', 'Bestial Loyalty', 'Sic'},
+        past_49 = {'Killer Instinct', 'Spur', 'Unleash'}},
+    DNC = {by_49 = {'Curing Waltz', 'Quickstep', 'Animated Flourish', 'Aspir Samba', 'Divine Waltz', 'Spectral Jig',
+        'Curing Waltz II', 'Box Step', 'Drain Samba II', 'Healing Waltz', 'Stutter Step', 'Reverse Flourish',
+        'Curing Waltz III', 'Haste Samba', 'Violent Flourish'},
+        past_49 = {'Building Flourish', 'Contradance', 'Curing Waltz IV', 'Saber Dance', 'Fan Dance', 'No Foot Rise',
+            'Presto', 'Divine Waltz II', 'Climactic Flourish', 'Feather Step', 'Curing Waltz V', 'Striking Flourish'}},
+    NIN = {by_49 = {'Yonin', 'Innin'}, past_49 = {'Mijin Gakure', 'Futae'}},
+    PLD = {by_49 = {'Holy Circle', 'Shield Bash', 'Sentinel', 'Cover'},
+        past_49 = {'Rampart', 'Majesty', 'Divine Emblem'}},
+    RDM = {by_49 = {'Convert'}, past_49 = {'Chainspell', 'Composure', 'Saboteur', 'Spontaneity', 'Stymie'}},
+    SMN = {by_49 = {'Assault', 'Release'},
+        past_49 = {'Astral Flow', 'Elemental Siphon', "Avatar's Favor", 'Astral Conduit'}},
+    WAR = {by_49 = {'Provoke', 'Berserk', 'Defender', 'Warcry', 'Aggressor'},
+        past_49 = {'Mighty Strikes', 'Retaliation', "Warrior's Charge", 'Restraint', 'Blood Rage', 'Brazen Rush'}},
+    WHM = {by_49 = {'Divine Seal', 'Afflatus Solace', 'Afflatus Misery'}, past_49 = {'Devotion', 'Divine Caress'}},
+}
+
+-- The names of the job abilities the game lists for Jobby as that main job at 99 with that sub job at 49, of those the
+-- test resources hold, and the names given besides (the ready moves of a pet out, the pacts of an avatar): the
+-- abilities of a boot that gives him only what the game would (see harness.boot), which lists no weapon skill.
+function jobby.abilities(main_job, sub_job, ...)
+    local main = assert(job_abilities[main_job], 'jobby has no list of the job abilities of ' .. main_job)
+    local sub = assert(job_abilities[sub_job], 'jobby has no list of the job abilities of ' .. sub_job)
+    local names = {}
+    for _, list in ipairs({main.by_49, main.past_49, sub.by_49, {...}}) do
+        for _, name in ipairs(list) do
+            names[#names + 1] = name
+        end
+    end
+    return names
+end
+
 -- As boot, and past the seconds Sel waits after loading before its tick acts, with nothing sent since.
 function jobby.boot_ticking(job, options)
     local gs = jobby.boot(job, options)
@@ -106,28 +146,63 @@ end
 
 -- What is worn once the weapon skill typed (a line such as '/ws "Savage Blade" <t>') has gone out. A TP given is the TP
 -- Jobby has as he types it, told as the game tells a change of TP (gs:set_tp). The test fails when the line isn't in
--- that form, when the weapon skill didn't go out, or when another action went out since the actions were last read.
+-- that form, when the weapon skill didn't go out, or when another action went out since the actions were last read
+-- (see Session:type_alone).
 function jobby.weaponskill(gs, line, tp)
-    local name = line:match('^/ws "(.-)"')
-    assert(name, 'a weapon skill is typed as /ws "Name", not as ' .. line)
+    assert(line:match('^/ws "(.-)"'), 'a weapon skill is typed as /ws "Name", not as ' .. line)
     if tp then
         gs:set_tp(tp)
     end
-    gs:type(line)
-    assert.same({name}, gs:actions(), 'the weapon skill typed didn\'t go out alone')
+    gs:type_alone(line)
     return gs:worn()
 end
 
--- The pieces GearSwap asked the server to put in the sub slot since its traffic was last read, in order: a test of
--- a piece the server refuses there reads them, since what is worn doesn't show it.
+-- The pieces GearSwap asked the server to put in the sub slot since its traffic was last read, one for each packet
+-- that asked, in order, with the traffic taken as read: a test of a piece the server refuses there reads them, since
+-- what is worn doesn't show it, and the traffic would give two requests with nothing sent between as one.
 function jobby.subs_asked(gs)
     local subs = {}
-    for _, entry in ipairs(gs:traffic()) do
-        if entry.equip and entry.equip.sub then
-            subs[#subs + 1] = entry.equip.sub
+    for i = gs.seen + 1, #gs.game.sent do
+        local equip = gs.game.sent[i].equip
+        if equip and equip.sub then
+            subs[#subs + 1] = equip.sub
         end
     end
+    gs:traffic()
     return subs
+end
+
+-- The sets of the gear file Jobby's job file loaded.
+function jobby.sets_of(gs)
+    return gs.user.sets
+end
+
+-- The actions GearSwap sent since its traffic was last read, in order, each as its name and its target's.
+function jobby.targeted(gs)
+    local sent = {}
+    for _, entry in ipairs(gs:action_entries()) do
+        sent[#sent + 1] = entry.action .. ' ' .. entry.target
+    end
+    return sent
+end
+
+-- The names of the actions sent in the first moments of Sel's tick, which starts five seconds after the file loads,
+-- with those sent since the traffic was last read before them.
+function jobby.first_actions(gs)
+    gs:play(harness.sel_load_time + 0.3)
+    return gs:actions()
+end
+
+-- As first_actions, each action as its name and its target's.
+function jobby.first_targeted(gs)
+    gs:play(harness.sel_load_time + 0.3)
+    return jobby.targeted(gs)
+end
+
+-- Jobby is down to 400 of his 1000 MP, 40%, and Sel updates his gear for it.
+function jobby.low_mp(gs)
+    gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
+    gs:console('gs c update')
 end
 
 -- What Jobby has targeted is another player, Pal, standing in front of him, who isn't in the party. fields are over

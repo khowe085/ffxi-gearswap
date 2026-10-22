@@ -551,8 +551,7 @@ describe('the events GearSwap takes from the game', function()
 
     it('a status change tells the user file the new status and the old, by name', function()
         local gs = boot()
-        gs.game:set_status(33)
-        gs.game:settle()
+        gs:set_status(33)
         assert.same({{event = 'status_change', new = 'Resting', old = 'Idle'}}, plain.events(gs))
     end)
 

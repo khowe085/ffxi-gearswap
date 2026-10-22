@@ -21,6 +21,7 @@ assert(_VERSION == 'Lua 5.1', ('GearSwap\'s tests run on Lua 5.1, and busted run
     .. 'luarocks --lua-version 5.1 install busted'):format(_VERSION))
 
 local lfs = require('lfs')
+local luassert = require('luassert')
 local Game = require('game')
 local dialect = require('dialect')
 
@@ -556,6 +557,16 @@ function Session:type(line)
     end)
 end
 
+-- Types a line that names its action in quotes ('/ma "Slow" <t>', '/ws "Savage Blade" <t>'), as type does, and fails
+-- the test unless the actions GearSwap sent since they were last read are that action, once: none, another in its
+-- place, or another besides it fails.
+function Session:type_alone(line)
+    local name = line:match('^/%a+ "(.-)"')
+    luassert(name, 'an action is typed as /prefix "Name", not as ' .. line)
+    self:type(line)
+    luassert.same({name}, self:actions(), line .. ' didn\'t go out alone')
+end
+
 -- Runs a line in Windower's console: 'gs c cycle IdleMode', 'gs equip sets.idle'.
 function Session:console(line)
     self:run(function()
@@ -743,18 +754,20 @@ function Session:interrupt_action()
     })
 end
 
-function Session:engage()
+-- The character's status changes (0 idle, 1 engaged, 33 resting), with the status change event.
+function Session:set_status(status)
     self:run(function()
-        self.game:set_status(1)
+        self.game:set_status(status)
         self.game:settle()
     end)
 end
 
+function Session:engage()
+    self:set_status(1)
+end
+
 function Session:disengage()
-    self:run(function()
-        self.game:set_status(0)
-        self.game:settle()
-    end)
+    self:set_status(0)
 end
 
 function Session:gain_buff(name)
@@ -774,6 +787,17 @@ end
 function Session:set_tp(tp)
     self:run(function()
         self.game:set_tp(tp)
+        self.game:settle()
+    end)
+end
+
+-- The server moves that many of the first item of that name in one bag into another, all of them unless given, as
+-- for a move another addon asked for (see Game:move_item). Bags are named as the API names them.
+function Session:move_item(name, from, to, count)
+    self:run(function()
+        local slot, item = self.game:find_item(from, name)
+        assert(slot, ('there is no %s in the %s'):format(name, from))
+        self.game:move_item(count or item.count, self.game:bag_id(from), self.game:bag_id(to), slot)
         self.game:settle()
     end)
 end

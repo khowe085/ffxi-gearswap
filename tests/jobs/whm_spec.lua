@@ -372,31 +372,26 @@ describe('WHM\'s idle set', function()
         gs = boot()
     end)
 
-    local function low_mp()
-        gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
-        gs:console('gs c update')
-    end
-
     it('is sets.idle with Terra\'s Staff, the gear file\'s', function()
         assert.same(idle_with({}), gs:worn())
     end)
 
     it('has sets.latent_refresh and the grip over it under 51% MP, the staff being in the idle set', function()
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(idle_with({waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
     end)
 
-    it('has no grip over it under 51% MP when its main is no staff', function()
+    it('has sets.latent_refresh but no grip over it under 51% MP when its main is no staff', function()
         gs.user.sets.idle.main = 'Daybreak'
         gs:traffic()
-        low_mp()
+        jobby.low_mp(gs)
         assert.same({}, jobby.subs_asked(gs))
-        assert.equal('Daybreak', gs:worn().main)
+        assert.same({'Daybreak', 'Null Belt'}, {gs:worn().main, gs:worn().waist})
     end)
 
     it('has sets.TPEat over it too with TP', function()
         gs:set_tp(300)
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(idle_with({waist = 'Null Belt', sub = 'Enki Strap', ear1 = 'Cessance Earring'}), gs:worn())
     end)
 
@@ -414,20 +409,20 @@ describe('WHM\'s idle set', function()
 
     it('has sets.TPEat over it with 1 TP', function()
         gs:set_tp(1)
-        low_mp()
+        jobby.low_mp(gs)
         assert.equal('Cessance Earring', gs:worn().left_ear)
     end)
 
     it('has no sets.TPEat over it with no TP', function()
         gs:set_tp(0)
-        low_mp()
+        jobby.low_mp(gs)
         assert.equal('Etiolation Earring', gs:worn().left_ear)
     end)
 
     it('has only sets.latent_refresh over it with the weapons locked to a staff', function()
         gs:console('gs c set Weapons Staff')
         gs:set_tp(300)
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(idle_with({main = 'Gozuki Mezuki', waist = 'Null Belt'}), gs:worn())
     end)
 
@@ -435,7 +430,7 @@ describe('WHM\'s idle set', function()
         gs:console('gs c set Weapons Staff')
         gs:console('gs c toggle UnlockWeapons')
         gs:set_tp(300)
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(idle_with({main = 'Gozuki Mezuki', waist = 'Null Belt', sub = 'Enki Strap',
             ear1 = 'Cessance Earring'}), gs:worn())
     end)
@@ -447,8 +442,15 @@ describe('WHM\'s idle set', function()
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(idle_with({head = 'Null Masque'}), gs:worn())
+    end)
+end)
+
+describe('WHM\'s idle set with Scholar, whose ability Sublimation is, as the sub job', function()
+    local gs
+    before_each(function()
+        gs = boot({sub_job = 'SCH'})
     end)
 
     it('has sets.buff.Sublimation over it while Sublimation charges', function()
@@ -464,7 +466,7 @@ describe('WHM\'s idle set', function()
 
     it('leaves the latent refresh set off while Sublimation charges', function()
         gs:gain_buff('Sublimation: Activated')
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(idle_with({back = 'Null Shawl'}), gs:worn())
     end)
 end)
