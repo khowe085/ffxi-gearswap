@@ -99,7 +99,8 @@ end
 
 -- The job abilities of the test resources that the jobs below have, as FFXI's job ability lists give them: by_49 those
 -- a sub job at 49 has, and past_49 those only the main job at 99 has, the abilities of the levels past 49 and the merit
--- and special abilities among them. Only the jobs a spec gives Jobby the abilities of (jobby.abilities) are here.
+-- and special abilities among them. The game lists a merit ability only once merits are spent on it, so the lists
+-- assume each has its merits spent. Only the jobs a spec gives Jobby the abilities of (jobby.abilities) are here.
 local job_abilities = {
     BLU = {by_49 = {'Burst Affinity', 'Chain Affinity'},
         past_49 = {'Azure Lore', 'Convergence', 'Diffusion', 'Efflux', 'Unbridled Learning', 'Unbridled Wisdom'}},
@@ -121,9 +122,10 @@ local job_abilities = {
     WHM = {by_49 = {'Divine Seal', 'Afflatus Solace', 'Afflatus Misery'}, past_49 = {'Devotion', 'Divine Caress'}},
 }
 
--- The names of the job abilities the game lists for Jobby as that main job at 99 with that sub job at 49, of those the
--- test resources hold, and the names given besides (the ready moves of a pet out, the pacts of an avatar): the
--- abilities of a boot that gives him only what the game would (see harness.boot), which lists no weapon skill.
+-- The names of the job abilities the game lists for Jobby as that main job at 99 with that sub job at 49 and each merit
+-- ability's merits spent, of those the test resources hold, and the names given besides (the ready moves of a pet out,
+-- the pacts of an avatar): the abilities of a boot that gives him only what the game would (see harness.boot), which
+-- lists no weapon skill.
 function jobby.abilities(main_job, sub_job, ...)
     local main = assert(job_abilities[main_job], 'jobby has no list of the job abilities of ' .. main_job)
     local sub = assert(job_abilities[sub_job], 'jobby has no list of the job abilities of ' .. sub_job)

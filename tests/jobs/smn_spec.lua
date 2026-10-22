@@ -19,7 +19,8 @@ local function worn(changes)
 end
 
 -- The blood pacts the game lists with each avatar the tests call out, of those the test resources hold: an avatar's
--- own, which data/SMN.lua's pacts name by kind but for Ifrit's Double Punch.
+-- own, which data/SMN.lua's pacts name by kind but for Ifrit's Double Punch. Meteor Strike is a merit pact, which the
+-- game lists only once merits are spent on it, so the list assumes they are.
 local pacts = {
     Ifrit = {'Double Punch', 'Crimson Howl', 'Flaming Crush', 'Meteor Strike', 'Inferno Howl'},
     Diabolos = {'Nightmare'},
