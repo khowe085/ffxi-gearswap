@@ -214,5 +214,8 @@ describe('items moving between bags in the stand-in game', function()
         assert.same({'Bronze Bullet', 'Nyame Helm'}, gs.game:bag_names('inventory'))
         assert.same({4, 6}, {select(2, gs.game:find_item('inventory', 'Bronze Bullet')).count,
             select(2, gs.game:find_item('case', 'Bronze Bullet')).count})
+        gs:move_item('Bronze Bullet', 'case', 'inventory')
+        assert.equal(10, select(2, gs.game:find_item('inventory', 'Bronze Bullet')).count)
+        assert.same({}, gs.game:bag_names('case'))
     end)
 end)
