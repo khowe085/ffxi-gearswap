@@ -11,8 +11,10 @@
 // test runs each category of tests whose files changed since it last passed in this checkout: tools (every tool's
 // build brought up to date, then tests/run-tests.cs on the made-up character there), data (the tools' checks of each
 // character's gear files and docs), and gearswap (GearSwap's Lua tests under the repo's tests/, each spec file in a
-// busted process of its own, by tests/run-gearswap-tests.cs). A pass vouches for the builds it ran on, so a build
-// made again clears every pass. --all runs every category, and a category named runs whether or not it changed.
+// busted process of its own, by tests/run-gearswap-tests.cs). Of the gearswap tests it runs only the spec files the
+// change could have affected: those with no record, and those whose own file, or a repo file they loaded when they last
+// passed, changed. A pass vouches for the builds it ran on, so a build made again clears every pass. --all runs every
+// category and every spec file, and a category named runs whether or not it changed, with every spec file.
 // --filter runs only the tools or gearswap tests whose name holds the text, and counts for no pass.
 using System;
 using System.Text;
@@ -113,9 +115,11 @@ sealed class TestCommand
 		return outcome;
 	}
 
-	// Runs a category, unless it passed with these files and isn't forced to run, and says how it went. The exit code:
-	// 1 when it failed, and 2 when it couldn't run, as for a --filter no test's name holds. GearSwap's tests where
-	// busted can't run are skipped, with a notice, unless the category was named.
+	// Runs a category, unless it passed with these files and isn't forced to run, and says how it went. A category that
+	// isn't forced runs only what its files' change could have affected, where it can tell: GearSwap's tests run the
+	// spec files that rest on it. The exit code: 1 when it failed, and 2 when it couldn't run, as for a --filter no
+	// test's name holds. GearSwap's tests where busted can't run are skipped, with a notice, unless the category was
+	// named.
 	int Test(string category, bool forced, bool named, string? filter)
 	{
 		var pass = Path.Combine(passes, category);
@@ -129,7 +133,7 @@ sealed class TestCommand
 		var outcome = category switch
 		{
 			"tools" => RunToolsTests(filter),
-			"gearswap" => RunGearSwapTests(filter),
+			"gearswap" => RunGearSwapTests(filter, affectedOnly: forced is false),
 			_ => RunDataChecks() ? 0 : 1,
 		};
 		if (outcome == BustedCantRun)
@@ -196,13 +200,14 @@ sealed class TestCommand
 		return exit is 0 or 2 ? exit : 1;
 	}
 
-	// The runner's build is brought up to date first. A crash, whatever code it exited with, fails the category.
-	int RunGearSwapTests(string? filter)
+	// The runner's build is brought up to date first. It runs every spec file, or with affectedOnly the ones the change
+	// could have affected, and says which. A crash, whatever code it exited with, fails the category.
+	int RunGearSwapTests(string? filter, bool affectedOnly)
 	{
 		var runner = builds.Get(Path.Combine(toolsDir, "tests", "run-gearswap-tests.cs"));
 		if (runner is null)
 			return 1;
-		string[] arguments = filter is null ? [] : [filter];
+		string[] arguments = filter is not null ? [filter] : affectedOnly ? ["--affected"] : [];
 		var exit = Apps.Run(runner, arguments);
 		return exit is 0 or 2 or BustedCantRun ? exit : 1;
 	}
