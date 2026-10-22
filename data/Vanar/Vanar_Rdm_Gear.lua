@@ -91,7 +91,7 @@ function init_gear_sets()
 	-- Atrophy set (4 pieces): Acc +45
 	sets.precast.Step = {ammo="Coiste Bodhar",
 		head="Atro. Chapeau +4",neck="Sanctity Necklace",ear1="Alabaster Earring",ear2="Leth. Earring +1",
-		body="Atrophy Tabard +4",hands="Atro. Gloves +4",ring1="Lehko's Ring",ring2="Jhakri Ring",
+		body="Atrophy Tabard +4",hands="Atro. Gloves +4",ring1="Lehko's Ring",ring2="Murky Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Atro. Tights +4",feet="Leth. Houseaux +3"}
 
 	sets.precast.JA['Violent Flourish'] = set_combine(sets.precast.Step, {ear1="Snotra Earring",ring1="Ayanmo Ring"})
@@ -179,7 +179,7 @@ function init_gear_sets()
 	sets.precast.WS['Aeolian Edge'].Acc = set_combine(sets.precast.WS['Sanguine Blade'].Acc, {})
 
 	sets.MaxTP = {ear1="Brutal Earring"}	-- DA 5
-	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 2
+	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 7
 	sets.MagicalMaxTP = {ear1="Friomisi Earring"}	-- MAB 10
 
 	-- Haste 26 (cap 26), FC 44, DT 49
@@ -469,7 +469,7 @@ function init_gear_sets()
 	-- Atrophy set (4 pieces): Acc +45
 	sets.engaged.Acc = {ammo="Coiste Bodhar",
 		head="Atro. Chapeau +4",neck="Sanctity Necklace",ear1="Alabaster Earring",ear2="Leth. Earring +1",
-		body="Atrophy Tabard +4",hands="Atro. Gloves +4",ring1="Lehko's Ring",ring2="Jhakri Ring",
+		body="Atrophy Tabard +4",hands="Atro. Gloves +4",ring1="Lehko's Ring",ring2="Murky Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Atro. Tights +4",feet="Leth. Houseaux +3"}
 
 	-- DT 57 (cap 50), DA 32, Store TP 26

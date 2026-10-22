@@ -32,15 +32,22 @@ function character_user_job_setup()
 		'Atra. Libations','Mind Blast'
 	}
 	blue_magic_maps.Physical = S{}
+	blue_magic_maps.PhysicalDex = S{
+		'Amorphic Spikes','Asuran Claws','Claw Cyclone','Disseverment','Foot Kick','Frenetic Rip','Goblin Rush',
+		'Hysteric Barrage','Sickle Slash','Smite of Rage','Thrashing Assault','Vanity Dive'
+	}
 	blue_magic_maps.PhysicalVit = S{
 		'Body Slam','Cannonball','Delta Thrust','Glutinous Dart','Grand Slam',
-		'Power Attack','Quad. Continuum','Sub-zero Smash'
+		'Power Attack','Quad. Continuum'
+	}
+	blue_magic_maps.PhysicalMnd = S{
+		'Ram Charge','Screwdriver'
 	}
 	blue_magic_maps.Stun = S{
 		'Barbed Crescent','Battle Dance','Benthic Typhoon','Bilgestorm',
-		'Feather Storm','Frypan','Head Butt','Hydro Shot','Pinecone Bomb','Queasyshroom',
-		'Saurian Slide','Seedspray','Spiral Spin','Sprout Smack',
-		'Sudden Lunge','Sweeping Gouge','Tail Slap','Terror Touch','Wild Oats','Whirl of Rage'
+		'Feather Storm','Frypan','Head Butt','Hydro Shot','Paralyzing Triad','Pinecone Bomb','Queasyshroom',
+		'Saurian Slide','Seedspray','Spiral Spin','Sprout Smack','Sub-zero Smash',
+		'Sudden Lunge','Sweeping Gouge','Tail Slap','Terror Touch','Tourbillion','Wild Oats','Whirl of Rage'
 	}
 	blue_magic_maps.MagicalMnd = S{
 		'Acrid Stream','Evryone. Grudge','Magic Hammer'
@@ -120,7 +127,7 @@ function init_gear_sets()
 	-- Assimilator's set (2 pieces): Acc +15
 	sets.precast.Step = {ammo="Honed Tathlum",
 		head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Alabaster Earring",ear2="Hashi. Earring +1",
-		body="Assim. Jubbah +4",hands="Assim. Bazu. +3",ring1="Lehko's Ring",ring2="Jhakri Ring",
+		body="Assim. Jubbah +4",hands="Assim. Bazu. +3",ring1="Lehko's Ring",ring2="Murky Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Hashishin Tayt +3",feet="Hashi. Basmak +3"}
 
 	sets.precast.Flourish1 = set_combine(sets.precast.Step, {hands="Hashi. Bazu. +3",ring1="Ayanmo Ring"})
@@ -146,7 +153,7 @@ function init_gear_sets()
 	-- Assimilator's set (2 pieces): Acc +15
 	sets.precast.WS.Acc = {ammo="Honed Tathlum",
 		head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Alabaster Earring",ear2="Hashi. Earring +1",
-		body="Assim. Jubbah +4",hands="Assim. Bazu. +3",ring1="Lehko's Ring",ring2="Jhakri Ring",
+		body="Assim. Jubbah +4",hands="Assim. Bazu. +3",ring1="Lehko's Ring",ring2="Murky Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Hashishin Tayt +3",feet="Hashi. Basmak +3"}
 
 	sets.precast.WS.FullAcc = set_combine(sets.precast.WS.Acc, {})
@@ -230,7 +237,7 @@ function init_gear_sets()
 	sets.precast.WS['Flash Nova'].FullAcc = set_combine(sets.precast.WS['Flash Nova'].Acc, {})
 
 	sets.MaxTP = {ear1="Brutal Earring"}	-- DA 5
-	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 2
+	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 7
 
 	-- Haste 32 (cap 26), FC 46, Blue magic recast -16%
 	sets.midcast.FastRecast = {ammo="Hasty Pinion",
@@ -248,7 +255,7 @@ function init_gear_sets()
 
 	sets.midcast['Blue Magic'].Physical.Resistant = {main="Tizona",sub="Almace",ammo="Honed Tathlum",
 		head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Alabaster Earring",ear2="Hashi. Earring +1",
-		body="Assim. Jubbah +4",hands="Hashi. Bazu. +3",ring1="Jhakri Ring",ring2="Lehko's Ring",
+		body="Assim. Jubbah +4",hands="Hashi. Bazu. +3",ring1="Murky Ring",ring2="Lehko's Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Hashishin Tayt +3",feet="Hashi. Basmak +3"}
 
 	-- Blue magic skill 635
@@ -361,7 +368,7 @@ function init_gear_sets()
 		body="Hashishin Mintan +3",hands="Hashi. Bazu. +3",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.nuke_jse_back,waist="Eschan Stone",legs="Hashishin Tayt +3",feet="Hashi. Basmak +3"}
 
-	sets.midcast['Elemental Magic'].Resistant = set_combine(sets.midcast['Elemental Magic'], {neck="Mirage Stole +2"})	-- Macc 25
+	sets.midcast['Elemental Magic'].Resistant = set_combine(sets.midcast['Elemental Magic'], {neck="Mirage Stole +2",ear1="Alabaster Earring"})	-- Macc 32
 
 	sets.midcast.Helix = sets.midcast['Elemental Magic']
 	sets.midcast.Helix.Resistant = sets.midcast['Elemental Magic'].Resistant
@@ -391,7 +398,7 @@ function init_gear_sets()
 		body="Assim. Jubbah +4",hands="Hashi. Bazu. +3",ring1="Stikini Ring",ring2="Stikini Ring",
 		back="Cornflower Cape",waist="Eschan Stone",legs="Hashishin Tayt +3",feet="Hashi. Basmak +3"}
 
-	sets.midcast['Blue Magic'].Stun.Resistant = set_combine(sets.midcast['Blue Magic'].Stun, {ammo="Honed Tathlum",ring1="Jhakri Ring",ring2="Ayanmo Ring",back=gear.da_jse_back})
+	sets.midcast['Blue Magic'].Stun.Resistant = set_combine(sets.midcast['Blue Magic'].Stun, {ammo="Honed Tathlum",ear1="Alabaster Earring",ring1="Jhakri Ring",ring2="Murky Ring",back=gear.da_jse_back})
 
 	sets.midcast['Blue Magic'].Stun.Fodder = sets.midcast['Blue Magic'].Stun
 
@@ -499,7 +506,7 @@ function init_gear_sets()
 	-- Assimilator's set (2 pieces): Acc +15
 	sets.engaged.Acc = {main="Tizona",sub="Almace",ammo="Honed Tathlum",
 				head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Alabaster Earring",ear2="Hashi. Earring +1",
-				body="Assim. Jubbah +4",hands="Assim. Bazu. +3",ring1="Lehko's Ring",ring2="Jhakri Ring",
+				body="Assim. Jubbah +4",hands="Assim. Bazu. +3",ring1="Lehko's Ring",ring2="Murky Ring",
 				back=gear.da_jse_back,waist="Eschan Stone",legs="Hashishin Tayt +3",feet="Hashi. Basmak +3"}
 
 	sets.engaged.Acc.AM = set_combine(sets.engaged.Acc, {})
@@ -518,8 +525,8 @@ function init_gear_sets()
 			    body="Hashishin Mintan +3",hands="Hashi. Bazu. +3",ring1="Lehko's Ring",ring2="Murky Ring",
 			    back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Hashishin Tayt +3",feet="Hashi. Basmak +3"}
 
-	-- DT 50
-	sets.engaged.DT.AM = set_combine(sets.engaged.DT, {})
+	-- DT 52
+	sets.engaged.DT.AM = set_combine(sets.engaged.DT, {ammo="Honed Tathlum",ear1="Alabaster Earring",hands="Adhemar Wrist. +1",feet="Nyame Sollerets"})
 
 	-- DT 55
 	sets.engaged.Acc.DT = set_combine(sets.engaged.Acc, {body="Hashishin Mintan +3",hands="Hashi. Bazu. +3",ring2="Murky Ring"})

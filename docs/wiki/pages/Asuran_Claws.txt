@@ -1,0 +1,65 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=H2H
+|nohits=6
+|desc=Delivers a sixfold attack. Accuracy varies with TP.
+|mp=81 MP
+|blupoint=2
+|cast=2 seconds
+|recast=60 seconds
+|target=Single
+|range=
+|stats=[[AGI]] +3
+|effects=
+|duration=
+|trait=Counter
+|level=70
+|family=Gnole
+|mtype=Beasts
+|wsc=10% [[STR]] 10% [[DEX]]
+|ftp=
+|ftp0=0.625
+|ftp150=0.625
+|ftp300=0.625
+|ftp350=0.625
+|scprop={{Liquefaction}} [[Liquefaction]] / {{Impaction}} [[Impaction]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+'''Only used by members of the Gnole family when standing.''' The Fusty Gnoles around (H-7) of Xarcabard (S) are always standing, day or night.
+{{Learning Blue Magic Table
+|Learned From=Gnole
+|Spell Level=70
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Lobison
+|Level=80-82
+|Zone=Jugner Forest (S)
+|SpawnCondition=
+|Map=Jugner Forest (S) Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Lobison
+|Level=80-82
+|Zone=La Vaule (S)
+|SpawnCondition=
+|Map=La Vaule (S)-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Fusty Gnole
+|Level=81-82
+|Zone=Xarcabard (S)
+|SpawnCondition=H-7
+|Map=Xarcabard (S)-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Luison
+|Level=75-90
+|Zone=Abyssea - La Theine
+|SpawnCondition=Conflux #05
+|Map=Abyssea - La Theine-Map.jpg
+}}
+}}
+[[category:Blue Magic]]

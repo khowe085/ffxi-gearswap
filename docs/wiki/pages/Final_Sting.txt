@@ -1,0 +1,83 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Piercing
+|nohits=1
+|desc=Deals damage proportional to HP. Reduces HP to 1 after use. Damage varies with TP.
+|mp=88 MP
+|blupoint=1
+|cast=5 seconds
+|recast=11 seconds
+|target=Single
+|range=
+|stats=[[HP]] -20 [[AGI]] +5
+|effects=
+|duration=
+|trait=Zanshin
+|level=81
+|family=Bee
+|mtype=Vermin
+|wsc=HP% 
+|ftp=1.0
+|ftp0=
+|ftp150=
+|ftp300=
+|ftp350=
+|scprop={{Fusion}} [[Fusion]]
+|ve=
+|ce=
+}}
+
+==Notes==
+*Unlike [[Self-Destruct]] this spell does not inflict [[weakness]] to the caster.
+*Damage is proportional to the HP of the caster.
+*Damage potential caps on a particular target if your current HP > 1/2 target's max HP. 
+**The lower the mob level the higher the cap damage:
+***Max of 65% of monster's HP in damage to anything that checks "Too weak to be worthwhile" to weaker "Decent challenge" foes. 
+***Max of 50% of monster's HP in damage on harder "Decent challenge" to "Even match" foes. 
+*Possesses properties of both physical and magical blue magic. You may skillchain with [[Chain Affinity]], but resist rates on damage are light based. {{Information Needed}}
+*Melee accuracy has nothing to do with the spell landing. {{Information Needed}}
+*This spell ignores Utsusemi  [[Shadow Image]]s.
+*If the spell misses ("fails to activate") the user will lose no HP.
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Bee
+|Spell Level=81
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Maneating Hornet
+|Level=2-5
+|Zone=South Gustaberg
+|SpawnCondition=
+|Map=South Gustaberg.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Giant Bee
+|Level=5-8
+|Zone=West Sarutabaruta
+|SpawnCondition=
+|Map=West Sarutabaruta-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Death Jacket
+|Level=40-42
+|Zone=Crawlers' Nest
+|SpawnCondition=
+|Map=Crawlers' Nest-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Eschan Wasp
+|Level=80-89
+|Zone=Escha - Zi'Tah
+|SpawnCondition=#8
+|Map=Escha Zi'Tah Level Map 1.png
+}}
+{{Learning Blue Magic Row
+|Monster=Belaboring Wasp
+|Level=100
+|Zone=Ceizak Battlegrounds
+|SpawnCondition=
+|Map=Ceizak Battlegrounds Map.png
+}}
+}}
+[[Category:Spells]] [[Category:Blue Magic]]

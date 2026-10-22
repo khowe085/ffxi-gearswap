@@ -1,0 +1,73 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=1
+|desc=Damage varies with TP.
+|mp=28 MP
+|blupoint=3
+|cast=0.5 seconds
+|recast=13 seconds
+|target=Single
+|range=4.5
+|stats=[[AGI]] +3
+|effects=
+|duration=
+|trait=Undead Killer
+|level=34
+|mtype=Arcana
+|family=Evil Weapon
+|wsc=20% [[STR]] 20% [[DEX]]
+|ftp=
+|ftp0=1.5
+|ftp150=2.25
+|ftp300=2.5
+|ftp350=2.53125
+|scprop={{Detonation}} [[Detonation]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Evil Weapon
+|Spell Level=34
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Dancing Weapon
+|Level=28-30
+|Zone=Qufim Island
+|SpawnCondition=
+|Map=Qufim Island-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Evil Weapon
+|Level=36-38
+|Zone=Sauromugue Champaign	
+|SpawnCondition=
+|Map=Sauromugue Champaign-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Eschan Weapon
+|Level=61-69
+|Zone=Escha - Zi'Tah
+|SpawnCondition=
+|Map=EschaZi'Tah.png
+}}
+{{Learning Blue Magic Row
+|Monster=Decorative Weapon
+|Level=79-81
+|Zone=The Shrine of Ru'Avitau
+|SpawnCondition=
+|Map=The Shrine of Ru'Avitau-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Infernal Weapon
+|Level=79-81
+|Zone=Ro'Maeve
+|SpawnCondition=
+|Map=Ro'Maeve-map.jpg
+}}
+}}
+
+[[Category:Blue Magic]]
+[[Category:Spells]]

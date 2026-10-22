@@ -1,0 +1,119 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=1
+|desc=Damage varies with TP.
+|mp=16
+|blupoint=2
+|cast=0.5 seconds
+|recast=11.25 seconds
+|target=Single
+|range=4.5
+|stats=[[CHR]] +1 [[HP]] +5
+|trait=
+|effects=Knockback
+|duration=
+|level=16
+|mtype=Birds
+|family=Bird
+|wsc=30% [[AGI]]
+|ftp=
+|ftp0=1.25
+|ftp150=1.625
+|ftp300=2.0
+|ftp350=2.125
+|scprop={{Transfixion}} [[Transfixion]]
+|ve=
+|ce=
+}}
+==Notes==
+* [[Knockback]] effect can interrupt a mob's spell casting.
+* [[Knockback]] is graphical only - target's position does not actually change.
+
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Lesser Bird
+|Spell Level=16
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Carrion Crow
+|Level=2-5
+|Zone=East Sarutabaruta
+|SpawnCondition=
+|Map=East Sarutabaruta-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Carrion Crow
+|Level=2-6
+|Zone=West Sarutabaruta
+|SpawnCondition=
+|Map=West Sarutabaruta-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Vulture
+|Level=2-6
+|Zone=North Gustaberg
+|SpawnCondition=
+|Map=North Gustaberg.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Vulture
+|Level=2-6
+|Zone=South Gustaberg
+|SpawnCondition=
+|Map=South Gustaberg.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Akbaba
+|Level=9-13
+|Zone=La Theine Plateau
+|SpawnCondition=
+|Map=La Theine Plateau.jpg
+}}
+
+{{Learning Blue Magic Row
+|Monster=Jubjub
+|Level=15-18
+|Zone=Meriphataud Mountains
+|SpawnCondition=
+|Map=Meriphataud Mountains-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Screamer
+|Level=15-18
+|Zone=Jugner Forest
+|SpawnCondition=
+|Map=Jugner Forest.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Zu
+|Level=20-23
+|Zone=Buburimu Peninsula
+|SpawnCondition=
+|Map=Buburimu Peninsula-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Eschan Vulture
+|Level=70-79
+|Zone=Escha - Zi'Tah
+|SpawnCondition=#4
+|Map=Escha Zi'Tah Level Map 1.png
+}}
+{{Learning Blue Magic Row
+|Monster=Seaboard Vulture
+|Level=83-84
+|Zone=Misareaux Coast
+|SpawnCondition=
+|Map=Misareaux Coast-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Condor
+|Level=91-93
+|Zone=Meriphataud Mountains (S)
+|SpawnCondition=
+|Map=Meriphataud_Mountains_(S)-map.jpg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

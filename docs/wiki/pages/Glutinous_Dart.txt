@@ -1,0 +1,64 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Piercing
+|nohits=1
+|desc=Damage Varies With TP.
+|mp=16 MP
+|blupoint=2
+|cast=1 second
+|recast=6 seconds
+|target=Single
+|range=21.5
+|stats=[[HP]] +15 [[STR]] +3 [[DEX]] +3 [[INT]] -3
+|effects=
+|duration=
+|trait=Max HP Boost
+|level=99
+|mtype=Beastmen
+|family=Velkk
+|wsc=50% [[STR]] 50% [[VIT]] 
+|ftp=
+|ftp0=1.0
+|ftp150=2.0
+|ftp300={{Information Needed}}
+|ftp350={{Information Needed}}
+|scprop={{Fragmentation}} [[Fragmentation]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Velkk
+|Spell Level=99
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Velkk
+|Level=
+|Zone=Yahse Hunting Grounds
+|SpawnCondition=
+|Map=Updated marked map yahse hunting grounds.jpeg
+}}
+{{Learning Blue Magic Row
+|Monster=Velkk
+|Level=
+|Zone=Foret de Hennetiel
+|SpawnCondition=
+|Map=Updated marked map foret de hennetiel.jpeg
+}}
+{{Learning Blue Magic Row
+|Monster=Velkk
+|Level=
+|Zone=Dho Gates
+|SpawnCondition=
+|Map=Updated marked map dho gates map 1.jpeg
+}}
+{{Learning Blue Magic Row
+|Monster=Velkk
+|Level=
+|Zone=Marjami Ravine
+|SpawnCondition=
+|Map=Updated marked map marjami ravine.jpeg
+}}
+}}
+[[Category:Blue Magic]][[Category:Spells]]

@@ -1,0 +1,90 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=3
+|desc=Delivers a threefold attack. Additional effect: Paralysis. Damage varies with TP.
+|mp=33 MP
+|blupoint=6
+|cast=1 second
+|recast=15 seconds
+|target=Single
+|range=
+|stats=[[HP]] -10 [[STR]] +4 [[DEX]] +4
+|effects=Paralyze
+|duration=60 seconds
+|trait=Skillchain Bonus
+|level=99
+|mtype=Elemental
+|family=Umbril
+|wsc={{Information Needed}}% [[STR]] {{Information Needed}}% [[DEX]]
+|ftp=1.125
+|ftp0=
+|ftp150=
+|ftp300=
+|ftp350=
+|scprop={{Gravitation}} [[Gravitation]]
+|ve=
+|ce=
+}}
+
+==Notes==
+*Potency of [[Paralyze]] is 20%.
+
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Umbril 
+|Spell Level=99
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Umbril 
+|Level=100+
+|Zone=Yahse Hunting Grounds
+|SpawnCondition=
+|Map=Updated marked map yahse hunting grounds.jpeg
+}}
+{{Learning Blue Magic Row
+|Monster=Appetent Umbril 
+|Level=100+
+|Zone=Ceizak Battlegrounds
+|SpawnCondition=
+|Map=Updated marked map ceizak battlegrounds.jpeg
+}}
+{{Learning Blue Magic Row
+|Monster=Phantasmagoric Umbril 
+|Level=104
+|Zone=Foret de Hennetiel
+|SpawnCondition=
+|Map=Updated marked map foret de hennetiel.jpeg
+}}
+{{Learning Blue Magic Row
+|Monster=Snowcap Umbril 
+|Level=103-106
+|Zone=Morimar Basalt Fields
+|SpawnCondition=
+|Map=Updated marked map morimar basalt fields.jpeg
+}}
+{{Learning Blue Magic Row
+|Monster=Shadowscourge Umbril 
+|Level=106+
+|Zone=Yorcia Weald
+|SpawnCondition=
+|Map=Updated marked map yorcia weald.jpeg
+}}
+{{Learning Blue Magic Row
+|Monster=Livid Umbril 
+|Level=103-106
+|Zone=Cirdas Caverns
+|SpawnCondition=
+|Map=Updated marked map cirdas caverns map 1.jpeg
+}}
+{{Learning Blue Magic Row
+|Monster=Firth Umbril 
+|Level=114+
+|Zone=Dho Gates
+|SpawnCondition=
+|Map=Updated_marked_map_dho_gates_map_1.jpeg
+}}
+}}
+
+[[Category:Blue Magic]][[Category:Spells]]

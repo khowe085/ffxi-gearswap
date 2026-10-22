@@ -31,8 +31,8 @@ food_lists = {
 }
 state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Attack','Oden'}
 trust_lists = {
-	Default = {'Yoran-Oran (UC)','Koru-Moru','Qultada','Ulmia','Joachim'},
-	Limbus = {'Yoran-Oran (UC)','Qultada','Ulmia'},
+	Default = {'Sylvie (UC)','Qultada','Ulmia','Joachim','Cherukiki'},
+	Limbus = {'Sylvie (UC)','Qultada','Ulmia'},
 }
 state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus'}
 send_command('bind f6 gs c cycle AutoTrustMode') --Cycles through Off and the trust_lists entries, summoning that list's trusts automatically.
@@ -460,26 +460,10 @@ function user_unload()
 	job_change_token = job_change_token + 1
 end
 
---Sel's status box has no label for a new mode, so Auto WS is appended after it draws. Sel-Display loads
---after this file and defines update_job_states over any wrapper made at load, so it's wrapped from extra_user_setup.
-local function wrap_update_job_states()
-	if update_job_states_wrapped == update_job_states then return end
-	local sel_update_job_states = update_job_states
-	update_job_states = function()
-		sel_update_job_states()
-		if stateBox and state.DisplayMode.value and state.CraftingMode.value == 'None' then
-			local color = state.AutoWS.value == 'OFF' and display.colors.White or display.colors.Yellow
-			stateBox:append(string.format("%sAuto WS: %s%s", color, state.AutoWS.value, display.colors.OffWhite))
-		end
-	end
-	update_job_states_wrapped = update_job_states
-end
-
 --Runs at load and on every subjob change.
 function extra_user_setup()
 	autows_sync()
 	wrap_job_check_buff()
-	wrap_update_job_states()
 	queue_after_job_change()
 end
 

@@ -1,0 +1,80 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Blunt
+|nohits=3
+|desc=Delivers a threefold attack. Accuracy varies with TP.
+|mp=76 MP
+|blupoint=3
+|cast=0.5 seconds
+|recast=25.5 seconds
+|target=Single
+|range=
+|stats=[[HP]] +10 [[DEX]] +2 [[MND]] -3
+|effects=
+|duration=
+|trait=Skillchain Bonus
+|level=81
+|mtype=Beastmen
+|family=Goblin
+|wsc=30% [[STR]] 30% [[DEX]] 
+|ftp=
+|ftp0=1.25
+|ftp150=1.25
+|ftp300=1.25
+|ftp350=1.25
+|scprop={{Fusion}} [[Fusion]] / {{Impaction}} [[Impaction]]
+|ve=
+|ce=
+}}
+==Notes==
+*Gains 35% attack boost.
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Goblin
+|Spell Level=81
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=:Category:Goblin{{!}}Goblins
+|Level=17-25
+|Zone=Valkurm Dunes
+|SpawnCondition=
+|Map=Valkurm Dunes.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=:Category:Goblin{{!}}Goblins
+|Level=32-47
+|Zone=Yuhtunga Jungle
+|SpawnCondition=
+|Map=Yuhtunga Jungle-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Hobgoblin Venerer
+|Level=72-76
+|Zone=Bibiki Bay
+|SpawnCondition=
+|Map=Bibiki Bay-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Goblin Meatgrinder
+|Level=75-90
+|Zone=Abyssea - Grauberg
+|SpawnCondition=Conflux #03
+|Map=Abyssea - Grauberg-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Goblin Plunderer
+|Level=75-90
+|Zone=Abyssea - Grauberg
+|SpawnCondition=
+|Map=Abyssea - Grauberg-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Goblin Healer
+|Level=85-90
+|Zone=Dangruf Wadi
+|SpawnCondition=J-7
+|Map=Dangruf_Wadi-map1.jpg
+}}
+}}
+[[Category:Spells]] [[Category:Blue Magic]]

@@ -1,0 +1,68 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Blunt
+|nohits=1
+|desc=Damage varies with TP.
+|mp=79 MP
+|blupoint=4
+|cast=0.5 seconds
+|recast=34.75 seconds
+|target=Single
+|range=
+|stats=[[HP]] +5
+|effects=[[Knockback]]
+|duration=
+|trait=Lizard Killer
+|level=73
+|mtype=Beasts
+|family=Ram
+|wsc=30% [[STR]] 50% [[MND]] 
+|ftp=
+|ftp0=1.0
+|ftp150=1.375
+|ftp300=1.75
+|ftp350=1.875
+|scprop={{Fragmentation}} [[Fragmentation]]
+|ve=
+|ce=
+}}
+==Notes==
+* [[Knockback]] effect can interrupt spell casting.
+* [[Knockback]] is graphical only - target's position does not actually change.
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Ram
+|Spell Level=73
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Battering Ram
+|Level=21-23
+|Zone=La Theine Plateau
+|SpawnCondition=
+|Map=La Theine Plateau.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Tremor Ram
+|Level=21-23
+|Zone=Konschtat Highlands
+|SpawnCondition=
+|Map=Konschtat Highlands.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Hammering Ram
+|Level=78-82
+|Zone=Abyssea - La Theine
+|SpawnCondition=Conflux #08
+|Map=Abyssea - La Theine-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Mosshorn
+|Level=80-81
+|Zone=Caedarva Mire
+|SpawnCondition=Located at (K-6) up the cliffs.
+|Map=Caedarva Mire-map1.jpg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

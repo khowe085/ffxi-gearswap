@@ -1,0 +1,114 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=1
+|desc=Deals critical damage. Chance of critical hit varies with TP.
+|mp=5
+|blupoint=2
+|cast=0.5 seconds
+|recast=6.5 seconds
+|target=Single
+|range=4.5
+|stats=[[AGI]] +1
+|effects=
+|duration=
+|trait=Lizard Killer
+|level=1
+|mtype=Beast
+|family=Rabbit
+|wsc=10% [[STR]] 10% [[DEX]]
+|ftp=
+|ftp0=1.0
+|ftp150=1.0
+|ftp300=1.0
+|ftp350=1.0
+|scprop={{Detonation}} [[Detonation]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Rabbit
+|Spell Level=1
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Wild Rabbit
+|Level=1
+|Zone=East Ronfaure
+|SpawnCondition=
+|Map=East Ronfaure.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Wild Rabbit
+|Level=1
+|Zone=West Ronfaure
+|SpawnCondition=
+|Map=West Ronfaure.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Forest Hare
+|Level=1-5
+|Zone=East Ronfaure
+|SpawnCondition=
+|Map=East Ronfaure.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Forest Hare
+|Level=1-5
+|Zone=West Ronfaure
+|SpawnCondition=
+|Map=West Ronfaure.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Savanna Rarab
+|Level=1-5
+|Zone=West Sarutabaruta
+|SpawnCondition=
+|Map=West Sarutabaruta-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Savanna Rarab
+|Level=1-6
+|Zone=East Sarutabaruta
+|SpawnCondition=
+|Map=East Sarutabaruta-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Pit Hare
+|Level=2-6
+|Zone=Palborough Mines
+|SpawnCondition=
+|Map=Palborough Mines-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Hoarder Hare
+|Level=6-8
+|Zone=Dangruf Wadi
+|SpawnCondition=
+|Map=Dangruf Wadi-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Steppe Hare
+|Level=7-10
+|Zone=La Theine Plateau
+|SpawnCondition=
+|Map=La Theine Plateau.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Canyon Rarab
+|Level=7-10
+|Zone=Tahrongi Canyon
+|SpawnCondition=
+|Map=Tahrongi Canyon-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Twigtrip Lapinion
+|Level=100
+|Zone=Ceizak Battlegrounds
+|SpawnCondition=
+|Map=Ceizak Battlegrounds Map.png
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

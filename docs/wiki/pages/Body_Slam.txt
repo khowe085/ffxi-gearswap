@@ -1,0 +1,86 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Blunt
+|nohits=1
+|desc=Delivers an area attack. Damage varies with TP.
+|mp=74 MP
+|blupoint=4
+|cast=1 second
+|recast=27.75 seconds
+|target=AoE
+|range=
+|stats=[[VIT]] +1 [[MP]] +5
+|effects=
+|duration=
+|trait=Max HP Boost
+|level=62
+|mtype=Dragons
+|family=Dragon
+|wsc=40% [[VIT]]
+|ftp=
+|ftp0=1.5
+|ftp150=1.5
+|ftp300=1.5
+|ftp350=1.5
+|scprop={{Impaction}} [[Impaction]]
+|ve=
+|ce=
+}}
+==Notes==
+*Not learnable from all the [[:Category:Dragon|Dragon]] Family monsters.
+*Apply [[Silence (Status)|Silence]] to increase chances for Body Slam to be used by the dragon.
+
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Dragon
+|Spell Level=62
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Dahak
+|Level=82-83
+|Zone=Mount Zhayolm
+|SpawnCondition=
+|Map=Mount Zhayolm-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Dahak
+|Level=78-81
+|Zone=Halvung
+|SpawnCondition=
+|Map=Halvung-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Barong
+|Level=
+|Zone=Dynamis - Buburimu
+|SpawnCondition=
+|Map=Dynamis-Buburimu-NMs.gif
+}}
+{{Learning Blue Magic Row
+|Monster=Apocalyptic Beast
+|Level=
+|Zone=Dynamis - Buburimu
+|SpawnCondition=
+|Map=Dynamis-Buburimu-NMs.gif
+}}
+{{Learning Blue Magic Row
+|Monster=Scultone
+|Level=~90
+|Zone=Ghoyu's Reverie
+|SpawnCondition=Voucher #09
+|Map=Ghoyu's_Reverie_map18.jpg
+}}
+}}
+*'''NOT LEARNABLE FROM:
+**[[Shadow Dragon]] NM - [[Xarcabard]]
+**[[Biast]] - [[Xarcabard]] {{verification}}
+**[[Vanguard Dragon]] - [[Dynamis - Xarcabard]]
+**[[Aitvaras]] - [[Dynamis - Buburimu]]
+**[[Alklha]] - [[Dynamis - Buburimu]]
+**[[Basilic]] - [[Dynamis - Buburimu]]
+**[[Jurik]] - [[Dynamis - Buburimu]]
+**[[Koschei]] - [[Dynamis - Buburimu]]
+**[[Vishap]]  - [[Dynamis - Buburimu]]'''
+[[category:Blue Magic]]
+[[Category:Spells]]

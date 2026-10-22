@@ -1,0 +1,54 @@
+{{item
+|description=DEF:93 HP+22 STR+15 DEX+44 VIT+29 AGI+7 INT+12 MND+30 CHR+17 Accuracy+32 Ranged Accuracy+32 Evasion+36 Magic Evasion+43 "Magic Def. Bonus"+2 Haste+5% "Triple Attack"+4% "Store TP"+7 Set: Increases rate of critical hits
+|type=Armor
+|flags=AugSendable, CanSendPOL, Equippable, Not vendorable, Not sendable, Exclusive
+|stack size=1
+|singular log name=adhemar wristbands +1
+|ffxiah=27118/adhemar-wrist.-+1
+|ffxidb=27118
+}}
+{{armor
+|races=All Races
+|slot=Hands
+|shield size=0
+|level=99
+|jobs=[[Monk]] / [[Thief]] / [[Ranger]] / [[Ninja]] / [[Blue Mage]] / [[Corsair]] / [[Dancer]] / [[Rune Fencer]]
+|ilevel=119
+|sulevel=0
+}} 
+{{Item Quest Reward Table
+|Type=C
+|Insert Quest List Template = 
+{{Item Quest Reward
+|Name=Jinxed Wristbands
+|Notes=Trade with a [[Jovian Abjuration: Hands]]
+to [[Alphollon C Meriard]]
+}}
+}}
+{{Item NPC Table
+|Type=redeem
+|Insert NPC List Template=
+{{Item NPC
+|NPC Name=Dealer Moogle
+|Zone=Dealer Moogle{{!}}Various
+|Notes=Trade a [[Kupon A-Ab]] or [[Mog Kupon A-Ab]]
+}}
+}}
+{{Augmentable Item Table
+|Insert Augmentable Item List=
+{{Augmentable Item List
+|Augmented Via=Nolan
+|Zone=Norg
+|position=I-7
+|Required Items=[[Eschalixir]], [[Eschalixir +1|+1]], or [[Eschalixir +2|+2]]<br>See [[Nolan]] for possible augments
+}}
+}}
+{{Nolan Item Page Augs
+|Contents=
+{{:Nolan|transcludesection=Adhemar Set +1 A B C}}
+{{!}} Accuracy+20<br />Attack+20<br />"Subtle Blow"+8
+}}
+==Related Links==
+*[[Adhemar Attire Set]]
+*[[Adhemar Attire Set +1]]
+*[[:Category:Abjurations#Abjuration_Sets_.28Escha_-_Ru.27Aun.29|Abjurations Item Level 119]]
