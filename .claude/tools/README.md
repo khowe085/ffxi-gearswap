@@ -158,7 +158,7 @@ dotnet run .claude/gear.cs -- test
 
 - The hash of a category's files when it last passed is kept in the checkout's `.claude/cache/passes`. A run that fails, one with `--filter`, or one during which the files changed keeps no pass.
 - A pass vouches for the builds it ran on, so a build made again clears every pass.
-- `--all` runs every category, and `test tools` (or `data`, or `gearswap`) runs that one whether or not it changed. Both run every GearSwap spec file, so `test --all` is the run before a PR.
+- `--all` runs every category, and `test tools` (or `data`, or `gearswap`) runs that one whether or not it changed. `test --all` and `test gearswap` run every GearSwap spec file, so `test --all` is the run before a PR.
 - `test tools --filter gear-list` runs only the tools tests whose name holds the text, and `test gearswap --filter <text>` the GearSwap tests'.
 - Exit code 0 when every category that ran passed, 1 when one failed, 2 for an option or a category it doesn't know, a `--filter` no test's name holds, or `test gearswap` where busted can't run (not installed, or on Windows). A plain `test`, or `test --all`, skips GearSwap's tests there, with a notice, and keeps no pass for them.
 

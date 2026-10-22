@@ -77,6 +77,17 @@ local boots_whm = "local harness, testy = require('harness'), require('testy')\n
 local boots_rdm = "local harness, testy = require('harness'), require('testy')\n"
     .. "it('boots', function() harness.boot(testy.rdm()) end)\n"
 
+-- Boots the character in this process too. The runner's record of this spec file is made from the files this process
+-- loaded, not from those of the busted runs it starts, so this fails unless every file the run wrote was loaded here
+-- as well: the record then holds what the assertions on the run rest on.
+local function boot_here(options, written)
+    harness.boot(options)
+    local loaded = set_of(harness.loaded_files())
+    for _, path in ipairs(written) do
+        assert.is_true(loaded[path], path .. ' was loaded by the run and not by this spec file')
+    end
+end
+
 describe('the repo files a run loaded', function()
     it('are the files a boot read, named as the repo names them', function()
         harness.boot(testy.whm())
@@ -119,6 +130,7 @@ describe('the repo files a run loaded', function()
     it('hold a Sel character\'s job file and gear file, and not those of another job', function()
         local output, written = run(boots_rdm, 'deps.txt')
         assert.is_table(written, output)
+        boot_here(testy.rdm(), written)
         local loaded = set_of(written)
         assert.is_true(loaded['data/RDM.lua'])
         assert.is_true(loaded['libs/Sel-Include.lua'])
@@ -130,6 +142,7 @@ describe('the repo files a run loaded', function()
     it('are listed once each, in order, and none by a path in the copy of the Windower install', function()
         local output, written = run(boots_rdm, 'deps.txt')
         assert.is_table(written, output)
+        boot_here(testy.rdm(), written)
         local sorted = {}
         for i, path in ipairs(written) do
             sorted[i] = path

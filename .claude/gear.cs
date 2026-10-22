@@ -12,9 +12,11 @@
 // build brought up to date, then tests/run-tests.cs on the made-up character there), data (the tools' checks of each
 // character's gear files and docs), and gearswap (GearSwap's Lua tests under the repo's tests/, each spec file in a
 // busted process of its own, by tests/run-gearswap-tests.cs). Of the gearswap tests it runs only the spec files the
-// change could have affected: those with no record, and those whose own file, or a repo file they loaded when they last
-// passed, changed. A pass vouches for the builds it ran on, so a build made again clears every pass. --all runs every
-// category and every spec file, and a category named runs whether or not it changed, with every spec file.
+// change could have affected: those with no record, those whose own file, or a repo file they loaded when they last
+// passed, changed, and all of them when a file every spec file rests on changed (the harness, the resources, .busted,
+// Windower's libraries, the runner, or the names of the files the tests' Windower install is copied from). A pass
+// vouches for the builds it ran on, so a build made again clears every pass. --all runs every category and every spec
+// file, and a category named runs whether or not it changed, with every spec file.
 // --filter runs only the tools or gearswap tests whose name holds the text, and counts for no pass.
 using System;
 using System.Text;

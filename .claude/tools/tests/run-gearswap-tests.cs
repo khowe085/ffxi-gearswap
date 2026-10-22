@@ -10,8 +10,8 @@
 // names). A change to a file every spec file rests on, or no usable record, has every spec file run. busted reads
 // .busted at the repo root; to run one spec file by hand: busted tests/sel/idle_spec.lua. The tests copy a Windower
 // install into the temp folder; each run gives its busted processes a temp folder of their own and removes it after.
-// They run on Linux or WSL. Exit code 1 when a test fails or a spec file doesn't run, 2 when nothing runs, 3 when busted
-// can't run here.
+// They run on Linux or WSL. Exit code 1 when a test fails or a spec file doesn't run, 2 when nothing runs (0 under
+// --affected when no spec file is affected), 3 when busted can't run here.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -38,7 +38,8 @@ var recording = filter is null;
 var storeFile = Tool.InRepo(".claude", "cache", "gearswap-specs.json");
 // A run rests on the files as they are before it starts, so that one changed while it runs is found changed after.
 var files = SpecInputs.Read(Tool.RepoRoot);
-var globals = SpecInputs.HashOfGlobals(files, SpecInputs.HashOfRunner((string)AppContext.GetData("EntryPointFilePath")!));
+var runner = SpecInputs.HashOfRunner((string)AppContext.GetData("EntryPointFilePath")!);
+var globals = SpecInputs.HashOfGlobals(files, runner);
 var store = SpecStore.Read(storeFile);
 var chosen = affected ? SpecStore.Select(store, globals, specs, files) : specs;
 if (affected && specs.Count > 0)
@@ -114,12 +115,20 @@ try
 		}
 	});
 	// A spec file busted wrote no list of loaded files for never got to exit, and a record of it would vouch for nothing.
+	// Nor would one made after a file changed while the run went on: a busted process copies the install when it first
+	// boots, which can be well into the run, so it may have read the file after the change, and a record that holds the
+	// hash from before would hold again once the change is undone. So a record is kept only when the files it holds, and
+	// those every spec file rests on, have the hashes they had before the run.
 	if (missing is false && recording)
 	{
-		for (var i = 0; i < chosen.Count; i++)
+		var after = SpecInputs.Read(Tool.RepoRoot);
+		if (SpecInputs.HashOfGlobals(after, runner) == globals)
 		{
-			if (runs[i].Passed && File.Exists(DependencyFile(i)) && SpecInputs.Record(chosen[i], files, File.ReadLines(DependencyFile(i))) is { } record)
-				passed.Add(record);
+			for (var i = 0; i < chosen.Count; i++)
+			{
+				if (runs[i].Passed && File.Exists(DependencyFile(i)) && SpecInputs.Record(chosen[i], files, File.ReadLines(DependencyFile(i))) is { } record && record.Holds(after))
+					passed.Add(record);
+			}
 		}
 	}
 }
