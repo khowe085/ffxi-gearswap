@@ -7,11 +7,12 @@
 // affected since they last passed run: those with no record, and those whose own file, or a repo file they loaded, has
 // changed. Without a filter, a run keeps a record of each spec file that passed in .claude/cache/gearswap-specs.json,
 // from what its busted process says it loaded (tests/support/harness.lua writes that to the file GEARSWAP_TEST_DEPS
-// names). A change to a file every spec file rests on, or no usable record, has every spec file run. busted reads
-// .busted at the repo root; to run one spec file by hand: busted tests/sel/idle_spec.lua. The tests copy a Windower
-// install into the temp folder; each run gives its busted processes a temp folder of their own and removes it after.
-// They run on Linux or WSL. Exit code 1 when a test fails or a spec file doesn't run, 2 when nothing runs (0 under
-// --affected when no spec file is affected), 3 when busted can't run here.
+// names), unless a file it rests on changed during the run. A change to a file every spec file rests on, or no usable
+// record, has every spec file run. busted reads .busted at the repo root; to run one spec file by hand: busted
+// tests/sel/idle_spec.lua. The tests copy a Windower install into the temp folder; each run gives its busted processes
+// a temp folder of their own and removes it after. They run on Linux or WSL. Exit code 1 when a test fails or a spec
+// file doesn't run, 2 when nothing runs (0 under --affected when no spec file is affected), 3 when busted can't run
+// here.
 using System;
 using System.Text;
 using System.Collections.Generic;
