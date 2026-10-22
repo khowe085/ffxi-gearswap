@@ -1,4 +1,3 @@
-local harness = require('harness')
 local jobby = require('jobby')
 
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
@@ -6,13 +5,15 @@ local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volt
     'Pensee Earring', 'Moonshade Earring', 'Lunette Ring', 'Pernicious Ring', 'Gelatinous Ring', 'Wanion Belt',
     'Prodigious Mantle', 'Malignance Tabard'}
 
--- Jobby as a puppetmaster with the idle set on and an automaton out, Valoredge's, which fights. The options:
+-- Jobby as a puppetmaster with the idle set on and an automaton out, Valoredge's, which fights and casts no spell. The
+-- options:
 --   sub_job, tp, buffs     as for a boot
 --   head, frame            the automaton's, Valoredge Head and Frame by default
+--   max_mp, mp             the automaton's MP, none unless given, as for Valoredge's, and how much of it it has, all
+--                          unless given
 --   pet                    the fields of the pet's mob over its defaults (status 1 is an engaged pet)
 --   no_pet                 no pet is called out
 --   oil                    false for no Automat. Oil +3 among the pieces
---   mp                     the automaton's MP, of a hundred
 --   ticking                past the five seconds Sel waits after loading before its tick acts, before the pet is out
 local function boot(options)
     options = options or {}
@@ -26,7 +27,8 @@ local function boot(options)
     local gs = (options.ticking and jobby.boot_ticking or jobby.boot)('PUP', {items = items,
         sub_job = options.sub_job or 'WHM', tp = options.tp, buffs = options.buffs})
     gs.game:set_automaton({name = 'Tin', head = options.head or 'Valoredge Head',
-        frame = options.frame or 'Valoredge Frame', max_mp = 100, mp = options.mp or 100})
+        frame = options.frame or 'Valoredge Frame', max_mp = options.max_mp or 0,
+        mp = options.mp or options.max_mp or 0})
     gs:console('gs c update')
     if not options.no_pet then
         local pet = {name = 'Tin'}
@@ -45,14 +47,14 @@ local function boot(options)
     return gs
 end
 
-local function sets_of(gs)
-    return gs.user.sets
-end
+local sets_of, first_actions = jobby.sets_of, jobby.first_actions
 
--- The actions the tick sent in its first moments (it starts five seconds after the file loads).
-local function first_actions(gs)
-    gs:play(harness.sel_load_time + 0.3)
-    return gs:actions()
+-- The boot options over those given (see boot) of a magic automaton, which casts spells and has the MP for them:
+-- Stormwaker Head on Stormwaker Frame, or the head given, with a hundred MP here.
+local function magic(options, head)
+    options = options or {}
+    options.head, options.frame, options.max_mp = head or 'Stormwaker Head', 'Stormwaker Frame', 100
+    return options
 end
 
 describe('the automaton\'s mode, from its head and frame', function()
@@ -323,8 +325,8 @@ describe('the pet\'s Flashbulb and Provoke', function()
 end)
 
 describe('what the pet does', function()
-    it('puts the pet\'s set for a spell it casts on, when it starts casting', function()
-        local gs = boot()
+    it('puts the pet\'s set for a spell it casts on, when it starts casting: a healer automaton\'s Cure III', function()
+        local gs = boot(magic({}, 'Soulsoother Head'))
         gs:pet_readies('Cure III', 'spell')
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.Pet, sets_of(gs).midcast.Pet.Cure)),
             gs:worn())
@@ -503,18 +505,19 @@ describe('the tick of a puppetmaster', function()
             assert.same({}, jobby.said(gs))
         end)
 
-        it('sends an idle pet in on a monster target with Deploy', function()
+        it('sends an idle pet in on a monster target with Deploy, a melee automaton, which has no MP to run out of',
+            function()
             local gs = puppeteer()
             assert.same({'Deploy'}, first_actions(gs))
         end)
 
-        it('deactivates an idle pet that is out of MP, at full health', function()
-            local gs = puppeteer({mp = 5})
+        it('deactivates an idle magic automaton that is out of MP, at full health', function()
+            local gs = puppeteer(magic({mp = 5}))
             assert.same({'Deactivate'}, first_actions(gs))
         end)
 
-        it('sends a hurt pet in rather than deactivating it', function()
-            local gs = puppeteer({mp = 5, pet = {hpp = 99}})
+        it('sends a hurt magic automaton out of MP in rather than deactivating it', function()
+            local gs = puppeteer(magic({mp = 5, pet = {hpp = 99}}))
             assert.same({'Deploy'}, first_actions(gs))
         end)
 
@@ -710,7 +713,7 @@ describe('the status of the pet in the display', function()
     end)
 
     it('adds the MP of a magic automaton', function()
-        local gs = boot({head = 'Stormwaker Head', frame = 'Stormwaker Frame'})
+        local gs = boot(magic())
         gs:console('gs c update user')
         assert.same({'Tin [Stormwaker Head][Stormwaker Frame](Magic): Idle  TP=0  HP%=100  MP%=100', modes},
             gs:chat())

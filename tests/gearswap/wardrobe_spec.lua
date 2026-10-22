@@ -407,12 +407,14 @@ describe('gs stash', function()
             assert.is_true((gs.user.midaction()))
         end)
 
-        it('leaves the pet\'s action in progress in pet_midaction', function()
+        it('hands its pet_midaction(false) to none of GearSwap\'s registry, so it reads the file with a pet\'s action '
+            .. 'in progress and leaves that in pet_midaction', function()
             local gs = boot()
             gs.game:place_pet({name = 'Carbuncle'})
             plain.refresh(gs)
             gs:pet_readies('Foot Kick')
             gs:console('gs stash pld')
+            assert.equal('GearSwap: Testy_PLD.lua uses 6 pieces.', gs:chat()[1])
             assert.is_true((gs.user.pet_midaction()))
         end)
 
@@ -423,6 +425,12 @@ describe('gs stash', function()
             assert.is_nil(rawget(gs.env, 'paladin_file_was_here'))
             assert.equal('english', gs.env.language)
         end)
+
+        pending('leaves what GearSwap is to put on, the slots it holds and the game alone when the file calls equip, '
+            .. 'disable or a command through the gearswap table: new_sandbox in wardrobe.lua makes the sandbox\'s '
+            .. 'gearswap a table over GearSwap\'s own globals, so gearswap.equip, gearswap.disable and '
+            .. 'gearswap.windower.send_command in get_sets reach GearSwap\'s equip_list and disable_table and the '
+            .. 'game, though its header says equip, disable and command calls do nothing')
 
         it('makes no text box or primitive and sends no message to other addons', function()
             local gs = boot()
@@ -437,7 +445,7 @@ describe('gs stash', function()
         it('leaves the loaded file\'s text boxes to it, so a Sel file\'s status box goes when the file unloads',
             function()
             local gs = testy.boot_rdm()
-            gs:console('gs stash whm')
+            gs:console('gs stash pld')
             gs:console('gs reload')
             local boxes = 0
             for _ in pairs(gs.env.__raw.text.registry) do

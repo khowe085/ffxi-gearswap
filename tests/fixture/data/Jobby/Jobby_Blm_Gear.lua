@@ -17,7 +17,7 @@ function init_gear_sets()
 	sets.precast.FC = {neck = 'Fotia Gorget'}
 	sets.precast.FC.Death = {hands = 'Volte Bracers'}
 	sets.precast.FC.Proc = {neck = "Combatant's Torque"}
-	sets.precast.FC.OccultAcumen = {legs = 'Volte Hose'}
+	sets.precast.FC.OccultAcumen = {legs = 'Volte Brais'}
 	sets.precast.FC['Fire'] = {ring1 = 'Chirich Ring +1'}
 	sets.precast.FC['Fire'].Death = {ring1 = 'Karieyh Ring'}
 	sets.precast.FC.HighTierNuke = {ring2 = 'Chirich Ring +1'}

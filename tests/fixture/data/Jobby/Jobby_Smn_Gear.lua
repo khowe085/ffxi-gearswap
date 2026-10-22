@@ -53,6 +53,7 @@ function init_gear_sets()
 	sets.midcast.Pet.MagicalBloodPactRage.Acc = {feet = 'Jadeite Jambeaux'}
 	sets.midcast.Pet.BloodPactWard = {body = 'Diamond Haramaki'}
 	sets.midcast.Pet.BloodPactWard.Ifrit = {legs = 'Diamond Hiza.'}
+	sets.midcast.Pet.BloodPactWard.Diabolos = {legs = 'Psycloth Lappas'}
 	sets.midcast.Pet['Flaming Crush'] = {hands = 'Diamond Kote', legs = 'Volte Brais'}
 	sets.midcast.Pet['Flaming Crush'].AM = {waist = 'Prosilio Belt', hands = 'Volte Bracers', legs = 'Telchine Braconi'}
 	sets.midcast.Pet['Flaming Crush'].Acc = {back = 'Null Shawl'}

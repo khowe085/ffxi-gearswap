@@ -36,24 +36,10 @@ local function boot(options)
     return gs
 end
 
-local function sets_of(gs)
-    return gs.user.sets
-end
+local sets_of = jobby.sets_of
 
--- The actions GearSwap sent since this was last asked, in order, each as its name and its target's.
-local function actions(gs)
-    local sent = {}
-    for _, entry in ipairs(gs:action_entries()) do
-        sent[#sent + 1] = entry.action .. ' ' .. entry.target
-    end
-    return sent
-end
-
--- The actions the tick sent in its first moments (it starts five seconds after the file loads).
-local function first_actions(gs)
-    gs:play(harness.sel_load_time + 0.3)
-    return actions(gs)
-end
+-- The actions GearSwap sent, and those of the tick's first moments, each as its name and its target's.
+local actions, first_actions = jobby.targeted, jobby.first_targeted
 
 -- What the tick typed that reached the game as a line, not as an action GearSwap sent, in its first moments: GearSwap
 -- hands on a line whose target it can't find, as for Blaze of Glory and Ecliptic Attrition, typed with a semicolon
@@ -309,8 +295,8 @@ describe('Blaze of Glory and Ecliptic Attrition under Bolster', function()
         assert.same({'Abort: Bolster maxes the strength of bubbles.'}, gs:chat())
     end)
 
-    it('are used without it', function()
-        local gs = boot()
+    it('are used without it, with a luopan out for Ecliptic Attrition', function()
+        local gs = boot({luopan = true})
         gs:type('/ja "Blaze of Glory" <me>')
         assert.same({'Blaze of Glory Jobby'}, actions(gs))
         gs:advance(3)
@@ -551,11 +537,7 @@ describe('the set of a geomancer\'s nuke', function()
 end)
 
 describe('the idle set of a geomancer', function()
-    local function low_mp(gs)
-        gs.game.player.vitals.mpp = 40
-        gs.game.player.vitals.mp = 400
-        gs:console('gs c update')
-    end
+    local low_mp = jobby.low_mp
 
     it('wears sets.latent_refresh under half MP', function()
         local gs = boot()
@@ -640,7 +622,7 @@ describe('the idle set of a geomancer', function()
             gs:worn())
     end)
 
-    it('wears sets.TPEat with the weapons locked but UnlockWeapons on', function()
+    it('wears sets.TPEat with a weapon in the idle set and the weapons locked but UnlockWeapons on', function()
         local gs = boot()
         sets_of(gs).idle.main = 'Daybreak'
         gs:console('gs c set Weapons Club')
@@ -651,13 +633,14 @@ describe('the idle set of a geomancer', function()
             {main = "Bunzi's Rod"})), gs:worn())
     end)
 
+    -- Sublimation is a scholar's, so Jobby has Scholar as the sub job for it.
     it('wears sets.buff.Sublimation while Sublimation is charging', function()
-        local gs = boot({buffs = {'Sublimation: Activated'}})
+        local gs = boot({sub_job = 'SCH', buffs = {'Sublimation: Activated'}})
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).buff.Sublimation)), gs:worn())
     end)
 
     it('wears sets.buff.DTSublimation in the DT idle mode while it is', function()
-        local gs = boot({buffs = {'Sublimation: Activated'}})
+        local gs = boot({sub_job = 'SCH', buffs = {'Sublimation: Activated'}})
         gs:console('gs c set IdleMode DT')
         assert.same(jobby.worn_by(jobby.idle, jobby.layer(sets_of(gs).idle.DT, sets_of(gs).buff.DTSublimation)),
             gs:worn())

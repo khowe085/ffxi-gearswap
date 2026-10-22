@@ -1,4 +1,3 @@
-local harness = require('harness')
 local jobby = require('jobby')
 
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
@@ -30,29 +29,21 @@ end
 -- What every Jobby gear file's idle set wears, as the game shows it worn, with the blue mage's sword in hand.
 local idle = jobby.worn_by(jobby.idle, jobby.weapons.BLU)
 
-local function sets_of(gs)
-    return gs.user.sets
-end
+local sets_of, first_actions = jobby.sets_of, jobby.first_actions
 
 local function blue(gs, list)
     return sets_of(gs).midcast['Blue Magic'][list]
 end
 
--- What is worn once the spell is out: the Blue Magic fast cast set and the set of the spell's list over the idle set.
+-- What is worn once the spell typed is out.
 local function midcast_worn(gs, line)
     gs:type(line)
     return gs:worn()
 end
 
+-- What the game shows worn with the Blue Magic fast cast set laid over the idle set, and the sets given over that.
 local function blue_over_fast_cast(gs, ...)
     return jobby.worn_by(idle, jobby.layer(sets_of(gs).precast.FC['Blue Magic'], ...))
-end
-
--- The actions the tick sent in its first moments: it starts five seconds after the file loads, and acts again once
--- the first action's delay is over.
-local function first_actions(gs)
-    gs:play(harness.sel_load_time + 0.3)
-    return gs:actions()
 end
 
 describe('the set a blue spell takes from its list in blue_magic_maps', function()
@@ -256,7 +247,9 @@ describe('a weapon skill when a club is in hand', function()
 end)
 
 describe('a sword\'s weapon skill with a dagger in hand', function()
-    -- With a dagger in hand the game lists a dagger's weapon skills: no club's, and no Chant du Cygne.
+    -- A blue mage has no dagger skill, so with a dagger in hand the game lists none of a dagger's weapon skills, nor a
+    -- club's or a sword's: no Shining Strike, which the job file takes for a club in hand, and no Chant du Cygne. The
+    -- stand-in looks at no skill and lists the dagger's, which changes neither.
     it('is left alone by the job file, and Sel turns it down', function()
         local gs = boot({'Foot Kick'}, {tp = 1000, wearing = {main = 'Qutrub Knife'}})
         gs:type('/ws "Chant du Cygne" <t>')
@@ -368,18 +361,12 @@ describe('a blue healing spell', function()
 end)
 
 describe('the buffs a blue mage keeps up', function()
-    local cases = {
-        {'Chain Affinity', 'Chain Affinity'}, {'Burst Affinity', 'Burst Affinity'}, {'Azure Lore', 'Azure Lore'},
-        {'Diffusion', 'Diffusion'},
-    }
-
-    for _, case in ipairs(cases) do
-        local buff, set = unpack(case)
-        it(('wear sets.buff["%s"] over a blue spell\'s set while the buff is up'):format(set), function()
+    for _, buff in ipairs({'Chain Affinity', 'Burst Affinity', 'Azure Lore', 'Diffusion'}) do
+        it(('wear sets.buff["%s"] over a blue spell\'s set while the buff is up'):format(buff), function()
             local gs = boot({'Foot Kick'})
             gs:gain_buff(buff)
             gs:traffic()
-            assert.same(blue_over_fast_cast(gs, blue(gs, 'PhysicalDex'), sets_of(gs).buff[set]),
+            assert.same(blue_over_fast_cast(gs, blue(gs, 'PhysicalDex'), sets_of(gs).buff[buff]),
                 midcast_worn(gs, '/ma "Foot Kick" <t>'))
         end)
     end
@@ -441,11 +428,7 @@ describe('the learning mode', function()
 end)
 
 describe('the idle set under half MP', function()
-    local function low_mp(gs)
-        gs.game.player.vitals.mpp = 40
-        gs.game.player.vitals.mp = 400
-        gs:console('gs c update')
-    end
+    local low_mp = jobby.low_mp
 
     it('wears sets.latent_refresh in the Normal idle mode', function()
         local gs = boot({'Foot Kick'})
@@ -559,12 +542,6 @@ describe('the tick of a blue mage', function()
             assert.same({}, first_actions(gs))
         end)
 
-        it('leaves Light Arts alone with another sub job', function()
-            local gs = scholar({sub_job = 'RDM'})
-            gs:console('gs c toggle AutoArts')
-            assert.same({}, first_actions(gs))
-        end)
-
         it('leaves Light Arts alone while it is on recast', function()
             local gs = scholar()
             gs:console('gs c toggle AutoArts')
@@ -573,6 +550,13 @@ describe('the tick of a blue mage', function()
             assert.same({}, first_actions(gs))
             assert.same({}, jobby.said(gs))
         end)
+    end)
+
+    it('uses no Light Arts with a sub job other than Scholar, though AutoArts and AutoBuffMode are on', function()
+        local gs = boot({'Foot Kick'}, {sub_job = 'RDM'})
+        gs:console('gs c set AutoBuffMode Auto')
+        gs:console('gs c toggle AutoArts')
+        assert.same({}, first_actions(gs))
     end)
 
     describe('under AutoBuffMode', function()
@@ -671,8 +655,8 @@ describe('the tick of a blue mage', function()
             assert.same({'Erratic Flutter'}, first_actions(gs))
         end)
 
-        it('takes the named list: Carcharian Verve first in Cleave once the rest are up', function()
-            local gs = boot({'Carcharian Verve'}, {buffs = {'Haste', 'Refresh', 'Phalanx', 'Stoneskin', 'Blink'}})
+        it('takes the named list: Carcharian Verve, which only Cleave holds', function()
+            local gs = boot({'Carcharian Verve'})
             gs:console('gs c buffup Cleave')
             gs:gain_buff('Unbridled Learning')
             gs:traffic()

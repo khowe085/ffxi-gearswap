@@ -83,7 +83,7 @@ describe('Sel\'s Treasure Hunter in Tag mode', function()
     it('forgets a monster three minutes after the last action on it or by it', function()
         tag_with_dia(gs)
         gs:advance(181)
-        gs:type('/ma "Cure III" <me>')
+        commy.cast(gs, '/ma "Cure III" <me>')
         gs:finish_action()
         gs:advance(5)
         assert.is_true(dia_wears_th(gs))
@@ -94,7 +94,7 @@ describe('Sel\'s Treasure Hunter in Tag mode', function()
         gs:advance(100)
         gs:monster_acts(1)
         gs:advance(100)
-        gs:type('/ma "Cure III" <me>')
+        commy.cast(gs, '/ma "Cure III" <me>')
         gs:finish_action()
         gs:advance(5)
         assert.is_false(dia_wears_th(gs))
@@ -102,7 +102,7 @@ describe('Sel\'s Treasure Hunter in Tag mode', function()
 
     it('doesn\'t take a monster for tagged by a spell cast in a defense mode', function()
         gs:console('gs c set DefenseMode Magical')
-        gs:type('/ma "Dia" <t>')
+        commy.cast(gs, '/ma "Dia" <t>')
         gs:finish_action()
         gs:advance(5)
         gs:console('gs c reset DefenseMode')
@@ -217,17 +217,42 @@ describe('User-Globals.lua\'s Treasure Hunter with a TH_Whitelist in Tag mode', 
         assert.is_false(dia_wears_th(gs))
     end)
 
-    it('takes every monster an area spell on the list lands on for tagged', function()
-        gs.user.TH_Whitelist = gs.user.S{'Dia', 'Diaga', 'Savage Blade'}
-        local other = gs.game:add_mob({name = 'Apex Bat', monster = true, distance = 9})
-        assert.is_true(spell_wears_th(gs, 'Diaga'))
-        -- The server tells of Diaga landing on both monsters.
+    -- Casts the area spell at the toad, and the server tells of it landing on the toad and on a bat beside it. Returns
+    -- whether sets.TreasureHunter was on for it, and the bat.
+    local function lands_on_two(name)
+        local bat = gs.game:add_mob({name = 'Apex Bat', monster = true, distance = 9})
+        local wore = spell_wears_th(gs, name)
         local landed = {message = 2, param = 0, reaction = 0, animation = 0, effect = 0, stagger = 0}
-        gs:send_action_packet({category = 4, param = 33, recast = 0,
-            targets = {{id = gs.game.monster.id, actions = {landed}}, {id = other.id, actions = {landed}}}})
+        gs:send_action_packet({category = 4, param = gs.game.actions[#gs.game.actions].param, recast = 0,
+            targets = {{id = gs.game.monster.id, actions = {landed}}, {id = bat.id, actions = {landed}}}})
         gs:advance(5)
-        gs.game:target(other.index)
+        return wore, bat
+    end
+
+    -- Whether Dia, cast at the bat, has sets.TreasureHunter on: it is on for a monster not yet tagged.
+    local function dia_at_the_bat_wears_th(bat)
+        gs.game:target(bat.index)
+        local wore = dia_wears_th(gs)
+        assert.equal('Apex Bat', gs.game.actions[#gs.game.actions].target)
+        return wore
+    end
+
+    it('takes every monster an area spell on the list lands on for tagged, one Sel\'s own list of them lacks',
+        function()
+        gs.user.TH_Whitelist = gs.user.S{'Dia', 'Banishga', 'Savage Blade'}
+        local wore, bat = lands_on_two('Banishga')
+        assert.is_true(wore)
         assert.is_false(dia_wears_th(gs))
+        gs:finish_action()
+        gs:advance(5)
+        assert.is_false(dia_at_the_bat_wears_th(bat))
+    end)
+
+    it('leaves the other monsters an area spell not on the list lands on untagged, though Sel\'s own list has it',
+        function()
+        local wore, bat = lands_on_two('Diaga')
+        assert.is_false(wore)
+        assert.is_true(dia_at_the_bat_wears_th(bat))
     end)
 
     -- The gear put on before the weapon skill went out, with Naegling in hand.

@@ -1,3 +1,4 @@
+local commy = require('commy')
 local harness = require('harness')
 local testy = require('testy')
 
@@ -69,6 +70,47 @@ describe('a session\'s readers of what GearSwap did', function()
         gs:console('input /echo typed')
         gs:forget()
         assert.same({{}, {}, {}, {}, {}}, {gs:printed(), gs:chat(), gs:typed(), gs:commands(), gs:traffic()})
+    end)
+end)
+
+describe('a line typed to go out alone', function()
+    -- The message the test fails with, or nil when it goes on.
+    local function failure(gs, line)
+        local ok, problem = pcall(gs.type_alone, gs, line)
+        return not ok and tostring(problem) or nil
+    end
+
+    it('goes on when the action it names is what goes out, and leaves the actions read', function()
+        local gs = boot()
+        assert.is_nil(failure(gs, '/ma "Cure III" <me>'))
+        assert.same({}, gs:actions())
+    end)
+
+    it('fails the test when nothing goes out', function()
+        local gs = boot()
+        gs.game.spells = {}
+        assert.matches('/ma "Cure III" <me> didn\'t go out alone', failure(gs, '/ma "Cure III" <me>'), 1, true)
+    end)
+
+    it('fails the test when another action goes out in its place, as a spell Sel steps down for its recast',
+        function()
+        local gs = commy.boot_rdm()
+        gs.game:start_spell_recast('Barfira', 30)
+        assert.matches('/ma "Barfira" <me> didn\'t go out alone', failure(gs, '/ma "Barfira" <me>'), 1, true)
+        assert.equal('Barfire', gs.game.actions[#gs.game.actions].name)
+    end)
+
+    it('fails the test when another action went out since the actions were last read', function()
+        local gs = boot()
+        gs:type('/ja "Divine Seal" <me>')
+        gs:finish_action()
+        assert.matches('/ma "Cure III" <me> didn\'t go out alone', failure(gs, '/ma "Cure III" <me>'), 1, true)
+    end)
+
+    it('fails the test for a line that names no action in quotes, though nothing is typed', function()
+        local gs = boot()
+        assert.matches('an action is typed as /prefix "Name", not as /ra <t>', failure(gs, '/ra <t>'), 1, true)
+        assert.same({}, gs:traffic())
     end)
 end)
 

@@ -206,4 +206,13 @@ describe('items moving between bags in the stand-in game', function()
         assert.same({0, 7, 1}, {old['Count'], old['Bag'], old['Index']})
         assert.same({1, 23761, 0, 1}, {new['Count'], new['Item'], new['Bag'], new['Index']})
     end)
+
+    it('are moved by a session\'s move_item by name, the whole stack unless a count is given', function()
+        local gs = game_with({{name = 'Bronze Bullet', bag = 'case', count = 10}, {name = 'Nyame Helm', bag = 'case'}})
+        gs:move_item('Bronze Bullet', 'case', 'inventory', 4)
+        gs:move_item('Nyame Helm', 'case', 'inventory')
+        assert.same({'Bronze Bullet', 'Nyame Helm'}, gs.game:bag_names('inventory'))
+        assert.same({4, 6}, {select(2, gs.game:find_item('inventory', 'Bronze Bullet')).count,
+            select(2, gs.game:find_item('case', 'Bronze Bullet')).count})
+    end)
 end)

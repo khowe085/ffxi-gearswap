@@ -19,9 +19,26 @@ local function worn(changes)
     return jobby.worn_by(idle, changes)
 end
 
+-- The ready moves the game lists with each jug pet the tests call out, of those the test resources hold: its family's,
+-- some of which data/BST.lua's ready_moves name (a rabbit's Foot Kick, Dust Cloud, Whirl Claws and Wild Carrot; an
+-- antlion's Venom Spray; a ladybug's Sudden Lunge; a tulfaire's Pentapeck; a hippogryph's Choke Breath; a chapuli's
+-- Sensilla Blades; none of a mandragora's).
+local ready_moves = {
+    DroopyDortwin = {'Foot Kick', 'Dust Cloud', 'Whirl Claws', 'Wild Carrot'},
+    CursedAnnabelle = {'Venom Spray'},
+    ThreestarLynn = {'Sudden Lunge'},
+    AttentiveIbuki = {'Pentapeck'},
+    DaringRoland = {'Choke Breath'},
+    ScissorlegXerin = {'Sensilla Blades'},
+    FlowerpotMerle = {},
+}
+
 -- The boot options of Jobby as a beastmaster with the idle set on, over a sub job of WAR with three merits in Sic's
--- recast, unless the options say otherwise. options are jobby.boot's, and food: the pet food and jugs in the bags, a
--- dozen of the food of each reward mode (Theta, Zeta and Eta) unless given.
+-- recast, unless the options say otherwise. options are jobby.boot's, and these besides:
+--   food       the pet food and jugs in the bags, a dozen of the food of each reward mode (Theta, Zeta and Eta) unless
+--              given
+--   moves_of   the name of the jug pet the test calls out: Jobby has only the abilities the game would give him with
+--              it out (see jobby.abilities), and no weapon skill
 local function boot_options(options)
     options = options or {}
     local items = {}
@@ -37,6 +54,10 @@ local function boot_options(options)
     options.wearing = own_idle
     options.sub_job = options.sub_job or 'WAR'
     options.merits = options.merits or {sic_recast = 3}
+    if options.moves_of then
+        options.abilities = jobby.abilities('BST', options.sub_job, unpack(ready_moves[options.moves_of]))
+        options.moves_of = nil
+    end
     return options
 end
 
@@ -144,7 +165,8 @@ describe('BST\'s ready charges', function()
         .. 'in data/BST.lua compares the weapon set\'s main with Charmer\'s Merlin twice, and never its sub')
 
     it('take 5 seconds less a timer with Charmer\'s Merlin in the off hand of the dual wield ready recast set, once '
-        .. 'Jobby can dual wield', function()
+        .. 'Jobby can dual wield, with the sub job Ninja', function()
+        gs = boot({sub_job = 'NIN'})
         jobby.can_dual_wield(gs)
         gs:chat()
         gs.game:start_ability_recast('Sic', 14)
@@ -154,7 +176,8 @@ describe('BST\'s ready charges', function()
     end)
 
     it('take 5 seconds less a timer with Desultor Tassets in the dual wield ready recast set, once Jobby can dual '
-        .. 'wield', function()
+        .. 'wield, with the sub job Ninja', function()
+        gs = boot({sub_job = 'NIN'})
         gs.user.sets.midcast.Pet.ReadyRecastDW = {legs = 'Desultor Tassets'}
         jobby.can_dual_wield(gs)
         gs:chat()
@@ -197,8 +220,9 @@ describe('BST\'s Reward', function()
             feet = 'Jadeite Jambeaux'}, gs:traffic()[1].equip)
     end)
 
-    it('has the dual wield set too, for a character who can dual wield, in the slots Reward\'s own set leaves free',
-        function()
+    it('has the dual wield set too, for a character who can dual wield, with the sub job Ninja, in the slots '
+        .. 'Reward\'s own set leaves free', function()
+            gs = boot({sub_job = 'NIN'})
             jobby.can_dual_wield(gs)
             gs:type('/ja "Reward" <me>')
             assert.equal("Charmer's Merlin", gs:traffic()[1].equip.main)
@@ -220,7 +244,8 @@ describe('BST\'s Spur', function()
         assert.same({back = 'Aptitude Mantle', main = "Charmer's Merlin"}, gs:traffic()[1].equip)
     end)
 
-    it('has the axes for it for a character who can dual wield', function()
+    it('has the axes for it for a character who can dual wield, with the sub job Ninja', function()
+        gs = boot({sub_job = 'NIN'})
         jobby.can_dual_wield(gs)
         gs:type('/pet "Spur" <me>')
         assert.same({back = 'Aptitude Mantle', main = "Charmer's Merlin", sub = 'Aern Sword'}, gs:traffic()[1].equip)
@@ -327,21 +352,25 @@ local function with_pet(changes)
 end
 
 describe('BST\'s ready moves, as Jobby commands them', function()
-    local gs
-    before_each(function()
-        gs = boot()
+    -- Jobby with Droopy Dortwin, a rabbit, out, over the sub job given (see boot).
+    local function with_droopy_dortwin(sub_job)
+        local gs = boot({sub_job = sub_job, moves_of = 'DroopyDortwin'})
         gs:give_pet({name = 'DroopyDortwin'})
         gs:traffic()
-    end)
+        return gs
+    end
 
     it('have the ready recast set on before they go out', function()
+        local gs = with_droopy_dortwin()
         gs:type('/pet "Foot Kick" <me>')
         local traffic = gs:traffic()
         assert.same({legs = 'Sapphire Trousers'}, traffic[1].equip)
         assert.equal('Foot Kick', traffic[2].action)
     end)
 
-    it('have the ready recast set of the dual wielder\'s kind for a character who can dual wield', function()
+    it('have the ready recast set of the dual wielder\'s kind for a character who can dual wield, with the sub job '
+        .. 'Ninja', function()
+        local gs = with_droopy_dortwin('NIN')
         jobby.can_dual_wield(gs)
         gs:type('/pet "Foot Kick" <me>')
         assert.same({sub = "Charmer's Merlin"}, gs:traffic()[1].equip)
@@ -350,11 +379,15 @@ end)
 
 describe('BST\'s ready moves, once the command is done', function()
     local gs
-    before_each(function()
-        gs = boot()
-        gs:give_pet({name = 'DroopyDortwin'})
+
+    -- Jobby with the jug pet named out, Droopy Dortwin, a rabbit, unless another is: the game lists only the ready
+    -- moves of the pet out, each family's own.
+    local function with_pet_out(name)
+        name = name or 'DroopyDortwin'
+        gs = boot({moves_of = name})
+        gs:give_pet({name = name})
         gs:traffic()
-    end)
+    end
 
     local function move(line)
         gs:type(line)
@@ -363,50 +396,61 @@ describe('BST\'s ready moves, once the command is done', function()
     end
 
     it('have the pet WS set and the TP bonus set while the pet has little TP', function()
+        with_pet_out()
         assert.same(with_pet({body = 'Sapphire Platemail', feet = 'Sapphire Leggings'}),
             move('/pet "Foot Kick" <me>'))
     end)
 
     it('have the set of the offense mode in that mode', function()
+        with_pet_out()
         gs:console('gs c set OffenseMode Acc')
         assert.equal('Jadeite Cuirie', move('/pet "Foot Kick" <me>').body)
     end)
 
     it('have the debuff set for a debuff, and the TP bonus set with it', function()
+        with_pet_out()
         assert.same(with_pet({body = 'Sapphire Platemail', hands = 'Sapphire Gauntlets', feet = 'Sapphire Leggings'}),
             move('/pet "Dust Cloud" <me>'))
     end)
 
-    it('have the magic set for a magical move that is no debuff', function()
+    it('have the magic set for a magical move that is no debuff, an antlion\'s Venom Spray', function()
+        with_pet_out('CursedAnnabelle')
         assert.same(with_pet({body = 'Sapphire Platemail', neck = "Orunmila's Torque"}),
             move('/pet "Venom Spray" <me>'))
     end)
 
     it('have the offense mode\'s magic set in that mode', function()
+        with_pet_out('CursedAnnabelle')
         gs:console('gs c set OffenseMode Acc')
         assert.equal('Phrenic Torque', move('/pet "Venom Spray" <me>').neck)
     end)
 
-    it('have the physical debuff set for a physical debuff, and the TP bonus set with it', function()
+    it('have the physical debuff set for a physical debuff, a ladybug\'s Sudden Lunge, and the TP bonus set with it',
+        function()
+        with_pet_out('ThreestarLynn')
         assert.same(with_pet({body = 'Sapphire Platemail', hands = 'Jadeite Gloves', feet = 'Sapphire Leggings'}),
             move('/pet "Sudden Lunge" <me>'))
     end)
 
-    it('have the multi-hit set for a move of several hits', function()
+    it('have the multi-hit set for a move of several hits, a tulfaire\'s Pentapeck', function()
+        with_pet_out('AttentiveIbuki')
         assert.same(with_pet({body = 'Sapphire Platemail', hands = 'Diamond Kote'}), move('/pet "Pentapeck" <me>'))
     end)
 
     it('have the favorable correlation set in that mode', function()
+        with_pet_out()
         gs:console('gs c set CorrelationMode Favorable')
         assert.equal("Theia's Hairpin", move('/pet "Foot Kick" <me>').head)
     end)
 
     it('have no pet set under a defense mode', function()
+        with_pet_out()
         gs:console('gs c set DefenseMode Physical')
         assert.same(with_pet(), move('/pet "Foot Kick" <me>'))
     end)
 
     it('give way to the pet\'s idle set once the pet is done with the move', function()
+        with_pet_out()
         gs:type('/pet "Foot Kick" <me>')
         gs:finish_action()
         gs:pet_readies('Foot Kick')
@@ -415,6 +459,7 @@ describe('BST\'s ready moves, once the command is done', function()
     end)
 
     it('are followed by the count of ready charges left, half a second after the pet is done', function()
+        with_pet_out()
         gs:type('/pet "Foot Kick" <me>')
         gs:finish_action()
         gs:pet_readies('Foot Kick')
@@ -428,7 +473,7 @@ end)
 describe('BST\'s TP bonus set for a ready move', function()
     -- The feet worn once the command for Choke Breath is done, Daring Roland, a Thief, having this much TP.
     local function feet_after(tp)
-        local gs = boot()
+        local gs = boot({moves_of = 'DaringRoland'})
         gs:give_pet({name = 'DaringRoland'})
         gs:set_pet_tp(tp)
         gs:traffic()
@@ -452,7 +497,7 @@ end)
 describe('BST\'s Unleash', function()
     local gs
     before_each(function()
-        gs = boot()
+        gs = boot({moves_of = 'DroopyDortwin'})
         gs:give_pet({name = 'DroopyDortwin'})
         gs:gain_buff('Unleash')
         gs:traffic()
@@ -511,7 +556,7 @@ end)
 
 describe('BST\'s ready command', function()
     local function booted(pet_name, status)
-        local gs = boot_ticking()
+        local gs = boot_ticking({moves_of = pet_name})
         gs:give_pet({name = pet_name, status = status or 1})
         gs:traffic()
         gs:chat()
@@ -672,15 +717,17 @@ describe('BST\'s idle set with a pet out', function()
         assert.same(worn(), gs:worn())
     end)
 
-    it('has the dual wield pet set on too, for a character who can dual wield, in the slots the pet idle set leaves '
-        .. 'free', function()
+    it('has the dual wield pet set on too, for a character who can dual wield, with the sub job Ninja, in the slots '
+        .. 'the pet idle set leaves free', function()
+        gs = boot({sub_job = 'NIN'})
         jobby.can_dual_wield(gs)
         gs:give_pet({name = 'DroopyDortwin'})
         assert.equal('Staunch Tathlum +1', gs:worn().ammo)
     end)
 
-    it('has the dual wield engaged pet set on too while the pet is engaged, for a character who can dual wield, in the '
-        .. 'slots the pet idle set leaves free', function()
+    it('has the dual wield engaged pet set on too while the pet is engaged, for a character who can dual wield, with '
+        .. 'the sub job Ninja, in the slots the pet idle set leaves free', function()
+        gs = boot({sub_job = 'NIN'})
         jobby.can_dual_wield(gs)
         gs:give_pet({name = 'DroopyDortwin'})
         gs:set_pet_status(1)
@@ -832,7 +879,7 @@ end)
 describe('BST\'s ready moves, kept by the tick under AutoReadyMode', function()
     local gs
     before_each(function()
-        gs = boot()
+        gs = boot({moves_of = 'DroopyDortwin'})
         gs:console('gs c toggle AutoReadyMode')
     end)
 
@@ -873,8 +920,7 @@ describe('BST\'s ready moves, kept by the tick under AutoReadyMode', function()
     end)
 
     it('are given up on a change of zone', function()
-        gs.game:fire('zone change', 100, 288)
-        gs.game:settle()
+        gs:change_zone(100)
         assert.is_false(gs.user.state.AutoReadyMode.value)
     end)
 end)

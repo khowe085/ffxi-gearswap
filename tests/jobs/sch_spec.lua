@@ -1,4 +1,3 @@
-local harness = require('harness')
 local jobby = require('jobby')
 
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
@@ -34,31 +33,15 @@ end
 -- What every Jobby gear file's idle set wears, as the game shows it worn, with the scholar's staff in hand.
 local idle = jobby.worn_by(jobby.idle, jobby.weapons.SCH)
 
-local function sets_of(gs)
-    return gs.user.sets
-end
+local sets_of, targeted, first_actions = jobby.sets_of, jobby.targeted, jobby.first_actions
 
--- The actions sent, each as its name and its target's.
-local function targeted(gs)
-    local sent = {}
-    for _, entry in ipairs(gs:action_entries()) do
-        sent[#sent + 1] = entry.action .. ' ' .. entry.target
-    end
-    return sent
-end
-
--- The actions the tick sent in its first moments (it starts five seconds after the file loads).
-local function first_actions(gs)
-    gs:play(harness.sel_load_time + 0.3)
-    return gs:actions()
-end
-
--- What is worn once the spell's precast and midcast sets are on: the fast cast set, then the sets named over it.
+-- What is worn once the spell typed is out.
 local function cast(gs, line)
     gs:type(line)
     return gs:worn()
 end
 
+-- What the game shows worn with the fast cast set laid over the idle set, and the sets given over that.
 local function fast_cast(gs, ...)
     return jobby.worn_by(idle, jobby.layer(sets_of(gs).precast.FC, ...))
 end
@@ -551,17 +534,17 @@ describe('a sleep spell cast by a scholar', function()
 end)
 
 describe('the idle set of a scholar', function()
-    local function low_mp(gs)
-        gs.game.player.vitals.mpp = 40
-        gs.game.player.vitals.mp = 400
-        gs:console('gs c update')
-    end
+    local low_mp = jobby.low_mp
 
-    it('wears sets.latent_refresh under half MP', function()
-        local gs = boot()
+    it('wears sets.latent_refresh under half MP, and no grip with nothing in hand', function()
+        local gs = boot({wearing = {main = 'empty'}})
         low_mp(gs)
-        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'empty'})), gs:worn())
     end)
+
+    pending('wears sets.latent_refresh_grip too under half MP with a staff in hand and the weapons free when the idle '
+        .. 'set names no main: job_customize_idle_set in data/SCH.lua looks at the idle set\'s main, not at what is '
+        .. 'in hand, so the job file adds no grip set with Terra\'s Staff in hand')
 
     it('wears no sets.latent_refresh above half MP', function()
         local gs = boot()
@@ -665,7 +648,7 @@ describe('the idle set of a scholar', function()
             gs:worn())
     end)
 
-    it('wears sets.TPEat with the weapons locked but UnlockWeapons on', function()
+    it('wears sets.TPEat with a weapon in the idle set and the weapons locked but UnlockWeapons on', function()
         local gs = boot()
         sets_of(gs).idle.main = "Bunzi's Rod"
         gs:console('gs c set Weapons Club')

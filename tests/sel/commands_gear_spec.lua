@@ -251,52 +251,64 @@ describe('gs c weapons initialize, for a red mage whose gear file names default 
     end)
 end)
 
-describe('gs c weapons initialize, for a red mage whose gear file names weapon sets Default and Dual', function()
-    -- Commy with the weapon sets and the default weapons for each named as a gear file names them in user_job_setup.
-    local function boot(sub_job)
-        local gs = commy.boot_rdm({sub_job = sub_job})
-        gs.user.state.WeaponSets:options('Default', 'Dual')
-        gs.user.weapon_sets = {Default = {'Naegling', 'Crocea'}, Dual = {'DualWeapons', 'Swords'}}
-        gs.user.default_weapons = 'Crocea'
-        gs.user.default_dual_weapons = 'Swords'
-        return gs
-    end
+-- Commy with the weapon set lists of WeaponSets, Default and Dual, each naming the weapon sets Weapons may take with
+-- it, and the default weapons for each, as a gear file names them in user_job_setup.
+local function boot_with_weapon_set_lists(sub_job)
+    local gs = commy.boot_rdm({sub_job = sub_job})
+    gs.user.state.WeaponSets:options('Default', 'Dual')
+    gs.user.weapon_sets = {Default = {'Naegling', 'Crocea'}, Dual = {'DualWeapons', 'Swords'}}
+    gs.user.default_weapons = 'Crocea'
+    gs.user.default_dual_weapons = 'Swords'
+    return gs
+end
 
-    -- The weapon set, the Weapons options it gave and the one chosen, and the weapons in hand.
-    local function weapons(gs)
-        local state = gs.user.state
-        return {set = state.WeaponSets.value, options = {state.Weapons[1], state.Weapons[2], state.Weapons[3]},
-            value = state.Weapons.value, main = gs:worn().main, sub = gs:worn().sub}
-    end
+-- The weapon set list, the Weapons options it gave and the one chosen, and the weapons in hand.
+local function weapons_from_the_list(gs)
+    local state = gs.user.state
+    return {list = state.WeaponSets.value, options = {state.Weapons[1], state.Weapons[2], state.Weapons[3]},
+        value = state.Weapons.value, main = gs:worn().main, sub = gs:worn().sub}
+end
 
-    it('takes the Default set\'s weapons, from their first, with a mage\'s sub job', function()
-        local gs = boot('WHM')
+describe('gs c weapons initialize, for a red mage whose gear file names the weapon set lists Default and Dual',
+    function()
+    it('takes the Default list\'s weapon sets, from the first, with a mage\'s sub job', function()
+        local gs = boot_with_weapon_set_lists('WHM')
         gs:console('gs c weapons initialize')
-        assert.same({set = 'Default', options = {'Naegling', 'Crocea'}, value = 'Naegling', main = 'Naegling',
-            sub = 'Ammurapi Shield'}, weapons(gs))
+        assert.same({list = 'Default', options = {'Naegling', 'Crocea'}, value = 'Naegling', main = 'Naegling',
+            sub = 'Ammurapi Shield'}, weapons_from_the_list(gs))
     end)
 
-    it('takes the Default set\'s weapons and puts the default weapons in hand with a sub job that is no mage\'s',
+    it('takes the Default list\'s weapon sets and puts the default weapons in hand with a sub job that is no mage\'s',
         function()
-        local gs = boot('WAR')
+        local gs = boot_with_weapon_set_lists('WAR')
         gs:console('gs c weapons initialize')
-        assert.same({set = 'Default', options = {'Naegling', 'Crocea'}, value = 'Crocea', main = 'Crocea Mors',
-            sub = 'Ammurapi Shield'}, weapons(gs))
+        assert.same({list = 'Default', options = {'Naegling', 'Crocea'}, value = 'Crocea', main = 'Crocea Mors',
+            sub = 'Ammurapi Shield'}, weapons_from_the_list(gs))
     end)
 
-    it('takes the Dual set\'s weapons and puts the default dual wield weapons in hand once Commy can dual wield, as '
-        .. 'five seconds after a load', function()
-        local gs = boot('NIN')
+    it('takes the Dual list\'s weapon sets and puts the default dual wield weapons in hand once Commy can dual wield, '
+        .. 'as five seconds after a load', function()
+        local gs = boot_with_weapon_set_lists('NIN')
         gs.game:set_job_traits({'Dual Wield'})
         gs:advance(harness.sel_load_time)
-        assert.same({set = 'Dual', options = {'DualWeapons', 'Swords'}, value = 'Swords', main = 'Murgleis',
-            sub = 'Crocea Mors'}, weapons(gs))
+        assert.same({list = 'Dual', options = {'DualWeapons', 'Swords'}, value = 'Swords', main = 'Murgleis',
+            sub = 'Crocea Mors'}, weapons_from_the_list(gs))
+    end)
+end)
+
+describe('gs c cycle WeaponSets, for a red mage whose gear file names the weapon set lists Default and Dual',
+    function()
+    it('passes over Dual, a list named for dual wield, back to Default when Commy can\'t dual wield, and puts the '
+        .. 'first of Default\'s weapon sets in hand', function()
+        local gs = boot_with_weapon_set_lists('WHM')
+        gs:console('gs c cycle WeaponSets')
+        assert.same({list = 'Default', options = {'Naegling', 'Crocea'}, value = 'Naegling', main = 'Naegling',
+            sub = 'Ammurapi Shield'}, weapons_from_the_list(gs))
     end)
 
-    pending('stops a cycle of the weapon sets when each is named for dual wield and Commy can\'t dual wield: '
-        .. 'state_change in Sel-Include.lua checks the index of the weapon set the cycle started from against '
-        .. 'state.Weapons.index, not state.WeaponSets.index, so unless Weapons stands at that index it cycles the '
-        .. 'weapon sets for ever')
+    pending('stops when each list is named for dual wield and Commy can\'t dual wield: state_change in '
+        .. 'Sel-Include.lua checks the index of the list the cycle started from against state.Weapons.index, not '
+        .. 'state.WeaponSets.index, so unless Weapons stands at that index it cycles the lists for ever')
 end)
 
 describe('Sel\'s weapon sets for dual wield', function()

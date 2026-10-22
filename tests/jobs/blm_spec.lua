@@ -1,7 +1,7 @@
 local jobby = require('jobby')
 
 local gear = {'Daybreak', "Terra's Staff", 'Enki Strap', 'Volte Cap', 'Null Masque', 'Volte Jupon',
-    'Adamantite Armor', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget',
+    'Adamantite Armor', 'Volte Bracers', 'Volte Hose', 'Volte Brais', 'Volte Boots', 'Fotia Gorget',
     "Combatant's Torque", 'Karieyh Ring', 'Chirich Ring +1', 'Null Belt', 'Null Shawl', 'Amin Turban',
     'Ischkur Turban', 'Azimuth Turban', 'Blistering Sallet', 'Blistering Sallet +1', 'Alhazen Hat', 'Alhazen Hat +1',
     'Sukeroku Hachi.', "Bendis's Hairpin", 'Blacksh. Hairpin', 'Moonshade Earring', 'Brutal Earring',
@@ -171,7 +171,7 @@ describe('BLM\'s casting modes', function()
     it('OccultAcumen puts sets.precast.FC.OccultAcumen on for a spell', function()
         local gs = boot()
         gs:console('gs c set CastingMode OccultAcumen')
-        assert.equal('Volte Hose', worn_after(gs, '/ma "Fire" <t>').legs)
+        assert.equal('Volte Brais', worn_after(gs, '/ma "Fire" <t>').legs)
     end)
 
     it('OccultAcumen leaves the spell\'s own midcast set, there being no sets.midcast.OccultAcumen', function()
@@ -333,42 +333,38 @@ describe('BLM\'s idle set', function()
         gs = boot()
     end)
 
-    local function low_mp()
-        gs.game.player.vitals.mp, gs.game.player.vitals.mpp = 400, 40
-        gs:console('gs c update')
-    end
-
     it('has sets.latent_refresh over it under 51% MP', function()
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(jobby.worn_by(idle, {waist = 'Null Belt'}), gs:worn())
     end)
 
     it('has no latent refresh set over it in the DT idle mode', function()
         gs:console('gs c set IdleMode DT')
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(jobby.worn_by(idle, {head = 'Null Masque'}), gs:worn())
     end)
 
     it('has sets.latent_refresh and the grip over the Sphere idle set under 51% MP, its main being a staff', function()
         gs:console('gs c set IdleMode Sphere')
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(jobby.worn_by(idle,
             {main = "Terra's Staff", waist = 'Null Belt', sub = 'Enki Strap'}), gs:worn())
     end)
 
-    it('has no grip over the Sphere idle set under 51% MP when its main is no staff', function()
+    it('has sets.latent_refresh but no grip over the Sphere idle set under 51% MP when its main is no staff',
+        function()
         gs:console('gs c set IdleMode Sphere')
         gs.user.sets.idle.Sphere.main = 'Daybreak'
         gs:traffic()
-        low_mp()
+        jobby.low_mp(gs)
         assert.same({}, jobby.subs_asked(gs))
-        assert.equal('Daybreak', gs:worn().main)
+        assert.same({'Daybreak', 'Null Belt'}, {gs:worn().main, gs:worn().waist})
     end)
 
     it('has no grip over the Sphere idle set with the weapons locked to a staff', function()
         gs:console('gs c set IdleMode Sphere')
         gs:console('gs c set Weapons Staff')
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(jobby.worn_by(idle, {main = 'Gozuki Mezuki', waist = 'Null Belt'}), gs:worn())
     end)
 
@@ -376,7 +372,7 @@ describe('BLM\'s idle set', function()
         gs:console('gs c set IdleMode Sphere')
         gs:console('gs c set Weapons Staff')
         gs:console('gs c toggle UnlockWeapons')
-        low_mp()
+        jobby.low_mp(gs)
         assert.same(jobby.worn_by(idle, {main = 'Gozuki Mezuki', waist = 'Null Belt', sub = 'Enki Strap'}),
             gs:worn())
     end)
@@ -389,6 +385,14 @@ describe('BLM\'s idle set', function()
     pending('has the grip over the Normal idle set, which names no main, with the weapons locked to a staff but '
         .. 'UnlockWeapons on: job_customize_idle_set in data/BLM.lua looks at the idle set\'s main, and Sel lays the '
         .. 'weapon set over the idle set only after it, so the job file adds no grip with Gozuki Mezuki in hand')
+
+end)
+
+describe('BLM\'s idle set with Scholar, whose ability Sublimation is, as the sub job', function()
+    local gs
+    before_each(function()
+        gs = boot({sub_job = 'SCH'})
+    end)
 
     it('has sets.buff.Sublimation over it while Sublimation charges', function()
         gs:gain_buff('Sublimation: Activated')

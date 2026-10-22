@@ -1,4 +1,3 @@
-local harness = require('harness')
 local jobby = require('jobby')
 
 local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
@@ -40,15 +39,7 @@ local function boot(options)
     return gs
 end
 
-local function sets_of(gs)
-    return gs.user.sets
-end
-
--- The actions the tick sent in its first moments (it starts five seconds after the file loads).
-local function first_actions(gs)
-    gs:play(harness.sel_load_time + 0.3)
-    return gs:actions()
-end
+local sets_of, first_actions = jobby.sets_of, jobby.first_actions
 
 -- What every Jobby gear file's idle set wears, as the game shows it worn, with the rune fencer's great sword in hand.
 local idle = jobby.worn_by(jobby.idle, jobby.weapons.RUN)
@@ -301,17 +292,17 @@ describe('the engaged set of a rune fencer', function()
 end)
 
 describe('the idle set of a rune fencer', function()
-    local function low_mp(gs)
-        gs.game.player.vitals.mpp = 40
-        gs.game.player.vitals.mp = 400
-        gs:console('gs c update')
-    end
+    local low_mp = jobby.low_mp
 
-    it('wears sets.latent_refresh under half MP', function()
-        local gs = boot()
+    it('wears sets.latent_refresh under half MP, and no grip with nothing in hand', function()
+        local gs = boot({wielding = 'empty'})
         low_mp(gs)
-        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh)), gs:worn())
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'empty'})), gs:worn())
     end)
+
+    pending('wears sets.latent_refresh_grip too under half MP with a great sword in hand and the weapons free when the '
+        .. 'idle set names no main: job_customize_idle_set in data/RUN.lua looks at the idle set\'s main, not at what '
+        .. 'is in hand, so the job file adds no grip set with Epeolatry in hand')
 
     it('wears sets.latent_refresh_grip too with a great sword in the idle set and the weapons free', function()
         local gs = boot()

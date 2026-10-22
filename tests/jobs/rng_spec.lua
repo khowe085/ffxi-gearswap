@@ -452,7 +452,8 @@ describe('RNG\'s ranged attack with Flurry', function()
         gs:gain_buff('Flurry')
     end
 
-    it('takes sets.precast.RA.Flurry after Flurry', function()
+    it('takes sets.precast.RA.Flurry after Flurry, though Flurry II came before it', function()
+        flurried(846)
         flurried(845)
         gs:traffic()
         gs:type('/ra <t>')
@@ -471,7 +472,16 @@ describe('RNG\'s ranged attack with Flurry', function()
         flurried(845)
         gs:traffic()
         gs:type('/ra <t>')
-        assert.equal('Diamond Kote', gs:traffic()[1].equip.hands)
+        assert.same({ammo = 'Chrono Bullet', head = "Theia's Hairpin", hands = 'Diamond Kote'}, gs:traffic()[1].equip)
+    end)
+
+    it('takes the Flurry2 set of the weapons locked after Flurry II', function()
+        gs:console('gs c set Weapons Gun')
+        flurried(846)
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same({ammo = 'Chrono Bullet', head = "Theia's Hairpin", hands = 'Diamond Kote',
+            legs = 'Jadeite Chausses'}, gs:traffic()[1].equip)
     end)
 
     it('takes no Flurry set without Flurry', function()
