@@ -90,7 +90,9 @@ describe('Sel\'s tick', function()
 
     it('runs pre_tick\'s checks, such as check_trust, before user_job_tick, which can\'t hold them back', function()
         local gs = boot()
-        gs:console('gs c set AutoTrustMode Default')
+        gs.user.trust_lists = {Yoran = {'Yoran-Oran (UC)'}}
+        gs.user.state.AutoTrustMode:options('Off', 'Yoran')
+        gs:console('gs c set AutoTrustMode Yoran')
         gs:traffic()
         gs.user.user_job_tick = function() return true end
         gs:play(1)

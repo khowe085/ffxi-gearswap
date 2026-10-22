@@ -1,10 +1,12 @@
 local autoy = require('autoy')
 
 -- Autoy with AutoTrustMode on, hit by the toad: in combat, which holds the trusts back until Sel's tick takes it
--- out of combat again.
+-- out of combat again. It sets trust_lists and the mode's options itself, so it doesn't rest on User-Globals.lua's.
 local function hit(options)
     local gs = autoy.boot(options)
-    gs:console('gs c set AutoTrustMode Default')
+    gs.user.trust_lists = {Yoran = {'Yoran-Oran (UC)'}}
+    gs.user.state.AutoTrustMode:options('Off', 'Yoran')
+    gs:console('gs c set AutoTrustMode Yoran')
     gs:monster_hits()
     gs:traffic()
     return gs

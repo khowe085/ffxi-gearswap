@@ -1,10 +1,18 @@
 local autoy = require('autoy')
 
--- User-Globals.lua's trust_lists: Default is Yoran-Oran (UC), Koru-Moru, Qultada, Ulmia, Joachim; Limbus is
--- Yoran-Oran (UC), Qultada, Ulmia. A trust is in the party under its name without the (UC).
+-- Each test sets trust_lists and AutoTrustMode's options itself, so none rests on User-Globals.lua's lists or on the
+-- names it gives the options. Long is Yoran-Oran (UC), Koru-Moru, Qultada, Ulmia, Joachim; Short is Yoran-Oran (UC),
+-- Qultada, Ulmia. A trust is in the party under its name without the (UC).
+local trust_lists = {
+    Long = {'Yoran-Oran (UC)', 'Koru-Moru', 'Qultada', 'Ulmia', 'Joachim'},
+    Short = {'Yoran-Oran (UC)', 'Qultada', 'Ulmia'},
+}
+
 local function boot(options, list)
     local gs = autoy.boot(options)
-    gs:console('gs c set AutoTrustMode ' .. (list or 'Default'))
+    gs.user.trust_lists = trust_lists
+    gs.user.state.AutoTrustMode:options('Off', 'Long', 'Short')
+    gs:console('gs c set AutoTrustMode ' .. (list or 'Long'))
     gs:traffic()
     return gs
 end
@@ -35,14 +43,14 @@ describe('AutoTrustMode', function()
     end)
 
     it('calls from the list set', function()
-        local gs = boot(nil, 'Limbus')
+        local gs = boot(nil, 'Short')
         gs.game:add_party_member({name = 'Yoran-Oran'})
         gs:play(1)
         assert.same(calls('Qultada'), gs:action_entries())
     end)
 
     it('calls none once every trust of the list is in the party', function()
-        local gs = boot(nil, 'Limbus')
+        local gs = boot(nil, 'Short')
         for _, name in ipairs({'Yoran-Oran', 'Qultada', 'Ulmia'}) do
             gs.game:add_party_member({name = name})
         end
@@ -107,4 +115,8 @@ describe('AutoTrustMode', function()
         gs:play(1)
         assert.same(calls('Yoran-Oran (UC)'), gs:action_entries())
     end)
+
+    pending('lets the tick go on past a name in trust_lists that is no spell: check_trust in libs/Sel-Utility.lua gets '
+        .. 'nil from get_spell_id_by_name and indexes res.spells[spell_id].party_name, which raises, so the tick ends '
+        .. 'there, before the checks that follow it')
 end)

@@ -12,16 +12,62 @@ local function shows(gs, text)
     return box(gs):find(text, 1, true) ~= nil
 end
 
+-- What the status box reads for the Auto WS mode of User-Globals.lua at the value it holds, and nothing where there is
+-- no such mode.
+local function auto_ws(gs)
+    local mode = gs.user.state.AutoWS
+    return mode and ('Auto WS: ' .. mode.value .. '    ') or ''
+end
+
+-- The first of the texts that the status box doesn't read after the one before it, or nil where it reads them all in
+-- order.
+local function first_out_of_order(gs, texts)
+    local text, from = box(gs), 1
+    for _, each in ipairs(texts) do
+        local at = text:find(each, from, true)
+        if not at then
+            return each
+        end
+        from = at + #each
+    end
+end
+
 describe('Sel\'s status box', function()
     local gs
     before_each(function()
         gs = commy.boot_rdm()
     end)
 
+    -- Where the booleans that are on come: after the Weapons entry, and the Auto WS entry where there is one.
+    local function booleans(text)
+        return 'Weapons: None (L)    ' .. auto_ws(gs) .. text
+    end
+
     it('shows the modes RDM.lua names, each at its option, once loaded', function()
-        assert.equal('   Auto Trust: Off    Locked Weapons: None    Offense: Normal / Normal    Recover MP: 35%    '
-            .. 'Element: Fire    Casting: Normal    Treasure: Tag    Auto WS: OFF', box(gs))
+        -- Where these start is up to User-Globals.lua: the box shows Treasure unless None, Auto Food unless Off.
+        gs:console('gs c set TreasureMode Tag')
+        gs:console('gs c reset AutoFoodMode')
+        assert.equal('   Auto Trust: ' .. gs.user.state.AutoTrustMode.value .. '    Offense: Normal / Normal    '
+            .. 'Weapons: None (L)    ' .. auto_ws(gs) .. 'Recover MP: 35%    Element: Fire    Casting: Normal    '
+            .. 'Treasure: Tag    ', box(gs))
         assert.is_true(gs.user.stateBox:visible())
+    end)
+
+    it('shows Auto Trust, Auto Buff, Offense, Weapons, Auto WS, the booleans on, then the other modes', function()
+        gs:console('gs c cycle AutoBuffMode')
+        gs:console('gs c toggle AutoStunMode')
+        assert.is_nil(first_out_of_order(gs, {'Auto Trust: ', 'Auto Buff: ', 'Offense: ', 'Weapons: ', auto_ws(gs),
+            'Auto Stun    ', 'Recover MP: '}))
+    end)
+
+    it('shows Auto Trust, Auto Buff, Offense and Weapons only when the job lists them', function()
+        gs:console('gs c cycle AutoBuffMode')
+        gs.user.stateList = {'RecoverMode'}
+        gs:console('gs c update')
+        for _, text in ipairs({'Auto Trust:', 'Auto Buff:', 'Offense:', 'Weapons:'}) do
+            assert.is_false(shows(gs, text), text)
+        end
+        assert.is_true(shows(gs, 'Recover MP:'))
     end)
 
     it('shows a mode in yellow once it is off its first option', function()
@@ -32,12 +78,13 @@ describe('Sel\'s status box', function()
 
     it('shows the weapon set by its name', function()
         gs:console('gs c set Weapons Naegling')
-        assert.is_true(shows(gs, 'Locked Weapons: Naegling'))
+        assert.is_true(shows(gs, 'Weapons: Naegling (L)'))
     end)
 
-    it('shows the weapons Unlocked while UnlockWeapons is on', function()
+    it('shows the weapons as (L), and as (U) while UnlockWeapons is on', function()
+        assert.is_true(shows(gs, 'Weapons: None (L)'))
         gs:console('gs c toggle UnlockWeapons')
-        assert.is_true(shows(gs, 'Unlocked Weapons: None'))
+        assert.is_true(shows(gs, 'Weapons: None (U)'))
     end)
 
     it('shows the offense and hybrid modes', function()
@@ -99,15 +146,15 @@ describe('Sel\'s status box', function()
 
     it('shows a boolean mode by its label while it is on', function()
         gs:console('gs c toggle AutoStunMode')
-        assert.equal('   Auto Stun    Auto Trust: Off', box(gs):sub(1, 31))
+        assert.is_true(shows(gs, booleans('Auto Stun    ')))
     end)
 
     it('shows Auto Defense while it is on, and that it keeps to tanking with TankAutoDefense', function()
         gs:console('gs c toggle AutoDefenseMode')
-        assert.equal('   Auto Defense    Auto Trust', box(gs):sub(1, 29))
+        assert.is_true(shows(gs, booleans('Auto Defense    ')))
         gs:console('gs c toggle TankAutoDefense')
         gs:console('gs c update')
-        assert.equal('   Auto Defense: Tank    Auto Trust', box(gs):sub(1, 35))
+        assert.is_true(shows(gs, booleans('Auto Defense: Tank    ')))
     end)
 
     it('shows Auto Nuke with the spell gs c autonuke set', function()
