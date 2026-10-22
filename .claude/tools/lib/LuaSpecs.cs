@@ -206,6 +206,9 @@ sealed class SpecRun
 
 	public string Output { get; }
 
+	// Whether it ran and no test failed; a pending one doesn't count.
+	public bool Passed => Ran && Tests.All(test => test.Result != SpecResult.Failed);
+
 	public SpecRun(string spec, bool ran, IReadOnlyList<SpecTest> tests, string output)
 	{
 		Spec = spec;

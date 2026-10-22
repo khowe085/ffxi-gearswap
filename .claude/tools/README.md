@@ -67,7 +67,7 @@ What the tools take from outside the repo seldom changes, so it is checked in un
 
 wsdist_beta and bg_job_guides are pinned to the commits `docs/ffxi-mechanics.md` cites file and line numbers from. Move a pin only together with those references.
 
-`.claude/cache/`, which git ignores, holds what the launcher makes for each checkout: the tools' builds and the tests' passes.
+`.claude/cache/`, which git ignores, holds what the launcher makes for each checkout: the tools' builds, the tests' passes and the records of what each GearSwap spec file rested on.
 
 ## The tools
 
@@ -154,13 +154,20 @@ dotnet run .claude/gear.cs -- test
 |---|---|---|
 | `tools` | Every tool's build brought up to date, then `tests/run-tests.cs`: the shared code and each tool, on a small made-up character | The tools' source (each tool's file, `lib/` and `Directory.Build.props`), `tests/` and the launcher |
 | `data` | The tools' checks of each character, a folder under `data/` with its notes or gear list: `sel-sets.cs` on each of its gear files, then `check-export.cs` on each sets file, `check-blu-spells.cs` on the BLU one, `gear-list.cs` on them all, and `doc-lint.cs`. Then `rank-doc --check` | `data/` and `docs/`, the outside data in it too, the launcher, which says what the checks are, and the builds it runs (see below) |
-| `gearswap` | `tests/run-gearswap-tests.cs`: GearSwap's Lua tests in the repo's `tests/` (see `tests/README.md`), each spec file in a busted process of its own, side by side. They run on Linux or WSL, and need Lua 5.1, LuaRocks and busted | GearSwap's Lua at the repo root, `libs/`, `data/`, `docs/windower/libs/`, the repo's `tests/` and `.busted`, and the launcher |
+| `gearswap` | `tests/run-gearswap-tests.cs`: GearSwap's Lua tests in the repo's `tests/` (see `tests/README.md`), each spec file in a busted process of its own, side by side; of these a plain `test` runs only the spec files its change could have affected (see below). They run on Linux or WSL, and need Lua 5.1, LuaRocks and busted | GearSwap's Lua at the repo root, `libs/`, `data/`, `docs/windower/libs/`, the repo's `tests/` and `.busted`, and the launcher |
 
 - The hash of a category's files when it last passed is kept in the checkout's `.claude/cache/passes`. A run that fails, one with `--filter`, or one during which the files changed keeps no pass.
 - A pass vouches for the builds it ran on, so a build made again clears every pass.
-- `--all` runs every category, and `test tools` (or `data`, or `gearswap`) runs that one whether or not it changed.
+- `--all` runs every category, and `test tools` (or `data`, or `gearswap`) runs that one whether or not it changed. Both run every GearSwap spec file, so `test --all` is the run before a PR.
 - `test tools --filter gear-list` runs only the tools tests whose name holds the text, and `test gearswap --filter <text>` the GearSwap tests'.
 - Exit code 0 when every category that ran passed, 1 when one failed, 2 for an option or a category it doesn't know, a `--filter` no test's name holds, or `test gearswap` where busted can't run (not installed, or on Windows). A plain `test`, or `test --all`, skips GearSwap's tests there, with a notice, and keeps no pass for them.
+
+A plain `test` whose GearSwap files changed runs only the spec files that change could have affected, and says how many of how many it ran and that the rest were unaffected. If they pass, so does the category: the other spec files rest on nothing that changed. When none is affected it says so and counts as a pass.
+
+- A run without `--filter` keeps, in the checkout's `.claude/cache/gearswap-specs.json`, a record for each spec file that passed: its hash and the hash of each repo file it loaded. The harness notes each file GearSwap, Sel, the job and gear files and Windower's libraries are read from, and the busted process writes them, a path a line, to the file `GEARSWAP_TEST_DEPS` names as it exits; the runner sets that for each process. The hashes are those the files had before the run started, so a file changed while it ran is found changed after.
+- A spec file runs when it has no record, its own file changed, or a file it loaded changed or is gone. One that failed keeps no record, so it runs again, and the record of a spec file that is gone is dropped.
+- Every spec file runs, whatever the records say, when the store is missing or can't be read, or when a file every spec file rests on changed: `tests/support/` (the harness), `tests/fixture/res/` (the resources), `.busted`, `docs/windower/libs/`, the runner's source (its file, `lib/` and `Directory.Build.props`), and the names of the files in the places the tests' Windower install is copied from: Lua at the repo root, `libs/`, `data/` and `tests/fixture/data/`. A spec file may look there for a file that isn't, or list a folder, and a file added or taken changes what it finds.
+- A record holds only what the spec file read through the tests' Windower install. What it reads some other way is not in it, unless it is one of the files every spec file rests on.
 
 `tests/run-tests.cs` runs against Testy, whose repository is `tests/fixture/repo/`: its export, notes and gear list, a small Sel gear file (`data/Testy/Testy_Blu_Gear.lua`), sets files under `sets/`, clean and with mistakes put in, and small copies of the outside data under `docs/`. The tests never read the real data and never use the network.
 

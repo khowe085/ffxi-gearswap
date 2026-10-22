@@ -2499,6 +2499,231 @@ Test("LuaSpecs.Report says so, with exit code 2, when no test ran, as for a filt
 	Equal("No spec files under tests/.\n", written.ToString().Replace("\r\n", "\n"));
 });
 
+Test("SpecRun.Passed is true for a spec file that ran with no test failed, pending ones too, and false for one that failed or didn't run", () =>
+{
+	var passing = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[{"name":"later"}]}""", "", 0);
+	Equal(true, passing.Passed);
+	Equal(false, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "", 1).Passed);
+	Equal(false, LuaSpecs.Read("tests/y_spec.lua", "", "lua: no such file\n", 1).Passed);
+});
+
+// The spec files of the selection tests, and what a run that passed all three found: a loaded GearSwap and the red
+// mage's job file, b GearSwap alone, c nothing.
+string[] selectable = ["tests/a_spec.lua", "tests/b_spec.lua", "tests/c_spec.lua"];
+
+// The hashes of files, from "path=hash" for each.
+IReadOnlyDictionary<string, string> Hashes(params string[] pairs) => pairs.ToDictionary(pair => pair[..pair.IndexOf('=')], pair => pair[(pair.IndexOf('=') + 1)..]);
+
+IReadOnlyDictionary<string, string> With(IReadOnlyDictionary<string, string> hashes, string pair) =>
+	new Dictionary<string, string>(hashes) { [pair[..pair.IndexOf('=')]] = pair[(pair.IndexOf('=') + 1)..] };
+
+IReadOnlyDictionary<string, string> Without(IReadOnlyDictionary<string, string> hashes, string path) =>
+	hashes.Where(hash => hash.Key != path).ToDictionary(hash => hash.Key, hash => hash.Value);
+
+SpecRecord Passed(string spec, string hash, params string[] loaded) => new SpecRecord(spec, hash, Hashes(loaded));
+
+SpecStore StoreOf(string globals, params SpecRecord[] records) => new SpecStore(globals, records.ToDictionary(record => record.Spec));
+
+SpecStore AllPassed() => StoreOf("g1",
+	Passed("tests/a_spec.lua", "a1", "gearswap.lua=g1", "data/RDM.lua=r1"),
+	Passed("tests/b_spec.lua", "b1", "gearswap.lua=g1"),
+	Passed("tests/c_spec.lua", "c1"));
+
+IReadOnlyDictionary<string, string> FilesAsPassed() => Hashes("tests/a_spec.lua=a1", "tests/b_spec.lua=b1", "tests/c_spec.lua=c1", "gearswap.lua=g1", "data/RDM.lua=r1");
+
+string Selected(SpecStore? store, string globals, IReadOnlyDictionary<string, string> files) => string.Join(" ", SpecStore.Select(store, globals, selectable, files));
+
+string DescribeRecord(SpecRecord record) => $"{record.Spec} {record.Hash} [{string.Join(", ", record.Files.OrderBy(file => file.Key, StringComparer.Ordinal).Select(file => $"{file.Key}={file.Value}"))}]";
+
+string Describe(SpecStore store) => store.Globals + " " + string.Join("; ", store.Records.OrderBy(record => record.Key, StringComparer.Ordinal).Select(record => DescribeRecord(record.Value)));
+
+Test("SpecStore.Select takes every spec file when there is no store", () =>
+{
+	Equal("tests/a_spec.lua tests/b_spec.lua tests/c_spec.lua", Selected(null, "g1", FilesAsPassed()));
+});
+
+Test("SpecStore.Select takes every spec file when a file they all rest on changed since the store was made", () =>
+{
+	Equal("tests/a_spec.lua tests/b_spec.lua tests/c_spec.lua", Selected(AllPassed(), "g2", FilesAsPassed()));
+});
+
+Test("SpecStore.Select takes no spec file when nothing changed, nor for a file no spec loaded", () =>
+{
+	Equal("", Selected(AllPassed(), "g1", FilesAsPassed()));
+	Equal("", Selected(AllPassed(), "g1", With(FilesAsPassed(), "data/WHM.lua=w1")));
+});
+
+Test("SpecStore.Select takes a spec file that changed, and no other", () =>
+{
+	Equal("tests/b_spec.lua", Selected(AllPassed(), "g1", With(FilesAsPassed(), "tests/b_spec.lua=b2")));
+});
+
+Test("SpecStore.Select takes the spec files that loaded a file that changed, and no other", () =>
+{
+	Equal("tests/a_spec.lua", Selected(AllPassed(), "g1", With(FilesAsPassed(), "data/RDM.lua=r2")));
+	Equal("tests/a_spec.lua tests/b_spec.lua", Selected(AllPassed(), "g1", With(FilesAsPassed(), "gearswap.lua=g2")));
+});
+
+Test("SpecStore.Select takes the spec files that loaded a file that is gone", () =>
+{
+	Equal("tests/a_spec.lua", Selected(AllPassed(), "g1", Without(FilesAsPassed(), "data/RDM.lua")));
+});
+
+Test("SpecStore.Select takes a spec file with no record", () =>
+{
+	string[] specs = [.. selectable, "tests/d_spec.lua"];
+	Equal("tests/d_spec.lua", string.Join(" ", SpecStore.Select(AllPassed(), "g1", specs, With(FilesAsPassed(), "tests/d_spec.lua=d1"))));
+});
+
+Test("SpecStore.Update keeps a record of each spec file that passed, and none of one that ran and failed, which runs again", () =>
+{
+	var store = SpecStore.Update(AllPassed(), "g1", selectable, ["tests/a_spec.lua", "tests/b_spec.lua"], [Passed("tests/b_spec.lua", "b2", "gearswap.lua=g2")]);
+	Equal("g1 tests/b_spec.lua b2 [gearswap.lua=g2]; tests/c_spec.lua c1 []", Describe(store));
+	Equal("tests/a_spec.lua", Selected(store, "g1", Hashes("tests/a_spec.lua=a1", "tests/b_spec.lua=b2", "tests/c_spec.lua=c1", "gearswap.lua=g2", "data/RDM.lua=r1")));
+});
+
+Test("SpecStore.Update drops the records of spec files that are gone", () =>
+{
+	var store = SpecStore.Update(AllPassed(), "g1", ["tests/a_spec.lua", "tests/c_spec.lua"], [], []);
+	Equal("tests/a_spec.lua tests/c_spec.lua", string.Join(" ", store.Records.Keys.Order(StringComparer.Ordinal)));
+});
+
+Test("SpecStore.Update keeps the record of a spec file that did not run, and replaces that of one that passed again", () =>
+{
+	var store = SpecStore.Update(AllPassed(), "g1", selectable, ["tests/a_spec.lua"], [Passed("tests/a_spec.lua", "a2", "gearswap.lua=g1")]);
+	Equal("g1 tests/a_spec.lua a2 [gearswap.lua=g1]; tests/b_spec.lua b1 [gearswap.lua=g1]; tests/c_spec.lua c1 []", Describe(store));
+});
+
+Test("SpecStore.Update starts over when the files every spec rests on changed, since records made under the others vouch for nothing", () =>
+{
+	var store = SpecStore.Update(AllPassed(), "g2", selectable, ["tests/a_spec.lua"], [Passed("tests/a_spec.lua", "a1", "gearswap.lua=g1")]);
+	Equal("g2 tests/a_spec.lua a1 [gearswap.lua=g1]", Describe(store));
+	Equal("g1 tests/c_spec.lua c1 []", Describe(SpecStore.Update(null, "g1", selectable, ["tests/c_spec.lua"], [Passed("tests/c_spec.lua", "c1")])));
+});
+
+Test("SpecStore.Write and SpecStore.Read keep the globals and each record, and Write makes the folder and replaces a store whole", () =>
+{
+	var file = Path.Combine(workDir, "spec-store-folder", "gearswap-specs.json");
+	AllPassed().Write(file);
+	Equal(Describe(AllPassed()), Describe(SpecStore.Read(file)!));
+	StoreOf("g2", Passed("tests/c_spec.lua", "c2")).Write(file);
+	Equal("g2 tests/c_spec.lua c2 []", Describe(SpecStore.Read(file)!));
+	Equal(1, Directory.GetFiles(Path.GetDirectoryName(file)!).Length);
+});
+
+Test("SpecStore.Read gives nothing for a store that is missing, can't be read, or was made by another version", () =>
+{
+	Equal(null, SpecStore.Read(Path.Combine(workDir, "no-such-spec-store.json")));
+	string[] stores = ["{ not json", "null", "[]", """{ "version": 2, "globals": "g1", "specs": {} }""", """{ "version": 1, "specs": {} }""", """{ "version": 1, "globals": "g1", "specs": { "tests/a_spec.lua": null } }"""];
+	for (var i = 0; i < stores.Length; i++)
+	{
+		var file = Path.Combine(workDir, $"spec-store-{i}.json");
+		File.WriteAllText(file, stores[i]);
+		Equal(null, SpecStore.Read(file));
+	}
+});
+
+Test("SpecInputs.Read hashes the files the tests can rest on, by their path in the repo, and no others", () =>
+{
+	var repo = Path.Combine(workDir, "spec-inputs-repo");
+	string[] files = ["gearswap.lua", "flow.lua", "README.md", ".busted", "libs/Sel-Include.lua", "data/RDM.lua", "data/Vanar/Vanar_notes.md", "docs/windower/libs/strings.lua",
+		"docs/windower/items.lua", "docs/ffxi-mechanics.md", "tests/sel/idle_spec.lua", "tests/support/harness.lua", "tests/fixture/res/items.lua", "tests/fixture/data/Testy/Testy_WHM.lua",
+		".claude/cache/passes/gearswap", ".claude/tools/lib/Tool.cs"];
+	foreach (var file in files)
+	{
+		var path = Path.Combine(repo, file);
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+		File.WriteAllText(path, file);
+	}
+	var read = SpecInputs.Read(repo);
+	Equal(".busted data/RDM.lua data/Vanar/Vanar_notes.md docs/windower/libs/strings.lua flow.lua gearswap.lua libs/Sel-Include.lua tests/fixture/data/Testy/Testy_WHM.lua tests/fixture/res/items.lua tests/sel/idle_spec.lua tests/support/harness.lua",
+		string.Join(" ", read.Keys.Order(StringComparer.Ordinal)));
+	Equal(32, read["gearswap.lua"].Length);
+	True(read["gearswap.lua"] != read["flow.lua"], "different content, different hash");
+	File.WriteAllText(Path.Combine(repo, "flow.lua"), "changed");
+	var again = SpecInputs.Read(repo);
+	Equal(read["gearswap.lua"], again["gearswap.lua"]);
+	True(read["flow.lua"] != again["flow.lua"], "an edit changes the hash");
+	Equal(0, SpecInputs.Read(Path.Combine(workDir, "spec-inputs-no-repo")).Count);
+});
+
+IReadOnlyDictionary<string, string> GlobalsInputs() => Hashes(".busted=b1", "tests/support/harness.lua=h1", "tests/fixture/res/items.lua=i1", "docs/windower/libs/strings.lua=s1",
+	"tests/sel/idle_spec.lua=p1", "tests/fixture/data/Testy/Testy_WHM.lua=t1", "data/RDM.lua=r1", "libs/Sel-Include.lua=l1", "gearswap.lua=g1");
+
+Test("SpecInputs.HashOfGlobals changes with the files every spec rests on, whether a spec file loads them or not, and with the runner", () =>
+{
+	var files = GlobalsInputs();
+	var before = SpecInputs.HashOfGlobals(files, "runner1");
+	foreach (var pair in new[] { "tests/support/harness.lua=h2", "tests/fixture/res/items.lua=i2", ".busted=b2", "docs/windower/libs/strings.lua=s2" })
+		True(SpecInputs.HashOfGlobals(With(files, pair), "runner1") != before, pair + " is a file every spec rests on");
+	True(SpecInputs.HashOfGlobals(With(files, "docs/windower/libs/new.lua=n1"), "runner1") != before, "a file added to the Windower libraries");
+	True(SpecInputs.HashOfGlobals(Without(files, "tests/fixture/res/items.lua"), "runner1") != before, "a resource file gone");
+	True(SpecInputs.HashOfGlobals(files, "runner2") != before, "the runner changed");
+	Equal(before, SpecInputs.HashOfGlobals(GlobalsInputs(), "runner1"));
+});
+
+Test("SpecInputs.HashOfGlobals changes with a file added to or taken from the places the tests' Windower install is copied from, since a spec file may look for it", () =>
+{
+	var files = GlobalsInputs();
+	var before = SpecInputs.HashOfGlobals(files, "runner1");
+	foreach (var added in new[] { "data/Vanar/Vanar_Pld_Gear.lua=n1", "data/Vanar/Vanar_notes.md=n1", "libs/New.lua=n1", "new.lua=n1", "tests/fixture/data/Testy/Testy_New.lua=n1" })
+		True(SpecInputs.HashOfGlobals(With(files, added), "runner1") != before, added + " added");
+	foreach (var taken in new[] { "data/RDM.lua", "libs/Sel-Include.lua", "gearswap.lua", "tests/fixture/data/Testy/Testy_WHM.lua" })
+		True(SpecInputs.HashOfGlobals(Without(files, taken), "runner1") != before, taken + " taken");
+});
+
+Test("SpecInputs.HashOfGlobals does not change with an edit to a file a spec file loads, nor to a spec file, nor with a spec file added or taken", () =>
+{
+	var files = GlobalsInputs();
+	var before = SpecInputs.HashOfGlobals(files, "runner1");
+	foreach (var pair in new[] { "data/RDM.lua=r2", "libs/Sel-Include.lua=l2", "gearswap.lua=g2", "tests/fixture/data/Testy/Testy_WHM.lua=t2", "tests/sel/idle_spec.lua=p2", "tests/sel/new_spec.lua=n1", "README.md=n1" })
+		Equal(before, SpecInputs.HashOfGlobals(With(files, pair), "runner1"));
+	Equal(before, SpecInputs.HashOfGlobals(Without(files, "tests/sel/idle_spec.lua"), "runner1"));
+});
+
+Test("SpecInputs.HashOfRunner changes with the runner's file, the shared code and the build settings, and not with another tool", () =>
+{
+	var tools = Path.Combine(workDir, "spec-inputs-tools");
+	string[] files = ["lib/Shared.cs", "lib/Deeper/More.cs", "Directory.Build.props", "tests/run-gearswap-tests.cs", "check-export.cs", "tests/run-tests.cs"];
+	foreach (var file in files)
+	{
+		var path = Path.Combine(tools, file);
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+		File.WriteAllText(path, file);
+	}
+	var entry = Path.Combine(tools, "tests", "run-gearswap-tests.cs");
+	var before = SpecInputs.HashOfRunner(entry);
+	Equal(32, before.Length);
+	Equal(before, SpecInputs.HashOfRunner(entry));
+	foreach (var file in new[] { "lib/Shared.cs", "lib/Deeper/More.cs", "Directory.Build.props", "tests/run-gearswap-tests.cs" })
+	{
+		File.WriteAllText(Path.Combine(tools, file), "changed");
+		True(SpecInputs.HashOfRunner(entry) != before, file + " is a source of the runner");
+		File.WriteAllText(Path.Combine(tools, file), file);
+	}
+	foreach (var file in new[] { "check-export.cs", "tests/run-tests.cs" })
+	{
+		File.WriteAllText(Path.Combine(tools, file), "changed");
+		Equal(before, SpecInputs.HashOfRunner(entry));
+	}
+});
+
+Test("SpecInputs.Record notes the spec file and each repo file it loaded, with the hashes the files had before the run", () =>
+{
+	var files = Hashes("tests/a_spec.lua=a1", "gearswap.lua=g1", "data/RDM.lua=r1", "data/WHM.lua=w1");
+	Equal("tests/a_spec.lua a1 [data/RDM.lua=r1, gearswap.lua=g1]", DescribeRecord(SpecInputs.Record("tests/a_spec.lua", files, ["gearswap.lua", "data/RDM.lua"])!));
+	Equal("tests/a_spec.lua a1 []", DescribeRecord(SpecInputs.Record("tests/a_spec.lua", files, [])!));
+});
+
+Test("SpecInputs.Record leaves out the files every spec rests on, a path that is no file of the repo and a path given twice, and takes a path as the repo spells it", () =>
+{
+	var files = Hashes("tests/a_spec.lua=a1", "gearswap.lua=g1", "libs/Sel-Include.lua=l1", "tests/support/harness.lua=h1", "tests/fixture/res/items.lua=i1",
+		"docs/windower/libs/strings.lua=s1", ".busted=b1");
+	string[] loaded = ["gearswap.lua", "tests/support/harness.lua", "tests/fixture/res/items.lua", "docs/windower/libs/strings.lua", ".busted", "data/export/Testy 2026-01-02 08-00-00.lua",
+		"../libs/logger.xml", "/etc/passwd", "gearswap.lua", "libs//Sel-Include.lua", "./libs/../libs/Sel-Include.lua", "", "  libs/Sel-Include.lua \r"];
+	Equal("tests/a_spec.lua a1 [gearswap.lua=g1, libs/Sel-Include.lua=l1]", DescribeRecord(SpecInputs.Record("tests/a_spec.lua", files, loaded)!));
+});
+
 Test("run-gearswap-tests stops with exit code 3, and says what to install, when it can't run busted", () =>
 {
 	var sandbox = NewSandbox();
@@ -2563,6 +2788,266 @@ Test("run-gearswap-tests fails a spec file whose busted is there but won't start
 	var run = sandbox.RunWithPath(bin, "run-gearswap-tests");
 	Equal(1, run.ExitCode);
 	Contains(run.Output, "FAIL tests/a_spec.lua didn't run\n     busted couldn't be started: ");
+});
+
+// A stand-in for busted that notes each run of a spec file in <spec>.ran and the file GEARSWAP_TEST_DEPS names in <spec>.var,
+// writes into that file the lines the test made for the spec file, <spec>.deps, as the harness writes the files it loaded,
+// and reports a passing test, or a failing one when the test made <spec>.fails. Shell built-ins alone, since nothing else
+// is on the PATH it runs with. Gives the folder it is in.
+string StandInBusted()
+{
+	var bin = Path.Combine(workDir, "stand-in-busted-" + Guid.NewGuid().ToString("N")[..8]);
+	Directory.CreateDirectory(bin);
+	if (OperatingSystem.IsWindows())
+		return bin;
+	var busted = Path.Combine(bin, "busted");
+	File.WriteAllText(busted, """"
+		#!/bin/sh
+		for spec; do :; done
+		echo ran >> "$spec.ran"
+		echo "$GEARSWAP_TEST_DEPS" > "$spec.var"
+		if [ -n "$GEARSWAP_TEST_DEPS" ] && [ -f "$spec.deps" ]; then
+			while IFS= read -r line; do printf '%s\n' "$line"; done < "$spec.deps" > "$GEARSWAP_TEST_DEPS"
+		fi
+		if [ -f "$spec.fails" ]; then
+			echo '{"successes":[],"failures":[{"name":"'"$spec"' breaks","message":"broke","element":{"duration":0.5,"trace":{"currentline":1}},"trace":{"currentline":1}}],"errors":[],"pendings":[]}'
+			exit 1
+		fi
+		echo '{"successes":[{"name":"'"$spec"' runs","element":{"duration":0.5,"trace":{"currentline":1}}}],"failures":[],"errors":[],"pendings":[]}'
+		"""".ReplaceLineEndings("\n"));
+	File.SetUnixFileMode(busted, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+	return bin;
+}
+
+// A spec file in the sandbox's repo. Its stand-in busted writes the files given as the ones it loaded, or none at all
+// when they aren't, as a busted that never got to exit.
+void MakeSpec(Sandbox sandbox, string spec, string[]? loaded = null)
+{
+	var path = Path.Combine(sandbox.Repo, spec);
+	Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+	File.WriteAllText(path, spec + "\n");
+	if (loaded is not null)
+		File.WriteAllLines(path + ".deps", loaded);
+}
+
+// Makes the files in the sandbox's repo, or changes the ones there.
+void Touch(Sandbox sandbox, params string[] files)
+{
+	foreach (var file in files)
+	{
+		var path = Path.Combine(sandbox.Repo, file);
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+		File.AppendAllText(path, "-- touched\n");
+	}
+}
+
+// How many times the stand-in busted ran each spec file, in a line.
+string Runs(Sandbox sandbox, params string[] specs) => string.Join(" ", specs.Select(spec =>
+	File.Exists(Path.Combine(sandbox.Repo, spec + ".ran")) ? File.ReadAllLines(Path.Combine(sandbox.Repo, spec + ".ran")).Length : 0));
+
+string SpecStoreFile(Sandbox sandbox) => Path.Combine(sandbox.Repo, ".claude", "cache", "gearswap-specs.json");
+
+ToolRun RunAffected(Sandbox sandbox, string bin) => sandbox.RunWithPath(bin, "run-gearswap-tests", "--affected");
+
+Test("run-gearswap-tests --affected runs every spec file it has no record of, then only those a change could affect", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua", "data/RDM.lua", "libs/Sel-Include.lua", "tests/support/harness.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua", ["gearswap.lua", "data/RDM.lua", "tests/support/harness.lua"]);
+	MakeSpec(sandbox, "tests/sel/b_spec.lua", ["gearswap.lua"]);
+	MakeSpec(sandbox, "tests/c_spec.lua", []);
+	string[] specs = ["tests/a_spec.lua", "tests/c_spec.lua", "tests/sel/b_spec.lua"];
+
+	var first = RunAffected(sandbox, bin);
+	Equal(0, first.ExitCode);
+	Contains(first.Output, "Running all 3 spec files: there is no record of an earlier run.\n");
+	Equal("1 1 1", Runs(sandbox, specs));
+
+	var unchanged = RunAffected(sandbox, bin);
+	Equal(0, unchanged.ExitCode);
+	Contains(unchanged.Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("1 1 1", Runs(sandbox, specs));
+
+	Touch(sandbox, "data/RDM.lua");
+	var job = RunAffected(sandbox, bin);
+	Contains(job.Output, "Running 1 of 3 spec files; the other 2 are unaffected by the changes since they last passed.\n");
+	Contains(job.Output, "PASS tests/a_spec.lua runs (tests/a_spec.lua, 0.50 s)\n1 of 1 tests passed\n");
+	Equal("2 1 1", Runs(sandbox, specs));
+
+	Touch(sandbox, "gearswap.lua");
+	Contains(RunAffected(sandbox, bin).Output, "Running 2 of 3 spec files; the other 1 is unaffected by the changes since they last passed.\n");
+	Equal("3 1 2", Runs(sandbox, specs));
+
+	Touch(sandbox, "libs/Sel-Include.lua");
+	Contains(RunAffected(sandbox, bin).Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("3 1 2", Runs(sandbox, specs));
+
+	Touch(sandbox, "tests/support/harness.lua");
+	Contains(RunAffected(sandbox, bin).Output, "Running all 3 spec files: a file every spec rests on changed.\n");
+	Equal("4 2 3", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests --affected runs again every spec file when the store was made under other globals or can't be read", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	MakeSpec(sandbox, "tests/a_spec.lua", []);
+	MakeSpec(sandbox, "tests/b_spec.lua", []);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	var made = SpecStore.Read(SpecStoreFile(sandbox))!;
+	Equal(2, made.Records.Count);
+
+	new SpecStore("made under others", made.Records).Write(SpecStoreFile(sandbox));
+	Contains(RunAffected(sandbox, bin).Output, "Running all 2 spec files: a file every spec rests on changed.\n");
+	Equal("2 2", Runs(sandbox, specs));
+
+	File.WriteAllText(SpecStoreFile(sandbox), "{ not json");
+	Contains(RunAffected(sandbox, bin).Output, "Running all 2 spec files: there is no record of an earlier run.\n");
+	Equal("3 3", Runs(sandbox, specs));
+	Equal(2, SpecStore.Read(SpecStoreFile(sandbox))!.Records.Count);
+});
+
+Test("run-gearswap-tests keeps no record of a spec file that failed, so it runs again until it passes", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua", ["gearswap.lua"]);
+	MakeSpec(sandbox, "tests/b_spec.lua", ["gearswap.lua"]);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+	var fails = Path.Combine(sandbox.Repo, "tests", "a_spec.lua.fails");
+	File.WriteAllText(fails, "");
+
+	var first = RunAffected(sandbox, bin);
+	Equal(1, first.ExitCode);
+	Contains(first.Output, "FAIL tests/a_spec.lua breaks (tests/a_spec.lua, 0.50 s)\n     broke\n");
+	Equal("1 1", Runs(sandbox, specs));
+	Equal("tests/b_spec.lua", string.Join(" ", SpecStore.Read(SpecStoreFile(sandbox))!.Records.Keys));
+
+	var second = RunAffected(sandbox, bin);
+	Equal(1, second.ExitCode);
+	Contains(second.Output, "Running 1 of 2 spec files; the other 1 is unaffected by the changes since they last passed.\n");
+	Equal("2 1", Runs(sandbox, specs));
+
+	File.Delete(fails);
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	Equal("3 1", Runs(sandbox, specs));
+	Contains(RunAffected(sandbox, bin).Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("3 1", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests --affected drops the record of a spec file that is gone and runs one that is new", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua");
+	foreach (var spec in new[] { "tests/a_spec.lua", "tests/b_spec.lua", "tests/c_spec.lua" })
+		MakeSpec(sandbox, spec, ["gearswap.lua"]);
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	Equal(3, SpecStore.Read(SpecStoreFile(sandbox))!.Records.Count);
+
+	File.Delete(Path.Combine(sandbox.Repo, "tests", "b_spec.lua"));
+	MakeSpec(sandbox, "tests/d_spec.lua", ["gearswap.lua"]);
+	var run = RunAffected(sandbox, bin);
+	Contains(run.Output, "Running 1 of 3 spec files; the other 2 are unaffected by the changes since they last passed.\n");
+	Equal("1 1 1 1", Runs(sandbox, "tests/a_spec.lua", "tests/c_spec.lua", "tests/d_spec.lua", "tests/b_spec.lua"));
+	Equal("tests/a_spec.lua tests/c_spec.lua tests/d_spec.lua", string.Join(" ", SpecStore.Read(SpecStoreFile(sandbox))!.Records.Keys.Order(StringComparer.Ordinal)));
+
+	File.Delete(Path.Combine(sandbox.Repo, "tests", "d_spec.lua"));
+	Contains(RunAffected(sandbox, bin).Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("tests/a_spec.lua tests/c_spec.lua", string.Join(" ", SpecStore.Read(SpecStoreFile(sandbox))!.Records.Keys.Order(StringComparer.Ordinal)));
+});
+
+Test("run-gearswap-tests without --affected runs every spec file whatever it has on record, records them, and gives each busted a dependency file of its own", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua", ["gearswap.lua"]);
+	MakeSpec(sandbox, "tests/b_spec.lua", []);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+
+	var first = sandbox.RunWithPath(bin, "run-gearswap-tests");
+	Equal(0, first.ExitCode);
+	True(first.Output.Contains("Running") is false, "a full run says nothing of a choice: " + first.Output);
+	Equal("1 1", Runs(sandbox, specs));
+	var variables = specs.Select(spec => File.ReadAllText(Path.Combine(sandbox.Repo, spec + ".var")).Trim()).ToList();
+	Equal(2, variables.Distinct().Count());
+	foreach (var variable in variables)
+		True(variable.StartsWith(Path.Combine(sandbox.Temp, "gearswap-tests-")), "a file in the run's own temp folder: " + variable);
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+
+	Touch(sandbox, "gearswap.lua");
+	Equal(0, sandbox.RunWithPath(bin, "run-gearswap-tests").ExitCode);
+	Equal("2 2", Runs(sandbox, specs));
+	Contains(RunAffected(sandbox, bin).Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("2 2", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests with a filter records nothing, leaves the store as it was, and gives busted no dependency file", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua", ["gearswap.lua"]);
+	MakeSpec(sandbox, "tests/b_spec.lua", []);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+
+	Equal(0, sandbox.RunWithPath(bin, "run-gearswap-tests", "Some Name").ExitCode);
+	True(File.Exists(SpecStoreFile(sandbox)) is false, "no store from a filtered run");
+	Equal("", File.ReadAllText(Path.Combine(sandbox.Repo, "tests", "a_spec.lua.var")).Trim());
+
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	var kept = File.ReadAllText(SpecStoreFile(sandbox));
+	Touch(sandbox, "gearswap.lua");
+	Equal(0, sandbox.RunWithPath(bin, "run-gearswap-tests", "Some Name").ExitCode);
+	Equal(kept, File.ReadAllText(SpecStoreFile(sandbox)));
+	Equal("3 3", Runs(sandbox, specs));
+
+	Contains(RunAffected(sandbox, bin).Output, "Running 1 of 2 spec files; the other 1 is unaffected by the changes since they last passed.\n");
+	Equal("4 3", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests keeps no record of a spec file busted wrote no dependency file for, as one that never got to exit", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua");
+	MakeSpec(sandbox, "tests/b_spec.lua", ["gearswap.lua"]);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	Equal("tests/b_spec.lua", string.Join(" ", SpecStore.Read(SpecStoreFile(sandbox))!.Records.Keys));
+	Contains(RunAffected(sandbox, bin).Output, "Running 1 of 2 spec files; the other 1 is unaffected by the changes since they last passed.\n");
+	Equal("2 1", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests --affected says so, with exit code 2, when there is no spec file at all", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var run = RunAffected(sandbox, StandInBusted());
+	Equal(2, run.ExitCode);
+	Contains(run.Output, "No spec files under tests/.\n");
+	True(run.Output.Contains("affected") is false, "nothing is said to be unaffected when there is nothing: " + run.Output);
 });
 
 // ---------------------------------------------------------------- running them

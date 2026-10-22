@@ -14,6 +14,10 @@
 -- and the test resources from tests/fixture/res.
 -- What GearSwap or Sel write while a test runs lands in that copy, never in the repo. Paths in an error are given
 -- back as the repo's.
+--
+-- The repo files read from the copy are noted, and as busted exits (support/cleanup.lua) written, a path a line, to the
+-- file the environment variable GEARSWAP_TEST_DEPS names, if it is set: the test runner learns from it what a spec file
+-- rests on.
 -------------------------------------------------------------------------------------------------------------------
 
 -- GearSwap needs setfenv and getfenv, which Lua 5.1 has and later Luas don't.
@@ -189,6 +193,61 @@ function harness.repo_paths(text)
     return text
 end
 
+-- The repo's own path for a file in the copy, or nil for a path outside it.
+local function repo_path(path)
+    if not tree then
+        return nil
+    end
+    for _, source in ipairs(tree.sources) do
+        if path:sub(1, #source[1]) == source[1] then
+            return source[2] .. path:sub(#source[1] + 1)
+        end
+    end
+end
+
+-- The files read from the copy by their path in the repo, as a set. busted loads this module again for each spec file,
+-- so the set is kept in the Lua registry, which every copy of the module shares, for the end of the run to find.
+local function loaded_set()
+    local registry = debug.getregistry()
+    registry.gearswap_test_loaded = registry.gearswap_test_loaded or {}
+    return registry.gearswap_test_loaded
+end
+
+-- Resolves a path the addon reads a file from, and notes the repo file it comes from.
+local function resolve_to_read(path)
+    local resolved = Game.resolve(path)
+    local from_repo = resolved and repo_path(resolved)
+    if from_repo then
+        loaded_set()[from_repo] = true
+    end
+    return resolved
+end
+
+-- The files read from the copy so far, by their path in the repo, in order. A file the addon wrote into the copy and
+-- read back is among them too, under the path the repo would have it at.
+function harness.loaded_files()
+    local paths = {}
+    for path in pairs(loaded_set()) do
+        paths[#paths + 1] = path
+    end
+    table.sort(paths)
+    return paths
+end
+
+-- Writes those paths, a line each, to the file GEARSWAP_TEST_DEPS names, which the test runner reads to learn what a spec
+-- file rests on. Does nothing when the variable isn't set.
+function harness.write_loaded_files()
+    local path = os.getenv('GEARSWAP_TEST_DEPS')
+    if not path or path == '' then
+        return
+    end
+    local file = assert(io.open(path, 'w'))
+    for _, loaded in ipairs(harness.loaded_files()) do
+        file:write(loaded, '\n')
+    end
+    file:close()
+end
+
 local resources
 
 -- The test resources as Windower's resource files hold them, read once.
@@ -295,7 +354,7 @@ function harness.environment(game, paths)
 
     -- Chunks loaded through these run with this environment as their globals, as they would in the addon's state.
     env.loadfile = function(path)
-        local resolved = path and Game.resolve(path)
+        local resolved = path and resolve_to_read(path)
         if not resolved then
             return nil, 'cannot open ' .. tostring(path)
         end
@@ -322,14 +381,14 @@ function harness.environment(game, paths)
         if mode and mode:find('[wa]') then
             return real.io.open(path, mode)
         end
-        local resolved = Game.resolve(path)
+        local resolved = resolve_to_read(path)
         if not resolved then
             return nil, path .. ': No such file or directory'
         end
         return real.io.open(resolved, mode)
     end
     env.io.lines = function(path)
-        return real.io.lines(path and Game.resolve(path) or path)
+        return real.io.lines(path and resolve_to_read(path) or path)
     end
 
     local epoch = 1760000000
@@ -363,7 +422,7 @@ function harness.environment(game, paths)
             local file = name:gsub('%.', '/')
             local chunk
             for _, pattern in ipairs(search) do
-                local path = Game.resolve((pattern:gsub('%?', file)))
+                local path = resolve_to_read((pattern:gsub('%?', file)))
                 if path then
                     chunk = assert(dialect.load(path))
                     break
