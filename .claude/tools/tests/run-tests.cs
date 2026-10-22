@@ -881,8 +881,77 @@ Test("StatBook counts a weapon's magic accuracy skill from the main hand only", 
 	string Wear(string slot) =>
 		StatBook.Describe(new StatBook(Resources.Load(), [], new Dictionary<string, Dictionary<string, int>>())
 			.Totals(new Dictionary<string, PieceDto> { [slot] = new PieceDto { Item = "Almace" } }));
-	Equal("MaccSkill 255, MDmg 186, DEX 50, SwordSkill 269", Wear("main"));
-	Equal("MDmg 186, DEX 50, SwordSkill 269", Wear("sub"));
+	Equal("MaccSkill 255, MDmg 186, DEX 50, MainSwordSkill 269", Wear("main"));
+	Equal("MDmg 186, DEX 50, SubSwordSkill 269", Wear("sub"));
+});
+
+Test("StatBook totals each hand's combat skill from its own weapon and the armor's skill of that weapon's type", () =>
+{
+	// Sword skill: Naegling +250, Almace +269, Hashishin Kavuk +3 +30. Gleti's Knife: Dagger skill +255.
+	string Skills(params (string Slot, string Item)[] pieces)
+	{
+		var totals = new StatBook(Resources.Load(), [], new Dictionary<string, Dictionary<string, int>>())
+			.Totals(pieces.ToDictionary(piece => piece.Slot, piece => new PieceDto { Item = piece.Item }));
+		return StatBook.Describe(totals.Where(stat => stat.Key.EndsWith("SwordSkill") || stat.Key.EndsWith("DaggerSkill")).ToDictionary());
+	}
+	Equal("SwordSkill 30, MainSwordSkill 280, SubSwordSkill 299", Skills(("main", "Naegling"), ("sub", "Almace"), ("head", "Hashishin Kavuk +3")));
+	Equal("SwordSkill 30, MainSwordSkill 280, SubDaggerSkill 255", Skills(("main", "Naegling"), ("sub", "Gleti's Knife"), ("head", "Hashishin Kavuk +3")));
+	Equal("SwordSkill 30", Skills(("head", "Hashishin Kavuk +3")));
+	// A shield or an empty sub slot makes no off-hand hits.
+	Equal("SwordSkill 30, MainSwordSkill 280", Skills(("main", "Naegling"), ("sub", "Ammurapi Shield"), ("head", "Hashishin Kavuk +3")));
+	Equal("SwordSkill 30, MainSwordSkill 280", Skills(("main", "Naegling"), ("sub", Dto.Empty), ("head", "Hashishin Kavuk +3")));
+});
+
+Test("StatBook totals each hand's crit from its own weapon and the armor's, and leaves out a ranged weapon's", () =>
+{
+	// Critical hit rate +5%: Gleti's Knife, Odr Earring and Gleti's Crossbow.
+	string Crit(params (string Slot, string Item)[] pieces)
+	{
+		var totals = new StatBook(Resources.Load(), [], new Dictionary<string, Dictionary<string, int>>())
+			.Totals(pieces.ToDictionary(piece => piece.Slot, piece => new PieceDto { Item = piece.Item }));
+		return StatBook.Describe(totals.Where(stat => stat.Key.EndsWith("Crit")).ToDictionary());
+	}
+	Equal("Crit 5, MainCrit 5, SubCrit 10", Crit(("main", "Naegling"), ("sub", "Gleti's Knife"), ("left_ear", "Odr Earring")));
+	Equal("Crit 5", Crit(("left_ear", "Odr Earring")));
+	Equal("Crit 5, MainCrit 5", Crit(("main", "Naegling"), ("sub", "Ammurapi Shield"), ("left_ear", "Odr Earring")));
+	Equal("Crit 5", Crit(("range", "Gleti's Crossbow"), ("left_ear", "Odr Earring")));
+});
+
+Test("StatBook gives a weapon's crit from its copy's augments and its extra values to its own hand", () =>
+{
+	ExportItem[] owned = [new("wardrobe", "sub", "Gleti's Knife", ["Crit.hit rate+3"])];
+	var extra = new Dictionary<string, Dictionary<string, int>> { ["Naegling"] = new() { ["Crit"] = 2 } };
+	var totals = new StatBook(Resources.Load(), owned, extra).Totals(new Dictionary<string, PieceDto>
+	{
+		["main"] = new PieceDto { Item = "Naegling" },
+		["sub"] = new PieceDto { Item = "Gleti's Knife" },
+	});
+	Equal("MainCrit 2, SubCrit 8", StatBook.Describe(totals.Where(stat => stat.Key.EndsWith("Crit")).ToDictionary()));
+});
+
+Test("StatBook counts a weapon's help-text TP Bonus from the main hand only, and an augment's from either hand", () =>
+{
+	// "TP Bonus"+500 in Sequence's and Fail-Not's help text, +200 in Mpaca's Cap's. Thibron's +1000 is an augment.
+	ExportItem[] owned = [new("wardrobe", "sub", "Thibron", ["TP Bonus +1000"])];
+	string TPBonus(params (string Slot, string Item)[] pieces)
+	{
+		var totals = new StatBook(Resources.Load(), owned, new Dictionary<string, Dictionary<string, int>>())
+			.Totals(pieces.ToDictionary(piece => piece.Slot, piece => new PieceDto { Item = piece.Item }));
+		return StatBook.Describe(totals.Where(stat => stat.Key == "TPBonus").ToDictionary());
+	}
+	Equal("TPBonus 500", TPBonus(("main", "Sequence")));
+	Equal("", TPBonus(("main", "Naegling"), ("sub", "Sequence")));
+	Equal("TPBonus 1000", TPBonus(("main", "Naegling"), ("sub", "Thibron")));
+	Equal("TPBonus 200", TPBonus(("head", "Mpaca's Cap")));
+	Equal("", TPBonus(("range", "Fail-Not")));
+});
+
+Test("StatBook reads each melee weapon type's skill as its own stat, in any case, Great Sword skill not as Sword skill", () =>
+{
+	Equal("HandToHandSkill 1, DaggerSkill 2, SwordSkill 3, GreatSwordSkill 4, AxeSkill 5, GreatAxeSkill 6, ScytheSkill 7, PolearmSkill 8, KatanaSkill 9, GreatKatanaSkill 10, ClubSkill 11, StaffSkill 12",
+		StatBook.Describe(StatBook.Read("Hand-to-Hand skill +1\nDagger skill +2\nSword skill +3\nGreat Sword skill +4\nAxe skill +5\nGreat Axe skill +6\nScythe skill +7\nPolearm skill +8\nKatana skill +9\nGreat Katana skill +10\nClub skill +11\nStaff skill +12")));
+	// As some help text spells them.
+	Equal("HandToHandSkill 5, AxeSkill 7, GreatAxeSkill 6", StatBook.Describe(StatBook.Read("Hand-to-hand skill +5\nGreat axe skill +6\nAxe Skill +7")));
 });
 
 Test("StatBook counts ranged accuracy and attack as neither Accuracy nor Attack, in help text or augments", () =>

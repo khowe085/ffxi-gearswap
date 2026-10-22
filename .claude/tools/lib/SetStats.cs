@@ -31,10 +31,13 @@ sealed class StatBook
 
 	static StatBook()
 	{
+		// Each melee weapon type's skill from armor, then each hand's totals.
+		string[] hands = ["", "Main", "Sub"];
+		var skills = hands.SelectMany(hand => Resources.MeleeSkillNames.Skip(1).Select(name => hand + SkillStat(name)));
 		Order = ["Acc", "Att", "Macc", "MaccSkill", "MAB", "MDmg", "DT", "PDT", "MDT", "FC", "Haste", "Cure", "CureII",
 			"EnhSkill", "EnfSkill", "ElemSkill", "DarkSkill", "HealSkill", "BlueSkill", "AllSkill", "EnhDur", "AugEnhDur", "EnfDur", "AugEnfDur",
-			"EnfEffect", "WSD", "DA", "TA", "STP", "Crit", "PDL", "Refresh", "RefreshPot", "RegenPot", "MBD", "MBD2", "SIRD", "Aquaveil", "Stoneskin",
-			"TH", "DW", "HP", "MP", "STR", "DEX", "VIT", "AGI", "INT", "MND", "CHR", "MEva", "MDB", "Eva", "SwordSkill", "BMCast", "BMRecast",
+			"EnfEffect", "WSD", "DA", "TA", "STP", "Crit", "MainCrit", "SubCrit", "PDL", "Refresh", "RefreshPot", "RegenPot", "MBD", "MBD2", "SIRD", "Aquaveil", "Stoneskin",
+			"TH", "DW", "HP", "MP", "STR", "DEX", "VIT", "AGI", "INT", "MND", "CHR", "MEva", "MDB", "Eva", .. skills, "BMCast", "BMRecast",
 			"CureCast", "BreathDmg", "TPBonus", "WSAcc", "SB", "Gain", "BA", "CA", "Efflux", "EnfCast", "Regain"];
 		// From here to the end of the text, or of the line, nothing is a stat the wearer always has.
 		conditional = new Regex(@"(?:(?:Pet:|Avatar:|Summoned Pet:|Automaton:|Set:|Latent effect:)[\s\S]*$)|(?:(?:Unity Ranking:|Citizen of |Reives:|Main hand:)[^\n]*)");
@@ -68,7 +71,10 @@ sealed class StatBook
 			(@"""Cure"" potency II \+(\d+)%", "CureII"), (@"""Cure"" potency \+(\d+)%", "Cure"), (@"""Cure"" spellcasting time -(\d+)%", "CureCast"),
 			(@"Enhancing magic skill \+(\d+)", "EnhSkill"), (@"Enfeebling magic skill \+(\d+)", "EnfSkill"), (@"Elemental magic skill \+(\d+)", "ElemSkill"),
 			(@"Dark magic skill \+(\d+)", "DarkSkill"), (@"Healing magic skill \+(\d+)", "HealSkill"), (@"Blue [Mm]agic skill \+(\d+)", "BlueSkill"),
-			(@"All magic skills \+(\d+)", "AllSkill"), (@"Sword skill \+(\d+)", "SwordSkill"), (@"Club skill \+(\d+)", ""), (@"Dagger skill \+(\d+)", ""),
+			(@"All magic skills \+(\d+)", "AllSkill"),
+			// A longer name goes first, so "Great Sword skill" is never read again as "Sword skill". Some help text writes
+			// "Hand-to-hand skill" or "Axe Skill".
+			.. Resources.MeleeSkillNames.Skip(1).OrderByDescending(name => name.Length).Select(name => ($@"(?i){name} skill \+(\d+)", SkillStat(name))),
 			(@"Enhancing magic effect duration \+(\d+)%", "EnhDur"), (@"Enfeebling magic effect duration \+(\d+)%", "EnfDur"), (@"Enhancing magic duration \+(\d+)%", "EnhDur"), (@"AUGENHDUR \+(\d+)", "AugEnhDur"), (@"Enfeebling magic duration \+(\d+)%", "EnfDur"),
 			(@"Enfeebling [Mm]agic effect \+(\d+)", "EnfEffect"), (@"Enfeebling magic casting time -(\d+)%", "EnfCast"), (@"Weapon [Ss]kill [Dd]amage\s*\+(\d+)%", "WSD"),
 			(@"""Double Attack""\s*\+(\d+)%?", "DA"), (@"""Triple Attack""\s*\+(\d+)%?", "TA"), (@"""Store TP""\s*-(\d+)", "-STP"), (@"""Store TP""\s*\+(\d+)", "STP"), (@"\bStore TP \+(\d+)", "STP"),
@@ -78,7 +84,7 @@ sealed class StatBook
 			(@"Magic burst damage\s*\+(\d+)", "MBD"), (@"Spell interruption rate down (\d+)%", "SIRD"), (@"Spell [Ii]nterruption [Rr]ate -(\d+)%", "SIRD"), (@"""Aquaveil""\s*\+(\d+)", "Aquaveil"),
 			(@"""Stoneskin""\s*\+(\d+)", "Stoneskin"), (@"""Treasure Hunter""\s*\+(\d+)", "TH"), (@"""Dual Wield""\s*\+(\d+)", "DW"),
 			(@"Blue magic spellcasting time -(\d+)%", "BMCast"), (@"Blue magic recast delay -(\d+)%", "BMRecast"), (@"Breath Damage dealt\s*\+(\d+)%", "BreathDmg"),
-			(@"""Efflux"" TP [Bb]onus \+(\d+)", "Efflux"), (@"TP Bonus \+(\d+)", "TPBonus"), (@"""Subtle Blow""\s*\+(\d+)", "SB"), (@"""Gain"" magic effects \+(\d+)", "Gain"),
+			(@"""Efflux"" TP [Bb]onus \+(\d+)", "Efflux"), (@"""TP Bonus""\s*\+(\d+)", "TPBonus"), (@"TP Bonus \+(\d+)", "TPBonus"), (@"""Subtle Blow""\s*\+(\d+)", "SB"), (@"""Gain"" magic effects \+(\d+)", "Gain"),
 			(@"""Burst Affinity""\s*\+(\d+)", "BA"), (@"""Chain Affinity""\s*\+(\d+)", "CA"),
 			(@"Regain\s*\+(\d+)", "Regain"), (@"""Regain""\s*\+(\d+)", "Regain"),
 			(@"\bHP\s*\+(\d+)", "HP"), (@"\bMP\s*\+(\d+)", "MP"), (@"\bSTR\s*\+(\d+)", "STR"), (@"\bDEX\s*\+(\d+)", "DEX"), (@"\bVIT\s*\+(\d+)", "VIT"),
@@ -106,6 +112,8 @@ sealed class StatBook
 		var total = new Dictionary<string, int>();
 		void Add(string stat, int value) => total[stat] = total.GetValueOrDefault(stat) + value;
 		var worn = new List<string>();
+		// Each hand that holds a melee weapon, with each stat that counts for that hand's hits only.
+		var hands = new List<(string Hand, string Stat)>();
 		foreach (var (slot, piece) in slots)
 		{
 			if (piece.Item == Dto.Empty)
@@ -115,6 +123,17 @@ sealed class StatBook
 			{
 				warnings?.Add($"{slot}: \"{piece.Item}\" isn't a weapon or armor in Windower's resources, so it adds nothing");
 				continue;
+			}
+			// A melee weapon's own combat skill and crit count for its own hand's hits only (bg-wiki, Dual Wield). A ranged
+			// weapon's crit counts for ranged attacks, which these totals leave out, as they do ranged accuracy and attack.
+			string[] own = slot is "main" or "sub" && info.MeleeSkill is { } type ? [SkillStat(type), "Crit"] : [];
+			var hand = slot == "main" ? "Main" : "Sub";
+			hands.AddRange(own.Select(stat => (hand, stat)));
+			void AddPiece(string stat, int value)
+			{
+				if (slot == "range" && stat == "Crit")
+					return;
+				Add(own.Contains(stat) ? hand + stat : stat, value);
 			}
 			// A piece that names no augments takes the first copy held.
 			var copy = owned.FirstOrDefault(line => info.Name.Equals(line.Name, StringComparison.OrdinalIgnoreCase) && piece.Matches(line)
@@ -134,12 +153,17 @@ sealed class StatBook
 					continue;
 				text = text[..rightEar.Index];
 			}
+			// A weapon's own TP Bonus works from the main hand only; an augment's works from any slot (docs/ffxi-mechanics.md).
 			foreach (var (stat, value) in Parse(text))
-				Add(stat, value);
+			{
+				if (stat == "TPBonus" && info.Category == "Weapon" && slot is "sub" or "range")
+					continue;
+				AddPiece(stat, value);
+			}
 			foreach (var augment in copy?.Augments ?? [])
 			{
 				foreach (var (stat, value) in Parse(augment))
-					Add(stat, value);
+					AddPiece(stat, value);
 			}
 			// The export prints a ranked copy's path but never its rank, so what the rank adds comes from the rank file.
 			// A copy printed with no path can still be the row's: rank-doc.cs writes a rank the player has given since.
@@ -152,7 +176,7 @@ sealed class StatBook
 			if (ranked is { MaxRank: not null })
 			{
 				foreach (var (stat, value) in OboroAugments(slot, piece.Item, ranked, warnings))
-					Add(stat, value);
+					AddPiece(stat, value);
 			}
 			else if (ranked is not null && printedPath is not null && printedPath != $"Path: {ranked.Path}")
 			{
@@ -163,10 +187,10 @@ sealed class StatBook
 				if (ranked.Rank == "unknown")
 					warnings?.Add($"{slot}: \"{piece.Item}\" is path {ranked.Path} at a rank the player hasn't given, so its rank augments are missing");
 				foreach (var (stat, value) in Parse(ranked.Augments))
-					Add(stat, value);
+					AddPiece(stat, value);
 			}
 			foreach (var (stat, value) in extra.GetValueOrDefault(info.Name) ?? [])
-				Add(stat, value);
+				AddPiece(stat, value);
 			// A weapon's magic accuracy skill counts from the main hand only.
 			var skill = Regex.Match(info.Description, @"Magic Accuracy skill \+(\d+)");
 			if (slot == "main" && skill.Success)
@@ -175,6 +199,10 @@ sealed class StatBook
 		}
 		foreach (var (stat, value) in SetBonuses(worn))
 			Add(stat, value);
+		// The armor's crit counts for each hand that holds a melee weapon, and its combat skill for each hand that holds a
+		// weapon of its type.
+		foreach (var (hand, stat) in hands)
+			Add(hand + stat, total.GetValueOrDefault(stat));
 		return total.Where(stat => stat.Value != 0).ToDictionary();
 	}
 
@@ -233,6 +261,9 @@ sealed class StatBook
 		.OrderBy(stat => Order.Contains(stat) ? Order.ToList().IndexOf(stat) : Order.Count)
 		.ThenBy(stat => stat, StringComparer.Ordinal)
 		.Select(stat => $"{stat} {totals[stat]}"));
+
+	// The stat a melee weapon type's skill is counted as: "Great Sword" is GreatSwordSkill, "Hand-to-Hand" HandToHandSkill.
+	static string SkillStat(string name) => string.Concat(name.Split(' ', '-').Select(word => char.ToUpperInvariant(word[0]) + word[1..])) + "Skill";
 
 	public static Dictionary<string, int> Read(string text, bool sharedValues = false) => Parse(text, sharedValues).GroupBy(stat => stat.Stat).ToDictionary(group => group.Key, group => group.Sum(stat => stat.Value));
 

@@ -13,6 +13,10 @@
 // is warned of on standard error (in "warnings" with --json), since its stats are missing from the totals.
 // The rank file follows the newest export, as rank-doc.cs writes it, whatever --export names. An item Oboro ranks up
 // counts at its maximum rank, from docs/rank-augments.md, which gives no other; below it, it is warned of.
+// A weapon's combat skill and crit count for its own hand only. <Type>Skill and Crit are the armor's; for a hand that
+// holds a melee weapon, Main<Type>Skill or Sub<Type>Skill and MainCrit or SubCrit are that hand's total. A weapon's TP
+// Bonus in its help text counts from the main hand only; from an augment, from any slot. A ranged weapon's crit isn't
+// counted.
 using System;
 using System.Text;
 using System.Collections.Generic;
