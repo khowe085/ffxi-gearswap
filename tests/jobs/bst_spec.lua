@@ -991,7 +991,6 @@ describe('BST\'s display of its state', function()
         assert.same({'Melee: Normal, WS: Match, Reward: Theta, Correlation: Neutral'}, gs:chat())
     end)
 
-    pending('is shown by a gear file that defines no state.ExtraMeleeMode, such as data/Mytha/Mytha_Bst_Gear.lua: '
-        .. 'display_current_job_state in data/BST.lua indexes it, which Sel doesn\'t define, and gs c update user, '
-        .. 'which the pause key runs, raises an error')
+    pending('is shown by a gear file that defines no state.ExtraMeleeMode: display_current_job_state in data/BST.lua '
+        .. 'indexes it, which Sel doesn\'t define, and gs c update user, which the pause key runs, raises an error')
 end)

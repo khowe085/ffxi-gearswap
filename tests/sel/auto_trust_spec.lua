@@ -1,17 +1,20 @@
 local autoy = require('autoy')
 
--- Each test sets trust_lists and AutoTrustMode's options itself, so none rests on User-Globals.lua's lists or on the
--- names it gives the options. Long is Yoran-Oran (UC), Koru-Moru, Qultada, Ulmia, Joachim; Short is Yoran-Oran (UC),
--- Qultada, Ulmia. A trust is in the party under its name without the (UC).
+-- Each test gives the character trust_lists and AutoTrustMode's options itself, before Sel's tick first acts, so none
+-- rests on User-Globals.lua's lists or on the names it gives the options. Long is Yoran-Oran (UC), Koru-Moru, Qultada,
+-- Ulmia, Joachim; Short is Yoran-Oran (UC), Qultada, Ulmia. A trust is in the party under its name without the (UC).
 local trust_lists = {
     Long = {'Yoran-Oran (UC)', 'Koru-Moru', 'Qultada', 'Ulmia', 'Joachim'},
     Short = {'Yoran-Oran (UC)', 'Qultada', 'Ulmia'},
 }
 
 local function boot(options, list)
+    options = options or {}
+    options.user = function(user)
+        user.trust_lists = trust_lists
+        user.state.AutoTrustMode:options('Off', 'Long', 'Short')
+    end
     local gs = autoy.boot(options)
-    gs.user.trust_lists = trust_lists
-    gs.user.state.AutoTrustMode:options('Off', 'Long', 'Short')
     gs:console('gs c set AutoTrustMode ' .. (list or 'Long'))
     gs:traffic()
     return gs

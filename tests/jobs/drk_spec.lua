@@ -1,14 +1,22 @@
 local jobby = require('jobby')
+local user_globals = require('user_globals')
 
 local gear = {'Ragnarok', 'Naegling', 'Apocalypse', 'Volte Cap', 'Null Masque', 'Volte Jupon', 'Adamantite Armor',
     'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Fotia Gorget', "Combatant's Torque", 'Null Belt',
     'Moonshade Earring', 'Brutal Earring', 'Lugra Earring', 'Cessance Earring', 'Odnowa Earring +1', 'Karieyh Ring',
     'Chirich Ring +1', "Cornelia's Ring"}
 
+-- Jobby's dark knight has Auto WS Buff on with the buffs user_globals gives it, in place of User-Globals.lua's, since
+-- his gear file has an Auto WS Buff list.
+local function give_ws_buffs(user)
+    user_globals.give_ws_buffs(user, user_globals.ws_buffs)
+end
+
 local function boot(options)
     options = options or {}
     options.items = gear
     options.sub_job = options.sub_job or 'WHM'
+    options.user = give_ws_buffs
     return jobby.boot('DRK', options)
 end
 
@@ -16,6 +24,7 @@ local function boot_ticking(options)
     options = options or {}
     options.items = gear
     options.sub_job = options.sub_job or 'WHM'
+    options.user = give_ws_buffs
     return jobby.boot_ticking('DRK', options)
 end
 

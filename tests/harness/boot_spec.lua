@@ -1,3 +1,4 @@
+local autoy = require('autoy')
 local harness = require('harness')
 local testy = require('testy')
 
@@ -20,5 +21,33 @@ describe('a boot', function()
         assert.has_no.errors(function() harness.boot(testy.whm({abilities = {'Penury', 'Rock Crusher'}})) end)
         assert.has_error(function() harness.boot(testy.whm({abilities = {'Penury', 'Starburst'}})) end,
             'the test resources have no job ability or weapon skill named "Starburst"')
+    end)
+
+    it('starts the modes that act on their own off, with the options Sel defines them with', function()
+        local state = autoy.load().user.state
+        assert.same({'Off', 'Off', false}, {state.AutoTrustMode.value, state.AutoFoodMode.value, state.AutoArts.value})
+        assert.same({1, 1}, {#state.AutoTrustMode, #state.AutoFoodMode})
+    end)
+
+    it('starts with the latency Sel defines, half a second, which its delays are written around', function()
+        local user = autoy.load().user
+        assert.same({0.5, 48}, {user.latency, user.spell_latency})
+    end)
+
+    it('gives a boot\'s user function the user environment, once the files are loaded', function()
+        local given
+        autoy.load({user = function(user)
+            given = {state = user.state, sets = user.sets}
+        end})
+        assert.is_table(given.state.AutoTrustMode)
+        assert.is_table(given.sets.weapons.Naegling)
+    end)
+
+    it('has what the user function sets in place for Sel\'s first tick', function()
+        local gs = autoy.boot({items = {{name = 'Grape Daifuku', count = 3}}, user = function(user)
+            user.food_lists = {Snack = 'Grape Daifuku'}
+            user.state.AutoFoodMode:options('Snack', 'Off')
+        end})
+        assert.same({{item = 'Grape Daifuku', target = 'Autoy'}}, gs.game:items_used())
     end)
 end)

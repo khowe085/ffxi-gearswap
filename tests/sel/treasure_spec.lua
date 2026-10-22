@@ -2,6 +2,13 @@ local commy = require('commy')
 
 local idle = commy.rdm_idle
 
+-- Commy as a red mage with Tag mode set before Sel first picks a set: where the mode starts is up to User-Globals.lua.
+local function boot_in_tag_mode()
+    return commy.boot_rdm({user = function(user)
+        user.state.TreasureMode:set('Tag')
+    end})
+end
+
 -- Whether sets.TreasureHunter of Commy_Rdm_Gear.lua is on.
 local function wearing_th(gs)
     local worn = gs:worn()
@@ -28,8 +35,7 @@ end
 describe('Sel\'s Treasure Hunter in Tag mode', function()
     local gs
     before_each(function()
-        gs = commy.boot_rdm()
-        assert.equal('Tag', gs.user.state.TreasureMode.value)
+        gs = boot_in_tag_mode()
     end)
 
     it('lays sets.TreasureHunter over a spell\'s midcast set at a monster it hasn\'t tagged', function()
@@ -113,7 +119,7 @@ end)
 describe('Sel\'s Treasure Hunter on engaging in Tag mode', function()
     local gs
     before_each(function()
-        gs = commy.boot_rdm()
+        gs = boot_in_tag_mode()
     end)
 
     it('holds sets.TreasureHunter on over the engaged set at a monster it hasn\'t tagged', function()
@@ -178,7 +184,7 @@ end)
 
 -- Commy with Dia and Savage Blade in TH_Whitelist, as a gear file names them in user_job_setup.
 local function boot_with_whitelist()
-    local gs = commy.boot_rdm()
+    local gs = boot_in_tag_mode()
     gs.user.TH_Whitelist = gs.user.S{'Dia', 'Savage Blade'}
     return gs
 end

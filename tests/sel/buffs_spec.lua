@@ -60,26 +60,32 @@ describe('Sel on gaining or losing a buff', function()
         assert.same(commy.worn_by(idle), gs:worn())
     end)
 
-    it('cancels Stoneskin on falling asleep, as CancelStoneskin is on', function()
+    it('cancels Stoneskin on falling asleep with CancelStoneskin on', function()
+        gs:console('gs c set CancelStoneskin true')
         gs:gain_buff('sleep')
         assert.truthy(table.concat(gs.game.commands, '\n'):find('cancel stoneskin', 1, true))
     end)
 
     it('leaves Stoneskin up on falling asleep with CancelStoneskin off', function()
-        gs:console('gs c toggle CancelStoneskin')
+        gs:console('gs c set CancelStoneskin false')
         gs:gain_buff('sleep')
         assert.falsy(table.concat(gs.game.commands, '\n'):find('cancel stoneskin', 1, true))
     end)
 
+    -- Which buffs NotifyBuffs names, and whether Notify Buffs is on, are up to User-Globals.lua unless a test sets
+    -- them.
     it('tells the party of a buff NotifyBuffs names, with NotifyBuffs on', function()
-        gs:console('gs c toggle NotifyBuffs')
+        gs.user.NotifyBuffs = gs.user.S{'doom'}
+        gs:console('gs c set NotifyBuffs true')
         local typed = commy.record_input(gs)
         gs:gain_buff('doom')
         gs:lose_buff('doom')
         assert.same({'/p Doom on me!', '/p Doom is off now.'}, typed)
     end)
 
-    it('tells the party nothing with NotifyBuffs off, as it starts', function()
+    it('tells the party nothing of a buff NotifyBuffs names, with NotifyBuffs off', function()
+        gs.user.NotifyBuffs = gs.user.S{'doom'}
+        gs:console('gs c set NotifyBuffs false')
         local typed = commy.record_input(gs)
         gs:gain_buff('doom')
         assert.same({}, typed)

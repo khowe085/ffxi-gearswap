@@ -476,6 +476,7 @@ describe('NIN\'s Utsusemi', function()
     local gs
     before_each(function()
         gs = boot()
+        gs.user.conserveshadows = true
     end)
 
     it('cancels the shadows left 0.1 seconds after Utsusemi: Ni goes out', function()

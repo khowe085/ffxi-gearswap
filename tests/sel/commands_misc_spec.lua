@@ -136,6 +136,8 @@ describe('gs c autofood', function()
     end)
 
     it('sets the food of the AutoFoodMode it is in, and says so', function()
+        gs.user.food_lists = {Attack = 'Grape Daifuku'}
+        gs.user.state.AutoFoodMode:options('Off', 'Attack')
         gs:console('gs c set AutoFoodMode Attack')
         gs:chat()
         assert.same({'Your Attack food is set to Miso Ramen.'}, said_for(gs, 'gs c autofood Miso Ramen'))

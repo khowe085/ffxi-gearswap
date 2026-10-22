@@ -4,10 +4,16 @@ local gear = {'Volte Cap', 'Null Masque', 'Volte Jupon', 'Adamantite Armor', 'Vo
     'Volte Boots', 'Fotia Gorget', "Combatant's Torque", 'Null Belt', 'Fotia Belt', 'Moonshade Earring',
     'Brutal Earring', 'Cessance Earring', 'Odnowa Earring +1', 'Karieyh Ring', 'Chirich Ring +1', 'Null Shawl'}
 
+-- Jobby's thief starts in Tag mode, set before Sel first picks a set: where the mode starts is up to User-Globals.lua.
+local function start_in_tag_mode(user)
+    user.state.TreasureMode:set('Tag')
+end
+
 local function boot(options)
     options = options or {}
     options.items = gear
     options.sub_job = options.sub_job or 'WAR'
+    options.user = start_in_tag_mode
     return jobby.boot('THF', options)
 end
 
@@ -15,6 +21,7 @@ local function boot_ticking(options)
     options = options or {}
     options.items = gear
     options.sub_job = options.sub_job or 'WAR'
+    options.user = start_in_tag_mode
     return jobby.boot_ticking('THF', options)
 end
 

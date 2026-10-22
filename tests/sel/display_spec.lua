@@ -44,10 +44,9 @@ describe('Sel\'s status box', function()
     end
 
     it('shows the modes RDM.lua names, each at its option, once loaded', function()
-        -- Where these start is up to User-Globals.lua: the box shows Treasure unless None, Auto Food unless Off.
+        -- Where Treasure starts is up to User-Globals.lua: the box shows it unless it is None.
         gs:console('gs c set TreasureMode Tag')
-        gs:console('gs c reset AutoFoodMode')
-        assert.equal('   Auto Trust: ' .. gs.user.state.AutoTrustMode.value .. '    Offense: Normal / Normal    '
+        assert.equal('   Auto Trust: Off    Offense: Normal / Normal    '
             .. 'Weapons: None (L)    ' .. auto_ws(gs) .. 'Recover MP: 35%    Element: Fire    Casting: Normal    '
             .. 'Treasure: Tag    ', box(gs))
         assert.is_true(gs.user.stateBox:visible())
@@ -138,6 +137,8 @@ describe('Sel\'s status box', function()
     end)
 
     it('shows Auto Buff and Auto Food once they are on, Auto Food with its food', function()
+        gs.user.food_lists = {Attack = 'Grape Daifuku'}
+        gs.user.state.AutoFoodMode:options('Off', 'Attack')
         gs:console('gs c set AutoBuffMode Auto')
         gs:console('gs c set AutoFoodMode Attack')
         assert.is_true(shows(gs, 'Auto Buff: Auto'))

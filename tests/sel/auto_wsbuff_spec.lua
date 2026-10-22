@@ -1,10 +1,15 @@
 local autoy = require('autoy')
+local user_globals = require('user_globals')
 
 -- Autoy engaged with Naegling in hand and 1000 TP, as a red mage with a warrior sub unless the options say
--- otherwise. The gear file's ws_buff_list holds Savage Blade.
+-- otherwise, with Auto WS Buff on and the buffs user_globals gives it, in place of User-Globals.lua's: Last Resort
+-- for a dark knight, then Berserk, Warcry and Aggressor for a warrior. The gear file's ws_buff_list holds Savage Blade.
 local function boot(options)
     options = options or {}
     options.sub_job = options.sub_job or 'WAR'
+    options.user = function(user)
+        user_globals.give_ws_buffs(user, user_globals.ws_buffs)
+    end
     local gs = autoy.boot(options)
     gs:console('gs c set Weapons Naegling')
     gs:engage()

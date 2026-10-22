@@ -44,7 +44,10 @@ describe('what Jobby types and is told', function()
 
     local gs
     before_each(function()
-        gs = jobby.boot('WAR', {items = gear})
+        -- The /lockstyle on is typed only with AutoLockstyle on, which is up to User-Globals.lua unless a test sets it.
+        gs = jobby.boot('WAR', {items = gear, user = function(user)
+            user.state.AutoLockstyle:set(true)
+        end})
         gs:play(harness.sel_load_time + 1)
     end)
 

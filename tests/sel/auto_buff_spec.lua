@@ -74,7 +74,8 @@ describe('AutoBuffMode, User-Globals.lua\'s check_buff on Sel\'s tick', function
     end)
 
     -- Refresh III's cast time is 5 seconds; Sel waits a quarter of that and 3 seconds more from the precast, and
-    -- 2.4 seconds from the end of a spell, then a tenth of a second on top of either, before its tick acts again.
+    -- 2.4 seconds from the end of a spell (2.9 less its latency, which a boot sets to half a second), then a tenth of
+    -- a second on top of either, before its tick acts again.
     it('waits a quarter of a spell\'s cast time and 3 seconds before the next, however soon the spell ends', function()
         local gs = boot('Auto')
         local cast = gs:play_until_action(2)

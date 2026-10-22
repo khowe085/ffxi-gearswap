@@ -14,6 +14,12 @@ busted tests/sel/idle_spec.lua
 
 They run on Linux or WSL, not on Windows, and need Lua 5.1, LuaRocks and busted: `luarocks --lua-version 5.1 install busted`. Nothing else: no game, no Windower, no network.
 
+## What a test rests on
+
+A test checks a mechanism: which set is worn when, in what order sets are laid over one another, which commands go out. It rests on GearSwap, on Sel (`libs/`), on the job files (`data/<JOB>.lua`) and on the fixture characters, which belong to the tests. It never rests on what the user's own files hold, since those change as the user likes: User-Globals.lua's lists (trusts, food, weapon skills, buffs), mode options, defaults and binds, and the real characters' gear files under `data/Vanar/` and `data/Mytha/`. A change to any of them must not fail a test.
+
+A test that needs one of those values sets it itself, in the booted environment and before Sel's tick first acts: `harness.boot`'s `user` option is a function given the user environment (`user.trust_lists = {...}`, `user.state.AutoTrustMode:options('Off', 'Long')`). A boot starts the modes that act on their own, AutoTrustMode, AutoFoodMode and AutoArts, off, and the latency Sel's delays are written around at half a second, as Sel defines them whatever the user's file made of them. User-Globals.lua keeps Auto WS Buff's buffs and Auto WS's restore weapon skills where a test can't name them, so `support/user_globals.lua` gives a test its own.
+
 ## What is where
 
 | Path | What |
@@ -21,7 +27,7 @@ They run on Linux or WSL, not on Windows, and need Lua 5.1, LuaRocks and busted:
 | `gearswap/` | GearSwap with no framework: the order of an action's precast, midcast and aftercast, what the hooks are handed, commands, status and buff events, and how a set becomes equip requests (names, augments, bags, `empty`, slot names, `set_combine`). |
 | `sel/` | How Sel picks and lays sets, as `docs/frameworks/sel.md` describes: idle, engaged, precast, midcast, weapon skills, abilities, the weapon lock, defense and kiting, and the hooks a gear file may define. Then the rest of Sel: its `gs c` commands, its mode class, the status box, Treasure Hunter, spell maps, and what it does on buffs, zoning, the time of day, a sub job change and a monster's actions. Last, what Sel does on its own (`auto_*_spec.lua`): its tick, the Auto modes and the lists they work from. |
 | `jobs/` | What each job file in `data/` does on top of Sel, one spec per job: the set a spell, ability or weapon skill takes, what a job's hook changes or sends, its commands, the states it keeps and what its tick does on its own (Auto Buff Mode, Hasso, Majesty and the rest). They play Jobby, a made-up character with a small gear file for each job. |
-| `data/` | Every character's real gear file loads under GearSwap and Sel, builds its sets and gets through a status change and an action without an error. It finds the gear files itself, so a new one is tested without an edit here. |
+| `data/` | Every character's real gear file loads under GearSwap and Sel, builds its sets and gets through a status change and an action without an error. It looks at no set's contents, weapon or list, and finds the gear files itself, so a new one is tested without an edit here. |
 | `harness/` | Tests of the stand-ins below. |
 | `support/` | The harness. |
 | `fixture/data/Testy/` | Testy's user files: `Testy_WHM.lua`, a plain GearSwap file whose hooks note what they were handed; `Testy_Rdm_Gear.lua`, a small Sel gear file the real `data/RDM.lua` loads; and the other files the tests load by name. |

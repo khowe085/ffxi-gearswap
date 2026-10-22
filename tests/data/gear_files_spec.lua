@@ -34,11 +34,33 @@ end
 -- The sub job each job plays, WAR unless named.
 local sub_jobs = {RDM = 'WHM', WAR = 'WHM'}
 
--- A spell each job casts. One not named uses the first weapon skill the game lists for the weapons in hand.
+-- A spell each job casts. One not named uses a weapon skill.
 local spells = {
     BLU = {'/ma', 'Subduction', '<t>'},
     RDM = {'/ma', 'Refresh', '<me>'},
 }
+
+-- The weapon skill a job without a spell uses. The game lists it whatever is in hand, since the weapons are the gear
+-- file's own and the test resources hold weapon skills for only some kinds of weapon.
+local weapon_skill = 'Savage Blade'
+
+-- What the character knows when it uses the weapon skill: every job ability the test resources hold, and it.
+local function abilities_with_the_weapon_skill()
+    local names = {weapon_skill}
+    for _, ability in pairs(harness.resources().job_abilities) do
+        if type(ability) == 'table' then
+            names[#names + 1] = ability.en
+        end
+    end
+    return names
+end
+
+-- The gear file's ws_buff_list may name the weapon skill, and then Auto WS Buff would send a buff in its place.
+local function without_ws_buff(user)
+    if user.state.AutoWSBuff then
+        user.state.AutoWSBuff:set(false)
+    end
+end
 
 -- Whether the test resources hold an item of that name, as the game can make no other.
 local function known_item(gs, name)
@@ -50,8 +72,8 @@ local function known_item(gs, name)
     return false
 end
 
--- The pieces that decide which weapon skills the game lists, main and range, of the weapon set the gear file starts
--- in (sets.weapons, by state.Weapons as the file loads), those the test resources hold, by slot. None when it starts
+-- The weapons the character holds when it loads, main and range, from the weapon set the gear file starts in
+-- (sets.weapons, by state.Weapons as the file loads): those the test resources hold, by slot. None when it starts
 -- with no weapon set, and the hands are empty.
 local function starting_weapons(gs)
     local set = gs.user.state.Weapons and gs.user.sets.weapons[gs.user.state.Weapons.value]
@@ -145,7 +167,8 @@ describe('the gear file', function()
                     return harness.boot({
                         character = character, main_job = file.job, sub_job = sub_jobs[file.job] or 'WAR',
                         expect_file = file.job .. '.lua', tp = not spell and 1000 or nil, items = items,
-                        wearing = weapons,
+                        wearing = weapons, abilities = not spell and abilities_with_the_weapon_skill() or nil,
+                        user = without_ws_buff,
                     })
                 end
                 local gs = boot(starting_weapons(boot({})))
@@ -162,12 +185,7 @@ describe('the gear file', function()
                 gs:engage()
                 gs:disengage()
                 gs:traffic()
-                local action = spell
-                if not action then
-                    local in_hand = assert(gs.game:weapon_skills_in_hand()[1],
-                        'the test resources hold no weapon skill of the weapons in hand')
-                    action = {'/ws', gs.game.res.weapon_skills[in_hand].en, '<t>'}
-                end
+                local action = spell or {'/ws', weapon_skill, '<t>'}
                 assert.is_true(gs:type(('%s "%s" %s'):format(unpack(action))))
                 assert.same({action[2]}, gs:actions())
                 gs:finish_action()

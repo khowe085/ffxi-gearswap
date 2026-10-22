@@ -1,9 +1,15 @@
 local autoy = require('autoy')
 
--- User-Globals.lua's food_lists: Attack is Grape Daifuku, Oden is Oden.
+-- Each test gives the character food_lists and AutoFoodMode's options itself, so none rests on User-Globals.lua's:
+-- Attack is Grape Daifuku, Oden is Oden.
 local daifuku = {{item = 'Grape Daifuku', target = 'Autoy'}}
 
 local function boot(options, mode)
+    options = options or {}
+    options.user = function(user)
+        user.food_lists = {Attack = 'Grape Daifuku', Oden = 'Oden'}
+        user.state.AutoFoodMode:options('Off', 'Attack', 'Oden')
+    end
     local gs = autoy.boot(options)
     gs:console('gs c set AutoFoodMode ' .. (mode or 'Attack'))
     return gs
@@ -70,6 +76,8 @@ describe('AutoFoodMode', function()
         assert.same(daifuku, gs.game:items_used())
     end)
 
+    -- Sel's tick delay is the seconds it is given and half a second, less its latency, which a boot sets to half a
+    -- second.
     it('tries again two seconds later while no food is up', function()
         local gs = boot(in_inventory('Grape Daifuku'))
         local used_at = {}

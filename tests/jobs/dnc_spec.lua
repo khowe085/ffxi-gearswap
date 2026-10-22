@@ -712,6 +712,8 @@ describe('Curing Waltz by a dancer on himself', function()
         assert.same({'Curing Waltz IV'}, gs:actions())
     end)
 
+    -- Sel holds the next action back for .8 seconds after an ability, less its latency, which a boot sets to half a
+    -- second.
     it('is Contradance first for 1100 HP or more missing, and the waltz of the tier half a second later', function()
         local gs = waltz(1200, 1500, 'Curing Waltz V')
         assert.same({'Contradance'}, gs:actions())

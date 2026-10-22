@@ -496,6 +496,23 @@ local finishing_category = {[3] = 4, [7] = 3, [9] = 6, [16] = 2, [25] = 11}
 -- The category of the action packet that begins one, which an interruption comes in.
 local beginning_category = {[3] = 8, [7] = 7, [16] = 12}
 
+-- What User-Globals.lua sets as the user likes and every test plays out under: the modes that have Sel's tick act on
+-- its own once they are on, AutoTrustMode and AutoFoodMode with the lists the file gives them, and AutoArts, which has
+-- the tick of a job with arts use them; and the latency that Sel's delays are written around. A boot has each as Sel
+-- defines it, and a test sets what it needs.
+local function reset_to_sels_defaults(user)
+    local state = user.state
+    if not (state and state.AutoTrustMode) then
+        return
+    end
+    for _, name in ipairs({'AutoTrustMode', 'AutoFoodMode'}) do
+        state[name]:options('Off')
+    end
+    state.AutoArts:set(false)
+    user.latency = 0.5
+    user.spell_latency = user.latency * 60 + 18
+end
+
 -- Loads GearSwap on a new game and returns the session, with what it sent, said, printed, typed and ran while loading
 -- taken as read. options, all of them optional:
 --   character      the character's name, Testy unless given
@@ -510,6 +527,9 @@ local beginning_category = {[3] = 8, [7] = 7, [16] = 12}
 --   merits         the character's merit levels by name, none unless given
 --   pet            the fields of a pet at the character's side when GearSwap loads (see Game:place_pet)
 --   expect_file    the user file GearSwap should load, by its name in data/
+--   user           a function given the user environment (the globals of the files GearSwap loaded) once they are
+--                  loaded and before the game runs a frame, so before Sel's tick acts: a test sets there the lists,
+--                  modes and defaults of User-Globals.lua that it rests on, since the user's own may be anything
 function harness.boot(options)
     options = options or {}
     local paths = harness.tree()
@@ -582,6 +602,12 @@ function harness.boot(options)
         error(('GearSwap loaded %s, not %s'):format(tostring(env.current_file), options.expect_file), 2)
     end
     session.user = env.user_env
+    session:run(function()
+        reset_to_sels_defaults(session.user)
+        if options.user then
+            options.user(session.user)
+        end
+    end)
     session:forget()
     return session
 end

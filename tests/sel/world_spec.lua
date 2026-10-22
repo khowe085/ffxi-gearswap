@@ -124,6 +124,10 @@ describe('Sel on zoning', function()
     end)
 
     it('turns its automatic modes off', function()
+        gs.user.food_lists = {Attack = 'Grape Daifuku'}
+        gs.user.trust_lists = {Default = {'Yoran-Oran (UC)'}}
+        gs.user.state.AutoFoodMode:options('Off', 'Attack')
+        gs.user.state.AutoTrustMode:options('Off', 'Default')
         gs:console('gs c set AutoBuffMode Auto')
         gs:console('gs c set AutoFoodMode Attack')
         gs:console('gs c set AutoTrustMode Default')

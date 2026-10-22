@@ -205,6 +205,8 @@ describe('a spell that needs Unbridled Learning', function()
         assert.same({'Abort: Unbridled Learning not active.'}, gs:chat())
     end)
 
+    -- A minute is over spell_latency, which a boot sets to the 48 sixtieths of a second Sel's latency of half a second
+    -- gives.
     it('is cancelled, not held back, with a minute of its own recast left, with the word that Unbridled Learning is '
         .. 'not active', function()
         local gs = boot({'Cesspool'})

@@ -1,11 +1,16 @@
 local autoy = require('autoy')
+local user_globals = require('user_globals')
 
--- Autoy with Naegling locked in hand, engaged on the toad three yalms off, Auto WS set to the choice given. The
--- options: abilities, the abilities and weapon skills Autoy knows (as for a boot), and weapons, another weapon set
--- to lock in hand.
+-- Autoy with Naegling locked in hand, engaged on the toad three yalms off, Auto WS set to the choice given, Auto WS Buff
+-- off, which would send a buff of the user's in place of Savage Blade, and the restore weapon skills user_globals gives
+-- it in place of User-Globals.lua's. The options: abilities, the abilities and weapon skills Autoy knows (as for a
+-- boot), and weapons, another weapon set to lock in hand.
 local function boot(choice, options)
     options = options or {}
-    local gs = autoy.boot({abilities = options.abilities})
+    local gs = autoy.boot({abilities = options.abilities, user = function(user)
+        user.state.AutoWSBuff:set(false)
+    end})
+    user_globals.give_restore_weaponskills(gs, user_globals.restore_weaponskills)
     gs:console('gs c set Weapons ' .. (options.weapons or 'Naegling'))
     gs:engage()
     if choice then
