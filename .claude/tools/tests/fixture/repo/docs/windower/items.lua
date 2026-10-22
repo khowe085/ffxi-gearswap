@@ -43,4 +43,12 @@ return {
     [20688] = {id=20688,en="Tizona",ja="ティソーナ",enl="Tizona",jal="ティソーナ",category="Weapon",damage=147,delay=236,flags=63552,item_level=119,jobs=65536,level=99,races=510,skill=3,slots=3,stack=1,targets=0,type=4},
     [25442] = {id=25442,en="Dls. Torque +1",ja="デュエルトルク+1",enl="duelist's torque +1",jal="デュエルトルク+1",category="Armor",flags=2080,jobs=32,level=99,races=510,slots=512,stack=1,targets=0,type=5},
     [25509] = {id=25509,en="Mirage Stole +2",ja="ミラージストール+2",enl="mirage stole +2",jal="ミラージストール+2",category="Armor",flags=2080,jobs=65536,level=99,races=510,slots=512,stack=1,targets=0,type=5},
+    [21567] = {id=21567,en="Gleti's Knife",ja="グレティナイフ",enl="Gleti's knife",jal="グレティナイフ",category="Weapon",damage=133,delay=200,flags=59456,item_level=119,jobs=666720,level=99,races=510,skill=2,slots=3,stack=1,targets=0,type=4},
+    [23435] = {id=23435,en="Hashishin Kavuk +3",ja="ＨＳカヴク+3",enl="hashishin kavuk +3",jal="ＨＳカヴク+3",category="Armor",flags=63552,item_level=119,jobs=65536,level=99,races=510,slots=16,stack=1,targets=0,type=5},
+    [22150] = {id=22150,en="Gleti's Crossbow",ja="グレティクロスボウ",enl="Gleti's crossbow",jal="グレティクロスボウ",category="Weapon",damage=115,delay=432,flags=59456,item_level=119,jobs=2048,level=99,races=510,range_type="Crossbow",skill=26,slots=4,stack=1,targets=0,type=4},
+    [26108] = {id=26108,en="Odr Earring",ja="オドルピアス",enl="Odr earring",jal="オドルピアス",category="Armor",flags=63552,jobs=4925508,level=99,races=510,slots=6144,stack=1,targets=0,type=5},
+    [19878] = {id=19878,en="Thibron",ja="シブロン",enl="Thibron",jal="シブロン",category="Weapon",damage=55,delay=238,flags=63552,jobs=65696,level=99,races=510,skill=3,slots=3,stack=1,targets=0,type=4},
+    [20695] = {id=20695,en="Sequence",ja="セクエンス",enl="Sequence",jal="セクエンス",category="Weapon",damage=168,delay=240,flags=63552,item_level=119,jobs=65696,level=99,races=510,skill=3,slots=3,stack=1,targets=0,type=4},
+    [22131] = {id=22131,en="Fail-Not",ja="アキヌフォート",enl="Fail-Not",jal="アキヌフォート",category="Weapon",damage=330,delay=600,flags=63552,item_level=119,jobs=2048,level=99,races=510,range_type="Bow",skill=25,slots=4,stack=1,targets=0,type=4},
+    [23758] = {id=23758,en="Mpaca's Cap",ja="ムパカキャップ",enl="Mpaca's cap",jal="ムパカキャップ",category="Armor",flags=59456,item_level=119,jobs=274436,level=99,races=510,slots=16,stack=1,targets=0,type=5},
 }
