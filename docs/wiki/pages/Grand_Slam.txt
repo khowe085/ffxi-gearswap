@@ -1,0 +1,76 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Blunt
+|nohits=1
+|desc=Delivers an area attack. Damage varies with TP.
+|mp=24 MP
+|blupoint=2
+|cast=1 second
+|recast=14.25 seconds
+|target=AoE
+|range=
+|stats=[[INT]] +1
+|effects=
+|duration=
+|trait=Defense Bonus
+|level=30
+|mtype=Beastmen
+|family=Gigas
+|wsc=30% [[VIT]]
+|ftp=
+|ftp0=1.0
+|ftp150=1.0
+|ftp300=1.0
+|ftp350=1.0
+|scprop={{Induration}} [[Induration]]
+|ve=
+|ce=
+}}
+==Notes==
+*Additional TP during [[Chain Affinity]] does not directly increase [[fTP]]. It is possible that TP increases [[attack]].<br>
+*AoE is centered 5' around the caster, rather than the target.
+
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Gigas
+|Spell Level=30
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=:Category:Gigas{{!}}Gigas
+|Level=28-30
+|Zone=Lower Delkfutt's Tower
+|SpawnCondition=
+|Map=Lower Delkfutt's Tower-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=:Category:Gigas{{!}}Gigas
+|Level=28-31
+|Zone=Qufim Island
+|SpawnCondition=
+|Map=Qufim Island-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=:Category:Gigas{{!}}Gigas
+|Level=35-44
+|Zone=Lufaise Meadows
+|SpawnCondition=
+|Map=Lufaise Meadows-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=:Category:Gigas{{!}}Gigas
+|Level=41-44
+|Zone=Misareaux Coast
+|SpawnCondition=
+|Map=Misareaux Coast-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=:Category:Gigas{{!}}Gigas
+|Level=65-69
+|Zone=Upper Delkfutt's Tower
+|SpawnCondition=
+|Map=Upper Delkfutt's Tower-map1.jpg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

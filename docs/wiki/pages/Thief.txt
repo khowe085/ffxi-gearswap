@@ -1,0 +1,759 @@
+{{TOC Left}}
+[[Image:Thief.jpg|thumb|Thief|right]]
+{{clear|left}}
+{| class="wikitable" style="text-align: center; width: min(100%,350px);"
+| BGCOLOR="#cacaca" colspan="2" | '''Thief'''
+|-
+|BGCOLOR="#ebebeb" width="40%"| Abbreviation
+| width="60%"|THF
+|-
+|BGCOLOR="#ebebeb"| Japanese
+| シーフ (シ)
+|-
+|BGCOLOR="#ebebeb"| Japanese Romaji
+|Shiifu (Shi)
+|-
+|BGCOLOR="#ebebeb"| French
+| Voleur
+|-
+|BGCOLOR="#ebebeb"| German
+| Dieb
+|-
+|BGCOLOR="#ebebeb"| Expansion Pack
+| [[Final Fantasy XI]]
+|-
+|BGCOLOR="#ebebeb"| Quest
+| None
+|-
+|}
+{{clear}}
+
+== Abilities and Traits ==
+<div style="display:flex; flex-flow: row wrap; gap: 1em; align-items: flex-start; margin: 1em 0;">
+{| style="background:#eef8fe; text-align: center; flex: 1 1 20em; margin: 0;" class="wikitable R-Highlight-WikiBlue"
+! style="background:#ccebfe; border-color: #59c1ff;" colspan="2"|[[Job Traits]]
+|-
+! style="background:#ccebfe; border-color: #59c1ff; width: 20%;" |Lvl.
+! style="background:#ccebfe; border-color: #59c1ff;" |Name
+|-
+|style="border-color: #59c1ff;"| '''5'''
+|style="border-color: #59c1ff;"| [[Gilfinder]]
+|-
+|style="border-color: #59c1ff;"| '''10'''
+|style="border-color: #59c1ff;"| [[Evasion Bonus|Evasion Bonus I]]
+|-
+|style="border-color: #59c1ff;"| '''15'''
+|style="border-color: #59c1ff;"| [[Treasure Hunter|Treasure Hunter I]]
+|-
+|style="border-color: #59c1ff;"| '''20'''
+|style="border-color: #59c1ff;"| [[Resist Gravity|Resist Gravity I]]
+|-
+|style="border-color: #59c1ff;"| '''30'''
+|style="border-color: #59c1ff;"| [[Evasion Bonus|Evasion Bonus II]]
+|-
+|style="border-color: #59c1ff;"| '''40'''
+|style="border-color: #59c1ff;"| [[Resist Gravity|Resist Gravity II]]
+|-
+|style="border-color: #59c1ff;"| '''45'''
+|style="border-color: #59c1ff;"| [[Treasure Hunter|Treasure Hunter II]]
+|-
+| style="background:#ccebfe; border-color: #59c1ff; font-size: 75%;" colspan="2" height="2%"|▼ {{H:text|Job Traits below are only available when Thief is set as a sub job to a job that has gained Master Levels.|'''Sub-Job accessible with a [[Master Level]]ed job only'''}} ▼
+|-
+|style="border-color: #59c1ff;"| '''50'''
+|style="border-color: #59c1ff;"| [[Evasion Bonus|Evasion Bonus III]]
+|-
+|style="border-color: #59c1ff;"| '''50'''
+|style="border-color: #59c1ff;"| [[Damage Limit+|Damage Limit+ I]]
+|-
+|style="border-color: #59c1ff;"| '''55'''
+|style="border-color: #59c1ff;"| [[Triple Attack|Triple Attack I]]
+|-
+| style="background:#ccebfe; border-color: #59c1ff; font-size: 75%;" colspan="2" height="2%"|▼ {{H:text|Job Traits below are only available when Thief is set as your main job.|'''Main Job Only'''}} ▼
+|-
+|style="border-color: #59c1ff;"| '''60'''
+|style="border-color: #59c1ff;"| [[Assassin]]
+|-
+|style="border-color: #59c1ff;"| '''66'''
+|style="border-color: #59c1ff;"| [[Resist Gravity|Resist Gravity III]]
+|-
+|style="border-color: #59c1ff;"| '''70'''
+|style="border-color: #59c1ff;"| [[Evasion Bonus|Evasion Bonus IV]]
+|-
+|style="border-color: #59c1ff;"| '''75'''
+|style="border-color: #59c1ff;"| [[Resist Gravity|Resist Gravity IV]]
+|-
+|style="border-color: #59c1ff;"| '''75''' <sup>{{Merit Icon}}</sup>
+|style="border-color: #59c1ff;"| [[Ambush]]
+|-
+|style="border-color: #59c1ff;"| '''75''' <sup>{{Merit Icon}}</sup>
+|style="border-color: #59c1ff;"| [[Aura Steal]]
+|-
+|style="border-color: #59c1ff;"| '''76'''
+|style="border-color: #59c1ff;"| [[Evasion Bonus|Evasion Bonus V]]
+|-
+|style="border-color: #59c1ff;"| '''78'''
+|style="border-color: #59c1ff;"| [[Crit. Atk. Bonus|Crit. Atk. Bonus I]]
+|-
+|style="border-color: #59c1ff;"| '''81'''
+|style="border-color: #59c1ff;"| [[Resist Gravity|Resist Gravity V]]
+|-
+|style="border-color: #59c1ff;"| '''83'''
+|style="border-color: #59c1ff;"| [[Dual Wield|Dual Wield I]]
+|-
+|style="border-color: #59c1ff;"| '''84'''
+|style="border-color: #59c1ff;"| [[Crit. Atk. Bonus|Crit. Atk. Bonus II]]
+|-
+|style="border-color: #59c1ff;"| '''88'''
+|style="border-color: #59c1ff;"| [[Evasion Bonus|Evasion Bonus VI]]
+|-
+|style="border-color: #59c1ff;"| '''90'''
+|style="border-color: #59c1ff;"| [[Treasure Hunter|Treasure Hunter III]]
+|-
+|style="border-color: #59c1ff;"| '''90'''
+|style="border-color: #59c1ff;"| [[Dual Wield|Dual Wield II]]
+|-
+|style="border-color: #59c1ff;"| '''91'''
+|style="border-color: #59c1ff;"| [[Crit. Atk. Bonus|Crit. Atk. Bonus III]]
+|-
+|style="border-color: #59c1ff;"| '''95'''
+|style="border-color: #59c1ff;"| [[Triple Attack|Triple Attack II]]
+|-
+|style="border-color: #59c1ff;"| '''97'''
+|style="border-color: #59c1ff;"| [[Crit. Atk. Bonus|Crit. Atk. Bonus IV]]
+|-
+|style="border-color: #59c1ff;"| '''98'''
+|style="border-color: #59c1ff;"| [[Dual Wield|Dual Wield III]]
+|-
+|}
+{| style="background:#ffdede; text-align: center; flex: 1 1 20em; margin: 0;" class="wikitable"
+! style="background:#fbadad; border-color: #ee6a6a;" colspan="3"|[[Job Ability]]
+|-
+! style="background:#fbadad; border-color: #ee6a6a; width: 20%;" |Lvl.
+! style="background:#fbadad; border-color: #ee6a6a;" colspan="2" |Name
+|-
+|-
+|style="border-color: #ee6a6a;"| '''1'''
+|style="border-color: #ee6a6a;" colspan="2"| [[Perfect Dodge]]
+|-
+| style="background:#fbadad; border-color: #ee6a6a; border-style: solid none solid solid; font-size: 75%;" colspan="2" height="2%"|▼ {{H:text|Abilities below are available when Thief is set as your sub-job.|'''Sub-Job Accessible'''}} ▼
+|style="background:#fbadad; border-color: #ee6a6a; border-style: solid solid solid none;" rowspan="8" width="1%"|
+
+|-
+
+|style="border-color: #ee6a6a;"| '''5'''
+|style="border-color: #ee6a6a;"| [[Steal]]
+|-
+|style="border-color: #ee6a6a;"| '''15'''
+|style="border-color: #ee6a6a;"| [[Sneak Attack]]
+|-
+|style="border-color: #ee6a6a;"| '''25'''
+|style="border-color: #ee6a6a;"| [[Flee]]
+|-
+|style="border-color: #ee6a6a;"| '''30'''
+|style="border-color: #ee6a6a;"| [[Trick Attack]]
+|-
+|style="border-color: #ee6a6a;"| '''35'''
+|style="border-color: #ee6a6a;"| [[Mug]]
+|-
+|style="border-color: #ee6a6a;"| '''45'''
+|style="border-color: #ee6a6a;"| [[Hide]]
+|-
+| style="background:#fbadad; border-color: #ee6a6a; border-style: solid none solid solid; font-size: 75%;" colspan="2" height="2%"|▲ {{H:text|Abilities above are available when Thief is set as your sub-job.|'''Sub-Job Accessible'''}} ▲
+|-
+|style="border-color: #ee6a6a;"| '''65'''
+|style="border-color: #ee6a6a;" colspan="2"| [[Accomplice]]
+|-
+|style="border-color: #ee6a6a;"| '''65'''
+|style="border-color: #ee6a6a;" colspan="2"| [[Collaborator]]
+|-
+|style="border-color: #ee6a6a;"| '''75''' <sup>{{Merit Icon}}</sup>
+|style="border-color: #ee6a6a;" colspan="2"| [[Assassin's Charge]]
+|-
+|style="border-color: #ee6a6a;"| '''75''' <sup>{{Merit Icon}}</sup>
+|style="border-color: #ee6a6a;" colspan="2"| [[Feint]]
+|-
+|style="border-color: #ee6a6a;"| '''77'''
+|style="border-color: #ee6a6a;" colspan="2"| [[Despoil]]
+|-
+|style="border-color: #ee6a6a;"| '''87'''
+|style="border-color: #ee6a6a;" colspan="2"| [[Conspirator]]
+|-
+|style="border-color: #ee6a6a;"| '''93'''
+|style="border-color: #ee6a6a;" colspan="2"| [[Bully]]
+|-
+|style="border-color: #ee6a6a;"| '''96'''
+|style="border-color: #ee6a6a;" colspan="2"| [[Larceny]]
+|-
+|}
+</div>
+
+== Combat Skills ==
+{| class="" border="0" width="100%" cellpadding="0" cellspacing="0" valign="top"
+|-
+! style="background:#fea5b8; border-collapse: collapse; border-width: 1px; border-style: solid; border-color: #fd5b7e;" colspan="5" height="25"|[[Combat_Skills|Combat Skills]]
+|}
+<div style="min-height: 0; max-height: 100%; min-width: 0; max-width: 1800px; display: -webkit-box; display: -moz-box; display: -ms-flexbox; display: -webkit-flex; display: flex; flex-wrap: wrap; align-content: space-between; flex: 1 1 100%;">
+<div style="min-height: 0; max-height: 100%; min-width: 0; max-width: 1800px; flex: 1 1 500px; order: 1;">
+{| style="background:#fed4dd; text-align: center; width: 100%; max-width: 100%;" class="wikitable" cellpadding="2"
+|- BGCOLOR="#ffffff"
+|+ Combat
+|-
+! width=30% style="background:#fea5b8; border-color: #fd5b7e;" |Skill
+! width=15% style="background:#fea5b8; border-color: #fd5b7e;" |Rank
+! width=15% style="background:#fea5b8; border-color: #fd5b7e;" |49
+! width=15% style="background:#fea5b8; border-color: #fd5b7e;" |99
+! width=15% style="background:#fea5b8; border-color: #fd5b7e;" |{{JobMasterStar}}[[Master Level|ML]]<sup>50</sup>
+|-
+| style="border-color: #fd5b7e;" | [[:Category:Hand-to-Hand|Hand-to-Hand]]
+| style="border-color: #fd5b7e;" | E
+| style="border-color: #fd5b7e;" | 124
+| style="border-color: #fd5b7e;" | 300
+| style="border-color: #fd5b7e;" | 350
+|-
+| style="border-color: #fd5b7e;" | [[:Category:Dagger|Dagger]]
+| style="border-color: #fd5b7e;" | A+
+| style="border-color: #fd5b7e;" | 150
+| style="border-color: #fd5b7e;" | 424
+| style="border-color: #fd5b7e;" | 474
+|-
+| style="border-color: #fd5b7e;" | [[:Category:Sword|Sword]]
+| style="border-color: #fd5b7e;" | D
+| style="border-color: #fd5b7e;" | 133
+| style="border-color: #fd5b7e;" | 334
+| style="border-color: #fd5b7e;" | 384
+|-
+| style="border-color: #fd5b7e;" | [[:Category:Club|Club]]
+| style="border-color: #fd5b7e;" | E
+| style="border-color: #fd5b7e;" | 124
+| style="border-color: #fd5b7e;" | 300
+| style="border-color: #fd5b7e;" | 350
+|-
+| style="border-color: #fd5b7e;" | [[:Category:Archery|Archery]]
+| style="border-color: #fd5b7e;" | C-
+| style="border-color: #fd5b7e;" | 139
+| style="border-color: #fd5b7e;" | 368
+| style="border-color: #fd5b7e;" | 418
+|-
+| style="border-color: #fd5b7e;" | [[:Category:Marksmanship|Marksmanship]]
+| style="border-color: #fd5b7e;" | C+
+| style="border-color: #fd5b7e;" | 139
+| style="border-color: #fd5b7e;" | 378
+| style="border-color: #fd5b7e;" | 428
+|-
+| style="border-color: #fd5b7e;" | [[:Category:Throwing|Throwing]]
+| style="border-color: #fd5b7e;" | D
+| style="border-color: #fd5b7e;" | 133
+| style="border-color: #fd5b7e;" | 334
+| style="border-color: #fd5b7e;" | 384
+|-
+|}
+</div>
+<div style="min-height: 0; max-height: 100%; min-width: 0; max-width: 1800px; flex: 1 1 500px; order: 2;">
+{| style="background:#fed4dd; text-align: center; width: 100%; max-width: 100%;" class="wikitable" cellpadding="2"
+|- BGCOLOR="#ffffff"
+|+ Defensive
+|-
+! width=30% style="background:#fea5b8; border-color: #fd5b7e;" |Skill
+! width=15% style="background:#fea5b8; border-color: #fd5b7e;" |Rank
+! width=15% style="background:#fea5b8; border-color: #fd5b7e;" |49
+! width=15% style="background:#fea5b8; border-color: #fd5b7e;" |99
+! width=15% style="background:#fea5b8; border-color: #fd5b7e;" |{{JobMasterStar}}[[Master Level|ML]]<sup>50</sup>
+|-
+| style="border-color: #fd5b7e;" | [[Evasion]]
+| style="border-color: #fd5b7e;" | A+
+| style="border-color: #fd5b7e;" | 150
+| style="border-color: #fd5b7e;" | 424
+| style="border-color: #fd5b7e;" | 474
+|-
+| style="border-color: #fd5b7e;" | [[Parrying]]
+| style="border-color: #fd5b7e;" | A
+| style="border-color: #fd5b7e;" | 150
+| style="border-color: #fd5b7e;" | 417
+| style="border-color: #fd5b7e;" | 467
+|-
+| style="border-color: #fd5b7e;" | [[Shield]]
+| style="border-color: #fd5b7e;" | F
+| style="border-color: #fd5b7e;" | 114
+| style="border-color: #fd5b7e;" | 265
+| style="border-color: #fd5b7e;" | 315
+|}
+{| style="background:#ffffff; text-align: center; width: 100%; max-width: 100%; max-height: 100%;" cellpadding="2"
+|- BGCOLOR="#ffffff"
+| align=center | ''No innate magic skills.''
+|}
+</div></div>
+
+{| style="background:#fed4dd; text-align: center; width: 100%; max-width: 100%; max-height: 100%;" class="wikitable" cellpadding="2"
+|- BGCOLOR="#ffffff"
+|+ See Also: [[Skill Caps/Thief|Level-by-level Skill Cap Chart]]
+|}
+
+== Merits ==
+{| class="" border="0" width="100%" cellpadding="0" cellspacing="2" valign="top"
+|-
+! style="background:#fdc7a9; border-collapse: collapse; border-width: 1px; border-style: solid; border-color: #fc8b4d;" colspan="5" height="25"|[[Merit]]s
+|-
+|
+{| style="text-align: center;" class="wikitable" cellpadding="2" width="100%"
+! style="background:#fdc7a9; border-color: #fc8b4d;" colspan="2"|Group 1
+|-
+! style="background:#fdc7a9; border-color: #fc8b4d;" colspan="1" width="30%"|Name
+! style="background:#fdc7a9; border-color: #fc8b4d;" colspan="1"|Description
+|-
+|style="background:#fde1d2; border-color: #fc8b4d;"| [[Flee]] Recast
+|style="background:#fde1d2; border-color: #fc8b4d;"| Shorten recast time by 10 seconds.
+|-
+|style="background:#fde1d2; border-color: #fc8b4d;"| [[Hide]] Recast
+|style="background:#fde1d2; border-color: #fc8b4d;"| Shorten recast time by 10 seconds.
+|-
+|style="background:#fde1d2; border-color: #fc8b4d;"| [[Sneak Attack]] Recast
+|style="background:#fde1d2; border-color: #fc8b4d;"| Shorten recast time by 2 seconds.
+|-
+|style="background:#fde1d2; border-color: #fc8b4d;"| [[Trick Attack]] Recast
+|style="background:#fde1d2; border-color: #fc8b4d;"| Shorten recast time by 2 seconds.
+|-
+|style="background:#fde1d2; border-color: #fc8b4d;"| [[Triple Attack]] Rate
+|style="background:#fde1d2; border-color: #fc8b4d;"| Increase triple attack rate by 1 percent.
+|-
+|}
+|-
+|
+{| style="text-align: center;" class="wikitable" cellpadding="2" width="100%"
+! style="background:#fdc7a9; border-color: #fc8b4d;" colspan="2"|Group 2
+|-
+! style="background:#fdc7a9; border-color: #fc8b4d;" colspan="1" width="30%"|Name
+! style="background:#fdc7a9; border-color: #fc8b4d;" colspan="1"|Description
+|-
+|style="background:#fde1d2; border-color: #fc8b4d;"| [[Assassin's Charge]]
+|style="background:#fde1d2; border-color: #fc8b4d;"| Will triple your next attack. Recast: 5min. Increase chance of fourfold attack by 5 percent.
+|-
+|style="background:#fde1d2; border-color: #fc8b4d;"| [[Feint]]
+|style="background:#fde1d2; border-color: #fc8b4d;"| Your next attack will greatly reduce an enemy's evasion. Recast: 2min. Increase chance of [[Treasure Hunter]] level up by 25 percent.
+|-
+|style="background:#fde1d2; border-color: #fc8b4d;"| [[Aura Steal]]
+|style="background:#fde1d2; border-color: #fc8b4d;"| Adds a Dispel effect to [[Steal]]. Occasionally absorbs dispelled effect. Increase absorb rate by 20 percent.
+|-
+|style="background:#fde1d2; border-color: #fc8b4d;"| [[Ambush]]
+|style="background:#fde1d2; border-color: #fc8b4d;"| Grants an accuracy bonus to melee and ranged attacks from behind an enemy. Increase accuracy bonus by 3.
+|-
+|}
+|-
+|}
+== Job Points ==
+{{Job Page Job Point Table
+|Insert Job Page Job Point Table Entry=
+{{Job Page Job Point Table Entry
+|category=[[Perfect Dodge]] Effect
+|description=Increases magic evasion while under the effects of Perfect Dodge.
+|effect=Increase magic evasion by 3.
+}}
+{{Job Page Job Point Table Entry
+|category=[[Larceny]] Effect
+|description=Increases the duration of effects stolen via Larceny.
+|effect=Increase the effect duration by 1 second.
+}}
+{{Job Page Job Point Table Entry
+|category=[[Sneak Attack]] Effect
+|description=Increases the DEX bonus to Sneak Attack.
+|effect=Increase DEX bonus by 1 percent.
+}}
+{{Job Page Job Point Table Entry
+|category=[[Trick Attack]] Effect
+|description=Increases the AGI bonus to Trick Attack.
+|effect=Increase AGI bonus by 1 percent.
+}}
+{{Job Page Job Point Table Entry
+|category=[[Steal]] Recast
+|description=Reduces the recast time of Steal.
+|effect=Reduce recast time by 2 seconds.	
+}}
+{{Job Page Job Point Table Entry
+|category=[[Mug]] Effect
+|description=Steals HP when using Mug.
+|effect=Steal HP equal to 5% of DEX and AGI.<br> Does not work on undead.
+}}
+{{Job Page Job Point Table Entry
+|category=[[Despoil]] Effect
+|description=Steals TP when using Despoil.
+|effect=Steal 2% of target's TP.
+}}
+{{Job Page Job Point Table Entry
+|category=[[Conspirator]] Effect
+|description=Increases physical accuracy while under the effects of Conspirator
+|effect=Increase physical accuracy by 1.
+}}
+{{Job Page Job Point Table Entry
+|category=[[Bully]] Effect
+|description=Increases the chance of the target becoming intimidated while under the effects of Bully
+|effect=Increase chance by 1 percent
+}}
+{{Job Page Job Point Table Entry
+|category=[[Triple Attack]] Effect
+|description=Increases the physical attack of [[Triple Attack]]
+|effect=Increase physical attack by 1
+}}
+|Insert Job Page Job Point Gift Table Entry=
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Defense Bonus
+|description=Increases physical defense by 4.
+|cost=5
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 5%.
+|cost=5
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Attack Bonus
+|description=Increases physical and ranged attack by 7.
+|cost=10
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Evasion Bonus
+|description=Increases physical evasion by 10.
+|cost=20
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 7%.
+|cost=25
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Accuracy Bonus
+|description=Increases physical and ranged accuracy by 5.
+|cost=30
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Magic Evasion Bonus
+|description=	Increases magic evasion by 5.
+|cost=45
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Superior 1
+|description=	Enables the player to equip items marked as Superior 1 (Su1).
+|cost=50
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=	Increases acquired capacity points by 9%.
+|cost=55
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Magic Accuracy Bonus
+|description=	Increases magic accuracy by 5.
+|cost=60
+}}
+{{Job Page Job Point Gift Table Entry
+|gift="Treasure Hunter" Bonus
+|description=Increases the chances that the effects of Treasure Hunter will increase by 5%.
+|cost=80
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=	Increases acquired capacity points by 11%.
+|cost=95
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Maximum Treasure Hunter Value
+|description=	Increases the maximum value of Treasure Hunter by 1, for a value of 13.
+|cost=100
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Superior 2
+|description=Enables the player to equip items marked as Superior 2 (Su2).
+|cost=100
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Triple Attack Chance
+|description=Increases the chance of attacking thrice by 2%.
+|cost=125
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 13%.
+|cost=145
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Critical Damage Bonus
+|description=	Increases critical damage dealt by 2%.
+|cost=150
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Defense Bonus
+|description=	Increases physical defense by 6.
+|cost=180
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=	Increases acquired capacity points by 15%.
+|cost=205
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Attack Bonus
+|description=Increases physical and ranged attack by 11.
+|cost=210
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Evasion Bonus
+|description=Increases physical evasion by 15.
+|cost=245
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 17%.
+|cost=275
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Accuracy Bonus
+|description=Increases physical and ranged accuracy by 8.
+|cost=280
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Magic Evasion Bonus
+|description=Increases magic evasion by 8.
+|cost=320
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=	Increases acquired capacity points by 19%.
+|cost=355
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Magic Accuracy Bonus
+|description=Increases magic accuracy by 8.
+|cost=360
+}}
+{{Job Page Job Point Gift Table Entry
+|gift="Treasure Hunter" Bonus
+|description=Increases the chances that the effects of Treasure Hunter will increase by 5%.
+|cost=405
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 21%.
+|cost=445
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Triple Attack Chance
+|description=Increases chance of attacking thrice by 2%.
+|cost=450
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Superior 3
+|description=Enables the player to equip items marked as Superior 3 (Su3).
+|cost=500
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Critical Damage Bonus
+|description=Increases critical damage dealt by 2%.
+|cost=500
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 23%.
+|cost=545
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Dual Wield Effect
+|description=Reduces attack delay by 5% when a weapon is equipped in each hand.
+|cost=550
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Defense Bonus
+|description=Increases physical defense by 8.
+|cost=605
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 25%.
+|cost=655
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Attack Bonus
+|description=Increases physical and ranged attack by 14.
+|cost=660
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Evasion Bonus
+|description=Increases physical evasion by 20.
+|cost=720
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 27%.
+|cost=775
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Accuracy Bonus
+|description=Increases physical and ranged accuracy by 10.
+|cost=780
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Magic Evasion Bonus
+|description=Increases magic evasion bonus by 10.
+|cost=845
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 29%.
+|cost=905
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Magic Accuracy Bonus
+|description=Increases magic accuracy bonus by 10.
+|cost=910
+}}
+{{Job Page Job Point Gift Table Entry
+|gift="Treasure Hunter" Bonus
+|description=Increases the chance that the effects of Treasure Hunter will increase by 6%.
+|cost=980
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 31%.
+|cost=1045
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Triple Attack Chance
+|description=Increases the chance of attacking thrice by 2%.
+|cost=1050
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Critical Damage Bonus
+|description=Increases critical damage dealt by 2%.
+|cost=1125
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increases acquired capacity points by 33%.
+|cost=1195
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Superior 4
+|description=Enables the player to equip items marked as Superior 4 (Su4).
+|cost=1200
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Maximum Treasure Hunter Value
+|description=Increases the maximum value of Treasure Hunter by 1, for a value of 14.
+|cost=1200
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Defense Bonus
+|description=Increases physical defense by 10.
+|cost=1280
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Capacity Point Bonus
+|description=Increase acquired capacity points by 35%.
+|cost=1355
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Attack Bonus
+|description=Increases physical and ranged attack by 18.
+|cost=1360
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Evasion Bonus
+|description=Increases physical evasion by 25.
+|cost=1445
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Physical Accuracy Bonus
+|description=Increases physical and ranged accuracy by 13.
+|cost=1530
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Magic Evasion Bonus
+|description=Increases magic evasion by 13.
+|cost=1620
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Magic Accuracy Bonus
+|description=Increases magic accuracy by 13.
+|cost=1710
+}}
+{{Job Page Job Point Gift Table Entry
+|gift="Treasure Hunter" Bonus
+|description=Increases the chance that effects of Treasure Hunter will increase by 7%.
+|cost=1805
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Triple Attack Chance
+|description=Increases the chance of attacking thrice by 2%.
+|cost=1900
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Critical Damage Bonus
+|description=Increases critical damage dealt by 2%.
+|cost=2000
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=Superior 5
+|description=Enables the player to equip items marked as Superior 5 (Su5).
+|cost=2100
+}}
+{{Job Page Job Point Gift Table Entry
+|gift=★Master!
+|description=Grants the designation "Master Rogue."<br>Decreases the recast time of one-hour abilities by 15 minutes.
+|cost=2100
+}}
+}}
+
+== Job-Specific Equipment ==
+{{Job Pages 3
+|job=THF
+|af_armor_set_name=Rogue's Attire Set
+|af_reforge_armor_set_name=Pillager's Attire Set
+|af_accessory_type=Weapon
+|af_accessory_lvl=40
+|af_accessory_piece=Marauder's Knife
+|af_armor_52=Rogue's Armlets
+|af_armor_54=Rogue's Bonnet
+|af_armor_56=Rogue's Culottes
+|af_armor_58=Rogue's Vest
+|af_armor_60=Rogue's Poulaines
+|af_reforge_armor_head=Pillager's Bonnet
+|af_reforge_armor_body=Pillager's Vest
+|af_reforge_armor_hands=Pillager's Armlets
+|af_reforge_armor_legs=Pillager's Culottes
+|af_reforge_armor_feet=Pillager's Poulaines
+|relic_armor_set_name=Assassin's Attire Set
+|relic_reforge_armor_set_name=Plunderer's Attire Set
+|relic_accessory_piece=Assassin's Cape
+|relic_armor_71=Assassin's Bonnet
+|relic_armor_72=Assassin's Vest
+|relic_armor_73=Assassin's Poulaines
+|relic_armor_74=Assassin's Culottes
+|relic_armor_75=Assassin's Armlets
+|relic_reforge_armor_head=Plunderer's Bonnet
+|relic_reforge_armor_body=Plunderer's Vest
+|relic_reforge_armor_hands=Plunderer's Armlets
+|relic_reforge_armor_legs=Plunderer's Culottes
+|relic_reforge_armor_feet=Plunderer's Poulaines
+|jse_neck=Assassin's Gorget
+|su4_weapon_nq=Assassin's Knife
+|su4_weapon_hq=Plunderer's Knife
+|su5_weapon=Gandring
+|emp_armor_set_name=Raider's Attire Set
+|emp_reforge_armor_set_name=Skulker's Attire Set
+|emp_accessory_piece_1=Raider's Belt
+|emp_accessory_piece_2=Raider's Boomerang
+|emp_accessory_piece_3=Raider's Earring
+|emp_armor_81=Raider's Poulaines
+|emp_armor_83=Raider's Culottes
+|emp_armor_85=Raider's Bonnet
+|emp_armor_87=Raider's Armlets
+|emp_armor_89=Raider's Vest
+|emp_reforge_armor_head=Skulker's Bonnet
+|emp_reforge_armor_body=Skulker's Vest
+|emp_reforge_armor_hands=Skulker's Armlets
+|emp_reforge_armor_legs=Skulker's Culottes
+|emp_reforge_armor_feet=Skulker's Poulaines
+|emp_reforge_earring=Skulker's Earring
+}}
+
+== Guides ==
+{{Category:Job Guides|transcludesection=Thief}}
+
+[[Category: Jobs]]

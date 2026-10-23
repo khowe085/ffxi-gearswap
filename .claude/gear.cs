@@ -10,9 +10,14 @@
 //
 // test runs each category of tests whose files changed since it last passed in this checkout: tools (every tool's
 // build brought up to date, then tests/run-tests.cs on the made-up character there), data (the tools' checks of each
-// character's gear files and docs), and gearswap. A pass vouches for the builds it ran on, so a build made again
-// clears every pass. --all runs every category, and a category named runs whether or not it changed. --filter runs
-// only the tools tests whose name holds the text, and counts for no pass.
+// character's gear files and docs), and gearswap (GearSwap's Lua tests under the repo's tests/, each spec file in a
+// busted process of its own, by tests/run-gearswap-tests.cs). Of the gearswap tests it runs only the spec files the
+// change could have affected: those with no record, those whose own file, or a repo file they loaded when they last
+// passed, changed, and all of them when a file every spec file rests on changed (the harness, the resources, .busted,
+// Windower's libraries, the runner, or the names of the files the tests' Windower install is copied from). A pass
+// vouches for the builds it ran on, so a build made again clears every pass. --all runs every category and every spec
+// file, and a category named runs whether or not it changed, with every spec file.
+// --filter runs only the tools or gearswap tests whose name holds the text, and counts for no pass.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -66,6 +71,9 @@ sealed class TestCommand
 	Builds builds;
 	string[] categories;
 
+	// The exit code of tests/run-gearswap-tests.cs where busted can't run: not installed, or on Windows.
+	const int BustedCantRun = 3;
+
 	public TestCommand(string repo, Builds builds)
 	{
 		this.repo = repo;
@@ -101,23 +109,21 @@ sealed class TestCommand
 				return Stop($"No test category named {arguments[i]}. Categories: {string.Join(" ", categories)}");
 			}
 		}
-		if (filter is not null && named.SequenceEqual(["tools"]) is false)
-			return Stop("--filter is for the tools tests alone: test tools --filter <text>");
+		if (filter is not null && (named.SequenceEqual(["tools"]) || named.SequenceEqual(["gearswap"])) is false)
+			return Stop("--filter is for one category of tests: test tools --filter <text> or test gearswap --filter <text>");
 		var outcome = 0;
 		foreach (var category in categories.Where(category => named.Count == 0 || named.Contains(category)))
-			outcome = Math.Max(outcome, Test(category, all || named.Count > 0, filter));
+			outcome = Math.Max(outcome, Test(category, all || named.Count > 0, named.Contains(category), filter));
 		return outcome;
 	}
 
-	// Runs a category, unless it passed with these files and isn't forced to run, and says how it went. The exit code:
-	// 1 when it failed, and 2 when it couldn't run, as for a --filter no test's name holds.
-	int Test(string category, bool forced, string? filter)
+	// Runs a category, unless it passed with these files and isn't forced to run, and says how it went. A category that
+	// isn't forced runs only what its files' change could have affected, where it can tell: GearSwap's tests run the
+	// spec files that rest on it. The exit code: 1 when it failed, and 2 when it couldn't run, as for a --filter no
+	// test's name holds. GearSwap's tests where busted can't run are skipped, with a notice, unless the category was
+	// named.
+	int Test(string category, bool forced, bool named, string? filter)
 	{
-		if (category == "gearswap")
-		{
-			Console.WriteLine("gearswap: no tests yet");
-			return 0;
-		}
 		var pass = Path.Combine(passes, category);
 		var before = Files.Hash(repo, Inputs(category));
 		if (forced is false && File.Exists(pass) && File.ReadAllText(pass) == before)
@@ -126,7 +132,19 @@ sealed class TestCommand
 			return 0;
 		}
 		var watch = Stopwatch.StartNew();
-		var outcome = category == "tools" ? RunToolsTests(filter) : RunDataChecks() ? 0 : 1;
+		var outcome = category switch
+		{
+			"tools" => RunToolsTests(filter),
+			"gearswap" => RunGearSwapTests(filter, affectedOnly: forced is false),
+			_ => RunDataChecks() ? 0 : 1,
+		};
+		if (outcome == BustedCantRun)
+		{
+			if (named)
+				return 2;
+			Console.WriteLine($"{category}: skipped, since busted can't run here (they need Linux or WSL with Lua 5.1 and busted)");
+			return 0;
+		}
 		if (outcome == 1)
 			Console.WriteLine($"{category}: FAILED");
 		if (outcome != 0)
@@ -148,10 +166,20 @@ sealed class TestCommand
 	// The files of the checkout a category's result rests on. The tools tests run on a fixture of their own, so they
 	// rest on the tools' source and tests/ alone. The data checks rest on the data and the docs they check, and on this
 	// launcher, which says what they are; the builds they run are rested on through the build that clears their pass.
+	// GearSwap's tests rest on the GearSwap they load (its Lua, libs/ and data/, where a character's notes say its gear
+	// files are tested), the Windower libraries under it, the tests and their busted settings.
 	IEnumerable<string> Inputs(string category)
 	{
 		if (category == "tools")
 			return ToolSources().Concat(Files.Under(Path.Combine(toolsDir, "tests")));
+		if (category == "gearswap")
+			return Directory.GetFiles(repo, "*.lua")
+				.Concat(Files.Under(Path.Combine(repo, "libs")))
+				.Concat(Files.Under(Path.Combine(repo, "data")))
+				.Concat(Files.Under(Path.Combine(repo, "docs", "windower", "libs")))
+				.Concat(Files.Under(Path.Combine(repo, "tests")))
+				.Concat(Files.IfThere(Path.Combine(repo, ".busted")))
+				.Append(Path.Combine(repo, ".claude", "gear.cs"));
 		return Files.Under(Path.Combine(repo, "data"))
 			.Concat(Files.Under(Path.Combine(repo, "docs")))
 			.Append(Path.Combine(repo, ".claude", "gear.cs"));
@@ -174,9 +202,22 @@ sealed class TestCommand
 		return exit is 0 or 2 ? exit : 1;
 	}
 
+	// The runner's build is brought up to date first. It runs every spec file, or with affectedOnly the ones the change
+	// could have affected, and says which. A crash, whatever code it exited with, fails the category.
+	int RunGearSwapTests(string? filter, bool affectedOnly)
+	{
+		var runner = builds.Get(Path.Combine(toolsDir, "tests", "run-gearswap-tests.cs"));
+		if (runner is null)
+			return 1;
+		string[] arguments = filter is not null ? [filter] : affectedOnly ? ["--affected"] : [];
+		var exit = Apps.Run(runner, arguments);
+		return exit is 0 or 2 or BustedCantRun ? exit : 1;
+	}
+
 	// Reads each character's gear files into sets files, checks those against the export, the blue magic lists and
 	// the gear list, and lints the docs with the character's own. Then checks the rank documents against bg-wiki's rank
-	// tables in docs/wiki.
+	// tables in docs/wiki. The gear list and the docs are living documents: what they say that the sets or the export no
+	// longer back, and a gear list not written yet, is a warning, and only a fault in their own form fails the category.
 	bool RunDataChecks()
 	{
 		var sets = Path.Combine(Path.GetTempPath(), "gear-data-" + Guid.NewGuid().ToString("N")[..8]);
@@ -200,8 +241,8 @@ sealed class TestCommand
 						passed &= Check("check-blu-spells", "--in", json);
 				}
 				if (lists.Count > 0)
-					passed &= Check("gear-list", [.. lists]);
-				passed &= Check("doc-lint", "--char", character);
+					passed &= Check("gear-list", [.. lists, "--warn-drift"]);
+				passed &= Check("doc-lint", "--char", character, "--warn-drift");
 			}
 			passed &= Check("rank-doc", "--check");
 		}
@@ -294,10 +335,13 @@ sealed class Builds
 	// writing the compiler's errors.
 	public string? Get(string source) => Current(source) ? AssemblyOf(source) : null;
 
-	// Brings the builds of every tool and of the tools tests up to date, side by side. False when one doesn't build.
+	// Brings the builds of every tool and of the two test runners up to date, side by side. False when one doesn't build.
 	public bool BuildAll()
 	{
-		var apps = Directory.GetFiles(toolsDir, "*.cs").Append(Path.Combine(toolsDir, "tests", "run-tests.cs")).ToList();
+		var apps = Directory.GetFiles(toolsDir, "*.cs")
+			.Append(Path.Combine(toolsDir, "tests", "run-tests.cs"))
+			.Append(Path.Combine(toolsDir, "tests", "run-gearswap-tests.cs"))
+			.ToList();
 		var current = new bool[apps.Count];
 		Parallel.For(0, apps.Count, i => current[i] = Current(apps[i]));
 		return current.All(done => done);

@@ -1,0 +1,87 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=H2H
+|nohits=1
+|desc=Damage varies with TP.
+|mp=48 MP
+|blupoint=5
+|cast=0.5 seconds
+|recast=23.75 seconds
+|target=Single
+|range=
+|stats=[[DEX]] +1 [[CHR]] +1 [[HP]] +5
+|effects=
+|duration=
+|trait=Accuracy Bonus
+|level=60
+|mtype=Undead
+|family=Fomor
+|wsc=50% [[STR]]
+|ftp=
+|ftp0=2.25
+|ftp150=2.25
+|ftp300=2.25
+|ftp350=2.25
+|scprop={{Impaction}} [[Impaction]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Fomor
+|Spell Level=60
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Shadow
+|Level=44-46
+|Zone=Fei'Yin 
+|SpawnCondition=
+|Map=Fei%27Yin-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Specter
+|Level=55-58
+|Zone=Fei'Yin 
+|SpawnCondition=
+|Map=Fei%27Yin-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Shade
+|Level=46-48
+|Zone=Eldieme Necropolis 
+|SpawnCondition=
+|Map=The_Eldieme_Necropolis-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Ka
+|Level=52-54
+|Zone=Eldieme Necropolis 
+|SpawnCondition=
+|Map=The_Eldieme_Necropolis-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Dark Stalker
+|Level=57-59
+|Zone=Eldieme Necropolis 
+|SpawnCondition=
+|Map=The_Eldieme_Necropolis-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Spriggan
+|Level=64-66
+|Zone=Eldieme Necropolis 
+|SpawnCondition=
+|Map=The_Eldieme_Necropolis-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Marchelute
+|Level=50-53
+|Zone=Valkurm Dunes
+|SpawnCondition=WHM AF1 NM
+|Map=Valkurm Dunes.jpg
+|NM=NM
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]

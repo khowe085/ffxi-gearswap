@@ -1,0 +1,1057 @@
+local jobby = require('jobby')
+
+local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
+    'Adamantite Armor', 'Plumb Boots', "Orunmila's Torque", 'Weike Torque', 'Kaykaus Mitra +1', 'Sortiarius Earring',
+    'Beatific Earring', 'Choleric Earring', 'Pensee Earring', 'Lunette Ring', 'Pernicious Ring', 'Gelatinous Ring',
+    'Cacoethic Ring', 'Petrov Ring', 'Fortified Ring', 'Vertigo Ring', 'Dhanurveda Ring', 'Wanion Belt',
+    'Prodigious Mantle', "Bunzi's Rod", 'Gozuki Mezuki', 'Kishar Ring'}
+
+-- Jobby as a scholar with the idle set on. The options are those of a boot (sub_job, tp, buffs, spells, wearing) and
+-- these besides:
+--   mp         the MP of the 1000 he has
+--   friend     true for a party member, Friend, near him
+--   stranger   true for another player, Stranger, 4 yalms off, who is not in the party
+local function boot(options)
+    options = options or {}
+    local gs = jobby.boot('SCH', {items = pieces, sub_job = options.sub_job or 'RDM', tp = options.tp,
+        buffs = options.buffs, spells = options.spells, wearing = options.wearing})
+    if options.mp then
+        gs.game.player.vitals.mp = options.mp
+        gs.game.player.vitals.mpp = math.floor(options.mp / 10)
+    end
+    if options.friend then
+        gs.game:add_party_member({name = 'Friend'})
+    end
+    if options.stranger then
+        gs.game:add_party_member({name = 'Stranger', in_party = false, distance = 16})
+    end
+    gs:console('gs c update')
+    gs:forget()
+    return gs
+end
+
+-- What every Jobby gear file's idle set wears, as the game shows it worn, with the scholar's staff in hand.
+local idle = jobby.worn_by(jobby.idle, jobby.weapons.SCH)
+
+local sets_of, targeted, first_actions = jobby.sets_of, jobby.targeted, jobby.first_actions
+
+-- What is worn once the spell typed is out.
+local function cast(gs, line)
+    gs:type(line)
+    return gs:worn()
+end
+
+-- What the game shows worn with the fast cast set laid over the idle set, and the sets given over that.
+local function fast_cast(gs, ...)
+    return jobby.worn_by(idle, jobby.layer(sets_of(gs).precast.FC, ...))
+end
+
+describe('a cure by a scholar', function()
+    local function cure(gs)
+        return cast(gs, '/ma "Cure III" <me>')
+    end
+
+    it('wears sets.midcast.Cure', function()
+        local gs = boot()
+        assert.same(fast_cast(gs, sets_of(gs).midcast.Cure), cure(gs))
+    end)
+
+    it('wears sets.midcast.LightWeatherCure in light weather', function()
+        local gs = boot()
+        gs:set_weather(16)
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LightWeatherCure), cure(gs))
+    end)
+
+    it('wears sets.midcast.LightDayCure on a Lightsday', function()
+        local gs = boot()
+        gs:set_day(6)
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LightDayCure), cure(gs))
+    end)
+
+    it('wears the weather\'s set ahead of the day\'s', function()
+        local gs = boot()
+        gs:set_day(6)
+        gs:set_weather(16)
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LightWeatherCure), cure(gs))
+    end)
+
+    describe('with a weapon set locking the weapons', function()
+        local function locked()
+            local gs = boot()
+            gs:console('gs c set Weapons Club')
+            gs:traffic()
+            return gs
+        end
+
+        it('wears sets.midcast.MeleeCure', function()
+            local gs = locked()
+            assert.same(fast_cast(gs, sets_of(gs).midcast.MeleeCure, {main = "Bunzi's Rod"}), cure(gs))
+        end)
+
+        it('wears sets.midcast.MeleeLightWeatherCure in light weather', function()
+            local gs = locked()
+            gs:set_weather(16)
+            assert.same(fast_cast(gs, sets_of(gs).midcast.MeleeLightWeatherCure, {main = "Bunzi's Rod"}), cure(gs))
+        end)
+
+        it('wears sets.midcast.MeleeLightDayCure on a Lightsday', function()
+            local gs = locked()
+            gs:set_day(6)
+            assert.same(fast_cast(gs, sets_of(gs).midcast.MeleeLightDayCure, {main = "Bunzi's Rod"}), cure(gs))
+        end)
+
+        it('wears sets.midcast.Cure again with UnlockWeapons on', function()
+            local gs = locked()
+            gs:console('gs c toggle UnlockWeapons')
+            gs:traffic()
+            local worn = cure(gs)
+            assert.equal('Gelatinous Ring', worn.left_ring)
+        end)
+    end)
+end)
+
+describe('a Curaga by a scholar on a player outside the party', function()
+    it('is turned to an Accession Cure under Light Arts: Accession first, the Cure a second later', function()
+        local gs = boot({sub_job = 'WHM', stranger = true, buffs = {'Light Arts'}})
+        gs:type('/ma "Curaga" Stranger')
+        assert.same({'Accession Jobby'}, targeted(gs))
+        gs:gain_buff('Accession')
+        gs:traffic()
+        gs:advance(5)
+        assert.same({'Cure Stranger'}, targeted(gs))
+    end)
+
+    it('is turned to the Cure at once with Accession up', function()
+        local gs = boot({sub_job = 'WHM', stranger = true, buffs = {'Light Arts', 'Accession'}})
+        gs:type('/ma "Curaga" Stranger')
+        assert.same({'Cure Stranger'}, targeted(gs))
+    end)
+
+    it('is turned to the Cure under an Addendum: White as well', function()
+        local gs = boot({sub_job = 'WHM', stranger = true, buffs = {'Addendum: White', 'Accession'}})
+        gs:type('/ma "Curaga" Stranger')
+        assert.same({'Cure Stranger'}, targeted(gs))
+    end)
+
+    it('is refused without an art, saying why', function()
+        local gs = boot({sub_job = 'WHM', stranger = true})
+        gs:type('/ma "Curaga" Stranger')
+        assert.same({}, gs:actions())
+        assert.same({"Error: You can't Curaga outside of party."}, gs:chat())
+    end)
+
+    it('is refused with no stratagem to spend, saying why', function()
+        local gs = boot({sub_job = 'WHM', stranger = true, buffs = {'Light Arts'}})
+        gs.game:start_ability_recast('Penury', 165)
+        gs:type('/ma "Curaga" Stranger')
+        assert.same({}, gs:actions())
+        assert.same({'Error: Not enough Stratagems to convert Curaga to Accesion Cure.'}, gs:chat())
+    end)
+
+    it('goes out as it is on a member of the party', function()
+        local gs = boot({sub_job = 'WHM', friend = true})
+        gs:type('/ma "Curaga" Friend')
+        assert.same({'Curaga Friend'}, targeted(gs))
+    end)
+end)
+
+describe('a cure on a player too far to heal', function()
+    it('is refused beyond 21 yalms, saying so', function()
+        local gs = boot({friend = true})
+        gs.game.others[1].distance = 22 ^ 2
+        gs:type('/ma "Cure III" Friend')
+        assert.same({}, gs:actions())
+        assert.same({'Target out of range, too far to heal!'}, gs:chat())
+    end)
+
+    it('goes out at 21 yalms', function()
+        local gs = boot({friend = true})
+        gs.game.others[1].distance = 21 ^ 2
+        gs:type('/ma "Cure III" Friend')
+        assert.same({'Cure III Friend'}, targeted(gs))
+    end)
+end)
+
+describe('the set of a spell by its kind', function()
+    it('is sets.midcast.LowTierNuke for a low tier nuke: Stone', function()
+        local gs = boot()
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LowTierNuke), cast(gs, '/ma "Stone" <t>'))
+    end)
+
+    it('is sets.midcast.LowTierNuke for Fire II', function()
+        local gs = boot()
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LowTierNuke), cast(gs, '/ma "Fire II" <t>'))
+    end)
+
+    it('is sets.midcast.HighTierNuke for a high tier nuke: Fire III', function()
+        local gs = boot()
+        assert.same(fast_cast(gs, sets_of(gs).midcast.HighTierNuke), cast(gs, '/ma "Fire III" <t>'))
+    end)
+
+    it('is sets.midcast.Helix for a helix, which is no nuke of either tier', function()
+        local gs = boot()
+        assert.same(fast_cast(gs, sets_of(gs).midcast.Helix), cast(gs, '/ma "Pyrohelix" <t>'))
+    end)
+
+    it('is sets.midcast.ElementalEnfeeble for an elemental enfeeble, which is no nuke of either tier: Burn', function()
+        local gs = boot({sub_job = 'BLM'})
+        assert.same(fast_cast(gs, sets_of(gs).midcast.ElementalEnfeeble), cast(gs, '/ma "Burn" <t>'))
+    end)
+
+    it('is sets.midcast["Enfeebling Magic"] for Dispel', function()
+        local gs = boot()
+        assert.same(fast_cast(gs, sets_of(gs).midcast['Enfeebling Magic']), cast(gs, '/ma "Dispel" <t>'))
+    end)
+end)
+
+describe('the obi entries a scholar\'s precast fills', function()
+    local function default_after(line)
+        local gs = boot()
+        gs:type(line)
+        return gs.user.gear.default
+    end
+
+    it('are the cure ones for a cure', function()
+        local default = default_after('/ma "Cure III" <me>')
+        assert.equal('Prodigious Mantle', default.obi_back)
+        assert.equal('Wanion Belt', default.obi_waist)
+    end)
+
+    it('are the low nuke ones for a low tier nuke', function()
+        assert.equal('Plat. Mog. Belt', default_after('/ma "Stone" <t>').obi_waist)
+    end)
+
+    it('are the low nuke ones for a helix', function()
+        assert.equal('Plat. Mog. Belt', default_after('/ma "Pyrohelix" <t>').obi_waist)
+    end)
+
+    it('are the high nuke ones for a high tier nuke', function()
+        assert.equal('Hachirin-no-Obi', default_after('/ma "Fire III" <t>').obi_waist)
+    end)
+
+    it('are left as they were for a spell that is neither', function()
+        local gs = boot()
+        gs:type('/ma "Cure III" <me>')
+        gs:finish_action()
+        gs:advance(3)
+        gs:traffic()
+        gs:type('/ma "Dispel" <t>')
+        assert.same({'Dispel'}, gs:actions())
+        assert.equal('Prodigious Mantle', gs.user.gear.default.obi_back)
+        assert.equal('Wanion Belt', gs.user.gear.default.obi_waist)
+    end)
+
+    pending('are left as they were for an elemental enfeeble: job_precast in data/SCH.lua tests default_spell_map, '
+        .. 'a global nothing sets, against \'ElementalEnfeeble\', so Burn takes the high nuke ones')
+end)
+
+describe('the casting mode of a scholar', function()
+    it('wears sets.precast.FC.Proc ahead of a spell in the Proc casting mode', function()
+        local gs = boot()
+        gs:console('gs c set CastingMode Proc')
+        gs:traffic()
+        gs:type('/ma "Stone" <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.FC.Proc), gs:traffic()[1].equip)
+    end)
+
+    it('wears sets.precast.FC.OccultAcumen ahead of a spell in the OccultAcumen casting mode', function()
+        local gs = boot()
+        gs:console('gs c set CastingMode OccultAcumen')
+        gs:traffic()
+        gs:type('/ma "Stone" <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.FC.OccultAcumen), gs:traffic()[1].equip)
+    end)
+
+    it('wears sets.precast.FC otherwise', function()
+        local gs = boot()
+        gs:type('/ma "Stone" <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.FC), gs:traffic()[1].equip)
+    end)
+end)
+
+describe('a spell cast under an art', function()
+    local function with_art(buff, line)
+        local gs = boot({buffs = {buff}})
+        gs:type(line)
+        return gs, gs:traffic()[1].equip
+    end
+
+    it('wears sets.precast.FC.Arts[the spell\'s name] over the fast cast set', function()
+        local gs, equip = with_art('Dark Arts', '/ma "Dispel" <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.FC, sets_of(gs).precast.FC.Arts.Dispel), equip)
+    end)
+
+    it('wears sets.precast.FC.Arts[the spell\'s map] when it has none by name', function()
+        local gs, equip = with_art('Light Arts', '/ma "Cure III" <me>')
+        assert.same(jobby.layer(sets_of(gs).precast.FC, sets_of(gs).precast.FC.Arts.Cure), equip)
+    end)
+
+    it('wears sets.precast.FC.Arts[the spell\'s skill] when it has none by map', function()
+        local gs, equip = with_art('Light Arts', '/ma "Regen" <me>')
+        assert.same(jobby.layer(sets_of(gs).precast.FC, sets_of(gs).precast.FC.Arts['Enhancing Magic']), equip)
+    end)
+
+    it('wears sets.precast.FC.Arts itself when it has none of those', function()
+        local gs, equip = with_art('Dark Arts', '/ma "Stone" <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.FC, sets_of(gs).precast.FC.Arts), equip)
+    end)
+
+    it('takes an addendum for its art', function()
+        local gs, equip = with_art('Addendum: White', '/ma "Cure III" <me>')
+        assert.same(jobby.layer(sets_of(gs).precast.FC, sets_of(gs).precast.FC.Arts.Cure), equip)
+    end)
+
+    it('takes no set of the arts for a spell of the other art\'s magic', function()
+        local gs, equip = with_art('Light Arts', '/ma "Stone" <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.FC), equip)
+    end)
+
+    it('takes no set of the arts without an art', function()
+        local gs = boot()
+        gs:type('/ma "Cure III" <me>')
+        assert.same(jobby.layer(sets_of(gs).precast.FC), gs:traffic()[1].equip)
+    end)
+end)
+
+describe('the stratagems laid over a spell', function()
+    local function with(buffs, line, setup)
+        local gs = boot({buffs = buffs})
+        if setup then
+            setup(gs)
+        end
+        return gs, cast(gs, line)
+    end
+
+    it('wear sets.buff.Perpetuance over an enhancing spell', function()
+        local gs, worn = with({'Perpetuance'}, '/ma "Regen" <me>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast.Regen, sets_of(gs).buff.Perpetuance), worn)
+    end)
+
+    it('wear no sets.buff.Perpetuance over a spell that is not enhancing', function()
+        local gs, worn = with({'Perpetuance'}, '/ma "Cure III" <me>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast.Cure), worn)
+    end)
+
+    it('wear sets.buff.Rapture over a cure', function()
+        local gs, worn = with({'Rapture'}, '/ma "Cure III" <me>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast.Cure, sets_of(gs).buff.Rapture), worn)
+    end)
+
+    it('wear sets.buff.Penury over a cure', function()
+        local gs, worn = with({'Penury'}, '/ma "Cure III" <me>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast.Cure, sets_of(gs).buff.Penury), worn)
+    end)
+
+    it('wear sets.buff.Penury over a cure with Parsimony up too', function()
+        local gs, worn = with({'Penury', 'Parsimony'}, '/ma "Cure III" <me>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast.Cure, sets_of(gs).buff.Penury), worn)
+    end)
+
+    it('wear sets.buff.Parsimony over a nuke', function()
+        local gs, worn = with({'Parsimony'}, '/ma "Stone" <t>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LowTierNuke, sets_of(gs).buff.Parsimony), worn)
+    end)
+
+    it('wear no sets.buff.Parsimony over a spell that is no nuke', function()
+        local gs, worn = with({'Parsimony'}, '/ma "Dispel" <t>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast['Enfeebling Magic']), worn)
+    end)
+
+    it('wear sets.buff.Focalization over black magic', function()
+        local gs, worn = with({'Focalization'}, '/ma "Stone" <t>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LowTierNuke, sets_of(gs).buff.Focalization), worn)
+    end)
+
+    it('wear no sets.buff.Focalization over white magic', function()
+        local gs, worn = with({'Focalization'}, '/ma "Cure III" <me>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast.Cure), worn)
+    end)
+
+    it('wear sets.buff.Celerity over a spell of the weather\'s element', function()
+        local gs, worn = with({'Celerity'}, '/ma "Cure III" <me>', function(gs)
+            gs:set_weather(16)
+        end)
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LightWeatherCure, sets_of(gs).buff.Celerity), worn)
+    end)
+
+    it('wear sets.buff.Alacrity over a spell of the weather\'s element', function()
+        local gs, worn = with({'Alacrity'}, '/ma "Cure III" <me>', function(gs)
+            gs:set_weather(16)
+        end)
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LightWeatherCure, sets_of(gs).buff.Alacrity), worn)
+    end)
+
+    it('wear no sets.buff.Celerity over a spell of another element', function()
+        local gs, worn = with({'Celerity'}, '/ma "Cure III" <me>', function(gs)
+            gs:set_weather(6)
+        end)
+        assert.same(fast_cast(gs, sets_of(gs).midcast.Cure), worn)
+    end)
+
+    it('wear sets.buff.Ebullience over a nuke', function()
+        local gs, worn = with({'Ebullience'}, '/ma "Stone" <t>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LowTierNuke, sets_of(gs).buff.Ebullience), worn)
+    end)
+
+    it('wear sets.buff.Immanence over a nuke', function()
+        local gs, worn = with({'Immanence'}, '/ma "Stone" <t>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LowTierNuke, sets_of(gs).buff.Immanence), worn)
+    end)
+
+    it('wear sets.buff.Klimaform over a nuke of the weather\'s element', function()
+        local gs, worn = with({'Klimaform'}, '/ma "Stone" <t>', function(gs)
+            gs:set_weather(8)
+        end)
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LowTierNuke, sets_of(gs).buff.Klimaform), worn)
+    end)
+
+    it('wear no sets.buff.Klimaform over a nuke of another element', function()
+        local gs, worn = with({'Klimaform'}, '/ma "Stone" <t>', function(gs)
+            gs:set_weather(6)
+        end)
+        assert.same(fast_cast(gs, sets_of(gs).midcast.LowTierNuke), worn)
+    end)
+
+    it('wear no Ebullience, Immanence or Klimaform set in the Proc casting mode', function()
+        local gs = boot({buffs = {'Ebullience', 'Immanence', 'Klimaform'}})
+        gs:set_weather(8)
+        gs:console('gs c set CastingMode Proc')
+        gs:traffic()
+        local worn = cast(gs, '/ma "Stone" <t>')
+        assert.same(jobby.worn_by(idle,
+            jobby.layer(sets_of(gs).precast.FC.Proc, sets_of(gs).midcast.LowTierNuke)), worn)
+    end)
+
+    it('wear sets.buff["Light Arts"] over an enfeebling spell under Light Arts', function()
+        local gs, worn = with({'Light Arts'}, '/ma "Dispel" <t>')
+        assert.same(fast_cast(gs, sets_of(gs).midcast['Enfeebling Magic'], sets_of(gs).buff['Light Arts']), worn)
+    end)
+
+    it('wear sets.buff["Dark Arts"] over an enfeebling spell under Dark Arts', function()
+        local gs, worn = with({'Dark Arts'}, '/ma "Dispel" <t>')
+        assert.same(fast_cast(gs, sets_of(gs).precast.FC.Arts.Dispel, sets_of(gs).midcast['Enfeebling Magic'],
+            sets_of(gs).buff['Dark Arts']), worn)
+    end)
+
+    it('wear sets.buff["Dark Arts"] over an enfeebling spell under Addendum: Black', function()
+        local gs, worn = with({'Addendum: Black'}, '/ma "Dispel" <t>')
+        assert.equal('Volte Hose', worn.legs)
+    end)
+
+    pending('wear sets.buff["Dark Arts"] over an elemental enfeeble under Dark Arts: job_post_midcast in data/SCH.lua '
+        .. 'tests default_spell_map, a global nothing sets, so Burn goes on to the nukes\' branch and takes the '
+        .. 'Klimaform, Ebullience and Immanence sets instead')
+end)
+
+describe('a stratagem used', function()
+    it('is followed a second later by the charges left, which the recast says', function()
+        local gs = boot({buffs = {'Light Arts'}})
+        gs.game:start_ability_recast('Penury', 66)
+        gs:type('/ja "Penury" <me>')
+        gs:finish_action()
+        gs:advance(1)
+        assert.same({'~~~Current Stratagem Charges Available: [3]~~~'}, gs:chat())
+    end)
+
+    it('is followed by it not before that second is over', function()
+        local gs = boot({buffs = {'Light Arts'}})
+        gs:type('/ja "Penury" <me>')
+        gs:finish_action()
+        gs:advance(.9)
+        assert.same({}, gs:chat())
+    end)
+
+    it('is not followed by the charges when it is an ability of another kind', function()
+        local gs = boot()
+        gs:type('/ja "Light Arts" <me>')
+        gs:finish_action()
+        gs:advance(2)
+        assert.same({}, gs:chat())
+    end)
+
+    it('is counted by gs c showcharge: five with none on recast, at level 99 with the job points', function()
+        local gs = boot()
+        gs:console('gs c showcharge')
+        assert.same({'~~~Current Stratagem Charges Available: [5]~~~'}, gs:chat())
+    end)
+
+    it('is counted by gs c showcharge: a charge back for each 33 seconds of the recast', function()
+        local gs = boot()
+        gs.game:start_ability_recast('Penury', 99)
+        gs:console('gs c showcharge')
+        assert.same({'~~~Current Stratagem Charges Available: [2]~~~'}, gs:chat())
+    end)
+end)
+
+describe('a sleep spell cast by a scholar', function()
+    it('starts a timer of a minute for Sleep, with the target\'s name', function()
+        local gs = boot()
+        gs:type('/ma "Sleep" <t>')
+        gs:finish_action()
+        assert.same({'timers c "Sleep [Apex Toad]" 60 down spells/00220.png'}, gs:commands())
+    end)
+
+    it('starts a timer of a minute for Sleepga', function()
+        local gs = boot({sub_job = 'BLM'})
+        gs:type('/ma "Sleepga" <t>')
+        gs:finish_action()
+        assert.same({'timers c "Sleepga [Apex Toad]" 60 down spells/00220.png'}, gs:commands())
+    end)
+
+    it('starts a timer of a minute and a half for Sleep II', function()
+        local gs = boot()
+        gs:type('/ma "Sleep II" <t>')
+        gs:finish_action()
+        assert.same({'timers c "Sleep II [Apex Toad]" 90 down spells/00220.png'}, gs:commands())
+    end)
+
+    it('starts no timer with the custom timers state off', function()
+        local gs = boot()
+        gs:console('gs c toggle UseCustomTimers')
+        gs:commands()
+        gs:type('/ma "Sleep" <t>')
+        gs:finish_action()
+        assert.same({}, gs:commands())
+    end)
+
+    it('starts no timer for a spell that is not a sleep', function()
+        local gs = boot()
+        gs:type('/ma "Stone" <t>')
+        gs:finish_action()
+        assert.same({}, gs:commands())
+    end)
+
+    it('starts no timer for a sleep that is interrupted', function()
+        local gs = boot()
+        gs:type('/ma "Sleep" <t>')
+        gs:interrupt_action()
+        assert.same({}, gs:commands())
+    end)
+
+    pending('starts no timer for Sleepga with the custom timers state off: job_aftercast in data/SCH.lua tests '
+        .. 'state.UseCustomTimers.value and spell.english == \'Sleep\' or spell.english == \'Sleepga\', so Sleepga '
+        .. 'starts one whatever the state says')
+end)
+
+describe('the idle set of a scholar', function()
+    local low_mp = jobby.low_mp
+
+    it('wears sets.latent_refresh under half MP, and no grip with nothing in hand', function()
+        local gs = boot({wearing = {main = 'empty'}})
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = 'empty'})), gs:worn())
+    end)
+
+    pending('wears sets.latent_refresh_grip too under half MP with a staff in hand and the weapons free when the idle '
+        .. 'set names no main: job_customize_idle_set in data/SCH.lua looks at the idle set\'s main, not at what is '
+        .. 'in hand, so the job file adds no grip set with Terra\'s Staff in hand')
+
+    it('wears no sets.latent_refresh above half MP', function()
+        local gs = boot()
+        assert.same(jobby.worn_by(idle), gs:worn())
+    end)
+
+    it('wears sets.latent_refresh_grip too with a staff in the idle set and the weapons free', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Gozuki Mezuki'
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+            {main = 'Gozuki Mezuki'})), gs:worn())
+    end)
+
+    it('wears no sets.latent_refresh_grip with a weapon set locking the weapons', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Gozuki Mezuki'
+        gs:console('gs c set Weapons Club')
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
+            gs:worn())
+    end)
+
+    it('wears sets.latent_refresh_grip with a staff in the idle set and the weapons locked to a staff but '
+        .. 'UnlockWeapons on', function()
+        local gs = boot()
+        sets_of(gs).idle.main = 'Gozuki Mezuki'
+        gs:console('gs c set Weapons Staff')
+        gs:console('gs c toggle UnlockWeapons')
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).latent_refresh_grip,
+            {main = 'Gozuki Mezuki'})), gs:worn())
+    end)
+
+    pending('wears no sets.latent_refresh_grip with a staff in the idle set and the weapons locked to a weapon that is '
+        .. 'no staff but UnlockWeapons on: job_customize_idle_set in data/SCH.lua looks at the idle set\'s main, and '
+        .. 'with UnlockWeapons on Sel lays the weapon set over the idle set after it, so the job file adds '
+        .. 'sets.latent_refresh_grip with Bunzi\'s Rod in hand')
+
+    pending('wears sets.latent_refresh_grip with the weapons locked to a staff but UnlockWeapons on when the idle set '
+        .. 'names no main: job_customize_idle_set in data/SCH.lua looks at the idle set\'s main, and Sel lays the '
+        .. 'weapon set over the idle set only after it, so the job file adds neither the grip set nor sets.TPEat with '
+        .. 'Gozuki Mezuki in hand')
+
+    it('wears no sets.latent_refresh in the DT idle mode', function()
+        local gs = boot()
+        gs:console('gs c set IdleMode DT')
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).idle.DT)), gs:worn())
+    end)
+
+    it('wears sets.buff.Sublimation while Sublimation is charging', function()
+        local gs = boot({buffs = {'Sublimation: Activated'}})
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).buff.Sublimation)), gs:worn())
+    end)
+
+    it('wears sets.buff.DTSublimation while it is, in the DT idle mode', function()
+        local gs = boot({buffs = {'Sublimation: Activated'}})
+        gs:console('gs c set IdleMode DT')
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).idle.DT, sets_of(gs).buff.DTSublimation)),
+            gs:worn())
+    end)
+
+    it('wears the Sublimation set and no sets.latent_refresh under half MP while Sublimation charges', function()
+        local gs = boot({buffs = {'Sublimation: Activated'}})
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).buff.Sublimation)), gs:worn())
+    end)
+
+    it('wears the Sublimation set no more once it is done', function()
+        local gs = boot({buffs = {'Sublimation: Activated'}})
+        gs:lose_buff('Sublimation: Activated')
+        gs:console('gs c update')
+        assert.same(jobby.worn_by(idle), gs:worn())
+    end)
+
+    it('wears sets.TPEat over the latent refresh set under half MP with more than 10 TP and a main weapon in the idle '
+        .. 'set', function()
+        local gs = boot({tp = 11})
+        sets_of(gs).idle.main = "Bunzi's Rod"
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle,
+            jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).TPEat, {main = "Bunzi's Rod"})), gs:worn())
+    end)
+
+    it('wears no sets.TPEat with 10 TP', function()
+        local gs = boot({tp = 10})
+        sets_of(gs).idle.main = "Bunzi's Rod"
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
+            gs:worn())
+    end)
+
+    it('wears no sets.TPEat with a weapon set locking the weapons', function()
+        local gs = boot()
+        sets_of(gs).idle.main = "Bunzi's Rod"
+        gs:console('gs c set Weapons Club')
+        gs:set_tp(100)
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle, jobby.layer(sets_of(gs).latent_refresh, {main = "Bunzi's Rod"})),
+            gs:worn())
+    end)
+
+    it('wears sets.TPEat with a weapon in the idle set and the weapons locked but UnlockWeapons on', function()
+        local gs = boot()
+        sets_of(gs).idle.main = "Bunzi's Rod"
+        gs:console('gs c set Weapons Club')
+        gs:console('gs c toggle UnlockWeapons')
+        gs:set_tp(100)
+        low_mp(gs)
+        assert.same(jobby.worn_by(idle,
+            jobby.layer(sets_of(gs).latent_refresh, sets_of(gs).TPEat, {main = "Bunzi's Rod"})), gs:worn())
+    end)
+end)
+
+describe('gs c elemental on a scholar\'s nukes', function()
+    -- Fire IV and V want an Addendum: Black, which the scholar has up.
+    local function nuker(options)
+        options = options or {}
+        options.buffs = options.buffs or {'Addendum: Black'}
+        return boot(options)
+    end
+
+    local function nuke(gs, command)
+        gs:console('gs c elemental ' .. (command or 'nuke'))
+        return gs:actions()
+    end
+
+    it('casts the highest tier of the element\'s nuke that is ready and affordable: Fire V', function()
+        local gs = nuker()
+        assert.same({'Fire V'}, nuke(gs))
+    end)
+
+    it('casts the next tier down while the highest is on recast', function()
+        local gs = nuker()
+        gs.game:start_spell_recast('Fire V', 100)
+        assert.same({'Fire IV'}, nuke(gs))
+    end)
+
+    it('casts a tier more down while those are on recast', function()
+        local gs = nuker()
+        gs.game:start_spell_recast('Fire V', 100)
+        gs.game:start_spell_recast('Fire IV', 100)
+        assert.same({'Fire III'}, nuke(gs))
+    end)
+
+    it('casts the highest tier the MP buys', function()
+        local gs = nuker({mp = 100})
+        assert.same({'Fire III'}, nuke(gs))
+    end)
+
+    it('says so when nothing is ready and affordable', function()
+        local gs = nuker({mp = 5})
+        assert.same({}, nuke(gs))
+        assert.same({'Abort: All Fire nukes on cooldown or or not enough MP.'}, gs:chat())
+    end)
+
+    it('casts Fire II for a small nuke', function()
+        local gs = nuker()
+        assert.same({'Fire II'}, nuke(gs, 'smallnuke'))
+    end)
+
+    it('casts Fire for a small nuke while Fire II is on recast', function()
+        local gs = nuker()
+        gs.game:start_spell_recast('Fire II', 100)
+        assert.same({'Fire'}, nuke(gs, 'smallnuke'))
+    end)
+
+    it('casts Banish II in the Light element', function()
+        local gs = nuker({sub_job = 'WHM'})
+        gs:console('gs c set ElementalMode Light')
+        gs:traffic()
+        assert.same({'Banish II'}, nuke(gs))
+    end)
+
+    it('casts Banish in the Light element while Banish II is on recast', function()
+        local gs = nuker({sub_job = 'WHM'})
+        gs:console('gs c set ElementalMode Light')
+        gs.game:start_spell_recast('Banish II', 100)
+        gs:traffic()
+        assert.same({'Banish'}, nuke(gs))
+    end)
+
+    it('says so in the Light element when neither Banish is ready', function()
+        local gs = nuker({sub_job = 'WHM'})
+        gs:console('gs c set ElementalMode Light')
+        gs.game:start_spell_recast('Banish II', 100)
+        gs.game:start_spell_recast('Banish', 100)
+        gs:traffic()
+        gs:chat()
+        assert.same({}, nuke(gs))
+        assert.same({'Abort: Banishes on cooldown or not enough MP.'}, gs:chat())
+    end)
+
+    it('casts the helix of the element, a second tier with the job points to spend', function()
+        local gs = nuker()
+        assert.same({'Pyrohelix II'}, nuke(gs, 'helix'))
+    end)
+
+    it('casts the first tier of the helix with fewer job points spent', function()
+        local gs = nuker()
+        gs.game.player.job_points.sch.jp_spent = 1000
+        assert.same({'Pyrohelix'}, nuke(gs, 'helix'))
+    end)
+
+    it('casts the storm of the element on the caster, a second tier with the job points to spend', function()
+        local gs = nuker()
+        assert.same({'Firestorm II'}, nuke(gs, 'weather me'))
+    end)
+
+    it('casts the first tier of the storm with few job points spent', function()
+        local gs = nuker()
+        gs.game.player.job_points.sch.jp_spent = 50
+        assert.same({'Firestorm'}, nuke(gs, 'weather me'))
+    end)
+
+    it('casts Klimaform when the storm of the element is up on the caster', function()
+        local gs = nuker({buffs = {'Addendum: Black', 'Firestorm'}})
+        assert.same({'Klimaform'}, nuke(gs, 'weather me'))
+    end)
+
+    it('casts the storm again rather than Klimaform when Klimaform is up', function()
+        local gs = nuker({buffs = {'Addendum: Black', 'Firestorm', 'Klimaform'}})
+        assert.same({'Firestorm II'}, nuke(gs, 'weather me'))
+    end)
+
+    it('casts the storm rather than Klimaform when Klimaform is on recast', function()
+        local gs = nuker({buffs = {'Addendum: Black', 'Firestorm'}})
+        gs.game:start_spell_recast('Klimaform', 100)
+        assert.same({'Firestorm II'}, nuke(gs, 'weather me'))
+    end)
+end)
+
+describe('gs c elemental skillchain on a scholar', function()
+    local function skillchainer(options)
+        options = options or {}
+        options.buffs = options.buffs or {'Dark Arts'}
+        options.tp = options.tp or 0
+        return boot(options)
+    end
+
+    local function chain(gs, command)
+        gs:console('gs c elemental ' .. command)
+        return gs:actions()
+    end
+
+    it('says so when no monster is targeted', function()
+        local gs = skillchainer()
+        gs.game.target_index = nil
+        assert.same({}, chain(gs, 'skillchain1'))
+        assert.same({'Abort: You are not targeting a monster.'}, gs:chat())
+    end)
+
+    it('says so when the scholar is silenced', function()
+        local gs = skillchainer({buffs = {'Dark Arts', 'silence'}})
+        assert.same({}, chain(gs, 'skillchain1'))
+        assert.same({'You are disabled, cancelling skillchain.'}, gs:chat())
+    end)
+
+    it('says so with fewer than two stratagems', function()
+        local gs = skillchainer()
+        gs.game:start_ability_recast('Penury', 132)
+        assert.same({}, chain(gs, 'skillchain1'))
+        assert.same({'Abort: You have less than two stratagems available.'}, gs:chat())
+    end)
+
+    it('counts the Immanence up as a stratagem', function()
+        local gs = skillchainer({buffs = {'Dark Arts', 'Immanence'}})
+        gs.game:start_ability_recast('Penury', 132)
+        assert.same({}, chain(gs, 'skillchain1'))
+        assert.same({}, gs:chat())
+    end)
+
+    it('starts Dark Arts when it is not up, and says why', function()
+        local gs = skillchainer({buffs = {'Light Arts'}})
+        assert.same({'Dark Arts'}, chain(gs, 'skillchain1'))
+        assert.same({"Can't use elemental skillchain commands without Dark Arts - Activating."}, gs:chat())
+    end)
+
+    it('is an Immanence, an opening in the party chat and the first spell a second and a bit later', function()
+        local gs = skillchainer()
+        assert.same({'Immanence'}, chain(gs, 'skillchain1'))
+        assert.same({'/p {Liquefaction} -Apex Toad- MB: {Fire} OPEN!'}, gs:typed())
+        gs:advance(1.4)
+        gs:finish_action()
+        assert.same({'Stone'}, gs:actions())
+    end)
+
+    it('goes on with a second Immanence and the second spell, closing in the party chat', function()
+        local gs = skillchainer()
+        chain(gs, 'skillchain1')
+        gs:advance(1.4)
+        gs:finish_action()
+        gs:advance(6)
+        local names = gs:actions()
+        assert.same({'Stone', 'Immanence', 'Pyrohelix'}, names)
+        local party = {}
+        for _, line in ipairs(gs:typed()) do
+            if line:sub(1, 3) == '/p ' then
+                party[#party + 1] = line
+            end
+        end
+        assert.same({'/p {Liquefaction} -Apex Toad- MB: {Fire} OPEN!', '/p {Liquefaction} -Apex Toad- MB: {Fire} CLOSE!'},
+            party)
+    end)
+
+    it('is held back for a spell on recast, saying how long', function()
+        local gs = skillchainer()
+        gs.game:start_spell_recast('Stone', 100)
+        assert.same({}, chain(gs, 'skillchain1'))
+        assert.same({'Abort: [Stone] waiting on recast. (0:01:40)'}, gs:chat())
+    end)
+
+    it('is held back for the second spell on recast', function()
+        local gs = skillchainer()
+        gs.game:start_spell_recast('Pyrohelix', 100)
+        assert.same({}, chain(gs, 'skillchain1'))
+        assert.same({'Abort: [Pyrohelix] waiting on recast. (0:01:40)'}, gs:chat())
+    end)
+
+    it('takes the spells of the second kind of skillchain for skillchain2: Fire, then Ionohelix', function()
+        local gs = skillchainer()
+        chain(gs, 'skillchain2')
+        assert.same({'/p {Fusion} -Apex Toad- MB: {Fire}, {Light} OPEN!'}, gs:typed())
+        gs:advance(1.4)
+        gs:finish_action()
+        gs:advance(6)
+        assert.same({'Fire', 'Immanence', 'Ionohelix'}, gs:actions())
+    end)
+
+    it('is for Fire alone at three steps', function()
+        local gs = skillchainer()
+        gs:console('gs c set ElementalMode Ice')
+        gs:traffic()
+        gs:chat()
+        assert.same({}, chain(gs, 'skillchain3'))
+        assert.same({'Abort: Fire is the only element with a consecutive 3-step skillchain.'}, gs:chat())
+    end)
+
+    it('is Stone, Pyrohelix and Ionohelix at three steps in Fire', function()
+        local gs = skillchainer()
+        assert.same({'Immanence'}, chain(gs, 'skillchain3'))
+        assert.same({'/p {Liquefaction} -Apex Toad- MB: {Fire} OPEN!'}, gs:typed())
+        gs:advance(1.4)
+        gs:finish_action()
+        gs:advance(6)
+        gs:finish_action()
+        gs:advance(10)
+        assert.same({'Stone', 'Immanence', 'Pyrohelix', 'Immanence', 'Ionohelix'}, gs:actions())
+    end)
+
+    pending('says Ionohelix is on recast when that holds a skillchain of three steps back: handle_job_elemental in '
+        .. 'data/SCH.lua names Pyrohelix in the message for the recast of spell 283, which is Ionohelix')
+
+    it('wants the stratagems of the steps: four at four steps', function()
+        local gs = skillchainer()
+        gs.game:start_ability_recast('Penury', 99)
+        assert.same({}, chain(gs, 'skillchain4'))
+        assert.same({'Abort: You have less than four stratagems available.'}, gs:chat())
+    end)
+
+    it('puts the casting mode to Proc for a skillchain of four steps', function()
+        local gs = skillchainer()
+        assert.same({'Immanence'}, chain(gs, 'skillchain4'))
+        assert.equal('Proc', gs.user.state.CastingMode.value)
+        assert.same({'/p Starting 4-Step {Skillchain} -Apex Toad-'}, gs:typed())
+    end)
+
+    it('puts the casting mode to Proc for a skillchain of five steps', function()
+        local gs = skillchainer()
+        assert.same({'Immanence'}, chain(gs, 'skillchain5'))
+        assert.equal('Proc', gs.user.state.CastingMode.value)
+    end)
+
+    it('wants five stratagems at five steps', function()
+        local gs = skillchainer()
+        gs.game:start_ability_recast('Penury', 33)
+        assert.same({}, chain(gs, 'skillchain5'))
+        assert.same({'Abort: You have less than five stratagems available.'}, gs:chat())
+    end)
+
+    it('starts the Immanence of a skillchain of six steps when it is not up', function()
+        local gs = skillchainer()
+        assert.same({'Immanence'}, chain(gs, 'skillchain6'))
+        assert.same({'Immanence not active, wait for stratagem cooldown. - Activating Immanence.'}, gs:chat())
+        assert.equal('Normal', gs.user.state.CastingMode.value)
+    end)
+
+    it('starts a skillchain of six steps with the spell once the Immanence is up', function()
+        local gs = skillchainer({buffs = {'Dark Arts', 'Immanence'}})
+        gs:console('gs c elemental skillchain6')
+        assert.same({'Aero'}, gs:actions())
+        assert.equal('Proc', gs.user.state.CastingMode.value)
+    end)
+
+    it('is a weapon skill with an Immanence, and the second spell after, in a weapon skill skillchain', function()
+        local gs = skillchainer({tp = 1000})
+        gs.game.monster.distance = 4
+        gs:console('gs c elemental wsskillchain')
+        assert.same({'Immanence'}, gs:actions())
+        gs:advance(1.4)
+        assert.same({'Rock Crusher'}, gs:actions())
+        gs:finish_action()
+        gs:advance(5)
+        assert.same({'Pyrohelix'}, gs:actions())
+    end)
+
+    it('says so when a weapon skill skillchain has not the TP', function()
+        local gs = skillchainer({tp = 999})
+        assert.same({}, chain(gs, 'wsskillchain'))
+        assert.same({"Abort: You don't have enough TP for this skillchain."}, gs:chat())
+    end)
+
+    it('says so when the weapon skill is not known, with a club in hand', function()
+        local gs = skillchainer({tp = 1000, wearing = {main = "Bunzi's Rod"}})
+        assert.same({}, chain(gs, 'wsskillchain'))
+        assert.equal("Abort: You don't have access to [Rock Crusher].", gs:chat()[1])
+    end)
+
+    pending('says no more than why a weapon skill skillchain is held back: handle_job_elemental in data/SCH.lua '
+        .. 'returns nothing after the weapon skill unknown or the second spell on recast, rather than true, so Sel\'s '
+        .. 'handle_elemental goes on and says \'Unrecognized elemental command.\' too')
+
+    pending('closes a skillchain by gs c elemental endskillchain: handle_job_elemental in data/SCH.lua reads '
+        .. 'second_spell_id and skillchain, which that branch never sets, so the command stops in an error')
+end)
+
+describe('the tick of a scholar', function()
+    describe('with AutoArts and AutoBuffMode on', function()
+        -- With the spells of Auto's list up but the last, so the tick has no spell to cast.
+        local function arts(options)
+            options = options or {}
+            options.buffs = options.buffs or {}
+            options.buffs[#options.buffs + 1] = 'Haste'
+            options.buffs[#options.buffs + 1] = 'Stoneskin'
+            local gs = boot(options)
+            gs:console('gs c set AutoBuffMode Auto')
+            gs:console('gs c toggle AutoArts')
+            return gs
+        end
+
+        it('begins Dark Arts when no art is up', function()
+            local gs = arts()
+            assert.same({'Dark Arts'}, first_actions(gs))
+        end)
+
+        it('begins no art with one up', function()
+            local gs = arts({buffs = {'Light Arts'}})
+            assert.same({}, first_actions(gs))
+        end)
+
+        it('begins no art while Dark Arts is on recast', function()
+            local gs = arts()
+            gs.game:start_ability_recast('Dark Arts', 30)
+            gs:chat()
+            assert.same({}, first_actions(gs))
+            assert.same({}, jobby.said(gs))
+        end)
+    end)
+
+    it('begins no art with AutoArts off, whatever the job file would do', function()
+        local gs = boot({buffs = {'Haste', 'Stoneskin'}})
+        gs:console('gs c set AutoBuffMode Auto')
+        assert.same({}, first_actions(gs))
+    end)
+
+    it('begins Dark Arts in combat with AutoArts on', function()
+        local gs = boot()
+        gs:console('gs c toggle AutoArts')
+        gs.user.in_combat = true
+        assert.same({'Dark Arts'}, first_actions(gs))
+    end)
+
+    describe('under AutoBuffMode', function()
+        local function buffer(options)
+            options = options or {}
+            options.buffs = options.buffs or {'Light Arts'}
+            local gs = boot(options)
+            gs:console('gs c set AutoBuffMode Auto')
+            return gs
+        end
+
+        it('casts the first spell of buff_spell_lists.Auto it lacks the buff of: Haste', function()
+            local gs = buffer()
+            assert.same({'Haste'}, first_actions(gs))
+        end)
+
+        it('goes on to Stoneskin once Haste is up', function()
+            local gs = buffer({buffs = {'Light Arts', 'Haste'}})
+            assert.same({'Stoneskin'}, first_actions(gs))
+        end)
+
+        it('casts Klimaform in combat once those are up', function()
+            local gs = buffer({buffs = {'Light Arts', 'Haste', 'Stoneskin'}})
+            gs.user.in_combat = true
+            assert.same({'Klimaform'}, first_actions(gs))
+        end)
+
+        it('casts no Klimaform out of combat', function()
+            local gs = buffer({buffs = {'Light Arts', 'Haste', 'Stoneskin'}})
+            assert.same({}, first_actions(gs))
+        end)
+    end)
+
+    it('casts what a buffup lacks: Haste first in the Auto list', function()
+        local gs = boot({buffs = {'Light Arts'}})
+        gs:console('gs c buffup Auto')
+        assert.same({'Haste'}, first_actions(gs))
+    end)
+end)

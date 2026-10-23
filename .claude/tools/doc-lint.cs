@@ -1,7 +1,7 @@
 // Checks the docs after an edit: the ones under docs/ and its folders, which hold for any character, and a
 // character's own in data/<Character>/.
 //
-//   dotnet run .claude/gear.cs -- doc-lint [--char <name>] [--export <path>]
+//   dotnet run .claude/gear.cs -- doc-lint [--char <name>] [--export <path>] [--warn-drift]
 //
 // Every doc: links and anchors resolve, tables keep one column count and have a delimiter row and a blank line
 // above, no raw HTML-like tag or pair of tildes sits outside code (both change how the page renders), and every
@@ -12,6 +12,18 @@
 // <Character>_gear_notes.md: every entry is for a piece in the export or for an entry of docs/gear-notes.md, once,
 // and the table of pieces the simulated sets wear that the character lacks agrees with the sets.
 // Exit code 1 when it finds a problem.
+//
+// The notes fall behind the export as it changes. That is drift: a link to a missing file under data/export or
+// data/audit, where a character's old exports and audit records were, a character's entry for a piece the export
+// lacks, a piece in the bags that the simulated sets wear whose entry has no "Simulated sets" bullet, a bullet for a
+// piece the export lacks, and a table of pieces lacking that the export no longer backs: a lacking piece with no row,
+// or a row for a piece the character owns or no set wears.
+// --warn-drift prints drift as a warning, counts it apart from the problems and leaves it out of the exit code. What
+// stays a problem is the docs' own form: a link to any other missing file, an anchor, a table, a code fence, raw markup,
+// a character's name under docs/, an item with two entries or in both a "No notes" list and an entry, and a "Simulated
+// sets" bullet that doesn't open the way the others do. A bullet or a table row that bg-wiki's pinned simulated sets
+// alone contradict is a problem too, as the export has no part in it: a bullet for a piece no RDM or BLU set wears, and
+// a bullet or a row whose sets differ from the pages'.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -22,7 +34,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using GearTools;
 
-var cli = new Arguments(args, ["--char", "--export"], []);
+var cli = new Arguments(args, ["--char", "--export"], ["--warn-drift"]);
 var exportPath = Export.Resolve(cli);
 var character = Characters.Named(cli.Option("--char") ?? Export.CharacterOf(exportPath));
 var export = Export.Read(exportPath);
@@ -37,6 +49,7 @@ var docs = (Directory.Exists(docsDir) ? Directory.GetFiles(docsDir, "*.md", Sear
 var notesPath = "docs/gear-notes.md";
 var ownNotesPath = Tool.RepoRelative(Characters.GearNotes(character));
 var problems = 0;
+var warnings = 0;
 
 // The anchors each doc's headings make, as GitHub builds them: lower case, punctuation dropped, spaces to hyphens,
 // and -1, -2 on a repeated heading.
@@ -98,7 +111,15 @@ foreach (var doc in docs)
 			var anchor = hash >= 0 ? target[(hash + 1)..] : null;
 			if (File.Exists(Tool.InRepo(file)) is false && Directory.Exists(Tool.InRepo(file)) is false)
 			{
-				Problem($"{doc.Key}:{i + 1}: link to a missing file, {target}");
+				var missing = $"{doc.Key}:{i + 1}: link to a missing file, {target}";
+				if (IsCharacterRecord(file))
+				{
+					Drift(missing);
+				}
+				else
+				{
+					Problem(missing);
+				}
 			}
 			else if (anchor is not null && anchors.ContainsKey(file) is false)
 			{
@@ -194,20 +215,37 @@ if (docs.TryGetValue(ownNotesPath, out var ownNotes))
 	var owned = export.Select(line => line.Name).ToHashSet();
 	var headings = ownNotes.Select((text, index) => new NumberedLine(index + 1, text)).Where(line => line.Text.StartsWith("### ")).ToList();
 	foreach (var heading in headings.Where(heading => owned.Contains(heading.Text[4..].Trim()) is false && noted.Contains(heading.Text[4..].Trim()) is false))
-		Problem($"{ownNotesPath}:{heading.Number}: {heading.Text[4..].Trim()} has an entry, but it is neither in the export nor an entry of {notesPath}");
+		Drift($"{ownNotesPath}:{heading.Number}: {heading.Text[4..].Trim()} has an entry, but it is neither in the export nor an entry of {notesPath}");
 	// Reading the entries reports an item that has two.
 	Entries(ownNotesPath, ownNotes);
 	CheckPiecesLacking(ownNotes);
 }
 
-Console.WriteLine($"{docs.Count} docs, {docs.Values.Sum(lines => lines.Length)} lines; problems: {problems}");
+var counts = cli.Flag("--warn-drift") ? $"problems: {problems}, warnings: {warnings}" : $"problems: {problems}";
+Console.WriteLine($"{docs.Count} docs, {docs.Values.Sum(lines => lines.Length)} lines; {counts}");
 return problems > 0 ? 1 : 0;
 
+// A fault in the docs themselves, which --warn-drift leaves a problem.
 void Problem(string message)
 {
 	problems++;
 	Console.WriteLine("  " + message);
 }
+
+// A doc has fallen behind the export or a character's records. Under --warn-drift it is a warning and not a problem.
+void Drift(string message)
+{
+	if (cli.Flag("--warn-drift") is false)
+	{
+		Problem(message);
+		return;
+	}
+	warnings++;
+	Console.WriteLine("  warn  " + message);
+}
+
+// A character's exports and audit records come and go, so a doc that links to one falls behind.
+bool IsCharacterRecord(string file) => file.StartsWith("data/export/") || file.StartsWith("data/audit/");
 
 IEnumerable<NumberedLine> OutsideFences(string[] lines)
 {
@@ -291,9 +329,9 @@ void CheckSimulatedSetBullets(Dictionary<string, List<NumberedLine>> entries)
 		}
 	}
 	foreach (var piece in usage.Keys.Where(piece => inBags.Contains(piece) && withBullet.Contains(piece) is false))
-		Problem($"{notesPath}: {piece} is in a bag and in the simulated sets, but its entry has no Simulated sets bullet. Sets: {SimulatedSets.Describe(usage[piece])}");
+		Drift($"{notesPath}: {piece} is in a bag and in the simulated sets, but its entry has no Simulated sets bullet. Sets: {SimulatedSets.Describe(usage[piece])}");
 	foreach (var piece in withBullet.Where(piece => owned.Contains(piece) is false))
-		Problem($"{notesPath}: {piece} has a Simulated sets bullet but isn't in the export");
+		Drift($"{notesPath}: {piece} has a Simulated sets bullet but isn't in the export");
 }
 
 // <Character>_gear_notes.md lists the pieces the simulated sets wear that the character lacks, in one table for
@@ -349,7 +387,7 @@ void CheckPiecesLacking(string[] ownNotes)
 			if (listed[job].TryGetValue(piece.Key, out var row) is false)
 			{
 				if (ownedCapes.Contains(piece.Key) is false)
-					Problem($"{ownNotesPath}: the {job} table of pieces the sets use lacks {piece.Key} ({expected})");
+					Drift($"{ownNotesPath}: the {job} table of pieces the sets use lacks {piece.Key} ({expected})");
 			}
 			else if (row.Text != expected)
 			{
@@ -357,7 +395,7 @@ void CheckPiecesLacking(string[] ownNotes)
 			}
 		}
 		foreach (var row in listed[job].Where(row => lacking.ContainsKey(row.Key) is false))
-			Problem($"{ownNotesPath}:{row.Value.Number}: {row.Key} is in the {job} table of pieces the character lacks, but it is owned or no {job} set wears it");
+			Drift($"{ownNotesPath}:{row.Value.Number}: {row.Key} is in the {job} table of pieces the character lacks, but it is owned or no {job} set wears it");
 	}
 }
 

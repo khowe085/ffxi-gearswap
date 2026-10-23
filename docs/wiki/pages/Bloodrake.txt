@@ -1,0 +1,85 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=3
+|desc=Delivers a threefold attack. Damage varies with TP. Additional effect: HP Drain.
+|mp=99 MP
+|blupoint=UL
+|cast=0.5 seconds
+|recast=30 seconds
+|target=Single
+|range=
+|stats=
+|effects=Drain
+|duration=
+|trait=
+|level=99
+|mtype=Undead
+|family=Vampyr
+|wsc=30% [[STR]] 30% [[MND]]
+|ftp=
+|ftp0=1.0
+|ftp150=~1.1375
+|ftp300={{Information Needed}}
+|ftp350={{Information Needed}}
+|scprop={{Darkness}} [[Darkness]] / {{Distortion}} [[Distortion]]
+|ve=
+|ce=
+}}
+==Notes==
+* May only be cast with job ability [[Unbridled Learning]].
+* Possesses an attack boost. 
+* Absorbs 100% of damage dealt
+* Inflicts damage to [[Undead]] targets but does not absorb HP from them.
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Vampyr
+|Spell Level=99
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Varkolak
+|Level=89
+|Zone=Castle Zvahl Keep (S)
+|SpawnCondition=Behind hidden doors at G-10, H-6, and J-9
+|Map=Castle_Zvahl_Baileys_(S)-map3.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Oupire
+|Level=88
+|Zone=Alzadaal Undersea Ruins
+|SpawnCondition=Timed Spawn 4-5 hours
+|Map=Alzap5.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Count Dracula
+|Level=80-82
+|Zone=Leujaoam Sanctum
+|SpawnCondition=Captain Rank Assault - [[Bloody Rondo]]
+|Map=Caedarva Mire-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Wurdalak
+|Level=97-99
+|Zone=Bostaunieux Oubliette
+|SpawnCondition=J-7/K-7 Map 2.
+|Map=Bostaunieux Oubliette-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Lord Asag
+|Level=100
+|Zone=Meriphataud Mountains
+|SpawnCondition=[[Voidwatch]] (Jade III) - D-5, E-4, H-11
+|Map=Meriphataud_Mountains-map.jpg
+}}
+ 
+}}
+'''Note:''' At least some (not sure if all) vampires don't seem to like to use this ability at lower health.  The cutoff might be as high as 75% HP.
+
+== Related Links ==
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4894908&viewfull=1#post4894908 Matching spell names to magic data- Kegsay BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4896365&viewfull=1#post4896365 Spell testing- Prothescar BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4896627&viewfull=1#post4896627 Skill chain information- Kyte BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4900325&viewfull=1#post4900325 Physical damage type- Prothescar BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4899648&viewfull=1#post4899648 Spell modifiers- Prothescar BGForums]
+[[Category:Blue Magic]][[Category:Spells]]

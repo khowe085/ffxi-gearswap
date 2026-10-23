@@ -1666,6 +1666,15 @@ No notes beyond the help text: Akitu Shirt, Alliance Shirt, Chocobo Suit, Esthet
 
 ## Hands
 
+### Adhemar Wrist. +1
+
+*Adhemar Wristbands +1. BLU and THF, not RDM.*
+
+- Nolan augments it on one of four paths, up to rank 15. At rank 15, Path A gives DEX+12, AGI+12 and Accuracy+20; Path B STR+12, DEX+12 and Attack+20; Path C AGI+12, Ranged Accuracy+20 and Ranged Attack+20; Path D Accuracy+20, Attack+20 and "Subtle Blow"+8. Paths A to C are the same on every Adhemar +1 piece; Path D is the wristbands' own ([bg-wiki](https://www.bg-wiki.com/ffxi/Nolan), [bg-wiki](https://www.bg-wiki.com/ffxi/Adhemar_Wrist._%2B1)).
+- Set bonus: Adhemar, see [Adhemar set](#adhemar-set). As a +1 piece it counts, once a second Adhemar +1 piece is on.
+- The simulated sets name Path B for Chant du Cygne and Path A for Caliburnus + Thibron; the Tizona + Thibron set names no path.
+- Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): BLU: Chant du Cygne (Mid buff); Tizona + Thibron AM3 TP (-25% DT); Caliburnus + Thibron AM1 TP (-50% DT, -25% DT).
+
 ### Adhemar Wristbands
 
 *Adhemar Wristbands. BLU, not RDM.*

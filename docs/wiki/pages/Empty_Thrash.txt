@@ -1,0 +1,59 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=1
+|desc=Delivers an area attack. Accuracy varies with TP.
+|mp=33 MP
+|blupoint=3
+|cast=0.5 seconds
+|recast=40.75 seconds
+|target=AoE (Conal)
+|range=
+|stats=[[STR]] +3 [[CHR]] -2
+|effects=
+|duration=
+|trait=Double Attack
+|trait2=Triple Attack
+
+|level=87
+|mtype=Empty
+|family=Craver
+|wsc=50% [[STR]]
+|ftp=
+|ftp0=2.0
+|ftp150=2.0
+|ftp300=2.0
+|ftp350=2.0
+|scprop={{Compression}} [[Compression]] / {{Scission}} [[Scission]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Craver
+|Spell Level=87
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Craver
+|Level=29-41
+|Zone=Promyvion - Mea
+|SpawnCondition=
+|Map=Promyvion_-_Mea-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Craver
+|Level=54-60
+|Zone=Promyvion - Vahzl
+|SpawnCondition=
+|Map=Promyvion_-_Vahzl-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Hungerer
+|Level=
+|Zone=Abyssea - Tahrongi
+|SpawnCondition= Resting nearby with a [[Clear demilune abyssite]].
+|Map=Abyssea - Tahrongi-Map.jpg
+}}
+}}
+[[Category:Spells]] [[Category:Blue Magic]]

@@ -1,0 +1,74 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Slashing
+|nohits=5
+|desc=Delivers a fivefold attack. Damage varies with TP.
+|mp=119 MP
+|blupoint=7
+|cast=0.5 seconds
+|recast=60 seconds
+|target=Single
+|range=6.6
+|stats=[[HP]] +20 [[DEX]] +8
+|effects=
+|duration=
+|trait=Double Attack
+
+|trait2=Triple Attack
+
+|level=99
+|mtype=Beastmen
+|family=Meeble
+|wsc=32% [[STR]] 32% [[DEX]]
+|ftp=
+|ftp0=1.25
+|ftp150=1.5
+|ftp300=1.75
+|ftp350=2.0
+|scprop={{Fusion}} [[Fusion]] / {{Impaction}} [[Impaction]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Meeble
+|Spell Level=99
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Meeble
+|Level=105
+|Zone=Ghoyu's Reverie
+|SpawnCondition=[[Associate Researcher Expedition 3 (Sauromugue)]]
+|Map=Meeb asc3 rev2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster= Temenos Meeble
+|Level=119~130
+|Zone=Temenos North (119)
+|SpawnCondition=Floor 4
+|Map=Temenos North F4-remapster.png
+}}
+{{Learning Blue Magic Row
+|Monster= Temenos Meeble
+|Level=119~130
+|Zone=Temenos West (119)
+|SpawnCondition=Floor 4
+|Map=Temenos West F4-remapster.png
+}}
+{{Learning Blue Magic Row
+|Monster= Temenos Meeble
+|Level=119~130
+|Zone=Temenos East (119)
+|SpawnCondition=Floor 4
+|Map=Temenos East F4-remapster.png
+}}
+{{Learning Blue Magic Row
+|Monster= Temenos Meeble
+|Level=119~130
+|Zone=Temenos Central (119)
+|SpawnCondition=Floor 4
+|Map=Temenos Central F3-remapster.png
+}}
+}}
+[[Category:Spells]] [[Category:Blue Magic]]

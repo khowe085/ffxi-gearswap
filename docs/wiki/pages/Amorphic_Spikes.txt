@@ -1,0 +1,82 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Piercing
+|nohits=5
+|desc=Delivers a fivefold attack. Damage varies with TP.
+|mp=79 MP
+|blupoint=4
+|cast=0.5 seconds
+|recast=58.25 seconds
+|target=Single
+|range=
+|stats=[[INT]] +5 [[MND]] +2
+|effects=
+|duration=
+|trait=Gilfinder
+|trait2=Treasure Hunter
+|level=98
+|family=Flan
+|mtype=Amorphs
+|wsc=20% [[DEX]] 20% [[INT]] 
+|ftp=
+|ftp0=1.0
+|ftp150=1.375
+|ftp300={{Information Needed}}
+|ftp350={{Information Needed}}
+|scprop={{Gravitation}} [[Gravitation]] / {{Transfixion}} [[Transfixion]]
+|ve=
+|ce=
+}}
+==Notes==
+* 20% DEX/INT, 1.0 fTP (12.5% attack boost)
+**Attack bonus increases greatly under [[Chain Affinity]]/[[Efflux]], roughly +70%
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Flan
+|Spell Level=98
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Black Pudding (monster)
+|Level=73-75
+|Zone=Halvung
+|SpawnCondition=
+|Map=Halvung-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Ebony Pudding
+|Level=75-80
+|Zone=Mount Zhayolm
+|SpawnCondition=
+|Map=Mount Zhayolm-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Pitchy Pudding
+|Level=77-79
+|Zone=Beadeaux (S)
+|SpawnCondition=
+|Map=Beadeaux (S)-map1.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Licorice
+|Level=75-90
+|Zone=Abyssea - Konschtat
+|SpawnCondition=Conflux #06
+|Map=Abyssea - Konschtat-Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Awoken Mokkuralfi
+|Level=
+|Zone=Mount Zhayolm
+|SpawnCondition=Peculiar Foes II RoE
+|Map=Mount Zhayolm-map.jpg
+}}
+}}
+
+== Related Links ==
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4894908&viewfull=1#post4894908 Matching spell names to magic data- Kegsay BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings/page502 Set point cost- Foldypaws BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4896365&viewfull=1#post4896365 Spell testing]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4900325&viewfull=1#post4900325 Physical damage type- Prothescar BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4899648&viewfull=1#post4899648 Spell modifiers- Prothescar BGForums]
+[[Category:Blue Magic]][[Category:Spells]]

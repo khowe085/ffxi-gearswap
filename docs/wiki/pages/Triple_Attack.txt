@@ -1,0 +1,408 @@
+{{Job Trait
+|desc=May triple your attacks
+|type=Level
+|Insert Job Trait Level Template=
+{{Job Trait Level
+|tier=I
+|jlevels=THF55, BLU92*
+|value=5%
+}}
+{{Job Trait Level
+|tier=II
+|jlevels=THF95
+|value=6%
+}}
+|blu=yes
+|mtier=1
+|ranks=5
+|effect=Increases Triple Attack rate by 1% per merit level. ([[Thief]])
+|jobpoint=Increase physical attack for tripled attacks by 1.                        <!-- Fill in if is augmented by Job Points with the effect -->
+|category= {{PAGENAME}} Effect
+|notes=*Cannot [[Proc]] off itself.
+*Can [[Proc]] a maximum of 2 times per [[Weapon Skill]].
+** Subject to the 8-hits per round limit.
+*Has a chance to proc on each fist for [[:Category:Hand-to-Hand|Hand-to-Hand]] weapons or each weapon when [[Dual Wield]]ing.
+** Can also proc once per [[Virtue Stone]] weapon swing.
+*THF Gifts also grant up to an additional 8% Triple Attack.
+**Together with merits and traits THF can have 19% base Triple Attack.
+*Forced Triple Attacks from [[Assassin's Charge]] ([[Merit Point]] Ability) are guaranteed to receive the damage and attack bonuses from "Triple Attack" Damage+ equipment and job point ranks.
+{{Blue Magic Job Trait
+|SetPointRequirement=12   <!-- Set point minimum requirement to access, can be null -->
+|Insert Blue Magic JT Detail Template=
+{{Blue Magic JT Detail
+|spell=Acrid Stream     <!-- Spell name, will automatically link if it exists -->
+|level=77    <!-- Level of Blue Magic spell -->
+|setpoints=3     <!--Set point cost by the spell -->
+|traitpoints=4     <!--Trait point value of the spell -->
+}}
+{{Blue Magic JT Detail
+|spell=Demoralizing Roar     <!-- Spell name, will automatically link if it exists -->
+|level=80    <!-- Level of Blue Magic spell -->
+|setpoints=4     <!--Set point cost by the spell -->
+|traitpoints=4     <!--Trait point value of the spell -->
+}}
+{{Blue Magic JT Detail
+|spell=Empty Thrash     <!-- Spell name, will automatically link if it exists -->
+|level=87    <!-- Level of Blue Magic spell -->
+|setpoints=3     <!--Set point cost by the spell -->
+|traitpoints=4     <!--Trait point value of the spell -->
+}}
+{{Blue Magic JT Detail
+|spell=Heavy Strike     <!-- Spell name, will automatically link if it exists -->
+|level=92    <!-- Level of Blue Magic spell -->
+|setpoints=2     <!--Set point cost by the spell -->
+|traitpoints=4     <!--Trait point value of the spell -->
+}}
+{{Blue Magic JT Detail
+|spell=Thrashing Assault     <!-- Spell name, will automatically link if it exists -->
+|level=99    <!-- Level of Blue Magic spell -->
+|setpoints=7     <!--Set point cost by the spell -->
+|traitpoints=8     <!--Trait point value of the spell -->
+}}
+}}
+*Setting only one tier will result in the [[Double Attack]] Job Trait instead.
+|Insert Equipment Ability Modified Template=
+{{Equipment Ability Modified
+|equip=Triple Dagger
+|modifier=Triple Attack +1%
+|equip icon=
+|augmented=
+|level=51
+|slot=Main
+}}
+{{Equipment Ability Modified
+|equip=Zareehkl Scythe
+|modifier=Latent Effect (Red HP): Triple Attack +{{question}}%
+|equip icon=
+|augmented=
+|level=71
+|slot=Main
+}}
+{{Equipment Ability Modified
+|equip=Assassin's Poulaines
+|equip icon=Assassin's Pouln.
+|augmented=
+|level=73
+|slot=Feet
+|modifier=Triple Attack +1%
+}}
+{{Equipment Ability Modified
+|equip=Assassin's Poulaines +1
+|equip icon=Asn. Poulaines +1
+|augmented=
+|level=75
+|slot=Feet
+|modifier=Triple Attack +1%
+}}
+{{Equipment Ability Modified
+|equip=Assassin's Poulaines +2
+|modifier=Triple Attack +3%, Increases Triple Attack damage by 2%
+|equip icon=Asn. Poulaines +2
+|augmented=
+|level=90
+|slot=Feet
+}}
+{{Equipment Ability Modified
+|equip=Indra Katars
+|modifier=Triple Attack +1%
+|equip icon=
+|augmented=
+|level=73
+|slot=Main
+}}
+{{Equipment Ability Modified
+|equip=Algol
+|modifier=Triple Attack +3%
+|equip icon=
+|augmented=
+|level=75
+|slot=Main
+}}
+{{Equipment Ability Modified
+|equip=Homam Corazza
+|modifier=Triple Attack +1%
+|equip icon=
+|augmented=
+|level=75
+|slot=Body
+}}
+{{Equipment Ability Modified
+|equip=Nocturnus Mail
+|modifier=Triple Attack +1%
+|equip icon=
+|augmented=
+|level=75
+|slot=Body
+}}
+{{Equipment Ability Modified
+|equip=Raider's Belt
+|modifier=Triple Attack +1%
+|equip icon=
+|augmented=
+|level=80
+|slot=Waist
+}}
+{{Equipment Ability Modified
+|equip=Raider's Bonnet +2
+|modifier=Triple Attack +3%
+|equip icon=Raid. Bonnet +2
+|augmented=
+|level=82
+|slot=Head
+}}
+{{Equipment Ability Modified
+|equip=Demonry Ring
+|modifier=Triple Attack damage +3%
+|equip icon=
+|augmented=
+|level=88
+|slot=Ring
+}}
+{{Equipment Ability Modified
+|equip=Genesis Shield
+|modifier=Triple Attack +1%
+|equip icon=
+|augmented=
+|level=88
+|slot=Sub
+}}
+{{Equipment Ability Modified
+|equip=Oneiros Helm
+|modifier=Triple Attack -3%
+|equip icon=
+|augmented=
+|level=88
+|slot=Head
+}}
+{{Equipment Ability Modified
+|equip=Oneiros Ring
+|modifier=Latent Effect (MP>100): Triple Attack +2%
+|equip icon=
+|augmented=
+|level=88
+|slot=Ring
+}}
+{{Equipment Ability Modified
+|equip=Calmecac Trousers
+|modifier=Triple Attack +2%
+|equip icon=
+|augmented=
+|level=89
+|slot=Legs
+}}
+{{Equipment Ability Modified
+|equip=Epona's Ring
+|modifier=Triple Attack +3%
+|equip icon=
+|augmented=
+|level=89
+|slot=Ring
+}}
+{{Equipment Ability Modified
+|equip=Triplus Dagger
+|modifier=Triple Attack damage +{{question}}%
+|equip icon=
+|augmented=
+|level=89
+|slot=Main
+}}
+{{Equipment Ability Modified
+|equip=Raider's Earring
+|modifier=Triple Attack +1%
+|equip icon=
+|augmented=
+|level=90
+|slot=Ear
+}}
+{{Equipment Ability Modified
+|equip=Chiner's Belt
+|modifier=Increases Triple Attack damage by {{question}}%
+|equip icon=
+|augmented=
+|level=93
+|slot=Waist
+}}
+{{Equipment Ability Modified
+|equip=Ocelomeh Headpiece
+|modifier=Set Bonus: Triple Attack +3%
+|equip icon=Ocelo. Headpiece
+|augmented=
+|level=95
+|slot=Head
+}}
+{{Equipment Ability Modified
+|equip=Oce. Headpiece +1
+|modifier=Set Bonus: Triple Attack +3%
+|equip icon=
+|augmented=
+|level=95
+|slot=Head
+}}
+{{Equipment Ability Modified
+|equip=Ocelomeh Harness
+|modifier=Set Bonus: Triple Attack +3%
+|equip icon=
+|augmented=
+|level=95
+|slot=Body
+}}
+{{Equipment Ability Modified
+|equip=Ocelomeh Harness +1
+|modifier=Set Bonus: Triple Attack +3%
+|equip icon=Ocelm. Harness +1
+|augmented=
+|level=95
+|slot=Body
+}}
+{{Equipment Ability Modified
+|equip=Toci's Harness
+|modifier=Set Bonus: Triple Attack +3%
+|equip icon=
+|augmented=
+|level=95
+|slot=Body
+}}
+{{Equipment Ability Modified
+|equip=Triplus Subligar
+|modifier=Triple Attack +5%
+|equip icon=
+|augmented=
+|level=96
+|slot=Legs
+}}
+{{Equipment Ability Modified
+|equip=Euxine Coat +2
+|modifier=Triple Attack +1%
+|equip icon=
+|augmented=
+|level=99
+|slot=Body
+}}
+{{Equipment Ability Modified
+|equip=Euxine Coat +3
+|modifier=Triple Attack +2%
+|equip icon=
+|augmented=
+|level=99
+|slot=Body
+}}
+{{Equipment Ability Modified
+|equip=Thaumas Coat
+|modifier=Triple Attack +3%
+|equip icon=
+|augmented=
+|level=99
+|slot=Body
+}}
+{{Equipment Ability Modified
+|equip=Pugiunculus
+|modifier=Triple Attack +5%
+|equip icon=
+|augmented=
+|level=99
+|slot=Main
+}}
+{{Equipment Ability Modified
+|equip=Porthos Byrnie
+|modifier=Triple Attack +2%
+|equip icon=
+|augmented=
+|level=99
+|slot=Body
+}}
+{{Equipment Ability Modified
+|equip=Plunderer's Poulaines
+|modifier=Triple Attack +3%, Increases Triple Attack damage by 5%
+|equip icon=Plun. Poulaines
+|augmented=
+|level=99
+|slot=Feet
+}}
+{{Equipment Ability Modified
+|equip=Plunderer's Poulaines +1
+|modifier=Triple Attack +3%, Increases Triple Attack damage by 7%
+|equip icon=Plun. Poulaines +1
+|augmented=
+|level=99
+|slot=Feet
+}}
+{{Equipment Ability Modified
+|equip=Plunderer's Poulaines +2
+|modifier=Triple Attack +4%, Increases Triple Attack damage by 9%
+|equip icon=Plun. Poulaines +2
+|augmented=
+|level=99
+|slot=Feet
+}}
+{{Equipment Ability Modified
+|equip=Plunderer's Poulaines +3
+|modifier=Triple Attack +5%, Increases Triple Attack damage by 11%
+|equip icon=Plun. Poulaines +3
+|augmented=
+|level=99
+|slot=Feet
+}}
+{{Equipment Ability Modified
+|equip=Windbuffet Belt
+|modifier=Triple Attack +2%
+|equip icon=
+|augmented=
+|level=99
+|slot=Waist
+}}
+{{Equipment Ability Modified
+|equip=Windbuffet Belt +1
+|modifier=Triple Attack +2%
+|equip icon=
+|augmented=
+|level=99
+|slot=Waist
+}}
+{{Equipment Ability Modified
+|equip=Assassin's Gorget
+|modifier="Triple Attack" damage +3
+|equip icon=Assassin's Gorget
+|augmented=
+|level=99
+|slot=Neck
+}}
+{{Equipment Ability Modified
+|equip=Assassin's Gorget +1
+|modifier="Triple Attack" damage +4
+|equip icon=Asn. Gorget +1
+|augmented=
+|level=99
+|slot=Neck
+}}
+{{Equipment Ability Modified
+|equip=Assassin's Gorget +2
+|modifier="Triple Attack" damage +5
+|equip icon=Asn. Gorget +2
+|augmented=
+|level=99
+|slot=Neck
+}}
+{{Equipment Ability Modified
+|equip=Toutatis's Cape
+|modifier=Increases "Triple Attack" damage by +20%
+|equip icon=Toutatis's Cape
+|augmented=
+|level=99
+|slot=Back
+}}
+{{Equipment Ability Modified
+|equip=Raider's Attire Set +2{{mi}}Skulker's Attire Set{{mi}}Skulker's Attire Set +1{{mi}}Skulker's Attire Set +2{{mi}}Skulker's Attire Set +3
+|equip icon=Skulker's Vest
+|augmented=
+|level=81-99
+|slot=Set
+|modifier=Triple Attack occasionally does double damage
+}}
+}}
+[[Category:Multi-Attack]]
+==References==
+* [http://www.bluegartr.com/threads/56273-DA-in-WS-amp-Gorget-Acc-Tests?p=1958293&viewfull=1#post1958293 Maximum number of DAs per WS - TAs implied - (Rkenshin and Max, BG)]
+* [http://forum.square-enix.com/ffxi/threads/13940-Test-Server-Feedback-on-BLU-spells?p=185381&viewfull=1#post185381 BLU Double Attack potency - TA implied (Camate, Official Forums)]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4804129&viewfull=1#post4804129 Verifying BLU gets 5% Triple Attack from trait (Prothescar, BG)]
+* [http://www.bluegartr.com/threads/108198-Random-Facts-Thread-Traits-and-Stats-%28Player-and-Monster%29?p=4929620&viewfull=1#post4929620 Triple Attack II (Byrth, BG)]
+* [https://translate.googleusercontent.com/translate_c?act=url&depth=1&hl=en&ie=UTF8&prev=_t&rurl=translate.google.com&sl=auto&tl=en&u=http://wiki.ffo.jp/html/1634.html&usg=ALkJrhiaXFqR37OeH4bQd6sWcngCFuVdGA Triple Attack wiki.ffo.jp]

@@ -1,0 +1,100 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Blunt
+|nohits=1
+|desc=Delivers an area attack. Additional effect duration varies with TP. Additional effect: Weakens defense.
+|mp=108 MP
+|blupoint=UL
+|cast=1 second
+|recast=30 seconds
+|target=AoE
+|range=
+|stats=
+|effects=[[Defense Down]]
+|duration=60~120 seconds
+|trait=
+|level=97
+|mtype=Arcana
+|family=Khimaira
+|wsc=25% [[STR]] 25% [[MND]] 
+|ftp=4.0
+|ftp0=
+|ftp150=
+|ftp300=
+|ftp350=
+|scprop={{LightSC}} [[Light]] / {{Fragmentation}} [[Fragmentation]]
+|ve=
+|ce=
+}}
+==Notes==
+* May only be cast with the ability [[Unbridled Learning]].
+* Approximately -33% [[Defense Down]].
+**[[Magic Accuracy]] and [[Blue Magic Skill]] increase the chances of the defense down taking effect.
+*[[Defense Down]] effects do not stack with each other. 
+**[[Dia]], [[Box Step]], [[Defense Down]], and [[Geo-Frailty]] all stack together.
+**[[Defense Down]] effects such as [[Acid Bolt]]s, [[Angon (Ability)|Angon]], [[Spirit Surge]]d Jumps, [[Tachi: Ageha]], [[Full Break]], [[Shell Crusher]], [[Tenebral Crush]], [[Sweeping Gouge]], [[Tourbillion]], and [[Frightful Roar]], etc do not stack. Only one may be active at a time.
+
+==Spell Obtainment==
+'''Only used when a Khimaira's wings are raised. Critical hits have a chance of lowering their wings. Spamming Bludgeon is a good way to lower HP and feed TP without lowering wings.'''
+{{Learning Blue Magic Table
+|Learned From=Khimaira
+|Spell Level=97
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Khimaira
+|Level=
+|Zone=Caedarva Mire
+|SpawnCondition=Timed Spawn 48-72 hours. Spawns at (I-7/8) of Hediva Isle.
+|Map=Caedarva Mire-map4.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Khimaira
+|Level=
+|Zone=Nyzul Isle Investigation
+|SpawnCondition=Possible spawn on floors 60, 80, 100.
+|Map=AlzadaalRemnantsPortals.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Tyger
+|Level=
+|Zone=Caedarva Mire
+|SpawnCondition=Zeni NM
+|Map=Caedarva Mire-map3.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Khimaira 14X
+|Level=
+|Zone=Ilrusi Atoll
+|SpawnCondition= Captain Rank Assault - Bellerophon's Bliss
+|Map=Arrapago Reef-map2.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Mired Khimaira
+|Level=
+|Zone=Hall of Ki
+|SpawnCondition=First wave guaranteed, possible spawn on 3rd wave or higher.
+|Map=Rolanberry_Fields-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Mired Khrysokhimaira
+|Level=
+|Zone=Hall of Ki
+|SpawnCondition=Second wave guaranteed, possible spawn on 3rd wave or higher.
+|Map=Rolanberry_Fields-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Awoken Gorgimera
+|Level=
+|Zone=Beaucedine Glacier
+|SpawnCondition=(K-6) Peculiar Foes IV (M) objective.
+|Map=Beaucedine_Glacier-map.jpg
+}}
+}}
+
+== Related Links ==
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4894908&viewfull=1#post4894908 Matching spell names to magic data- Kegsay BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4897221&viewfull=1#post4897221 Tourbillion testing- Prothescar BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=4900325&viewfull=1#post4900325 Physical damage type- Prothescar BGForums]
+* [http://www.bluegartr.com/threads/37619-Blue-Mage-Job-Findings?p=5013110&viewfull=1#post5013110 fTP and Mod testing- Prothescar BGForums]
+[[Category:Blue Magic]][[Category:Spells]]

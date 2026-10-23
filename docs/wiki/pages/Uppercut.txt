@@ -1,0 +1,72 @@
+{{Blue Magic
+|class=damage
+|type=Physical
+|damage=Blunt
+|nohits=1
+|desc=Damage varies with TP.
+|mp=31 MP
+|blupoint=3
+|cast=0.5 seconds
+|recast=17 seconds
+|target=Single
+|range=4.5
+|stats=[[STR]] +2 [[DEX]] +1
+|effects=
+|duration=
+|trait=Attack Bonus
+|level=38
+|mtype=Plantoid
+|family=Goobbue
+|wsc=35% [[STR]]
+|ftp=
+|ftp0=1.5
+|ftp150=1.5
+|ftp300=1.5
+|ftp350=1.5
+|scprop={{Liquefaction}} [[Liquefaction]] / {{Impaction}} [[Impaction]]
+|ve=
+|ce=
+}}
+==Spell Obtainment==
+{{Learning Blue Magic Table
+|Learned From=Goobbue
+|Spell Level=38
+|Learning Blue Magic Row=
+{{Learning Blue Magic Row
+|Monster=Goobbue Farmer
+|Level=28-32
+|Zone=Rolanberry Fields
+|SpawnCondition=
+|Map=Rolanberry Fields-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Goobbue Gardener
+|Level=40-43
+|Zone=The Sanctuary of Zi'Tah
+|SpawnCondition=
+|Map=The Sanctuary of Zi'Tah-map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Eschan Goobbue
+|Level=80-95
+|Zone=Escha - Zi'Tah
+|SpawnCondition=#8
+|Map=Escha Zi'Tah Level Map 1.png
+}}
+{{Learning Blue Magic Row
+|Monster=Goobbue Farmer
+|Level=59-62
+|Zone=Rolanberry Fields (S)
+|SpawnCondition=
+|Map=Rolanberry_Fields_(S)_Map.jpg
+}}
+{{Learning Blue Magic Row
+|Monster=Hoary Ragwort
+|Level=75-90
+|Zone=Abyssea - Konschtat
+|SpawnCondition=
+|Map=Abyssea_-_Konschtat-Map.jpg
+}}
+}}
+[[Category:Blue Magic]]
+[[Category:Spells]]
