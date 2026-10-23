@@ -2,9 +2,9 @@ local autoy = require('autoy')
 local harness = require('harness')
 local testy = require('testy')
 
--- Boots Globby, whose own Globals file turns AutoArts on and sets the latency to 1. Sel loads it after
--- User-Globals.lua's and before it works out the spell latency, so a boot that left them as the files made them would
--- show them.
+-- Boots Globby, whose own Globals file sets the latency to 1 and turns on AutoArts, AutoTrustMode and AutoFoodMode, the
+-- last two with options of their own. Sel loads it after User-Globals.lua's and before it works out the spell latency,
+-- so a boot that left them as the files made them would show them, whatever User-Globals.lua holds.
 local function boot_globby()
     local gs = harness.boot({character = 'Globby', main_job = 'WAR', sub_job = 'WHM', expect_file = 'WAR.lua'})
     assert.equal('Globby-Globals.lua', gs.user.globals_marker)
