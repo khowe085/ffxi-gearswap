@@ -1941,6 +1941,20 @@ Test("gear-list --warn-drift warns where the list has fallen behind the sets, an
 	}
 });
 
+Test("gear-list --warn-drift warns that the character has no gear list yet and exits 0, where it stops without the option", () =>
+{
+	var sandbox = NewSandbox();
+	File.Delete(Path.Combine(sandbox.Repo, "data", "Testy", "Testy_gear_list.md"));
+	Stops(sandbox.Run("gear-list", testySets), "No gear list at data/Testy/Testy_gear_list.md.");
+	var run = sandbox.Run("gear-list", [.. testySets, "--warn-drift"]);
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "  warn  No gear list at data/Testy/Testy_gear_list.md yet. --print gives the table to start one from");
+	Contains(run.Output, "problems: 0, warnings: 1");
+	var findings = sandbox.Run("gear-list", [.. testySets, "--json", "--warn-drift"]);
+	Equal(0, findings.ExitCode);
+	Equal("warn", JsonDocument.Parse(findings.StandardOutput).RootElement.EnumerateArray().Single().GetProperty("severity").GetString());
+});
+
 Test("gear-list --warn-drift warns where the list has fallen behind the export, and exits 0", () =>
 {
 	var list = "data/Testy/Testy_gear_list.md";
@@ -2423,7 +2437,7 @@ Test("doc-lint holds a character's gear notes to pieces the character has, one e
 	Contains(run.Output, "problems: 2");
 });
 
-Test("doc-lint --warn-drift warns where the notes have fallen behind the export or the simulated sets, and exits 0", () =>
+Test("doc-lint --warn-drift warns where the notes have fallen behind the export, and exits 0", () =>
 {
 	var clean = pristine.Run("doc-lint", "--warn-drift");
 	Equal(0, clean.ExitCode);
@@ -2440,15 +2454,9 @@ Test("doc-lint --warn-drift warns where the notes have fallen behind the export 
 	[
 		(sandbox => sandbox.Edit(own, "## Pieces the simulated sets use", "### Hoxne Earring\n\n- Testy wants one.\n\n## Pieces the simulated sets use"),
 			["data/Testy/Testy_gear_notes.md:11: Hoxne Earring has an entry, but it is neither in the export nor an entry of docs/gear-notes.md"]),
-		(sandbox => sandbox.Edit(own, "| Hoxne Earring | Savage Blade |", "| Hoxne Earring | Chant du Cygne |"),
-			["data/Testy/Testy_gear_notes.md:17: Hoxne Earring, RDM sets\n    doc:   Chant du Cygne\n    pages: Savage Blade"]),
 		(sandbox => sandbox.Edit(own, "| Hoxne Earring | Expiacion |\n", "| Nyame Helm | Expiacion |\n"),
 			["data/Testy/Testy_gear_notes.md: the BLU table of pieces the sets use lacks Hoxne Earring (Expiacion)",
 				"data/Testy/Testy_gear_notes.md:24: Nyame Helm is in the BLU table of pieces the character lacks, but it is owned or no BLU set wears it"]),
-		(sandbox => sandbox.Edit(notes, "RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff).", "RDM: Savage Blade (Mid buff); BLU: Expiacion (Mid buff)."),
-			["docs/gear-notes.md:28: Nyame Helm: the bullet's sets differ from the pages\n    pages: RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff)"]),
-		(sandbox => sandbox.Edit(notes, "No notes beyond the help text: Colada.", "### Colada\n\n" + bullet + "RDM: Savage Blade (Mid buff)."),
-			["docs/gear-notes.md:21: Colada has a Simulated sets bullet, but no RDM or BLU set wears it"]),
 		(sandbox => sandbox.Edit(notes, "## Other slots\n", "## Ears\n\n### Hoxne Earring\n\n" + bullet + "RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff).\n\n## Other slots\n"),
 			["docs/gear-notes.md: Hoxne Earring has a Simulated sets bullet but isn't in the export"]),
 		(AddHandsToBluSet,
@@ -2507,6 +2515,12 @@ Test("doc-lint --warn-drift still fails a problem in a doc's own form, with or w
 		(sandbox => sandbox.Edit(own, "## Pieces the simulated sets use", "### Nyame Helm\n\n- Again.\n\n## Pieces the simulated sets use"), "data/Testy/Testy_gear_notes.md:11: a second entry for Nyame Helm"),
 		(sandbox => sandbox.Edit(notes, "*Naegling.*\n\n" + bullet, "*Naegling.*\n\n- Simulated sets (bg-wiki): "),
 			"docs/gear-notes.md:11: Naegling: the Simulated sets bullet doesn't open the way the others do"),
+		(sandbox => sandbox.Edit(notes, "RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff).", "RDM: Savage Blade (Mid buff); BLU: Expiacion (Mid buff)."),
+			"docs/gear-notes.md:28: Nyame Helm: the bullet's sets differ from the pages\n    pages: RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff)"),
+		(sandbox => sandbox.Edit(notes, "No notes beyond the help text: Colada.", "### Colada\n\n" + bullet + "RDM: Savage Blade (Mid buff)."),
+			"docs/gear-notes.md:21: Colada has a Simulated sets bullet, but no RDM or BLU set wears it"),
+		(sandbox => sandbox.Edit(own, "| Hoxne Earring | Savage Blade |", "| Hoxne Earring | Chant du Cygne |"),
+			"data/Testy/Testy_gear_notes.md:17: Hoxne Earring, RDM sets\n    doc:   Chant du Cygne\n    pages: Savage Blade"),
 	];
 	foreach (var form in forms)
 	{

@@ -13,12 +13,17 @@
 // and the table of pieces the simulated sets wear that the character lacks agrees with the sets.
 // Exit code 1 when it finds a problem.
 //
-// The notes fall behind the export and the simulated sets as they change. That is drift: a link to a missing file under
-// data/export or data/audit, where a character's old exports and audit records were, a character's entry for a piece the
-// export lacks, and a "Simulated sets" bullet or a table of pieces lacking that the export or the pages no longer back.
+// The notes fall behind the export as it changes. That is drift: a link to a missing file under data/export or
+// data/audit, where a character's old exports and audit records were, a character's entry for a piece the export
+// lacks, a piece in the bags that the simulated sets wear whose entry has no "Simulated sets" bullet, a bullet for a
+// piece the export lacks, and a table of pieces lacking that the export no longer backs: a lacking piece with no row,
+// or a row for a piece the character owns or no set wears.
 // --warn-drift prints drift as a warning, counts it apart from the problems and leaves it out of the exit code. What
 // stays a problem is the docs' own form: a link to any other missing file, an anchor, a table, a code fence, raw markup,
-// a character's name under docs/, and an item with two entries or in both a "No notes" list and an entry.
+// a character's name under docs/, an item with two entries or in both a "No notes" list and an entry, and a "Simulated
+// sets" bullet that doesn't open the way the others do. A bullet or a table row that bg-wiki's pinned simulated sets
+// alone contradict is a problem too, as the export has no part in it: a bullet for a piece no RDM or BLU set wears, and
+// a bullet or a row whose sets differ from the pages'.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -227,8 +232,7 @@ void Problem(string message)
 	Console.WriteLine("  " + message);
 }
 
-// A doc has fallen behind the export, the simulated sets or a character's records. Under --warn-drift it is a warning
-// and not a problem.
+// A doc has fallen behind the export or a character's records. Under --warn-drift it is a warning and not a problem.
 void Drift(string message)
 {
 	if (cli.Flag("--warn-drift") is false)
@@ -316,11 +320,11 @@ void CheckSimulatedSetBullets(Dictionary<string, List<NumberedLine>> entries)
 			var said = Regex.Match(parts.Groups[1].Value, @"^((?:RDM|BLU): .*?)\.(?: |$)");
 			if (usage.TryGetValue(entry.Key, out var byJob) is false)
 			{
-				Drift($"{notesPath}:{bullet.Number}: {entry.Key} has a Simulated sets bullet, but no RDM or BLU set wears it");
+				Problem($"{notesPath}:{bullet.Number}: {entry.Key} has a Simulated sets bullet, but no RDM or BLU set wears it");
 			}
 			else if (said.Success is false || said.Groups[1].Value != SimulatedSets.Describe(byJob))
 			{
-				Drift($"{notesPath}:{bullet.Number}: {entry.Key}: the bullet's sets differ from the pages\n    pages: {SimulatedSets.Describe(byJob)}");
+				Problem($"{notesPath}:{bullet.Number}: {entry.Key}: the bullet's sets differ from the pages\n    pages: {SimulatedSets.Describe(byJob)}");
 			}
 		}
 	}
@@ -387,7 +391,7 @@ void CheckPiecesLacking(string[] ownNotes)
 			}
 			else if (row.Text != expected)
 			{
-				Drift($"{ownNotesPath}:{row.Number}: {piece.Key}, {job} sets\n    doc:   {row.Text}\n    pages: {expected}");
+				Problem($"{ownNotesPath}:{row.Number}: {piece.Key}, {job} sets\n    doc:   {row.Text}\n    pages: {expected}");
 			}
 		}
 		foreach (var row in listed[job].Where(row => lacking.ContainsKey(row.Key) is false))

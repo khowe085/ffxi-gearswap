@@ -12,10 +12,11 @@
 // reads the newest export of the sets files' character. Exit code 1 on a mismatch.
 //
 // The list falls behind the sets and the export as they change. That is drift: a piece without a row, a row, column,
-// section or copy the sets or the export don't back, a date older than the newest export's, and the counts in the
-// headings and the opening sentence that the rows have left behind. --warn-drift prints drift as a warning, counts it
-// apart from the problems and leaves it out of the exit code; --json gives it the severity warn. What stays a problem
-// is the tables' own form: a header or a row that can't be read, and a section out of order.
+// section or copy the sets or the export don't back, a date other than that of the export it read, the counts in the
+// headings and the opening sentence that the rows have left behind, and a list not written yet. --warn-drift prints
+// drift as a warning, counts it apart from the problems and leaves it out of the exit code; --json gives it the
+// severity warn. What stays a problem is the tables' own form: a header or a row that can't be read, and a section out
+// of order. With no list, and neither --print nor --warn-drift, the tool stops with exit code 2.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -51,7 +52,7 @@ var owned = Export.Read(exportPath);
 var resources = Resources.Load();
 var listPath = Characters.GearList(character);
 var hasList = File.Exists(listPath);
-if (hasList is false && cli.Flag("--print") is false)
+if (hasList is false && cli.Flag("--print") is false && cli.Flag("--warn-drift") is false)
 	Tool.Fail($"No gear list at {Tool.RepoRelative(listPath)}. --print gives the table to start one from.");
 var lines = hasList ? File.ReadAllLines(listPath) : [];
 
@@ -200,7 +201,8 @@ if (cli.Flag("--print"))
 
 if (hasList is false)
 {
-	Drift($"No gear list at {Tool.RepoRelative(listPath)} yet. The table above is the one to start it from");
+	var howToStart = cli.Flag("--print") ? "The table above is the one to start it from" : "--print gives the table to start one from";
+	Drift($"No gear list at {Tool.RepoRelative(listPath)} yet. {howToStart}");
 	return Finish();
 }
 
