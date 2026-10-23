@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -29,7 +30,7 @@ var toolsDir = Path.GetFullPath(Path.Combine(testsDir, ".."));
 var fixtureDir = Path.Combine(testsDir, "fixture");
 var buildsDir = Path.GetFullPath(Path.Combine(toolsDir, "..", "cache", "builds"));
 var workDir = Path.Combine(Path.GetTempPath(), "gear-tools-tests-" + Environment.ProcessId);
-var unbuilt = Directory.GetFiles(toolsDir, "*.cs").Select(Path.GetFileNameWithoutExtension).Where(tool => File.Exists(Path.Combine(buildsDir, tool!, tool + ".dll")) is false).ToList();
+var unbuilt = Directory.GetFiles(toolsDir, "*.cs").Append("run-gearswap-tests.cs").Select(Path.GetFileNameWithoutExtension).Where(tool => File.Exists(Path.Combine(buildsDir, tool!, tool + ".dll")) is false).ToList();
 if (unbuilt.Count > 0)
 {
 	Console.Error.WriteLine($"No build of {string.Join(", ", unbuilt)}. Build the tools first: dotnet run .claude/gear.cs -- build");
@@ -1502,6 +1503,56 @@ Test("simulated-sets writes each job's simulated sets from bg_job_guides at its 
 	Contains(run.Output, "2 jobs' simulated sets from bg_job_guides at " + guides.Commit[..7]);
 });
 
+Test("windower-libs writes the Windower libraries GearSwap's tests run on into docs/windower/libs, from Windower/Lua at its commit, and drops one no longer taken", () =>
+{
+	// Windower/Lua keeps the libraries under addons/libs, beside each addon's own folder.
+	var upstream = Path.Combine(workDir, "windower-lua-upstream");
+	foreach (var library in Sources.WindowerLibraries)
+	{
+		var file = Path.Combine(upstream, "addons", "libs", library);
+		Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+		File.WriteAllText(file, $"-- {library}\n");
+	}
+	File.WriteAllText(Path.Combine(upstream, "addons", "libs", "timeit.lua"), "-- a library GearSwap doesn't load\n");
+	Directory.CreateDirectory(Path.Combine(upstream, "addons", "GearSwap"));
+	File.WriteAllText(Path.Combine(upstream, "addons", "GearSwap", "gearswap.lua"), "-- an addon\n");
+	var lua = NewGitRepo("windower-lua-for-docs", upstream);
+	var sandbox = NewSandbox();
+	var libs = Path.Combine(sandbox.Repo, "docs", "windower", "libs");
+	Directory.CreateDirectory(libs);
+	File.WriteAllText(Path.Combine(libs, "vectors.lua"), "-- a library no longer taken\n");
+	Directory.CreateDirectory(Path.Combine(libs, "socket"));
+	File.WriteAllText(Path.Combine(libs, "socket", "http.lua"), "-- a library no longer taken, in a folder of its own\n");
+	var run = sandbox.RunWithRepo("windower_lua", lua, "windower-libs");
+	Equal(0, run.ExitCode);
+	True(Directory.Exists(Path.Combine(libs, "socket")) is false, "a folder left empty is dropped");
+	var written = Directory.GetFiles(libs, "*", SearchOption.AllDirectories).Select(file => Path.GetRelativePath(libs, file).Replace('\\', '/'));
+	Equal(string.Join(" ", Sources.WindowerLibraries.Order(StringComparer.Ordinal)), string.Join(" ", written.Order(StringComparer.Ordinal)));
+	Equal("-- packets/fields.lua\n", File.ReadAllText(Path.Combine(libs, "packets", "fields.lua")));
+	Contains(run.Output, $"{Sources.WindowerLibraries.Count} Windower libraries from Windower/Lua at {lua.Commit[..7]} in docs/windower/libs");
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
+Test("windower-libs writes nothing unless Windower/Lua has every library it takes", () =>
+{
+	var upstream = Path.Combine(workDir, "windower-lua-upstream-without-strings");
+	foreach (var library in Sources.WindowerLibraries.Where(library => library != "strings.lua"))
+	{
+		var file = Path.Combine(upstream, "addons", "libs", library);
+		Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+		File.WriteAllText(file, $"-- {library}\n");
+	}
+	var lua = NewGitRepo("windower-lua-without-strings", upstream);
+	var sandbox = NewSandbox();
+	var libs = Path.Combine(sandbox.Repo, "docs", "windower", "libs");
+	Directory.CreateDirectory(libs);
+	File.WriteAllText(Path.Combine(libs, "strings.lua"), "-- as it was\n");
+	Stops(sandbox.RunWithRepo("windower_lua", lua, "windower-libs"), "Windower/Lua has no addons/libs/strings.lua at " + lua.Commit[..7]);
+	Equal("strings.lua", string.Join(" ", Directory.GetFiles(libs).Select(Path.GetFileName)));
+	Equal("-- as it was\n", File.ReadAllText(Path.Combine(libs, "strings.lua")));
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
 Test("a tool stops, and says what is missing, when the repository lacks a folder or a file it reads", () =>
 {
 	var noExports = NewSandbox();
@@ -1845,6 +1896,160 @@ Test("gear-list says why the Copy column stays empty for a piece that names no a
 	Equal(1, run.ExitCode);
 	Contains(run.Output, "Stikini Ring: the Copy column says [one of two identical copies], but the piece the sets wear names no augments, so the column stays empty");
 	Contains(run.Output, "problems: 1");
+});
+
+// A piece in a set that the list has no row for.
+void AddUnlistedPiece(Sandbox sandbox) => sandbox.Edit("sets/Testy_RDM.json", """{ "item": "Lethargy Sayon +3" },""", """{ "item": "Lethargy Sayon +3" }, "neck": { "item": "Warder's Charm +1" },""");
+
+// The Head table's two rows out of order.
+void Unsort(Sandbox sandbox) => sandbox.Edit("data/Testy/Testy_gear_list.md",
+	"| Atro. Chapeau +4 |  |  | `Midcast.Enfeebling` |\n| Nyame Helm |  | `Idle` | `Idle` |",
+	"| Nyame Helm |  | `Idle` | `Idle` |\n| Atro. Chapeau +4 |  |  | `Midcast.Enfeebling` |");
+
+Test("gear-list --warn-drift warns where the list has fallen behind the sets, and exits 0", () =>
+{
+	var clean = pristine.Run("gear-list", [.. testySets, "--warn-drift"]);
+	Equal(0, clean.ExitCode);
+	Contains(clean.Output, "problems: 0, warnings: 0");
+	var rdm = "sets/Testy_RDM.json";
+	var ws = """{ "name": "WS", "slots": { "ammo": { "item": "Coiste Bodhar" } } },""";
+	void AddWarSets(Sandbox sandbox) => File.WriteAllText(Path.Combine(sandbox.Repo, "sets", "Testy_WAR.json"),
+		"""{ "schemaVersion": 1, "character": "Testy", "job": "WAR", "sets": [ { "name": "Idle", "slots": { "head": { "item": "Nyame Helm" } } } ] }""");
+	void DeleteList(Sandbox sandbox) => File.Delete(Path.Combine(sandbox.Repo, "data", "Testy", "Testy_gear_list.md"));
+	(string[] Arguments, Action<Sandbox> Make, string[] Messages)[] drifts =
+	[
+		(["--in", rdm], _ => { }, ["The list has a BLU column, but no --in sets file is for BLU", "line 48: Hashi. Bazu. +3 has a row, but no set wears it"]),
+		([.. testySets, "--in", "sets/Testy_WAR.json"], AddWarSets, ["sets/Testy_WAR.json is for WAR, and the list has no WAR column. --print gives the table with a WAR column"]),
+		([.. testySets, "--print"], DeleteList, ["No gear list at data/Testy/Testy_gear_list.md yet. The table above is the one to start it from"]),
+		(testySets, sandbox => sandbox.Edit(rdm, ws, """{ "name": "WS", "slots": { "ammo": { "item": "Coiste Bodhar" }, "waist": { "item": "Nyame Helm" } } },"""),
+			["RDM: Nyame Helm is worn in waist (Waist) by WS, but elsewhere under Head"]),
+		(testySets, AddUnlistedPiece, ["Warder's Charm +1: no row. Expected: BLU:  | RDM: `Idle`"]),
+		(testySets, sandbox => sandbox.Edit(rdm, ws, """{ "name": "WS", "slots": { "ammo": { "item": "Coiste Bodhar" }, "left_ear": { "item": "Loquacious Earring" } } },"""),
+			["line 36: Loquac. Earring, RDM column\n    list:  `Midcast.Enfeebling`\n    sets:  `Midcast.Enfeebling`, `WS`"]),
+		(testySets, sandbox => sandbox.Edit(rdm, """body": { "item": "Lethargy Sayon +3" }""", """hands": { "item": "Lethargy Sayon +3" }"""),
+			["line 42: Lethargy Sayon +3 is under Body, but the sets wear it under Hands"]),
+		(testySets, sandbox => sandbox.Edit(rdm, """["\"Refresh\"+2", "Mag. Acc.+11", "DMG:+1"]""", """["Weapon skill damage +2%", "DMG:+14"]"""),
+			["line 16: Colada: the Copy column says [\"Refresh\"+2, Mag. Acc.+11, DMG:+1], but the sets wear [Weapon skill damage +2%, DMG:+14]"]),
+		(testySets, sandbox => sandbox.Edit(rdm, """{ "item": "Colada", "augments": ["\"Refresh\"+2", "Mag. Acc.+11", "DMG:+1"] }""", """{ "item": "Colada" }"""),
+			["line 16: Colada: the Copy column says [\"Refresh\"+2, Mag. Acc.+11, DMG:+1], but the piece the sets wear names no augments, so the column stays empty"]),
+	];
+	foreach (var drift in drifts)
+	{
+		var sandbox = NewSandbox();
+		drift.Make(sandbox);
+		WarnsOfDrift(sandbox, "gear-list", drift.Arguments, drift.Messages);
+	}
+});
+
+Test("gear-list --warn-drift warns that the character has no gear list yet and exits 0, where it stops without the option", () =>
+{
+	var sandbox = NewSandbox();
+	File.Delete(Path.Combine(sandbox.Repo, "data", "Testy", "Testy_gear_list.md"));
+	Stops(sandbox.Run("gear-list", testySets), "No gear list at data/Testy/Testy_gear_list.md.");
+	var run = sandbox.Run("gear-list", [.. testySets, "--warn-drift"]);
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "  warn  No gear list at data/Testy/Testy_gear_list.md yet. --print gives the table to start one from");
+	Contains(run.Output, "problems: 0, warnings: 1");
+	var findings = sandbox.Run("gear-list", [.. testySets, "--json", "--warn-drift"]);
+	Equal(0, findings.ExitCode);
+	Equal("warn", JsonDocument.Parse(findings.StandardOutput).RootElement.EnumerateArray().Single().GetProperty("severity").GetString());
+});
+
+Test("gear-list --warn-drift warns where the list has fallen behind the export, and exits 0", () =>
+{
+	var list = "data/Testy/Testy_gear_list.md";
+	(Action<Sandbox> Make, string[] Messages)[] drifts =
+	[
+		(sandbox => sandbox.Edit(list, "of 2026-01-02: **17", "of 2026-01-01: **17"),
+			["The list says it was taken from the export of 2026-01-01, and this check read the one of 2026-01-02."]),
+		(sandbox => sandbox.Edit(list, "| Eschan Stone |  |", "| Eschan Stonee |  |"),
+			["line 69: Eschan Stonee isn't in the export", "Eschan Stone: no row.", "line 69: Eschan Stonee has a row, but no set wears it"]),
+		(sandbox => sandbox.Edit(list, "| Sucellos's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, \"Mag.Atk.Bns.\"+10 |", "| Sucellos's Cape | INT+20, Nope |"),
+			["line 63: Sucellos's Cape [INT+20, Nope] matches no copy.", "Sucellos's Cape [INT+20, Mag. Acc+20 /Mag. Dmg.+20, \"Mag.Atk.Bns.\"+10]: none of its 2 rows matches"]),
+		(sandbox => sandbox.Edit(list, "| Prolix Ring |  |", "| Prolix Ring | one of two identical copies |"),
+			["line 54: Prolix Ring is listed as one of several copies, but the export has 1", "line 54: Prolix Ring: the Copy column says [one of two identical copies], but the export has one copy, so the column stays empty"]),
+	];
+	foreach (var drift in drifts)
+	{
+		var sandbox = NewSandbox();
+		drift.Make(sandbox);
+		WarnsOfDrift(sandbox, "gear-list", testySets, drift.Messages);
+	}
+});
+
+Test("gear-list --warn-drift warns where the counts in the list no longer match its rows, and exits 0", () =>
+{
+	var list = "data/Testy/Testy_gear_list.md";
+	(Action<Sandbox> Make, string[] Messages)[] drifts =
+	[
+		(sandbox => sandbox.Edit(list, "## Ammo (1)", "## Ammo (2)"), ["## Ammo (2) has 1 rows"]),
+		(sandbox => sandbox.Edit(list, "**17 pieces**", "**18 pieces**"), ["The list says 18 pieces and has 17 rows"]),
+		(sandbox => sandbox.Edit(list, "15 for RDM", "14 for RDM"), ["The list says 14 for RDM and has 15 rows with RDM sets"]),
+		(sandbox => sandbox.Edit(list, "1 worn by both)", "1 worn by both; 9 of them RDM only)"), ["The list says 9 of them RDM only, and 14 rows have RDM sets alone"]),
+		(sandbox => sandbox.Edit(list, "1 worn by both", "2 worn by both"), ["The list says 2 worn by both, and 1 rows have both BLU and RDM sets"]),
+		(sandbox => sandbox.Edit(list, "| Prolix Ring |  |  | `Midcast['Stoneskin']` |\n", ""),
+			["Prolix Ring: no row. Expected: BLU:  | RDM: `Midcast['Stoneskin']`", "## Rings (3) has 2 rows", "The list says 17 pieces and has 16 rows", "The list says 15 for RDM and has 14 rows with RDM sets"]),
+	];
+	foreach (var drift in drifts)
+	{
+		var sandbox = NewSandbox();
+		drift.Make(sandbox);
+		WarnsOfDrift(sandbox, "gear-list", testySets, drift.Messages);
+	}
+});
+
+Test("gear-list --warn-drift still fails a problem in the list's tables, with or without drift beside it", () =>
+{
+	var list = "data/Testy/Testy_gear_list.md";
+	var ammo = "## Ammo (1)\n\n| Item | Copy | BLU sets | RDM sets |\n|---|---|---|---|\n";
+	(Action<Sandbox> Make, string Message)[] forms =
+	[
+		(Unsort, "## Head isn't sorted by item name"),
+		(sandbox => sandbox.Edit(list, ammo + "| Coiste Bodhar |  |  | `WS` |", "## Ammo (1)\n\n| Item | Copy | RDM sets |\n|---|---|---|\n| Coiste Bodhar |  | `WS` |"),
+			"## Ammo has the job columns RDM, but the list's first table has BLU, RDM"),
+		(sandbox => sandbox.Edit(list, ammo + "| Coiste Bodhar |  |  | `WS` |", "## Ammo (1)\n\n| Item | Copy | RDM sets | RDM sets |\n|---|---|---|---|\n| Coiste Bodhar |  |  | `WS` |"),
+			"line 21: the header names a job more than once: RDM, RDM"),
+	];
+	foreach (var form in forms)
+	{
+		var sandbox = NewSandbox();
+		form.Make(sandbox);
+		StillFails(sandbox, "gear-list", testySets, form.Message);
+	}
+	(Action<Sandbox> Make, string Problem, string Warning)[] beside =
+	[
+		(sandbox =>
+		{
+			Unsort(sandbox);
+			AddUnlistedPiece(sandbox);
+		}, "## Head isn't sorted by item name", "Warder's Charm +1: no row. Expected: BLU:  | RDM: `Idle`"),
+		(sandbox => sandbox.Edit(list, "| Naegling |  |  | `Weapons['Savage Blade']` |", "| Naegling |  |  | `Weapons['Savage Blade']` | extra |"),
+			"line 17: 5 cells, but the header has 4", "Naegling: no row."),
+		(sandbox => sandbox.Edit(list, ammo, "## Ammo (1)\n\n| Piece | Copy | BLU sets | RDM sets |\n|---|---|---|---|\n"),
+			"line 21: this table's first row isn't an `| Item | Copy | ... |` header, so its rows aren't read", "Coiste Bodhar: no row."),
+	];
+	foreach (var pair in beside)
+	{
+		var sandbox = NewSandbox();
+		pair.Make(sandbox);
+		FailsBesideDrift(sandbox, "gear-list", testySets, pair.Problem, pair.Warning);
+	}
+});
+
+Test("gear-list --warn-drift --json writes drift as a finding of severity warn, and a problem in the list as an error", () =>
+{
+	var sandbox = NewSandbox();
+	AddUnlistedPiece(sandbox);
+	string Severities(ToolRun run) => string.Join(" ", JsonDocument.Parse(run.StandardOutput).RootElement.EnumerateArray().Select(finding => finding.GetProperty("severity").GetString()));
+	var drift = sandbox.Run("gear-list", [.. testySets, "--json", "--warn-drift"]);
+	Equal(0, drift.ExitCode);
+	Equal("warn", Severities(drift));
+	Equal("error", Severities(sandbox.Run("gear-list", [.. testySets, "--json"])));
+	Unsort(sandbox);
+	var both = sandbox.Run("gear-list", [.. testySets, "--json", "--warn-drift"]);
+	Equal(1, both.ExitCode);
+	Equal("warn error", Severities(both));
+	Equal("error error", Severities(sandbox.Run("gear-list", [.. testySets, "--json"])));
 });
 
 // ---------------------------------------------------------------- rank-doc.cs
@@ -2232,6 +2437,104 @@ Test("doc-lint holds a character's gear notes to pieces the character has, one e
 	Contains(run.Output, "problems: 2");
 });
 
+Test("doc-lint --warn-drift warns where the notes have fallen behind the export, and exits 0", () =>
+{
+	var clean = pristine.Run("doc-lint", "--warn-drift");
+	Equal(0, clean.ExitCode);
+	Contains(clean.Output, "problems: 0, warnings: 0");
+	var notes = "docs/gear-notes.md";
+	var own = "data/Testy/Testy_gear_notes.md";
+	var bullet = "- Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): ";
+	void AddHandsToBluSet(Sandbox sandbox)
+	{
+		var page = Path.Combine(sandbox.Repo, "docs", "wiki", "simulated-sets", "blu.txt");
+		File.WriteAllText(page, File.ReadAllText(page).Replace("|Head = Nyame Helm", "|Head = Nyame Helm\n            |Hands = Hashishin Bazubands +3"));
+	}
+	(Action<Sandbox> Make, string[] Messages)[] drifts =
+	[
+		(sandbox => sandbox.Edit(own, "## Pieces the simulated sets use", "### Hoxne Earring\n\n- Testy wants one.\n\n## Pieces the simulated sets use"),
+			["data/Testy/Testy_gear_notes.md:11: Hoxne Earring has an entry, but it is neither in the export nor an entry of docs/gear-notes.md"]),
+		(sandbox => sandbox.Edit(own, "| Hoxne Earring | Expiacion |\n", "| Nyame Helm | Expiacion |\n"),
+			["data/Testy/Testy_gear_notes.md: the BLU table of pieces the sets use lacks Hoxne Earring (Expiacion)",
+				"data/Testy/Testy_gear_notes.md:24: Nyame Helm is in the BLU table of pieces the character lacks, but it is owned or no BLU set wears it"]),
+		(sandbox => sandbox.Edit(notes, "## Other slots\n", "## Ears\n\n### Hoxne Earring\n\n" + bullet + "RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff).\n\n## Other slots\n"),
+			["docs/gear-notes.md: Hoxne Earring has a Simulated sets bullet but isn't in the export"]),
+		(AddHandsToBluSet,
+			["docs/gear-notes.md: Hashi. Bazu. +3 is in a bag and in the simulated sets, but its entry has no Simulated sets bullet. Sets: BLU: Expiacion (Mid buff)"]),
+	];
+	foreach (var drift in drifts)
+	{
+		var sandbox = NewSandbox();
+		drift.Make(sandbox);
+		WarnsOfDrift(sandbox, "doc-lint", [], drift.Messages);
+	}
+});
+
+Test("doc-lint --warn-drift warns of a link to a character's old export or audit file, and fails a link to any other missing file", () =>
+{
+	var notes = "data/Testy/Testy_notes.md";
+	var links = "[an old export](../export/Testy%202025-11-30%2008-00-00.lua) and [the audit](../audit/Testy.jsonl)";
+	var drifted = NewSandbox();
+	drifted.Edit(notes, "- Accuracy first.", $"- Accuracy first. Written from {links}.");
+	WarnsOfDrift(drifted, "doc-lint", [],
+	[
+		"data/Testy/Testy_notes.md:7: link to a missing file, ../export/Testy%202025-11-30%2008-00-00.lua",
+		"data/Testy/Testy_notes.md:7: link to a missing file, ../audit/Testy.jsonl",
+	]);
+	var beside = NewSandbox();
+	beside.Edit(notes, "- Accuracy first.", $"- Accuracy first. Written from {links}, and [nothing](nowhere.md).");
+	var run = beside.Run("doc-lint", "--warn-drift");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "  data/Testy/Testy_notes.md:7: link to a missing file, nowhere.md");
+	Contains(run.Output, "  warn  data/Testy/Testy_notes.md:7: link to a missing file, ../audit/Testy.jsonl");
+	Contains(run.Output, "problems: 1, warnings: 2");
+});
+
+Test("doc-lint --warn-drift still fails a problem in a doc's own form, with or without drift beside it", () =>
+{
+	var notes = "docs/gear-notes.md";
+	var own = "data/Testy/Testy_gear_notes.md";
+	var mechanics = "docs/ffxi-mechanics.md";
+	var bullet = "- Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): ";
+	void Append(Sandbox sandbox, string file, string text) => File.AppendAllText(Path.Combine(sandbox.Repo, file), text);
+	(Action<Sandbox> Make, string Message)[] forms =
+	[
+		(sandbox => sandbox.Edit(notes, "(rank-augments.md#nyame-helm).", "(rank-augments.md#nyame-helmet)."), "docs/gear-notes.md:27: broken anchor, rank-augments.md#nyame-helmet"),
+		(sandbox => Append(sandbox, "data/Testy/Testy_notes.md", "\nThe sets are in [the gear file](Testy_Blu_Gear.lua#idle).\n"),
+			"data/Testy/Testy_notes.md:22: anchor into a file this tool doesn't read, Testy_Blu_Gear.lua#idle"),
+		(sandbox => sandbox.Edit(mechanics, "A tilde inside code is fine", "See <b>bold</b>. A tilde inside code is fine"), "docs/ffxi-mechanics.md:13: raw tag <b>"),
+		(sandbox => sandbox.Edit(mechanics, "A tilde inside code is fine", "See ~a~ b. A tilde inside code is fine"), "docs/ffxi-mechanics.md:13: two tildes on one line"),
+		(sandbox => Append(sandbox, mechanics, "\n| a | b |\n| 1 | 2 |\n"), "docs/ffxi-mechanics.md:15: table without a delimiter row"),
+		(sandbox => Append(sandbox, mechanics, "\nText right above.\n| c | d |\n|---|---|\n"), "docs/ffxi-mechanics.md:16: table with no blank line above it"),
+		(sandbox => sandbox.Edit(mechanics, "| Fast Cast | 80% |", "| Fast Cast | `80|90`% |"), "docs/ffxi-mechanics.md:11: 3 cells, but the table that starts at line 9 has 2"),
+		(sandbox => Append(sandbox, mechanics, "\n```\n| a | b |\n"), "docs/ffxi-mechanics.md:15: a code fence that is never closed, so nothing after it is checked"),
+		(sandbox => sandbox.Edit(mechanics, "A small doc for the tools' tests.", "A small doc for the tools' tests. See `data/Testy/RDM.lua`."),
+			"docs/ffxi-mechanics.md:3: names Testy. What holds for one character goes in data/Testy/"),
+		(sandbox => sandbox.Edit(notes, "No notes beyond the help text: Atro. Chapeau +4.", "No notes beyond the help text: Atro. Chapeau +4, Nyame Helm."),
+			"docs/gear-notes.md:30: Nyame Helm is in a \"No notes\" list and has an entry"),
+		(sandbox => sandbox.Edit(own, "## Pieces the simulated sets use", "### Nyame Helm\n\n- Again.\n\n## Pieces the simulated sets use"), "data/Testy/Testy_gear_notes.md:11: a second entry for Nyame Helm"),
+		(sandbox => sandbox.Edit(notes, "*Naegling.*\n\n" + bullet, "*Naegling.*\n\n- Simulated sets (bg-wiki): "),
+			"docs/gear-notes.md:11: Naegling: the Simulated sets bullet doesn't open the way the others do"),
+		(sandbox => sandbox.Edit(notes, "RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff).", "RDM: Savage Blade (Mid buff); BLU: Expiacion (Mid buff)."),
+			"docs/gear-notes.md:28: Nyame Helm: the bullet's sets differ from the pages\n    pages: RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff)"),
+		(sandbox => sandbox.Edit(notes, "No notes beyond the help text: Colada.", "### Colada\n\n" + bullet + "RDM: Savage Blade (Mid buff)."),
+			"docs/gear-notes.md:21: Colada has a Simulated sets bullet, but no RDM or BLU set wears it"),
+		(sandbox => sandbox.Edit(own, "| Hoxne Earring | Savage Blade |", "| Hoxne Earring | Chant du Cygne |"),
+			"data/Testy/Testy_gear_notes.md:17: Hoxne Earring, RDM sets\n    doc:   Chant du Cygne\n    pages: Savage Blade"),
+	];
+	foreach (var form in forms)
+	{
+		var sandbox = NewSandbox();
+		form.Make(sandbox);
+		StillFails(sandbox, "doc-lint", [], form.Message);
+	}
+	var beside = NewSandbox();
+	beside.Edit(own, "## Pieces the simulated sets use", "### Hoxne Earring\n\n- Testy wants one.\n\n## Pieces the simulated sets use");
+	beside.Edit(mechanics, "A tilde inside code is fine", "See <b>bold</b>. A tilde inside code is fine");
+	FailsBesideDrift(beside, "doc-lint", [], "docs/ffxi-mechanics.md:13: raw tag <b>",
+		"data/Testy/Testy_gear_notes.md:11: Hoxne Earring has an entry, but it is neither in the export nor an entry of docs/gear-notes.md");
+});
+
 Test("wsdist-gear finds an item's entries, and checks Nyame's against the rank doc", () =>
 {
 	var found = pristine.Run("wsdist-gear", "nyame helm r15");
@@ -2305,6 +2608,760 @@ Test("search-fast-recast stops with its usage line on a --hidden file that isn't
 	var broken = Path.Combine(workDir, "hidden-broken.json");
 	File.WriteAllText(broken, "{ not json");
 	Stops(pristine.Run("search-fast-recast", pieces, "--job", "BLU", "--hidden", broken), "Give the file owned-gear.cs --json wrote");
+});
+
+// ---------------------------------------------------------------- GearSwap's tests
+
+// What busted writes on standard output for a spec file with tests/support/report.lua, after whatever its tests
+// printed. The failed assertion is in a helper further down the file than the test that calls it.
+string BustedOutput(string spec) => "a line a test printed\n" + $$$"""
+	{"successes":[{"name":"a set goes on","element":{"duration":0.25,"trace":{"currentline":12,"short_src":"{{{spec}}}"}},"trace":{"currentline":12}},
+	{"name":"an earlier test","element":{"duration":0.5,"trace":{"currentline":3,"short_src":"{{{spec}}}"}},"trace":{"currentline":3}}],
+	"failures":[{"name":"a set stays off","message":"{{{spec}}}:20: Expected objects to be the same.","element":{"duration":0.125,"trace":{"currentline":18}},"trace":{"currentline":45,"traceback":"\nstack traceback:\n\t{{{spec}}}:20: in function"}}],
+	"errors":[{"name":"a hook runs","message":"gearswap.lua:12: attempt to call nil","isError":true,"element":{"duration":0.0625,"trace":{"currentline":30}},"trace":{"currentline":30,"traceback":"\nstack traceback:\n\tgearswap.lua:12: in function 'f'"}}],
+	"pendings":[{"name":"a buff comes","message":"Sel equips nothing for it yet","element":{"trace":{"currentline":40}},"trace":{"currentline":40}}],
+	"duration":1.5}
+	""".ReplaceLineEndings("") + "\n";
+
+Test("LuaSpecs.Find takes every spec file under tests/, by its path in the repo, in order", () =>
+{
+	var repo = Path.Combine(workDir, "lua-specs-repo");
+	string[] files = ["tests/sel/idle_spec.lua", "tests/gearswap/flow_spec.lua", "tests/support/harness.lua", "tests/notes_spec.md", "docs/x_spec.lua"];
+	foreach (var file in files)
+	{
+		var path = Path.Combine(repo, file);
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+		File.WriteAllText(path, "");
+	}
+	Equal("tests/gearswap/flow_spec.lua tests/sel/idle_spec.lua", string.Join(" ", LuaSpecs.Find(repo)));
+	Equal(0, LuaSpecs.Find(Path.Combine(workDir, "lua-specs-no-repo")).Count);
+});
+
+Test("LuaSpecs.Read gives each test of a spec file its outcome, message and time, in the file's order", () =>
+{
+	var run = LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "", 2);
+	Equal("tests/x_spec.lua", run.Spec);
+	Equal(true, run.Ran);
+	Equal("an earlier test|a set goes on|a set stays off|a hook runs|a buff comes", string.Join("|", run.Tests.Select(test => test.Name)));
+	Equal("Passed Passed Failed Failed Pending", string.Join(" ", run.Tests.Select(test => test.Result)));
+	Equal("tests/x_spec.lua:20: Expected objects to be the same.", run.Tests[2].Message);
+	// An error's traceback says where it came from, which a failed assertion's message already does.
+	Equal("gearswap.lua:12: attempt to call nil\nstack traceback:\n\tgearswap.lua:12: in function 'f'", run.Tests[3].Message);
+	Equal("Sel equips nothing for it yet", run.Tests[4].Message);
+	Equal(0.5, run.Tests[0].Seconds);
+});
+
+Test("LuaSpecs.Read takes busted's JSON from standard output alone, whatever busted wrote on standard error", () =>
+{
+	var run = LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "Warning: a LuaRocks tree could not be read\n", 2);
+	Equal(true, run.Ran);
+	Equal(5, run.Tests.Count);
+});
+
+Test("LuaSpecs.Read takes output without busted's JSON as a spec file that didn't run, and keeps both streams", () =>
+{
+	var run = LuaSpecs.Read("tests/x_spec.lua", "a line a test printed\n", "lua: not enough memory\n", 1);
+	Equal(false, run.Ran);
+	Equal(0, run.Tests.Count);
+	Equal("a line a test printed\nlua: not enough memory\nbusted exited with code 1", run.Output);
+	// A busted the system stopped may write nothing; its exit code is then all there is to go on.
+	Equal("busted exited with code 137", LuaSpecs.Read("tests/x_spec.lua", "", "", 137).Output);
+});
+
+Test("LuaSpecs.BustedArguments has busted run a spec file with the repo's report, and finds a filter's text as it is, in any case", () =>
+{
+	Equal("--output=tests/support/report.lua tests/a_spec.lua", string.Join(" ", LuaSpecs.BustedArguments("tests/a_spec.lua", null)));
+	// busted reads its filter as a Lua pattern, and a test's name holds brackets and dots; the tools tests' filter
+	// takes a name in any case.
+	Equal("--output=tests/support/report.lua --filter=[sS]%.[wW]%[[nN]%] %(%^%$%*%+%-%?%%%)1 tests/a_spec.lua",
+		string.Join(" ", LuaSpecs.BustedArguments("tests/a_spec.lua", "s.W[n] (^$*+-?%)1")));
+});
+
+Test("LuaSpecs.Read takes a spec file busted gave up on after its results, with no test failed, as one that didn't run", () =>
+{
+	var passing = """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""" + "\n";
+	Equal(true, LuaSpecs.Read("tests/a_spec.lua", passing, "", 0).Ran);
+	var run = LuaSpecs.Read("tests/a_spec.lua", passing, "lua: the cleanup failed\n", 1);
+	Equal(false, run.Ran);
+	Contains(run.Output, "busted exited with code 1, though no test failed");
+	Contains(run.Output, "lua: the cleanup failed");
+	// busted exits with a code other than 0 when a test failed.
+	Equal(true, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "", 1).Ran);
+});
+
+Test("LuaSpecs.Read takes a last line that is JSON but not busted's as a spec file that didn't run", () =>
+{
+	var run = LuaSpecs.Read("tests/a_spec.lua", "{\"successes\":1}\n", "", 1);
+	Equal(false, run.Ran);
+	Contains(run.Output, "{\"successes\":1}");
+});
+
+Test("LuaSpecs.Report writes the times the same in any culture", () =>
+{
+	var culture = CultureInfo.CurrentCulture;
+	try
+	{
+		// A culture that writes a decimal comma, made from the invariant one so it needs no culture data installed.
+		var comma = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+		comma.NumberFormat.NumberDecimalSeparator = ",";
+		CultureInfo.CurrentCulture = comma;
+		var written = new StringWriter();
+		LuaSpecs.Report([LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""", "", 0)], null, written);
+		Contains(written.ToString(), "PASS it works (tests/a_spec.lua, 0.25 s)");
+	}
+	finally
+	{
+		CultureInfo.CurrentCulture = culture;
+	}
+});
+
+Test("LuaSpecs.Report writes a line for each test and the count, and fails a run with a failed test or a file that didn't run", () =>
+{
+	var passing = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[]}""", "", 0);
+	var written = new StringWriter();
+	Equal(0, LuaSpecs.Report([passing], null, written));
+	Equal("PASS it works (tests/a_spec.lua, 0.25 s)\n1 of 1 tests passed\n", written.ToString().Replace("\r\n", "\n"));
+
+	written = new StringWriter();
+	Equal(1, LuaSpecs.Report([passing, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "", 2), LuaSpecs.Read("tests/y_spec.lua", "", "lua: no such file\n", 1)], null, written));
+	var report = written.ToString().Replace("\r\n", "\n");
+	Contains(report, "FAIL a set stays off (tests/x_spec.lua, 0.13 s)\n     tests/x_spec.lua:20: Expected objects to be the same.\n");
+	Contains(report, "FAIL a hook runs (tests/x_spec.lua, 0.06 s)\n     gearswap.lua:12: attempt to call nil\n     stack traceback:\n     \tgearswap.lua:12: in function 'f'\n");
+	Contains(report, "SKIP a buff comes (tests/x_spec.lua): Sel equips nothing for it yet\n");
+	Contains(report, "FAIL tests/y_spec.lua didn't run\n     lua: no such file\n");
+	True(report.EndsWith("3 of 5 tests passed, 1 pending; 1 spec file didn't run\n"), "the count comes last: " + report);
+
+	// A pending test declared outside an it has its reason in its name, and no message.
+	written = new StringWriter();
+	LuaSpecs.Report([LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[{"name":"a ring moves: GearSwap's bug"}]}""", "", 0)], null, written);
+	Contains(written.ToString().Replace("\r\n", "\n"), "SKIP a ring moves: GearSwap's bug (tests/a_spec.lua)\n");
+});
+
+Test("LuaSpecs.Report says so, with exit code 2, when no test ran, as for a filter no test's name holds", () =>
+{
+	var none = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[],"failures":[],"errors":[],"pendings":[]}""", "", 0);
+	var written = new StringWriter();
+	Equal(2, LuaSpecs.Report([none], "nothing like this", written));
+	Equal("No gearswap test's name holds \"nothing like this\".\n", written.ToString().Replace("\r\n", "\n"));
+	written = new StringWriter();
+	Equal(2, LuaSpecs.Report([none], null, written));
+	Equal("No tests in the spec files under tests/.\n", written.ToString().Replace("\r\n", "\n"));
+	written = new StringWriter();
+	Equal(2, LuaSpecs.Report([], null, written));
+	Equal("No spec files under tests/.\n", written.ToString().Replace("\r\n", "\n"));
+});
+
+Test("SpecRun.Passed is true for a spec file that ran with no test failed, pending ones too, and false for one that failed or didn't run", () =>
+{
+	var passing = LuaSpecs.Read("tests/a_spec.lua", """{"successes":[{"name":"it works","element":{"duration":0.25,"trace":{"currentline":2}}}],"failures":[],"errors":[],"pendings":[{"name":"later"}]}""", "", 0);
+	Equal(true, passing.Passed);
+	Equal(false, LuaSpecs.Read("tests/x_spec.lua", BustedOutput("tests/x_spec.lua"), "", 1).Passed);
+	Equal(false, LuaSpecs.Read("tests/y_spec.lua", "", "lua: no such file\n", 1).Passed);
+});
+
+// The spec files of the selection tests, and what a run that passed all three found: a loaded GearSwap and the red
+// mage's job file, b GearSwap alone, c nothing.
+string[] selectable = ["tests/a_spec.lua", "tests/b_spec.lua", "tests/c_spec.lua"];
+
+// The hashes of files, from "path=hash" for each.
+IReadOnlyDictionary<string, string> Hashes(params string[] pairs) => pairs.ToDictionary(pair => pair[..pair.IndexOf('=')], pair => pair[(pair.IndexOf('=') + 1)..]);
+
+IReadOnlyDictionary<string, string> With(IReadOnlyDictionary<string, string> hashes, string pair) =>
+	new Dictionary<string, string>(hashes) { [pair[..pair.IndexOf('=')]] = pair[(pair.IndexOf('=') + 1)..] };
+
+IReadOnlyDictionary<string, string> Without(IReadOnlyDictionary<string, string> hashes, string path) =>
+	hashes.Where(hash => hash.Key != path).ToDictionary(hash => hash.Key, hash => hash.Value);
+
+SpecRecord Passed(string spec, string hash, params string[] loaded) => new SpecRecord(spec, hash, Hashes(loaded));
+
+SpecStore StoreOf(string globals, params SpecRecord[] records) => new SpecStore(globals, records.ToDictionary(record => record.Spec));
+
+SpecStore AllPassed() => StoreOf("g1",
+	Passed("tests/a_spec.lua", "a1", "gearswap.lua=g1", "data/RDM.lua=r1"),
+	Passed("tests/b_spec.lua", "b1", "gearswap.lua=g1"),
+	Passed("tests/c_spec.lua", "c1"));
+
+IReadOnlyDictionary<string, string> FilesAsPassed() => Hashes("tests/a_spec.lua=a1", "tests/b_spec.lua=b1", "tests/c_spec.lua=c1", "gearswap.lua=g1", "data/RDM.lua=r1");
+
+string Selected(SpecStore? store, string globals, IReadOnlyDictionary<string, string> files) => string.Join(" ", SpecStore.Select(store, globals, selectable, files));
+
+string DescribeRecord(SpecRecord record) => $"{record.Spec} {record.Hash} [{string.Join(", ", record.Files.OrderBy(file => file.Key, StringComparer.Ordinal).Select(file => $"{file.Key}={file.Value}"))}]";
+
+string Describe(SpecStore store) => store.Globals + " " + string.Join("; ", store.Records.OrderBy(record => record.Key, StringComparer.Ordinal).Select(record => DescribeRecord(record.Value)));
+
+Test("SpecStore.Select takes every spec file when there is no store", () =>
+{
+	Equal("tests/a_spec.lua tests/b_spec.lua tests/c_spec.lua", Selected(null, "g1", FilesAsPassed()));
+});
+
+Test("SpecStore.Select takes every spec file when a file they all rest on changed since the store was made", () =>
+{
+	Equal("tests/a_spec.lua tests/b_spec.lua tests/c_spec.lua", Selected(AllPassed(), "g2", FilesAsPassed()));
+});
+
+Test("SpecStore.Select takes no spec file when nothing changed, nor for a file no spec loaded", () =>
+{
+	Equal("", Selected(AllPassed(), "g1", FilesAsPassed()));
+	Equal("", Selected(AllPassed(), "g1", With(FilesAsPassed(), "data/WHM.lua=w1")));
+});
+
+Test("SpecStore.Select takes a spec file that changed, and no other", () =>
+{
+	Equal("tests/b_spec.lua", Selected(AllPassed(), "g1", With(FilesAsPassed(), "tests/b_spec.lua=b2")));
+});
+
+Test("SpecStore.Select takes the spec files that loaded a file that changed, and no other", () =>
+{
+	Equal("tests/a_spec.lua", Selected(AllPassed(), "g1", With(FilesAsPassed(), "data/RDM.lua=r2")));
+	Equal("tests/a_spec.lua tests/b_spec.lua", Selected(AllPassed(), "g1", With(FilesAsPassed(), "gearswap.lua=g2")));
+});
+
+Test("SpecStore.Select takes the spec files that loaded a file that is gone", () =>
+{
+	Equal("tests/a_spec.lua", Selected(AllPassed(), "g1", Without(FilesAsPassed(), "data/RDM.lua")));
+});
+
+Test("SpecStore.Select takes a spec file with no record", () =>
+{
+	string[] specs = [.. selectable, "tests/d_spec.lua"];
+	Equal("tests/d_spec.lua", string.Join(" ", SpecStore.Select(AllPassed(), "g1", specs, With(FilesAsPassed(), "tests/d_spec.lua=d1"))));
+});
+
+Test("SpecStore.Update keeps a record of each spec file that passed, and none of one that ran and failed, which runs again", () =>
+{
+	var store = SpecStore.Update(AllPassed(), "g1", selectable, ["tests/a_spec.lua", "tests/b_spec.lua"], [Passed("tests/b_spec.lua", "b2", "gearswap.lua=g2")]);
+	Equal("g1 tests/b_spec.lua b2 [gearswap.lua=g2]; tests/c_spec.lua c1 []", Describe(store));
+	Equal("tests/a_spec.lua", Selected(store, "g1", Hashes("tests/a_spec.lua=a1", "tests/b_spec.lua=b2", "tests/c_spec.lua=c1", "gearswap.lua=g2", "data/RDM.lua=r1")));
+});
+
+Test("SpecStore.Update drops the records of spec files that are gone", () =>
+{
+	var store = SpecStore.Update(AllPassed(), "g1", ["tests/a_spec.lua", "tests/c_spec.lua"], [], []);
+	Equal("tests/a_spec.lua tests/c_spec.lua", string.Join(" ", store.Records.Keys.Order(StringComparer.Ordinal)));
+});
+
+Test("SpecStore.Update keeps the record of a spec file that did not run, and replaces that of one that passed again", () =>
+{
+	var store = SpecStore.Update(AllPassed(), "g1", selectable, ["tests/a_spec.lua"], [Passed("tests/a_spec.lua", "a2", "gearswap.lua=g1")]);
+	Equal("g1 tests/a_spec.lua a2 [gearswap.lua=g1]; tests/b_spec.lua b1 [gearswap.lua=g1]; tests/c_spec.lua c1 []", Describe(store));
+});
+
+Test("SpecStore.Update starts over when the files every spec rests on changed, since records made under the others vouch for nothing", () =>
+{
+	var store = SpecStore.Update(AllPassed(), "g2", selectable, ["tests/a_spec.lua"], [Passed("tests/a_spec.lua", "a1", "gearswap.lua=g1")]);
+	Equal("g2 tests/a_spec.lua a1 [gearswap.lua=g1]", Describe(store));
+	Equal("g1 tests/c_spec.lua c1 []", Describe(SpecStore.Update(null, "g1", selectable, ["tests/c_spec.lua"], [Passed("tests/c_spec.lua", "c1")])));
+});
+
+Test("SpecStore.Write and SpecStore.Read keep the globals and each record, and Write makes the folder and replaces a store whole", () =>
+{
+	var file = Path.Combine(workDir, "spec-store-folder", "gearswap-specs.json");
+	AllPassed().Write(file);
+	Equal(Describe(AllPassed()), Describe(SpecStore.Read(file)!));
+	StoreOf("g2", Passed("tests/c_spec.lua", "c2")).Write(file);
+	Equal("g2 tests/c_spec.lua c2 []", Describe(SpecStore.Read(file)!));
+	Equal(1, Directory.GetFiles(Path.GetDirectoryName(file)!).Length);
+});
+
+Test("SpecStore.Read gives nothing for a store that is missing, can't be read, or was made by another version", () =>
+{
+	Equal(null, SpecStore.Read(Path.Combine(workDir, "no-such-spec-store.json")));
+	string[] stores = ["{ not json", "null", "[]", """{ "version": 2, "globals": "g1", "specs": {} }""", """{ "version": 1, "specs": {} }""", """{ "version": 1, "globals": "g1", "specs": { "tests/a_spec.lua": null } }"""];
+	for (var i = 0; i < stores.Length; i++)
+	{
+		var file = Path.Combine(workDir, $"spec-store-{i}.json");
+		File.WriteAllText(file, stores[i]);
+		Equal(null, SpecStore.Read(file));
+	}
+});
+
+Test("SpecInputs.Read hashes the files the tests can rest on, by their path in the repo, and no others", () =>
+{
+	var repo = Path.Combine(workDir, "spec-inputs-repo");
+	string[] files = ["gearswap.lua", "flow.lua", "README.md", ".busted", "libs/Sel-Include.lua", "data/RDM.lua", "data/Vanar/Vanar_notes.md", "docs/windower/libs/strings.lua",
+		"docs/windower/items.lua", "docs/ffxi-mechanics.md", "tests/sel/idle_spec.lua", "tests/support/harness.lua", "tests/fixture/res/items.lua", "tests/fixture/data/Testy/Testy_WHM.lua",
+		".claude/cache/passes/gearswap", ".claude/tools/lib/Tool.cs"];
+	foreach (var file in files)
+	{
+		var path = Path.Combine(repo, file);
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+		File.WriteAllText(path, file);
+	}
+	var read = SpecInputs.Read(repo);
+	Equal(".busted data/RDM.lua data/Vanar/Vanar_notes.md docs/windower/libs/strings.lua flow.lua gearswap.lua libs/Sel-Include.lua tests/fixture/data/Testy/Testy_WHM.lua tests/fixture/res/items.lua tests/sel/idle_spec.lua tests/support/harness.lua",
+		string.Join(" ", read.Keys.Order(StringComparer.Ordinal)));
+	Equal(32, read["gearswap.lua"].Length);
+	True(read["gearswap.lua"] != read["flow.lua"], "different content, different hash");
+	File.WriteAllText(Path.Combine(repo, "flow.lua"), "changed");
+	var again = SpecInputs.Read(repo);
+	Equal(read["gearswap.lua"], again["gearswap.lua"]);
+	True(read["flow.lua"] != again["flow.lua"], "an edit changes the hash");
+	Equal(0, SpecInputs.Read(Path.Combine(workDir, "spec-inputs-no-repo")).Count);
+});
+
+IReadOnlyDictionary<string, string> GlobalsInputs() => Hashes(".busted=b1", "tests/support/harness.lua=h1", "tests/fixture/res/items.lua=i1", "docs/windower/libs/strings.lua=s1",
+	"tests/sel/idle_spec.lua=p1", "tests/fixture/data/Testy/Testy_WHM.lua=t1", "data/RDM.lua=r1", "libs/Sel-Include.lua=l1", "gearswap.lua=g1");
+
+Test("SpecInputs.HashOfGlobals changes with the files every spec rests on, whether a spec file loads them or not, and with the runner", () =>
+{
+	var files = GlobalsInputs();
+	var before = SpecInputs.HashOfGlobals(files, "runner1");
+	string[] edits = ["tests/support/harness.lua=h2", "tests/fixture/res/items.lua=i2", ".busted=b2", "docs/windower/libs/strings.lua=s2"];
+	foreach (var pair in edits)
+		True(SpecInputs.HashOfGlobals(With(files, pair), "runner1") != before, pair + " is a file every spec rests on");
+	True(SpecInputs.HashOfGlobals(With(files, "docs/windower/libs/new.lua=n1"), "runner1") != before, "a file added to the Windower libraries");
+	True(SpecInputs.HashOfGlobals(Without(files, "tests/fixture/res/items.lua"), "runner1") != before, "a resource file gone");
+	True(SpecInputs.HashOfGlobals(files, "runner2") != before, "the runner changed");
+	Equal(before, SpecInputs.HashOfGlobals(GlobalsInputs(), "runner1"));
+});
+
+Test("SpecInputs.HashOfGlobals changes with a file added to or taken from the places the tests' Windower install is copied from, since a spec file may look for it", () =>
+{
+	var files = GlobalsInputs();
+	var before = SpecInputs.HashOfGlobals(files, "runner1");
+	string[] additions = ["data/Vanar/Vanar_Pld_Gear.lua=n1", "data/Vanar/Vanar_notes.md=n1", "libs/New.lua=n1", "new.lua=n1", "tests/fixture/data/Testy/Testy_New.lua=n1"];
+	foreach (var added in additions)
+		True(SpecInputs.HashOfGlobals(With(files, added), "runner1") != before, added + " added");
+	string[] removals = ["data/RDM.lua", "libs/Sel-Include.lua", "gearswap.lua", "tests/fixture/data/Testy/Testy_WHM.lua"];
+	foreach (var taken in removals)
+		True(SpecInputs.HashOfGlobals(Without(files, taken), "runner1") != before, taken + " taken");
+});
+
+Test("SpecInputs.HashOfGlobals does not change with an edit to a file a spec file loads, nor to a spec file, nor with a spec file added or taken", () =>
+{
+	var files = GlobalsInputs();
+	var before = SpecInputs.HashOfGlobals(files, "runner1");
+	string[] changes = ["data/RDM.lua=r2", "libs/Sel-Include.lua=l2", "gearswap.lua=g2", "tests/fixture/data/Testy/Testy_WHM.lua=t2", "tests/sel/idle_spec.lua=p2", "tests/sel/new_spec.lua=n1", "README.md=n1"];
+	foreach (var pair in changes)
+		Equal(before, SpecInputs.HashOfGlobals(With(files, pair), "runner1"));
+	Equal(before, SpecInputs.HashOfGlobals(Without(files, "tests/sel/idle_spec.lua"), "runner1"));
+});
+
+Test("SpecInputs.HashOfRunner changes with the runner's file, the shared code and the build settings, and not with another tool", () =>
+{
+	var tools = Path.Combine(workDir, "spec-inputs-tools");
+	string[] files = ["lib/Shared.cs", "lib/Deeper/More.cs", "Directory.Build.props", "tests/run-gearswap-tests.cs", "check-export.cs", "tests/run-tests.cs"];
+	foreach (var file in files)
+	{
+		var path = Path.Combine(tools, file);
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+		File.WriteAllText(path, file);
+	}
+	var entry = Path.Combine(tools, "tests", "run-gearswap-tests.cs");
+	var before = SpecInputs.HashOfRunner(entry);
+	Equal(32, before.Length);
+	Equal(before, SpecInputs.HashOfRunner(entry));
+	string[] sources = ["lib/Shared.cs", "lib/Deeper/More.cs", "Directory.Build.props", "tests/run-gearswap-tests.cs"];
+	foreach (var file in sources)
+	{
+		File.WriteAllText(Path.Combine(tools, file), "changed");
+		True(SpecInputs.HashOfRunner(entry) != before, file + " is a source of the runner");
+		File.WriteAllText(Path.Combine(tools, file), file);
+	}
+	string[] others = ["check-export.cs", "tests/run-tests.cs"];
+	foreach (var file in others)
+	{
+		File.WriteAllText(Path.Combine(tools, file), "changed");
+		Equal(before, SpecInputs.HashOfRunner(entry));
+	}
+});
+
+Test("SpecInputs.Record notes the spec file and each repo file it loaded, with the hashes the files had before the run", () =>
+{
+	var files = Hashes("tests/a_spec.lua=a1", "gearswap.lua=g1", "data/RDM.lua=r1", "data/WHM.lua=w1");
+	Equal("tests/a_spec.lua a1 [data/RDM.lua=r1, gearswap.lua=g1]", DescribeRecord(SpecInputs.Record("tests/a_spec.lua", files, ["gearswap.lua", "data/RDM.lua"])!));
+	Equal("tests/a_spec.lua a1 []", DescribeRecord(SpecInputs.Record("tests/a_spec.lua", files, [])!));
+});
+
+Test("SpecInputs.Record leaves out the files every spec rests on, a path that is no file of the repo and a path given twice, and takes a path as the repo spells it", () =>
+{
+	var files = Hashes("tests/a_spec.lua=a1", "gearswap.lua=g1", "libs/Sel-Include.lua=l1", "tests/support/harness.lua=h1", "tests/fixture/res/items.lua=i1",
+		"docs/windower/libs/strings.lua=s1", ".busted=b1");
+	string[] loaded = ["gearswap.lua", "tests/support/harness.lua", "tests/fixture/res/items.lua", "docs/windower/libs/strings.lua", ".busted", "data/export/Testy 2026-01-02 08-00-00.lua",
+		"../libs/logger.xml", "/etc/passwd", "gearswap.lua", "libs//Sel-Include.lua", "./libs/../libs/Sel-Include.lua", "", "  libs/Sel-Include.lua \r"];
+	Equal("tests/a_spec.lua a1 [gearswap.lua=g1, libs/Sel-Include.lua=l1]", DescribeRecord(SpecInputs.Record("tests/a_spec.lua", files, loaded)!));
+});
+
+Test("run-gearswap-tests stops with exit code 3, and says what to install, when it can't run busted", () =>
+{
+	var sandbox = NewSandbox();
+	Directory.CreateDirectory(Path.Combine(sandbox.Repo, "tests"));
+	File.WriteAllText(Path.Combine(sandbox.Repo, "tests", "a_spec.lua"), "it('runs', function() end)\n");
+	var run = sandbox.RunWithoutGit("run-gearswap-tests");
+	// The launcher tells this apart from the runner's other stops, to skip GearSwap's tests where they can't run.
+	Equal(3, run.ExitCode);
+	Contains(run.Output, OperatingSystem.IsWindows()
+		? "GearSwap's tests run on Linux or WSL, not on Windows."
+		: "Couldn't run busted, which GearSwap's tests run on. Install Lua 5.1, LuaRocks and busted: luarocks --lua-version 5.1 install busted");
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
+Test("run-gearswap-tests runs busted on each spec file with the repo's report and the filter, in a temp folder it removes, and reports each test", () =>
+{
+	var sandbox = NewSandbox();
+	Directory.CreateDirectory(Path.Combine(sandbox.Repo, "tests", "sel"));
+	File.WriteAllText(Path.Combine(sandbox.Repo, "tests", "a_spec.lua"), "");
+	File.WriteAllText(Path.Combine(sandbox.Repo, "tests", "sel", "b_spec.lua"), "");
+	var bin = Path.Combine(workDir, "stand-in-busted");
+	Directory.CreateDirectory(bin);
+	if (OperatingSystem.IsWindows())
+	{
+		Equal(3, sandbox.RunWithPath(bin, "run-gearswap-tests").ExitCode);
+		return;
+	}
+	// A stand-in for busted: it notes its arguments, its temp folder and whether that is there beside the spec file,
+	// the last argument, and writes a passing test named for the file.
+	var busted = Path.Combine(bin, "busted");
+	File.WriteAllText(busted, "#!/bin/sh\nfor spec; do :; done\nprintf '%s\\n' \"$@\" \"$TMPDIR\" > \"$spec.args\"\n"
+		+ "if [ -d \"$TMPDIR\" ]; then echo there >> \"$spec.args\"; fi\n"
+		+ "echo '{\"successes\":[{\"name\":\"'\"$spec\"' runs\",\"element\":{\"duration\":0.5,\"trace\":{\"currentline\":1}}}],\"failures\":[],\"errors\":[],\"pendings\":[]}'\n");
+	File.SetUnixFileMode(busted, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+	var run = sandbox.RunWithPath(bin, "run-gearswap-tests", "Some Name");
+	Equal(0, run.ExitCode);
+	Contains(run.Output, "PASS tests/a_spec.lua runs (tests/a_spec.lua, 0.50 s)\nPASS tests/sel/b_spec.lua runs (tests/sel/b_spec.lua, 0.50 s)\n2 of 2 tests passed\n");
+	var arguments = File.ReadAllLines(Path.Combine(sandbox.Repo, "tests", "sel", "b_spec.lua.args"));
+	Equal("--output=tests/support/report.lua|--filter=[sS][oO][mM][eE] [nN][aA][mM][eE]|tests/sel/b_spec.lua", string.Join("|", arguments[..^2]));
+	// A folder of the run's own, there while busted ran and gone after.
+	True(arguments[^2].StartsWith(Path.Combine(sandbox.Temp, "gearswap-tests-")), "busted's temp folder is the run's own: " + arguments[^2]);
+	Equal("there", arguments[^1]);
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+});
+
+Test("run-gearswap-tests fails a spec file whose busted is there but won't start, rather than skipping the run", () =>
+{
+	var sandbox = NewSandbox();
+	Directory.CreateDirectory(Path.Combine(sandbox.Repo, "tests"));
+	File.WriteAllText(Path.Combine(sandbox.Repo, "tests", "a_spec.lua"), "");
+	var bin = Path.Combine(workDir, "busted-not-runnable");
+	Directory.CreateDirectory(bin);
+	if (OperatingSystem.IsWindows())
+	{
+		Equal(3, sandbox.RunWithPath(bin, "run-gearswap-tests").ExitCode);
+		return;
+	}
+	// A busted that is marked as a program but isn't one: found, but the system won't start it.
+	var busted = Path.Combine(bin, "busted");
+	File.WriteAllText(busted, "not a program\n");
+	File.SetUnixFileMode(busted, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+	var run = sandbox.RunWithPath(bin, "run-gearswap-tests");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "FAIL tests/a_spec.lua didn't run\n     busted couldn't be started: ");
+});
+
+// A stand-in for busted that notes each run of a spec file in <spec>.ran and the file GEARSWAP_TEST_DEPS names in <spec>.var,
+// writes into that file the lines the test made for the spec file, <spec>.deps, as the harness writes the files it loaded,
+// appends a line to each file the test named in <spec>.edits, as an edit made while the run goes on, and reports a passing
+// test, or a failing one when the test made <spec>.fails. Shell built-ins alone, since nothing else is on the PATH it runs
+// with. Gives the folder it is in.
+string StandInBusted()
+{
+	var bin = Path.Combine(workDir, "stand-in-busted-" + Guid.NewGuid().ToString("N")[..8]);
+	Directory.CreateDirectory(bin);
+	if (OperatingSystem.IsWindows())
+		return bin;
+	var busted = Path.Combine(bin, "busted");
+	File.WriteAllText(busted, """"
+		#!/bin/sh
+		for spec; do :; done
+		echo ran >> "$spec.ran"
+		echo "$GEARSWAP_TEST_DEPS" > "$spec.var"
+		if [ -n "$GEARSWAP_TEST_DEPS" ] && [ -f "$spec.deps" ]; then
+			while IFS= read -r line; do printf '%s\n' "$line"; done < "$spec.deps" > "$GEARSWAP_TEST_DEPS"
+		fi
+		if [ -f "$spec.edits" ]; then
+			while IFS= read -r line; do echo '-- edited while busted ran' >> "$line"; done < "$spec.edits"
+		fi
+		if [ -f "$spec.fails" ]; then
+			echo '{"successes":[],"failures":[{"name":"'"$spec"' breaks","message":"broke","element":{"duration":0.5,"trace":{"currentline":1}},"trace":{"currentline":1}}],"errors":[],"pendings":[]}'
+			exit 1
+		fi
+		echo '{"successes":[{"name":"'"$spec"' runs","element":{"duration":0.5,"trace":{"currentline":1}}}],"failures":[],"errors":[],"pendings":[]}'
+		"""".ReplaceLineEndings("\n"));
+	File.SetUnixFileMode(busted, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+	return bin;
+}
+
+// A spec file in the sandbox's repo. Its stand-in busted writes the files given as the ones it loaded, or none at all
+// when they aren't, as a busted that never got to exit.
+void MakeSpec(Sandbox sandbox, string spec, string[]? loaded = null)
+{
+	var path = Path.Combine(sandbox.Repo, spec);
+	Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+	File.WriteAllText(path, spec + "\n");
+	if (loaded is not null)
+		File.WriteAllLines(path + ".deps", loaded);
+}
+
+// Makes the files in the sandbox's repo, or changes the ones there.
+void Touch(Sandbox sandbox, params string[] files)
+{
+	foreach (var file in files)
+	{
+		var path = Path.Combine(sandbox.Repo, file);
+		Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+		File.AppendAllText(path, "-- touched\n");
+	}
+}
+
+// How many times the stand-in busted ran each spec file, in a line.
+string Runs(Sandbox sandbox, params string[] specs) => string.Join(" ", specs.Select(spec =>
+	File.Exists(Path.Combine(sandbox.Repo, spec + ".ran")) ? File.ReadAllLines(Path.Combine(sandbox.Repo, spec + ".ran")).Length : 0));
+
+string SpecStoreFile(Sandbox sandbox) => Path.Combine(sandbox.Repo, ".claude", "cache", "gearswap-specs.json");
+
+ToolRun RunAffected(Sandbox sandbox, string bin) => sandbox.RunWithPath(bin, "run-gearswap-tests", "--affected");
+
+Test("run-gearswap-tests --affected runs every spec file it has no record of, then only those a change could affect", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua", "data/RDM.lua", "libs/Sel-Include.lua", "tests/support/harness.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua", ["gearswap.lua", "data/RDM.lua", "tests/support/harness.lua"]);
+	MakeSpec(sandbox, "tests/sel/b_spec.lua", ["gearswap.lua"]);
+	MakeSpec(sandbox, "tests/c_spec.lua", []);
+	string[] specs = ["tests/a_spec.lua", "tests/c_spec.lua", "tests/sel/b_spec.lua"];
+
+	var first = RunAffected(sandbox, bin);
+	Equal(0, first.ExitCode);
+	Contains(first.Output, "Running all 3 spec files: there is no record of an earlier run.\n");
+	Equal("1 1 1", Runs(sandbox, specs));
+
+	var unchanged = RunAffected(sandbox, bin);
+	Equal(0, unchanged.ExitCode);
+	Contains(unchanged.Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("1 1 1", Runs(sandbox, specs));
+
+	Touch(sandbox, "data/RDM.lua");
+	var job = RunAffected(sandbox, bin);
+	Contains(job.Output, "Running 1 of 3 spec files; the other 2 are unaffected by the changes since they last passed.\n");
+	Contains(job.Output, "PASS tests/a_spec.lua runs (tests/a_spec.lua, 0.50 s)\n1 of 1 tests passed\n");
+	Equal("2 1 1", Runs(sandbox, specs));
+
+	Touch(sandbox, "gearswap.lua");
+	Contains(RunAffected(sandbox, bin).Output, "Running 2 of 3 spec files; the other 1 is unaffected by the changes since they last passed.\n");
+	Equal("3 1 2", Runs(sandbox, specs));
+
+	Touch(sandbox, "libs/Sel-Include.lua");
+	Contains(RunAffected(sandbox, bin).Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("3 1 2", Runs(sandbox, specs));
+
+	Touch(sandbox, "tests/support/harness.lua");
+	Contains(RunAffected(sandbox, bin).Output, "Running all 3 spec files: a file every spec rests on changed.\n");
+	Equal("4 2 3", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests --affected runs again every spec file when the store was made under other globals or can't be read", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	MakeSpec(sandbox, "tests/a_spec.lua", []);
+	MakeSpec(sandbox, "tests/b_spec.lua", []);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	var made = SpecStore.Read(SpecStoreFile(sandbox))!;
+	Equal(2, made.Records.Count);
+
+	new SpecStore("made under others", made.Records).Write(SpecStoreFile(sandbox));
+	Contains(RunAffected(sandbox, bin).Output, "Running all 2 spec files: a file every spec rests on changed.\n");
+	Equal("2 2", Runs(sandbox, specs));
+
+	File.WriteAllText(SpecStoreFile(sandbox), "{ not json");
+	Contains(RunAffected(sandbox, bin).Output, "Running all 2 spec files: there is no record of an earlier run.\n");
+	Equal("3 3", Runs(sandbox, specs));
+	Equal(2, SpecStore.Read(SpecStoreFile(sandbox))!.Records.Count);
+});
+
+Test("run-gearswap-tests keeps no record of a spec file that failed, so it runs again until it passes", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua", ["gearswap.lua"]);
+	MakeSpec(sandbox, "tests/b_spec.lua", ["gearswap.lua"]);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+	var fails = Path.Combine(sandbox.Repo, "tests", "a_spec.lua.fails");
+	File.WriteAllText(fails, "");
+
+	var first = RunAffected(sandbox, bin);
+	Equal(1, first.ExitCode);
+	Contains(first.Output, "FAIL tests/a_spec.lua breaks (tests/a_spec.lua, 0.50 s)\n     broke\n");
+	Equal("1 1", Runs(sandbox, specs));
+	Equal("tests/b_spec.lua", string.Join(" ", SpecStore.Read(SpecStoreFile(sandbox))!.Records.Keys));
+
+	var second = RunAffected(sandbox, bin);
+	Equal(1, second.ExitCode);
+	Contains(second.Output, "Running 1 of 2 spec files; the other 1 is unaffected by the changes since they last passed.\n");
+	Equal("2 1", Runs(sandbox, specs));
+
+	File.Delete(fails);
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	Equal("3 1", Runs(sandbox, specs));
+	Contains(RunAffected(sandbox, bin).Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("3 1", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests --affected drops the record of a spec file that is gone and runs one that is new", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua");
+	string[] made = ["tests/a_spec.lua", "tests/b_spec.lua", "tests/c_spec.lua"];
+	foreach (var spec in made)
+		MakeSpec(sandbox, spec, ["gearswap.lua"]);
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	Equal(3, SpecStore.Read(SpecStoreFile(sandbox))!.Records.Count);
+
+	File.Delete(Path.Combine(sandbox.Repo, "tests", "b_spec.lua"));
+	MakeSpec(sandbox, "tests/d_spec.lua", ["gearswap.lua"]);
+	var run = RunAffected(sandbox, bin);
+	Contains(run.Output, "Running 1 of 3 spec files; the other 2 are unaffected by the changes since they last passed.\n");
+	Equal("1 1 1 1", Runs(sandbox, "tests/a_spec.lua", "tests/c_spec.lua", "tests/d_spec.lua", "tests/b_spec.lua"));
+	Equal("tests/a_spec.lua tests/c_spec.lua tests/d_spec.lua", string.Join(" ", SpecStore.Read(SpecStoreFile(sandbox))!.Records.Keys.Order(StringComparer.Ordinal)));
+
+	File.Delete(Path.Combine(sandbox.Repo, "tests", "d_spec.lua"));
+	Contains(RunAffected(sandbox, bin).Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("tests/a_spec.lua tests/c_spec.lua", string.Join(" ", SpecStore.Read(SpecStoreFile(sandbox))!.Records.Keys.Order(StringComparer.Ordinal)));
+});
+
+Test("run-gearswap-tests without --affected runs every spec file whatever it has on record, records them, and gives each busted a dependency file of its own", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua", ["gearswap.lua"]);
+	MakeSpec(sandbox, "tests/b_spec.lua", []);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+
+	var first = sandbox.RunWithPath(bin, "run-gearswap-tests");
+	Equal(0, first.ExitCode);
+	True(first.Output.Contains("Running") is false, "a full run says nothing of a choice: " + first.Output);
+	Equal("1 1", Runs(sandbox, specs));
+	var variables = specs.Select(spec => File.ReadAllText(Path.Combine(sandbox.Repo, spec + ".var")).Trim()).ToList();
+	Equal(2, variables.Distinct().Count());
+	foreach (var variable in variables)
+		True(variable.StartsWith(Path.Combine(sandbox.Temp, "gearswap-tests-")), "a file in the run's own temp folder: " + variable);
+	Equal(0, Directory.GetDirectories(sandbox.Temp).Length);
+
+	Touch(sandbox, "gearswap.lua");
+	Equal(0, sandbox.RunWithPath(bin, "run-gearswap-tests").ExitCode);
+	Equal("2 2", Runs(sandbox, specs));
+	Contains(RunAffected(sandbox, bin).Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("2 2", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests with a filter records nothing, leaves the store as it was, and gives busted no dependency file", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua", ["gearswap.lua"]);
+	MakeSpec(sandbox, "tests/b_spec.lua", []);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+
+	Equal(0, sandbox.RunWithPath(bin, "run-gearswap-tests", "Some Name").ExitCode);
+	True(File.Exists(SpecStoreFile(sandbox)) is false, "no store from a filtered run");
+	Equal("", File.ReadAllText(Path.Combine(sandbox.Repo, "tests", "a_spec.lua.var")).Trim());
+
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	var kept = File.ReadAllText(SpecStoreFile(sandbox));
+	Touch(sandbox, "gearswap.lua");
+	Equal(0, sandbox.RunWithPath(bin, "run-gearswap-tests", "Some Name").ExitCode);
+	Equal(kept, File.ReadAllText(SpecStoreFile(sandbox)));
+	Equal("3 3", Runs(sandbox, specs));
+
+	Contains(RunAffected(sandbox, bin).Output, "Running 1 of 2 spec files; the other 1 is unaffected by the changes since they last passed.\n");
+	Equal("4 3", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests keeps no record of a spec file busted wrote no dependency file for, as one that never got to exit", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "gearswap.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua");
+	MakeSpec(sandbox, "tests/b_spec.lua", ["gearswap.lua"]);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	Equal("tests/b_spec.lua", string.Join(" ", SpecStore.Read(SpecStoreFile(sandbox))!.Records.Keys));
+	Contains(RunAffected(sandbox, bin).Output, "Running 1 of 2 spec files; the other 1 is unaffected by the changes since they last passed.\n");
+	Equal("2 1", Runs(sandbox, specs));
+});
+
+// Runs --affected with the stand-in busted editing the file as it runs the spec file, puts the file back as it was, and
+// gives the run of --affected after.
+ToolRun RunAffectedAfterEditUndone(Sandbox sandbox, string bin, string spec, string file)
+{
+	var path = Path.Combine(sandbox.Repo, file);
+	var original = File.ReadAllBytes(path);
+	var edits = Path.Combine(sandbox.Repo, spec + ".edits");
+	File.WriteAllText(edits, file + "\n");
+	Equal(0, RunAffected(sandbox, bin).ExitCode);
+	True(File.ReadAllBytes(path).SequenceEqual(original) is false, file + " was edited while the spec file ran");
+	File.Delete(edits);
+	File.WriteAllBytes(path, original);
+	return RunAffected(sandbox, bin);
+}
+
+Test("run-gearswap-tests keeps no record of a spec file whose loaded file changed while it ran, and so runs it again once the file is put back", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "data/RDM.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua", ["data/RDM.lua"]);
+	MakeSpec(sandbox, "tests/b_spec.lua", []);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+
+	var later = RunAffectedAfterEditUndone(sandbox, bin, "tests/a_spec.lua", "data/RDM.lua");
+	Contains(later.Output, "Running 1 of 2 spec files; the other 1 is unaffected by the changes since they last passed.\n");
+	Equal("2 1", Runs(sandbox, specs));
+	Contains(RunAffected(sandbox, bin).Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("2 1", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests keeps no record of any spec file when a file every spec file rests on changed while it ran, and so runs them all again once the file is put back", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var bin = StandInBusted();
+	Touch(sandbox, "tests/support/harness.lua");
+	MakeSpec(sandbox, "tests/a_spec.lua", []);
+	MakeSpec(sandbox, "tests/b_spec.lua", []);
+	string[] specs = ["tests/a_spec.lua", "tests/b_spec.lua"];
+
+	var later = RunAffectedAfterEditUndone(sandbox, bin, "tests/a_spec.lua", "tests/support/harness.lua");
+	Contains(later.Output, "Running all 2 spec files.\n");
+	Equal("2 2", Runs(sandbox, specs));
+	Contains(RunAffected(sandbox, bin).Output, "No spec file is affected by the changes since they last passed.\n");
+	Equal("2 2", Runs(sandbox, specs));
+});
+
+Test("run-gearswap-tests --affected says so, with exit code 2, when there is no spec file at all", () =>
+{
+	if (OperatingSystem.IsWindows())
+		return;
+	var sandbox = NewSandbox();
+	var run = RunAffected(sandbox, StandInBusted());
+	Equal(2, run.ExitCode);
+	Contains(run.Output, "No spec files under tests/.\n");
+	True(run.Output.Contains("affected") is false, "nothing is said to be unaffected when there is nothing: " + run.Output);
 });
 
 // ---------------------------------------------------------------- running them
@@ -2474,6 +3531,52 @@ void Stops(ToolRun run, string message)
 {
 	Equal(2, run.ExitCode);
 	Contains(run.Output, message);
+}
+
+// The number after a label in a tool's summary line, as the 3 in "problems: 3".
+int Counted(ToolRun run, string label) => int.Parse(string.Concat(run.Output.Split(label + ": ")[^1].TakeWhile(char.IsDigit)));
+
+// A tool run twice on drift alone. As it stands each message is a problem and the tool exits 1. With --warn-drift each is
+// a warning, no problem is left, and the tool exits 0.
+void WarnsOfDrift(Sandbox sandbox, string tool, string[] arguments, string[] messages)
+{
+	var strict = sandbox.Run(tool, arguments);
+	True(strict.ExitCode == 1, $"{tool} exits 1 on drift as it stands:\n{strict.Output}");
+	True(strict.Output.Contains("  warn  ") is false, $"{tool} warns as it stands:\n{strict.Output}");
+	var warned = sandbox.Run(tool, [.. arguments, "--warn-drift"]);
+	True(warned.ExitCode == 0, $"{tool} exits 0 on drift with --warn-drift:\n{warned.Output}");
+	foreach (var message in messages)
+	{
+		Contains(strict.Output, "  " + message);
+		Contains(warned.Output, "  warn  " + message);
+	}
+	Contains(warned.Output, $"problems: 0, warnings: {Counted(strict, "problems")}");
+}
+
+// A tool run with --warn-drift on a problem in the document itself still exits 1, and prints the message as a problem.
+void StillFails(Sandbox sandbox, string tool, string[] arguments, string message)
+{
+	var run = sandbox.Run(tool, [.. arguments, "--warn-drift"]);
+	True(run.ExitCode == 1, $"{tool} exits 1 on \"{message}\" with --warn-drift:\n{run.Output}");
+	Contains(run.Output, "  " + message);
+	True(run.Output.Contains("  warn  ") is false, $"{tool} warns of \"{message}\":\n{run.Output}");
+	Contains(run.Output, ", warnings: 0");
+}
+
+// A tool run with --warn-drift on a problem in the document itself with drift beside it: the problem fails the tool and
+// the drift only warns. The two counts together are the problems the tool finds as it stands.
+void FailsBesideDrift(Sandbox sandbox, string tool, string[] arguments, string problem, string warning)
+{
+	var strict = sandbox.Run(tool, arguments);
+	True(strict.ExitCode == 1, $"{tool} exits 1 as it stands:\n{strict.Output}");
+	Contains(strict.Output, "  " + problem);
+	Contains(strict.Output, "  " + warning);
+	var warned = sandbox.Run(tool, [.. arguments, "--warn-drift"]);
+	True(warned.ExitCode == 1, $"{tool} exits 1 on \"{problem}\" with --warn-drift:\n{warned.Output}");
+	Contains(warned.Output, "  " + problem);
+	Contains(warned.Output, "  warn  " + warning);
+	var (problems, warnings) = (Counted(warned, "problems"), Counted(warned, "warnings"));
+	True(problems > 0 && warnings > 0 && problems + warnings == Counted(strict, "problems"), $"{tool} counts {problems} problems and {warnings} warnings, of {Counted(strict, "problems")}:\n{warned.Output}");
 }
 
 void True(bool condition, string what)
@@ -2676,10 +3779,13 @@ sealed class Sandbox
 		Start(tool, arguments, resources: resources.Root + "res/", adjust: start => start.Environment["GEAR_TOOLS_REPO_WSDIST_BETA"] = $"{wsdist.Path} {wsdist.Commit}");
 
 	// Runs a tool with nothing on its PATH, so it can't find git.
-	public ToolRun RunWithoutGit(string tool, params string[] arguments) => Start(tool, arguments, adjust: start =>
+	public ToolRun RunWithoutGit(string tool, params string[] arguments) => RunWithPath("", tool, arguments);
+
+	// Runs a tool with only the folder given on its PATH, to find a stand-in program there.
+	public ToolRun RunWithPath(string path, string tool, params string[] arguments) => Start(tool, arguments, adjust: start =>
 	{
 		start.FileName = Environment.ProcessPath!;
-		start.Environment["PATH"] = "";
+		start.Environment["PATH"] = path;
 	});
 
 	ToolRun Start(string tool, string[] arguments, string? wiki = null, string? resources = null, Action<ProcessStartInfo>? adjust = null)

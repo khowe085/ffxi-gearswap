@@ -38,4 +38,4 @@ Exit code 2 means a step couldn't run: stop there and report its output. Exit co
 
 1. Each step's command, exit code, and the last lines of its output.
 2. What changed: `git status --short -- docs data` and `git diff --stat -- docs data`.
-3. The data checks' result, with every problem line verbatim.
+3. The data checks' result, with every problem line and every `warn` line verbatim.

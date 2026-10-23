@@ -1,0 +1,132 @@
+local commy = require('commy')
+local harness = require('harness')
+local testy = require('testy')
+
+local function boot()
+    return harness.boot(testy.whm())
+end
+
+describe('a session\'s readers of what GearSwap did', function()
+    it('start after the boot, with what GearSwap did while it loaded taken as read', function()
+        local gs = boot()
+        assert.truthy(gs:log():find('Loaded your Testy_WHM.lua file!', 1, true))
+        assert.same({{}, {}, {}, {}, {}}, {gs:printed(), gs:chat(), gs:typed(), gs:commands(), gs:traffic()})
+    end)
+
+    it('start after the red mage\'s boot the specs share, with the update it runs taken as read', function()
+        local gs = testy.boot_rdm()
+        assert.truthy(gs:log():find('command: gs c update', 1, true))
+        assert.same({{}, {}, {}, {}, {}}, {gs:printed(), gs:chat(), gs:typed(), gs:commands(), gs:traffic()})
+    end)
+
+    it('give each line of chat once, without the codes that color it, and leave the chat log whole', function()
+        local gs = boot()
+        gs.game.windower.add_to_chat(1, '\31\200hello\30\1')
+        gs.game.windower.add_to_chat(8, 'plain')
+        assert.same({{color = 200, text = 'hello'}, {color = 8, text = 'plain'}}, gs:chat_lines())
+        assert.same({}, gs:chat())
+        gs.game.windower.add_to_chat(8, 'again')
+        assert.same({'again'}, gs:chat())
+        assert.truthy(gs:log():find('hello', 1, true))
+    end)
+
+    it('give each print, typed line and command once, and leave their lists whole', function()
+        local gs = boot()
+        gs.env.print('printed')
+        gs:console('input /echo typed')
+        assert.same({{'printed'}, {'/echo typed'}, {'input /echo typed'}}, {gs:printed(), gs:typed(), gs:commands()})
+        assert.same({{}, {}, {}}, {gs:printed(), gs:typed(), gs:commands()})
+        local log = gs:log()
+        for _, line in ipairs({'print: printed', 'typed: /echo typed', 'command: input /echo typed'}) do
+            assert.truthy(log:find(line, 1, true), line)
+        end
+    end)
+
+    it('keep a place of their own in each list', function()
+        local gs = boot()
+        gs.env.print('one')
+        gs.game.windower.add_to_chat(8, 'one')
+        assert.same({'one'}, gs:printed())
+        gs.env.print('two')
+        assert.same({{'one'}, {'two'}}, {gs:chat(), gs:printed()})
+    end)
+
+    it('give the actions sent, by name or with their targets, from the traffic', function()
+        local gs = boot()
+        gs:type('/ma "Cure III" <me>')
+        assert.same({{action = 'Cure III', target = 'Testy'}}, gs:action_entries())
+        assert.same({}, gs:traffic())
+        gs:finish_action()
+        gs:type('/ma "Cure III" <me>')
+        local traffic = gs:traffic()
+        assert.same({{'Cure III'}, {}}, {gs:actions(traffic), gs:actions()})
+    end)
+
+    it('are taken as read up to here by forget', function()
+        local gs = boot()
+        gs.env.print('printed')
+        gs.game.windower.add_to_chat(8, 'said')
+        gs:console('input /ma "Cure III" <me>')
+        gs:console('input /echo typed')
+        gs:forget()
+        assert.same({{}, {}, {}, {}, {}}, {gs:printed(), gs:chat(), gs:typed(), gs:commands(), gs:traffic()})
+    end)
+end)
+
+describe('a line typed to go out alone', function()
+    -- The message the test fails with, or nil when it goes on.
+    local function failure(gs, line)
+        local ok, problem = pcall(gs.type_alone, gs, line)
+        return not ok and tostring(problem) or nil
+    end
+
+    it('goes on when the action it names is what goes out, and leaves the actions read', function()
+        local gs = boot()
+        assert.is_nil(failure(gs, '/ma "Cure III" <me>'))
+        assert.same({}, gs:actions())
+    end)
+
+    it('fails the test when nothing goes out', function()
+        local gs = boot()
+        gs.game.spells = {}
+        assert.matches('/ma "Cure III" <me> didn\'t go out alone', failure(gs, '/ma "Cure III" <me>'), 1, true)
+    end)
+
+    it('fails the test when another action goes out in its place, as a spell Sel steps down for its recast',
+        function()
+        local gs = commy.boot_rdm()
+        gs.game:start_spell_recast('Barfira', 30)
+        assert.matches('/ma "Barfira" <me> didn\'t go out alone', failure(gs, '/ma "Barfira" <me>'), 1, true)
+        assert.equal('Barfire', gs.game.actions[#gs.game.actions].name)
+    end)
+
+    it('fails the test when another action went out since the actions were last read', function()
+        local gs = boot()
+        gs:type('/ja "Divine Seal" <me>')
+        gs:finish_action()
+        assert.matches('/ma "Cure III" <me> didn\'t go out alone', failure(gs, '/ma "Cure III" <me>'), 1, true)
+    end)
+
+    it('fails the test for a line that names no action in quotes, though nothing is typed', function()
+        local gs = boot()
+        assert.matches('an action is typed as /prefix "Name", not as /ra <t>', failure(gs, '/ra <t>'), 1, true)
+        assert.same({}, gs:traffic())
+    end)
+end)
+
+describe('a session played until an action', function()
+    it('plays until GearSwap sends one, and gives the clock then, leaving what was sent to be read', function()
+        local gs = boot()
+        gs.game:schedule(function() gs.game.windower.chat.input('/ma "Cure III" <me>') end, 1)
+        local start = gs.game.clock
+        local sent_at = gs:play_until_action(3)
+        assert.near(start + 1, sent_at, 1e-9)
+        assert.same({'Cure III'}, gs:actions())
+    end)
+
+    it('gives nil when none is sent in the time given', function()
+        local gs = boot()
+        assert.is_nil(gs:play_until_action(1))
+        assert.same({}, gs:actions())
+    end)
+end)

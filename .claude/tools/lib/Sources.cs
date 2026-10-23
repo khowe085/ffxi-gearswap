@@ -10,11 +10,16 @@ using System.IO;
 namespace GearTools;
 
 // Where the outside data checked in under docs/ comes from: Windower's resource files, and the pinned repos
-// IzaKastra/wsdist_beta and IzaKastra/bg_job_guides. fetch-sources.cs and simulated-sets.cs write it; the other
-// tools read it from docs/ and fetch nothing.
+// IzaKastra/wsdist_beta, IzaKastra/bg_job_guides and Windower/Lua. fetch-sources.cs, simulated-sets.cs and
+// windower-libs.cs write it; the other tools read it from docs/ and fetch nothing.
 static class Sources
 {
 	public static IReadOnlyList<string> ResourceFiles { get; }
+
+	// The Windower libraries GearSwap, Sel and the libraries they load require, and logger.xml, the settings logger.lua
+	// reads as it loads, by their paths under Windower/Lua's addons/libs. GearSwap's tests run on these, from
+	// docs/windower/libs.
+	public static IReadOnlyList<string> WindowerLibraries { get; }
 
 	// Windower's resources follow the live game, so they are taken from the branch head, not pinned. The tests point
 	// GEAR_TOOLS_RESOURCES at a stand-in on their own machine.
@@ -25,11 +30,18 @@ static class Sources
 	static Sources()
 	{
 		ResourceFiles = ["items.lua", "item_descriptions.lua", "spells.lua"];
-		// docs/ffxi-mechanics.md quotes these two by file and line, so a different commit would make its references wrong.
+		WindowerLibraries = ["actions.lua", "chat.lua", "chat/colors.lua", "chat/controls.lua", "config.lua",
+			"extdata.lua", "files.lua", "functions.lua", "json.lua", "lists.lua", "logger.lua", "logger.xml", "maths.lua", "packets.lua",
+			"packets/data.lua", "packets/fields.lua", "queues.lua", "resources.lua", "sets.lua", "slips.lua", "strings.lua",
+			"tables.lua", "texts.lua", "xml.lua"];
+		// docs/ffxi-mechanics.md quotes the first two by file and line, so a different commit would make its references
+		// wrong. Windower/Lua is pinned to a commit of the live branch, the one Windower installs, so the tests run on
+		// the same libraries until the pin moves.
 		pins = new()
 		{
 			["wsdist_beta"] = new PinnedRepo("https://github.com/IzaKastra/wsdist_beta", "d12ac5923ccace977ad55d172c8698b5886b9e4f"),
 			["bg_job_guides"] = new PinnedRepo("https://github.com/IzaKastra/bg_job_guides", "f264ae4f3bceb4d6e98bb7df5c4c22b21315c407"),
+			["windower_lua"] = new PinnedRepo("https://github.com/Windower/Lua", "5a35aeffa01aa47ea2a7898a7015fccb586728a0"),
 		};
 	}
 

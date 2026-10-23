@@ -4,12 +4,19 @@
 // own slots count, not what it takes from its base. It reads the tables under the list's "## <Slot> (<count>)"
 // headings; a table anywhere else in the file isn't part of the list.
 //
-//   dotnet run .claude/gear.cs -- gear-list --in <sets.json> [--in <sets.json> ...] [--print | --json]
+//   dotnet run .claude/gear.cs -- gear-list --in <sets.json> [--in <sets.json> ...] [--print | --json] [--warn-drift]
 //                                          [--export <path>]
 //
 // --print writes the table the sets call for, to paste over the list's sections, or to start the list from when the
 // character has none yet. --json writes the problems as findings (lib/Dto.cs) and nothing else. Without --export it
 // reads the newest export of the sets files' character. Exit code 1 on a mismatch.
+//
+// The list falls behind the sets and the export as they change. That is drift: a piece without a row, a row, column,
+// section or copy the sets or the export don't back, a date other than that of the export it read, the counts in the
+// headings and the opening sentence that the rows have left behind, and a list not written yet. --warn-drift prints
+// drift as a warning, counts it apart from the problems and leaves it out of the exit code; --json gives it the
+// severity warn. What stays a problem is the tables' own form: a header or a row that can't be read, and a section out
+// of order. With no list, and neither --print nor --warn-drift, the tool stops with exit code 2.
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -20,7 +27,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using GearTools;
 
-var cli = new Arguments(args, ["--in", "--export"], ["--print", "--json"]);
+var cli = new Arguments(args, ["--in", "--export"], ["--print", "--json", "--warn-drift"]);
 if (cli.Flag("--print") && cli.Flag("--json"))
 	Tool.Fail("--print writes a table and --json writes findings; give one of them.");
 if (cli.Options("--in").Count == 0)
@@ -45,7 +52,7 @@ var owned = Export.Read(exportPath);
 var resources = Resources.Load();
 var listPath = Characters.GearList(character);
 var hasList = File.Exists(listPath);
-if (hasList is false && cli.Flag("--print") is false)
+if (hasList is false && cli.Flag("--print") is false && cli.Flag("--warn-drift") is false)
 	Tool.Fail($"No gear list at {Tool.RepoRelative(listPath)}. --print gives the table to start one from.");
 var lines = hasList ? File.ReadAllLines(listPath) : [];
 
@@ -54,6 +61,7 @@ string[] sectionOrder = ["Weapons", "Ammo", "Head", "Neck", "Earrings", "Body", 
 var pairedSlots = new Dictionary<string, string> { ["main"] = "sub", ["left_ear"] = "right_ear", ["left_ring"] = "right_ring" };
 
 var problems = 0;
+var warnings = 0;
 var findings = new List<Finding>();
 
 // The list as written. Its rows are in the gear sections only: a "## <Slot> (<count>)" heading opens one and the
@@ -115,7 +123,7 @@ for (var i = 0; i < lines.Length; i++)
 }
 var jobs = listed ?? [];
 foreach (var job in jobs.Where(job => byJob.ContainsKey(job) is false))
-	Problem($"The list has a {job} column, but no --in sets file is for {job}");
+	Drift($"The list has a {job} column, but no --in sets file is for {job}");
 jobs = jobs.Where(byJob.ContainsKey).ToArray();
 // A sets file for a job the list has no column for still counts: its pieces are worked out with the rest, and
 // --print gives it a column.
@@ -140,7 +148,7 @@ foreach (var job in columns)
 var pieces = new Dictionary<string, Piece>();
 // With no list yet there is no column to miss. The missing list is the one thing to report, below.
 foreach (var job in hasList ? unlisted : [])
-	Problem($"{inputs[job]} is for {job}, and the list has no {job} column. --print gives the table with a {job} column");
+	Drift($"{inputs[job]} is for {job}, and the list has no {job} column. --print gives the table with a {job} column");
 foreach (var job in columns)
 {
 	foreach (var set in byJob[job].Sets)
@@ -161,7 +169,7 @@ foreach (var job in columns)
 			}
 			else if (piece.Section != useSection)
 			{
-				Problem($"{job}: {piece.Item} is worn in {slot.Key} ({useSection}) by {set.Name}, but elsewhere under {piece.Section}");
+				Drift($"{job}: {piece.Item} is worn in {slot.Key} ({useSection}) by {set.Name}, but elsewhere under {piece.Section}");
 			}
 			if (piece.Sets[job].Contains(set.Name) is false)
 				piece.Sets[job].Add(set.Name);
@@ -193,7 +201,8 @@ if (cli.Flag("--print"))
 
 if (hasList is false)
 {
-	Problem($"No gear list at {Tool.RepoRelative(listPath)} yet. The table above is the one to start it from");
+	var howToStart = cli.Flag("--print") ? "The table above is the one to start it from" : "--print gives the table to start one from";
+	Drift($"No gear list at {Tool.RepoRelative(listPath)} yet. {howToStart}");
 	return Finish();
 }
 
@@ -232,34 +241,34 @@ foreach (var piece in pieces.Values)
 		{
 			why = $"none of its {candidates.Count} rows matches";
 		}
-		Problem($"{piece.Item}{(piece.AugmentText.Length > 0 ? $" [{piece.AugmentText}]" : "")}: {why}. Expected: {string.Join(" | ", columns.Select(job => $"{job}: {Cell(piece.Sets[job])}"))}");
+		Drift($"{piece.Item}{(piece.AugmentText.Length > 0 ? $" [{piece.AugmentText}]" : "")}: {why}. Expected: {string.Join(" | ", columns.Select(job => $"{job}: {Cell(piece.Sets[job])}"))}");
 		continue;
 	}
 	taken.Add(row);
 	foreach (var job in jobs.Where(job => row.SetsFor(job).SequenceEqual(piece.Sets[job]) is false))
-		Problem($"line {row.Line}: {piece.Item}, {job} column\n    list:  {Cell(row.SetsFor(job))}\n    sets:  {Cell(piece.Sets[job])}");
+		Drift($"line {row.Line}: {piece.Item}, {job} column\n    list:  {Cell(row.SetsFor(job))}\n    sets:  {Cell(piece.Sets[job])}");
 	if (row.Section != piece.Section)
-		Problem($"line {row.Line}: {piece.Item} is under {row.Section}, but the sets wear it under {piece.Section}");
+		Drift($"line {row.Line}: {piece.Item} is under {row.Section}, but the sets wear it under {piece.Section}");
 	// An item with one row still has to name the copy the sets wear, or the list sends the player to the wrong one.
 	var expectedCopy = CopyColumn(piece);
 	if (row.Copy != expectedCopy && expectedCopy.Length > 0)
 	{
-		Problem($"line {row.Line}: {piece.Item}: the Copy column says [{row.Copy}], but the sets wear [{expectedCopy}]");
+		Drift($"line {row.Line}: {piece.Item}: the Copy column says [{row.Copy}], but the sets wear [{expectedCopy}]");
 	}
 	else if (row.Copy != expectedCopy)
 	{
 		var why = owned.Count(copy => copy.Name == piece.Item) > 1 ? "the piece the sets wear names no augments" : "the export has one copy";
-		Problem($"line {row.Line}: {piece.Item}: the Copy column says [{row.Copy}], but {why}, so the column stays empty");
+		Drift($"line {row.Line}: {piece.Item}: the Copy column says [{row.Copy}], but {why}, so the column stays empty");
 	}
 }
 foreach (var row in rows.Where(row => taken.Contains(row) is false))
-	Problem($"line {row.Line}: {row.Item}{(row.Copy.Length > 0 ? $" [{row.Copy}]" : "")} has a row, but no set wears it");
+	Drift($"line {row.Line}: {row.Item}{(row.Copy.Length > 0 ? $" [{row.Copy}]" : "")} has a row, but no set wears it");
 
 foreach (var name in sectionCounts.Keys)
 {
 	var inSection = rows.Where(row => row.Section == name).ToList();
 	if (inSection.Count != sectionCounts[name])
-		Problem($"## {name} ({sectionCounts[name]}) has {inSection.Count} rows");
+		Drift($"## {name} ({sectionCounts[name]}) has {inSection.Count} rows");
 	if (inSection.Select(row => row.Item).SequenceEqual(inSection.Select(row => row.Item).Order(StringComparer.Ordinal)) is false)
 		Problem($"## {name} isn't sorted by item name");
 }
@@ -270,15 +279,15 @@ foreach (var row in rows)
 	var copies = owned.Where(copy => copy.Name == row.Item).ToList();
 	if (copies.Count == 0)
 	{
-		Problem($"line {row.Line}: {row.Item} isn't in the export");
+		Drift($"line {row.Line}: {row.Item} isn't in the export");
 	}
 	else if (row.Copy.Length > 0 && row.Copy.StartsWith("one of") is false && copies.Any(copy => copy.AugmentText == row.Copy) is false)
 	{
-		Problem($"line {row.Line}: {row.Item} [{row.Copy}] matches no copy. The export has: {string.Join(" | ", copies.Select(copy => $"[{copy.AugmentText}]"))}");
+		Drift($"line {row.Line}: {row.Item} [{row.Copy}] matches no copy. The export has: {string.Join(" | ", copies.Select(copy => $"[{copy.AugmentText}]"))}");
 	}
 	else if (row.Copy.StartsWith("one of") && copies.Count < 2)
 	{
-		Problem($"line {row.Line}: {row.Item} is listed as one of several copies, but the export has {copies.Count}");
+		Drift($"line {row.Line}: {row.Item} is listed as one of several copies, but the export has {copies.Count}");
 	}
 }
 
@@ -286,25 +295,25 @@ foreach (var row in rows)
 var intro = string.Join(" ", lines.TakeWhile(line => line.StartsWith("## ") is false));
 var exportDate = Regex.Match(intro, @"`//gs export` of (\d{4}-\d{2}-\d{2})");
 if (exportDate.Success && exportDate.Groups[1].Value != Export.DateOf(exportPath))
-	Problem($"The list says it was taken from the export of {exportDate.Groups[1].Value}, and this check read the one of {Export.DateOf(exportPath)}. Update the date once the list passes");
+	Drift($"The list says it was taken from the export of {exportDate.Groups[1].Value}, and this check read the one of {Export.DateOf(exportPath)}. Update the date once the list passes");
 var total = Regex.Match(intro, @"\*\*(\d+) pieces\*\*");
 if (total.Success && int.Parse(total.Groups[1].Value) != rows.Count)
-	Problem($"The list says {total.Groups[1].Value} pieces and has {rows.Count} rows");
+	Drift($"The list says {total.Groups[1].Value} pieces and has {rows.Count} rows");
 int Wearing(params string[] together) => rows.Count(row => together.All(job => row.SetsFor(job).Count > 0));
 int Alone(string job) => rows.Count(row => jobs.All(other => (row.SetsFor(other).Count > 0) == (other == job)));
 foreach (var job in jobs)
 {
 	var claimed = Regex.Match(intro, $@"(\d+) for {job}\b");
 	if (claimed.Success && int.Parse(claimed.Groups[1].Value) != Wearing(job))
-		Problem($"The list says {claimed.Groups[1].Value} for {job} and has {Wearing(job)} rows with {job} sets");
+		Drift($"The list says {claimed.Groups[1].Value} for {job} and has {Wearing(job)} rows with {job} sets");
 	var alone = Regex.Match(intro, $@"(\d+) of them {job} only");
 	if (alone.Success && int.Parse(alone.Groups[1].Value) != Alone(job))
-		Problem($"The list says {alone.Groups[1].Value} of them {job} only, and {Alone(job)} rows have {job} sets alone");
+		Drift($"The list says {alone.Groups[1].Value} of them {job} only, and {Alone(job)} rows have {job} sets alone");
 }
 // "N for A, N for B, N worn by both" counts the rows the two jobs just named share.
 var shared = Regex.Match(intro, @"\d+ for (\w{3}), \d+ for (\w{3}), (\d+) worn by both");
 if (shared.Success && jobs.Contains(shared.Groups[1].Value) && jobs.Contains(shared.Groups[2].Value) && int.Parse(shared.Groups[3].Value) != Wearing(shared.Groups[1].Value, shared.Groups[2].Value))
-	Problem($"The list says {shared.Groups[3].Value} worn by both, and {Wearing(shared.Groups[1].Value, shared.Groups[2].Value)} rows have both {shared.Groups[1].Value} and {shared.Groups[2].Value} sets");
+	Drift($"The list says {shared.Groups[3].Value} worn by both, and {Wearing(shared.Groups[1].Value, shared.Groups[2].Value)} rows have both {shared.Groups[1].Value} and {shared.Groups[2].Value} sets");
 
 // Every number the opening sentence could quote.
 var pairs = jobs.SelectMany((first, index) => jobs.Skip(index + 1).Select(second => $"{first} and {second} {Wearing(first, second)}"));
@@ -312,16 +321,34 @@ if (cli.Flag("--json") is false)
 	Console.WriteLine($"rows {rows.Count}; {string.Join("; ", jobs.Select(job => $"{job} {Wearing(job)} ({Alone(job)} {job} only)").Concat(pairs))}");
 return Finish();
 
+// A fault in the list itself, which --warn-drift leaves a problem.
 void Problem(string message)
 {
 	problems++;
+	Report("error", message);
+}
+
+// The list no longer matches the sets or the export. Under --warn-drift it is a warning and not a problem.
+void Drift(string message)
+{
+	if (cli.Flag("--warn-drift") is false)
+	{
+		Problem(message);
+		return;
+	}
+	warnings++;
+	Report("warn", message);
+}
+
+void Report(string severity, string message)
+{
 	if (cli.Flag("--json"))
 	{
-		findings.Add(new Finding("gear-list", "error", "", "", "", message));
+		findings.Add(new Finding("gear-list", severity, "", "", "", message));
 	}
 	else
 	{
-		Console.WriteLine("  " + message);
+		Console.WriteLine((severity == "warn" ? "  warn  " : "  ") + message);
 	}
 }
 
@@ -333,7 +360,7 @@ int Finish()
 	}
 	else
 	{
-		Console.WriteLine($"problems: {problems}");
+		Console.WriteLine(cli.Flag("--warn-drift") ? $"problems: {problems}, warnings: {warnings}" : $"problems: {problems}");
 	}
 	return problems > 0 ? 1 : 0;
 }
