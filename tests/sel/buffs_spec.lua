@@ -63,13 +63,13 @@ describe('Sel on gaining or losing a buff', function()
     it('cancels Stoneskin on falling asleep with CancelStoneskin on', function()
         gs:console('gs c set CancelStoneskin true')
         gs:gain_buff('sleep')
-        assert.truthy(table.concat(gs.game.commands, '\n'):find('cancel stoneskin', 1, true))
+        assert.truthy(table.concat(gs:commands(), '\n'):find('cancel stoneskin', 1, true))
     end)
 
     it('leaves Stoneskin up on falling asleep with CancelStoneskin off', function()
         gs:console('gs c set CancelStoneskin false')
         gs:gain_buff('sleep')
-        assert.falsy(table.concat(gs.game.commands, '\n'):find('cancel stoneskin', 1, true))
+        assert.falsy(table.concat(gs:commands(), '\n'):find('cancel stoneskin', 1, true))
     end)
 
     -- Which buffs NotifyBuffs names, and whether Notify Buffs is on, are up to User-Globals.lua unless a test sets

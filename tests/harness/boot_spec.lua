@@ -2,6 +2,15 @@ local autoy = require('autoy')
 local harness = require('harness')
 local testy = require('testy')
 
+-- Boots Globby, whose own Globals file turns AutoArts on and sets the latency to 1. Sel loads it after
+-- User-Globals.lua's and before it works out the spell latency, so a boot that left them as the files made them would
+-- show them.
+local function boot_globby()
+    local gs = harness.boot({character = 'Globby', main_job = 'WAR', sub_job = 'WHM', expect_file = 'WAR.lua'})
+    assert.equal('Globby-Globals.lua', gs.user.globals_marker)
+    return gs
+end
+
 describe('a boot', function()
     it('finds the string functions as Lua has them, not wrapped by an earlier boot\'s libraries', function()
         harness.boot(testy.whm())
@@ -24,13 +33,13 @@ describe('a boot', function()
     end)
 
     it('starts the modes that act on their own off, with the options Sel defines them with', function()
-        local state = autoy.load().user.state
+        local state = boot_globby().user.state
         assert.same({'Off', 'Off', false}, {state.AutoTrustMode.value, state.AutoFoodMode.value, state.AutoArts.value})
         assert.same({1, 1}, {#state.AutoTrustMode, #state.AutoFoodMode})
     end)
 
     it('starts with the latency Sel defines, half a second, which its delays are written around', function()
-        local user = autoy.load().user
+        local user = boot_globby().user
         assert.same({0.5, 48}, {user.latency, user.spell_latency})
     end)
 

@@ -499,7 +499,8 @@ local beginning_category = {[3] = 8, [7] = 7, [16] = 12}
 -- What User-Globals.lua sets as the user likes and every test plays out under: the modes that have Sel's tick act on
 -- its own once they are on, AutoTrustMode and AutoFoodMode with the lists the file gives them, and AutoArts, which has
 -- the tick of a job with arts use them; and the latency that Sel's delays are written around. A boot has each as Sel
--- defines it, and a test sets what it needs.
+-- defines it, and a test sets what it needs. AutoLockstyle acts on its own too, and a boot leaves it as the file has
+-- it: the tests that count locks set it themselves.
 local function reset_to_sels_defaults(user)
     local state = user.state
     if not (state and state.AutoTrustMode) then
