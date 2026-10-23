@@ -226,7 +226,9 @@ end
 --		HealHPP = 50,                  --than HealSeconds, it goes ahead of buffs and weaponskills whenever it's
 --		HealSeconds = 5,               --ready, and at or under HealHPP no pull goes out.
 --	}
---Trusts, Healer, Buffs, WS and Heal can be left out. Turning it off puts AutoTrustMode, AutoBuffMode and AutoWS back.
+--Trusts, Healer, Buffs, WS and Heal can be left out, and one the lists no longer offer is passed over: a trust or buff
+--list gone, a WS the weapon set lacks, a Healer off the trust list, a Heal not set. Turning it off puts AutoTrustMode,
+--AutoBuffMode and AutoWS back.
 --Idle and out of town, it calls the AutoTrustMode list's missing trusts, going on without one on recast or one it
 --can't call, presses F8 for the nearest monster, uses Pull on it when it's unclaimed and within PullRange, and engages
 --it once it's claimed. A monster already fighting the party is engaged first. It turns itself off on zoning and on death.
@@ -300,29 +302,19 @@ local function autoxp_problem(s)
 	if s.Heal ~= nil then
 		local heal = type(s.Heal) == 'string' and s.Heal ~= 'Ranged' and autoxp_action(s.Heal)
 		if not heal then return 'Heal must name a spell or a job ability.' end
-		if not autoxp_usable(heal) then return "you can't use "..s.Heal..' now.' end
 		if type(s.HealHPP) ~= 'number' or type(s.HealSeconds) ~= 'number' then return 'Heal needs HealHPP and HealSeconds.' end
 	end
-	if s.Trusts ~= nil and not (type(s.Trusts) == 'string' and trust_lists[s.Trusts] and state.AutoTrustMode:contains(s.Trusts)) then
-		return 'Trusts must name a trust_lists entry.'
-	end
-	if s.Healer ~= nil and not (s.Trusts and table.contains(trust_lists[s.Trusts], s.Healer) and get_spell_id_by_name(s.Healer) and type(s.HealerMPP) == 'number') then
-		return 'Healer must be one of the Trusts list, with HealerMPP.'
-	end
-	if s.Buffs ~= nil and not (type(s.Buffs) == 'string' and state.AutoBuffMode:contains(s.Buffs)) then
-		return 'Buffs must name an AutoBuffMode option.'
-	end
-	if s.WS ~= nil and type(s.WS) ~= 'string' then return "WS must name an AutoWS choice, as 'Savage Blade 1000'." end
+	if s.Healer ~= nil and type(s.HealerMPP) ~= 'number' then return 'Healer needs HealerMPP.' end
+end
+
+--Sets the mode to the value only while the mode offers it: the lists behind the modes change, and a value they no
+--longer hold leaves the mode as it is.
+local function autoxp_offer(mode, value)
+	if type(value) == 'string' and state[mode]:contains(value) then state[mode]:set(value) end
 end
 
 local function autoxp_set_ws()
-	local ws = AutoXP_Settings.WS
-	if ws == nil then return end
-	if state.AutoWS:contains(ws) then
-		state.AutoWS:set(ws)
-	else
-		add_to_chat(123, 'Auto XP: AutoWS_List has no '..ws..' for '..state.Weapons.value..'.')
-	end
+	autoxp_offer('AutoWS', AutoXP_Settings.WS)
 end
 
 local function autoxp_start()
@@ -342,12 +334,12 @@ local function autoxp_start()
 		saved = saved,
 		pull = autoxp_action(s.Pull),
 		heal = s.Heal and autoxp_action(s.Heal),
-		healer_id = s.Healer and get_spell_id_by_name(s.Healer),
+		healer_id = type(s.Healer) == 'string' and get_spell_id_by_name(s.Healer) or nil,
 		retry_at = 0, pull_until = 0, dismiss_at = 0, check_at = 0, heal_at = 0, trust_calls = {},
 	}
 	autoxp.healer_name = autoxp.healer_id and res.spells[autoxp.healer_id].party_name
-	if s.Trusts then state.AutoTrustMode:set(s.Trusts) end
-	if s.Buffs then state.AutoBuffMode:set(s.Buffs) end
+	autoxp_offer('AutoTrustMode', s.Trusts)
+	autoxp_offer('AutoBuffMode', s.Buffs)
 	autoxp_set_ws()
 end
 
