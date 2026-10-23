@@ -6,10 +6,16 @@ local gear = {'Ragnarok', 'Naegling', 'Apocalypse', 'Volte Cap', 'Null Masque', 
     'Moonshade Earring', 'Brutal Earring', 'Lugra Earring', 'Cessance Earring', 'Odnowa Earring +1', 'Karieyh Ring',
     'Chirich Ring +1', "Cornelia's Ring"}
 
--- Jobby's dark knight has Auto WS Buff on with the buffs user_globals gives it, in place of User-Globals.lua's, since
--- his gear file has an Auto WS Buff list.
+-- The buffs Auto WS Buff takes in these tests, in place of User-Globals.lua's: Last Resort, and Berserk for a warrior
+-- sub job, but not Aggressor, which is left for the job's own tick to use.
+local ws_buffs = {
+    {name = 'Last Resort', job = 'DRK', level = 15, recast = 87},
+    {name = 'Berserk', job = 'WAR', level = 15, recast = 1},
+}
+
+-- Jobby's dark knight has Auto WS Buff on with those buffs, since his gear file has an Auto WS Buff list.
 local function give_ws_buffs(user)
-    user_globals.give_ws_buffs(user, user_globals.ws_buffs)
+    user_globals.give_ws_buffs(user, ws_buffs)
 end
 
 local function boot(options)
@@ -650,12 +656,12 @@ describe('DRK\'s Auto Buff Mode in a fight', function()
         assert.same({'Scarlet Delirium'}, gs:actions())
     end)
 
-    it('leaves Berserk and Aggressor, a War sub job\'s, to the weapon skills too when the gear file has an Auto WS '
-        .. 'Buff list', function()
+    it('leaves Berserk, a War sub job\'s, to the weapon skills too when the gear file has an Auto WS Buff list, and '
+        .. 'goes on to Aggressor, which the list leaves out', function()
         local gs = buffing({sub_job = 'WAR', buffs = buffed}, true)
         gs:gain_buff('Scarlet Delirium')
-        gs:play(3)
-        assert.same({}, gs:actions())
+        gs:play_until_action()
+        assert.same({'Aggressor'}, gs:actions())
     end)
 
     it('uses Last Resort again with Auto WS Buff off', function()

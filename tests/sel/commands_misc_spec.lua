@@ -61,13 +61,13 @@ describe('gs c smartws', function()
         gs = commy.boot_rdm()
     end)
 
-    -- The commands sent since the session began that name a weapon skill. Sel sends the weapon skill as a console
-    -- command of its name and the target's id, which is no Windower command and which neither GearSwap nor Sel
-    -- handles: only an addon such as Shortcuts, which the stand-in doesn't have, makes an action of it. So these tests
-    -- pin the command, not a weapon skill sent.
+    -- The commands sent since the boot that name a weapon skill, which a test asks for once, since the session gives
+    -- each command once. Sel sends the weapon skill as a console command of its name and the target's id, which is no
+    -- Windower command and which neither GearSwap nor Sel handles: only an addon such as Shortcuts, which the stand-in
+    -- doesn't have, makes an action of it. So these tests pin the command, not a weapon skill sent.
     local function sent(name)
         local found = {}
-        for _, command in ipairs(gs.game.commands) do
+        for _, command in ipairs(gs:commands()) do
             if command:find(name, 1, true) == 1 then
                 found[#found + 1] = command
             end
@@ -223,14 +223,14 @@ describe('gs c killstatue', function()
         gs:change_zone(295)
         gs:console('gs c killstatue')
         gs:advance(0.5)
-        assert.truthy(table.concat(gs.game.commands, '\n'):find('Sanguine Blade ' .. gs.game.monster.id, 1, true))
+        assert.truthy(table.concat(gs:commands(), '\n'):find('Sanguine Blade ' .. gs.game.monster.id, 1, true))
     end)
 
     it('does nothing in a Dynamis whose name has no [D], as the Dynamis of old', function()
         gs:change_zone(186)
         gs:console('gs c killstatue')
         gs:advance(0.5)
-        assert.falsy(table.concat(gs.game.commands, '\n'):find('Sanguine Blade', 1, true))
+        assert.falsy(table.concat(gs:commands(), '\n'):find('Sanguine Blade', 1, true))
     end)
 end)
 

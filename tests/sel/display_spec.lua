@@ -104,6 +104,8 @@ describe('Sel\'s status box', function()
     end)
 
     it('shows the defense mode and its set in place of the offense mode and Treasure', function()
+        gs:console('gs c set TreasureMode Tag')
+        assert.is_true(shows(gs, 'Treasure: Tag'))
         gs:console('gs c set DefenseMode Physical')
         assert.is_true(shows(gs, 'Defense Active: Physical: PDT'))
         assert.is_false(shows(gs, 'Offense:'))

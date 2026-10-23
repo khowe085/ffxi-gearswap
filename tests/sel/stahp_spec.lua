@@ -107,7 +107,7 @@ describe('Sel in Abyssea', function()
 
     it('asks for the proc weapons of the element a fiend is weak to with weapon skills', function()
         game_says('The fiend appears vulnerable to fire elemental weapon skills!')
-        assert.truthy(table.concat(gs.game.commands, '\n'):find('gs c weapons ProcSword', 1, true))
+        assert.truthy(table.concat(gs:commands(), '\n'):find('gs c weapons ProcSword', 1, true))
     end)
 
     it('heeds no such line outside Abyssea', function()

@@ -120,6 +120,6 @@ describe('AutoTrustMode', function()
     end)
 
     pending('lets the tick go on past a name in trust_lists that is no spell: check_trust in libs/Sel-Utility.lua gets '
-        .. 'nil from get_spell_id_by_name and indexes res.spells[spell_id].party_name, which raises, so the tick ends '
-        .. 'there, before the checks that follow it')
+        .. 'false from get_spell_id_by_name, so res.spells[spell_id] is nil and its party_name raises, so the tick '
+        .. 'ends there, before the checks that follow it')
 end)
