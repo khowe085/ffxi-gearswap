@@ -216,7 +216,8 @@ sealed class TestCommand
 
 	// Reads each character's gear files into sets files, checks those against the export, the blue magic lists and
 	// the gear list, and lints the docs with the character's own. Then checks the rank documents against bg-wiki's rank
-	// tables in docs/wiki.
+	// tables in docs/wiki. The gear list and the docs are living documents: what they say that the sets, the export or
+	// the simulated sets no longer back is a warning, and only a fault in their own form fails the category.
 	bool RunDataChecks()
 	{
 		var sets = Path.Combine(Path.GetTempPath(), "gear-data-" + Guid.NewGuid().ToString("N")[..8]);
@@ -240,8 +241,8 @@ sealed class TestCommand
 						passed &= Check("check-blu-spells", "--in", json);
 				}
 				if (lists.Count > 0)
-					passed &= Check("gear-list", [.. lists]);
-				passed &= Check("doc-lint", "--char", character);
+					passed &= Check("gear-list", [.. lists, "--warn-drift"]);
+				passed &= Check("doc-lint", "--char", character, "--warn-drift");
 			}
 			passed &= Check("rank-doc", "--check");
 		}

@@ -1898,6 +1898,146 @@ Test("gear-list says why the Copy column stays empty for a piece that names no a
 	Contains(run.Output, "problems: 1");
 });
 
+// A piece in a set that the list has no row for.
+void AddUnlistedPiece(Sandbox sandbox) => sandbox.Edit("sets/Testy_RDM.json", """{ "item": "Lethargy Sayon +3" },""", """{ "item": "Lethargy Sayon +3" }, "neck": { "item": "Warder's Charm +1" },""");
+
+// The Head table's two rows out of order.
+void Unsort(Sandbox sandbox) => sandbox.Edit("data/Testy/Testy_gear_list.md",
+	"| Atro. Chapeau +4 |  |  | `Midcast.Enfeebling` |\n| Nyame Helm |  | `Idle` | `Idle` |",
+	"| Nyame Helm |  | `Idle` | `Idle` |\n| Atro. Chapeau +4 |  |  | `Midcast.Enfeebling` |");
+
+Test("gear-list --warn-drift warns where the list has fallen behind the sets, and exits 0", () =>
+{
+	var clean = pristine.Run("gear-list", [.. testySets, "--warn-drift"]);
+	Equal(0, clean.ExitCode);
+	Contains(clean.Output, "problems: 0, warnings: 0");
+	var rdm = "sets/Testy_RDM.json";
+	var ws = """{ "name": "WS", "slots": { "ammo": { "item": "Coiste Bodhar" } } },""";
+	void AddWarSets(Sandbox sandbox) => File.WriteAllText(Path.Combine(sandbox.Repo, "sets", "Testy_WAR.json"),
+		"""{ "schemaVersion": 1, "character": "Testy", "job": "WAR", "sets": [ { "name": "Idle", "slots": { "head": { "item": "Nyame Helm" } } } ] }""");
+	void DeleteList(Sandbox sandbox) => File.Delete(Path.Combine(sandbox.Repo, "data", "Testy", "Testy_gear_list.md"));
+	(string[] Arguments, Action<Sandbox> Make, string[] Messages)[] drifts =
+	[
+		(["--in", rdm], _ => { }, ["The list has a BLU column, but no --in sets file is for BLU", "line 48: Hashi. Bazu. +3 has a row, but no set wears it"]),
+		([.. testySets, "--in", "sets/Testy_WAR.json"], AddWarSets, ["sets/Testy_WAR.json is for WAR, and the list has no WAR column. --print gives the table with a WAR column"]),
+		([.. testySets, "--print"], DeleteList, ["No gear list at data/Testy/Testy_gear_list.md yet. The table above is the one to start it from"]),
+		(testySets, sandbox => sandbox.Edit(rdm, ws, """{ "name": "WS", "slots": { "ammo": { "item": "Coiste Bodhar" }, "waist": { "item": "Nyame Helm" } } },"""),
+			["RDM: Nyame Helm is worn in waist (Waist) by WS, but elsewhere under Head"]),
+		(testySets, AddUnlistedPiece, ["Warder's Charm +1: no row. Expected: BLU:  | RDM: `Idle`"]),
+		(testySets, sandbox => sandbox.Edit(rdm, ws, """{ "name": "WS", "slots": { "ammo": { "item": "Coiste Bodhar" }, "left_ear": { "item": "Loquacious Earring" } } },"""),
+			["line 36: Loquac. Earring, RDM column\n    list:  `Midcast.Enfeebling`\n    sets:  `Midcast.Enfeebling`, `WS`"]),
+		(testySets, sandbox => sandbox.Edit(rdm, """body": { "item": "Lethargy Sayon +3" }""", """hands": { "item": "Lethargy Sayon +3" }"""),
+			["line 42: Lethargy Sayon +3 is under Body, but the sets wear it under Hands"]),
+		(testySets, sandbox => sandbox.Edit(rdm, """["\"Refresh\"+2", "Mag. Acc.+11", "DMG:+1"]""", """["Weapon skill damage +2%", "DMG:+14"]"""),
+			["line 16: Colada: the Copy column says [\"Refresh\"+2, Mag. Acc.+11, DMG:+1], but the sets wear [Weapon skill damage +2%, DMG:+14]"]),
+		(testySets, sandbox => sandbox.Edit(rdm, """{ "item": "Colada", "augments": ["\"Refresh\"+2", "Mag. Acc.+11", "DMG:+1"] }""", """{ "item": "Colada" }"""),
+			["line 16: Colada: the Copy column says [\"Refresh\"+2, Mag. Acc.+11, DMG:+1], but the piece the sets wear names no augments, so the column stays empty"]),
+	];
+	foreach (var drift in drifts)
+	{
+		var sandbox = NewSandbox();
+		drift.Make(sandbox);
+		WarnsOfDrift(sandbox, "gear-list", drift.Arguments, drift.Messages);
+	}
+});
+
+Test("gear-list --warn-drift warns where the list has fallen behind the export, and exits 0", () =>
+{
+	var list = "data/Testy/Testy_gear_list.md";
+	(Action<Sandbox> Make, string[] Messages)[] drifts =
+	[
+		(sandbox => sandbox.Edit(list, "of 2026-01-02: **17", "of 2026-01-01: **17"),
+			["The list says it was taken from the export of 2026-01-01, and this check read the one of 2026-01-02."]),
+		(sandbox => sandbox.Edit(list, "| Eschan Stone |  |", "| Eschan Stonee |  |"),
+			["line 69: Eschan Stonee isn't in the export", "Eschan Stone: no row.", "line 69: Eschan Stonee has a row, but no set wears it"]),
+		(sandbox => sandbox.Edit(list, "| Sucellos's Cape | INT+20, Mag. Acc+20 /Mag. Dmg.+20, \"Mag.Atk.Bns.\"+10 |", "| Sucellos's Cape | INT+20, Nope |"),
+			["line 63: Sucellos's Cape [INT+20, Nope] matches no copy.", "Sucellos's Cape [INT+20, Mag. Acc+20 /Mag. Dmg.+20, \"Mag.Atk.Bns.\"+10]: none of its 2 rows matches"]),
+		(sandbox => sandbox.Edit(list, "| Prolix Ring |  |", "| Prolix Ring | one of two identical copies |"),
+			["line 54: Prolix Ring is listed as one of several copies, but the export has 1", "line 54: Prolix Ring: the Copy column says [one of two identical copies], but the export has one copy, so the column stays empty"]),
+	];
+	foreach (var drift in drifts)
+	{
+		var sandbox = NewSandbox();
+		drift.Make(sandbox);
+		WarnsOfDrift(sandbox, "gear-list", testySets, drift.Messages);
+	}
+});
+
+Test("gear-list --warn-drift warns where the counts in the list no longer match its rows, and exits 0", () =>
+{
+	var list = "data/Testy/Testy_gear_list.md";
+	(Action<Sandbox> Make, string[] Messages)[] drifts =
+	[
+		(sandbox => sandbox.Edit(list, "## Ammo (1)", "## Ammo (2)"), ["## Ammo (2) has 1 rows"]),
+		(sandbox => sandbox.Edit(list, "**17 pieces**", "**18 pieces**"), ["The list says 18 pieces and has 17 rows"]),
+		(sandbox => sandbox.Edit(list, "15 for RDM", "14 for RDM"), ["The list says 14 for RDM and has 15 rows with RDM sets"]),
+		(sandbox => sandbox.Edit(list, "1 worn by both)", "1 worn by both; 9 of them RDM only)"), ["The list says 9 of them RDM only, and 14 rows have RDM sets alone"]),
+		(sandbox => sandbox.Edit(list, "1 worn by both", "2 worn by both"), ["The list says 2 worn by both, and 1 rows have both BLU and RDM sets"]),
+		(sandbox => sandbox.Edit(list, "| Prolix Ring |  |  | `Midcast['Stoneskin']` |\n", ""),
+			["Prolix Ring: no row. Expected: BLU:  | RDM: `Midcast['Stoneskin']`", "## Rings (3) has 2 rows", "The list says 17 pieces and has 16 rows", "The list says 15 for RDM and has 14 rows with RDM sets"]),
+	];
+	foreach (var drift in drifts)
+	{
+		var sandbox = NewSandbox();
+		drift.Make(sandbox);
+		WarnsOfDrift(sandbox, "gear-list", testySets, drift.Messages);
+	}
+});
+
+Test("gear-list --warn-drift still fails a problem in the list's tables, with or without drift beside it", () =>
+{
+	var list = "data/Testy/Testy_gear_list.md";
+	var ammo = "## Ammo (1)\n\n| Item | Copy | BLU sets | RDM sets |\n|---|---|---|---|\n";
+	(Action<Sandbox> Make, string Message)[] forms =
+	[
+		(Unsort, "## Head isn't sorted by item name"),
+		(sandbox => sandbox.Edit(list, ammo + "| Coiste Bodhar |  |  | `WS` |", "## Ammo (1)\n\n| Item | Copy | RDM sets |\n|---|---|---|\n| Coiste Bodhar |  | `WS` |"),
+			"## Ammo has the job columns RDM, but the list's first table has BLU, RDM"),
+		(sandbox => sandbox.Edit(list, ammo + "| Coiste Bodhar |  |  | `WS` |", "## Ammo (1)\n\n| Item | Copy | RDM sets | RDM sets |\n|---|---|---|---|\n| Coiste Bodhar |  |  | `WS` |"),
+			"line 21: the header names a job more than once: RDM, RDM"),
+	];
+	foreach (var form in forms)
+	{
+		var sandbox = NewSandbox();
+		form.Make(sandbox);
+		StillFails(sandbox, "gear-list", testySets, form.Message);
+	}
+	(Action<Sandbox> Make, string Problem, string Warning)[] beside =
+	[
+		(sandbox =>
+		{
+			Unsort(sandbox);
+			AddUnlistedPiece(sandbox);
+		}, "## Head isn't sorted by item name", "Warder's Charm +1: no row. Expected: BLU:  | RDM: `Idle`"),
+		(sandbox => sandbox.Edit(list, "| Naegling |  |  | `Weapons['Savage Blade']` |", "| Naegling |  |  | `Weapons['Savage Blade']` | extra |"),
+			"line 17: 5 cells, but the header has 4", "Naegling: no row."),
+		(sandbox => sandbox.Edit(list, ammo, "## Ammo (1)\n\n| Piece | Copy | BLU sets | RDM sets |\n|---|---|---|---|\n"),
+			"line 21: this table's first row isn't an `| Item | Copy | ... |` header, so its rows aren't read", "Coiste Bodhar: no row."),
+	];
+	foreach (var pair in beside)
+	{
+		var sandbox = NewSandbox();
+		pair.Make(sandbox);
+		FailsBesideDrift(sandbox, "gear-list", testySets, pair.Problem, pair.Warning);
+	}
+});
+
+Test("gear-list --warn-drift --json writes drift as a finding of severity warn, and a problem in the list as an error", () =>
+{
+	var sandbox = NewSandbox();
+	AddUnlistedPiece(sandbox);
+	string Severities(ToolRun run) => string.Join(" ", JsonDocument.Parse(run.StandardOutput).RootElement.EnumerateArray().Select(finding => finding.GetProperty("severity").GetString()));
+	var drift = sandbox.Run("gear-list", [.. testySets, "--json", "--warn-drift"]);
+	Equal(0, drift.ExitCode);
+	Equal("warn", Severities(drift));
+	Equal("error", Severities(sandbox.Run("gear-list", [.. testySets, "--json"])));
+	Unsort(sandbox);
+	var both = sandbox.Run("gear-list", [.. testySets, "--json", "--warn-drift"]);
+	Equal(1, both.ExitCode);
+	Equal("warn error", Severities(both));
+	Equal("error error", Severities(sandbox.Run("gear-list", [.. testySets, "--json"])));
+});
+
 // ---------------------------------------------------------------- rank-doc.cs
 
 Test("rank-doc finds both rank documents to be what it would write", () =>
@@ -2281,6 +2421,104 @@ Test("doc-lint holds a character's gear notes to pieces the character has, one e
 	Contains(run.Output, "data/Testy/Testy_gear_notes.md:11: Hoxne Earring has an entry, but it is neither in the export nor an entry of docs/gear-notes.md");
 	Contains(run.Output, "data/Testy/Testy_gear_notes.md:15: a second entry for Nyame Helm");
 	Contains(run.Output, "problems: 2");
+});
+
+Test("doc-lint --warn-drift warns where the notes have fallen behind the export or the simulated sets, and exits 0", () =>
+{
+	var clean = pristine.Run("doc-lint", "--warn-drift");
+	Equal(0, clean.ExitCode);
+	Contains(clean.Output, "problems: 0, warnings: 0");
+	var notes = "docs/gear-notes.md";
+	var own = "data/Testy/Testy_gear_notes.md";
+	var bullet = "- Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): ";
+	void AddHandsToBluSet(Sandbox sandbox)
+	{
+		var page = Path.Combine(sandbox.Repo, "docs", "wiki", "simulated-sets", "blu.txt");
+		File.WriteAllText(page, File.ReadAllText(page).Replace("|Head = Nyame Helm", "|Head = Nyame Helm\n            |Hands = Hashishin Bazubands +3"));
+	}
+	(Action<Sandbox> Make, string[] Messages)[] drifts =
+	[
+		(sandbox => sandbox.Edit(own, "## Pieces the simulated sets use", "### Hoxne Earring\n\n- Testy wants one.\n\n## Pieces the simulated sets use"),
+			["data/Testy/Testy_gear_notes.md:11: Hoxne Earring has an entry, but it is neither in the export nor an entry of docs/gear-notes.md"]),
+		(sandbox => sandbox.Edit(own, "| Hoxne Earring | Savage Blade |", "| Hoxne Earring | Chant du Cygne |"),
+			["data/Testy/Testy_gear_notes.md:17: Hoxne Earring, RDM sets\n    doc:   Chant du Cygne\n    pages: Savage Blade"]),
+		(sandbox => sandbox.Edit(own, "| Hoxne Earring | Expiacion |\n", "| Nyame Helm | Expiacion |\n"),
+			["data/Testy/Testy_gear_notes.md: the BLU table of pieces the sets use lacks Hoxne Earring (Expiacion)",
+				"data/Testy/Testy_gear_notes.md:24: Nyame Helm is in the BLU table of pieces the character lacks, but it is owned or no BLU set wears it"]),
+		(sandbox => sandbox.Edit(notes, "RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff).", "RDM: Savage Blade (Mid buff); BLU: Expiacion (Mid buff)."),
+			["docs/gear-notes.md:28: Nyame Helm: the bullet's sets differ from the pages\n    pages: RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff)"]),
+		(sandbox => sandbox.Edit(notes, "No notes beyond the help text: Colada.", "### Colada\n\n" + bullet + "RDM: Savage Blade (Mid buff)."),
+			["docs/gear-notes.md:21: Colada has a Simulated sets bullet, but no RDM or BLU set wears it"]),
+		(sandbox => sandbox.Edit(notes, "## Other slots\n", "## Ears\n\n### Hoxne Earring\n\n" + bullet + "RDM: Savage Blade (Mid buff, High buff); BLU: Expiacion (Mid buff).\n\n## Other slots\n"),
+			["docs/gear-notes.md: Hoxne Earring has a Simulated sets bullet but isn't in the export"]),
+		(AddHandsToBluSet,
+			["docs/gear-notes.md: Hashi. Bazu. +3 is in a bag and in the simulated sets, but its entry has no Simulated sets bullet. Sets: BLU: Expiacion (Mid buff)"]),
+	];
+	foreach (var drift in drifts)
+	{
+		var sandbox = NewSandbox();
+		drift.Make(sandbox);
+		WarnsOfDrift(sandbox, "doc-lint", [], drift.Messages);
+	}
+});
+
+Test("doc-lint --warn-drift warns of a link to a character's old export or audit file, and fails a link to any other missing file", () =>
+{
+	var notes = "data/Testy/Testy_notes.md";
+	var links = "[an old export](../export/Testy%202025-11-30%2008-00-00.lua) and [the audit](../audit/Testy.jsonl)";
+	var drifted = NewSandbox();
+	drifted.Edit(notes, "- Accuracy first.", $"- Accuracy first. Written from {links}.");
+	WarnsOfDrift(drifted, "doc-lint", [],
+	[
+		"data/Testy/Testy_notes.md:7: link to a missing file, ../export/Testy%202025-11-30%2008-00-00.lua",
+		"data/Testy/Testy_notes.md:7: link to a missing file, ../audit/Testy.jsonl",
+	]);
+	var beside = NewSandbox();
+	beside.Edit(notes, "- Accuracy first.", $"- Accuracy first. Written from {links}, and [nothing](nowhere.md).");
+	var run = beside.Run("doc-lint", "--warn-drift");
+	Equal(1, run.ExitCode);
+	Contains(run.Output, "  data/Testy/Testy_notes.md:7: link to a missing file, nowhere.md");
+	Contains(run.Output, "  warn  data/Testy/Testy_notes.md:7: link to a missing file, ../audit/Testy.jsonl");
+	Contains(run.Output, "problems: 1, warnings: 2");
+});
+
+Test("doc-lint --warn-drift still fails a problem in a doc's own form, with or without drift beside it", () =>
+{
+	var notes = "docs/gear-notes.md";
+	var own = "data/Testy/Testy_gear_notes.md";
+	var mechanics = "docs/ffxi-mechanics.md";
+	var bullet = "- Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): ";
+	void Append(Sandbox sandbox, string file, string text) => File.AppendAllText(Path.Combine(sandbox.Repo, file), text);
+	(Action<Sandbox> Make, string Message)[] forms =
+	[
+		(sandbox => sandbox.Edit(notes, "(rank-augments.md#nyame-helm).", "(rank-augments.md#nyame-helmet)."), "docs/gear-notes.md:27: broken anchor, rank-augments.md#nyame-helmet"),
+		(sandbox => Append(sandbox, "data/Testy/Testy_notes.md", "\nThe sets are in [the gear file](Testy_Blu_Gear.lua#idle).\n"),
+			"data/Testy/Testy_notes.md:22: anchor into a file this tool doesn't read, Testy_Blu_Gear.lua#idle"),
+		(sandbox => sandbox.Edit(mechanics, "A tilde inside code is fine", "See <b>bold</b>. A tilde inside code is fine"), "docs/ffxi-mechanics.md:13: raw tag <b>"),
+		(sandbox => sandbox.Edit(mechanics, "A tilde inside code is fine", "See ~a~ b. A tilde inside code is fine"), "docs/ffxi-mechanics.md:13: two tildes on one line"),
+		(sandbox => Append(sandbox, mechanics, "\n| a | b |\n| 1 | 2 |\n"), "docs/ffxi-mechanics.md:15: table without a delimiter row"),
+		(sandbox => Append(sandbox, mechanics, "\nText right above.\n| c | d |\n|---|---|\n"), "docs/ffxi-mechanics.md:16: table with no blank line above it"),
+		(sandbox => sandbox.Edit(mechanics, "| Fast Cast | 80% |", "| Fast Cast | `80|90`% |"), "docs/ffxi-mechanics.md:11: 3 cells, but the table that starts at line 9 has 2"),
+		(sandbox => Append(sandbox, mechanics, "\n```\n| a | b |\n"), "docs/ffxi-mechanics.md:15: a code fence that is never closed, so nothing after it is checked"),
+		(sandbox => sandbox.Edit(mechanics, "A small doc for the tools' tests.", "A small doc for the tools' tests. See `data/Testy/RDM.lua`."),
+			"docs/ffxi-mechanics.md:3: names Testy. What holds for one character goes in data/Testy/"),
+		(sandbox => sandbox.Edit(notes, "No notes beyond the help text: Atro. Chapeau +4.", "No notes beyond the help text: Atro. Chapeau +4, Nyame Helm."),
+			"docs/gear-notes.md:30: Nyame Helm is in a \"No notes\" list and has an entry"),
+		(sandbox => sandbox.Edit(own, "## Pieces the simulated sets use", "### Nyame Helm\n\n- Again.\n\n## Pieces the simulated sets use"), "data/Testy/Testy_gear_notes.md:11: a second entry for Nyame Helm"),
+		(sandbox => sandbox.Edit(notes, "*Naegling.*\n\n" + bullet, "*Naegling.*\n\n- Simulated sets (bg-wiki): "),
+			"docs/gear-notes.md:11: Naegling: the Simulated sets bullet doesn't open the way the others do"),
+	];
+	foreach (var form in forms)
+	{
+		var sandbox = NewSandbox();
+		form.Make(sandbox);
+		StillFails(sandbox, "doc-lint", [], form.Message);
+	}
+	var beside = NewSandbox();
+	beside.Edit(own, "## Pieces the simulated sets use", "### Hoxne Earring\n\n- Testy wants one.\n\n## Pieces the simulated sets use");
+	beside.Edit(mechanics, "A tilde inside code is fine", "See <b>bold</b>. A tilde inside code is fine");
+	FailsBesideDrift(beside, "doc-lint", [], "docs/ffxi-mechanics.md:13: raw tag <b>",
+		"data/Testy/Testy_gear_notes.md:11: Hoxne Earring has an entry, but it is neither in the export nor an entry of docs/gear-notes.md");
 });
 
 Test("wsdist-gear finds an item's entries, and checks Nyame's against the rank doc", () =>
@@ -3279,6 +3517,52 @@ void Stops(ToolRun run, string message)
 {
 	Equal(2, run.ExitCode);
 	Contains(run.Output, message);
+}
+
+// The number after a label in a tool's summary line, as the 3 in "problems: 3".
+int Counted(ToolRun run, string label) => int.Parse(string.Concat(run.Output.Split(label + ": ")[^1].TakeWhile(char.IsDigit)));
+
+// A tool run twice on drift alone. As it stands each message is a problem and the tool exits 1. With --warn-drift each is
+// a warning, no problem is left, and the tool exits 0.
+void WarnsOfDrift(Sandbox sandbox, string tool, string[] arguments, string[] messages)
+{
+	var strict = sandbox.Run(tool, arguments);
+	True(strict.ExitCode == 1, $"{tool} exits 1 on drift as it stands:\n{strict.Output}");
+	True(strict.Output.Contains("  warn  ") is false, $"{tool} warns as it stands:\n{strict.Output}");
+	var warned = sandbox.Run(tool, [.. arguments, "--warn-drift"]);
+	True(warned.ExitCode == 0, $"{tool} exits 0 on drift with --warn-drift:\n{warned.Output}");
+	foreach (var message in messages)
+	{
+		Contains(strict.Output, "  " + message);
+		Contains(warned.Output, "  warn  " + message);
+	}
+	Contains(warned.Output, $"problems: 0, warnings: {Counted(strict, "problems")}");
+}
+
+// A tool run with --warn-drift on a problem in the document itself still exits 1, and prints the message as a problem.
+void StillFails(Sandbox sandbox, string tool, string[] arguments, string message)
+{
+	var run = sandbox.Run(tool, [.. arguments, "--warn-drift"]);
+	True(run.ExitCode == 1, $"{tool} exits 1 on \"{message}\" with --warn-drift:\n{run.Output}");
+	Contains(run.Output, "  " + message);
+	True(run.Output.Contains("  warn  ") is false, $"{tool} warns of \"{message}\":\n{run.Output}");
+	Contains(run.Output, ", warnings: 0");
+}
+
+// A tool run with --warn-drift on a problem in the document itself with drift beside it: the problem fails the tool and
+// the drift only warns. The two counts together are the problems the tool finds as it stands.
+void FailsBesideDrift(Sandbox sandbox, string tool, string[] arguments, string problem, string warning)
+{
+	var strict = sandbox.Run(tool, arguments);
+	True(strict.ExitCode == 1, $"{tool} exits 1 as it stands:\n{strict.Output}");
+	Contains(strict.Output, "  " + problem);
+	Contains(strict.Output, "  " + warning);
+	var warned = sandbox.Run(tool, [.. arguments, "--warn-drift"]);
+	True(warned.ExitCode == 1, $"{tool} exits 1 on \"{problem}\" with --warn-drift:\n{warned.Output}");
+	Contains(warned.Output, "  " + problem);
+	Contains(warned.Output, "  warn  " + warning);
+	var (problems, warnings) = (Counted(warned, "problems"), Counted(warned, "warnings"));
+	True(problems > 0 && warnings > 0 && problems + warnings == Counted(strict, "problems"), $"{tool} counts {problems} problems and {warnings} warnings, of {Counted(strict, "problems")}:\n{warned.Output}");
 }
 
 void True(bool condition, string what)
