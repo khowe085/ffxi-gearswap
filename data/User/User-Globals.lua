@@ -33,8 +33,14 @@ state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Attack','Oden'}
 trust_lists = {
 	Default = {'Yoran-Oran (UC)','Koru-Moru','Qultada','Ulmia','Joachim'},
 	Limbus = {'Yoran-Oran (UC)','Qultada','Ulmia'},
+	Totems = {'Brygid','Saukura','StarSibyl','Moogle'},
+	Oddy1 = {'Valaineral','Kupipi','Koru-Moru','Brygid','Joachim'},
+	Oddy2 = {'Rughadjeen','Mihli Aliapoh','Ferreous Coffin', 'King of Hearts','Ulmia'	},
+	Oddy3 = {'August','Cherukiki','Arciela II', 'Qultada','Moogle'},
 }
-state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus'}
+state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus','Oddy1','Oddy2','Oddy3'}
+
+
 send_command('bind f6 gs c cycle AutoTrustMode') --Cycles through Off and the trust_lists entries, summoning that list's trusts automatically.
 send_command('bind f7 gs c set DefenseMode Physical') --Turns your physical defense set on.
 send_command('bind ^f7 gs c cycle PhysicalDefenseMode') --Changes your physical defense set.
