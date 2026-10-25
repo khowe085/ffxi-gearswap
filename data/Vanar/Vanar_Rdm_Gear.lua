@@ -13,6 +13,7 @@ function character_user_job_setup()
 	--Start with the weapons unlocked, so idle and casting sets can change main and sub out of combat. While engaged they stay put.
 	state.UnlockWeapons:set(true)
 
+	state.AutoBuffMode = M { ['description'] = 'Auto Buff Mode', 'Off', 'AutoMelee' }
 	ws_buff_list = S{'Savage Blade','Evisceration','Chant du Cygne','Vorpal Blade','Black Halo','Requiescat','Realmrazer'}
 
 	--Spells, job abilities and weaponskills that wear sets.TreasureHunter against an untagged monster, plus any ranged attack (User-Globals.lua).
@@ -552,11 +553,12 @@ buff_spell_lists = {
 	},
 	
 	AutoMelee = {
-		{Name='Phalanx II',		Buff='Phalanx',			SpellID=107,	When='Combat'},
-		{Name='Haste II',		Buff='Haste',			SpellID=511,	When='Combat'},
-		{Name='Temper II',		Buff='Multi Strikes',	SpellID=895,	When='Combat'},
-		--{Name='Refresh III',	Buff='Refresh',			SpellID=894,	When='Always'},
-		{Name='Gain-STR',		Buff='STR Boost',		SpellID=486,	When='Combat'},
+		{Name='Phalanx II',		Buff='Phalanx',			SpellID=107,	When='Always'},
+		{Name='Haste II',		Buff='Haste',			SpellID=511,	When='Always'},
+		{Name='Temper II',		Buff='Multi Strikes',	SpellID=895,	When='Always'},
+		{Name='Refresh III',	Buff='Refresh',			SpellID=894,	When='Always'},
+		{Name='Gain-STR',		Buff='STR Boost',		SpellID=486,	When='Always'},
+		{Name='Enthunder',		Buff='Enthunder',		SpellID=104,	When='Always	'},
 	},
 	
 	AutoMage = {
