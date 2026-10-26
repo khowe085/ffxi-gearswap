@@ -766,6 +766,10 @@ describe('the weapon skills the stand-in game lists', function()
         assert.same(of_skills(hand_to_hand), listed(boot({ammo = 'Bronze Bullet'})))
     end)
 
+    it('take nothing from the sub hand\'s weapon', function()
+        assert.same(of_skills(sword), listed(boot({main = "Judge's Sword", sub = 'Qutrub Knife'})))
+    end)
+
     it('follow the main hand when it changes', function()
         local game = Game.new({res = harness.resources(), main_job = 'WAR',
             items = {{name = "Judge's Sword"}, {name = 'Qutrub Knife'}}, wearing = {main = 1}})

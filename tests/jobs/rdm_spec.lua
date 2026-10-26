@@ -315,6 +315,31 @@ describe('RDM\'s weapon skill set', function()
     end)
 end)
 
+-- Sel counts a weapon's TP Bonus from the hand it works in: a Magian weapon's, Thibron's +1000, from either hand, and
+-- an Aeonic weapon's, Sequence's +500, from the main hand only. Each TP here reaches the cap with the weapon's bonus
+-- and stays short of it without, with or without Moonshade's +250, so the hand alone decides.
+describe('RDM\'s weapon skill set by the TP Bonus of the weapons in hand', function()
+    -- Jobby with the Dual Wield trait a Ninja sub job gives, holding those weapons, once Savage Blade has gone out at
+    -- that TP.
+    local function ws(tp, wearing)
+        local gs = boot({sub_job = 'NIN', items = {'Thibron', 'Sequence', unpack(gear)}, wearing = wearing})
+        jobby.can_dual_wield(gs)
+        return jobby.weaponskill(gs, '/ws "Savage Blade" <t>', tp)
+    end
+
+    it('swaps Moonshade Earring for sets.MaxTP at 2000 TP with Thibron\'s +1000 from the sub slot', function()
+        assert.equal('Cessance Earring', ws(2000, {main = 'Naegling', sub = 'Thibron'}).left_ear)
+    end)
+
+    it('swaps Moonshade Earring for sets.MaxTP at 2500 TP with Sequence\'s +500 from the main hand', function()
+        assert.equal('Cessance Earring', ws(2500, {main = 'Sequence'}).left_ear)
+    end)
+
+    it('keeps Moonshade Earring on at 2500 TP with Sequence in the sub slot, whose TP Bonus works from the main hand only', function()
+        assert.equal('Moonshade Earring', ws(2500, {main = 'Naegling', sub = 'Sequence'}).left_ear)
+    end)
+end)
+
 describe('RDM\'s midcast set for an elemental spell', function()
     local function ammo_after(line, weapons)
         local gs = boot()

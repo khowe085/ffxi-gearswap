@@ -19,12 +19,16 @@ sealed class Resources
 	// Indexed by the bit each slot has in an item's slots number, spelled as GearSwap sets spell them.
 	public static IReadOnlyList<string> SlotNames { get; }
 
+	// Indexed by Windower's skill id, the melee weapon types as help text spells them. Id 0 is no skill.
+	public static IReadOnlyList<string> MeleeSkillNames { get; }
+
 	Dictionary<string, List<ItemInfo>> byName;
 
 	static Resources()
 	{
 		JobNames = ["", "WAR", "MNK", "WHM", "BLM", "RDM", "THF", "PLD", "DRK", "BST", "BRD", "RNG", "SAM", "NIN", "DRG", "SMN", "BLU", "COR", "PUP", "DNC", "SCH", "GEO", "RUN"];
 		SlotNames = ["main", "sub", "range", "ammo", "head", "body", "hands", "legs", "feet", "neck", "waist", "left_ear", "right_ear", "left_ring", "right_ring", "back"];
+		MeleeSkillNames = ["", "Hand-to-Hand", "Dagger", "Sword", "Great Sword", "Axe", "Great Axe", "Scythe", "Polearm", "Katana", "Great Katana", "Club", "Staff"];
 	}
 
 	Resources(Dictionary<string, List<ItemInfo>> byName)
@@ -60,7 +64,7 @@ sealed class Resources
 				continue;
 			var id = int.Parse(match.Groups[1].Value);
 			var item = new ItemInfo(id, Unescape(match.Groups[2].Value), Unescape(match.Groups[3].Value), category,
-				Number(rest, "jobs"), Number(rest, "slots"), Number(rest, "level"), Number(rest, "item_level"),
+				Number(rest, "jobs"), Number(rest, "slots"), Number(rest, "level"), Number(rest, "item_level"), Number(rest, "skill"),
 				descriptions.GetValueOrDefault(id, ""));
 			string[] names = [item.Name, item.LogName];
 			foreach (var name in names.Distinct(StringComparer.OrdinalIgnoreCase))
@@ -148,12 +152,18 @@ sealed class ItemInfo
 	// 0 below item level 119 gear.
 	public int ItemLevel { get; }
 
+	// Windower's id for the combat skill a weapon uses. 0 for armor, and for a grip or ammo that uses none.
+	public int Skill { get; }
+
 	// The in-game help text, with its line breaks.
 	public string Description { get; }
 
 	public IReadOnlyList<string> Jobs => Enumerable.Range(1, 22).Where(bit => (JobMask & (1 << bit)) != 0).Select(bit => Resources.JobNames[bit]).ToList();
 
 	public IReadOnlyList<string> Slots => Enumerable.Range(0, 16).Where(bit => (SlotMask & (1 << bit)) != 0).Select(bit => Resources.SlotNames[bit]).ToList();
+
+	// Null for a piece that isn't a melee weapon.
+	public string? MeleeSkill => Skill > 0 && Skill < Resources.MeleeSkillNames.Count ? Resources.MeleeSkillNames[Skill] : null;
 
 	// One word for where the piece goes: both ears are "ear", both rings "ring", and a one-handed weapon "main".
 	public string Group
@@ -167,7 +177,8 @@ sealed class ItemInfo
 		}
 	}
 
-	public ItemInfo(int id, string name, string logName, string category, int jobMask, int slotMask, int level, int itemLevel, string description)
+	public ItemInfo(int id, string name, string logName, string category, int jobMask, int slotMask, int level, int itemLevel, int skill,
+		string description)
 	{
 		Id = id;
 		Name = name;
@@ -177,6 +188,7 @@ sealed class ItemInfo
 		SlotMask = slotMask;
 		Level = level;
 		ItemLevel = itemLevel;
+		Skill = skill;
 		Description = description;
 	}
 
