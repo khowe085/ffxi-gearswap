@@ -599,6 +599,22 @@ function filter_precast(spell, spellMap, eventArgs)
 	return sel_filter_precast(spell, spellMap, eventArgs)
 end
 
+--gs test set runs none of Sel's hooks, so it lays this over the set, as Sel's handle_actions lays it over each action's gear.
+--A weapon set, at any depth under sets.weapons, is tested with its own weapons and no locks.
+--seen stops a set that names its own parent from recursing forever.
+local function holds_set(parent, set, seen)
+	seen[parent] = true
+	for _, child in pairs(parent) do
+		if type(child) == 'table' and not seen[child] and (child == set or holds_set(child, set, seen)) then return true end
+	end
+	return false
+end
+
+function test_set_locks(set)
+	if holds_set(sets.weapons, set, {}) then return {} end
+	return internal_disable
+end
+
 --Magic burst detection, ported from the rahvin branch. A skillchain on a monster within 21 yalms, closed by anyone,
 --opens an eight-second window on that monster for the elements the chain made. A nuke (Sel's is_nuke: elemental
 --magic, BLU magical spells, elemental ninjutsu and the like) cast at it inside the window, of one of those elements,
