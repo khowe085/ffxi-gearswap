@@ -114,13 +114,13 @@ function init_gear_sets()
 
 	sets.precast.FC.DT = set_combine(sets.precast.FC, {})
 
-	-- FC 67 with Colada, 63 without, the Jhakri set's 3 included
-	sets.precast.FullFC = {main=gear.colada_refresh,
+	-- FC 83 with Crocea Mors, 63 without, the Jhakri set's 3 included
+	sets.precast.FullFC = {main="Crocea Mors",
 		head="Atro. Chapeau +4",ear1="Loquac. Earring",ear2="Leth. Earring +1",
 		body="Viti. Tabard +4",hands="Jhakri Cuffs +2",ring1="Jhakri Ring",ring2="Prolix Ring",
 		back="Fi Follet Cape +1",waist="Embla Sash",feet="Chelona Boots"}
 
-	-- FC 36 with Colada, 32 without, once Twilight Cloak takes the head and body
+	-- FC 52 with Crocea Mors, 32 without, once Twilight Cloak takes the head and body
 	sets.precast.FC.Impact = set_combine(sets.precast.FullFC, {head=empty})
 	sets.precast.FC.Dispelga = set_combine(sets.precast.FC, {})
 
@@ -145,18 +145,18 @@ function init_gear_sets()
 
 	sets.precast.WS['Evisceration'] = sets.precast.WS['Chant du Cygne']
 
-	-- WSD 67
+	-- WSD 58
 	sets.precast.WS['Savage Blade'] = {range=empty,ammo="Coiste Bodhar",
 		head="Viti. Chapeau +4",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Leth. Earring +1",
 		body="Nyame Mail",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
-		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Nyame Flanchard",feet="Leth. Houseaux +3"}
+		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 	sets.precast.WS['Savage Blade'].Acc = set_combine(sets.precast.WS.Acc, {})
 
-	-- WSD 48; Fotia Gorget fTP +25/256 on the first hit
+	-- WSD 39; Atrophy set (2 pieces): Acc +15; Fotia Belt fTP +25/256 on the first hit
 	sets.precast.WS['Black Halo'] = {range=empty,ammo="Coiste Bodhar",
-		head="Viti. Chapeau +4",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Leth. Earring +1",
+		head="Atro. Chapeau +4",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Leth. Earring +1",
 		body="Lethargy Sayon +3",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
-		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
+		back=gear.str_wsd_jse_back,waist="Fotia Belt",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 	sets.precast.WS['Black Halo'].Acc = set_combine(sets.precast.WS.Acc, {})
 
 	-- WSD 47, MAB 265, Magic Damage 94
@@ -215,8 +215,8 @@ function init_gear_sets()
 
 	sets.midcast.StatusRemoval = set_combine(sets.midcast.FastRecast, {})
 
-	-- Enhancing skill 545, duration x3.25, Haste 26 (cap 26), FC 30 (34 with Colada)
-	sets.midcast['Enhancing Magic'] = {main=gear.colada_refresh,sub="Ammurapi Shield",ammo="Hasty Pinion",
+	-- Enhancing skill 545, duration x3.25, Haste 26 (cap 26), FC 30 (50 with Crocea Mors)
+	sets.midcast['Enhancing Magic'] = {main="Crocea Mors",sub="Ammurapi Shield",ammo="Hasty Pinion",
 		head="Telchine Cap",neck="Dls. Torque +1",ear1="Alabaster Earring",ear2="Leth. Earring +1",
 		body="Viti. Tabard +4",hands="Atro. Gloves +4",ring1="Murky Ring",ring2="Prolix Ring",
 		back="Ghostfyre Cape",waist="Embla Sash",legs="Telchine Braconi",feet="Leth. Houseaux +3"}
@@ -466,11 +466,11 @@ function init_gear_sets()
 	sets.buff.Sublimation = {waist="Embla Sash"}	-- Sublimation +3
 	sets.buff.DTSublimation = {waist="Embla Sash"}
 
-	-- DA 32, Store TP 31, DT 47
+	-- DA 30, Store TP 31, DT 40
 	sets.engaged = {ammo="Coiste Bodhar",
 		head="Leth. Chappel +3",neck="Asperity Necklace",ear1="Brutal Earring",ear2="Leth. Earring +1",
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Rajas Ring",
-		back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Jhakri Slops +2",feet="Nyame Sollerets"}
+		back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Jhakri Slops +2",feet="Leth. Houseaux +3"}
 
 	-- Atrophy set (4 pieces): Acc +45
 	sets.engaged.Acc = {ammo="Coiste Bodhar",
@@ -478,10 +478,10 @@ function init_gear_sets()
 		body="Atrophy Tabard +4",hands="Atro. Gloves +4",ring1="Lehko's Ring",ring2="Murky Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Atro. Tights +4",feet="Leth. Houseaux +3"}
 
-	-- DT 57 (cap 50), DA 32, Store TP 26
+	-- DT 52 (cap 50), DA 25, Store TP 27
 	sets.engaged.DT = {ammo="Coiste Bodhar",
-		head="Leth. Chappel +3",neck="Asperity Necklace",ear1="Brutal Earring",ear2="Leth. Earring +1",
-		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Murky Ring",
+		head="Leth. Chappel +3",neck="Sanctity Necklace",ear1="Alabaster Earring",ear2="Leth. Earring +1",
+		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Rajas Ring",
 		back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Jhakri Slops +2",feet="Nyame Sollerets"}
 
 	-- DT 55 (cap 50)
@@ -490,13 +490,13 @@ function init_gear_sets()
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Murky Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 
-	-- DA 30, Store TP 31, DT 40
-	sets.engaged.DW = set_combine(sets.engaged, {feet="Leth. Houseaux +3"})
+	-- DA 30, Store TP 22, DT 40
+	sets.engaged.DW = set_combine(sets.engaged, {legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"})
 
 	sets.engaged.DW.Acc = set_combine(sets.engaged.Acc, {})
 
-	-- DT 55 (cap 50), DA 25, Store TP 25
-	sets.engaged.DW.DT = set_combine(sets.engaged.DT, {ear1="Alabaster Earring",feet="Leth. Houseaux +3"})
+	-- DT 55 (cap 50), DA 23, Store TP 22
+	sets.engaged.DW.DT = set_combine(sets.engaged.DT, {ear1="Alabaster Earring",ring2="Murky Ring",feet="Leth. Houseaux +3"})
 
 	sets.engaged.DW.Acc.DT = set_combine(sets.engaged.Acc.DT, {})
 end

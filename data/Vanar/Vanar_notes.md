@@ -8,6 +8,7 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
 
 - **(player, 2026-10-05)** Melee sets by offense mode, in the player's words: "Overall damage (including WSD) can come first in TP as long as I hit a minimum of 1350 ACC, ACC comes first in ACC mode. DT in DT set." The 1350 floor has since been replaced (next lines).
   - **(player, 2026-10-10)** RDM's floor is 1250, from gear, food and weapon skill accuracy, with Composure not counted. Composure's +70 comes on top, 1320 in all. This replaces the 2026-10-09 rule, which counted Composure toward 1350. Composure is always up when RDM melees (player, 2026-10-09), and its +70 is 50 at level 99 and 20 more from its job point category ([bg-wiki](https://www.bg-wiki.com/ffxi/Composure)).
+  - **(player, 2026-10-29)** RDM's floor is raised by 25, to 1275, counted the same way: gear, food and weapon skill accuracy, with Composure not counted (1345 with its +70). This replaces the 1250 floor above and in the rules below that name it.
   - **(player, 2026-10-10)** Every other job's floor is 1275: BLU's here.
   - **(player, 2026-10-10)** Weapon skill accuracy counts toward the floor: Karieyh Ring's +5, Fotia Gorget's and Fotia Belt's +10, and the like.
   - **(player, 2026-10-05)** The floor counts gear and food, not buffs.
@@ -105,6 +106,7 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 ## Jobs, Master Levels and nation
 
 - **(player, 2026-10-02)** Vanar's RDM and BLU are both Master Level 25. Each has 2,100 job points, so both are mastered: every job point category at 20 and every gift.
+  - The player's `/checkparam` records of 2026-10-29 give RDM's Master Level as 26 ([Skill and accuracy: Accuracy](#skill-and-accuracy-accuracy)). The skill caps and estimates below are at 25; at 26 each RDM skill cap and base stat is 1 higher. BLU's Master Level isn't in those records.
 - At Master Level 25 the support job is level 54 (49 + floor(25 ÷ 5)).
 - **(player, 2026-10-02)** Vanar is a citizen of Windurst. What that turns on and off is under [Enhancing magic: Refresh](#enhancing-magic-refresh) below.
 - **(player, 2026-10-07)** Vanar is an Elvaan, on both jobs.
@@ -288,6 +290,15 @@ Main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_
   - `sets.engaged` (and `sets.engaged.AM` on it), `sets.engaged.DT` and `sets.engaged.Acc.DT` stay: no other set gives more with every weapon set. `sets.engaged`: Tizona + Thibron 1513 / 1280 (40%), Almace + Thibron 1521 / 1288 (44%), Naegling + Thibron 1518 / 1302 (51%), Maxentius + Thibron 1437 / 1290 (45%), Maxentius + Bunzi's Rod 1477 / 1469; 10.4 to 11.3% more TP per round than with the NQ Wristbands with a Thibron off hand, 1.7% more with the others. `sets.engaged.DT`, with the same four Thibron pairs: 1549 / 1316 (58%), 1556 / 1323 (61%), 1553 / 1337 (68%), 1473 / 1326 (63%).
   - `sets.engaged.DT.AM` takes Honed Tathlum, Alabaster Earring, Adhemar Wrist. +1 and Nyame Sollerets over `sets.engaged.DT` (DT 52): 0.9% more TP per round with Tizona + Thibron and 3.4% more with Tizona + Almace under Aftermath Lv.3.
   - `sets.engaged.Acc` takes Murky Ring for Jhakri Ring: Accuracy 1 more on every hand, DT 28 to 38.
+- **RDM's `/checkparam` records of 2026-10-29** (`data/audit/Vanar.jsonl`, which now holds only these: unfed, with Protect and Shell, as RDM/NIN at Master Level 26) fit the formula above on every record, taking DEX from the gear where a record's stats weren't refreshed: base DEX 125, each combat skill 1 above the skill table (sword and dagger 440, club 376 before the weapon's own skill) and 22 from the job point gifts. With no weapon in hand, `/checkparam` reads 124 where a hand's skill accuracy would be. Past the help text and the Ranks table, the records read:
+  - Alabaster Earring at Accuracy 11 and Murky Ring at 8, 4 and 1 above their rank 7 values, on every record that wears them. That fits ranks 11 and 8; the Ranks table still gives the player's 7.
+  - Forfend +1's Unity accuracy at +18 that week. The floor counts +10.
+  - Rajas Ring's DEX at +5, its level 99 value ([gear-notes.md](../../docs/gear-notes.md#rajas-ring)), where `set-stats.cs` counts the low end of `DEX+2～5`.
+  - `sets.resting` with Naji's Loop in the left ring in place of its Murky Ring. The record before it, `sets.HPCure`, wears Murky Ring in the right ring, and the swap left it there; the reading fits the gear worn.
+- The engaged and physical weapon skill sets rebuilt on 2026-10-29 for the 1275 floor, as floor accuracy with Oden and Forfend +1's Unity at +10, by the formula and readings above (the rank 7 values in brackets where they differ), on the lowest main hand among the weapon pairs that wear each set:
+  - `sets.engaged` 1282 and `sets.engaged.DT` 1280 (1276) with Maxentius + Forfend +1; `sets.engaged.DW` 1275 and `sets.engaged.DW.DT` 1283 (1278) with Maxentius + Thibron.
+  - Savage Blade 1277 with Naegling + Thibron and 1293 with Crocea Mors + Thibron, and Black Halo 1278 with Maxentius + Thibron. Unchanged, and over the floor: Requiescat 1319 and `sets.precast.WS` 1296 with Naegling + Thibron, Chant du Cygne 1299 with Almace + Thibron, and Evisceration 1296 with Tauret + Thibron.
+  - In the same set, a Crocea Mors main hand reads 15 or 16 above a Naegling one (Sword skill +269 against +250, and Accuracy 50 against Naegling's 40 and DEX 15), and a Maxentius one 69 or 70 below.
 - Vanar's THF, by the same formula: its job point gifts add 13 (5 + 8, taking the 471 as spent) and it has no accuracy trait ([Combat skill](#skill-and-accuracy-combat-skill) has its hands' skill). Neither a `/checkparam` record nor its base DEX is recorded, so for the sets of 2026-10-18 these are the base DEX the 1275 floor (gear, food and weapon skill accuracy) needs, with Gleti's Knife in the off hand, with Oden (Grape Daifuku):
   - A Naegling main hand doesn't reach it: `sets.engaged` needs base DEX 160 (151), and Savage Blade's set would need 157 (148) even with Adhemar Wrist. +1 and Murky Ring, where Vanar's BLU/WAR has 120 with no gear at Master Level 25 (above).
   - With Tauret, `sets.engaged` needs 52 (43) and Evisceration's set 65 (56). `sets.precast.WS`, which Rudra's Storm wears, needs 98 (90), so whether it clears the floor waits on a `/checkparam`.
