@@ -9,7 +9,7 @@ function character_user_job_setup()
 	state.ResistDefenseMode:options('MEVA')
 	state.BuffWeaponsMode = M{'Always','Never'}
 	state.AutoBuffMode = M{['description'] = 'Auto Buff Mode','Off','Auto','AutoMelee','AutoMage'}
-	state.Weapons:options('Naegling','Almace','Maxentius','Tauret','Enspell','Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell')
+	state.Weapons:options('Naegling','Almace','Maxentius','Tauret','Enspell','Crocea','Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell','CroceaBron','Crocea Acc')
 	--Start with the weapons unlocked, so idle and casting sets can change main and sub out of combat. While engaged they stay put.
 	state.UnlockWeapons:set(true)
 
@@ -21,8 +21,8 @@ function character_user_job_setup()
 	state.WeaponSets:options('Default','Dual')
 
 	weapon_sets = {
-		['Default'] = {'Naegling','Almace','Maxentius','Tauret','Enspell'},
-		['Dual'] = {'Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell'},
+		['Default'] = {'Naegling','Almace','Maxentius','Tauret','Enspell','Crocea'},
+		['Dual'] = {'Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell','CroceaBron','Crocea Acc'},
 	}
 
 	default_weapons = 'Naegling'
@@ -41,6 +41,9 @@ function character_user_job_setup()
 		['Tauret'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
 		['Taurbron'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
 		['Tauret Acc'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
+		['Crocea'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+		['CroceaBron'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+		['Crocea Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
 	}
 	
 	gear.mnd_enfeebling_jse_back = {name="Sucellos's Cape",augments={'MND+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','Haste+10',}}
@@ -79,6 +82,9 @@ function init_gear_sets()
 	sets.weapons['Maxentius Acc'] = {main="Maxentius",sub="Bunzi's Rod",range=empty}
 	sets.weapons.Taurbron = {main="Tauret",sub="Thibron",range=empty}
 	sets.weapons['Tauret Acc'] = {main="Tauret",sub="Gleti's Knife",range=empty}
+	sets.weapons.Crocea = {main="Crocea Mors",sub="Forfend +1",range=empty}
+	sets.weapons.CroceaBron = {main="Crocea Mors",sub="Thibron",range=empty}
+	sets.weapons['Crocea Acc'] = {main="Crocea Mors",sub="Almace",range=empty}
 	--A mode whose name contains 'Enspell' gets RDM.lua's enspell gear while an enspell is up: Orpheus's Sash or the element's obi, and Zodiac Ring.
 	sets.weapons.Enspell = {main="Tauret",sub="Forfend +1",range=empty}
 	sets.weapons['Dual Enspell'] = {main="Tauret",sub="Gleti's Knife",range=empty}

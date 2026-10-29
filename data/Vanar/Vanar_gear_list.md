@@ -1,6 +1,6 @@
 # Vanar: BLU, RDM and THF gear list
 
-Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export` of 2026-10-18: **136 pieces** (95 for BLU, 98 for RDM, 61 worn by both; 42 for THF, 4 of them THF only). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export` of 2026-10-29: **137 pieces** (95 for BLU, 99 for RDM, 61 worn by both; 42 for THF, 4 of them THF only). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 ## Reference
 
@@ -8,22 +8,23 @@ Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export
 - [Vanar_gear_notes.md](Vanar_gear_notes.md): notes on Vanar's own copies, and the pieces bg-wiki's simulated sets wear that Vanar doesn't own.
 - [Vanar_rank_augments.md](Vanar_rank_augments.md): Vanar's path and rank for each path item, with the augments at that rank.
 
-## Weapons (14)
+## Weapons (15)
 
 | Item | Copy | BLU sets | RDM sets | THF sets |
 |---|---|---|---|---|
-| Almace |  | `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `weapons['Tizona Acc']`, `weapons.Albron`, `weapons['Almace Acc']`, `weapons['Naegling Acc']`, `engaged`, `engaged.Acc`, `engaged.DT` | `weapons.Almace`, `weapons.Albron`, `weapons['Almace Acc']`, `weapons['Naegling Acc']` |  |
+| Almace |  | `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `weapons['Tizona Acc']`, `weapons.Albron`, `weapons['Almace Acc']`, `weapons['Naegling Acc']`, `engaged`, `engaged.Acc`, `engaged.DT` | `weapons.Almace`, `weapons.Albron`, `weapons['Almace Acc']`, `weapons['Naegling Acc']`, `weapons['Crocea Acc']` |  |
 | Ammurapi Shield |  |  | `midcast.Cure`, `midcast['Enhancing Magic']`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic']`, `MagicBurst`, `midcast['Elemental Magic'].DW`, `midcast.Impact`, `midcast['Dark Magic']`, `HPCure` |  |
 | Archduke's Shield |  |  | `weapons.Idle`, `resting`, `idle` |  |
 | Bunzi's Rod |  | `HPCure`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast.Cure`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].UnlockedAoEHealing`, `midcast['Blue Magic'].Healing`, `weapons['Maxentius Acc']` | `weapons['Maxentius Acc']`, `midcast.Cure`, `midcast.Cure.DT`, `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast['Enfeebling Magic'].DW`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast.Sleep.DW`, `midcast.Dispel.DW`, `midcast.Dispelga.DW`, `midcast.Frazzle.DW`, `midcast.Addle.DW`, `midcast.Gravity.DW`, `midcast.Silence.DW`, `midcast['Elemental Magic']`, `MagicBurst`, `midcast['Elemental Magic'].DW`, `midcast.Impact`, `midcast['Dark Magic']`, `midcast.Stun.DW`, `HPCure` |  |
 | Colada | "Refresh"+2, Mag. Acc.+11, "Mag.Atk.Bns."+12, DMG:+1 | `precast.FC`, `resting`, `idle` | `weapons.Idle`, `precast.FullFC`, `midcast['Enhancing Magic']`, `resting`, `Ballista`, `idle` |  |
-| Forfend +1 |  |  | `weapons.Almace`, `weapons.Naegling`, `weapons.Maxentius`, `weapons.Tauret`, `weapons.Enspell`, `weapons.Idle.PDT`, `midcast.Cure.DT`, `EnhancingSkill`, `midcast['Elemental Magic'].Proc`, `Ballista`, `idle.PDT` |  |
+| Crocea Mors |  |  | `weapons.Crocea`, `weapons.CroceaBron`, `weapons['Crocea Acc']` |  |
+| Forfend +1 |  |  | `weapons.Almace`, `weapons.Naegling`, `weapons.Maxentius`, `weapons.Tauret`, `weapons.Crocea`, `weapons.Enspell`, `weapons.Idle.PDT`, `midcast.Cure.DT`, `EnhancingSkill`, `midcast['Elemental Magic'].Proc`, `Ballista`, `idle.PDT` |  |
 | Gleti's Knife |  |  | `weapons['Tauret Acc']`, `weapons['Dual Enspell']`, `midcast['Elemental Magic'].Proc` | `weapons.Naegling`, `weapons.Tauret` |
 | Maxentius |  | `midcast['Blue Magic'].Magical`, `midcast['Elemental Magic']`, `midcast.Cure`, `weapons.Maxbron`, `weapons['Maxentius Acc']` | `weapons.Maxentius`, `weapons.Maxbron`, `weapons['Maxentius Acc']`, `midcast['Enfeebling Magic'].DW`, `midcast.Sleep.DW`, `midcast.Dispel.DW`, `midcast.Dispelga.DW`, `midcast.Frazzle.DW`, `midcast.Addle.DW`, `midcast.Gravity.DW`, `midcast.Silence.DW`, `midcast.Stun.DW` |  |
 | Naegling |  | `weapons['Almace Acc']`, `weapons.Naegbron`, `weapons['Naegling Acc']` | `weapons.Naegling`, `weapons['Almace Acc']`, `weapons.Naegbron`, `weapons['Naegling Acc']` | `weapons.Naegling` |
 | Pukulatmuj +1 |  | `midcast.Phalanx` | `EnhancingSkill` |  |
 | Tauret |  |  | `weapons.Tauret`, `weapons.Taurbron`, `weapons['Tauret Acc']`, `weapons.Enspell`, `weapons['Dual Enspell']` | `weapons.Tauret` |
-| Thibron |  | `weapons.Tizbron`, `weapons.Albron`, `weapons.Naegbron`, `weapons.Maxbron` | `weapons.Albron`, `weapons.Naegbron`, `weapons.Maxbron`, `weapons.Taurbron` |  |
+| Thibron |  | `weapons.Tizbron`, `weapons.Albron`, `weapons.Naegbron`, `weapons.Maxbron` | `weapons.Albron`, `weapons.Naegbron`, `weapons.Maxbron`, `weapons.Taurbron`, `weapons.CroceaBron` |  |
 | Tizona |  | `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Blue Magic'].Stun`, `weapons.Tizbron`, `weapons['Tizona Acc']`, `engaged`, `engaged.Acc`, `engaged.DT` |  |  |
 | Ullr |  |  | `midcast['Enfeebling Magic']`, `midcast['Enfeebling Magic'].Resistant`, `midcast.Sleep`, `midcast.Sleep.Resistant`, `midcast['Elemental Magic'].Resistant`, `midcast.Impact`, `midcast['Dark Magic']`, `midcast['Absorb-TP']`, `midcast['Absorb-TP'].Resistant` |  |
 

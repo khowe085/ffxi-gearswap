@@ -44,14 +44,25 @@ var oboro = new OboroAugments(
 	new OboroItem("Pukulatmuj +1", "main", 15, false, "DMG +38, Accuracy and Magic Accuracy +30, Sword enhancement spell damage +150% (its own enspell damage only) ([bg-wiki](https://www.bg-wiki.com/ffxi/Pukulatmuj_%2B1))"),
 ]);
 
-var tables = RankTables.Load();
+// bg-wiki has no rank table for these. Each is stepped from the player's word on its first and last ranks.
+RankedItem[] simulated =
+[
+	LinearRankTable.Build("Crocea Mors", "C", 25,
+		["Sword enh. spell damage +20%", "Ele. weapon skill damage +1%", "DMG:+1"],
+		["Sword enh. spell damage +500%", "Ele. weapon skill damage +100%", "DMG:+7"],
+		"the player gave ranks 1 and 25 on 2026-10-29, and each augment steps evenly between them, rounded down"),
+];
+
 var resources = Resources.Load();
 // Every document is rendered before any is written, so a Ranks row that can't be used leaves the files alone.
 var documents = new List<KeyValuePair<string, List<string>>>();
 try
 {
-	documents.Add(KeyValuePair.Create(Tool.InRepo("docs", "rank-augments.md"), RankDoc.RenderTables(tables, resources, oboro)));
 	var owners = Export.Owners();
+	// Like bg-wiki's tables, which rank-tables.cs reads only for exported items, a simulated table is kept only for one.
+	var exported = owners.Select(Export.Latest).SelectMany(Export.Read).Select(line => line.Name).ToHashSet();
+	var tables = RankTables.Load().With(simulated.Where(item => exported.Contains(item.Name)).ToList());
+	documents.Add(KeyValuePair.Create(Tool.InRepo("docs", "rank-augments.md"), RankDoc.RenderTables(tables, resources, oboro)));
 	foreach (var character in Characters.All().Where(name => owners.Contains(name, StringComparer.OrdinalIgnoreCase)))
 	{
 		var export = Export.Latest(character);

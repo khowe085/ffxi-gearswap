@@ -1200,8 +1200,6 @@ Gear in bg-wiki's simulated sets ([Red Mage](https://www.bg-wiki.com/ffxi/All_Jo
 | Chirich Ring +1 | Naegling + Thibron TP |
 | Crepuscular Knife | Knights of Round, Mercy Stroke |
 | Crepuscular Pebble | Black Halo, Death Blossom, Imperator, Knights of Round, Mercy Stroke, Requiescat, Ruthless Stroke, Savage Blade |
-| Crocea Mors | EnSpell |
-| Crocea Mors [Path C] | Red Lotus Blade, Sanguine Blade, Seraph Blade |
 | Daybreak | Requiescat, Seraph Blade |
 | Dls. Torque +2 | Black Halo, Death Blossom, Imperator, Savage Blade |
 | Ea Hat +1 | Casting |

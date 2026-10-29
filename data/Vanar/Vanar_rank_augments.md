@@ -1,6 +1,6 @@
 # Vanar: rank augments
 
-Vanar's path and rank for each rank-augmented item in the export `data/export/Vanar 2026-10-18 04-33-13.lua`, with the augments that rank gives. `.claude/tools/rank-doc.cs` writes this file from the Ranks table in [Vanar_notes.md](Vanar_notes.md#ranks) and from bg-wiki's rank tables in [rank-augments.md](../../docs/rank-augments.md), which has every other rank. Don't edit it by hand: change the Ranks table and run the tool.
+Vanar's path and rank for each rank-augmented item in the export `data/export/Vanar 2026-10-29 00-54-16.lua`, with the augments that rank gives. `.claude/tools/rank-doc.cs` writes this file from the Ranks table in [Vanar_notes.md](Vanar_notes.md#ranks) and from bg-wiki's rank tables in [rank-augments.md](../../docs/rank-augments.md), which has every other rank. Don't edit it by hand: change the Ranks table and run the tool.
 
 - `//gs export` prints the path (`'Path: B'`) but never the rank, so a rank is the player's word, with the day it was given.
 - A copy that exports with no augments at all hasn't been ranked: it is rank 0, with only the base stats in its help text.
@@ -25,6 +25,7 @@ Vanar's path and rank for each rank-augmented item in the export `data/export/Va
 | [Gleti's Gauntlets](../../docs/rank-augments.md#gletis-gauntlets) | hands | none | 0 |  | none (base stats only) |
 | [Gleti's Breeches](../../docs/rank-augments.md#gletis-breeches) | legs | none | 0 |  | none (base stats only) |
 | [Gleti's Boots](../../docs/rank-augments.md#gletis-boots) | feet | none | 0 |  | none (base stats only) |
+| [Crocea Mors](../../docs/rank-augments.md#crocea-mors) | main | C | 1 | 2026-10-29 | Sword enh. spell damage +20%, Ele. weapon skill damage +1%, DMG:+1 |
 | [Demers. Degen +1](../../docs/rank-augments.md#demers-degen-1) | main | none | 0 |  | none (base stats only) |
 | [Kustawi +1](../../docs/rank-augments.md#kustawi-1) | main | none | 0 |  | none (base stats only) |
 | [Marin Staff +1](../../docs/rank-augments.md#marin-staff-1) | main | none | 0 |  | none (base stats only) |
