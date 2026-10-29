@@ -79,14 +79,14 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 | Crocea Mors | C | 1 | 2026-10-29 |
 | Forfend +1 | A | 15 | 2026-10-04 |
 | Coiste Bodhar | A | 20 | 2026-10-04 |
-| Alabaster Earring | A | 7 | 2026-10-18 |
+| Alabaster Earring | A | 11 | 2026-10-29 |
 | Fi Follet Cape +1 | A | 11 | 2026-10-02 |
 | Obstin. Sash | A | 17 | 2026-10-06 |
 | Sailfi Belt +1 | A | 14 | 2026-10-04 |
 | Dls. Torque +1 | A | 20 | 2026-10-05 |
 | Mirage Stole +2 | A | 20 | 2026-10-05 |
 | Tizona | A | 15 | 2026-10-05 |
-| Murky Ring | A | 7 | 2026-10-18 |
+| Murky Ring | A | 8 | 2026-10-29 |
 | Almace | A | 2 | 2026-10-11 |
 
 - **(player, 2026-10-04)** The Nyame Helm and Flanchard went from rank 2 to rank 11 on 2026-10-04.
@@ -106,7 +106,8 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 ## Jobs, Master Levels and nation
 
 - **(player, 2026-10-02)** Vanar's RDM and BLU are both Master Level 25. Each has 2,100 job points, so both are mastered: every job point category at 20 and every gift.
-  - The player's `/checkparam` records of 2026-10-29 give RDM's Master Level as 26 ([Skill and accuracy: Accuracy](#skill-and-accuracy-accuracy)). The skill caps and estimates below are at 25; at 26 each RDM skill cap and base stat is 1 higher. BLU's Master Level isn't in those records.
+  - The player's `/checkparam` records of 2026-10-29 give RDM's Master Level as 26 ([Skill and accuracy: Accuracy](#skill-and-accuracy-accuracy)). The skill caps and estimates below are at 25; at 26 each RDM skill cap and base stat is 1 higher. BLU's isn't in them.
+  - **(player, 2026-10-29)** RDM is Master Level 26 and BLU is Master Level 28. This replaces the 25 above; the caps and estimates below that assume 25 are low by 1 for RDM and 3 for BLU.
 - At Master Level 25 the support job is level 54 (49 + floor(25 ÷ 5)).
 - **(player, 2026-10-02)** Vanar is a citizen of Windurst. What that turns on and off is under [Enhancing magic: Refresh](#enhancing-magic-refresh) below.
 - **(player, 2026-10-07)** Vanar is an Elvaan, on both jobs.
