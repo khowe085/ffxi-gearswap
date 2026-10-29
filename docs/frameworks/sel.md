@@ -60,6 +60,8 @@ After the chosen set Sel equips more sets over it, each only when the gear file 
 
 `state.Weapons` names a weapon set under `sets.weapons`, such as `sets.weapons.Tizona`. Unless `state.UnlockWeapons` is on, Sel locks the slots that set fills (`main` and `sub`, and `range` or `ammo` when it names them): no other set's piece goes in a locked slot, whatever the set says. With the weapons state at `None` nothing is locked and each set's weapons go on, which resets TP when they change. With the lock off, Sel lays the weapon set over the idle and engaged sets.
 
+`gs test set` runs none of Sel's hooks, so `data/User/User-Globals.lua` gives it Sel's locked gear through `test_set_locks`, which returns `internal_disable`: the locked weapon set and any other lock in force, such as `sets.buff.Doom`. The set is tested with the weapons the current weapon set and lock would leave in hand. A set under `sets.weapons` is the exception: it is tested with its own weapons and no locks.
+
 ## Hooks a gear file may define
 
 Sel calls these when the gear file defines them. Each one can equip more gear after the chosen set, so a slot can end up with a piece no set table shows. Read every one the gear file has before judging what a set ends up wearing.

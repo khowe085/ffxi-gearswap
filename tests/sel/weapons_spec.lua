@@ -89,3 +89,60 @@ describe('Sel\'s weapon set with UnlockWeapons on', function()
         assert.same({'Naegling', 'Kaykaus Mitra +1'}, {worn.main, worn.head})
     end)
 end)
+
+describe('gs test set under Sel', function()
+    local gs
+    before_each(function()
+        gs = boot()
+    end)
+
+    it('keeps the locked weapon set in hand over a set that names other weapons', function()
+        gs:console('gs c set Weapons Naegling')
+        gs:console('gs test set sets.midcast.Cure')
+        assert.same({main = 'Naegling', sub = 'Ammurapi Shield', head = 'Kaykaus Mitra +1'}, gs:worn())
+    end)
+
+    it('puts a weapon set\'s own weapons on over the locked weapon set', function()
+        gs:console('gs c set Weapons Naegling')
+        gs:console('gs test set sets.weapons.Crocea')
+        assert.same({main = 'Crocea Mors', sub = 'Ammurapi Shield'}, gs:worn())
+    end)
+
+    it('puts a weapon set nested under another on with its own weapons too', function()
+        gs.user.sets.weapons.Crocea.Daybreak = {main = 'Daybreak', sub = 'Ammurapi Shield'}
+        gs:console('gs c set Weapons Naegling')
+        gs:console('gs test set sets.weapons.Crocea.Daybreak')
+        assert.same({main = 'Daybreak', sub = 'Ammurapi Shield'}, gs:worn())
+    end)
+
+    it('still locks the weapons when a weapon set names its own parent', function()
+        gs.user.sets.weapons.Crocea.DT = gs.user.sets.weapons.Crocea
+        gs:console('gs c set Weapons Naegling')
+        gs:console('gs test set sets.midcast.Cure')
+        assert.same({main = 'Naegling', sub = 'Ammurapi Shield', head = 'Kaykaus Mitra +1'}, gs:worn())
+    end)
+
+    it('lays Sel\'s other locks over the set too, such as a forced piece', function()
+        gs:console('gs c forceequip head Nyame Helm')
+        gs:console('gs test set sets.midcast.Cure')
+        assert.same({main = "Bunzi's Rod", head = 'Nyame Helm'}, gs:worn())
+    end)
+
+    it('lays none of Sel\'s locks over a weapon set', function()
+        gs:console('gs c forceequip head Nyame Helm')
+        gs:console('gs test set sets.weapons.Crocea')
+        assert.same({main = 'Crocea Mors', sub = 'Ammurapi Shield'}, gs:worn())
+    end)
+
+    it('puts the set\'s weapons on with Weapons None', function()
+        gs:console('gs test set sets.midcast.Cure')
+        assert.same({main = "Bunzi's Rod", head = 'Kaykaus Mitra +1'}, gs:worn())
+    end)
+
+    it('puts the set\'s weapons on with UnlockWeapons on', function()
+        gs:console('gs c set Weapons Naegling')
+        gs:console('gs c toggle UnlockWeapons')
+        gs:console('gs test set sets.midcast.Cure')
+        assert.same({main = "Bunzi's Rod", head = 'Kaykaus Mitra +1'}, gs:worn())
+    end)
+end)
