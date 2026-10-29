@@ -1,0 +1,65 @@
+gs enable
+wait 2
+gs c set UnlockWeapons false
+wait 2
+gs c set Weapons Maxentius
+wait 4
+gs audit set sets.engaged
+wait 13
+gs audit set sets.engaged.DT
+wait 13
+gs audit set sets.precast.WS['Black Halo']
+wait 13
+gs enable
+wait 2
+gs c set Weapons Maxbron
+wait 4
+gs audit set sets.engaged.DW
+wait 13
+gs audit set sets.engaged.DW.DT
+wait 13
+gs audit set sets.precast.WS['Black Halo']
+wait 13
+gs enable
+wait 2
+gs c set Weapons Maxentius Acc
+wait 4
+gs audit set sets.precast.WS['Black Halo']
+wait 13
+gs enable
+wait 2
+gs c set Weapons Naegling
+wait 4
+gs audit set sets.precast.WS['Savage Blade']
+wait 13
+gs enable
+wait 2
+gs c set Weapons Naegling Acc
+wait 4
+gs audit set sets.precast.WS['Savage Blade']
+wait 13
+gs enable
+wait 2
+gs c set Weapons Crocea
+wait 4
+gs audit set sets.engaged
+wait 13
+gs audit set sets.precast.WS['Savage Blade']
+wait 13
+gs enable
+wait 2
+gs c set Weapons CroceaBron
+wait 4
+gs audit set sets.engaged.DW
+wait 13
+gs audit set sets.precast.WS['Savage Blade']
+wait 13
+gs enable
+wait 2
+gs c set Weapons Crocea Acc
+wait 4
+gs audit set sets.precast.WS['Savage Blade']
+wait 13
+gs enable
+wait 2
+gs c set UnlockWeapons true
