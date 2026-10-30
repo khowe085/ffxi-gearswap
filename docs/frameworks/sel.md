@@ -62,6 +62,42 @@ After the chosen set Sel equips more sets over it, each only when the gear file 
 
 `gs test set` runs none of Sel's hooks, so `data/User/User-Globals.lua` gives it Sel's locked gear through `test_set_locks`, which returns `internal_disable`: the locked weapon set and any other lock in force, such as `sets.buff.Doom`. The set is tested with the weapons the current weapon set and lock would leave in hand. A set under `sets.weapons` is the exception: it is tested with its own weapons and no locks.
 
+### Auditing a set with weapons in hand
+
+Engaged and weapon skill sets name no weapons, so `gs audit set` reads them with whatever the lock leaves in hand. To read one with a given weapon pair in a Windower script:
+
+- **Turn the lock on.** With `state.UnlockWeapons` on, nothing is locked, `gs test set` strips `main` and `sub` with the other slots, and the record is taken bare-handed. Send `gs c set UnlockWeapons false` first, and `gs c set UnlockWeapons true` at the end if the job starts unlocked.
+- **Enable the file before each weapon change.** Each `gs test` or `gs audit` switches the user file off for 30 seconds, and a `gs c` command sent in that time does nothing. A bare `gs enable` ends the hold. So each change is `gs enable`, then `gs c set Weapons <weapon set>`, then a few seconds' wait.
+- **Pick the weapon set's group first.** `state.Weapons` takes only the weapon sets of the current `state.WeaponSets` group (the gear file's `weapon_sets` table), and Sel puts a support job that can dual wield in `Dual`. Setting a weapon set from another group is refused and the old weapons stay on. Send `gs c set WeaponSets Default` before a single-wield weapon set and `gs c set WeaponSets Dual` before a dual-wield one.
+- **Wait out each audit.** `gs audit` can wait up to 10 seconds for the stats update and 1.5 more for `/checkparam`, and another audit sent before then drops the record. Allow 13 seconds.
+- **Check each record's `gear.main` and `gear.sub`.** They show which weapons it was taken with.
+
+`/checkparam` gives accuracy with the buffs and food in force when it ran, and without weapon skill accuracy (Fotia Gorget, Fotia Belt and the like), which applies only while a weapon skill lands. Add that back for a weapon skill set, and take out any buff the record had on before comparing it with a floor that doesn't count buffs.
+
+```
+gs c set UnlockWeapons false
+wait 2
+gs enable
+wait 2
+gs c set WeaponSets Default
+wait 2
+gs c set Weapons <single-wield weapon set>
+wait 4
+gs audit set sets.engaged
+wait 13
+gs enable
+wait 2
+gs c set WeaponSets Dual
+wait 2
+gs c set Weapons <dual-wield weapon set>
+wait 4
+gs audit set sets.engaged.DW
+wait 13
+gs enable
+wait 2
+gs c set UnlockWeapons true
+```
+
 ## Hooks a gear file may define
 
 Sel calls these when the gear file defines them. Each one can equip more gear after the chosen set, so a slot can end up with a piece no set table shows. Read every one the gear file has before judging what a set ends up wearing.
