@@ -470,6 +470,11 @@ function update_job_states()
 		stateBox:append(string.format("%sAuto WS: %s%s    ", color, state.AutoWS.value, display.colors.OffWhite))
 	end
 
+	-- state.AutoXP is User-Globals' Auto XP mode, shown while it's on.
+	if state.AutoXP and state.AutoXP.value then
+		stateBox:append(string.format("%sAuto XP%s    ", display.colors.Yellow, display.colors.OffWhite))
+	end
+
 	for i,n in ipairs(stateBool) do
 		append_bool(n)
 	end
