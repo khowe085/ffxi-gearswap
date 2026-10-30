@@ -25,7 +25,7 @@ Vanar's path and rank for each rank-augmented item in the export `data/export/Va
 | [Gleti's Gauntlets](../../docs/rank-augments.md#gletis-gauntlets) | hands | none | 0 |  | none (base stats only) |
 | [Gleti's Breeches](../../docs/rank-augments.md#gletis-breeches) | legs | none | 0 |  | none (base stats only) |
 | [Gleti's Boots](../../docs/rank-augments.md#gletis-boots) | feet | none | 0 |  | none (base stats only) |
-| [Crocea Mors](../../docs/rank-augments.md#crocea-mors) | main | C | 1 | 2026-10-29 | Sword enh. spell damage +20%, Ele. weapon skill damage +1%, DMG:+1 |
+| [Crocea Mors](../../docs/rank-augments.md#crocea-mors) | main | C | 5 | 2026-10-29 | Sword enh. spell damage +100%, Ele. weapon skill damage +17%, DMG:+2 |
 | [Demers. Degen +1](../../docs/rank-augments.md#demers-degen-1) | main | none | 0 |  | none (base stats only) |
 | [Kustawi +1](../../docs/rank-augments.md#kustawi-1) | main | none | 0 |  | none (base stats only) |
 | [Marin Staff +1](../../docs/rank-augments.md#marin-staff-1) | main | none | 0 |  | none (base stats only) |
@@ -47,7 +47,7 @@ bg-wiki gives these items' augments at maximum rank only: [rank-augments.md](../
 | Item | Slot | Max rank | Vanar's copy |
 |---|---|---|---|
 | Dls. Torque +1 | neck | 20 | `'Path: A'`, rank 20 (2026-10-05) |
-| Mirage Stole +2 | neck | 25 | `'Path: A'`, rank 20 (2026-10-05) |
+| Mirage Stole +2 | neck | 25 | `'Path: A'`, rank 22 (2026-10-29) |
 | Tizona | main | 15 | `'Path: A'` (so Level 119 III), rank 15 (2026-10-05) |
 | Almace | main | 15 | `'Path: A'` (so Level 119 III), rank 2 (2026-10-11) |
 | Pukulatmuj +1 | main | 15 | no augments: rank 0 |

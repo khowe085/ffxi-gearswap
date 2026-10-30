@@ -76,7 +76,7 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 | Nyame Flanchard | B | 20 | 2026-10-09 |
 | Nyame Sollerets | B | 20 | 2026-10-04 |
 | Gleti's Knife | A | 1 | 2026-10-05 |
-| Crocea Mors | C | 1 | 2026-10-29 |
+| Crocea Mors | C | 5 | 2026-10-29 |
 | Forfend +1 | A | 15 | 2026-10-04 |
 | Coiste Bodhar | A | 20 | 2026-10-04 |
 | Alabaster Earring | A | 11 | 2026-10-29 |
@@ -84,7 +84,7 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 | Obstin. Sash | A | 17 | 2026-10-06 |
 | Sailfi Belt +1 | A | 14 | 2026-10-04 |
 | Dls. Torque +1 | A | 20 | 2026-10-05 |
-| Mirage Stole +2 | A | 20 | 2026-10-05 |
+| Mirage Stole +2 | A | 22 | 2026-10-29 |
 | Tizona | A | 15 | 2026-10-05 |
 | Murky Ring | A | 8 | 2026-10-29 |
 | Almace | A | 2 | 2026-10-11 |
@@ -101,6 +101,8 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 - **(player, 2026-10-11)** `Mirage Stole +2` at rank 20 gives STR and DEX +20, Critical hit rate +4% and Store TP +6.
 - **(player, 2026-10-12)** The Nyame Helm went from rank 18 to rank 20.
 - **(player, 2026-10-18)** `Murky Ring` and `Alabaster Earring` both went from rank 2 to rank 7.
+- **(player, 2026-10-29)** `Alabaster Earring` went from rank 7 to rank 11, and `Murky Ring` from rank 7 to rank 8. The `/checkparam` records of that day showed it first.
+- **(player, 2026-10-29)** `Mirage Stole +2` went from rank 20 to rank 22, and `Crocea Mors` from rank 1 to rank 5. bg-wiki gives the stole's augments at rank 25 only, so its rank 22 values aren't known: between the rank 20 values above and STR and DEX +25, Critical hit rate +5% and Store TP +7. Ask before a set decision turns on them. Crocea Mors at rank 5 is Sword enh. spell damage +100%, Ele. weapon skill damage +17% and DMG +2 by its simulated table ([Vanar_rank_augments.md](Vanar_rank_augments.md)).
 - `Tizona` and `Almace` export Path A, so both are Level 119 III. `Pukulatmuj +1` exports with no augments, so it is rank 0.
 
 ## Jobs, Master Levels and nation
@@ -308,6 +310,7 @@ Main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_
     - Maxentius: `sets.engaged` 1282, `sets.engaged.DT` 1280, Black Halo 1302.
     - Naegling: `sets.engaged` 1351, `sets.engaged.DT` 1349, Savage Blade 1302.
     - Crocea: `sets.engaged` 1367, `sets.engaged.DT` 1365, Savage Blade 1318.
+- **Savage Blade and Black Halo by weapon set** (2026-10-29), reached through `weapon_set_ws_mode` in the Normal weapon skill mode, as floor accuracy by the formula and the measured readings above (not yet read in game): Savage Blade 1279 with Naegling, 1277 with Naegling Acc, 1280 with Crocea, 1293 with Crocea Acc and 1287 with CroceaBron; Black Halo 1277 with Maxentius and 1275, exactly at the floor, with Maxentius Acc. Naegbron and Maxbron wear the shared sets. The single-wield figures assume /BLM's base DEX; a support job with less DEX lowers them.
 - **The first 2026-10-29 audit, run again on the rebuilt sets** (Composure up, which the first run didn't have): every unchanged set reads exactly 70 higher, Composure's +70. Past that, each rebuilt set gains what the rebuild gave it: `sets.engaged` +23, `sets.engaged.DT` +17, `sets.engaged.DW` +18, `sets.engaged.DW.DT` +10, Savage Blade +23, Black Halo +28, and `sets.midcast['Enhancing Magic']` +55 with Crocea Mors for Colada.
 - Vanar's THF, by the same formula: its job point gifts add 13 (5 + 8, taking the 471 as spent) and it has no accuracy trait ([Combat skill](#skill-and-accuracy-combat-skill) has its hands' skill). Neither a `/checkparam` record nor its base DEX is recorded, so for the sets of 2026-10-18 these are the base DEX the 1275 floor (gear, food and weapon skill accuracy) needs, with Gleti's Knife in the off hand, with Oden (Grape Daifuku):
   - A Naegling main hand doesn't reach it: `sets.engaged` needs base DEX 160 (151), and Savage Blade's set would need 157 (148) even with Adhemar Wrist. +1 and Murky Ring, where Vanar's BLU/WAR has 120 with no gear at Master Level 25 (above).
@@ -341,7 +344,7 @@ Main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_
 
 ### Magic accuracy: Odyssey augments below rank 30
 
-- Four of Vanar's Odyssey pieces have augment macc at the ranks the player gave: Forfend +1 (rank 15, **player, 2026-10-04**) has Mag. Acc.+15, Obstin. Sash (rank 17, **player, 2026-10-06**) Mag. Acc.+15, and Alabaster Earring and Murky Ring (rank 7, **player, 2026-10-18**) Mag. Acc.+7 each. No other Odyssey piece of known rank in [Vanar_rank_augments.md](Vanar_rank_augments.md) has any: the Nyame pieces are Path B, Gleti's Knife is rank 1 (its Mag. Acc. starts at rank 16), and every other Bunzi's and Gleti's piece is rank 0.
+- Four of Vanar's Odyssey pieces have augment macc at the ranks the player gave: Forfend +1 (rank 15, **player, 2026-10-04**) has Mag. Acc.+15, Obstin. Sash (rank 17, **player, 2026-10-06**) Mag. Acc.+15, Alabaster Earring (rank 11) Mag. Acc.+11 and Murky Ring (rank 8) Mag. Acc.+8 (**player, 2026-10-29**). No other Odyssey piece of known rank in [Vanar_rank_augments.md](Vanar_rank_augments.md) has any: the Nyame pieces are Path B, Gleti's Knife is rank 1 (its Mag. Acc. starts at rank 16), and every other Bunzi's and Gleti's piece is rank 0.
 - Of the items Oboro ranks up, Tizona at rank 15 adds Magic Accuracy +30 in the main hand (player, 2026-10-05); Dls. Torque +1's and Mirage Stole +2's augments have none.
 
 ### Enhancing magic: Enhancing skill

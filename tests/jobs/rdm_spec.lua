@@ -273,7 +273,7 @@ describe('RDM\'s weapon skill set', function()
         return jobby.weaponskill(gs, line)
     end
 
-    it('keeps Moonshade Earring on at 2950 TP, which reaches 3000 only with Moonshade', function()
+    it('keeps Moonshade Earring on at 2950 TP, which Moonshade makes 3200', function()
         assert.equal('Moonshade Earring', ws(2950, '/ws "Savage Blade" <t>').left_ear)
     end)
 

@@ -197,7 +197,7 @@ function init_gear_sets()
 	sets.precast.WS['Aeolian Edge'].Acc = set_combine(sets.precast.WS['Sanguine Blade'].Acc, {})
 
 	sets.MaxTP = {ear1="Brutal Earring"}	-- DA 5
-	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 7
+	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 11
 	sets.MagicalMaxTP = {ear1="Friomisi Earring"}	-- MAB 10
 
 	-- Haste 26 (cap 26), FC 44, DT 49
