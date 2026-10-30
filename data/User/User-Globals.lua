@@ -38,7 +38,7 @@ trust_lists = {
 	Oddy2 = {'Rughadjeen','Mihli Aliapoh','Ferreous Coffin', 'King of Hearts','Ulmia'	},
 	Oddy3 = {'August','Cherukiki','Arciela II', 'Qultada','Moogle'},
 }
-state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus','Oddy1','Oddy2','Oddy3'}
+state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus','Totems','Oddy1','Oddy2','Oddy3'}
 
 
 send_command('bind f6 gs c cycle AutoTrustMode') --Cycles through Off and the trust_lists entries, summoning that list's trusts automatically.

@@ -558,7 +558,7 @@ buff_spell_lists = {
 		{Name='Temper II',		Buff='Multi Strikes',	SpellID=895,	When='Always'},
 		{Name='Refresh III',	Buff='Refresh',			SpellID=894,	When='Always'},
 		{Name='Gain-STR',		Buff='STR Boost',		SpellID=486,	When='Always'},
-		{Name='Enthunder',		Buff='Enthunder',		SpellID=104,	When='Always	'},
+		{Name='Enthunder',		Buff='Enthunder',		SpellID=104,	When='Always'},
 	},
 	
 	AutoMage = {
