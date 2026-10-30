@@ -8,6 +8,7 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
 
 - **(player, 2026-10-05)** Melee sets by offense mode, in the player's words: "Overall damage (including WSD) can come first in TP as long as I hit a minimum of 1350 ACC, ACC comes first in ACC mode. DT in DT set." The 1350 floor has since been replaced (next lines).
   - **(player, 2026-10-10)** RDM's floor is 1250, from gear, food and weapon skill accuracy, with Composure not counted. Composure's +70 comes on top, 1320 in all. This replaces the 2026-10-09 rule, which counted Composure toward 1350. Composure is always up when RDM melees (player, 2026-10-09), and its +70 is 50 at level 99 and 20 more from its job point category ([bg-wiki](https://www.bg-wiki.com/ffxi/Composure)).
+  - **(player, 2026-10-29)** RDM's floor is raised by 25, to 1275, counted the same way: gear, food and weapon skill accuracy, with Composure not counted (1345 with its +70). This replaces the 1250 floor above and in the rules below that name it.
   - **(player, 2026-10-10)** Every other job's floor is 1275: BLU's here.
   - **(player, 2026-10-10)** Weapon skill accuracy counts toward the floor: Karieyh Ring's +5, Fotia Gorget's and Fotia Belt's +10, and the like.
   - **(player, 2026-10-05)** The floor counts gear and food, not buffs.
@@ -75,16 +76,17 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 | Nyame Flanchard | B | 20 | 2026-10-09 |
 | Nyame Sollerets | B | 20 | 2026-10-04 |
 | Gleti's Knife | A | 1 | 2026-10-05 |
+| Crocea Mors | C | 5 | 2026-10-29 |
 | Forfend +1 | A | 15 | 2026-10-04 |
 | Coiste Bodhar | A | 20 | 2026-10-04 |
-| Alabaster Earring | A | 7 | 2026-10-18 |
+| Alabaster Earring | A | 11 | 2026-10-29 |
 | Fi Follet Cape +1 | A | 11 | 2026-10-02 |
 | Obstin. Sash | A | 17 | 2026-10-06 |
 | Sailfi Belt +1 | A | 14 | 2026-10-04 |
 | Dls. Torque +1 | A | 20 | 2026-10-05 |
-| Mirage Stole +2 | A | 20 | 2026-10-05 |
+| Mirage Stole +2 | A | 22 | 2026-10-29 |
 | Tizona | A | 15 | 2026-10-05 |
-| Murky Ring | A | 7 | 2026-10-18 |
+| Murky Ring | A | 8 | 2026-10-29 |
 | Almace | A | 2 | 2026-10-11 |
 
 - **(player, 2026-10-04)** The Nyame Helm and Flanchard went from rank 2 to rank 11 on 2026-10-04.
@@ -99,11 +101,15 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 - **(player, 2026-10-11)** `Mirage Stole +2` at rank 20 gives STR and DEX +20, Critical hit rate +4% and Store TP +6.
 - **(player, 2026-10-12)** The Nyame Helm went from rank 18 to rank 20.
 - **(player, 2026-10-18)** `Murky Ring` and `Alabaster Earring` both went from rank 2 to rank 7.
+- **(player, 2026-10-29)** `Alabaster Earring` went from rank 7 to rank 11, and `Murky Ring` from rank 7 to rank 8. The `/checkparam` records of that day showed it first.
+- **(player, 2026-10-29)** `Mirage Stole +2` went from rank 20 to rank 22, and `Crocea Mors` from rank 1 to rank 5. bg-wiki gives the stole's augments at rank 25 only, so its rank 22 values aren't known: between the rank 20 values above and STR and DEX +25, Critical hit rate +5% and Store TP +7. Ask before a set decision turns on them. Crocea Mors at rank 5 is Sword enh. spell damage +100%, Ele. weapon skill damage +17% and DMG +2 by its simulated table ([Vanar_rank_augments.md](Vanar_rank_augments.md)).
 - `Tizona` and `Almace` export Path A, so both are Level 119 III. `Pukulatmuj +1` exports with no augments, so it is rank 0.
 
 ## Jobs, Master Levels and nation
 
 - **(player, 2026-10-02)** Vanar's RDM and BLU are both Master Level 25. Each has 2,100 job points, so both are mastered: every job point category at 20 and every gift.
+  - The player's `/checkparam` records of 2026-10-29 give RDM's Master Level as 26 ([Skill and accuracy: Accuracy](#skill-and-accuracy-accuracy)). The skill caps and estimates below are at 25; at 26 each RDM skill cap and base stat is 1 higher. BLU's isn't in them.
+  - **(player, 2026-10-29)** RDM is Master Level 26 and BLU is Master Level 28. This replaces the 25 above; the caps and estimates below that assume 25 are low by 1 for RDM and 3 for BLU.
 - At Master Level 25 the support job is level 54 (49 + floor(25 ÷ 5)).
 - **(player, 2026-10-02)** Vanar is a citizen of Windurst. What that turns on and off is under [Enhancing magic: Refresh](#enhancing-magic-refresh) below.
 - **(player, 2026-10-07)** Vanar is an Elvaan, on both jobs.
@@ -200,7 +206,7 @@ Where that matters:
 
 Gear in the sets that Vanar doesn't own, most-used first:
 
-- RDM: Crepuscular Pebble (every high-buff non-crit physical set), Hoxne Earring (10 weapon skills), Sroda Ring (7), Malignance Gloves (6), Sroda Tathlum (6), Malignance Earring (5), Orpheus's Sash (5), Dls. Torque +2 (4; Vanar has the +1), Metamor. Ring +1 (4). Weapons: Caliburnus, Excalibur, Mandau, Murgleis, Crocea Mors, Sequence, Daybreak, Sakpata's Sword, Crepuscular Knife.
+- RDM: Crepuscular Pebble (every high-buff non-crit physical set), Hoxne Earring (10 weapon skills), Sroda Ring (7), Malignance Gloves (6), Sroda Tathlum (6), Malignance Earring (5), Orpheus's Sash (5), Dls. Torque +2 (4; Vanar has the +1), Metamor. Ring +1 (4). Weapons: Caliburnus, Excalibur, Mandau, Murgleis, Sequence, Daybreak, Sakpata's Sword, Crepuscular Knife.
 - BLU: Hoxne Earring (6 weapon skills), Crepuscular Pebble (4), Sroda Ring (3), the Sworn armor in the TP and Requiescat sets, and the Adhemar pieces. Weapons: Caliburnus, Sequence, Archduke's Sword, Ice Brand, Zantetsuken, Sakpata's Sword.
 - Capes. Vanar's augmented Sucellos's Capes are STR/WSD, DEX/Double Attack, MND/Magic Accuracy/Haste and INT/Magic Accuracy/Magic Attack Bonus. The sims also use MND/WSD (Requiescat, Sanguine Blade, high-buff Black Halo), DEX/WSD (high-buff Imperator), INT/WSD (Aeolian Edge), DEX/crit (Chant du Cygne, Evisceration) and DEX/Store TP (TP). Vanar's Rosmerta's Capes are STR/WSD, DEX/crit, DEX/Double Attack and INT/Magic Accuracy/Magic Attack Bonus. The sims also use INT/WSD (Sanguine Blade, Red Lotus Blade), MND/Double Attack (Requiescat), DEX/WSD (high-buff Imperator), DEX/Store TP and DEX/Dual Wield (TP).
 - The pages assume upgraded relic, mythic and empyrean weapons ("Level 119 III") and stage 4 primes. Vanar's Tizona is Level 119 III like the sims', since it exports "Path: A", and rank 15, the maximum (player, 2026-10-05). His Almace exports "Path: A" too from the 2026-10-11 export on, so it is Level 119 III, at rank 2 (player, 2026-10-11). The export can't show the stage of his Mpu Gandring; ask the player.
@@ -287,6 +293,25 @@ Main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_
   - `sets.engaged` (and `sets.engaged.AM` on it), `sets.engaged.DT` and `sets.engaged.Acc.DT` stay: no other set gives more with every weapon set. `sets.engaged`: Tizona + Thibron 1513 / 1280 (40%), Almace + Thibron 1521 / 1288 (44%), Naegling + Thibron 1518 / 1302 (51%), Maxentius + Thibron 1437 / 1290 (45%), Maxentius + Bunzi's Rod 1477 / 1469; 10.4 to 11.3% more TP per round than with the NQ Wristbands with a Thibron off hand, 1.7% more with the others. `sets.engaged.DT`, with the same four Thibron pairs: 1549 / 1316 (58%), 1556 / 1323 (61%), 1553 / 1337 (68%), 1473 / 1326 (63%).
   - `sets.engaged.DT.AM` takes Honed Tathlum, Alabaster Earring, Adhemar Wrist. +1 and Nyame Sollerets over `sets.engaged.DT` (DT 52): 0.9% more TP per round with Tizona + Thibron and 3.4% more with Tizona + Almace under Aftermath Lv.3.
   - `sets.engaged.Acc` takes Murky Ring for Jhakri Ring: Accuracy 1 more on every hand, DT 28 to 38.
+- **RDM's `/checkparam` records of 2026-10-29** (`data/audit/Vanar.jsonl`, which now holds only these: unfed, with Protect and Shell, as RDM/NIN at Master Level 26) fit the formula above on every record, taking DEX from the gear where a record's stats weren't refreshed: base DEX 125, each combat skill 1 above the skill table (sword and dagger 440, club 376 before the weapon's own skill) and 22 from the job point gifts. With no weapon in hand, `/checkparam` reads 124 where a hand's skill accuracy would be. Past the help text and the Ranks table, the records read:
+  - Alabaster Earring at Accuracy 11 and Murky Ring at 8, 4 and 1 above their rank 7 values, on every record that wears them. That fits ranks 11 and 8, which the player confirmed the same day.
+  - Forfend +1's Unity accuracy at +18 that week. The floor counts +10.
+  - Rajas Ring's DEX at +5, its level 99 value ([gear-notes.md](../../docs/gear-notes.md#rajas-ring)), where `set-stats.cs` counts the low end of `DEX+2～5`.
+  - `sets.resting` with Naji's Loop in the left ring in place of its Murky Ring. The record before it, `sets.HPCure`, wears Murky Ring in the right ring, and the swap left it there; the reading fits the gear worn.
+- The engaged and physical weapon skill sets rebuilt on 2026-10-29 for the 1275 floor, as floor accuracy with Oden and Forfend +1's Unity at +10, by the formula and readings above (the rank 7 values in brackets where they differ), on the lowest main hand among the weapon pairs that wear each set:
+  - `sets.engaged` 1282 and `sets.engaged.DT` 1280 (1276) with Maxentius + Forfend +1; `sets.engaged.DW` 1275 and `sets.engaged.DW.DT` 1283 (1278) with Maxentius + Thibron.
+  - Savage Blade 1277 with Naegling + Thibron and 1293 with Crocea Mors + Thibron, and Black Halo 1278 with Maxentius + Thibron. Unchanged, and over the floor: Requiescat 1319 and `sets.precast.WS` 1296 with Naegling + Thibron, Chant du Cygne 1299 with Almace + Thibron, and Evisceration 1296 with Tauret + Thibron.
+  - In the same set, a Crocea Mors main hand reads 15 or 16 above a Naegling one (Sword skill +269 against +250, and Accuracy 50 against Naegling's 40 and DEX 15), and a Maxentius one 69 or 70 below.
+- **The weapon-locked records of 2026-10-29** (Composure up, unfed, RDM/NIN), taken as [sel.md](../../docs/frameworks/sel.md#auditing-a-set-with-weapons-in-hand) says. An RDM record's floor accuracy is its main-hand reading, less 70 when Composure is up, plus 74 for Oden on an unfed record (the formula's figure; no record has been taken fed), plus the set's weapon skill accuracy (Fotia Gorget and Fotia Belt 10 each, Karieyh Ring 5). Each measured pair came within 1 of the formula above:
+  - Maxbron (Maxentius + Thibron): `sets.engaged.DW` 1276, `sets.engaged.DW.DT` 1283, Black Halo 1278. Maxentius Acc: Black Halo 1318.
+  - Naegbron: Savage Blade 1278, `sets.engaged` 1327, `sets.engaged.DT` 1325, `sets.engaged.DW` 1345, `sets.engaged.DW.DT` 1352. Naegling Acc: Savage Blade 1315.
+  - CroceaBron: Savage Blade 1293, `sets.engaged.DW` 1361. Crocea Acc: Savage Blade 1331.
+  - The single-wield weapon sets (Maxentius, Naegling and Crocea, each with Forfend +1) weren't taken: on /NIN, Sel holds the weapon sets to the Dual group. They were taken as RDM/BLM the same day, with Forfend +1's Unity accuracy at +18; at the +10 the floor counts, they read 8 lower, as given here:
+    - Maxentius: `sets.engaged` 1282, `sets.engaged.DT` 1280, Black Halo 1302.
+    - Naegling: `sets.engaged` 1351, `sets.engaged.DT` 1349, Savage Blade 1302.
+    - Crocea: `sets.engaged` 1367, `sets.engaged.DT` 1365, Savage Blade 1318.
+- **Savage Blade and Black Halo by weapon set** (2026-10-29), reached through `weapon_set_ws_mode` in the Normal weapon skill mode, as floor accuracy by the formula and the measured readings above (not yet read in game): Savage Blade 1279 with Naegling, 1277 with Naegling Acc, 1280 with Crocea, 1293 with Crocea Acc and 1287 with CroceaBron; Black Halo 1277 with Maxentius and 1275, exactly at the floor, with Maxentius Acc. Naegbron and Maxbron wear the shared sets. The single-wield figures assume /BLM's base DEX; a support job with less DEX lowers them.
+- **The first 2026-10-29 audit, run again on the rebuilt sets** (Composure up, which the first run didn't have): every unchanged set reads exactly 70 higher, Composure's +70. Past that, each rebuilt set gains what the rebuild gave it: `sets.engaged` +23, `sets.engaged.DT` +17, `sets.engaged.DW` +18, `sets.engaged.DW.DT` +10, Savage Blade +23, Black Halo +28, and `sets.midcast['Enhancing Magic']` +55 with Crocea Mors for Colada.
 - Vanar's THF, by the same formula: its job point gifts add 13 (5 + 8, taking the 471 as spent) and it has no accuracy trait ([Combat skill](#skill-and-accuracy-combat-skill) has its hands' skill). Neither a `/checkparam` record nor its base DEX is recorded, so for the sets of 2026-10-18 these are the base DEX the 1275 floor (gear, food and weapon skill accuracy) needs, with Gleti's Knife in the off hand, with Oden (Grape Daifuku):
   - A Naegling main hand doesn't reach it: `sets.engaged` needs base DEX 160 (151), and Savage Blade's set would need 157 (148) even with Adhemar Wrist. +1 and Murky Ring, where Vanar's BLU/WAR has 120 with no gear at Master Level 25 (above).
   - With Tauret, `sets.engaged` needs 52 (43) and Evisceration's set 65 (56). `sets.precast.WS`, which Rudra's Storm wears, needs 98 (90), so whether it clears the floor waits on a `/checkparam`.
@@ -319,7 +344,7 @@ Main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_
 
 ### Magic accuracy: Odyssey augments below rank 30
 
-- Four of Vanar's Odyssey pieces have augment macc at the ranks the player gave: Forfend +1 (rank 15, **player, 2026-10-04**) has Mag. Acc.+15, Obstin. Sash (rank 17, **player, 2026-10-06**) Mag. Acc.+15, and Alabaster Earring and Murky Ring (rank 7, **player, 2026-10-18**) Mag. Acc.+7 each. No other Odyssey piece of known rank in [Vanar_rank_augments.md](Vanar_rank_augments.md) has any: the Nyame pieces are Path B, Gleti's Knife is rank 1 (its Mag. Acc. starts at rank 16), and every other Bunzi's and Gleti's piece is rank 0.
+- Four of Vanar's Odyssey pieces have augment macc at the ranks the player gave: Forfend +1 (rank 15, **player, 2026-10-04**) has Mag. Acc.+15, Obstin. Sash (rank 17, **player, 2026-10-06**) Mag. Acc.+15, Alabaster Earring (rank 11) Mag. Acc.+11 and Murky Ring (rank 8) Mag. Acc.+8 (**player, 2026-10-29**). No other Odyssey piece of known rank in [Vanar_rank_augments.md](Vanar_rank_augments.md) has any: the Nyame pieces are Path B, Gleti's Knife is rank 1 (its Mag. Acc. starts at rank 16), and every other Bunzi's and Gleti's piece is rank 0.
 - Of the items Oboro ranks up, Tizona at rank 15 adds Magic Accuracy +30 in the main hand (player, 2026-10-05); Dls. Torque +1's and Mirage Stole +2's augments have none.
 
 ### Enhancing magic: Enhancing skill

@@ -1,0 +1,73 @@
+{{item 
+|description=DMG:180 Delay:260 HP+130 MP+70 Accuracy+50 Magic Accuracy+50 Magic Damage+217 Sword skill +269 Parrying skill +269 Magic Accuracy skill +255 "Fast Cast"+20% 
+|type=Weapon 
+|flags=Inscribable, Equippable 
+|stack size=1 
+|singular log name=Crocea Mors 
+|ffxiah=21627/crocea-mors 
+|ffxidb=21627 
+}} 
+{{weapon 
+|races=All Races 
+|weapon skill=Sword 
+|damage=180 
+|delay=260 
+|damage per second=41.54 
+|tp per hit=6.9259259259259 
+|level=99 
+|jobs=[[Red Mage]] 
+|ilevel=119 
+|sulevel=5 
+}} 
+{{Item Synth Table
+|Insert Item Synth Template=
+{{Item Synth
+|Craft Name=Goldsmithing
+|Craft Level=111~114
+|Sub Craft=
+[[Leathercraft]] - ({{Information Needed}})
+
+[[Clothcraft]] - ({{Information Needed}})
+|Key Item=[[Goldsmith's aurum tome]]
+|Crystal=Light
+|Recipe=
+*[[Plovid Flesh]]
+*[[Dark Matter]]
+*[[Khoma Thread]]
+*[[Moldy Sword]]
+*[[Ratnaraj]]
+*[[Relic Adaman]] x2
+*[[Pyrope Crystal]]
+|NQ=[[Duelist's Sword]]
+|HQ=
+*HQ1: [[Vitiation Sword]]
+*HQ2: [[Crocea Mors]]
+}}
+}} 
+{{Augmentable Item Table
+|Insert Augmentable Item List=
+{{Augmentable Item List
+|Augmented Via=Oboro
+|Zone=Port Jeuno
+|position=E-6
+|Required Items=[[Heroism Crystal]], [[Heroism Aggregate]], and/or defeating monsters within [[Dynamis - Divergence]] areas
+
+See [[Dynamis Divergence Weapon Augments]] for details
+}}
+}}
+
+{{Oboro Divergence Weapon Augs
+|RankMax=25
+|1hand=yes
+|Contents=
+{{!}}'''[1]''' Sword enh. spell damage +500%<br/>'''[2]''' Ele. weapon skill damage +100%<br />'''[3]''' DMG: + (See Below)
+{{!}}-
+{{!}} colspan=3 {{!}} '''''All Paths:''''' '''[3]''' DMG: +7
+}}
+[[Category:Superior Equipment]]
+==Elemental Weapon Skill Damage Augment==
+This damage multiplier is a unique term that is applied to the [[Weapon_Skill_Damage#Calculating Magical Weapon Skill Damage|Base Magical Weapon Skill Damage]] formula in the following manner:
+*Base Magical WS Damage = floor((((152 + floor((WeaponLevel - 99) × 2.45) + WSC) × fTP) × Elemental WS Damage) +  dSTAT + MDMG Stat)
+
+==References==
+[https://www.ffxiah.com/forum/topic/55398/anything-you-can-do-i-can-do-better-rdm-guide/16/#3732963 Crocea Mors Elemental Weapon Skill Damage Term Verification]

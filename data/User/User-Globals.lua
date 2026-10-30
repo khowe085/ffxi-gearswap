@@ -31,10 +31,16 @@ food_lists = {
 }
 state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Attack','Oden'}
 trust_lists = {
-	Default = {'Sylvie (UC)','Qultada','Ulmia','Joachim','Cherukiki'},
-	Limbus = {'Sylvie (UC)','Qultada','Ulmia'},
+	Default = {'Yoran-Oran (UC)','Koru-Moru','Qultada','Ulmia','Joachim'},
+	Limbus = {'Yoran-Oran (UC)','Qultada','Ulmia'},
+	Totems = {'Brygid','Saukura','StarSibyl','Moogle'},
+	Oddy1 = {'Valaineral','Kupipi','Koru-Moru','Brygid','Joachim'},
+	Oddy2 = {'Rughadjeen','Mihli Aliapoh','Ferreous Coffin', 'King of Hearts','Ulmia'	},
+	Oddy3 = {'August','Cherukiki','Arciela II', 'Qultada','Moogle'},
 }
-state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus'}
+state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus','Totems','Oddy1','Oddy2','Oddy3'}
+
+
 send_command('bind f6 gs c cycle AutoTrustMode') --Cycles through Off and the trust_lists entries, summoning that list's trusts automatically.
 send_command('bind f7 gs c set DefenseMode Physical') --Turns your physical defense set on.
 send_command('bind ^f7 gs c cycle PhysicalDefenseMode') --Changes your physical defense set.
@@ -613,6 +619,15 @@ end
 function test_set_locks(set)
 	if holds_set(sets.weapons, set, {}) then return {} end
 	return internal_disable
+end
+
+--Sel's weapon skill walk stops at the weapon skill mode. A gear file that sets get_custom_wsmode = weapon_set_ws_mode
+--goes on, in the Normal mode only, to the weapon skill's set named for the current weapon set, such as
+--sets.precast.WS['Savage Blade'].Naegbron, when there is one.
+function weapon_set_ws_mode(spell, spellMap, ws_mode)
+	if ws_mode ~= 'Normal' then return end
+	local ws_set = sets.precast.WS[spell.english] or (spellMap and sets.precast.WS[spellMap]) or sets.precast.WS
+	if ws_set[state.Weapons.value] then return state.Weapons.value end
 end
 
 --Magic burst detection, ported from the rahvin branch. A skillchain on a monster within 21 yalms, closed by anyone,

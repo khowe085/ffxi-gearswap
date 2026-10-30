@@ -30,7 +30,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 - Vanar's Atrophy pieces are all +4, so whether tiers mix doesn't matter here.
 - **Vanar owns:** `Atro. Chapeau +4`, `Atrophy Tabard +4`, `Atro. Gloves +4` and `Atro. Tights +4`. He has no Atrophy Boots and no Regal Earring. His maximum is +45, and only with all four on.
-- **In Vanar_Rdm_Gear.lua:** all four (+45) in Step, Violent Flourish, the ACC engaged set, the ACC-mode weapon skill sets and the magical weapon skills' ACC sets; the body and legs (+15) in the enfeebling magic accuracy sets; the head alone (no bonus) in the Resistant burst overlay, for its Magic Accuracy 64, elemental magic skill 18 and magic burst damage 10. Two or more are the cheapest accuracy RDM has, each piece adding its own Acc 59 to 65 and 15 more. Under the 2026-10-10 floor (1250 with weapon skill accuracy, Composure not counted), Savage Blade, Black Halo and the default set wear only the gloves (no bonus) and take Viti. Chapeau +4's WSD; Black Halo gave up the head and the +15 on 2026-10-10 for Viti. Chapeau +4, Fotia Gorget and Karieyh Ring, about 7.5% more damage at 1250 with Oden.
+- **In Vanar_Rdm_Gear.lua:** all four (+45) in Step, Violent Flourish, the ACC engaged set, the ACC-mode weapon skill sets and the magical weapon skills' ACC sets; the body and legs (+15) in the enfeebling magic accuracy sets; the head alone (no bonus) in the Resistant burst overlay, for its Magic Accuracy 64, elemental magic skill 18 and magic burst damage 10. Two or more are the cheapest accuracy RDM has, each piece adding its own Acc 59 to 65 and 15 more. Under the 2026-10-10 floor (1250 with weapon skill accuracy, Composure not counted), Savage Blade, Black Halo and the default set wear only the gloves (no bonus) and take Viti. Chapeau +4's WSD; Black Halo gave up the head and the +15 on 2026-10-10 for Viti. Chapeau +4, Fotia Gorget and Karieyh Ring, about 7.5% more damage at 1250 with Oden. Since 2026-10-29, under the 1275 floor, Black Halo wears the head and gloves again (+15), with Rep. Plat. Medal and Fotia Belt in place of Fotia Gorget and Eschan Stone, to hold Maxentius + Thibron at 1278; Savage Blade and the default set still wear the gloves alone. Black Halo's sets for the Maxentius and Maxentius Acc weapon sets go back to Viti. Chapeau +4 and the gloves alone (no bonus), as those pairs clear the floor without it.
 
 ### Assimilator's set
 
@@ -450,9 +450,9 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Alabaster Earring
 
-- **(player, 2026-10-18)** Vanar's copy is rank 7: Accuracy, Ranged Accuracy and Magic Accuracy +7, and none of the attribute or Store TP augments. It was rank 2 from 2026-10-04.
-- In both jobs' ACC-mode sets, where accuracy comes first **(player, 2026-10-07)**, it takes the left ear: Accuracy+7 is the most of any earring in Vanar's wardrobes that fits the left ear. Heartseeker and Steelflash Earrings (Accuracy+8) and Assuage Earring (Accuracy+7) are in the Mog Safe 2.
-- On BLU from 2026-10-18 it also takes the left ear of `sets.engaged.DT.AM` (for Brutal Earring; see [Adhemar Wrist. +1](#adhemar-wrist-1)), of `midcast['Blue Magic'].Stun.Resistant` (Accuracy and Magic Accuracy +7 for Njordr Earring's Blue magic skill +10, as that set already trades skill for accuracy in its ammo, rings and back) and of `midcast['Elemental Magic'].Resistant` (Magic Accuracy +7 for Friomisi Earring's MAB +10, as `Magical.Resistant` takes Njordr Earring's skill for Friomisi). `sets.engaged` keeps Brutal Earring: Alabaster there gives 1.0 to 3.8% less TP per round.
+- **(player, 2026-10-29)** Vanar's copy is rank 11: Accuracy, Ranged Accuracy and Magic Accuracy +11, and none of the attribute or Store TP augments. It was rank 7 from 2026-10-18 and rank 2 from 2026-10-04.
+- In both jobs' ACC-mode sets, where accuracy comes first **(player, 2026-10-07)**, it takes the left ear: Accuracy+11 is the most of any earring Vanar owns that fits the left ear, past Heartseeker and Steelflash Earrings (Accuracy+8) and Assuage Earring (Accuracy+7) in the Mog Safe 2.
+- On BLU from 2026-10-18 it also takes the left ear of `sets.engaged.DT.AM` (for Brutal Earring; see [Adhemar Wrist. +1](#adhemar-wrist-1)), of `midcast['Blue Magic'].Stun.Resistant` (Accuracy and Magic Accuracy, +11 since 2026-10-29, for Njordr Earring's Blue magic skill +10, as that set already trades skill for accuracy in its ammo, rings and back) and of `midcast['Elemental Magic'].Resistant` (Magic Accuracy for Friomisi Earring's MAB +10, as `Magical.Resistant` takes Njordr Earring's skill for Friomisi). Those picks were made at rank 7, and rank 11 only widens them. On BLU, `sets.engaged` keeps Brutal Earring: at rank 7, Alabaster there gave 1.0 to 3.8% less TP per round. RDM's `sets.engaged.DT` takes it from 2026-10-29 for the 1275 floor.
 
 ### Arbatel Earring +1
 
@@ -738,8 +738,8 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Ayanmo Ring
 
 - Vanar's Ayanmo +2 armor stays on slip 23 **(player, 2026-10-11)**, so the set bonus never applies in his sets ([Ayanmo set](#ayanmo-set)).
-- It ties Jhakri Ring at Accuracy+6, and Jhakri's Attack+6 breaks the tie. RDM's ACC-mode sets (`sets.precast.Step`, `sets.engaged.Acc` and the sets built on them) wear neither from 2026-10-18: Lehko's Ring's DEX+10 (7 or 8 accuracy) and Murky Ring's Accuracy+7 at rank 7 are the two most. Enlivened Ring (Accuracy+7, DEX+2) is in storage.
-- On BLU from 2026-10-18, Murky Ring at rank 7 (Accuracy+7) takes Jhakri Ring's slot in the ACC-mode sets, and this ring's place in `Stun.Resistant`; see [Murky Ring](#murky-ring).
+- It ties Jhakri Ring at Accuracy+6, and Jhakri's Attack+6 breaks the tie. RDM's ACC-mode sets (`sets.precast.Step`, `sets.engaged.Acc` and the sets built on them) wear neither from 2026-10-18: Lehko's Ring's DEX+10 (7 or 8 accuracy) and Murky Ring's Accuracy+8 at rank 8 are the two most. Enlivened Ring (Accuracy+7, DEX+2) is in storage.
+- On BLU from 2026-10-18, Murky Ring (Accuracy+8 at rank 8 since 2026-10-29) takes Jhakri Ring's slot in the ACC-mode sets, and this ring's place in `Stun.Resistant`; see [Murky Ring](#murky-ring).
 
 ### Beithir Ring
 
@@ -760,10 +760,10 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Murky Ring
 
-- **(player, 2026-10-18)** Vanar's copy is Path A rank 7: Accuracy, Ranged Accuracy and Magic Accuracy +7, with none of the later ranks' Evasion or Critical hit rate ([Vanar_rank_augments.md](Vanar_rank_augments.md)). It was rank 2 from 2026-10-11.
-- On BLU it now has more Accuracy and Magic Accuracy than Jhakri Ring and Ayanmo Ring (+6 each), and Damage taken -10% besides. From 2026-10-18 it takes Jhakri Ring's slot in `sets.engaged.Acc`, `sets.precast.WS.Acc`, `sets.precast.Step` and `midcast['Blue Magic'].Physical.Resistant`, where accuracy comes first, and Ayanmo Ring's in `midcast['Blue Magic'].Stun.Resistant`. Each gains Accuracy and Magic Accuracy 1 and DT 7 or 10; those that drop Jhakri Ring lose its Attack+6.
-- `midcast['Blue Magic'].Physical` keeps Ayanmo Ring for now: that set's accuracy is past the 95% cap at 1350 evasion with every weapon set, so the swap would add only Magic Accuracy 1 and DT 7.
-- In `sets.engaged` it loses to Rajas Ring: 1.9 to 3.3% less TP per round, Accuracy 7 against Store TP 5 and DEX 5 (search of 2026-10-18; see [Adhemar Wrist. +1](#adhemar-wrist-1)).
+- **(player, 2026-10-29)** Vanar's copy is Path A rank 8: Accuracy, Ranged Accuracy and Magic Accuracy +8, with none of the later ranks' Evasion or Critical hit rate ([Vanar_rank_augments.md](Vanar_rank_augments.md)). It was rank 7 from 2026-10-18 and rank 2 from 2026-10-11.
+- On BLU it now has more Accuracy and Magic Accuracy than Jhakri Ring and Ayanmo Ring (+6 each), and Damage taken -10% besides. From 2026-10-18 it takes Jhakri Ring's slot in `sets.engaged.Acc`, `sets.precast.WS.Acc`, `sets.precast.Step` and `midcast['Blue Magic'].Physical.Resistant`, where accuracy comes first, and Ayanmo Ring's in `midcast['Blue Magic'].Stun.Resistant`. Each gains Accuracy and Magic Accuracy 2 (1 at rank 7) and DT 7 or 10; those that drop Jhakri Ring lose its Attack+6.
+- `midcast['Blue Magic'].Physical` keeps Ayanmo Ring for now: that set's accuracy is past the 95% cap at 1350 evasion with every weapon set, so the swap would add only Magic Accuracy 2 and DT 7.
+- In BLU's `sets.engaged` it loses to Rajas Ring: 1.9 to 3.3% less TP per round at rank 7, Accuracy 7 against Store TP 5 and DEX 5 (search of 2026-10-18; see [Adhemar Wrist. +1](#adhemar-wrist-1)). Rank 8's one more Accuracy doesn't close that.
 - Stikini Ring (Magic Accuracy+8 and all magic skills +5) still takes the rings where magic accuracy alone is wanted.
 
 ### Novennial Ring
@@ -1024,7 +1024,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Jhakri Slops +2
 
-- It is the legs of RDM's `sets.engaged` and `sets.engaged.DT`, and of the sets built on them, from 2026-10-12, under the floor-only rule ([Rules](Vanar_notes.md#rules-for-these-sets)): Store TP +9 against Leth. Fuseau +3's none, for Accuracy 45 against 63 and haste 2% against 5%. With Store TP 22 that is 7 to 8% more TP a hit, the largest gain any one owned piece gives those sets; Nyame Flanchard's Double Attack +3% gives 2.2%. It was in the Mog Case in the 2026-10-11 and 2026-10-12 exports, so it has to move to a wardrobe.
+- It is the legs of RDM's `sets.engaged` and `sets.engaged.DT`, and of `sets.engaged.DW.DT` (from 2026-10-29 `sets.engaged.DW` takes Leth. Fuseau +3 instead, for its accuracy, to hold Maxentius + Thibron at the 1275 floor), from 2026-10-12, under the floor-only rule ([Rules](Vanar_notes.md#rules-for-these-sets)): Store TP +9 against Leth. Fuseau +3's none, for Accuracy 45 against 63 and haste 2% against 5%. With Store TP 22 that is 7 to 8% more TP a hit, the largest gain any one owned piece gives those sets; Nyame Flanchard's Double Attack +3% gives 2.2%. It was in the Mog Case in the 2026-10-11 and 2026-10-12 exports, so it has to move to a wardrobe.
 
 ### Luh. Shalwar +4
 
@@ -1046,7 +1046,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 - It is RDM's weapon skill legs, as in bg-wiki's set **(player, 2026-10-04)**. Rank 17 added about 1.6% to Savage Blade and Black Halo over rank 11, on the calculation under [Nyame Gauntlets](#nyame-gauntlets).
   - Leth. Fuseau +3 would trade its Weapon skill damage +9%, Double Attack +3% and Damage taken -8% for Accuracy 63 vs 40, Attack 63 vs 55 and STR+MND 81 vs 75.
   - That calculation puts RDM's weapon skill set at about 1,242 accuracy for Savage Blade and 1,173 for Black Halo with Grape Daifuku, and 6 or 7 less with Oden **(player, 2026-10-07: RDM eats one of the two)**: under the player's 1350 floor of the time, where the rule puts accuracy first. There the Fuseau is worth about 12% more Savage Blade and 22% more Black Halo without buffs, and with Composure's +70 accuracy about 3% less Savage Blade and 12% more Black Halo. The player's `/checkparam` decides it.
-  - **In Vanar_Rdm_Gear.lua:** the weapon skill sets hold the 2026-10-10 floor, 1250 with weapon skill accuracy and without Composure. Savage Blade, the default set, Requiescat and the Chant du Cygne and Evisceration set wear the Flanchard. Black Halo keeps Leth. Fuseau +3: its set sits at the floor, and the Flanchard's 23 less accuracy would take it to about 1,227 with Oden ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
+  - **In Vanar_Rdm_Gear.lua:** the weapon skill sets hold the floor, 1275 since 2026-10-29 (1250 before), with weapon skill accuracy and without Composure. The default set, Requiescat and the Chant du Cygne and Evisceration set wear the Flanchard. Savage Blade took Leth. Fuseau +3 on 2026-10-29 to hold Naegling + Thibron at 1277. Its sets by weapon set (`.Naegling`, `['Naegling Acc']`, `.Crocea`, `['Crocea Acc']`, `.CroceaBron`) take the Flanchard back, since their main hands clear the floor with it. Black Halo keeps Leth. Fuseau +3: its set sits at the floor, and the Flanchard's 23 less accuracy would take it to about 1255 with Oden ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - Against Luh. Shalwar +4 in BLU's weapon skill sets, at rank 17 (rank 20 adds Attack +3, WSD +1% and Double Attack +2%): WSD 8% against 12%, Attack 52 against none, Double Attack +1%, MND 32 against 27 and DT -8%, for Accuracy 40 against 50 and STR 43 against 46.
   - Expected damage on the same calculation, with the melee spell set's Accuracy Bonus III and Attack Bonus III **(player, 2026-10-07: the set gives both; tier not recorded)**: Savage Blade (with the Nyame Gauntlets) +0.8% with Grape Daifuku and +1.1% with Oden, Expiacion +0.5% and +0.6%, Black Halo +1.2% and +1.4%. At rank 20 the first two would be about +1.0%. The Accuracy Bonus has since turned out to be tier IV **(player, 2026-10-08)**; these weren't worked out again.
   - At tier IV the 10 accuracy leaves Savage Blade's set at about 1,395 and Expiacion's at 1,393 with Grape Daifuku, 6 less with Oden, so both wear the Flanchard. Black Halo kept the Shalwar under the 1350 floor of the time: with Maxentius, Bunzi's Rod and the Nyame Gauntlets the Flanchard would have put it at about 1,349 with Oden.
@@ -1200,7 +1200,6 @@ Gear in bg-wiki's simulated sets ([Red Mage](https://www.bg-wiki.com/ffxi/All_Jo
 | Chirich Ring +1 | Naegling + Thibron TP |
 | Crepuscular Knife | Knights of Round, Mercy Stroke |
 | Crepuscular Pebble | Black Halo, Death Blossom, Imperator, Knights of Round, Mercy Stroke, Requiescat, Ruthless Stroke, Savage Blade |
-| Crocea Mors | EnSpell |
 | Crocea Mors [Path C] | Red Lotus Blade, Sanguine Blade, Seraph Blade |
 | Daybreak | Requiescat, Seraph Blade |
 | Dls. Torque +2 | Black Halo, Death Blossom, Imperator, Savage Blade |

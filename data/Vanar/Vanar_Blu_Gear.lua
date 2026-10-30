@@ -237,7 +237,7 @@ function init_gear_sets()
 	sets.precast.WS['Flash Nova'].FullAcc = set_combine(sets.precast.WS['Flash Nova'].Acc, {})
 
 	sets.MaxTP = {ear1="Brutal Earring"}	-- DA 5
-	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 7
+	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 11
 
 	-- Haste 32 (cap 26), FC 46, Blue magic recast -16%
 	sets.midcast.FastRecast = {ammo="Hasty Pinion",
@@ -368,7 +368,7 @@ function init_gear_sets()
 		body="Hashishin Mintan +3",hands="Hashi. Bazu. +3",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.nuke_jse_back,waist="Eschan Stone",legs="Hashishin Tayt +3",feet="Hashi. Basmak +3"}
 
-	sets.midcast['Elemental Magic'].Resistant = set_combine(sets.midcast['Elemental Magic'], {neck="Mirage Stole +2",ear1="Alabaster Earring"})	-- Macc 32
+	sets.midcast['Elemental Magic'].Resistant = set_combine(sets.midcast['Elemental Magic'], {neck="Mirage Stole +2",ear1="Alabaster Earring"})	-- Macc 36
 
 	sets.midcast.Helix = sets.midcast['Elemental Magic']
 	sets.midcast.Helix.Resistant = sets.midcast['Elemental Magic'].Resistant

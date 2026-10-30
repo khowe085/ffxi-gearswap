@@ -5,6 +5,7 @@ Augment values at every rank for each rank-augmented item in the exports under `
 - `//gs export` prints the path (`'Path: B'`) but never the rank. A copy that exports with no augments at all hasn't been ranked: it has only the base stats in its help text.
 - Ranks are cumulative: the row for a rank is the item's whole augment at that rank, not an increase over the rank before it. A blank cell means that augment line hasn't unlocked yet.
 - A path is fixed once chosen. Changing it means discarding the item and starting over (bg-wiki, Nyame Mail).
+- A table marked simulated is for an item bg-wiki has no table for. rank-doc.cs builds it from the player's word on the item's augments, and the item's line says how. Its ranks between are a guess.
 
 ## Items
 
@@ -27,6 +28,7 @@ Augment values at every rank for each rank-augmented item in the exports under `
 | [Gleti's Gauntlets](#gletis-gauntlets) | hands | A | 30 |
 | [Gleti's Breeches](#gletis-breeches) | legs | A | 30 |
 | [Gleti's Boots](#gletis-boots) | feet | A | 30 |
+| [Crocea Mors](#crocea-mors) | main | C | 25 |
 | [Demers. Degen +1](#demers-degen-1) | main | A | 15 |
 | [Kustawi +1](#kustawi-1) | main | A | 15 |
 | [Marin Staff +1](#marin-staff-1) | main | A | 15 |
@@ -1212,6 +1214,38 @@ Gleti's Boots, feet. Ranks 1 to 30. Source: [bg-wiki](https://www.bg-wiki.com/ff
 | 30 | Attack+30 | Evasion+15 | Accuracy+15 Mag. Acc.+15 | STR+5 |
 
 ## Other path items
+
+### Crocea Mors
+
+Crocea Mors, main. Ranks 1 to 25. Simulated, not from bg-wiki: the player gave ranks 1 and 25 on 2026-10-29, and each augment steps evenly between them, rounded down.
+
+| Rank | Augment 1 | Augment 2 | Augment 3 |
+|---|---|---|---|
+| 1 | Sword enh. spell damage +20% | Ele. weapon skill damage +1% | DMG:+1 |
+| 2 | Sword enh. spell damage +40% | Ele. weapon skill damage +5% | DMG:+1 |
+| 3 | Sword enh. spell damage +60% | Ele. weapon skill damage +9% | DMG:+1 |
+| 4 | Sword enh. spell damage +80% | Ele. weapon skill damage +13% | DMG:+1 |
+| 5 | Sword enh. spell damage +100% | Ele. weapon skill damage +17% | DMG:+2 |
+| 6 | Sword enh. spell damage +120% | Ele. weapon skill damage +21% | DMG:+2 |
+| 7 | Sword enh. spell damage +140% | Ele. weapon skill damage +25% | DMG:+2 |
+| 8 | Sword enh. spell damage +160% | Ele. weapon skill damage +29% | DMG:+2 |
+| 9 | Sword enh. spell damage +180% | Ele. weapon skill damage +34% | DMG:+3 |
+| 10 | Sword enh. spell damage +200% | Ele. weapon skill damage +38% | DMG:+3 |
+| 11 | Sword enh. spell damage +220% | Ele. weapon skill damage +42% | DMG:+3 |
+| 12 | Sword enh. spell damage +240% | Ele. weapon skill damage +46% | DMG:+3 |
+| 13 | Sword enh. spell damage +260% | Ele. weapon skill damage +50% | DMG:+4 |
+| 14 | Sword enh. spell damage +280% | Ele. weapon skill damage +54% | DMG:+4 |
+| 15 | Sword enh. spell damage +300% | Ele. weapon skill damage +58% | DMG:+4 |
+| 16 | Sword enh. spell damage +320% | Ele. weapon skill damage +62% | DMG:+4 |
+| 17 | Sword enh. spell damage +340% | Ele. weapon skill damage +67% | DMG:+5 |
+| 18 | Sword enh. spell damage +360% | Ele. weapon skill damage +71% | DMG:+5 |
+| 19 | Sword enh. spell damage +380% | Ele. weapon skill damage +75% | DMG:+5 |
+| 20 | Sword enh. spell damage +400% | Ele. weapon skill damage +79% | DMG:+5 |
+| 21 | Sword enh. spell damage +420% | Ele. weapon skill damage +83% | DMG:+6 |
+| 22 | Sword enh. spell damage +440% | Ele. weapon skill damage +87% | DMG:+6 |
+| 23 | Sword enh. spell damage +460% | Ele. weapon skill damage +91% | DMG:+6 |
+| 24 | Sword enh. spell damage +480% | Ele. weapon skill damage +95% | DMG:+6 |
+| 25 | Sword enh. spell damage +500% | Ele. weapon skill damage +100% | DMG:+7 |
 
 ### Demers. Degen +1
 

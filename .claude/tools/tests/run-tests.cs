@@ -1221,6 +1221,65 @@ Test("RankTableParser refuses a rank table with no path or no rows, instead of s
 	Contains(Throws<InvalidOperationException>(() => RankTableParser.Parse("Odd Mail", noRows)).Message, "Odd Mail");
 });
 
+Test("LinearRankTable steps each augment from its rank 1 value to its last, rounding down", () =>
+{
+	var item = LinearRankTable.Build("Crocea Mors", "C", 25, ["Sword enh. spell damage +20%", "Ele. weapon skill damage +1%", "DMG:+1"],
+		["Sword enh. spell damage +500%", "Ele. weapon skill damage +100%", "DMG:+7"], "simulated");
+	Equal(25, item.RankMax);
+	Equal("simulated", item.Simulated);
+	Equal("C", item.Paths.Single().Path);
+	var rows = item.Paths[0].Ranks;
+	Equal(25, rows.Count);
+	Equal("Sword enh. spell damage +20%|Ele. weapon skill damage +1%|DMG:+1|", string.Join("|", rows[0].Augments));
+	Equal("Sword enh. spell damage +40%|Ele. weapon skill damage +5%|DMG:+1|", string.Join("|", rows[1].Augments));
+	Equal("Sword enh. spell damage +100%|Ele. weapon skill damage +17%|DMG:+2|", string.Join("|", rows[4].Augments));
+	Equal("Sword enh. spell damage +500%|Ele. weapon skill damage +100%|DMG:+7|", string.Join("|", rows[24].Augments));
+	Equal(25, rows[24].Rank);
+});
+
+Test("LinearRankTable refuses a first and last augment that differ in more than the number", () =>
+{
+	var failure = Throws<InvalidOperationException>(() => LinearRankTable.Build("Crocea Mors", "C", 25, ["DMG:+1"], ["Attack+7"], "simulated"));
+	Contains(failure.Message, "Crocea Mors");
+	Contains(failure.Message, "\"DMG:+1\"");
+	Contains(failure.Message, "\"Attack+7\"");
+});
+
+Test("LinearRankTable refuses an augment line that doesn't hold exactly one number", () =>
+{
+	var failure = Throws<InvalidOperationException>(() => LinearRankTable.Build("Murky Ring", "A", 30, ["Accuracy+4 Mag. Acc.+4"], ["Accuracy+30 Mag. Acc.+30"], "simulated"));
+	Contains(failure.Message, "\"Accuracy+4 Mag. Acc.+4\"");
+	Contains(Throws<InvalidOperationException>(() => LinearRankTable.Build("Murky Ring", "A", 30, ["Accuracy"], ["Accuracy"], "simulated")).Message, "\"Accuracy\"");
+});
+
+Test("RankTables.With adds simulated tables, and refuses one for an item bg-wiki has a table for", () =>
+{
+	var simulated = LinearRankTable.Build("Prolix Ring", "A", 15, ["Fast Cast+1%"], ["Fast Cast+15%"], "simulated");
+	var tables = RankTables.Load();
+	Contains(string.Join(", ", tables.With([simulated]).Items.Select(item => item.Name)), "Nyame Helm");
+	Equal("Prolix Ring", tables.With([simulated]).Items[^1].Name);
+	var twice = LinearRankTable.Build("Nyame Helm", "A", 30, ["Accuracy+1"], ["Accuracy+30"], "simulated");
+	Contains(Throws<InvalidOperationException>(() => tables.With([twice])).Message, "bg-wiki has a rank table for Nyame Helm");
+});
+
+Test("RankDoc.RenderTables says a simulated table is simulated, and how", () =>
+{
+	var simulated = LinearRankTable.Build("Prolix Ring", "A", 15, ["Fast Cast+1%"], ["Fast Cast+15%"], "stepped evenly from the player's rank 1 and rank 15 values");
+	var text = string.Join("\n", RankDoc.RenderTables(RankTables.Load().With([simulated]), Resources.Load(), TestOboro()));
+	Contains(text, "Ranks 1 to 15. Simulated, not from bg-wiki: stepped evenly from the player's rank 1 and rank 15 values.");
+	Contains(text, "| 2 | Fast Cast+2% |");
+	Contains(text, "- A table marked simulated is for an item bg-wiki has no table for. rank-doc.cs builds it");
+	True(string.Join("\n", RankDoc.RenderTables(RankTables.Load(), Resources.Load(), TestOboro())).Contains("simulated") is false, "no table is simulated");
+});
+
+Test("RankDoc.RenderCharacter takes a rank for an item with a simulated table", () =>
+{
+	var data = TestCharacterRanks(copy => copy.Name == "Prolix Ring" ? new ExportItem(copy.Bag, copy.SlotKey, copy.Name, ["Path: A"]) : copy);
+	data.Ranks["Prolix Ring"] = new PlayerRank("A", 2, "2026-01-03");
+	var simulated = LinearRankTable.Build("Prolix Ring", "A", 15, ["Fast Cast+1%"], ["Fast Cast+15%"], "simulated");
+	Contains(string.Join("\n", RankDoc.RenderCharacter(RankTables.Load().With([simulated]), Resources.Load(), TestOboro(), data)), "| A | 2 | 2026-01-03 | Fast Cast+2% |");
+});
+
 Test("RankDoc.RenderTables gives bg-wiki's tables for every path item, and names no character", () =>
 {
 	var text = string.Join("\n", RankDoc.RenderTables(RankTables.Load(), Resources.Load(), TestOboro()));

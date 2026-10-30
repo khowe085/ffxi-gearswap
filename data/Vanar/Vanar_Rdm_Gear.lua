@@ -9,10 +9,11 @@ function character_user_job_setup()
 	state.ResistDefenseMode:options('MEVA')
 	state.BuffWeaponsMode = M{'Always','Never'}
 	state.AutoBuffMode = M{['description'] = 'Auto Buff Mode','Off','Auto','AutoMelee','AutoMage'}
-	state.Weapons:options('Naegling','Almace','Maxentius','Tauret','Enspell','Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell')
+	state.Weapons:options('Naegling','Almace','Maxentius','Tauret','Enspell','Crocea','Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell','CroceaBron','Crocea Acc')
 	--Start with the weapons unlocked, so idle and casting sets can change main and sub out of combat. While engaged they stay put.
 	state.UnlockWeapons:set(true)
 
+	state.AutoBuffMode = M { ['description'] = 'Auto Buff Mode', 'Off', 'AutoMelee' }
 	ws_buff_list = S{'Savage Blade','Evisceration','Chant du Cygne','Vorpal Blade','Black Halo','Requiescat','Realmrazer'}
 
 	--Spells, job abilities and weaponskills that wear sets.TreasureHunter against an untagged monster, plus any ranged attack (User-Globals.lua).
@@ -21,8 +22,8 @@ function character_user_job_setup()
 	state.WeaponSets:options('Default','Dual')
 
 	weapon_sets = {
-		['Default'] = {'Naegling','Almace','Maxentius','Tauret','Enspell'},
-		['Dual'] = {'Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell'},
+		['Default'] = {'Naegling','Almace','Maxentius','Tauret','Enspell','Crocea'},
+		['Dual'] = {'Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell','CroceaBron','Crocea Acc'},
 	}
 
 	default_weapons = 'Naegling'
@@ -41,7 +42,11 @@ function character_user_job_setup()
 		['Tauret'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
 		['Taurbron'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
 		['Tauret Acc'] = { { 'Evisceration', 1000 }, { 'Evisceration', 1750 }, { 'Evisceration', 2750 } },
+		['Crocea'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+		['CroceaBron'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
+		['Crocea Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
 	}
+	get_custom_wsmode = weapon_set_ws_mode
 	
 	gear.mnd_enfeebling_jse_back = {name="Sucellos's Cape",augments={'MND+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','Haste+10',}}
 	gear.int_enfeebling_jse_back = {name="Sucellos's Cape",augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Mag.Atk.Bns."+10',}}
@@ -79,6 +84,9 @@ function init_gear_sets()
 	sets.weapons['Maxentius Acc'] = {main="Maxentius",sub="Bunzi's Rod",range=empty}
 	sets.weapons.Taurbron = {main="Tauret",sub="Thibron",range=empty}
 	sets.weapons['Tauret Acc'] = {main="Tauret",sub="Gleti's Knife",range=empty}
+	sets.weapons.Crocea = {main="Crocea Mors",sub="Forfend +1",range=empty}
+	sets.weapons.CroceaBron = {main="Crocea Mors",sub="Thibron",range=empty}
+	sets.weapons['Crocea Acc'] = {main="Crocea Mors",sub="Almace",range=empty}
 	--A mode whose name contains 'Enspell' gets RDM.lua's enspell gear while an enspell is up: Orpheus's Sash or the element's obi, and Zodiac Ring.
 	sets.weapons.Enspell = {main="Tauret",sub="Forfend +1",range=empty}
 	sets.weapons['Dual Enspell'] = {main="Tauret",sub="Gleti's Knife",range=empty}
@@ -108,13 +116,13 @@ function init_gear_sets()
 
 	sets.precast.FC.DT = set_combine(sets.precast.FC, {})
 
-	-- FC 67 with Colada, 63 without, the Jhakri set's 3 included
-	sets.precast.FullFC = {main=gear.colada_refresh,
+	-- FC 83 with Crocea Mors, 63 without, the Jhakri set's 3 included
+	sets.precast.FullFC = {main="Crocea Mors",
 		head="Atro. Chapeau +4",ear1="Loquac. Earring",ear2="Leth. Earring +1",
 		body="Viti. Tabard +4",hands="Jhakri Cuffs +2",ring1="Jhakri Ring",ring2="Prolix Ring",
 		back="Fi Follet Cape +1",waist="Embla Sash",feet="Chelona Boots"}
 
-	-- FC 36 with Colada, 32 without, once Twilight Cloak takes the head and body
+	-- FC 52 with Crocea Mors, 32 without, once Twilight Cloak takes the head and body
 	sets.precast.FC.Impact = set_combine(sets.precast.FullFC, {head=empty})
 	sets.precast.FC.Dispelga = set_combine(sets.precast.FC, {})
 
@@ -139,19 +147,30 @@ function init_gear_sets()
 
 	sets.precast.WS['Evisceration'] = sets.precast.WS['Chant du Cygne']
 
-	-- WSD 67
+	-- WSD 58
 	sets.precast.WS['Savage Blade'] = {range=empty,ammo="Coiste Bodhar",
 		head="Viti. Chapeau +4",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Leth. Earring +1",
 		body="Nyame Mail",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
-		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Nyame Flanchard",feet="Leth. Houseaux +3"}
-	sets.precast.WS['Savage Blade'].Acc = set_combine(sets.precast.WS.Acc, {})
-
-	-- WSD 48; Fotia Gorget fTP +25/256 on the first hit
-	sets.precast.WS['Black Halo'] = {range=empty,ammo="Coiste Bodhar",
-		head="Viti. Chapeau +4",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Leth. Earring +1",
-		body="Lethargy Sayon +3",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
 		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
+	sets.precast.WS['Savage Blade'].Acc = set_combine(sets.precast.WS.Acc, {})
+	-- WSD 67
+	sets.precast.WS['Savage Blade'].Naegling = set_combine(sets.precast.WS['Savage Blade'], {legs="Nyame Flanchard"})
+	sets.precast.WS['Savage Blade']['Naegling Acc'] = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
+	sets.precast.WS['Savage Blade'].Crocea = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
+	sets.precast.WS['Savage Blade']['Crocea Acc'] = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
+	-- WSD 57
+	sets.precast.WS['Savage Blade'].CroceaBron = set_combine(sets.precast.WS['Savage Blade'], {body="Lethargy Sayon +3",waist="Sailfi Belt +1",legs="Nyame Flanchard"})
+
+	-- WSD 39; Atrophy set (2 pieces): Acc +15; Fotia Belt fTP +25/256 on the first hit
+	sets.precast.WS['Black Halo'] = {range=empty,ammo="Coiste Bodhar",
+		head="Atro. Chapeau +4",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Leth. Earring +1",
+		body="Lethargy Sayon +3",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
+		back=gear.str_wsd_jse_back,waist="Fotia Belt",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 	sets.precast.WS['Black Halo'].Acc = set_combine(sets.precast.WS.Acc, {})
+	-- WSD 45; Fotia Gorget fTP +25/256 on the first hit
+	sets.precast.WS['Black Halo'].Maxentius = set_combine(sets.precast.WS['Black Halo'], {head="Viti. Chapeau +4",neck="Fotia Gorget",ring2="Murky Ring",waist="Eschan Stone"})
+	-- WSD 48; Fotia Gorget fTP +25/256 on the first hit
+	sets.precast.WS['Black Halo']['Maxentius Acc'] = set_combine(sets.precast.WS['Black Halo'], {head="Viti. Chapeau +4",neck="Fotia Gorget",waist="Sailfi Belt +1"})
 
 	-- WSD 47, MAB 265, Magic Damage 94
 	sets.precast.WS['Sanguine Blade'] = {range=empty,ammo="Pemphredo Tathlum",
@@ -179,7 +198,7 @@ function init_gear_sets()
 	sets.precast.WS['Aeolian Edge'].Acc = set_combine(sets.precast.WS['Sanguine Blade'].Acc, {})
 
 	sets.MaxTP = {ear1="Brutal Earring"}	-- DA 5
-	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 7
+	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 11
 	sets.MagicalMaxTP = {ear1="Friomisi Earring"}	-- MAB 10
 
 	-- Haste 26 (cap 26), FC 44, DT 49
@@ -209,8 +228,8 @@ function init_gear_sets()
 
 	sets.midcast.StatusRemoval = set_combine(sets.midcast.FastRecast, {})
 
-	-- Enhancing skill 545, duration x3.25, Haste 26 (cap 26), FC 30 (34 with Colada)
-	sets.midcast['Enhancing Magic'] = {main=gear.colada_refresh,sub="Ammurapi Shield",ammo="Hasty Pinion",
+	-- Enhancing skill 545, duration x3.25, Haste 26 (cap 26), FC 30 (50 with Crocea Mors)
+	sets.midcast['Enhancing Magic'] = {main="Crocea Mors",sub="Ammurapi Shield",ammo="Hasty Pinion",
 		head="Telchine Cap",neck="Dls. Torque +1",ear1="Alabaster Earring",ear2="Leth. Earring +1",
 		body="Viti. Tabard +4",hands="Atro. Gloves +4",ring1="Murky Ring",ring2="Prolix Ring",
 		back="Ghostfyre Cape",waist="Embla Sash",legs="Telchine Braconi",feet="Leth. Houseaux +3"}
@@ -460,11 +479,11 @@ function init_gear_sets()
 	sets.buff.Sublimation = {waist="Embla Sash"}	-- Sublimation +3
 	sets.buff.DTSublimation = {waist="Embla Sash"}
 
-	-- DA 32, Store TP 31, DT 47
+	-- DA 30, Store TP 31, DT 40
 	sets.engaged = {ammo="Coiste Bodhar",
 		head="Leth. Chappel +3",neck="Asperity Necklace",ear1="Brutal Earring",ear2="Leth. Earring +1",
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Rajas Ring",
-		back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Jhakri Slops +2",feet="Nyame Sollerets"}
+		back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Jhakri Slops +2",feet="Leth. Houseaux +3"}
 
 	-- Atrophy set (4 pieces): Acc +45
 	sets.engaged.Acc = {ammo="Coiste Bodhar",
@@ -472,10 +491,10 @@ function init_gear_sets()
 		body="Atrophy Tabard +4",hands="Atro. Gloves +4",ring1="Lehko's Ring",ring2="Murky Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Atro. Tights +4",feet="Leth. Houseaux +3"}
 
-	-- DT 57 (cap 50), DA 32, Store TP 26
+	-- DT 52 (cap 50), DA 25, Store TP 27
 	sets.engaged.DT = {ammo="Coiste Bodhar",
-		head="Leth. Chappel +3",neck="Asperity Necklace",ear1="Brutal Earring",ear2="Leth. Earring +1",
-		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Murky Ring",
+		head="Leth. Chappel +3",neck="Sanctity Necklace",ear1="Alabaster Earring",ear2="Leth. Earring +1",
+		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Rajas Ring",
 		back=gear.da_jse_back,waist="Sailfi Belt +1",legs="Jhakri Slops +2",feet="Nyame Sollerets"}
 
 	-- DT 55 (cap 50)
@@ -484,13 +503,13 @@ function init_gear_sets()
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Murky Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 
-	-- DA 30, Store TP 31, DT 40
-	sets.engaged.DW = set_combine(sets.engaged, {feet="Leth. Houseaux +3"})
+	-- DA 30, Store TP 22, DT 40
+	sets.engaged.DW = set_combine(sets.engaged, {legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"})
 
 	sets.engaged.DW.Acc = set_combine(sets.engaged.Acc, {})
 
-	-- DT 55 (cap 50), DA 25, Store TP 25
-	sets.engaged.DW.DT = set_combine(sets.engaged.DT, {ear1="Alabaster Earring",feet="Leth. Houseaux +3"})
+	-- DT 55 (cap 50), DA 23, Store TP 22
+	sets.engaged.DW.DT = set_combine(sets.engaged.DT, {ear1="Alabaster Earring",ring2="Murky Ring",feet="Leth. Houseaux +3"})
 
 	sets.engaged.DW.Acc.DT = set_combine(sets.engaged.Acc.DT, {})
 end
@@ -534,11 +553,12 @@ buff_spell_lists = {
 	},
 	
 	AutoMelee = {
-		{Name='Phalanx II',		Buff='Phalanx',			SpellID=107,	When='Combat'},
-		{Name='Haste II',		Buff='Haste',			SpellID=511,	When='Combat'},
-		{Name='Temper II',		Buff='Multi Strikes',	SpellID=895,	When='Combat'},
-		--{Name='Refresh III',	Buff='Refresh',			SpellID=894,	When='Always'},
-		{Name='Gain-STR',		Buff='STR Boost',		SpellID=486,	When='Combat'},
+		{Name='Phalanx II',		Buff='Phalanx',			SpellID=107,	When='Always'},
+		{Name='Haste II',		Buff='Haste',			SpellID=511,	When='Always'},
+		{Name='Temper II',		Buff='Multi Strikes',	SpellID=895,	When='Always'},
+		{Name='Refresh III',	Buff='Refresh',			SpellID=894,	When='Always'},
+		{Name='Gain-STR',		Buff='STR Boost',		SpellID=486,	When='Always'},
+		{Name='Enthunder',		Buff='Enthunder',		SpellID=104,	When='Always'},
 	},
 	
 	AutoMage = {
