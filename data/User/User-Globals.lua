@@ -615,6 +615,15 @@ function test_set_locks(set)
 	return internal_disable
 end
 
+--Sel's weapon skill walk stops at the weapon skill mode. A gear file that sets get_custom_wsmode = weapon_set_ws_mode
+--goes on, in the Normal mode only, to the weapon skill's set named for the current weapon set, such as
+--sets.precast.WS['Savage Blade'].Naegbron, when there is one.
+function weapon_set_ws_mode(spell, spellMap, ws_mode)
+	if ws_mode ~= 'Normal' then return end
+	local ws_set = sets.precast.WS[spell.english] or (spellMap and sets.precast.WS[spellMap]) or sets.precast.WS
+	if ws_set[state.Weapons.value] then return state.Weapons.value end
+end
+
 --Magic burst detection, ported from the rahvin branch. A skillchain on a monster within 21 yalms, closed by anyone,
 --opens an eight-second window on that monster for the elements the chain made. A nuke (Sel's is_nuke: elemental
 --magic, BLU magical spells, elemental ninjutsu and the like) cast at it inside the window, of one of those elements,

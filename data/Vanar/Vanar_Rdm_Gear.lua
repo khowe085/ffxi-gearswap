@@ -45,6 +45,7 @@ function character_user_job_setup()
 		['CroceaBron'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
 		['Crocea Acc'] = { { 'Savage Blade', 1000 }, { 'Savage Blade', 1750 }, { 'Savage Blade', 2750 } },
 	}
+	get_custom_wsmode = weapon_set_ws_mode
 	
 	gear.mnd_enfeebling_jse_back = {name="Sucellos's Cape",augments={'MND+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','Haste+10',}}
 	gear.int_enfeebling_jse_back = {name="Sucellos's Cape",augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Mag.Atk.Bns."+10',}}
@@ -151,6 +152,13 @@ function init_gear_sets()
 		body="Nyame Mail",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
 		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 	sets.precast.WS['Savage Blade'].Acc = set_combine(sets.precast.WS.Acc, {})
+	-- WSD 67
+	sets.precast.WS['Savage Blade'].Naegling = set_combine(sets.precast.WS['Savage Blade'], {legs="Nyame Flanchard"})
+	sets.precast.WS['Savage Blade']['Naegling Acc'] = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
+	sets.precast.WS['Savage Blade'].Crocea = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
+	sets.precast.WS['Savage Blade']['Crocea Acc'] = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
+	-- WSD 57
+	sets.precast.WS['Savage Blade'].CroceaBron = set_combine(sets.precast.WS['Savage Blade'], {body="Lethargy Sayon +3",waist="Sailfi Belt +1",legs="Nyame Flanchard"})
 
 	-- WSD 39; Atrophy set (2 pieces): Acc +15; Fotia Belt fTP +25/256 on the first hit
 	sets.precast.WS['Black Halo'] = {range=empty,ammo="Coiste Bodhar",
@@ -158,6 +166,10 @@ function init_gear_sets()
 		body="Lethargy Sayon +3",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
 		back=gear.str_wsd_jse_back,waist="Fotia Belt",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 	sets.precast.WS['Black Halo'].Acc = set_combine(sets.precast.WS.Acc, {})
+	-- WSD 45; Fotia Gorget fTP +25/256 on the first hit
+	sets.precast.WS['Black Halo'].Maxentius = set_combine(sets.precast.WS['Black Halo'], {head="Viti. Chapeau +4",neck="Fotia Gorget",ring2="Murky Ring",waist="Eschan Stone"})
+	-- WSD 48; Fotia Gorget fTP +25/256 on the first hit
+	sets.precast.WS['Black Halo']['Maxentius Acc'] = set_combine(sets.precast.WS['Black Halo'], {head="Viti. Chapeau +4",neck="Fotia Gorget",waist="Sailfi Belt +1"})
 
 	-- WSD 47, MAB 265, Magic Damage 94
 	sets.precast.WS['Sanguine Blade'] = {range=empty,ammo="Pemphredo Tathlum",
