@@ -304,7 +304,10 @@ Main-hand floor accuracy of the TP-mode sets in `Vanar_Rdm_Gear.lua` and `Vanar_
   - Maxbron (Maxentius + Thibron): `sets.engaged.DW` 1276, `sets.engaged.DW.DT` 1283, Black Halo 1278. Maxentius Acc: Black Halo 1318.
   - Naegbron: Savage Blade 1278, `sets.engaged` 1327, `sets.engaged.DT` 1325, `sets.engaged.DW` 1345, `sets.engaged.DW.DT` 1352. Naegling Acc: Savage Blade 1315.
   - CroceaBron: Savage Blade 1293, `sets.engaged.DW` 1361. Crocea Acc: Savage Blade 1331.
-  - The single-wield weapon sets (Maxentius, Naegling and Crocea, each with Forfend +1) weren't taken: on /NIN, Sel holds the weapon sets to the Dual group.
+  - The single-wield weapon sets (Maxentius, Naegling and Crocea, each with Forfend +1) weren't taken: on /NIN, Sel holds the weapon sets to the Dual group. They were taken as RDM/BLM the same day, with Forfend +1's Unity accuracy at +18; at the +10 the floor counts, they read 8 lower, as given here:
+    - Maxentius: `sets.engaged` 1282, `sets.engaged.DT` 1280, Black Halo 1302.
+    - Naegling: `sets.engaged` 1351, `sets.engaged.DT` 1349, Savage Blade 1302.
+    - Crocea: `sets.engaged` 1367, `sets.engaged.DT` 1365, Savage Blade 1318.
 - Vanar's THF, by the same formula: its job point gifts add 13 (5 + 8, taking the 471 as spent) and it has no accuracy trait ([Combat skill](#skill-and-accuracy-combat-skill) has its hands' skill). Neither a `/checkparam` record nor its base DEX is recorded, so for the sets of 2026-10-18 these are the base DEX the 1275 floor (gear, food and weapon skill accuracy) needs, with Gleti's Knife in the off hand, with Oden (Grape Daifuku):
   - A Naegling main hand doesn't reach it: `sets.engaged` needs base DEX 160 (151), and Savage Blade's set would need 157 (148) even with Adhemar Wrist. +1 and Murky Ring, where Vanar's BLU/WAR has 120 with no gear at Master Level 25 (above).
   - With Tauret, `sets.engaged` needs 52 (43) and Evisceration's set 65 (56). `sets.precast.WS`, which Rudra's Storm wears, needs 98 (90), so whether it clears the floor waits on a `/checkparam`.
