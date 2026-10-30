@@ -26,8 +26,8 @@ function character_user_job_setup()
 		['Dual'] = {'Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell','CroceaBron','Crocea Acc'},
 	}
 
-	default_weapons = 'Naegling'
-	default_dual_weapons = 'Naegbron'
+	default_weapons = 'Crocea'
+	default_dual_weapons = 'CroceaBron'
 
 	AutoWS_List = {
 		['Almace'] = { { 'Chant du Cygne', 1000 }, { 'Chant du Cygne', 1750 }, { 'Chant du Cygne', 2750 }, { 'Chant du Cygne', 'AM2' }, { 'Chant du Cygne', 'AM3' } },
