@@ -61,6 +61,19 @@ describe('gs test set', function()
         gs_test(gs, 'set sets.precast.FastCast')
         assert.same({}, calls(gs))
     end)
+
+    it('lays the gear the user file\'s test_set_locks returns for the set over it, as the file would lock it', function()
+        local gs = boot()
+        local handed
+        gs.user.test_set_locks = function(set)
+            handed = set
+            return {main = 'Daybreak', head = 'Kaykaus Mitra +1'}
+        end
+        gs_test(gs, 'set sets.precast.FastCast')
+        assert.equal(gs.user.sets.precast.FastCast, handed)
+        assert.same({main = 'Daybreak', head = 'Kaykaus Mitra +1', neck = 'Loricate Torque +1',
+            left_ring = 'Kishar Ring'}, gs:worn())
+    end)
 end)
 
 describe('gs test of an action', function()

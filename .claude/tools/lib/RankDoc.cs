@@ -41,12 +41,10 @@ static class RankDoc
 			"- `//gs export` prints the path (`'Path: B'`) but never the rank. A copy that exports with no augments at all hasn't been ranked: it has only the base stats in its help text.",
 			"- Ranks are cumulative: the row for a rank is the item's whole augment at that rank, not an increase over the rank before it. A blank cell means that augment line hasn't unlocked yet.",
 			"- A path is fixed once chosen. Changing it means discarding the item and starting over (bg-wiki, Nyame Mail).",
-			"",
-			"## Items",
-			"",
-			"| Item | Slot | Paths | Max rank |",
-			"|---|---|---|---|",
 		];
+		if (items.Any(item => item.Simulated.Length > 0))
+			md.Add("- A table marked simulated is for an item bg-wiki has no table for. rank-doc.cs builds it from the player's word on the item's augments, and the item's line says how. Its ranks between are a guess.");
+		md.AddRange(["", "## Items", "", "| Item | Slot | Paths | Max rank |", "|---|---|---|---|"]);
 		foreach (var item in items)
 			md.Add($"| [{item.Name}](#{Anchor(item.Name)}) | {SlotOf(resources, item.Name)} | {string.Join(", ", item.Paths.Select(path => path.Path))} | {item.RankMax} |");
 		md.Add("");
@@ -59,7 +57,8 @@ static class RankDoc
 			{
 				md.Add($"### {item.Name}");
 				md.Add("");
-				md.Add($"{FullName(resources, item.Name)}, {SlotOf(resources, item.Name)}. Ranks 1 to {item.RankMax}. Source: [bg-wiki](https://www.bg-wiki.com/ffxi/{Uri.EscapeDataString(item.Name.Replace(' ', '_'))}).");
+				var source = item.Simulated.Length > 0 ? $"Simulated, not from bg-wiki: {item.Simulated}." : $"Source: [bg-wiki](https://www.bg-wiki.com/ffxi/{Uri.EscapeDataString(item.Name.Replace(' ', '_'))}).";
+				md.Add($"{FullName(resources, item.Name)}, {SlotOf(resources, item.Name)}. Ranks 1 to {item.RankMax}. {source}");
 				md.Add("");
 				foreach (var path in item.Paths.OrderBy(path => path.Path, StringComparer.Ordinal))
 				{

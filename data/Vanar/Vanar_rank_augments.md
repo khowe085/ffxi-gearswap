@@ -1,6 +1,6 @@
 # Vanar: rank augments
 
-Vanar's path and rank for each rank-augmented item in the export `data/export/Vanar 2026-10-18 04-33-13.lua`, with the augments that rank gives. `.claude/tools/rank-doc.cs` writes this file from the Ranks table in [Vanar_notes.md](Vanar_notes.md#ranks) and from bg-wiki's rank tables in [rank-augments.md](../../docs/rank-augments.md), which has every other rank. Don't edit it by hand: change the Ranks table and run the tool.
+Vanar's path and rank for each rank-augmented item in the export `data/export/Vanar 2026-10-29 00-54-16.lua`, with the augments that rank gives. `.claude/tools/rank-doc.cs` writes this file from the Ranks table in [Vanar_notes.md](Vanar_notes.md#ranks) and from bg-wiki's rank tables in [rank-augments.md](../../docs/rank-augments.md), which has every other rank. Don't edit it by hand: change the Ranks table and run the tool.
 
 - `//gs export` prints the path (`'Path: B'`) but never the rank, so a rank is the player's word, with the day it was given.
 - A copy that exports with no augments at all hasn't been ranked: it is rank 0, with only the base stats in its help text.
@@ -25,15 +25,16 @@ Vanar's path and rank for each rank-augmented item in the export `data/export/Va
 | [Gleti's Gauntlets](../../docs/rank-augments.md#gletis-gauntlets) | hands | none | 0 |  | none (base stats only) |
 | [Gleti's Breeches](../../docs/rank-augments.md#gletis-breeches) | legs | none | 0 |  | none (base stats only) |
 | [Gleti's Boots](../../docs/rank-augments.md#gletis-boots) | feet | none | 0 |  | none (base stats only) |
+| [Crocea Mors](../../docs/rank-augments.md#crocea-mors) | main | C | 5 | 2026-10-29 | Sword enh. spell damage +100%, Ele. weapon skill damage +17%, DMG:+2 |
 | [Demers. Degen +1](../../docs/rank-augments.md#demers-degen-1) | main | none | 0 |  | none (base stats only) |
 | [Kustawi +1](../../docs/rank-augments.md#kustawi-1) | main | none | 0 |  | none (base stats only) |
 | [Marin Staff +1](../../docs/rank-augments.md#marin-staff-1) | main | none | 0 |  | none (base stats only) |
 | [Tanmogayi +1](../../docs/rank-augments.md#tanmogayi-1) | main | none | 0 |  | none (base stats only) |
 | [Forfend +1](../../docs/rank-augments.md#forfend-1) | sub | A | 15 | 2026-10-04 | Accuracy+15, Mag. Acc.+15, Enha. mag. skill +10 |
 | [Coiste Bodhar](../../docs/rank-augments.md#coiste-bodhar) | ammo | A | 20 | 2026-10-04 | Attack+15, STR+5 |
-| [Alabaster Earring](../../docs/rank-augments.md#alabaster-earring) | ear | A | 7 | 2026-10-18 | Accuracy+7 Rng. Acc.+7 Mag. Acc.+7 |
+| [Alabaster Earring](../../docs/rank-augments.md#alabaster-earring) | ear | A | 11 | 2026-10-29 | Accuracy+11 Rng. Acc.+11 Mag. Acc.+11 |
 | [Beithir Ring](../../docs/rank-augments.md#beithir-ring) | ring | none | 0 |  | none (base stats only) |
-| [Murky Ring](../../docs/rank-augments.md#murky-ring) | ring | A | 7 | 2026-10-18 | Accuracy+7 Rng. Acc.+7 Mag. Acc.+7 |
+| [Murky Ring](../../docs/rank-augments.md#murky-ring) | ring | A | 8 | 2026-10-29 | Accuracy+8 Rng. Acc.+8 Mag. Acc.+8 |
 | [Fi Follet Cape +1](../../docs/rank-augments.md#fi-follet-cape-1) | back | A | 11 | 2026-10-02 | "Fast Cast" +8%, Spell Interruption Rate -3% |
 | [Kentarch Belt +1](../../docs/rank-augments.md#kentarch-belt-1) | waist | none | 0 |  | none (base stats only) |
 | [Obstin. Sash](../../docs/rank-augments.md#obstin-sash) | waist | A | 17 | 2026-10-06 | Mag. Acc.+15, Enfb. mag. skill +2 |
@@ -46,7 +47,7 @@ bg-wiki gives these items' augments at maximum rank only: [rank-augments.md](../
 | Item | Slot | Max rank | Vanar's copy |
 |---|---|---|---|
 | Dls. Torque +1 | neck | 20 | `'Path: A'`, rank 20 (2026-10-05) |
-| Mirage Stole +2 | neck | 25 | `'Path: A'`, rank 20 (2026-10-05) |
+| Mirage Stole +2 | neck | 25 | `'Path: A'`, rank 22 (2026-10-29) |
 | Tizona | main | 15 | `'Path: A'` (so Level 119 III), rank 15 (2026-10-05) |
 | Almace | main | 15 | `'Path: A'` (so Level 119 III), rank 2 (2026-10-11) |
 | Pukulatmuj +1 | main | 15 | no augments: rank 0 |

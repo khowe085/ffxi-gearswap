@@ -1,9 +1,11 @@
 -------------------------------------------------------------------------------------------------------------------
 -- gs test set <set> and gs test [precast|midcast] <action>: put gear on to look at it, then hold it.
 --
--- Nothing here knows how the user file builds its sets. 'set' reads the set as gs equip does. The action form
--- hands the user file's own precast and midcast the spell table GearSwap would, flagged spell.test, through
--- equip_sets, so whatever framework the file is built on picks the gear. No action packet is built or sent.
+-- Nothing here knows how the user file builds its sets. 'set' reads the set as gs equip does, then lays over it
+-- what the user file's test_set_locks(set) returns, if it has one: the gear the file keeps on whatever the set
+-- names. The action form hands the user file's own precast and midcast the spell table GearSwap would, flagged
+-- spell.test, through equip_sets, so whatever framework the file is built on picks the gear. No action packet is
+-- built or sent.
 --
 -- Either form then switches the user file off for test_hold_seconds, as a bare gs disable does, so nothing swaps
 -- the gear away. When the hold lapses the file switches back on and gets a status_change with the current status,
@@ -132,8 +134,9 @@ function test_command(args)
         refresh_globals()
         local naked = {}
         for _, slot_name in pairs(default_slot_map) do naked[slot_name] = empty end
+        local locks = type(user_env.test_set_locks) == 'function' and user_env.test_set_locks(set) or {}
         equip_sets(function()
-            equip(naked, set)
+            equip(naked, set, locks)
         end, nil, set)
         notice('naked, then '..table.concat(args, ' ', 2))
         test_hold()

@@ -35,7 +35,7 @@ For each action Sel starts at a table and walks down its keys, taking each key t
 | Resting | `sets.resting` | |
 | Precast of a spell | `sets.precast.FC` | the spell's custom class, then its name (`sets.precast.FC.Utsusemi`), then its spell map, then a `Cure` set for any Cure or Curaga map. Failing all three, its skill (`sets.precast.FC['Blue Magic']`) or its type, and the three again under that. Then the casting mode (`state.CastingMode`), and `DW` when the character can dual wield. |
 | Midcast of a spell | `sets.midcast` | The same as precast: class, name, map, skill or type, casting mode, `DW`. A spell that matches nothing gets `sets.midcast` itself. |
-| Weapon skill | `sets.precast.WS` | the weapon skill's name (or map, class, type), then the weapon skill mode (`state.WeaponskillMode`; `Match` takes the offense mode's name when there is such a mode), then the weapon set's name (`state.Weapons`). |
+| Weapon skill | `sets.precast.WS` | the weapon skill's name (or map, class, type), then the weapon skill mode (`state.WeaponskillMode`; `Match` takes the offense mode's name when there is such a mode), or what the gear file's `get_custom_wsmode` returns in its place. The walk stops there: it never looks up the weapon set's name on its own. A gear file that sets `get_custom_wsmode = weapon_set_ws_mode` (`data/User/User-Globals.lua`) goes on, in the Normal mode only, to the set named for the weapon set (`sets.precast.WS['Savage Blade'].Naegbron`) when there is one. |
 | Job ability | `sets.precast.JA` | the ability's name. Other ability types start at `sets.precast.<type>`, such as `sets.precast.Waltz` or `sets.precast.Step`, and fall back to `sets.precast.JA`. |
 
 The spell map comes from Sel's own mappings and from the job file's `job_get_spell_map`. A mode's sub-table that the gear file doesn't define leaves the set above it in place, so `sets.midcast['Blue Magic'].Magical.Resistant` is worn only in the Resistant casting mode, and otherwise `sets.midcast['Blue Magic'].Magical` is.
@@ -59,6 +59,44 @@ After the chosen set Sel equips more sets over it, each only when the gear file 
 ### The weapon lock
 
 `state.Weapons` names a weapon set under `sets.weapons`, such as `sets.weapons.Tizona`. Unless `state.UnlockWeapons` is on, Sel locks the slots that set fills (`main` and `sub`, and `range` or `ammo` when it names them): no other set's piece goes in a locked slot, whatever the set says. With the weapons state at `None` nothing is locked and each set's weapons go on, which resets TP when they change. With the lock off, Sel lays the weapon set over the idle and engaged sets.
+
+`gs test set` runs none of Sel's hooks, so `data/User/User-Globals.lua` gives it Sel's locked gear through `test_set_locks`, which returns `internal_disable`: the locked weapon set and any other lock in force, such as `sets.buff.Doom`. The set is tested with the weapons the current weapon set and lock would leave in hand. A set under `sets.weapons` is the exception: it is tested with its own weapons and no locks.
+
+### Auditing a set with weapons in hand
+
+Engaged and weapon skill sets name no weapons, so `gs audit set` reads them with whatever the lock leaves in hand. To read one with a given weapon pair in a Windower script:
+
+- **Turn the lock on.** With `state.UnlockWeapons` on, nothing is locked, `gs test set` strips `main` and `sub` with the other slots, and the record is taken bare-handed. Send `gs c set UnlockWeapons false` first, and `gs c set UnlockWeapons true` at the end if the job starts unlocked.
+- **Enable the file before each weapon change.** Each `gs test` or `gs audit` switches the user file off for 30 seconds, and a `gs c` command sent in that time does nothing. A bare `gs enable` ends the hold. So each change is `gs enable`, then `gs c set Weapons <weapon set>`, then a few seconds' wait.
+- **Pick the weapon set's group first.** `state.Weapons` takes only the weapon sets of the current `state.WeaponSets` group (the gear file's `weapon_sets` table), and Sel puts a support job that can dual wield in `Dual`. Setting a weapon set from another group is refused and the old weapons stay on. Send `gs c set WeaponSets Default` before a single-wield weapon set and `gs c set WeaponSets Dual` before a dual-wield one.
+- **Wait out each audit.** `gs audit` can wait up to 10 seconds for the stats update and 1.5 more for `/checkparam`, and another audit sent before then drops the record. Allow 13 seconds.
+- **Check each record's `gear.main` and `gear.sub`.** They show which weapons it was taken with.
+
+`/checkparam` gives accuracy with the buffs and food in force when it ran, and without weapon skill accuracy (Fotia Gorget, Fotia Belt and the like), which applies only while a weapon skill lands. Add that back for a weapon skill set, and take out any buff the record had on before comparing it with a floor that doesn't count buffs.
+
+```
+gs c set UnlockWeapons false
+wait 2
+gs enable
+wait 2
+gs c set WeaponSets Default
+wait 2
+gs c set Weapons <single-wield weapon set>
+wait 4
+gs audit set sets.engaged
+wait 13
+gs enable
+wait 2
+gs c set WeaponSets Dual
+wait 2
+gs c set Weapons <dual-wield weapon set>
+wait 4
+gs audit set sets.engaged.DW
+wait 13
+gs enable
+wait 2
+gs c set UnlockWeapons true
+```
 
 ## Hooks a gear file may define
 

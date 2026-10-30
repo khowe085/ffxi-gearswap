@@ -7,6 +7,7 @@ Bludgeon
 Body Slam
 Cannonball
 Claw Cyclone
+Crocea Mors
 Death Scissors
 Delta Thrust
 Dimensional Death

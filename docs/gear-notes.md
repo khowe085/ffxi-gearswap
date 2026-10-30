@@ -388,6 +388,15 @@ bg-wiki's set pages show no set bonus for these, and no help text of their items
 - Colada isn't Rare. With two copies, name each copy by its augments, because a bare "Colada" can equip either one. ([bg-wiki](https://www.bg-wiki.com/ffxi/Colada))
 - Colada has Fast Cast +4% whatever its augments. It counts only when Colada is in the main hand at precast, so it helps casts started while Colada is the idle weapon, not casts started while engaged with other weapons. ([bg-wiki](https://www.bg-wiki.com/ffxi/Colada))
 
+### Crocea Mors
+
+*Crocea Mors. RDM only.*
+
+- It is the HQ2 of the Duelist's Sword synthesis (Vitiation Sword is HQ1). Oboro ranks it up to 25 with Dynamis - Divergence currency, as a Divergence weapon, not an Ultimate Weapon. bg-wiki gives only the rank 25 augments: Sword enh. spell damage +500%, Ele. weapon skill damage +100% and DMG +7 on every path. ([bg-wiki](https://www.bg-wiki.com/ffxi/Crocea_Mors))
+- The Sword enh. spell damage augment adds to Composure's multiplier for this sword's own Enspell hits only. The Ele. weapon skill damage augment multiplies the (152 + item level term + WSC) × fTP part of a magical weapon skill only, not dSTAT or Magic Damage. ([bg-wiki](https://www.bg-wiki.com/ffxi/Crocea_Mors); see [ffxi-mechanics.md](ffxi-mechanics.md))
+- Its Magic Damage +217 counts for Sanguine Blade, Seraph Blade and Red Lotus Blade, as Naegling's does. Its Fast Cast +20% counts only when it is in the main hand at precast.
+- Simulated sets ([bg-wiki All Jobs Gear Sets](https://www.bg-wiki.com/ffxi/All_Jobs_Gear_Sets), Odyssey at rank 30, Nyame Path B rank 25): RDM: Sanguine Blade (Mid buff); Seraph Blade (Mid buff); Red Lotus Blade (Mid buff); EnSpell (EnSpell: Crocea).
+
 ### Demers. Degen +1
 
 *Demersal Degen +1. RDM, not BLU.*

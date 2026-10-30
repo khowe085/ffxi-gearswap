@@ -47,6 +47,15 @@ sealed class RankTables
 			item.Paths.Select(path => new RankPath(path.Path, path.Ranks.Select(row => new RankRow(row.Rank, row.Augments)).ToList())).ToList())).ToList());
 	}
 
+	// These tables with simulated ones added. Once bg-wiki has a table for a simulated item, the simulated one has to go.
+	public RankTables With(IReadOnlyList<RankedItem> simulated)
+	{
+		var tabled = simulated.Where(item => Items.Any(candidate => candidate.Name == item.Name)).Select(item => item.Name).ToList();
+		if (tabled.Count > 0)
+			throw new InvalidOperationException($"bg-wiki has a rank table for {string.Join(", ", tabled)} now. Take the simulated table out of rank-doc.cs.");
+		return new RankTables(Fetched, [.. Items, .. simulated]);
+	}
+
 	public void Save()
 	{
 		var file = new FileJson
@@ -137,12 +146,47 @@ sealed class RankedItem
 
 	public IReadOnlyList<RankPath> Paths { get; }
 
-	public RankedItem(string name, string title, int rankMax, IReadOnlyList<RankPath> paths)
+	// How a table bg-wiki doesn't have was made up; empty for one read from bg-wiki.
+	public string Simulated { get; }
+
+	public RankedItem(string name, string title, int rankMax, IReadOnlyList<RankPath> paths, string simulated = "")
 	{
 		Name = name;
 		Title = title;
 		RankMax = rankMax;
 		Paths = paths;
+		Simulated = simulated;
+	}
+}
+
+// A rank table for an item bg-wiki has none for, made from the player's word on its first and last ranks: each
+// augment's number steps evenly between them, rounded down.
+static class LinearRankTable
+{
+	public static RankedItem Build(string name, string path, int rankMax, IReadOnlyList<string> first, IReadOnlyList<string> last, string simulated)
+	{
+		var number = new Regex(@"\d+");
+		for (var line = 0; line < first.Count; line++)
+		{
+			string[] ends = [first[line], last[line]];
+			var unsteppable = ends.FirstOrDefault(augment => number.Matches(augment).Count != 1);
+			if (unsteppable is not null)
+				throw new InvalidOperationException($"The simulated rank table for {name}: \"{unsteppable}\" doesn't hold exactly one number to step.");
+			if (number.Replace(first[line], "#") != number.Replace(last[line], "#"))
+				throw new InvalidOperationException($"The simulated rank table for {name}: \"{first[line]}\" and \"{last[line]}\" differ in more than the number.");
+		}
+		var rows = Enumerable.Range(1, rankMax).Select(rank =>
+		{
+			string[] augments = ["", "", "", ""];
+			for (var line = 0; line < first.Count; line++)
+			{
+				var from = int.Parse(number.Match(first[line]).Value);
+				var to = int.Parse(number.Match(last[line]).Value);
+				augments[line] = number.Replace(first[line], (from + (to - from) * (rank - 1) / (rankMax - 1)).ToString(), 1);
+			}
+			return new RankRow(rank, augments);
+		}).ToList();
+		return new RankedItem(name, name, rankMax, [new RankPath(path, rows)], simulated);
 	}
 }
 

@@ -172,7 +172,7 @@ function job_post_precast(spell, spellMap, eventArgs)
 
 		if (WSset.ear1 == "Moonshade Earring" or WSset.ear2 == "Moonshade Earring") then
 			-- Replace Moonshade Earring if we're at cap TP
-			if get_effective_player_tp(spell, WSset) >= 3000 then
+			if get_effective_player_tp(spell, WSset) > 3200 then
 				if data.weaponskills.elemental:contains(spell.english) then
 					if wsacc:contains('Acc') and sets.MagicalAccMaxTP then
 						equip(sets.MagicalAccMaxTP[spell.english] or sets.MagicalAccMaxTP)

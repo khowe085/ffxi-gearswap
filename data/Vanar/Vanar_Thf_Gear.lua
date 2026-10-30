@@ -9,7 +9,7 @@ function character_user_job_setup()
 	state.PhysicalDefenseMode:options('PDT')
 	state.MagicalDefenseMode:options('MDT')
 	state.ResistDefenseMode:options('MEVA')
-	state.Weapons:options('Naegling','Tauret')
+	state.Weapons:options('Tauret','Naegling')
 
 	--Weaponskills that get a buff from Auto WS Buff (User-Globals.lua) first.
 	ws_buff_list = S{'Evisceration'}

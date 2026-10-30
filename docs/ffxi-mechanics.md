@@ -607,6 +607,21 @@ Accuracy = floor(DEX × 0.75)
 - Each Master Level adds +1 DEX (about 0.75 accuracy) along with its +1 skill (bg-wiki, Master Levels).
 - Accuracy doesn't show on the status or equipment screens. `/checkparam <me>` shows it (FFXIclopedia, Accuracy). Ask the player for `/checkparam` numbers in the set rather than adding up gear by hand.
 
+### What `/checkparam` records confirm
+
+A RDM's `gs audit` records of 2026-10-29 (about 170 sets, 23 of them with a weapon pair locked in hand) fit the formula above to within 1 on every record, once these are known. Each settles something this doc otherwise takes on bg-wiki's word or assumes. How to take such records is in [sel.md](frameworks/sel.md#auditing-a-set-with-weapons-in-hand).
+
+- **What the reading leaves out.** `/checkparam` doesn't count weapon skill accuracy (Fotia Gorget and Fotia Belt +10 each, Karieyh Ring +5), which applies only while a weapon skill lands. It does count the buffs and food on when it ran. Add the first back, and take the second out, before comparing a reading with a floor that counts gear and food only.
+- **Composure** reads exactly +70 at a full Composure Effect job point category (the table under Accuracy from set bonuses and abilities).
+- **Off-hand weapons.** A sub weapon's Accuracy and DEX count for the main hand; its combat skill doesn't:
+  - Bunzi's Rod (Accuracy +40) in the sub reads 40 above Thibron there.
+  - Almace (DEX +50) in the sub reads 37 above Thibron there, floor(50 × 0.75). Its rank augment's DEX +20 adds nothing from the sub, as the main-hand-only group in Which hand a weapon's stats work from says.
+  - The off hand's own reading follows its weapon's skill: Almace (Sword skill +269) reads 17 above a Naegling (+250) main hand, and Bunzi's Rod (Club skill +242) 7 below a Maxentius (+250) one.
+- **Skill past 600 is worth about 0.9 accuracy a point.** Crocea Mors (Sword skill +269, Accuracy +50, no DEX) reads 16 above Naegling (+250, Accuracy +40, DEX +15) in the same set: 10 from Accuracy, −11 from DEX, so about 17 from 19 skill. That agrees with Sword skill past 600 for a hand that holds an item-level weapon.
+- **Rank and Unity values read at what the copy has now.** A rank-augmented piece reads its rank's Accuracy, so a reading above the formula by a whole rank step means the player's recorded rank is behind. Ask, and update the Ranks table. A Unity piece reads that week's value (Forfend +1 read +18 of its +10 to 20), so a floor that counts the minimum has to take the difference out.
+- **A stale stat block doesn't spoil the reading.** A record with `char_stats_fresh` false carries the previous set's STR to CHR, but its `/checkparam` numbers match a fresh record of the same set. Take DEX from the gear for such a record, not from its stat block.
+- **Not yet measured:** food. Every record so far is unfed, so food's accuracy (Accuracy from food) is still bg-wiki's figure.
+
 ### Hit rate and the accuracy cap
 
 bg-wiki, Hit Rate:

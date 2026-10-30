@@ -32,10 +32,16 @@ food_lists = {
 }
 state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Attack','Oden'}
 trust_lists = {
-	Default = {'Sylvie (UC)','Qultada','Ulmia','Joachim','Cherukiki'},
-	Limbus = {'Sylvie (UC)','Qultada','Ulmia'},
+	Default = {'Yoran-Oran (UC)','Koru-Moru','Qultada','Ulmia','Joachim'},
+	Limbus = {'Yoran-Oran (UC)','Qultada','Ulmia'},
+	Totems = {'Brygid','Saukura','StarSibyl','Moogle'},
+	Oddy1 = {'Valaineral','Kupipi','Koru-Moru','Brygid','Joachim'},
+	Oddy2 = {'Rughadjeen','Mihli Aliapoh','Ferreous Coffin', 'King of Hearts','Ulmia'	},
+	Oddy3 = {'August','Cherukiki','Arciela II', 'Qultada','Moogle'},
 }
-state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus'}
+state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus','Totems','Oddy1','Oddy2','Oddy3'}
+
+
 send_command('bind f6 gs c cycle AutoTrustMode') --Cycles through Off and the trust_lists entries, summoning that list's trusts automatically.
 send_command('bind f7 gs c set DefenseMode Physical') --Turns your physical defense set on.
 send_command('bind ^f7 gs c cycle PhysicalDefenseMode') --Changes your physical defense set.
@@ -974,6 +980,31 @@ local sel_filter_precast = filter_precast
 function filter_precast(spell, spellMap, eventArgs)
 	if spell.test then return end
 	return sel_filter_precast(spell, spellMap, eventArgs)
+end
+
+--gs test set runs none of Sel's hooks, so it lays this over the set, as Sel's handle_actions lays it over each action's gear.
+--A weapon set, at any depth under sets.weapons, is tested with its own weapons and no locks.
+--seen stops a set that names its own parent from recursing forever.
+local function holds_set(parent, set, seen)
+	seen[parent] = true
+	for _, child in pairs(parent) do
+		if type(child) == 'table' and not seen[child] and (child == set or holds_set(child, set, seen)) then return true end
+	end
+	return false
+end
+
+function test_set_locks(set)
+	if holds_set(sets.weapons, set, {}) then return {} end
+	return internal_disable
+end
+
+--Sel's weapon skill walk stops at the weapon skill mode. A gear file that sets get_custom_wsmode = weapon_set_ws_mode
+--goes on, in the Normal mode only, to the weapon skill's set named for the current weapon set, such as
+--sets.precast.WS['Savage Blade'].Naegbron, when there is one.
+function weapon_set_ws_mode(spell, spellMap, ws_mode)
+	if ws_mode ~= 'Normal' then return end
+	local ws_set = sets.precast.WS[spell.english] or (spellMap and sets.precast.WS[spellMap]) or sets.precast.WS
+	if ws_set[state.Weapons.value] then return state.Weapons.value end
 end
 
 --Magic burst detection, ported from the rahvin branch. A skillchain on a monster within 21 yalms, closed by anyone,
