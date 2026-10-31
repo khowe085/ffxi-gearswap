@@ -717,12 +717,13 @@ local function azure_set_names()
 	return names
 end
 
---Rechecks Dual Wield each second for a minute while AzureSets sets spells; Sel rereads it only on load or subjob change.
+--Rechecks Dual Wield each second for a minute while AzureSets sets spells; Sel starts the weapons over only on its first check after a load or subjob change.
 local function watch_dual_wield(request, had, checks)
 	if request ~= azure_request or checks > 60 then return end
 	local has = has_dual_wield()
 	if has ~= had then
 		set_dual_wield()
+		send_command('gs c weapons initialize')
 		if not midaction() then send_command('gs c update') end
 	end
 	watch_dual_wield:schedule(1, request, has, checks + 1)

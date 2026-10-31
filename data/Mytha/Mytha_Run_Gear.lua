@@ -367,7 +367,6 @@ function init_gear_sets()
 	-- Custom buff sets
 	--------------------------------------
 	sets.buff.Doom = set_combine(sets.buff.Doom, {})
-	sets.buff.Sleep = {head="Frenzy Sallet"}
 	sets.buff.Battuta = {hands="Turms Mittens +1"}
 	sets.buff.Embolden = {back="Evasionist's Cape"}
 	

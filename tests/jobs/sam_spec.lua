@@ -299,11 +299,11 @@ describe('SAM\'s engaged set', function()
         assert.same(engaged_with(), gs:worn())
     end)
 
-    it('goes without Hasso\'s set under a defense mode', function()
+    it('keeps Hasso\'s set under a defense mode', function()
         gs:console('gs c set DefenseMode Physical')
         gs:gain_buff('Hasso')
         gs:engage()
-        assert.same(engaged_with({hands = 'Sapphire Gauntlets'}), gs:worn())
+        assert.same(engaged_with({hands = 'Sapphire Gauntlets', feet = 'Sapphire Leggings'}), gs:worn())
     end)
 
     it('goes without Hasso\'s set in the FullAcc offense mode', function()
@@ -339,12 +339,26 @@ describe('SAM\'s engaged set', function()
         assert.same(engaged_with(), gs:worn())
     end)
 
-    it('goes without Third Eye\'s set in an accuracy mode', function()
+    it('goes without Hasso\'s set with a one-handed weapon', function()
+        gs:console('gs c set Weapons Sword')
+        gs:gain_buff('Hasso')
+        gs:engage()
+        assert.are_not.equal('Sapphire Leggings', gs:worn().feet)
+    end)
+
+    it('has Seigan\'s set over it with Seigan alone, when the gear file has one', function()
+        gs.user.sets.buff.Seigan = {legs = 'Sapphire Trousers'}
+        gs:gain_buff('Seigan')
+        gs:engage()
+        assert.same(engaged_with({legs = 'Sapphire Trousers'}), gs:worn())
+    end)
+
+    it('keeps Third Eye\'s set in an accuracy mode', function()
         gs:console('gs c set OffenseMode Acc')
         gs:gain_buff('Seigan')
         gs:gain_buff('Third Eye')
         gs:engage()
-        assert.same(engaged_with({body = 'Jadeite Cuirie'}), gs:worn())
+        assert.same(engaged_with({body = 'Jadeite Cuirie', feet = 'Jadeite Jambeaux'}), gs:worn())
     end)
 
     it('looks for Hasso before Seigan and Third Eye, taking Hasso\'s set with all three up, though the game never '

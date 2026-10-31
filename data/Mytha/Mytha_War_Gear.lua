@@ -203,7 +203,6 @@ function init_gear_sets()
 	sets.Kiting = {ring2="Shneddick Ring"}
 	sets.Reraise = {}
 	sets.buff.Doom = set_combine(sets.buff.Doom, {})
-	sets.buff.Sleep = {}
 	 
 	-- Engaged sets
 	sets.engaged = {ammo="Ginsen",

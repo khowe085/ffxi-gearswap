@@ -254,7 +254,6 @@ function init_gear_sets()
 
 	sets.buff['Killer Instinct'] = {body="Nukumi Gausape +3"}
 	sets.buff.Doom = set_combine(sets.buff.Doom, {})
-	sets.buff.Sleep = {} --head="Frenzy Sallet"
 	sets.TreasureHunter = set_combine(sets.TreasureHunter, {})
 	
 	-- Weapons sets

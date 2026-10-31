@@ -333,7 +333,6 @@ function init_gear_sets()
 		back="Swith Cape +1",legs="Apogee Slacks +1",feet="Apogee Pumps +1"}
 	
 	sets.buff.Doom = set_combine(sets.buff.Doom, {})
-	sets.buff.Sleep = {neck="Sacrifice Torque"}
 
 	-- Weapons sets
 	sets.weapons.Gridarvor = {main="Gridarvor", sub="Elan Strap +1"}
