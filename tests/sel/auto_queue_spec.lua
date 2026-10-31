@@ -4,10 +4,17 @@ local function on_me(name)
     return {action = name, target = 'Autoy'}
 end
 
+local function boot_with_queue(options)
+    local gs = autoy.boot(options)
+    gs:console('gs c toggle MiniQueue')
+    gs:traffic()
+    return gs
+end
+
 -- Autoy having just cast Haste. Sel's tick waits 3.85 seconds from the precast of Haste, a 3-second spell, and
 -- 2.5 seconds from its end, before it acts again.
 local function just_cast(options)
-    local gs = autoy.boot(options)
+    local gs = boot_with_queue(options)
     gs:type('/ma "Haste" <me>')
     gs:finish_action()
     gs:traffic()
@@ -15,6 +22,15 @@ local function just_cast(options)
 end
 
 describe('Sel\'s MiniQueue', function()
+    it('starts off, so a spell typed during the wait goes straight through', function()
+        local gs = autoy.boot()
+        gs:type('/ma "Haste" <me>')
+        gs:finish_action()
+        gs:traffic()
+        gs:type('/ma "Phalanx" <me>')
+        assert.same({on_me('Phalanx')}, gs:action_entries())
+    end)
+
     it('holds a spell typed during the wait after the last action, and casts it from the tick once the wait is over', function()
         local gs = just_cast()
         assert.is_true(gs:type('/ma "Phalanx" <me>'))
@@ -40,7 +56,7 @@ describe('Sel\'s MiniQueue', function()
     end)
 
     it('holds a spell typed while walking until the character stands', function()
-        local gs = autoy.boot()
+        local gs = boot_with_queue()
         gs.game:walk()
         gs:play(1.5)
         gs:traffic()

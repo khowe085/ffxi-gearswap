@@ -22,10 +22,8 @@ describe('Sel\'s tick', function()
         assert.same(refresh, gs:action_entries())
     end)
 
-    -- MiniQueue would hold a spell typed while walking and cast it once the character stands, so it is off here.
     it('holds back while the character walks, and acts once it stands', function()
         local gs = boot()
-        gs:console('gs c toggle MiniQueue')
         gs:traffic()
         gs.game:walk()
         gs:play(3)

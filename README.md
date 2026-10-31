@@ -60,7 +60,8 @@ Their other keys use job abilities or spells directly and change no mode.
 | AutoArts | off, on | Composure, Light or Dark Arts, Afflatus Solace and Addendum upkeep. Off stops them entirely, AutoBuffMode and `gs c buffup` included |
 | SkipProcWeapons | off, on | On, `Weapons` skips weapon sets named Proc unless WeaponSets is a Proc group |
 | AutoDefenseMode, AutoShadowMode, AutoSubMode, AutoJumpMode, AutoSuperJumpMode, AutoTankMode, AutoCleanupMode, AutoAcceptRaiseMode | off, on | Job automation |
-| AutoRemoveDoomMode, AutoHolyWaterMode, AutoContradanceMode, CancelStoneskin, AdjustTargets, MiniQueue, RefineWaltz, IdleStep, HoverShot, UseCustomTimers, SelfWarp2Block, DisplayMode | on, off | Upkeep and convenience |
+| MiniQueue | off, on | Holds a press made too soon after an action, or while moving, and casts it when it can |
+| AutoRemoveDoomMode, AutoHolyWaterMode, AutoContradanceMode, CancelStoneskin, AdjustTargets, RefineWaltz, IdleStep, HoverShot, UseCustomTimers, SelfWarp2Block, DisplayMode | on, off | Upkeep and convenience |
 | Capacity, NotifyBuffs, SelectNPCTargets, WakeUpWeapons, ElementalWheel | off, on | Capacity cape on; tell the party about buffs in `NotifyBuffs`; let `<st>` targeting pick NPCs; hold `sets.WakeUpWeapons` while asleep; move ElementalMode on after each nuke |
 | AutoRuneMode | Off, Runes, Full | RUN or /RUN: keeps runes up |
 | AutoSambaMode | Off, Haste Samba, Aspir Samba, Drain Samba II | DNC or /DNC: keeps the chosen samba up |
@@ -70,7 +71,7 @@ Their other keys use job abilities or spells directly and change no mode.
 | RuneElement | Ignis, Gelus, Flabra, Tellus, Sulpor, Unda, Lux, Tenebrae | Rune AutoRuneMode keeps up |
 | RegenMode | None, Duration, Potency | Which Regen midcast set to wear |
 | AspisMode | 250, 500, 1000, Always, Never | When Diamond Aspis swaps in for a job ability: below that TP, always, or never |
-| Uninterruptible | Delay, Off, Full | Delay holds a cast pressed while moving until you stop; Full keeps queued actions through an interruption |
+| Uninterruptible | Delay, Off, Full | With MiniQueue on, Delay holds a cast pressed while moving until you stop; Full keeps queued actions through an interruption |
 | PCTargetMode | default, stpt, stal, stpc | Subtarget used for spells aimed at players |
 | WeaponSets | Set per job | Picks which group of weapon sets `Weapons` cycles through |
 | CraftingMode, CraftQuality, EquipStop, RestingMode | | Crafting and debugging |
