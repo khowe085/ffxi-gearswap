@@ -228,16 +228,21 @@ end
 --		WS = 'Expiacion 1000',         --The AutoWS choice to set, set again after a change to a weapon set that has it.
 --		Pull = 'Glutinous Dart',       --A spell or job ability used on the monster, or 'Ranged'.
 --		PullRange = 20,                --Yalms.
+--		Debuffs = {'Dia', 'Slow'},     --Spells and job abilities used on the monster you're fighting.
 --		Heal = 'Plenilune Embrace',    --A spell or job ability used on yourself. At or under HealHPP % HP for more
 --		HealHPP = 50,                  --than HealSeconds, it goes ahead of buffs and weaponskills whenever it's
 --		HealSeconds = 5,               --ready, and at or under HealHPP no pull goes out.
 --	}
---Trusts, Healer, Buffs, WS and Heal can be left out, and one the lists no longer offer is passed over: a trust or buff
---list gone, a WS the weapon set lacks, a Healer off the trust list, a Heal not set. Turning it off puts AutoTrustMode,
---AutoBuffMode and AutoWS back.
+--Trusts, Healer, Buffs, WS, Debuffs and Heal can be left out, and one the lists no longer offer is passed over: a trust
+--or buff list gone, a WS the weapon set lacks, a Healer off the trust list, a Heal or debuff not set. Turning it off puts
+--AutoTrustMode, AutoBuffMode and AutoWS back.
 --Idle and out of town, it calls the AutoTrustMode list's missing trusts, going on without one on recast or one it
 --can't call, presses F8 for the nearest monster, uses Pull on it when it's unclaimed and within PullRange, and engages
 --it once it's claimed. A monster already fighting the party is engaged first. It turns itself off on zoning and on death.
+--Engaged, it goes through Debuffs on a monster within PullRange, each once: the first on the list that's ready goes next,
+--so one on recast or short of MP holds up none of the rest. One resisted counts as used. One interrupted or refused goes
+--again at least 3 seconds later, behind any not tried yet. Pull counts as used on the monster it pulled. Buffs go first,
+--and Auto WS waits for a debuff that's ready.
 local autoxp = {}
 
 local function autoxp_action(name)
@@ -299,6 +304,11 @@ local function autoxp_wait_reason(action)
 	end
 end
 
+--Heal and Debuffs can't take 'Ranged'.
+local function autoxp_magic_or_ability(name)
+	return type(name) == 'string' and name ~= 'Ranged' and autoxp_action(name)
+end
+
 local function autoxp_problem(s)
 	if type(s) ~= 'table' then return 'the gear file has no AutoXP_Settings table.' end
 	local pull = type(s.Pull) == 'string' and autoxp_action(s.Pull)
@@ -306,11 +316,16 @@ local function autoxp_problem(s)
 	if not autoxp_usable(pull) then return "you can't use "..s.Pull..' now.' end
 	if type(s.PullRange) ~= 'number' then return 'PullRange must be a number of yalms.' end
 	if s.Heal ~= nil then
-		local heal = type(s.Heal) == 'string' and s.Heal ~= 'Ranged' and autoxp_action(s.Heal)
-		if not heal then return 'Heal must name a spell or a job ability.' end
+		if not autoxp_magic_or_ability(s.Heal) then return 'Heal must name a spell or a job ability.' end
 		if type(s.HealHPP) ~= 'number' or type(s.HealSeconds) ~= 'number' then return 'Heal needs HealHPP and HealSeconds.' end
 	end
 	if s.Healer ~= nil and type(s.HealerMPP) ~= 'number' then return 'Healer needs HealerMPP.' end
+	if s.Debuffs ~= nil then
+		if type(s.Debuffs) ~= 'table' then return 'Debuffs must be a list of spells and job abilities.' end
+		for _, name in ipairs(s.Debuffs) do
+			if not autoxp_magic_or_ability(name) then return 'Debuffs: '..tostring(name)..' is no spell or job ability.' end
+		end
+	end
 end
 
 --Sets the mode to the value only while the mode offers it: the lists behind the modes change, and a value they no
@@ -340,9 +355,14 @@ local function autoxp_start()
 		saved = saved,
 		pull = autoxp_action(s.Pull),
 		heal = s.Heal and autoxp_action(s.Heal),
+		debuffs = {},
+		debuff_at = {},
 		healer_id = type(s.Healer) == 'string' and get_spell_id_by_name(s.Healer) or nil,
 		retry_at = 0, pull_until = 0, dismiss_at = 0, check_at = 0, heal_at = 0, trust_calls = {},
 	}
+	for _, name in ipairs(s.Debuffs or {}) do
+		autoxp.debuffs[#autoxp.debuffs + 1] = autoxp_action(name)
+	end
 	autoxp.healer_name = autoxp.healer_id and res.spells[autoxp.healer_id].party_name
 	autoxp_offer('AutoTrustMode', s.Trusts)
 	autoxp_offer('AutoBuffMode', s.Buffs)
@@ -462,6 +482,9 @@ end
 --The engage packet and the guard Sel's AutoEngageMode use, so the two never engage over each other.
 local function autoxp_engage(mob)
 	engaging = os.clock() + 2
+	--A monster can come back under the same id, so each engage starts its debuffs over.
+	autoxp.debuff_id, autoxp.debuff_at = mob.id, {}
+	if mob.id == autoxp.pull_id then autoxp.debuff_at[AutoXP_Settings.Pull] = math.huge end
 	autoxp.pull_id, autoxp.pull_until, autoxp.targeted_at = nil, 0, nil
 	packets.inject(packets.new('outgoing', 0x1a, {
 		['Target'] = mob.id,
@@ -470,8 +493,41 @@ local function autoxp_engage(mob)
 	}))
 end
 
+--The debuff to use next: of those that can go now, the first on the list not tried yet, then the one refused longest ago.
+--Sel's tick can stand still past a refused spell's 3 seconds, so going by the list alone would only ever try that spell.
+--debuff_at holds when each can go again on the monster being fought: never, once used.
+local function autoxp_next_debuff()
+	if not autoxp_running() or player.status ~= 'Engaged' then return end
+	local mob = windower.ffxi.get_mob_by_target('t')
+	if not (mob and mob.spawn_type == 16 and mob.hpp > 0 and autoxp_in_range(mob)) then return end
+	if mob.id ~= autoxp.debuff_id then autoxp.debuff_id, autoxp.debuff_at = mob.id, {} end
+	local now, next_debuff, next_at = os.clock(), nil, math.huge
+	for _, debuff in ipairs(autoxp.debuffs) do
+		local at = autoxp.debuff_at[debuff.spell or debuff.ability] or 0
+		if at <= now and at < next_at and not autoxp_wait_reason(debuff) then next_debuff, next_at = debuff, at end
+	end
+	return next_debuff
+end
+
+local function autoxp_use_debuff()
+	local debuff = autoxp_next_debuff()
+	if not debuff then return false end
+	autoxp.debuff_at[debuff.spell or debuff.ability] = math.huge
+	windower.chat.input(debuff.command..' <t>')
+	add_tick_delay()
+	return true
+end
+
+--A refused job ability starts no recast and hardly holds Sel's tick, so debuff_at spaces out its sends. GearSwap gives an
+--action the game refuses (too far away, say) to aftercast as interrupted.
+function extra_user_aftercast(spell, spellMap, eventArgs)
+	if spell.interrupted and autoxp_running() and autoxp.debuff_at[spell.english] then
+		autoxp.debuff_at[spell.english] = os.clock() + 3
+	end
+end
+
 --Sel's tick runs user_tick ahead of the job's tick (its AutoBuffMode buffs) and extra_user_tick after it, so the
---buffs go up between pulls before the next pull.
+--buffs go up ahead of the next pull and of the debuffs.
 function user_tick()
 	if not autoxp_running() or in_town then return false end
 
@@ -507,7 +563,8 @@ function user_tick()
 end
 
 function extra_user_tick()
-	if not autoxp_running() or in_town or player.status ~= 'Idle' then return false end
+	if not autoxp_running() or in_town then return false end
+	if player.status ~= 'Idle' then return autoxp_use_debuff() end
 	local now = os.clock()
 	if now < engaging then return false end
 	if autoxp.low_since then
@@ -672,7 +729,7 @@ windower.raw_register_event('tp change', function(new_tp)
 
 	local now = os.clock()
 	if now < autows_next or midaction() then return end
-	if autoxp_heal_first() then return end
+	if autoxp_heal_first() or autoxp_next_debuff() then return end
 	if player.status ~= 'Engaged' or (new_tp or player.tp) < 1000 then return end
 	if buffactive['Amnesia'] or buffactive['Sleep'] or buffactive['Stun'] or buffactive['Petrification'] or buffactive['Terror'] or buffactive['Charm'] then return end
 

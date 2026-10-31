@@ -573,6 +573,7 @@ AutoXP_Settings = {
 	WS = 'Expiacion 1000',
 	Pull = 'Glutinous Dart',
 	PullRange = 20,
+	Debuffs = {},
 	Heal = 'Plenilune Embrace',
 	HealHPP = 50,
 	HealSeconds = 5,
