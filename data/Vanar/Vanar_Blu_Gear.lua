@@ -564,6 +564,21 @@ AutoWS_List = {
 	['Maxentius Acc'] = { { 'Black Halo', 1000 }, { 'Black Halo', 1750 }, { 'Black Halo', 2750 } },
 }
 
+--gs c toggle AutoXP; the Auto XP comment in User-Globals.lua says what each field does. Glutinous Dart has to be set.
+AutoXP_Settings = {
+	Trusts = 'Default',
+	Healer = 'Sylvie (UC)',
+	HealerMPP = 10,
+	Buffs = 'Tizona',
+	WS = 'Expiacion 1000',
+	Pull = 'Glutinous Dart',
+	PullRange = 20,
+	Debuffs = {},
+	Heal = 'Plenilune Embrace',
+	HealHPP = 50,
+	HealSeconds = 5,
+}
+
 local Unbridled_Spells = S{'Absolute Terror','Bilgestorm','Blistering Roar','Bloodrake','Carcharian Verve',
 	'Cesspool','Crashing Thunder','Cruel Joke','Droning Whirlwind','Gates of Hades','Harden Shell',
 	'Mighty Guard','Polar Roar','Pyric Bulwark','Tearing Gust','Thunderbolt','Tourbillion','Uproot'}

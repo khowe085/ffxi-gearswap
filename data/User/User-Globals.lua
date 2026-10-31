@@ -14,6 +14,7 @@ state.NotifyBuffs	  		= M(false, 'Notify Buffs') 	 --Set this to true if you wan
 state.TreasureMode:set('Tag') --Sel-TreasureHunter only defaults THF to Tag; this makes every job start in Tag.
 state.AutoWSBuff			= M(true, 'Auto WS Buff') --Set this to false if you don't want a ready WAR/DRK buff used before each weaponskill. Toggle: gs c toggle AutoWSBuff
 state.AutoWS				= M{['description']='Auto WS', 'OFF'} --Options are rebuilt from AutoWS_List for the current weapon set; don't call :options() on it.
+state.AutoXP				= M(false, 'Auto XP') --Pulls and fights nearby monsters by itself, from the gear file's AutoXP_Settings. Toggle: gs c toggle AutoXP
 
 --[[Binds you may want to change.
 	Bind special characters.
@@ -218,6 +219,428 @@ function user_status_change(newStatus, oldStatus, eventArgs)
 	hold_engaged_weapons(newStatus)
 end
 
+--Auto XP: gs c toggle AutoXP pulls and fights nearby monsters by itself, from the gear file's AutoXP_Settings:
+--	AutoXP_Settings = {
+--		Trusts = 'Default',            --The trust_lists entry AutoTrustMode is set to.
+--		Healer = 'Yoran-Oran (UC)',    --One of those trusts. Between pulls, under HealerMPP % MP, it's dismissed and called again.
+--		HealerMPP = 10,
+--		Buffs = 'Tizona',              --The AutoBuffMode option to set.
+--		WS = 'Expiacion 1000',         --The AutoWS choice to set, set again after a change to a weapon set that has it.
+--		Pull = 'Glutinous Dart',       --A spell or job ability used on the monster, or 'Ranged'.
+--		PullRange = 20,                --Yalms.
+--		Debuffs = {'Dia', 'Slow'},     --Spells and job abilities used on the monster you're fighting.
+--		Heal = 'Plenilune Embrace',    --A spell or job ability used on yourself. At or under HealHPP % HP for more
+--		HealHPP = 50,                  --than HealSeconds, it goes ahead of buffs and weaponskills whenever it's
+--		HealSeconds = 5,               --ready, and at or under HealHPP no pull goes out.
+--	}
+--Trusts, Healer, Buffs, WS, Debuffs and Heal can be left out, and one the lists no longer offer is passed over: a trust
+--or buff list gone, a WS the weapon set lacks, a Healer off the trust list, a Heal or debuff not set. Turning it off puts
+--AutoTrustMode, AutoBuffMode and AutoWS back.
+--Idle and out of town, it calls the AutoTrustMode list's missing trusts, going on without one on recast or one it
+--can't call, presses F8 for the nearest monster, uses Pull on it when it's unclaimed and within PullRange, and engages
+--it once it's claimed. A monster already fighting the party is engaged first. It turns itself off on zoning and on death.
+--Engaged, it goes through Debuffs on a monster within PullRange, each once: the first on the list that's ready goes next,
+--so one on recast or short of MP holds up none of the rest. One resisted counts as used. One interrupted or refused goes
+--again at least 3 seconds later, behind any not tried yet. Pull counts as used on the monster it pulled. Buffs go first,
+--and Auto WS waits for a debuff that's ready.
+local autoxp = {}
+
+local function autoxp_action(name)
+	if name == 'Ranged' then return {command = '/ra'} end
+	local spell_id = get_spell_id_by_name(name)
+	if spell_id then return {command = '/ma "'..name..'"', spell = name, id = spell_id} end
+	local ability_id = get_ability_id_by_name(name)
+	if ability_id then
+		local ability = res.job_abilities[ability_id]
+		return {command = '/ja "'..name..'"', ability = name, recast = ability.recast_id, tp = ability.tp_cost or 0}
+	end
+end
+
+--What each kind of ranged weapon fires, by the range_type and ammo_type of Windower's item resources.
+local autoxp_ammo_types = {Bow = 'Arrow', Crossbow = 'Bolt', Gun = 'Bullet', Cannon = 'Shell'}
+
+local function autoxp_throwing(item)
+	return item ~= nil and res.skills[item.skill] ~= nil and res.skills[item.skill].en == 'Throwing'
+end
+
+--A thrown weapon in the range slot (a boomerang) or the ammo slot (shuriken) fires by itself; a bow, crossbow or
+--gun needs its own kind of ammo.
+local function autoxp_can_shoot()
+	local range = res.items:with('en', player.equipment.range)
+	local ammo = res.items:with('en', player.equipment.ammo)
+	if not range then return autoxp_throwing(ammo) end
+	if autoxp_throwing(range) then return true end
+	local wanted = autoxp_ammo_types[range.range_type]
+	return wanted ~= nil and ammo ~= nil and ammo.ammo_type == wanted
+end
+
+local function autoxp_blue_set(job_data, id)
+	return job_data ~= nil and job_data.spells ~= nil and table.contains(job_data.spells, id)
+end
+
+--Blue magic can only be cast while it's set.
+local function autoxp_usable(action)
+	if action.ability then return silent_can_ability(action.ability) end
+	if not action.spell then return autoxp_can_shoot() end
+	if res.spells[action.id].type ~= 'BlueMagic' then return silent_can_cast(action.spell) end
+	return (player.main_job_id == 16 and autoxp_blue_set(windower.ffxi.get_mjob_data(), action.id))
+		or (player.sub_job_id == 16 and autoxp_blue_set(windower.ffxi.get_sjob_data(), action.id))
+end
+
+--Why the action has to wait ('recast' when that's all it waits on), or nil when it can go now.
+local function autoxp_wait_reason(action)
+	if not autoxp_usable(action) then return "can't be used" end
+	if action.spell then
+		if buffactive.silence or buffactive.mute or buffactive.Omerta then return 'silenced' end
+		if actual_cost(action.id) > player.mp then return 'not enough MP' end
+		if windower.ffxi.get_spell_recasts()[action.id] >= spell_latency then return 'recast' end
+	elseif action.ability then
+		if silent_check_amnesia() then return 'abilities are blocked' end
+		if action.tp > player.tp then return 'not enough TP' end
+		--Sel caches an ability as usable until the next zone, but level sync can take it away before then.
+		local recast = windower.ffxi.get_ability_recasts()[action.recast]
+		if not recast then return "can't be used" end
+		if recast >= latency then return 'recast' end
+	end
+end
+
+--Heal and Debuffs can't take 'Ranged'.
+local function autoxp_magic_or_ability(name)
+	return type(name) == 'string' and name ~= 'Ranged' and autoxp_action(name)
+end
+
+local function autoxp_problem(s)
+	if type(s) ~= 'table' then return 'the gear file has no AutoXP_Settings table.' end
+	local pull = type(s.Pull) == 'string' and autoxp_action(s.Pull)
+	if not pull then return 'Pull must name a spell, a job ability or Ranged.' end
+	if not autoxp_usable(pull) then return "you can't use "..s.Pull..' now.' end
+	if type(s.PullRange) ~= 'number' then return 'PullRange must be a number of yalms.' end
+	if s.Heal ~= nil then
+		if not autoxp_magic_or_ability(s.Heal) then return 'Heal must name a spell or a job ability.' end
+		if type(s.HealHPP) ~= 'number' or type(s.HealSeconds) ~= 'number' then return 'Heal needs HealHPP and HealSeconds.' end
+	end
+	if s.Healer ~= nil and type(s.HealerMPP) ~= 'number' then return 'Healer needs HealerMPP.' end
+	if s.Debuffs ~= nil then
+		if type(s.Debuffs) ~= 'table' then return 'Debuffs must be a list of spells and job abilities.' end
+		for _, name in ipairs(s.Debuffs) do
+			if not autoxp_magic_or_ability(name) then return 'Debuffs: '..tostring(name)..' is no spell or job ability.' end
+		end
+	end
+end
+
+--Sets the mode to the value only while the mode offers it: the lists behind the modes change, and a value they no
+--longer hold leaves the mode as it is.
+local function autoxp_offer(mode, value)
+	if type(value) == 'string' and state[mode]:contains(value) then state[mode]:set(value) end
+end
+
+local function autoxp_set_ws()
+	autoxp_offer('AutoWS', AutoXP_Settings.WS)
+end
+
+local function autoxp_start()
+	local s = AutoXP_Settings
+	local problem = autoxp_problem(s)
+	if problem then
+		state.AutoXP:set(false)
+		add_to_chat(123, 'Auto XP: '..problem)
+		return
+	end
+
+	local saved = {}
+	for key, mode in pairs({Trusts = 'AutoTrustMode', Buffs = 'AutoBuffMode', WS = 'AutoWS'}) do
+		if s[key] ~= nil then saved[mode] = state[mode].value end
+	end
+	autoxp = {
+		saved = saved,
+		pull = autoxp_action(s.Pull),
+		heal = s.Heal and autoxp_action(s.Heal),
+		debuffs = {},
+		debuff_at = {},
+		healer_id = type(s.Healer) == 'string' and get_spell_id_by_name(s.Healer) or nil,
+		retry_at = 0, pull_until = 0, dismiss_at = 0, check_at = 0, heal_at = 0, trust_calls = {},
+	}
+	for _, name in ipairs(s.Debuffs or {}) do
+		autoxp.debuffs[#autoxp.debuffs + 1] = autoxp_action(name)
+	end
+	autoxp.healer_name = autoxp.healer_id and res.spells[autoxp.healer_id].party_name
+	autoxp_offer('AutoTrustMode', s.Trusts)
+	autoxp_offer('AutoBuffMode', s.Buffs)
+	autoxp_set_ws()
+end
+
+--A mode's options can change while Auto XP is on (AutoWS's with the weapon set); one no longer offered goes back to its first, Off.
+local function autoxp_stop()
+	local saved = autoxp.saved
+	autoxp = {}
+	for name, value in pairs(saved or {}) do
+		if state[name]:contains(value) then state[name]:set(value) else state[name]:reset() end
+	end
+end
+
+--Only autoxp_start, which toggling the mode runs, fills autoxp, so state.AutoXP set any other way does nothing.
+local function autoxp_running()
+	return state.AutoXP.value and autoxp.pull ~= nil
+end
+
+--While Auto XP runs it calls the trusts itself (user_tick below): Sel's own call goes again on every tick for a trust
+--that can't be called, and nothing after it in the tick would run.
+local sel_check_trust = check_trust
+function check_trust()
+	if autoxp_running() then return false end
+	return sel_check_trust()
+end
+
+local function autoxp_turn_off(reason)
+	state.AutoXP:set(false)
+	autoxp_stop()
+	add_to_chat(122, 'Auto XP is now off: '..reason)
+	if state.DisplayMode.value then update_job_states() end
+end
+
+--Shown once until the next pull, so a wait that lasts doesn't fill the chat log.
+local function autoxp_note(text)
+	if text == autoxp.last_note then return end
+	autoxp.last_note = text
+	add_to_chat(122, 'Auto XP: '..text)
+end
+
+--heal_at spaces out the sends: a Heal that Sel's precast refuses starts no recast and no cast delay.
+local function autoxp_heal_first()
+	return autoxp_running() and autoxp.heal and autoxp.low_since and os.clock() >= autoxp.heal_at
+		and os.clock() - autoxp.low_since > AutoXP_Settings.HealSeconds and not autoxp_wait_reason(autoxp.heal)
+end
+
+--The first trust of the AutoTrustMode list that's missing and can be called: known, its recast ready and room in
+--the party. One on recast waits for a later break between fights. A call that brings no trust in (it can't be called
+--here, or no more trusts are allowed) starts no recast, so after two the trust is given up on until it's seen in the
+--party again.
+local function autoxp_callable_trust()
+	local list = trust_lists[state.AutoTrustMode.value]
+	if not list then return end
+	local room = not windower.ffxi.get_party().p5
+	local known, recasts = windower.ffxi.get_spells(), windower.ffxi.get_spell_recasts()
+	local callable
+	for _, name in ipairs(list) do
+		local id = get_spell_id_by_name(name)
+		if id and known[id] then
+			local calls = autoxp.trust_calls[name] or 0
+			if have_trust(res.spells[id].party_name) then
+				autoxp.trust_calls[name] = nil
+			elseif room and recasts[id] < spell_latency then
+				if calls == 2 then
+					autoxp.trust_calls[name] = 3
+					add_to_chat(122, "Auto XP: can't call "..name..', going on without it.')
+				elseif calls < 2 and not callable then
+					callable = name
+				end
+			end
+		end
+	end
+	return callable
+end
+
+--Only while the AutoTrustMode list still holds the healer, so it's called again once dismissed.
+local function autoxp_low_healer()
+	if not autoxp.healer_name or not table.contains(trust_lists[state.AutoTrustMode.value] or {}, AutoXP_Settings.Healer) then return end
+	local party = windower.ffxi.get_party()
+	for slot = 1, 5 do
+		local member = party['p'..slot]
+		if member and member.name:lower() == autoxp.healer_name:lower() and member.mpp < AutoXP_Settings.HealerMPP then
+			return member
+		end
+	end
+end
+
+--Windower's mob distance is squared.
+local function autoxp_in_range(mob)
+	return math.sqrt(mob.distance) <= AutoXP_Settings.PullRange
+end
+
+local function autoxp_pullable(mob)
+	return mob ~= nil and mob.spawn_type == 16 and mob.hpp > 0 and mob.claim_id == 0 and autoxp_in_range(mob)
+end
+
+local function autoxp_claimed_by_party(mob)
+	if not (mob and mob.spawn_type == 16 and mob.hpp > 0 and mob.claim_id ~= 0 and autoxp_in_range(mob)) then return false end
+	local party = windower.ffxi.get_party()
+	for slot = 0, 5 do
+		local member = party['p'..slot]
+		if member and member.mob and member.mob.id == mob.claim_id then return true end
+	end
+	return false
+end
+
+--The monster pulled, once claimed, or one already fighting the party.
+local function autoxp_fight_target()
+	local pulled = autoxp.pull_id and windower.ffxi.get_mob_by_id(autoxp.pull_id)
+	if autoxp_claimed_by_party(pulled) then return pulled end
+	local bt = windower.ffxi.get_mob_by_target('bt')
+	if autoxp_claimed_by_party(bt) then return bt end
+end
+
+--The engage packet and the guard Sel's AutoEngageMode use, so the two never engage over each other.
+local function autoxp_engage(mob)
+	engaging = os.clock() + 2
+	--A monster can come back under the same id, so each engage starts its debuffs over.
+	autoxp.debuff_id, autoxp.debuff_at = mob.id, {}
+	if mob.id == autoxp.pull_id then autoxp.debuff_at[AutoXP_Settings.Pull] = math.huge end
+	autoxp.pull_id, autoxp.pull_until, autoxp.targeted_at = nil, 0, nil
+	packets.inject(packets.new('outgoing', 0x1a, {
+		['Target'] = mob.id,
+		['Target Index'] = mob.index,
+		['Category'] = 0x02,
+	}))
+end
+
+--The debuff to use next: of those that can go now, the first on the list not tried yet, then the one refused longest ago.
+--Sel's tick can stand still past a refused spell's 3 seconds, so going by the list alone would only ever try that spell.
+--debuff_at holds when each can go again on the monster being fought: never, once used.
+local function autoxp_next_debuff()
+	if not autoxp_running() or player.status ~= 'Engaged' then return end
+	local mob = windower.ffxi.get_mob_by_target('t')
+	if not (mob and mob.spawn_type == 16 and mob.hpp > 0 and autoxp_in_range(mob)) then return end
+	if mob.id ~= autoxp.debuff_id then autoxp.debuff_id, autoxp.debuff_at = mob.id, {} end
+	local now, next_debuff, next_at = os.clock(), nil, math.huge
+	for _, debuff in ipairs(autoxp.debuffs) do
+		local at = autoxp.debuff_at[debuff.spell or debuff.ability] or 0
+		if at <= now and at < next_at and not autoxp_wait_reason(debuff) then next_debuff, next_at = debuff, at end
+	end
+	return next_debuff
+end
+
+local function autoxp_use_debuff()
+	local debuff = autoxp_next_debuff()
+	if not debuff then return false end
+	autoxp.debuff_at[debuff.spell or debuff.ability] = math.huge
+	windower.chat.input(debuff.command..' <t>')
+	add_tick_delay()
+	return true
+end
+
+--A refused job ability starts no recast and hardly holds Sel's tick, so debuff_at spaces out its sends. GearSwap gives an
+--action the game refuses (too far away, say) to aftercast as interrupted.
+function extra_user_aftercast(spell, spellMap, eventArgs)
+	if spell.interrupted and autoxp_running() and autoxp.debuff_at[spell.english] then
+		autoxp.debuff_at[spell.english] = os.clock() + 3
+	end
+end
+
+--Sel's tick runs user_tick ahead of the job's tick (its AutoBuffMode buffs) and extra_user_tick after it, so the
+--buffs go up ahead of the next pull and of the debuffs.
+function user_tick()
+	if not autoxp_running() or in_town then return false end
+
+	if autoxp_heal_first() then
+		windower.chat.input(autoxp.heal.command..' <me>')
+		autoxp.heal_at = os.clock() + 3
+		add_tick_delay()
+		return true
+	end
+
+	if player.status ~= 'Idle' then return false end
+
+	if os.clock() >= engaging then
+		local mob = autoxp_fight_target()
+		if mob then
+			autoxp_engage(mob)
+			add_tick_delay()
+			return true
+		end
+	end
+
+	--As in Sel's check_trust: no trust can be called with a monster on the party, outside Reives and Domain Invasion.
+	if buffactive['Reive Mark'] or buffactive['Elvorseal'] or not in_combat then
+		local trust = autoxp_callable_trust()
+		if trust then
+			autoxp.trust_calls[trust] = (autoxp.trust_calls[trust] or 0) + 1
+			windower.chat.input('/ma "'..trust..'" <me>')
+			add_tick_delay(1.5)
+			return true
+		end
+	end
+	return false
+end
+
+function extra_user_tick()
+	if not autoxp_running() or in_town then return false end
+	if player.status ~= 'Idle' then return autoxp_use_debuff() end
+	local now = os.clock()
+	if now < engaging then return false end
+	if autoxp.low_since then
+		autoxp_note('waiting for HP.')
+		return false
+	end
+
+	--F8's target is read on a later tick. The job's tick may have cast in between, so Pull is checked again,
+	--and a press from before a fight or a long wait is made again.
+	local targeted_at = autoxp.targeted_at
+	autoxp.targeted_at = nil
+	if targeted_at and now - targeted_at < 5 and not autoxp_wait_reason(autoxp.pull) then
+		local mob = windower.ffxi.get_mob_by_target('t')
+		if not autoxp_pullable(mob) then
+			autoxp_note('F8 picked no unclaimed monster within '..AutoXP_Settings.PullRange..' yalms.')
+			autoxp.retry_at = now + 3
+			return false
+		end
+		windower.chat.input(autoxp.pull.command..' <t>')
+		autoxp.pull_id, autoxp.pull_until, autoxp.last_note = mob.id, now + 10, nil
+		add_tick_delay()
+		return true
+	end
+	if now < autoxp.retry_at or now < autoxp.pull_until then return false end
+
+	--Dismissed only once it can be called again straight away: trusts can't be called with a monster on the party.
+	local healer = autoxp_low_healer()
+	if healer then
+		if in_combat or now < autoxp.dismiss_at or windower.ffxi.get_spell_recasts()[autoxp.healer_id] >= spell_latency then
+			autoxp_note('waiting to dismiss '..healer.name..'.')
+			return false
+		end
+		autoxp_note('dismissing '..healer.name..' at '..healer.mpp..'% MP.')
+		--Only the trust's name works here: /refa 2 and /refa p2 do nothing.
+		windower.chat.input('/refa '..healer.name)
+		autoxp.dismiss_at = now + 10
+		add_tick_delay(1)
+		return true
+	end
+	if autoxp_callable_trust() then
+		autoxp_note('waiting for trusts.')
+		return false
+	end
+	local reason = autoxp_wait_reason(autoxp.pull)
+	if reason then
+		if reason ~= 'recast' then autoxp_note(AutoXP_Settings.Pull..': '..reason..'.') end
+		return false
+	end
+
+	send_command('setkey f8 down;wait .1;setkey f8 up')
+	autoxp.targeted_at = now
+	add_tick_delay(.5)
+	return true
+end
+
+--Polled, since Sel's tick, which the Heal timer would otherwise run on, stands still through every action.
+windower.raw_register_event('prerender', function()
+	if not autoxp_running() or os.clock() < autoxp.check_at then return end
+	autoxp.check_at = os.clock() + .25
+	local me = windower.ffxi.get_player()
+	if not me then return end
+
+	local status = res.statuses[me.status] and res.statuses[me.status].english
+	if status == 'Dead' or status == 'Engaged dead' then
+		autoxp_turn_off('you died.')
+	elseif not autoxp.heal or me.vitals.hpp > AutoXP_Settings.HealHPP then
+		autoxp.low_since = nil
+	elseif not autoxp.low_since then
+		autoxp.low_since = os.clock()
+	end
+end)
+
+function user_zone_change(new_id, old_id)
+	if state.AutoXP.value then autoxp_turn_off('zoned.') end
+end
+
 --Auto WS, as on the rahvin branch: the mode offers OFF plus one option per AutoWS_List entry for the
 --current weapon set, labeled with the weaponskill and its TP, as 'Savage Blade 1000'. A gear file sets:
 --	AutoWS_List = {
@@ -226,7 +649,8 @@ end
 --	}
 --'AM2' or 'AM3' in place of the TP builds that Aftermath level at 2000 or 3000 TP, then uses the
 --weaponskill at 1000 while that level, or a higher one, is up. It fires on TP change, only while engaged,
---at <t>, and waits two seconds after a send before sending another. Changing weapon set sets it back to OFF.
+--at <t>, and waits two seconds after a send before sending another. Changing weapon set sets it back to OFF,
+--or, with Auto XP on, to Auto XP's WS choice when the new set has it.
 --Kept from Sel's own auto-ws: the melee range check and AutoWSRestore.
 local autows_weapon, autows_list_built
 local autows_choices = {}
@@ -252,6 +676,12 @@ local function autows_sync()
 	end
 	state.AutoWS:options(unpack(labels))
 	state.AutoWS:set('OFF')
+	return true
+end
+
+local function autows_resync()
+	if not autows_sync() then return false end
+	if autoxp_running() then autoxp_set_ws() end
 	return true
 end
 
@@ -290,14 +720,16 @@ local function autows_pick(choice, tp, in_melee_range)
 end
 
 windower.raw_register_event('tp change', function(new_tp)
-	if state.AutoWS.value == 'OFF' then return end
+	if state.AutoWS.value == 'OFF' and not autoxp_running() then return end
 	gearswap.refresh_globals()
-	autows_sync()
+	--Weapons can change without a state change (gs c abyred, WeaponSets).
+	autows_resync()
 	local choice = autows_choices[state.AutoWS.value]
 	if not choice then return end
 
 	local now = os.clock()
 	if now < autows_next or midaction() then return end
+	if autoxp_heal_first() or autoxp_next_debuff() then return end
 	if player.status ~= 'Engaged' or (new_tp or player.tp) < 1000 then return end
 	if buffactive['Amnesia'] or buffactive['Sleep'] or buffactive['Stun'] or buffactive['Petrification'] or buffactive['Terror'] or buffactive['Charm'] then return end
 
@@ -468,7 +900,7 @@ end
 
 --Runs at load and on every subjob change.
 function extra_user_setup()
-	autows_sync()
+	autows_resync()
 	wrap_job_check_buff()
 	queue_after_job_change()
 end
@@ -503,12 +935,14 @@ function user_state_change(stateField, newValue, oldValue)
 	elseif stateField == 'Weapons' then
 		skip_dual_sets()
 		local was = state.AutoWS.value
-		if autows_sync() and was ~= 'OFF' then add_to_chat(122, 'Auto WS is now OFF.') end
+		if autows_resync() and was ~= 'OFF' and state.AutoWS.value == 'OFF' then add_to_chat(122, 'Auto WS is now OFF.') end
 	elseif stateField == 'Auto Weaponskill Mode' and newValue and not state.RngHelper.value then
 		state.AutoWSMode:set(false)
 		add_to_chat(122, 'Auto Weaponskill Mode only drives RngHelper ranged auto-ws now; melee auto-ws is gs c cycle AutoWS.')
 	elseif stateField == 'RngHelper' and not newValue and state.AutoWSMode.value then
 		state.AutoWSMode:set(false)
+	elseif stateField == 'Auto XP' and newValue ~= oldValue then
+		if newValue then autoxp_start() else autoxp_stop() end
 	end
 end
 
