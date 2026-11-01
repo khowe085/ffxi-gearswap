@@ -281,7 +281,6 @@ function init_gear_sets()
     sets.buff['Saber Dance'] = {} --legs="Horos Tights"
     sets.buff['Climactic Flourish'] = {ammo="Charis Feather",head="Adhemar Bonnet +1",body="Meg. Cuirie +2"} --head="Charis Tiara +2"
 	sets.buff.Doom = set_combine(sets.buff.Doom, {})
-	sets.buff.Sleep = {head="Frenzy Sallet"}
 end
 
 -- Select default macro book on initial load or subjob change.

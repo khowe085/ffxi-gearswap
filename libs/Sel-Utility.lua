@@ -2601,36 +2601,59 @@ function has_shield_access()
 end
 
 --Checks to see if you're 'Fencing', 'Dual Wielding', or 'Hand-to-Hand', or 'Two-Handed', or 'Unarmed'
-function wielding(wield_check)
-	local wield_type
-	local main_id
-	local sub_id
+do
+	local weaponset_wield_type_cache = {}
+	function wielding(wield_check)
+		local wield_type = weaponset_wield_type_cache[state.Weapons.value]
 
-	--Guess I have to resort to player.equipment as a backup, can't think of anything better for being situation agnostic.
-	if state.Weapons.value ~= 'None' and sets.weapons[state.Weapons.value] then
-		main_id = get_item_id_by_name(sets.weapons[state.Weapons.value].main) or get_item_id_by_name(player.equipment.main) or nil
-		sub_id = get_item_id_by_name(sets.weapons[state.Weapons.value].sub) or get_item_id_by_name(player.equipment.sub) or nil
-	end
+		if not wield_type then
+			local main_id
+			local sub_id
+			
+			if state.Weapons.value == 'None' then
+				--Guess I have to resort to player.equipment as a backup, can't think of anything better for being situation agnostic.
+				main_id = get_item_id_by_name(player.equipment.main) or 'empty'
+				sub_id = get_item_id_by_name(player.equipment.sub) or 'empty'
+			elseif sets.weapons[state.Weapons.value] then
+				main_id = get_item_id_by_name(sets.weapons[state.Weapons.value].main) or get_item_id_by_name(player.equipment.main) or 'empty'
+				sub_id = get_item_id_by_name(sets.weapons[state.Weapons.value].sub) or get_item_id_by_name(player.equipment.sub) or 'empty'
+			end
+			
+			local main_empty = main_id == 'empty'
+			local sub_empty = sub_id == 'empty'
 
-	main_id = main_id or get_item_id_by_name(player.equipment.main) or 'empty'
-	sub_id = sub_id or get_item_id_by_name(player.equipment.sub) or 'empty'
+			if main_empty then
+				wield_type = sub_empty and 'Hand-to-Hand' or 'Unarmed'
+			else
+				local main_skill = res.items[main_id].skill
 
-	if main_id == 'empty' and sub_id ~= 'empty' then
-		wield_type = 'Unarmed'
-	elseif main_id ~= 'empty' and data.skills.two_handed_combat:contains(res.items[main_id].skill) then
-		wield_type = 'Two-Handed'
-	elseif (main_id == 'empty' and sub_id == 'empty') or (main_id ~= 'empty' and res.items[main_id].skill == 1) then
-		wield_type = 'Hand-to-Hand'
-	elseif (main_id ~= 'empty' and data.skills.one_handed_combat:contains(res.items[main_id].skill)) and (sub_id == 'empty' or res.items[sub_id].shield_size) then
-		wield_type = 'Fencing'
-	elseif sub_id ~= 'empty' and data.skills.one_handed_combat:contains(res.items[sub_id].skill) then
-		wield_type = 'Dual Wielding'
-	end
+				if main_skill == 1 then
+					wield_type = 'Hand-to-Hand'
+				elseif data.skills.two_handed_combat:contains(main_skill) then
+					wield_type = 'Two-Handed'
+				elseif data.skills.one_handed_combat:contains(main_skill) then
+					if sub_empty or res.items[sub_id].shield_size then
+						wield_type = 'Fencing'
+					elseif data.skills.one_handed_combat:contains(res.items[sub_id].skill) then
+						wield_type = 'Dual Wielding'
+					end
+				end
+			end
+			
+			if state.Weapons.value ~= 'None' then
+				if not wield_type then
+					wield_type = 'Unknown'
+				end
+			
+				weaponset_wield_type_cache[state.Weapons.value] = wield_type
+			end
+		end
 
-	if wield_check then
-		return wield_check == wield_type
-	else
-		return wield_type
+		if wield_check then
+			return wield_check == wield_type
+		else
+			return wield_type
+		end
 	end
 end
 
@@ -2663,7 +2686,7 @@ end
 
 do
 	local cache = {}
-	get_item_id_by_name = function(name)
+	function get_item_id_by_name(name)
 		if name == nil or name == 'empty' or (type(name) == 'table' and not name.name) then return end
 		if not cache[name] then
 			for bag in res.bags:it() do
@@ -3046,10 +3069,20 @@ warcry_tp_bonus = get_warcry_tp_bonus()
 function set_dual_wield()
 	-- Checks Job Traits directly. Will always recognize DW appropriately for all jobs (NIN ,DNC, THF, BLU)
 	local traits = T(windower.ffxi.get_abilities().job_traits)
+	local initialize = can_dual_wield == nil
+	
 	can_dual_wield = traits:any(function(v) return gearswap.res.job_traits[v].english == 'Dual Wield' end)
 
-	send_command('gs c weapons initialize')
+	if initialize then
+		send_command('gs c weapons initialize')
+	end
 end
+
+windower.raw_register_event('incoming chunk', function(id, data)
+    if id == 0x0AC then
+        set_dual_wield()
+    end
+end)
 
 function get_closest_mob_id_by_name(name)
 	local mob = get_closest_mob_by_name(name)

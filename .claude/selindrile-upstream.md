@@ -6,7 +6,7 @@ Branch `selindrile` holds a copy of https://github.com/Selindrile/GearSwap laid 
 
 | Upstream commit | Commit date | Synced on |
 |---|---|---|
-| `2cda6efc69244bb559e0f98f0584f3ba03097a08` | 2026-10-07 | 2026-10-07 |
+| `c6e78e7d42a46fcb1a4cb577f8ab6299130a60b2` | 2026-10-27 | 2026-10-31 |
 
 ## How the initial copy was done (README steps 1–8)
 
@@ -27,21 +27,25 @@ Re-apply these after copying in an upstream version of the file, unless upstream
   - The `Weapons` entry reads `Weapons: <weapon> (L)` (white) or `(U)` (light blue) from `state.UnlockWeapons`, so the line always shows the weapon lock state, with the `state.WeaponSets` name before the weapon when it isn't Default or None. Upstream prints "Unlocked" and the `WeaponSets` name before the label, and nothing when locked.
 - `libs/Sel-Include.lua`: `state.MiniQueue` starts off. Upstream starts it on, and its hold for a press made too soon after an action or while moving delayed or lost casts.
 - `libs/Sel-Utility.lua`: in `check_recast`, the two MiniQueue branches that held a job ability or spell with under 5 seconds of recast and sent it when ready are commented out. Such a press is now refused with "waiting on recast" like a longer recast, so a held press can't go off after the player has moved on to another action.
+- `libs/Sel-Include.lua`, `libs/Sel-Utility.lua`: `can_dual_wield` is `nil` until `set_dual_wield` has looked, not upstream's `''`. An empty string is true in Lua, so a job without Dual Wield would count as having it until the first check.
 
 ## Pulling in later upstream commits
 
-1. Clone or fetch upstream outside the repo, e.g. in a scratch directory:
+1. Fetch upstream, without adding a remote:
    ```bash
-   git clone https://github.com/Selindrile/GearSwap.git selindrile-upstream
+   git fetch https://github.com/Selindrile/GearSwap.git master
    ```
 2. List what changed since the sync point:
    ```bash
-   git -C selindrile-upstream diff --name-status 2cda6efc69244bb559e0f98f0584f3ba03097a08 HEAD
+   git diff --name-status <sync point> FETCH_HEAD
    ```
-3. For each path:
-   - `A`/`M`: copy the upstream file over ours. Skip `.gitignore`.
-   - `D`: delete our copy, unless we have changed it locally.
-   - `R`: delete the old path and copy in the new one.
+3. Save the changes as a patch outside the repo, leaving out `.gitignore`, and apply it three-way. Copying upstream's files over ours would lose the local edits, which reach more files than are listed above: the `AutoFoodMode`/`AutoTrustMode` lists also changed `libs/Sel-Include.lua` and every job file's `init_job_states`.
+   ```bash
+   git diff --full-index --binary <sync point> FETCH_HEAD -- . ':!.gitignore' > /var/tmp/claude/upstream.patch
+   ```
+   ```bash
+   git apply --3way /var/tmp/claude/upstream.patch
+   ```
 4. If `data/Mytha/Mytha_{Rdm,Blu,Thf}_Gear.lua` changed, the `data/Vanar/` copies do not update themselves. Diff the Mytha change and port it into `Vanar_*_Gear.lua` by hand, so Vanar's own gear edits survive.
 5. Check `git diff` for anything that overwrote a local edit, especially `README.md` and `libs/`.
-6. Update the sync-point table above to the new upstream `HEAD` (`git -C selindrile-upstream log -1 --format='%H %cs'`).
+6. Update the sync-point table above to the new upstream commit (`git log -1 --format='%H %cs' FETCH_HEAD`).

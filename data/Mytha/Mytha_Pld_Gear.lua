@@ -420,7 +420,6 @@ function init_gear_sets()
 	-- Custom buff sets
 	--------------------------------------
 	sets.buff.Doom = set_combine(sets.buff.Doom, {})
-	sets.buff.Sleep = {neck="Vim Torque +1"}
 	sets.buff.Cover = {body="Cab. Surcoat +1"}
 end
 

@@ -201,7 +201,6 @@ function init_gear_sets()
 	sets.engaged.FullAcc.HF = set_combine(sets.engaged.FullAcc, {})
 
 	sets.buff.Doom = set_combine(sets.buff.Doom, {})
-	sets.buff.Sleep = {head="Frenzy Sallet"}
 	sets.buff.Impetus = {body="Bhikku Cyclas +1"}
 	sets.buff.Footwork = {feet="Shukuyu Sune-Ate"}
 	sets.buff.Boost = {} --waist="Ask Sash"
