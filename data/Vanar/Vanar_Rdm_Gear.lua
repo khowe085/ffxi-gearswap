@@ -22,8 +22,8 @@ function character_user_job_setup()
 	state.WeaponSets:options('Default','Dual')
 
 	weapon_sets = {
-		['Default'] = {'Naegling','Almace','Maxentius','Tauret','Enspell','Crocea'},
-		['Dual'] = {'Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell','CroceaBron','Crocea Acc'},
+		['Default'] = {'Crocea','Maxentius','Naegling','Almace','Tauret','Enspell'},
+		['Dual'] = {'CroceaBron','Crocea Acc', 'Maxbron','Maxentius Acc','Naegbron','Naegling Acc','Albron','Almace Acc','Taurbron','Tauret Acc','Dual Enspell',},
 	}
 
 	default_weapons = 'Crocea'
