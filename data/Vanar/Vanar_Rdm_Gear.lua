@@ -7,7 +7,7 @@ function character_user_job_setup()
     state.PhysicalDefenseMode:options('PDT','NukeLock')
 	state.MagicalDefenseMode:options('MDT')
 	state.ResistDefenseMode:options('MEVA')
-	state.BuffWeaponsMode = M{'Always','Never'}
+	state.BuffWeaponsMode = M{'Never','Always'}
 	state.AutoBuffMode = M{['description'] = 'Auto Buff Mode','Off','Auto','AutoMelee','AutoMage'}
 	state.Weapons:options('Naegling','Almace','Maxentius','Tauret','Enspell','Crocea','Naegbron','Naegling Acc','Albron','Almace Acc','Maxbron','Maxentius Acc','Taurbron','Tauret Acc','Dual Enspell','CroceaBron','Crocea Acc')
 	--Start with the weapons unlocked, so idle and casting sets can change main and sub out of combat. While engaged they stay put.
