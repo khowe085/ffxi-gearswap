@@ -146,7 +146,7 @@ function init_gear_sets()
 
 	-- WSD 66
 	sets.precast.WS = {ammo="Coiste Bodhar",
-		head="Hashishin Kavuk +3",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Hashi. Earring +1",
+		head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Moonshade Earring",ear2="Hashi. Earring +1",
 		body="Assim. Jubbah +4",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Beithir Ring",
 		back=gear.wsd_jse_back,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
 
@@ -184,9 +184,9 @@ function init_gear_sets()
 	sets.precast.WS['Realmrazer'].DT = set_combine(sets.precast.WS['Requiescat'].DT, {})
 	sets.precast.WS['Realmrazer'].Fodder = set_combine(sets.precast.WS['Realmrazer'], {})
 
-	-- Crit 24, DA 19; Fotia Gorget fTP +25/256 a hit
+	-- Crit 29, DA 19
 	sets.precast.WS['Chant du Cygne'] = {ammo="Coiste Bodhar",
-		head="Hashishin Kavuk +3",neck="Fotia Gorget",ear1="Brutal Earring",ear2="Hashi. Earring +1",
+		head="Hashishin Kavuk +3",neck="Mirage Stole +2",ear1="Brutal Earring",ear2="Hashi. Earring +1",
 		body="Assim. Jubbah +4",hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Rajas Ring",
 		back=gear.crit_jse_back,waist="Sailfi Belt +1",legs="Hashishin Tayt +3",feet="Gleti's Boots"}
 	sets.precast.WS['Chant du Cygne'].Acc = set_combine(sets.precast.WS.Acc, {})

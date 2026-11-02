@@ -34,7 +34,7 @@ Vanar's path and rank for each rank-augmented item in the export `data/export/Va
 | [Coiste Bodhar](../../docs/rank-augments.md#coiste-bodhar) | ammo | A | 20 | 2026-10-04 | Attack+15, STR+5 |
 | [Alabaster Earring](../../docs/rank-augments.md#alabaster-earring) | ear | A | 11 | 2026-10-29 | Accuracy+11 Rng. Acc.+11 Mag. Acc.+11 |
 | [Beithir Ring](../../docs/rank-augments.md#beithir-ring) | ring | none | 0 |  | none (base stats only) |
-| [Murky Ring](../../docs/rank-augments.md#murky-ring) | ring | A | 8 | 2026-10-29 | Accuracy+8 Rng. Acc.+8 Mag. Acc.+8 |
+| [Murky Ring](../../docs/rank-augments.md#murky-ring) | ring | A | 10 | 2026-11-01 | Accuracy+10 Rng. Acc.+10 Mag. Acc.+10 |
 | [Fi Follet Cape +1](../../docs/rank-augments.md#fi-follet-cape-1) | back | A | 11 | 2026-10-02 | "Fast Cast" +8%, Spell Interruption Rate -3% |
 | [Kentarch Belt +1](../../docs/rank-augments.md#kentarch-belt-1) | waist | none | 0 |  | none (base stats only) |
 | [Obstin. Sash](../../docs/rank-augments.md#obstin-sash) | waist | A | 17 | 2026-10-06 | Mag. Acc.+15, Enfb. mag. skill +2 |
@@ -47,7 +47,7 @@ bg-wiki gives these items' augments at maximum rank only: [rank-augments.md](../
 | Item | Slot | Max rank | Vanar's copy |
 |---|---|---|---|
 | Dls. Torque +1 | neck | 20 | `'Path: A'`, rank 20 (2026-10-05) |
-| Mirage Stole +2 | neck | 25 | `'Path: A'`, rank 22 (2026-10-29) |
+| Mirage Stole +2 | neck | 25 | `'Path: A'`, rank 25 (2026-11-01) |
 | Tizona | main | 15 | `'Path: A'` (so Level 119 III), rank 15 (2026-10-05) |
-| Almace | main | 15 | `'Path: A'` (so Level 119 III), rank 2 (2026-10-11) |
+| Almace | main | 15 | `'Path: A'` (so Level 119 III), rank 5 (2026-11-01) |
 | Pukulatmuj +1 | main | 15 | no augments: rank 0 |

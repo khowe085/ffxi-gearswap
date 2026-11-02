@@ -107,9 +107,9 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Almace
 
-- Vanar's copy exports `'Path: A'` from the 2026-10-11 export on, and only Level 119 III takes the REMA augment, so it is Level 119 III, the stage the simulated sets assume. **(player, 2026-10-11)** It is rank 2 of 15. bg-wiki gives the augment at rank 15 only (main hand DMG+5, Chant du Cygne damage +10%, DEX and MND +20), so the rank 2 values have to be read off the item in game ([gear-notes.md](../../docs/gear-notes.md#almace)).
+- Vanar's copy exports `'Path: A'` from the 2026-10-11 export on, and only Level 119 III takes the REMA augment, so it is Level 119 III, the stage the simulated sets assume. **(player, 2026-11-01)** It is rank 5 of 15; it was rank 2 from 2026-10-11. bg-wiki gives the augment at rank 15 only (main hand DMG+5, Chant du Cygne damage +10%, DEX and MND +20), so the rank 5 values have to be read off the item in game ([gear-notes.md](../../docs/gear-notes.md#almace)). `set-stats.cs` counts none of them, and warns of a set with it in hand. No pick turns on them: the augment works from the main hand only, and Chant du Cygne's neck comes out the same even at rank 15's DEX ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - In the sub slot the augment does nothing, so as an off hand it has the full Level 119 III stats: DEX+50 for both hands and Sword skill +269 for its own hits ([gear-notes.md](../../docs/gear-notes.md#almace)).
-- In wsdist, the plain "Almace (sub)" fits it in the off hand. In the main hand neither entry fits: the plain "Almace" lacks the rank 2 augment and the R15 entries "Select all File" keeps overstate it ([gear-notes.md](../../docs/gear-notes.md#almace)).
+- In wsdist, the plain "Almace (sub)" fits it in the off hand. In the main hand neither entry fits: the plain "Almace" lacks the rank 5 augment and the R15 entries "Select all File" keeps overstate it ([gear-notes.md](../../docs/gear-notes.md#almace)).
 
 ### Bunzi's Rod
 
@@ -422,14 +422,16 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Mirage Stole +2
 
-- **(player, 2026-10-05)** Vanar's copy is Path A rank 20 of 25. bg-wiki gives the augment only at rank 25 (STR and DEX +25, Store TP +7, Critical hit rate +5%), so the rank 20 values have to be read off the item in game ([bg-wiki](https://www.bg-wiki.com/ffxi/Category:JSE_Necks)).
-- **(player, 2026-10-11)** At rank 20 it gives STR and DEX +20, Critical hit rate +4% and Store TP +6. The DEX +20 is in the player's `/checkparam` records of 2026-10-10 ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)). `set-stats.cs` can't add these values itself, since bg-wiki gives only rank 25: pass them with `--extra`.
+- **(player, 2026-11-01)** Vanar's copy is Path A rank 25, the maximum: STR and DEX +25, Store TP +7 and Critical hit rate +5% ([rank-augments.md](../../docs/rank-augments.md#oboro-rank-augments-maximum-only)). `set-stats.cs` counts these itself, so don't pass them with `--extra`.
+- It was rank 22 from 2026-10-29, whose values aren't known, and rank 20 from 2026-10-05: STR and DEX +20, Critical hit rate +4% and Store TP +6 **(player, 2026-10-11)**. The DEX +20 is in the player's `/checkparam` records of 2026-10-10 ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - **(player, 2026-10-08)** The nuke rule covers BLU's magical blue magic, so those sets keep Sanctity Necklace ([Rules](Vanar_notes.md#rules-for-these-sets)). The stole's Macc 25 and Blue magic skill 20 go to the magic accuracy, breath and stun sets and to the nukes' Resistant mode.
+- From 2026-11-01 it is the neck of BLU's `sets.precast.WS`, and with it Savage Blade, Expiacion and Black Halo, for Rep. Plat. Medal, and of Chant du Cygne and Vorpal Blade, one set, for Fotia Gorget. What it gains there is in [Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy). Requiescat keeps Fotia Gorget.
 
 ### Rep. Plat. Medal
 
 - Vanar is a citizen of Windurst (player, 2026-10-02), so the Regain never works for Vanar.
 - On BLU it took the neck of the default weapon skill set, Savage Blade and Expiacion from Mirage Stole +2 on 2026-10-10: STR+10 and Attack+30 against Accuracy+25 (the stole's rank 20 STR and DEX taken as 0). Once the 1275 floor no longer needed the stole's accuracy, that was about 2.5 to 3% more damage on the 2026-10-10 search.
+- Mirage Stole +2 took that neck back on 2026-11-01. At rank 25 it has STR 15 more and Accuracy 25 and DEX 25 more, for Attack 30 less: 1.2 to 4.3% more Savage Blade and Expiacion in every case modelled, and 0.4 to 6.4% more Black Halo ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)). No BLU set wears the Medal now; RDM's Savage Blade and Black Halo sets do.
 
 ### Sibyl Scarf
 
@@ -579,6 +581,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
   - With Lehko's Ring, the crit cape and Chant du Cygne's own +25 to +29% at 2,000 to 2,250 TP, the crit rate is already about 75 to 80%, so more crit rate adds little.
   - PDL does nothing until the attack ratio reaches its cap, and against defense 1,500 the ratio is about 1.0 unbuffed and 1.7 with mid buffs. Gleti's crit and PDL gain once heavy buffs cap the ratio.
   - The Jubbah's DEX+49 goes into Chant du Cygne's 80% DEX WSC and its dDEX crit bonus, and Fotia Gorget adds 25/256 fTP to every hit.
+  - That search took the stole's STR and DEX as 0. From 2026-11-01 Mirage Stole +2, at rank 25, takes the neck back from Fotia Gorget: its DEX+25 goes into the same WSC, with STR+25, Critical hit rate +5% and 15 more accuracy in the weapon skill before the DEX, for 2.0 to 14.2% more damage, most with a Thibron off hand ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)). The waist stays Sailfi Belt +1: Fotia Belt there with the stole is 0.6% less at worst and about level on average.
 
 ### Helios Jacket
 
@@ -628,6 +631,7 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 - **(player, 2026-10-18)** It replaced the NQ [Adhemar Wristbands](#adhemar-wristbands), which are in the Mog Safe 2. It went into BLU's `sets.engaged` by hand on 2026-10-12.
 - In BLU's `sets.engaged`, a search of 2026-10-18 over the wardrobe pieces by the TP-per-round rule ([Rules for these sets](Vanar_notes.md#rules-for-these-sets)) keeps it and the rest of the set: no other set at DT 36 or more gives as much TP per round with every weapon set. Against the NQ Wristbands it has Accuracy 52 against 22, Triple Attack +4% against +3% and Store TP +7 against +6, for DEX 44 against 53: 10.4 to 11.3% more TP per round with a Thibron off hand and 1.7% more with an Almace, Naegling or Bunzi's Rod one, at 1350 evasion with Oden or Grape Daifuku. Hashi. Bazu. +3 (Accuracy 62, DT 10) in its place gives 5.3 to 6.2% less with a Thibron off hand and 8.6% less with the others; Nyame Gauntlets 11.6 to 12.1% and 7.4% less ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - In `sets.engaged.DT.AM` (2026-10-18) it takes the hands from Hashi. Bazu. +3, with Alabaster Earring, Honed Tathlum and Nyame Sollerets, at DT 52: 0.9% more TP per round with Tizona + Thibron and 3.4% more with Tizona + Almace under Aftermath Lv.3, where the main hand's Double Attack counts about a fifth. `sets.engaged.DT` keeps Hashi. Bazu. +3: the same four pieces there give 0.3 to 1.0% less with a Thibron off hand, for 2.7% more with the others.
+- That last figure was at Alabaster Earring's rank 7. At its rank 11 (2026-10-29) the same four pieces give 0.3 to 1.0% more with a Thibron off hand and 2.7% more with the others, so they pass the every-weapon-set test. `sets.engaged.DT` is unchanged until the player decides ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
 - The weapon skill sets keep their hands. In `sets.precast.WS` and the Savage Blade and Expiacion sets it would cost Nyame Gauntlets' Weapon skill damage +8% and 35 Attack; in Requiescat, Hashi. Bazu. +3's MND 50 against 30 and 42 Attack. In Chant du Cygne, Accuracy +12 and Triple Attack +4% against Nyame's Weapon skill damage +8% and 35 Attack come out about even by a hand estimate, ahead with a Thibron off hand and behind with Naegling in the sub slot, so Nyame Gauntlets stay.
 
 ### Adhemar Wristbands
@@ -738,8 +742,8 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 ### Ayanmo Ring
 
 - Vanar's Ayanmo +2 armor stays on slip 23 **(player, 2026-10-11)**, so the set bonus never applies in his sets ([Ayanmo set](#ayanmo-set)).
-- It ties Jhakri Ring at Accuracy+6, and Jhakri's Attack+6 breaks the tie. RDM's ACC-mode sets (`sets.precast.Step`, `sets.engaged.Acc` and the sets built on them) wear neither from 2026-10-18: Lehko's Ring's DEX+10 (7 or 8 accuracy) and Murky Ring's Accuracy+8 at rank 8 are the two most. Enlivened Ring (Accuracy+7, DEX+2) is in storage.
-- On BLU from 2026-10-18, Murky Ring (Accuracy+8 at rank 8 since 2026-10-29) takes Jhakri Ring's slot in the ACC-mode sets, and this ring's place in `Stun.Resistant`; see [Murky Ring](#murky-ring).
+- It ties Jhakri Ring at Accuracy+6, and Jhakri's Attack+6 breaks the tie. RDM's ACC-mode sets (`sets.precast.Step`, `sets.engaged.Acc` and the sets built on them) wear neither from 2026-10-18: Lehko's Ring's DEX+10 (7 or 8 accuracy) and Murky Ring's Accuracy+10 at rank 10 are the two most. Enlivened Ring (Accuracy+7, DEX+2) is in storage.
+- On BLU from 2026-10-18, Murky Ring (Accuracy+10 at rank 10 since 2026-11-01) takes Jhakri Ring's slot in the ACC-mode sets, and this ring's place in `Stun.Resistant`; see [Murky Ring](#murky-ring).
 
 ### Beithir Ring
 
@@ -760,11 +764,17 @@ What Vanar holds of each set. How each bonus works is in [gear-notes.md](../../d
 
 ### Murky Ring
 
-- **(player, 2026-10-29)** Vanar's copy is Path A rank 8: Accuracy, Ranged Accuracy and Magic Accuracy +8, with none of the later ranks' Evasion or Critical hit rate ([Vanar_rank_augments.md](Vanar_rank_augments.md)). It was rank 7 from 2026-10-18 and rank 2 from 2026-10-11.
-- On BLU it now has more Accuracy and Magic Accuracy than Jhakri Ring and Ayanmo Ring (+6 each), and Damage taken -10% besides. From 2026-10-18 it takes Jhakri Ring's slot in `sets.engaged.Acc`, `sets.precast.WS.Acc`, `sets.precast.Step` and `midcast['Blue Magic'].Physical.Resistant`, where accuracy comes first, and Ayanmo Ring's in `midcast['Blue Magic'].Stun.Resistant`. Each gains Accuracy and Magic Accuracy 2 (1 at rank 7) and DT 7 or 10; those that drop Jhakri Ring lose its Attack+6.
-- `midcast['Blue Magic'].Physical` keeps Ayanmo Ring for now: that set's accuracy is past the 95% cap at 1350 evasion with every weapon set, so the swap would add only Magic Accuracy 2 and DT 7.
-- In BLU's `sets.engaged` it loses to Rajas Ring: 1.9 to 3.3% less TP per round at rank 7, Accuracy 7 against Store TP 5 and DEX 5 (search of 2026-10-18; see [Adhemar Wrist. +1](#adhemar-wrist-1)). Rank 8's one more Accuracy doesn't close that.
-- Stikini Ring (Magic Accuracy+8 and all magic skills +5) still takes the rings where magic accuracy alone is wanted.
+- **(player, 2026-11-01)** Vanar's copy is Path A rank 10: Accuracy, Ranged Accuracy and Magic Accuracy +10, with none of the later ranks' Evasion or Critical hit rate ([Vanar_rank_augments.md](Vanar_rank_augments.md)). It was rank 8 from 2026-10-29, rank 7 from 2026-10-18 and rank 2 from 2026-10-11.
+- On BLU it has more Accuracy and Magic Accuracy than Jhakri Ring and Ayanmo Ring (+6 each), and Damage taken -10% besides. From 2026-10-18 it takes Jhakri Ring's slot in `sets.engaged.Acc`, `sets.precast.WS.Acc`, `sets.precast.Step` and `midcast['Blue Magic'].Physical.Resistant`, where accuracy comes first, and Ayanmo Ring's in `midcast['Blue Magic'].Stun.Resistant`. Each gains Accuracy and Magic Accuracy 4 at rank 10 and DT 7 or 10; those that drop Jhakri Ring lose its Attack+6.
+- `midcast['Blue Magic'].Physical` keeps Ayanmo Ring for now: that set's accuracy is past the 95% cap at 1350 evasion with every weapon set (1464 or more on the main hand, against 1390), so the swap would add only Magic Accuracy 4 and DT 7.
+- In BLU's `sets.engaged` it loses to Rajas Ring: at rank 10, Accuracy 10 against Store TP 5 and DEX 5, it gives 0.6 to 1.4% less TP per round with a Thibron off hand and 3.3% less with the others (search of 2026-11-01; [Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)). At rank 7 that was 1.9 to 3.3% less.
+- Stikini Ring (Magic Accuracy+8 and all magic skills +5) still takes the rings where magic accuracy alone is wanted: 13 on a spell against this ring's 10.
+- On both jobs `precast.WS['Sanguine Blade'].Acc` keeps its two Stikini Rings. Whether magic skill counts on a magical weapon skill is unsettled ([ffxi-mechanics.md](../../docs/ffxi-mechanics.md#where-wsdist-and-bg-wiki-disagree)): this ring would be Magic Accuracy 2 ahead if it doesn't and 3 behind if it does, for MND+5.
+- On RDM, rank 10 puts `sets.engaged.DW.DT` 10 over the 1275 floor with Maxentius + Thibron, so from 2026-11-01 Asperity Necklace takes that set's neck from Sanctity Necklace: Double Attack +2% and Store TP +3 for Accuracy 10, Attack 2 and Regen 2, 4.0% more TP per round at 1275. Rank 8 left the swap 2 short ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
+- RDM's `sets.engaged`, `sets.engaged.DT` and `sets.engaged.DW` keep Rajas Ring, and Savage Blade, Requiescat and the Chant du Cygne set stay without this ring; the same note has the figures. Black Halo's `.Maxentius` set keeps it over Karieyh Ring: without it the set is 1274 with Oden at any rank.
+- On THF, from 2026-11-01 it takes Lehko's Ring's place in Savage Blade's set, and Karieyh Ring moves to the left ring. Lehko's Ring's DEX+10 is only 7 or 8 accuracy there, so rank 10 is 2 or 3 more accuracy and 0.1 to 3.0% more damage, for about 9 TP less from each weapon skill. At rank 7 Lehko's Ring was ahead, and at rank 8 the two were level. `sets.precast.WS`, which Rudra's Storm wears, stays without it ([Vanar_notes.md](Vanar_notes.md#skill-and-accuracy-accuracy)).
+- **(player, 2026-10-18)** RDM's TP-mode magical weapon skill sets keep their damage pieces over it, a call made at Magic Accuracy +7. Karieyh Ring's Weapon skill damage +3% is 2.0% of Sanguine Blade's damage, so this ring pays only when the set is 4 or more Magic Accuracy short of the 95% hit rate cap, at +7 and at +10 alike. When it is 10 to 30 short the ring is 3.9 to 6.5% more net at +10, against 2.2 to 4.0% at +7. How short these sets are is unsettled, so the rise doesn't settle the call.
+- `midcast['Elemental Magic'].Proc` keeps Prolix Ring over it **(player, 2026-10-18)**: there Prolix Ring's Fast Cast 2% is 1% recast (Fast Cast 79 against 77 with the trait's 38), and this ring would add Magic Accuracy 10 and DT 10.
 
 ### Novennial Ring
 
