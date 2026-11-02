@@ -172,10 +172,10 @@ function init_gear_sets()
 	-- WSD 48; Fotia Gorget fTP +25/256 on the first hit
 	sets.precast.WS['Black Halo']['Maxentius Acc'] = set_combine(sets.precast.WS['Black Halo'], {head="Viti. Chapeau +4",neck="Fotia Gorget",waist="Sailfi Belt +1"})
 
-	-- WSD 47, MAB 265, Magic Damage 94
+	-- Macc 386, WSD 27, MAB 281, Magic Damage 160
 	sets.precast.WS['Sanguine Blade'] = {range=empty,ammo="Pemphredo Tathlum",
-		head="Leth. Chappel +3",neck="Sanctity Necklace",ear1="Friomisi Earring",ear2="Leth. Earring +1",
-		body="Nyame Mail",hands="Jhakri Cuffs +2",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
+		head="Leth. Chappel +3",neck="Dls. Torque +1",ear1="Alabaster Earring",ear2="Leth. Earring +1",
+		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Epaminondas's Ring",ring2="Murky Ring",
 		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 
 	-- Fotia Belt: fTP +25/256, and its Accuracy 10 counts as Macc
@@ -199,7 +199,7 @@ function init_gear_sets()
 
 	sets.MaxTP = {ear1="Brutal Earring"}	-- DA 5
 	sets.AccMaxTP = {ear1="Alabaster Earring"}	-- Acc 11
-	sets.MagicalMaxTP = {ear1="Friomisi Earring"}	-- MAB 10
+	sets.MagicalMaxTP = {ear1="Alabaster Earring"}	-- Macc 11
 
 	-- Haste 26 (cap 26), FC 44, DT 49
 	sets.midcast.FastRecast = {ammo="Hasty Pinion",
@@ -371,9 +371,9 @@ function init_gear_sets()
 	sets.midcast['Elemental Magic'].Resistant = set_combine(sets.midcast['Elemental Magic'], {range="Ullr",ammo=empty,neck="Dls. Torque +1",waist="Obstin. Sash"})
 
 	sets.midcast['Elemental Magic'].Proc = {main="Gleti's Knife",sub="Forfend +1",range=empty,ammo="Hasty Pinion",
-		head="Atro. Chapeau +4",neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
-		body="Viti. Tabard +4",hands="Atro. Gloves +4",ring1="Stikini Ring",ring2="Prolix Ring",
-		back=gear.mnd_enfeebling_jse_back,waist="Obstin. Sash",legs="Atro. Tights +4",feet="Vanya Clogs"}
+		head="Atro. Chapeau +4",neck="Dls. Torque +1",ear1="Alabaster Earring",ear2="Leth. Earring +1",
+		body="Viti. Tabard +4",hands="Atro. Gloves +4",ring1="Murky Ring",ring2="Stikini Ring",
+		back=gear.mnd_enfeebling_jse_back,waist="Obstin. Sash",legs="Atro. Tights +4",feet="Chelona Boots"}
 
 	sets.midcast['Elemental Magic'].HighTierNuke = set_combine(sets.midcast['Elemental Magic'], {})
 
