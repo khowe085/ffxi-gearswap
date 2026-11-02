@@ -172,17 +172,18 @@ function init_gear_sets()
 	-- WSD 48; Fotia Gorget fTP +25/256 on the first hit
 	sets.precast.WS['Black Halo']['Maxentius Acc'] = set_combine(sets.precast.WS['Black Halo'], {head="Viti. Chapeau +4",neck="Fotia Gorget",waist="Sailfi Belt +1"})
 
-	-- Macc 386, WSD 27, MAB 281, Magic Damage 160
+	-- Macc 432, WSD 12, MAB 284, Magic Damage 180
 	sets.precast.WS['Sanguine Blade'] = {range=empty,ammo="Pemphredo Tathlum",
 		head="Leth. Chappel +3",neck="Dls. Torque +1",ear1="Alabaster Earring",ear2="Leth. Earring +1",
-		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Epaminondas's Ring",ring2="Murky Ring",
-		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
+		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Stikini Ring",ring2="Murky Ring",
+		back=gear.int_enfeebling_jse_back,waist="Obstin. Sash",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 
-	-- Fotia Belt: fTP +25/256, and its Accuracy 10 counts as Macc
-	sets.precast.WS['Seraph Blade'] = set_combine(sets.precast.WS['Sanguine Blade'], {ear1="Moonshade Earring",waist="Fotia Belt"})
+	-- Macc 421, WSD 12, MAB 284, Magic Damage 180, TP Bonus 250
+	sets.precast.WS['Seraph Blade'] = set_combine(sets.precast.WS['Sanguine Blade'], {ear1="Moonshade Earring"})
 
 	sets.precast.WS['Shining Strike'] = sets.precast.WS['Seraph Blade']
-	sets.precast.WS['Flash Nova'] = set_combine(sets.precast.WS['Sanguine Blade'], {waist="Fotia Belt"})
+	-- Macc 432, WSD 12, MAB 284, Magic Damage 180
+	sets.precast.WS['Flash Nova'] = set_combine(sets.precast.WS['Sanguine Blade'], {})
 
 	sets.precast.WS['Aeolian Edge'] = set_combine(sets.precast.WS['Seraph Blade'], {})
 
