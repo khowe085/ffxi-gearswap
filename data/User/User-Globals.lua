@@ -33,7 +33,7 @@ state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Attack','Oden'}
 trust_lists = {
 	Default = {'Yoran-Oran (UC)','Koru-Moru','Qultada','Ulmia','Joachim'},
 	Limbus = {'Yoran-Oran (UC)','Qultada','Ulmia'},
-	Totems = {'Brygid','Saukura','StarSibyl','Moogle'},
+	Totems = {'Brygid','Sakura','Star Sibyl','Moogle','Yoran-Oran (UC)'},
 	Oddy1 = {'Valaineral','Kupipi','Koru-Moru','Brygid','Joachim'},
 	Oddy2 = {'Rughadjeen','Mihli Aliapoh','Ferreous Coffin', 'King of Hearts','Ulmia'	},
 	Oddy3 = {'August','Cherukiki','Arciela II', 'Qultada','Moogle'},
