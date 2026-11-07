@@ -131,7 +131,7 @@ function init_gear_sets()
 	sets.precast.WS["Evisceration"].TA = sets.precast.WS["Rudra's Storm"].SA
 	sets.precast.WS["Evisceration"].SATA = sets.precast.WS["Rudra's Storm"].SA
 
-	sets.precast.WS['Savage Blade'] = set_combine(sets.precast.WS, {ear1="Alabaster Earring",body="Gleti's Cuirass",ring2="Karieyh Ring",feet="Gleti's Boots"})
+	sets.precast.WS['Savage Blade'] = set_combine(sets.precast.WS, {ear1="Alabaster Earring",body="Gleti's Cuirass",ring1="Karieyh Ring",ring2="Murky Ring",feet="Gleti's Boots"})
 
 	sets.precast.WS['Last Stand'] = sets.precast.WS
 	sets.precast.WS['Empyreal Arrow'] = sets.precast.WS['Last Stand']

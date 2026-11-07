@@ -13,6 +13,7 @@ Delta Thrust
 Dimensional Death
 Disseverment
 Empty Thrash
+FSTR
 Final Sting
 Foot Kick
 Frenetic Rip
@@ -25,6 +26,7 @@ Hysteric Barrage
 Jet Stream
 Mandibular Bite
 Nolan
+PDIF
 Paralyzing Triad
 Power Attack
 Quad. Continuum
