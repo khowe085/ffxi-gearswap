@@ -505,7 +505,7 @@ function init_gear_sets()
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 
 	-- DA 30, Store TP 31, DT 40
-	sets.engaged.DW = set_combine(sets.engaged, {feet="Leth. Houseaux +3"})
+	sets.engaged.DW = set_combine(sets.engaged, {})
 
 	sets.engaged.DW.Acc = set_combine(sets.engaged.Acc, {})
 
