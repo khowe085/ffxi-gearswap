@@ -1,6 +1,6 @@
 # Vanar: BLU, RDM and THF gear list
 
-Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export` of 2026-10-29: **137 pieces** (94 for BLU, 98 for RDM, 59 worn by both; 42 for THF, 4 of them THF only). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
+Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export` of 2026-11-07: **137 pieces** (95 for BLU, 99 for RDM, 61 worn by both; 42 for THF, 4 of them THF only). The set columns name each set whose definition lists the piece. A set built with `set_combine` also carries its base set's pieces, which are listed under the base. Where Vanar owns more than one copy, the Copy column gives the augments that pick it.
 
 ## Reference
 
@@ -185,7 +185,7 @@ Every piece `BLU.lua`, `RDM.lua` and `THF.lua` name, taken from the `//gs export
 | Gleti's Breeches |  |  |  | `precast.WS.Evisceration`, `precast.WS.Evisceration.Acc`, `engaged.Acc` |
 | Hashishin Tayt +3 |  | `buff['Burst Affinity']`, `buff.Efflux`, `precast.Waltz`, `precast.Step`, `precast.WS.Acc`, `precast.WS.Requiescat`, `precast.WS['Chant du Cygne']`, `precast.WS['Chant du Cygne'].DT`, `precast.WS['Sanguine Blade'].Acc`, `midcast['Blue Magic'].Physical`, `midcast['Blue Magic'].Physical.Resistant`, `midcast['Blue Magic'].Physical.Fodder`, `midcast['Blue Magic'].Magical`, `midcast['Blue Magic'].MagicAccuracy`, `midcast['Enfeebling Magic']`, `midcast['Elemental Magic']`, `midcast.Cure`, `midcast['Blue Magic'].Breath`, `midcast['Blue Magic'].Stun`, `midcast['Blue Magic'].Healing`, `midcast['Blue Magic'].SkillBasedBuff`, `resting`, `idle`, `defense.PDT`, `defense.MDT`, `engaged`, `engaged.Acc`, `engaged.DT` |  |  |
 | Jhakri Slops +2 |  |  | `engaged`, `engaged.DT` |  |
-| Leth. Fuseau +3 |  |  | `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `precast.WS['Sanguine Blade']`, `buff.ComposureOther`, `midcast.Refresh`, `midcast['Enfeebling Magic']`, `midcast.Sleep`, `midcast['Elemental Magic']`, `resting`, `idle`, `engaged.Acc.DT`, `engaged.DW` |  |
+| Leth. Fuseau +3 |  |  | `precast.WS['Savage Blade']`, `precast.WS['Black Halo']`, `precast.WS['Sanguine Blade']`, `buff.ComposureOther`, `midcast.Refresh`, `midcast['Enfeebling Magic']`, `midcast.Sleep`, `midcast['Elemental Magic']`, `resting`, `idle`, `engaged.Acc.DT` |  |
 | Luh. Shalwar +4 |  | `precast.WS['Sanguine Blade']`, `midcast['Blue Magic'].Magical.Fodder` |  |  |
 | Nyame Flanchard |  | `HPCure`, `precast.WS`, `precast.WS.DT`, `precast.WS.Fodder`, `midcast['Blue Magic'].UnlockedAoEHealing` | `precast.FC`, `precast.WS`, `precast.WS.Requiescat`, `precast.WS['Savage Blade'].Naegling`, `precast.WS['Savage Blade']['Naegling Acc']`, `precast.WS['Savage Blade'].Crocea`, `precast.WS['Savage Blade']['Crocea Acc']`, `precast.WS['Savage Blade'].CroceaBron`, `midcast.FastRecast` | `precast.Step`, `precast.JA['Violent Flourish']`, `precast.Waltz`, `precast.WS`, `midcast.RA`, `midcast.RA.Acc`, `HPMax`, `idle`, `idle.Refresh`, `defense.PDT`, `defense.MDT`, `defense.MEVA`, `engaged`, `engaged.DT`, `engaged.Acc.DT` |
 | Telchine Braconi |  | `midcast['Enhancing Magic']` | `midcast['Enhancing Magic']` |  |

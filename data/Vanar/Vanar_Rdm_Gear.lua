@@ -504,8 +504,8 @@ function init_gear_sets()
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Lehko's Ring",ring2="Murky Ring",
 		back=gear.da_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 
-	-- DA 30, Store TP 22, DT 40
-	sets.engaged.DW = set_combine(sets.engaged, {legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"})
+	-- DA 30, Store TP 31, DT 40
+	sets.engaged.DW = set_combine(sets.engaged, {feet="Leth. Houseaux +3"})
 
 	sets.engaged.DW.Acc = set_combine(sets.engaged.Acc, {})
 
