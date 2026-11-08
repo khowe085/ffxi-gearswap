@@ -22,6 +22,10 @@ local test_holding = false
 -- True while a test phase runs the user file's hooks. send_cmd_user drops the file's commands while it is set.
 test_silenced = false
 
+-- True while gs test engaged runs the user file's status_change and test_set_locks, which read it as
+-- gearswap.test_running to tell the test from a real engage.
+test_running = false
+
 local function notice(text)
     msg.addon_msg(123, 'Test: '..text)
 end
@@ -124,11 +128,13 @@ end
 local function test_engaged()
     local status = player.status
     player.status = 'Engaged'
+    test_running = true
     local ok, err = pcall(test_event, 'status_change', function()
         equip(naked_slots())
         user_pcall('status_change', 'Engaged', status)
         equip(type(user_env.test_set_locks) == 'function' and user_env.test_set_locks() or {})
     end)
+    test_running = false
     player.status = status
     if not ok then error(err, 0) end
 end

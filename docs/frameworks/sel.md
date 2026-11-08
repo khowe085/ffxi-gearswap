@@ -62,7 +62,7 @@ After the chosen set Sel equips more sets over it, each only when the gear file 
 
 `gs test set` runs none of Sel's hooks, so `data/User/User-Globals.lua` gives it Sel's locked gear through `test_set_locks`, which returns `internal_disable`: the locked weapon set and any other lock in force, such as `sets.buff.Doom`. The set is tested with the weapons the current weapon set and lock would leave in hand. A set under `sets.weapons` is the exception: it is tested with its own weapons and no locks.
 
-`gs test engaged` runs Sel's own status change, with `player.status` as Engaged, over a naked character, so Sel picks the engaged set as it does on engaging: the combat form, the offense and hybrid modes, the custom melee groups and the job's `job_customize_melee_set`, under the weapon lock.
+`gs test engaged` runs Sel's own status change, with `player.status` as Engaged, over a naked character, so Sel picks the engaged set as it does on engaging: the combat form, the offense and hybrid modes, the custom melee groups and the job's `job_customize_melee_set`, under the weapon lock. `data/User/User-Globals.lua` reads `gearswap.test_running` so that the test wears the engaged set with no target in melee range, where Sel would wear the idle set, and gets the weapons `hold_engaged_weapons` would keep in hand from `test_set_locks` rather than from the hold, which would outlast the test.
 
 ### Auditing a set with weapons in hand
 

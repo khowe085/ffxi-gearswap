@@ -179,21 +179,24 @@ local function sel_locks_weapons()
 	return state.Weapons.value ~= 'None' and sets.weapons[state.Weapons.value] and not state.UnlockWeapons.value
 end
 
+local function engaged_weapons()
+	if state.Weapons.value ~= 'None' and sets.weapons[state.Weapons.value] then
+		return sets.weapons[state.Weapons.value]
+	end
+	--Weapons None names no pair, so hold what's in hand. An empty slot isn't held, or nothing could fill it.
+	local held = {}
+	for _, slot in ipairs({'main', 'sub'}) do
+		if player.equipment[slot] and player.equipment[slot] ~= 'empty' then held[slot] = player.equipment[slot] end
+	end
+	return held
+end
+
+--gs test engaged gets the hold through test_set_locks instead, so the test leaves none behind.
 local function hold_engaged_weapons(status)
-	if sel_locks_weapons() then return end
+	if sel_locks_weapons() or gearswap.test_running then return end
 
 	if (status or player.status) == 'Engaged' then
-		local held
-		if state.Weapons.value ~= 'None' and sets.weapons[state.Weapons.value] then
-			held = sets.weapons[state.Weapons.value]
-		else
-			--Weapons None names no pair, so hold what's in hand. An empty slot isn't held, or nothing could fill it.
-			held = {}
-			for _, slot in ipairs({'main', 'sub'}) do
-				if player.equipment[slot] and player.equipment[slot] ~= 'empty' then held[slot] = player.equipment[slot] end
-			end
-		end
-		internal_disable_set(held, "Weapons")
+		internal_disable_set(engaged_weapons(), "Weapons")
 	elseif disabled_sets["Weapons"] then
 		--Not internal_enable_set(), which would flag Sel to call equip_weaponset() again after every action.
 		disabled_sets["Weapons"] = nil
@@ -218,6 +221,17 @@ end
 
 function user_status_change(newStatus, oldStatus, eventArgs)
 	hold_engaged_weapons(newStatus)
+end
+
+--Sel wears the idle set when engaged with no target in melee range. gs test engaged has none, so a test gets the
+--melee set wherever the target is.
+local sel_equip_gear_by_status = equip_gear_by_status
+function equip_gear_by_status(playerStatus, petStatus)
+	if gearswap.test_running and playerStatus == 'Engaged' and player.hp > 0 then
+		equip(get_melee_set(petStatus))
+		return
+	end
+	sel_equip_gear_by_status(playerStatus, petStatus)
 end
 
 --Auto WS, as on the rahvin branch: the mode offers OFF plus one option per AutoWS_List entry for the
@@ -618,8 +632,12 @@ local function holds_set(parent, set, seen)
 	return false
 end
 
+--gs test engaged passes no set, and adds the weapons the engaged hold would keep in hand.
 function test_set_locks(set)
-	if holds_set(sets.weapons, set, {}) then return {} end
+	if set and holds_set(sets.weapons, set, {}) then return {} end
+	if gearswap.test_running and not sel_locks_weapons() then
+		return set_combine(internal_disable, engaged_weapons())
+	end
 	return internal_disable
 end
 

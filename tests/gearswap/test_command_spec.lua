@@ -271,6 +271,22 @@ describe('gs test engaged', function()
         gs_test(gs, 'engaged')
         assert.equal('Idle', gs.user.player.status)
     end)
+
+    it('marks the run as a test for the hook and for test_set_locks, and not after', function()
+        local gs = boot()
+        local in_hook, in_locks
+        gs.user.status_change = function() in_hook = gs.user.gearswap.test_running end
+        gs.user.test_set_locks = function() in_locks = gs.user.gearswap.test_running return {} end
+        gs_test(gs, 'engaged')
+        assert.same({true, true, false}, {in_hook, in_locks, gs.user.gearswap.test_running})
+    end)
+
+    it('raises the error the hook raises, with the player\'s own status and no test mark left behind', function()
+        local gs = boot()
+        gs.user.status_change = function() error('the hook failed') end
+        assert.error_matches(function() gs:console('gs test engaged') end, 'the hook failed')
+        assert.same({'Idle', false}, {gs.user.player.status, gs.user.gearswap.test_running})
+    end)
 end)
 
 describe('the hold after gs test', function()
