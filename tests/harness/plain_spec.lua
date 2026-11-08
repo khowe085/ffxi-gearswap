@@ -1,0 +1,10 @@
+local plain = require('plain')
+
+describe('a plain user file\'s refresh', function()
+    it('takes the calls the user file noted until then, the command\'s own among them, as read', function()
+        local gs = plain.boot()
+        gs:type('/ma "Cure III" <me>')
+        plain.refresh(gs)
+        assert.same({}, plain.calls(gs))
+    end)
+end)
