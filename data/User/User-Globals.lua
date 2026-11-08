@@ -32,13 +32,15 @@ food_lists = {
 state.AutoFoodMode = M{['description'] = 'Auto Food Mode','Off','Attack','Oden'}
 trust_lists = {
 	Default = {'Yoran-Oran (UC)','Koru-Moru','Qultada','Ulmia','Joachim'},
+	Tanks1 = {'Yoran-Oran (UC)','Valaineral','Qultada','Ulmia','Joachim'},
+	Tanks2 = {'Yoran-Oran (UC)','Valaineral','Koru-Moru','Ulmia','Qultada'},
 	Limbus = {'Yoran-Oran (UC)','Qultada','Ulmia'},
 	Totems = {'Brygid','Sakura','Star Sibyl','Moogle','Yoran-Oran (UC)'},
 	Oddy1 = {'Valaineral','Kupipi','Koru-Moru','Brygid','Joachim'},
 	Oddy2 = {'Rughadjeen','Mihli Aliapoh','Ferreous Coffin', 'King of Hearts','Ulmia'	},
 	Oddy3 = {'August','Cherukiki','Arciela II', 'Qultada','Moogle'},
 }
-state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Limbus','Totems','Oddy1','Oddy2','Oddy3'}
+state.AutoTrustMode = M{['description'] = 'Auto Trust Mode','Off','Default','Tanks1','Limbus','Totems','Oddy1','Oddy2','Oddy3'}
 
 
 send_command('bind f6 gs c cycle AutoTrustMode') --Cycles through Off and the trust_lists entries, summoning that list's trusts automatically.
