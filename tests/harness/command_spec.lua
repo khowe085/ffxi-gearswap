@@ -1,0 +1,18 @@
+local Game = require('game')
+local harness = require('harness')
+local testy = require('testy')
+
+describe('the stand-in game\'s commands', function()
+    it('run an input command as the line typed', function()
+        local gs = harness.boot(testy.whm())
+        gs:console('input /ma "Cure III" <me>')
+        assert.same({'Cure III'}, gs:actions())
+    end)
+
+    it('run with any number of @ before them, as GearSwap\'s send_command, which adds one, sends Sel\'s @input', function()
+        local game = Game.new({res = harness.resources()})
+        game:run_command('@@input /echo hello')
+        assert.same({'input /echo hello'}, game.commands)
+        assert.same({'/echo hello'}, game.typed)
+    end)
+end)
