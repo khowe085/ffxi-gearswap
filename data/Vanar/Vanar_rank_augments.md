@@ -32,9 +32,9 @@ Vanar's path and rank for each rank-augmented item in the export `data/export/Va
 | [Tanmogayi +1](../../docs/rank-augments.md#tanmogayi-1) | main | none | 0 |  | none (base stats only) |
 | [Forfend +1](../../docs/rank-augments.md#forfend-1) | sub | A | 15 | 2026-10-04 | Accuracy+15, Mag. Acc.+15, Enha. mag. skill +10 |
 | [Coiste Bodhar](../../docs/rank-augments.md#coiste-bodhar) | ammo | A | 20 | 2026-10-04 | Attack+15, STR+5 |
-| [Alabaster Earring](../../docs/rank-augments.md#alabaster-earring) | ear | A | 11 | 2026-10-29 | Accuracy+11 Rng. Acc.+11 Mag. Acc.+11 |
+| [Alabaster Earring](../../docs/rank-augments.md#alabaster-earring) | ear | A | 14 | 2026-11-07 | Accuracy+14 Rng. Acc.+14 Mag. Acc.+14 |
 | [Beithir Ring](../../docs/rank-augments.md#beithir-ring) | ring | none | 0 |  | none (base stats only) |
-| [Murky Ring](../../docs/rank-augments.md#murky-ring) | ring | A | 10 | 2026-11-01 | Accuracy+10 Rng. Acc.+10 Mag. Acc.+10 |
+| [Murky Ring](../../docs/rank-augments.md#murky-ring) | ring | A | 11 | 2026-11-07 | Accuracy+11 Rng. Acc.+11 Mag. Acc.+11 |
 | [Fi Follet Cape +1](../../docs/rank-augments.md#fi-follet-cape-1) | back | A | 11 | 2026-10-02 | "Fast Cast" +8%, Spell Interruption Rate -3% |
 | [Kentarch Belt +1](../../docs/rank-augments.md#kentarch-belt-1) | waist | none | 0 |  | none (base stats only) |
 | [Obstin. Sash](../../docs/rank-augments.md#obstin-sash) | waist | A | 17 | 2026-10-06 | Mag. Acc.+15, Enfb. mag. skill +2 |

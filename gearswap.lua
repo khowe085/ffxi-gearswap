@@ -245,8 +245,10 @@ windower.register_event('addon command',function (...)
         print(' export <opts>   : Exports your item collections based on the passed options.')
         print(' disable <slot>  : Disables equip commands targeting a specified slot.')
         print(' validate <opts> : Checks your current inventory against your item collections (or vice versa).')
-        print(' test set <set>  : equips the set over a naked character, with the user file\'s locks over it, and holds it for 30 seconds.')
+        print(' test set <set>  : equips the set over a naked character, with the user file\'s locks over it, and holds it until test done.')
+        print(' test engaged    : equips over a naked character what the user file would on engaging, and holds it.')
         print(' test [precast|midcast] <action> : equips what the user file would for an action, without using it, and holds it.')
+        print(' test done       : ends the hold: the user file is on again and dresses for your status.')
         print(' naked / n       : equips the naked set and disables the user file until the next naked.')
         print(' audit <test args> : runs gs test, then /checkparam <me>, and appends the stats to data/audit/<name>.jsonl.')
         print(' stash <jobs> [unused] : moves the gear in those jobs\' files out of wardrobe and wardrobe2 (unused: everything else).')
@@ -293,7 +295,7 @@ function naked_toggle()
         msg.addon_msg(123,'Naked command cannot be completed. That set does not exist.')
         return
     end
-    -- Takes over from a gs test hold, whose timer would otherwise switch the file back on.
+    -- Takes over from a gs test hold, which gs test done would otherwise end.
     audit_cancel()
     naked_was_disabled = not test_hold_end() and gearswap_disabled
     refresh_globals()

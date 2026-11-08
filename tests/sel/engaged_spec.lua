@@ -101,3 +101,23 @@ describe('Sel\'s engaged set for a weapon set', function()
             body = 'Atrophy Tabard +3'}), gs:worn())
     end)
 end)
+
+describe('gs test engaged under Sel', function()
+    it('puts on, over a naked character, the engaged set Sel picks for the offense and hybrid modes, while the '
+        .. 'player is idle', function()
+        local gs = boot()
+        gs:console('gs c set OffenseMode Acc')
+        gs:console('gs c set HybridMode DT')
+        gs:console('gs test engaged')
+        assert.same({main = 'Daybreak', sub = 'Ammurapi Shield', head = 'Malignance Chapeau',
+            body = 'Malignance Tabard'}, gs:worn())
+    end)
+
+    it('puts on the weapon set\'s engaged set with its weapons in hand', function()
+        local gs = boot()
+        gs:console('gs c set Weapons Crocea')
+        gs:console('gs test engaged')
+        assert.same({main = 'Crocea Mors', sub = 'Ammurapi Shield', head = 'Kaykaus Mitra +1',
+            body = 'Atrophy Tabard +3'}, gs:worn())
+    end)
+end)

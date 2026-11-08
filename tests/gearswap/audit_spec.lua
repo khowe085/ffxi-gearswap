@@ -71,7 +71,7 @@ describe('gs audit', function()
         local gs = boot()
         gs:console('gs audit set sets.precast.FastCast')
         assert.same({'GearSwap: Test: naked, then sets.precast.FastCast',
-            'GearSwap: Test: user file off for 30 seconds while the test gear is on.'}, gs:chat())
+            'GearSwap: Test: user file off while the test gear is on, until //gs test done.'}, gs:chat())
         assert.same({head = "Bunzi's Hat", neck = 'Loricate Torque +1', left_ring = 'Kishar Ring'}, gs:worn())
     end)
 
