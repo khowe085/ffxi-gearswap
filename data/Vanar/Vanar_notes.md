@@ -9,6 +9,7 @@ The player gave these rules for Vanar's sets. They are recorded here so they don
 - **(player, 2026-10-05)** Melee sets by offense mode, in the player's words: "Overall damage (including WSD) can come first in TP as long as I hit a minimum of 1350 ACC, ACC comes first in ACC mode. DT in DT set." The 1350 floor has since been replaced (next lines).
   - **(player, 2026-10-10)** RDM's floor is 1250, from gear, food and weapon skill accuracy, with Composure not counted. Composure's +70 comes on top, 1320 in all. This replaces the 2026-10-09 rule, which counted Composure toward 1350. Composure is always up when RDM melees (player, 2026-10-09), and its +70 is 50 at level 99 and 20 more from its job point category ([bg-wiki](https://www.bg-wiki.com/ffxi/Composure)).
   - **(player, 2026-10-29)** RDM's floor is raised by 25, to 1275, counted the same way: gear, food and weapon skill accuracy, with Composure not counted (1345 with its +70). This replaces the 1250 floor above and in the rules below that name it.
+  - **(player, 2026-11-07)** RDM's `sets.engaged.DW` wears Jhakri Slops +2 for every Dual weapon set, though Maxbron's main hand is then 16 under the floor (1259), rather than Leth. Fuseau +3 for all or an engaged set of Maxbron's own ([Jhakri Slops +2](Vanar_gear_notes.md#jhakri-slops-2)).
   - **(player, 2026-10-10)** Every other job's floor is 1275: BLU's here.
   - **(player, 2026-10-10)** Weapon skill accuracy counts toward the floor: Karieyh Ring's +5, Fotia Gorget's and Fotia Belt's +10, and the like.
   - **(player, 2026-10-05)** The floor counts gear and food, not buffs.
@@ -80,14 +81,14 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 | Crocea Mors | C | 5 | 2026-10-29 |
 | Forfend +1 | A | 15 | 2026-10-04 |
 | Coiste Bodhar | A | 20 | 2026-10-04 |
-| Alabaster Earring | A | 11 | 2026-10-29 |
+| Alabaster Earring | A | 14 | 2026-11-07 |
 | Fi Follet Cape +1 | A | 11 | 2026-10-02 |
 | Obstin. Sash | A | 17 | 2026-10-06 |
 | Sailfi Belt +1 | A | 14 | 2026-10-04 |
 | Dls. Torque +1 | A | 20 | 2026-10-05 |
 | Mirage Stole +2 | A | 25 | 2026-11-01 |
 | Tizona | A | 15 | 2026-10-05 |
-| Murky Ring | A | 10 | 2026-11-01 |
+| Murky Ring | A | 11 | 2026-11-07 |
 | Almace | A | 5 | 2026-11-01 |
 
 - **(player, 2026-10-04)** The Nyame Helm and Flanchard went from rank 2 to rank 11 on 2026-10-04.
@@ -105,6 +106,7 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 - **(player, 2026-10-29)** `Alabaster Earring` went from rank 7 to rank 11, and `Murky Ring` from rank 7 to rank 8. The `/checkparam` records of that day showed it first.
 - **(player, 2026-10-29)** `Mirage Stole +2` went from rank 20 to rank 22, and `Crocea Mors` from rank 1 to rank 5. bg-wiki gives the stole's augments at rank 25 only, so its rank 22 values aren't known: between the rank 20 values above and STR and DEX +25, Critical hit rate +5% and Store TP +7. Ask before a set decision turns on them. Crocea Mors at rank 5 is Sword enh. spell damage +100%, Ele. weapon skill damage +17% and DMG +2 by its simulated table ([Vanar_rank_augments.md](Vanar_rank_augments.md)).
 - **(player, 2026-11-01)** `Mirage Stole +2` went from rank 22 to rank 25, its maximum: STR and DEX +25, Critical hit rate +5% and Store TP +7. `Murky Ring` went from rank 8 to rank 10, and `Almace` from rank 2 to rank 5. `Alabaster Earring` is still rank 11.
+- **(player, 2026-11-07)** `Alabaster Earring` went from rank 11 to rank 14, and `Murky Ring` from rank 10 to rank 11.
 - `Tizona` and `Almace` export Path A, so both are Level 119 III. `Pukulatmuj +1` exports with no augments, so it is rank 0.
 
 ## Jobs, Master Levels and nation
@@ -112,6 +114,7 @@ The ranks the player has given, under the name the export prints. `//gs export` 
 - **(player, 2026-10-02)** Vanar's RDM and BLU are both Master Level 25. Each has 2,100 job points, so both are mastered: every job point category at 20 and every gift.
   - The player's `/checkparam` records of 2026-10-29 give RDM's Master Level as 26 ([Skill and accuracy: Accuracy](#skill-and-accuracy-accuracy)). The skill caps and estimates below are at 25; at 26 each RDM skill cap and base stat is 1 higher. BLU's isn't in them.
   - **(player, 2026-10-29)** RDM is Master Level 26 and BLU is Master Level 28. This replaces the 25 above; the caps and estimates below that assume 25 are low by 1 for RDM and 3 for BLU.
+  - **(player, 2026-11-07)** RDM is Master Level 27. This replaces the 26 above; the caps and estimates below that assume 25 are low by 2 for RDM.
 - At Master Level 25 the support job is level 54 (49 + floor(25 ÷ 5)).
 - **(player, 2026-10-02)** Vanar is a citizen of Windurst. What that turns on and off is under [Enhancing magic: Refresh](#enhancing-magic-refresh) below.
 - **(player, 2026-10-07)** Vanar is an Elvaan, on both jobs.
