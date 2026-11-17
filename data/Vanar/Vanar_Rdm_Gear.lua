@@ -120,7 +120,7 @@ function init_gear_sets()
 	sets.precast.FullFC = {main="Crocea Mors",
 		head="Atro. Chapeau +4",ear1="Loquac. Earring",ear2="Leth. Earring +1",
 		body="Viti. Tabard +4",hands="Jhakri Cuffs +2",ring1="Jhakri Ring",ring2="Prolix Ring",
-		back="Fi Follet Cape +1",waist="Embla Sash",feet="Chelona Boots"}
+		back="Fi Follet Cape +1",waist="Embla Sash",feet="Volte Gaiters"}
 
 	-- FC 52 with Crocea Mors, 32 without, once Twilight Cloak takes the head and body
 	sets.precast.FC.Impact = set_combine(sets.precast.FullFC, {head=empty})
@@ -159,7 +159,7 @@ function init_gear_sets()
 	sets.precast.WS['Savage Blade'].Crocea = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
 	sets.precast.WS['Savage Blade']['Crocea Acc'] = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
 	-- WSD 57
-	sets.precast.WS['Savage Blade'].CroceaBron = set_combine(sets.precast.WS['Savage Blade'], {body="Lethargy Sayon +3",waist="Sailfi Belt +1",legs="Nyame Flanchard"})
+	sets.precast.WS['Savage Blade'].CroceaBron = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
 
 	-- WSD 39; Atrophy set (2 pieces): Acc +15; Fotia Belt fTP +25/256 on the first hit
 	sets.precast.WS['Black Halo'] = {range=empty,ammo="Coiste Bodhar",
@@ -435,10 +435,7 @@ function init_gear_sets()
 	sets.buff.Doom = {}
 
 	-- Refresh 8 (11 with the weapons free), Fucho-no-Obi latent Refresh +1, MP recovered while healing +5
-	sets.resting = {main=gear.colada_refresh,sub="Archduke's Shield",range=empty,
-		head="Viti. Chapeau +4",neck="Sibyl Scarf",ear1="Alabaster Earring",ear2="Etiolation Earring",
-		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Murky Ring",ring2="Ayanmo Ring",
-		back=gear.da_jse_back,waist="Fucho-no-Obi",legs="Leth. Fuseau +3",feet="Chelona Boots"}
+	sets.resting = set_combine(sets.idle, {waist="Fucho-no-Obi",feet="Chelona Boots"})
 
 	-- Movement speed 18%, DT 58
 	sets.Ballista = {main=gear.colada_refresh,sub="Forfend +1",range=empty,
@@ -446,11 +443,11 @@ function init_gear_sets()
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Murky Ring",ring2="Ayanmo Ring",
 		back=gear.da_jse_back,waist="Flume Belt",legs="Carmine Cuisses +1",feet="Viti. Boots +4"}
 
-	-- Refresh 8 (11 with the weapons free), DT 48, PDT 4, MDT 3
+	-- Refresh 10 (13 with the weapons free), DT 48, PDT 4, MDT 3
 	sets.idle = {main=gear.colada_refresh,sub="Archduke's Shield",range=empty,
 		head="Viti. Chapeau +4",neck="Sibyl Scarf",ear1="Alabaster Earring",ear2="Etiolation Earring",
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Murky Ring",ring2="Ayanmo Ring",
-		back=gear.da_jse_back,waist="Flume Belt",legs="Leth. Fuseau +3",feet="Viti. Boots +4"}
+		back=gear.da_jse_back,waist="Flume Belt",legs="Volte Brais",feet="Volte Gaiters"}
 
 	-- DT 58, PDT 8 with Forfend +1
 	sets.idle.PDT = set_combine(sets.idle, {sub="Forfend +1",head="Leth. Chappel +3"})
