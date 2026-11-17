@@ -1670,38 +1670,77 @@ function get_idle_set(petStatus)
 end
 
 
+local function engaged_base(keys)
+	local set = sets.engaged
+	for _,key in ipairs(keys) do
+		set = set[key]
+		if not set then return nil end
+	end
+
+	local crumbs = {unpack(keys)}
+	if state.CombatWeapon.has_value and set[state.CombatWeapon.value] then
+		set = set[state.CombatWeapon.value]
+		crumbs[#crumbs + 1] = state.CombatWeapon.value
+	end
+
+	return {set = set, keys = crumbs}
+end
+
+-- The sets an engaged set is looked up in, most specific first. A weapon set's own sets fall back to sets.engaged.DW
+-- when it dual wields, then to sets.engaged; any other combat form stays in its own sets.
+local function engaged_bases()
+	local form = state.CombatForm.has_value and sets.engaged[state.CombatForm.value] and state.CombatForm.value
+	local candidates
+	if form and form == state.Weapons.value then
+		candidates = {{form}, {}}
+		if wielding() == 'Dual Wielding' then
+			table.insert(candidates, 2, {'DW'})
+		end
+	elseif form then
+		candidates = {{form}}
+	else
+		candidates = {{}}
+	end
+
+	local bases = {}
+	for _,keys in ipairs(candidates) do
+		bases[#bases + 1] = engaged_base(keys)
+	end
+	return bases
+end
+
+-- The offense mode outranks the hybrid mode, and a closer match to the modes outranks a more specific base.
+local function select_engaged_set()
+	local offense, hybrid = state.OffenseMode.current, state.HybridMode.current
+	local bases = engaged_bases()
+	for _,modes in ipairs({{offense, hybrid}, {offense}, {hybrid}, {}}) do
+		for _,base in ipairs(bases) do
+			local set = base.set
+			for _,mode in ipairs(modes) do
+				set = set and set[mode]
+			end
+			if set then
+				for _,key in ipairs(base.keys) do mote_vars.set_breadcrumbs:append(key) end
+				for _,mode in ipairs(modes) do mote_vars.set_breadcrumbs:append(mode) end
+				return set
+			end
+		end
+	end
+end
+
 -- Returns the appropriate melee set based on current state values.
 -- Set construction order (all sets after sets.engaged are optional):
---   sets.engaged[state.CombatForm][state.CombatWeapon][state.OffenseMode][state.DefenseMode][classes.CustomMeleeGroups (any number)]
+--   sets.engaged[state.CombatForm][state.CombatWeapon][state.OffenseMode][state.HybridMode][classes.CustomMeleeGroups (any number)]
+-- A weapon set's engaged set falls back mode by mode to the generic sets, as engaged_bases describes.
 function get_melee_set(petStatus)
-	local meleeSet = sets.engaged
-	
-	if not meleeSet then
+	if not sets.engaged then
 		return {}
 	end
-	
+
 	mote_vars.set_breadcrumbs:append('sets')
 	mote_vars.set_breadcrumbs:append('engaged')
 
-	if state.CombatForm.has_value and meleeSet[state.CombatForm.value] then
-		meleeSet = meleeSet[state.CombatForm.value]
-		mote_vars.set_breadcrumbs:append(state.CombatForm.value)
-	end
-
-	if state.CombatWeapon.has_value and meleeSet[state.CombatWeapon.value] then
-		meleeSet = meleeSet[state.CombatWeapon.value]
-		mote_vars.set_breadcrumbs:append(state.CombatWeapon.value)
-	end
-
-	if meleeSet[state.OffenseMode.current] then
-		meleeSet = meleeSet[state.OffenseMode.current]
-		mote_vars.set_breadcrumbs:append(state.OffenseMode.current)
-	end
-
-	if meleeSet[state.HybridMode.current] then
-		meleeSet = meleeSet[state.HybridMode.current]
-		mote_vars.set_breadcrumbs:append(state.HybridMode.current)
-	end
+	local meleeSet = select_engaged_set()
 
 	for _,group in ipairs(classes.CustomMeleeGroups) do
 		if meleeSet[group] then

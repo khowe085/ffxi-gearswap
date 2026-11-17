@@ -28,6 +28,7 @@ Re-apply these after copying in an upstream version of the file, unless upstream
 - `libs/Sel-Include.lua`: `state.MiniQueue` starts off. Upstream starts it on, and its hold for a press made too soon after an action or while moving delayed or lost casts.
 - `libs/Sel-Utility.lua`: in `check_recast`, the two MiniQueue branches that held a job ability or spell with under 5 seconds of recast and sent it when ready are commented out. Such a press is now refused with "waiting on recast" like a longer recast, so a held press can't go off after the player has moved on to another action.
 - `libs/Sel-Include.lua`, `libs/Sel-Utility.lua`: `can_dual_wield` is `nil` until `set_dual_wield` has looked, not upstream's `''`. An empty string is true in Lua, so a job without Dual Wield would count as having it until the first check.
+- `libs/Sel-Include.lua`: `get_melee_set` picks the engaged set through the local functions `engaged_bases` and `select_engaged_set`. When the combat form is the `state.Weapons` value, each offense and hybrid mode falls back from `sets.engaged[weapon]` to `sets.engaged.DW` (when the weapon set dual wields) and then to `sets.engaged`, a closer match to the modes winning over a more specific set. Upstream stays inside `sets.engaged[weapon]`, wearing its base set in any mode it has no set for.
 
 ## Pulling in later upstream commits
 

@@ -1,0 +1,600 @@
+local jobby = require('jobby')
+
+local pieces = {'Volte Cap', 'Volte Jupon', 'Volte Bracers', 'Volte Hose', 'Volte Boots', 'Null Masque',
+    'Adamantite Armor', 'Plumb Boots', "Orunmila's Torque", 'Weike Torque', 'Sortiarius Earring', 'Beatific Earring',
+    'Choleric Earring', 'Pensee Earring', 'Moonshade Earring', 'Wanion Belt', 'Prodigious Mantle',
+    'Malignance Chapeau', "Luzaf's Ring", 'Death Penalty', 'Compensator'}
+
+local default_bullets = {['Eminent Bullet'] = 40, ['Orichalc. Bullet'] = 40, ['Living Bullet'] = 40,
+    ['Animikii Bullet'] = 40}
+
+-- Jobby as a corsair with the idle set on, a gun in hand and bullets in the inventory. The options are the boot
+-- options, a wearing laid over the gun and the bullet, and these besides: bullets (the count of each bullet owned, 40
+-- of each by default), ammo (the bullet worn, one of those owned, Eminent Bullet by default) and items (more pieces).
+local function boot(options)
+    options = options or {}
+    local items = {}
+    for _, name in ipairs(pieces) do
+        items[#items + 1] = name
+    end
+    for _, item in ipairs(options.items or {}) do
+        items[#items + 1] = item
+    end
+    for name, count in pairs(options.bullets or default_bullets) do
+        if count > 0 then
+            items[#items + 1] = {name = name, count = count}
+        end
+    end
+    local wearing = {range = 'Death Penalty', ammo = options.ammo or 'Eminent Bullet'}
+    for slot, item in pairs(options.wearing or {}) do
+        wearing[slot] = item
+    end
+    options.wearing = wearing
+    options.bullets, options.ammo, options.items = nil, nil, items
+    options.sub_job = options.sub_job or 'NIN'
+    return jobby.boot('COR', options)
+end
+
+-- What every Jobby gear file's idle set wears, as the game shows it worn, with the corsair's dagger in hand.
+local idle = jobby.worn_by(jobby.idle, jobby.weapons.COR)
+
+local sets_of = jobby.sets_of
+
+local gun = {range = 'Death Penalty', ammo = 'Eminent Bullet'}
+
+-- What is worn once the action's sets are on, with the gun and its bullet worn over the idle set.
+local function worn_with(...)
+    return jobby.worn_by(idle, jobby.layer(gun, ...))
+end
+
+-- What went out since last asked: each run of equip requests, and the name of each action.
+local function equips(gs)
+    local sent = {}
+    for _, entry in ipairs(gs:traffic()) do
+        sent[#sent + 1] = entry.equip or entry.action
+    end
+    return sent
+end
+
+describe('a ranged attack', function()
+    it('wears sets.precast.RA[the gun] ahead of it, then sets.midcast.RA', function()
+        local gs = boot()
+        gs:type('/ra <t>')
+        assert.same({jobby.layer(sets_of(gs).precast.RA['Death Penalty']), 'category 16',
+            jobby.layer(sets_of(gs).midcast.RA)}, equips(gs))
+    end)
+
+    it('wears sets.midcast.RA.Acc in the Acc ranged mode', function()
+        local gs = boot()
+        gs:console('gs c set RangedMode Acc')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same(worn_with(sets_of(gs).precast.RA['Death Penalty'], sets_of(gs).midcast.RA.Acc), gs:worn())
+    end)
+
+    it('takes the gun as the combat weapon', function()
+        local gs = boot()
+        gs:type('/ra <t>')
+        assert.equal('Death Penalty', gs.user.state.CombatWeapon.value)
+    end)
+
+    it('wears sets.precast.RA.Flurry over the precast set under Flurry', function()
+        local gs = boot()
+        gs:gain_buff('Flurry')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty'], sets_of(gs).precast.RA.Flurry),
+            gs:traffic()[1].equip)
+    end)
+
+    it('wears sets.precast.RA.Flurry2 under the stronger Flurry', function()
+        local gs = boot()
+        gs:gain_buff('Flurry')
+        gs.user.lastflurry = 2
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty'], sets_of(gs).precast.RA.Flurry2),
+            gs:traffic()[1].equip)
+    end)
+
+    it('wears neither Flurry set without the buff', function()
+        local gs = boot()
+        gs:type('/ra <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
+    end)
+
+    it('wears sets.buff["Triple Shot"] over the midcast set under Triple Shot', function()
+        local gs = boot()
+        gs:gain_buff('Triple Shot')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same(worn_with(sets_of(gs).precast.RA['Death Penalty'], sets_of(gs).midcast.RA,
+            sets_of(gs).buff['Triple Shot']), gs:worn())
+    end)
+
+    it('wears the Triple Shot set of the ranged mode when it has one', function()
+        local gs = boot()
+        gs:gain_buff('Triple Shot')
+        gs:console('gs c set RangedMode Acc')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same(worn_with(sets_of(gs).precast.RA['Death Penalty'], sets_of(gs).midcast.RA.Acc,
+            sets_of(gs).buff['Triple Shot'].Acc), gs:worn())
+    end)
+
+    pending('wears sets.buff.Barrage over the midcast set under Barrage: job_post_midcast in data/COR.lua reads '
+        .. 'state.Buff.Barrage, which only data/RNG.lua declares, so a corsair with Ranger as the sub job never wears it')
+
+    it('wears sets.TrueShot on a target in the sweet spot', function()
+        local gs = boot()
+        gs.game.monster.distance = 36
+        gs:type('/ra <t>')
+        assert.same(worn_with(sets_of(gs).precast.RA['Death Penalty'], sets_of(gs).midcast.RA, sets_of(gs).TrueShot),
+            gs:worn())
+    end)
+
+    it('wears sets.TrueShot at the far edge of the sweet spot, and not beyond it', function()
+        local gs = boot()
+        gs.game.monster.distance = 6.3 ^ 2
+        gs:type('/ra <t>')
+        assert.equal('Weike Torque', gs:worn().neck)
+        gs = boot()
+        gs.game.monster.distance = 6.4 ^ 2
+        gs:type('/ra <t>')
+        assert.equal('Loricate Torque +1', gs:worn().neck)
+    end)
+
+    it('wears sets.TrueShot not at all closer than the sweet spot', function()
+        local gs = boot()
+        gs.game.monster.distance = 4.9 ^ 2
+        gs:type('/ra <t>')
+        assert.equal('Loricate Torque +1', gs:worn().neck)
+    end)
+
+    it('leaves sets.TrueShot off with the True Shot mode off', function()
+        local gs = boot()
+        gs:console('gs c toggle TrueShotMode')
+        gs.game.monster.distance = 36
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.equal('Loricate Torque +1', gs:worn().neck)
+    end)
+
+    it('wears the AM set of the gun while Aftermath: Lv.3 is up on Death Penalty', function()
+        local gs = boot()
+        gs:gain_buff('Aftermath: Lv.3')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty'].AM), gs:traffic()[1].equip)
+    end)
+
+    it('wears no AM set under another level of Aftermath', function()
+        local gs = boot()
+        gs:gain_buff('Aftermath: Lv.1')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
+    end)
+
+    it('wears the AM set no more once Aftermath is gone', function()
+        local gs = boot()
+        gs:gain_buff('Aftermath: Lv.3')
+        gs:lose_buff('Aftermath: Lv.3')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.RA['Death Penalty']), gs:traffic()[1].equip)
+    end)
+end)
+
+describe('a Quick Draw shot', function()
+    it('wears sets.precast.CorsairShot', function()
+        local gs = boot()
+        gs:type('/ja "Fire Shot" <t>')
+        assert.same({jobby.layer(sets_of(gs).precast.CorsairShot), 'Fire Shot'}, equips(gs))
+    end)
+
+    it('wears the set of the shot, Light Shot, when there is one', function()
+        local gs = boot()
+        gs:type('/ja "Light Shot" <t>')
+        assert.same({jobby.layer(sets_of(gs).precast.CorsairShot['Light Shot']), 'Light Shot'}, equips(gs))
+    end)
+
+    it('wears sets.precast.CorsairShot.Proc in the Proc casting mode', function()
+        local gs = boot()
+        gs:console('gs c set CastingMode Proc')
+        gs:traffic()
+        gs:type('/ja "Fire Shot" <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairShot.Proc), gs:traffic()[1].equip)
+    end)
+
+    it('wears sets.precast.CorsairShot.Proc in the Proc weapon skill mode', function()
+        local gs = boot()
+        gs:console('gs c set WeaponskillMode Proc')
+        gs:traffic()
+        gs:type('/ja "Fire Shot" <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairShot.Proc), gs:traffic()[1].equip)
+    end)
+
+    it('wears sets.precast.CorsairShot.Damage in the Fodder casting mode', function()
+        local gs = boot()
+        gs:console('gs c set CastingMode Fodder')
+        gs:traffic()
+        gs:type('/ja "Fire Shot" <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairShot.Damage), gs:traffic()[1].equip)
+    end)
+
+    it('wears the shot\'s own set, not the Proc one, for Light Shot even in the Proc mode', function()
+        local gs = boot()
+        gs:console('gs c set CastingMode Proc')
+        gs:traffic()
+        gs:type('/ja "Light Shot" <t>')
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairShot['Light Shot']), gs:traffic()[1].equip)
+    end)
+
+    it('is cast by gs c elemental quickdraw in the element chosen', function()
+        local gs = boot()
+        gs:console('gs c elemental quickdraw')
+        assert.equal('Fire Shot', gs:traffic()[2].action)
+    end)
+
+    it('is cast by gs c elemental quickdraw in another element once it is chosen', function()
+        local gs = boot()
+        gs:console('gs c set ElementalMode Light')
+        gs:traffic()
+        gs:console('gs c elemental quickdraw')
+        assert.equal('Light Shot', gs:traffic()[2].action)
+    end)
+
+    pending('says it will use the bullet worn when no Quick Draw bullet is owned: do_ammo_checks in data/COR.lua '
+        .. 'has that branch, but job_precast only calls it when uses_ammo (libs/Sel-Utility.lua) holds, and that '
+        .. 'is never so for a Corsair shot')
+
+    it('is held back while a Trump Card is fetched from the satchel, and goes out when tried again a second later',
+        function()
+        local gs = boot({items = {{name = 'Trump Card', bag = 'satchel', count = 10}}})
+        gs:type('/ja "Fire Shot" <t>')
+        assert.same({}, gs:traffic())
+        assert.same({'get "Trump Card" satchel'}, gs:commands())
+        -- The get command brings the cards into the inventory.
+        gs:move_item('Trump Card', 'satchel', 'inventory')
+        gs:advance(1)
+        assert.same({}, gs:commands())
+        assert.same({'Fire Shot'}, gs:actions())
+    end)
+
+    it('goes out when the Trump Card is in the inventory', function()
+        local gs = boot({items = {{name = 'Trump Card', count = 10}}})
+        gs:type('/ja "Fire Shot" <t>')
+        assert.equal('Fire Shot', gs:traffic()[2].action)
+        assert.same({}, gs:commands())
+    end)
+end)
+
+describe('the bullets a ranged action needs', function()
+    it('are left alone when there are plenty', function()
+        local gs = boot()
+        gs:type('/ra <t>')
+        assert.equal('category 16', gs:traffic()[2].action)
+        assert.same({}, gs:chat())
+    end)
+
+    it('stop a ranged attack when there are none, saying which', function()
+        local gs = boot({bullets = {['Bronze Bullet'] = 40}, ammo = 'Bronze Bullet'})
+        gs:type('/ra <t>')
+        assert.same({}, gs:traffic())
+        assert.same({'No ammo (Eminent Bullet) available for that action.'}, gs:chat())
+    end)
+
+    it('warn at the warning limit, and let the attack go', function()
+        local gs = boot({bullets = {['Eminent Bullet'] = 15}})
+        gs:type('/ra <t>')
+        assert.equal('category 16', gs:traffic()[2].action)
+        local warning = '****  LOW AMMO WARNING: Eminent Bullet ****'
+        local border = ('*'):rep(#warning)
+        assert.same({border, warning, border}, gs:chat())
+    end)
+
+    it('do not warn above the warning limit', function()
+        local gs = boot({bullets = {['Eminent Bullet'] = 16}})
+        gs:type('/ra <t>')
+        assert.same({}, gs:chat())
+    end)
+
+    it('are held back for Quick Draw when the bullet is the same', function()
+        local gs = boot({bullets = {['Eminent Bullet'] = 1}})
+        gs.user.gear.QDbullet = 'Eminent Bullet'
+        gs:type('/ra <t>')
+        assert.same({}, gs:traffic())
+        assert.same({'No ammo will be left for Quick Draw.  Cancelling.'}, gs:chat())
+    end)
+
+    it('are held back three at a time for Quick Draw under Triple Shot', function()
+        local gs = boot({bullets = {['Eminent Bullet'] = 3}})
+        gs.user.gear.QDbullet = 'Eminent Bullet'
+        gs:gain_buff('Triple Shot')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.same({}, gs:traffic())
+        assert.same({'No ammo will be left for Quick Draw.  Cancelling.'}, gs:chat())
+    end)
+
+    it('are enough for Quick Draw under Triple Shot with four left', function()
+        local gs = boot({bullets = {['Eminent Bullet'] = 4}})
+        gs.user.gear.QDbullet = 'Eminent Bullet'
+        gs:gain_buff('Triple Shot')
+        gs:traffic()
+        gs:type('/ra <t>')
+        assert.equal('category 16', gs:traffic()[2].action)
+    end)
+
+    it('for a ranged weapon skill are the weapon skill bullet', function()
+        local gs = boot({tp = 1000, bullets = {['Bronze Bullet'] = 40, ['Eminent Bullet'] = 40}, ammo = 'Bronze Bullet'})
+        gs:type('/ws "Last Stand" <t>')
+        assert.same({}, gs:traffic())
+        assert.same({'No ammo (Orichalc. Bullet) available for that action.'}, gs:chat())
+    end)
+
+    it('for a magical weapon skill are the magic bullet', function()
+        local gs = boot({tp = 1000, bullets = {['Bronze Bullet'] = 40}, ammo = 'Bronze Bullet'})
+        gs:type('/ws "Leaden Salute" <t>')
+        assert.same({}, gs:traffic())
+        assert.same({'No ammo (Living Bullet) available for that action.'}, gs:chat())
+    end)
+
+    pending('swap a Rare bullet worn for the default one with no weapon set: panic_swap_ammo in libs/Sel-Utility.lua '
+        .. 'reads sets.weapons[state.Weapons.value], and with Weapons at None there is no such set, so precast raises '
+        .. 'an error for a ranged attack with Animikii Bullet worn')
+
+    it('for a weapon skill may be the one worn when it is the ranged attack bullet', function()
+        local gs = boot({tp = 1000, bullets = {['Eminent Bullet'] = 40}})
+        gs:type('/ws "Last Stand" <t>')
+        assert.equal('Last Stand', gs:traffic()[2].action)
+        assert.same({'No weaponskill ammo available, using equipped ammo: (Eminent Bullet)'}, gs:chat())
+    end)
+
+    it('are not asked for a melee weapon skill', function()
+        local gs = boot({tp = 1000, bullets = {['Bronze Bullet'] = 40}, ammo = 'Bronze Bullet'})
+        gs:type('/ws "Evisceration" <t>')
+        assert.same({'Evisceration'}, gs:actions())
+    end)
+end)
+
+describe('any action', function()
+    it('puts the default bullet back on afterwards', function()
+        local gs = boot({bullets = {['Bronze Bullet'] = 40, ['Eminent Bullet'] = 40}, ammo = 'Bronze Bullet'})
+        gs:type('/ja "Fire Shot" <t>')
+        gs:finish_action()
+        assert.equal('Eminent Bullet', gs:worn().ammo)
+    end)
+
+    it('leaves the bullet alone afterwards with the default ammo mode off', function()
+        local gs = boot({bullets = {['Bronze Bullet'] = 40, ['Eminent Bullet'] = 40}, ammo = 'Bronze Bullet'})
+        gs:console('gs c toggle UseDefaultAmmo')
+        gs:type('/ja "Fire Shot" <t>')
+        gs:finish_action()
+        assert.equal('Bronze Bullet', gs:worn().ammo)
+    end)
+end)
+
+describe('a Corsair roll', function()
+    it('wears sets.precast.CorsairRoll and Luzaf\'s Ring over the idle set', function()
+        local gs = boot()
+        gs:type('/ja "Chaos Roll" <me>')
+        assert.same({jobby.layer(sets_of(gs).precast.CorsairRoll, sets_of(gs).precast.LuzafRing), 'Chaos Roll'},
+            equips(gs))
+    end)
+
+    it('wears the set of the roll, Fighter\'s Roll, when there is one', function()
+        local gs = boot()
+        gs:type('/ja "Fighter\'s Roll" <me>')
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairRoll["Fighter's Roll"], sets_of(gs).precast.LuzafRing),
+            gs:traffic()[1].equip)
+    end)
+
+    it('goes without Luzaf\'s Ring with the Luzaf ring mode off', function()
+        local gs = boot()
+        gs:console('gs c toggle LuzafRing')
+        gs:traffic()
+        gs:type('/ja "Chaos Roll" <me>')
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairRoll), gs:traffic()[1].equip)
+    end)
+
+    it('is followed by Luzaf\'s Ring alone for Double-Up', function()
+        local gs = boot()
+        gs:type('/ja "Double-Up" <me>')
+        assert.same(jobby.layer(sets_of(gs).precast.LuzafRing), gs:traffic()[1].equip)
+    end)
+
+    it('wears sets.precast.CorsairRoll.Recast in the Recast roll mode', function()
+        local gs = boot()
+        gs:console('gs c set RollMode Recast')
+        gs:traffic()
+        gs:type('/ja "Chaos Roll" <me>')
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairRoll, sets_of(gs).precast.LuzafRing,
+            sets_of(gs).precast.CorsairRoll.Recast), gs:traffic()[1].equip)
+    end)
+
+    it('wears sets.precast.CorsairRoll.Weak in the WeakLock roll mode, without the lock in its name', function()
+        local gs = boot()
+        gs:console('gs c set RollMode WeakLock')
+        gs:traffic()
+        gs:type('/ja "Chaos Roll" <me>')
+        assert.same(jobby.layer(sets_of(gs).precast.CorsairRoll, sets_of(gs).precast.LuzafRing,
+            sets_of(gs).precast.CorsairRoll.Weak), gs:traffic()[1].equip)
+    end)
+
+    it('puts the roll mode back to None once the roll is done', function()
+        local gs = boot()
+        gs:console('gs c set RollMode Recast')
+        gs:type('/ja "Chaos Roll" <me>')
+        gs:finish_action()
+        assert.equal('None', gs.user.state.RollMode.value)
+    end)
+
+    it('keeps a roll mode that locks', function()
+        local gs = boot()
+        gs:console('gs c set RollMode RecastLock')
+        gs:type('/ja "Chaos Roll" <me>')
+        gs:finish_action()
+        assert.equal('RecastLock', gs.user.state.RollMode.value)
+    end)
+
+    it('says what the roll gives and which numbers are lucky, with the size Luzaf\'s Ring makes it', function()
+        local gs = boot()
+        gs:type('/ja "Fighter\'s Roll" <me>')
+        gs:finish_action()
+        assert.same({"Fighter's Roll provides a bonus to Double Attack Rate.  Roll size: Large",
+            'Lucky roll is 5, Unlucky roll is 9.'}, gs:chat())
+    end)
+
+    it('says the roll is small without Luzaf\'s Ring', function()
+        local gs = boot()
+        gs:console('gs c toggle LuzafRing')
+        gs:chat()
+        gs:type('/ja "Fighter\'s Roll" <me>')
+        gs:finish_action()
+        assert.same({"Fighter's Roll provides a bonus to Double Attack Rate.  Roll size: Small",
+            'Lucky roll is 5, Unlucky roll is 9.'}, gs:chat())
+    end)
+
+    it('says nothing of the roll with the display off', function()
+        local gs = boot()
+        gs.user.displayroll = false
+        gs:type('/ja "Fighter\'s Roll" <me>')
+        gs:finish_action()
+        assert.same({}, gs:chat())
+    end)
+end)
+
+describe('a Corsair roll with a weapon set locking the gun', function()
+    local function locked(compensator, tp)
+        local gs = boot({tp = tp})
+        gs:console('gs c set Weapons Ranged')
+        gs:console('gs c set CompensatorMode ' .. compensator)
+        gs:traffic()
+        gs:type('/ja "Chaos Roll" <me>')
+        return gs:worn()
+    end
+
+    it('leaves the gun on in the Never compensator mode', function()
+        assert.equal('Death Penalty', locked('Never', 0).range)
+    end)
+
+    it('puts the Compensator on in the Always compensator mode', function()
+        assert.equal('Compensator', locked('Always', 2000).range)
+    end)
+
+    it('puts the Compensator on under the TP the compensator mode names', function()
+        assert.equal('Compensator', locked('1000', 500).range)
+    end)
+
+    it('leaves the gun on over the TP the compensator mode names', function()
+        assert.equal('Death Penalty', locked('1000', 1500).range)
+    end)
+
+    it('leaves the gun on at the TP the compensator mode names', function()
+        assert.equal('Death Penalty', locked('1000', 1000).range)
+    end)
+end)
+
+describe('Fold', function()
+    it('wears sets.precast.FoldDoubleBust under two busts', function()
+        local gs = boot()
+        gs:gain_buff('Bust')
+        gs:gain_buff('Bust')
+        gs:traffic()
+        gs:type('/ja "Fold" <me>')
+        assert.same(jobby.layer(sets_of(gs).precast.FoldDoubleBust), gs:traffic()[1].equip)
+    end)
+
+    it('wears nothing of the sort under one bust', function()
+        local gs = boot()
+        gs:gain_buff('Bust')
+        gs:traffic()
+        gs:type('/ja "Fold" <me>')
+        assert.same({'Fold'}, equips(gs))
+    end)
+end)
+
+describe('a weapon skill at the TP cap', function()
+    local function engaged(tp)
+        local gs = boot({tp = tp})
+        gs:engage()
+        gs:traffic()
+        return gs
+    end
+
+    local function engaged_worn(gs, ...)
+        return worn_with(sets_of(gs).engaged, ...)
+    end
+
+    it('wears sets.MagicalMaxTP for an elemental weapon skill', function()
+        local gs = engaged(3000)
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Leaden Salute'], sets_of(gs).MagicalMaxTP),
+            jobby.weaponskill(gs, '/ws "Leaden Salute" <t>'))
+    end)
+
+    it('wears sets.MagicalAccMaxTP for it in the Acc offense mode', function()
+        local gs = engaged(3000)
+        gs:console('gs c set OffenseMode Acc')
+        gs:traffic()
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS['Leaden Salute'], sets_of(gs).MagicalAccMaxTP),
+            jobby.weaponskill(gs, '/ws "Leaden Salute" <t>'))
+    end)
+
+    it('wears sets.MaxTP for a melee weapon skill', function()
+        local gs = engaged(3000)
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration, sets_of(gs).MaxTP),
+            jobby.weaponskill(gs, '/ws "Evisceration" <t>'))
+    end)
+
+    it('wears sets.AccMaxTP for it in the Acc offense mode', function()
+        local gs = engaged(3000)
+        gs:console('gs c set OffenseMode Acc')
+        gs:traffic()
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration, sets_of(gs).AccMaxTP),
+            jobby.weaponskill(gs, '/ws "Evisceration" <t>'))
+    end)
+
+    it('swaps from 3000 TP with the Moonshade Earring counted in', function()
+        local gs = engaged(2750)
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration, sets_of(gs).MaxTP),
+            jobby.weaponskill(gs, '/ws "Evisceration" <t>'))
+    end)
+
+    it('keeps the Moonshade Earring below that', function()
+        local gs = engaged(2749)
+        assert.same(engaged_worn(gs, sets_of(gs).precast.WS.Evisceration),
+            jobby.weaponskill(gs, '/ws "Evisceration" <t>'))
+    end)
+
+    pending('wears sets.RangedMaxTP for a ranged weapon skill: job_post_precast in data/COR.lua tests spell.skill '
+        .. 'against 26, but GearSwap gives a weapon skill its skill by name, so Last Stand takes sets.MaxTP')
+end)
+
+describe('a weapon skill when a dagger is in hand', function()
+    -- The job file takes Wasp Sting (weapon skill 16) known as a dagger in hand, and sends the dagger's weapon skill
+    -- for a sword's.
+    it('is Evisceration in place of Savage Blade', function()
+        local gs = boot({tp = 1000})
+        gs:type('/ws "Savage Blade" <t>')
+        assert.same({'Evisceration'}, gs:actions())
+    end)
+
+    it('is Aeolian Edge in place of Circle Blade', function()
+        local gs = boot({tp = 1000})
+        gs:type('/ws "Circle Blade" <t>')
+        assert.same({'Aeolian Edge'}, gs:actions())
+    end)
+
+end)
+
+describe('a weapon skill with no dagger in hand', function()
+    -- With bare hands the game lists hand-to-hand's weapon skills and the gun's: no Wasp Sting, and no Savage Blade.
+    it('is left alone by the job file, and Sel turns it down', function()
+        local gs = boot({tp = 1000, wearing = {main = 'empty'}})
+        gs:type('/ws "Savage Blade" <t>')
+        assert.same({}, gs:actions())
+        assert.same({"Abort: You don't have access to [Savage Blade]."}, gs:chat())
+    end)
+end)
