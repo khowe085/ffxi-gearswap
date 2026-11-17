@@ -159,7 +159,7 @@ function init_gear_sets()
 	sets.precast.WS['Savage Blade'].Crocea = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
 	sets.precast.WS['Savage Blade']['Crocea Acc'] = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
 	-- WSD 57
-	sets.precast.WS['Savage Blade'].CroceaBron = set_combine(sets.precast.WS['Savage Blade'], {body="Lethargy Sayon +3",waist="Sailfi Belt +1",legs="Nyame Flanchard"})
+	sets.precast.WS['Savage Blade'].CroceaBron = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
 
 	-- WSD 39; Atrophy set (2 pieces): Acc +15; Fotia Belt fTP +25/256 on the first hit
 	sets.precast.WS['Black Halo'] = {range=empty,ammo="Coiste Bodhar",
