@@ -210,7 +210,7 @@ function init_gear_sets()
 	sets.precast.WS['Vorpal Blade'].Fodder = sets.precast.WS['Chant du Cygne'].Fodder
 
 	-- WSD 64
-	sets.precast.WS['Expiacion'] = set_combine(sets.precast.WS, {body="Nyame Mail"})
+	sets.precast.WS['Expiacion'] = set_combine(sets.precast.WS, {})
 	sets.precast.WS['Expiacion'].Acc = set_combine(sets.precast.WS.Acc, {})
 	sets.precast.WS['Expiacion'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
 	sets.precast.WS['Expiacion'].DT = set_combine(sets.precast.WS.DT, {})
