@@ -701,12 +701,6 @@ local azure_settings_path = windower.windower_path..'addons/AzureSets/data/setti
 --Each queued load takes a new number; a scheduled load for an older one does nothing, so a job change sends one //aset.
 local azure_request = 0
 
---Job trait 18 is Dual Wield.
-local function has_dual_wield()
-	local abilities = windower.ffxi.get_abilities()
-	return abilities ~= nil and abilities.job_traits ~= nil and table.contains(abilities.job_traits, 18)
-end
-
 local function azure_set_names()
 	local file = io.open(azure_settings_path, 'r')
 	if not file then return nil end
@@ -715,18 +709,6 @@ local function azure_set_names()
 	local names = {}
 	for name in text:gmatch('<([%w_]+)%s*/?>') do names[name] = true end
 	return names
-end
-
---Rechecks Dual Wield each second for a minute while AzureSets sets spells; Sel starts the weapons over only on its first check after a load or subjob change.
-local function watch_dual_wield(request, had, checks)
-	if request ~= azure_request or checks > 60 then return end
-	local has = has_dual_wield()
-	if has ~= had then
-		set_dual_wield()
-		send_command('gs c weapons initialize')
-		if not midaction() then send_command('gs c update') end
-	end
-	watch_dual_wield:schedule(1, request, has, checks + 1)
 end
 
 --Loads {sub}_mage (AoE) or {sub}_melee, falling back to war_melee; retries up to ten times while the spell list is missing.
@@ -765,7 +747,6 @@ local function load_azure_set(request, tries)
 	end
 
 	send_command('input //aset spellset '..chosen)
-	watch_dual_wield(request, nil, 0)
 end
 
 --Global: character_user_job_setup calls it.
@@ -787,7 +768,7 @@ function user_job_state_change(stateField, newValue, oldValue)
 	if stateField == 'Job Mode' then queue_azure_set(0) end
 end
 
---Retires scheduled loads and watches so none runs after unload.
+--Retires scheduled loads so none runs after unload.
 function user_job_unload()
 	azure_request = azure_request + 1
 end
