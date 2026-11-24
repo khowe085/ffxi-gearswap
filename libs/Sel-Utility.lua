@@ -3066,21 +3066,72 @@ end
 
 warcry_tp_bonus = get_warcry_tp_bonus()
 
+function weapon_set_dual_wields(name)
+	if name:contains('DW') or name:contains('Dual') then return true end
+
+	local set = sets.weapons[name]
+	local sub = set and set.sub
+	if type(sub) == 'table' then sub = sub.name end
+	local id = get_item_id_by_name(sub)
+	local item = id and res.items[id]
+	return item ~= nil and item.category == 'Weapon' and not item.shield_size and (item.skill or 0) > 0
+end
+
+local weapons_before_dual_wield_loss
+
+-- A level-restricted sub job takes Dual Wield away mid-session, and the game refuses a weapon in the sub
+-- without it, so the weapons are started over and the dual wield ones put back once the trait returns.
+local function leave_dual_wield_weapons()
+	if not weapon_set_dual_wields(state.Weapons.value) then
+		weapons_before_dual_wield_loss = {}
+		return
+	end
+
+	weapons_before_dual_wield_loss = {list = state.WeaponSets.value, weapons = state.Weapons.value}
+	handle_weapons({'initialize'})
+	weapons_before_dual_wield_loss.replaced_by = state.Weapons.value
+	send_command('gs c update')
+end
+
+local function restore_dual_wield_weapons()
+	local before = weapons_before_dual_wield_loss
+	weapons_before_dual_wield_loss = nil
+	if not before then
+		send_command('gs c weapons initialize')
+		return
+	end
+	if not before.weapons or state.Weapons.value ~= before.replaced_by then return end
+
+	local replaced = state.Weapons.value
+	if weapon_sets and weapon_sets[before.list] then
+		state.WeaponSets:set(before.list)
+		state.Weapons:options(unpack(weapon_sets[before.list]))
+	end
+	state.Weapons:set(before.weapons)
+	state_change('Weapons', state.Weapons.value, replaced)
+	send_command('gs c update')
+end
+
 function set_dual_wield()
 	-- Checks Job Traits directly. Will always recognize DW appropriately for all jobs (NIN ,DNC, THF, BLU)
 	local traits = T(windower.ffxi.get_abilities().job_traits)
-	local initialize = can_dual_wield == nil
-	
+	local could_dual_wield = can_dual_wield
+
 	can_dual_wield = traits:any(function(v) return gearswap.res.job_traits[v].english == 'Dual Wield' end)
 
-	if initialize then
+	if could_dual_wield == nil then
 		send_command('gs c weapons initialize')
+	elseif could_dual_wield and not can_dual_wield then
+		leave_dual_wield_weapons()
+	elseif can_dual_wield and not could_dual_wield then
+		restore_dual_wield_weapons()
 	end
 end
 
 windower.raw_register_event('incoming chunk', function(id, data)
     if id == 0x0AC then
-        set_dual_wield()
+        -- The client hasn't applied the packet yet, so get_abilities would still give the old traits.
+        set_dual_wield:schedule(1)
     end
 end)
 
