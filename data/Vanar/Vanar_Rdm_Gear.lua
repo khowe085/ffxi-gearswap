@@ -126,55 +126,26 @@ function init_gear_sets()
 	sets.precast.FC.Impact = set_combine(sets.precast.FullFC, {head=empty})
 	sets.precast.FC.Dispelga = set_combine(sets.precast.FC, {})
 
-	-- WSD 57; Fotia Gorget fTP +25/256 a hit
-	sets.precast.WS = {range=empty,ammo="Coiste Bodhar",
-		head="Viti. Chapeau +4",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Leth. Earring +1",
-		body="Lethargy Sayon +3",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
-		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Nyame Flanchard",feet="Leth. Houseaux +3"}
+	sets.precast.WS = {
+		ammo="Coiste Bodhar",
+		head="Viti. Chapeau +4",
+		body="Nyame Mail",
+		hands="Atro. Gloves +4",
+		legs="Nyame Flanchard",
+		feet="Leth. Houseaux +3",
+		neck="Rep. Plat. Medal",
+		waist="Sailfi Belt +1",
+		left_ear="Moonshade Earring",
+		right_ear="Leth. Earring +1",
+		left_ring="Epaminondas's Ring",
+		right_ring="Karieyh Ring",
+		back=gear.str_wsd_jse_back
+	}
 
-	sets.precast.WS.Acc = set_combine(sets.precast.Step, {neck="Fotia Gorget"})
+	 sets.precast.WS.Acc = set_combine(sets.precast.Step, {neck="Fotia Gorget", waist="Eschan Stone"})
 
-	-- WSD 33, DA 21; Fotia Gorget and Fotia Belt fTP +25/256 a hit each
-	sets.precast.WS['Requiescat'] = {range=empty,ammo="Coiste Bodhar",
-		head="Viti. Chapeau +4",neck="Fotia Gorget",ear1="Moonshade Earring",ear2="Leth. Earring +1",
-		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Karieyh Ring",ring2="Jhakri Ring",
-		back=gear.da_jse_back,waist="Fotia Belt",legs="Nyame Flanchard",feet="Leth. Houseaux +3"}
-	sets.precast.WS['Requiescat'].Acc = set_combine(sets.precast.WS.Acc, {})
-
-	-- Crit 10, DA 23; Fotia Gorget and Fotia Belt fTP +25/256 a hit each
-	sets.precast.WS['Chant du Cygne'] = set_combine(sets.precast.WS['Requiescat'], {hands="Nyame Gauntlets",ring1="Lehko's Ring",ring2="Rajas Ring"})
-	sets.precast.WS['Chant du Cygne'].Acc = set_combine(sets.precast.WS.Acc, {})
-
-	sets.precast.WS['Evisceration'] = sets.precast.WS['Chant du Cygne']
-
-	-- WSD 58
-	sets.precast.WS['Savage Blade'] = {range=empty,ammo="Coiste Bodhar",
-		head="Viti. Chapeau +4",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Leth. Earring +1",
-		body="Nyame Mail",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
-		back=gear.str_wsd_jse_back,waist="Eschan Stone",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
-	sets.precast.WS['Savage Blade'].Acc = set_combine(sets.precast.WS.Acc, {})
-	-- WSD 67
-	sets.precast.WS['Savage Blade'].Naegling = set_combine(sets.precast.WS['Savage Blade'], {legs="Nyame Flanchard"})
-	sets.precast.WS['Savage Blade']['Naegling Acc'] = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
-	sets.precast.WS['Savage Blade'].Crocea = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
-	sets.precast.WS['Savage Blade']['Crocea Acc'] = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
-	-- WSD 57
-	sets.precast.WS['Savage Blade'].CroceaBron = set_combine(sets.precast.WS['Savage Blade'], {waist="Sailfi Belt +1",legs="Nyame Flanchard"})
-
-	-- WSD 39; Atrophy set (2 pieces): Acc +15; Fotia Belt fTP +25/256 on the first hit
-	sets.precast.WS['Black Halo'] = {range=empty,ammo="Coiste Bodhar",
-		head="Atro. Chapeau +4",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Leth. Earring +1",
-		body="Lethargy Sayon +3",hands="Atro. Gloves +4",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
-		back=gear.str_wsd_jse_back,waist="Fotia Belt",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
-	sets.precast.WS['Black Halo'].Acc = set_combine(sets.precast.WS.Acc, {})
-	-- WSD 45; Fotia Gorget fTP +25/256 on the first hit
-	sets.precast.WS['Black Halo'].Maxentius = set_combine(sets.precast.WS['Black Halo'], {head="Viti. Chapeau +4",neck="Fotia Gorget",ring2="Murky Ring",waist="Eschan Stone"})
-	-- WSD 48; Fotia Gorget fTP +25/256 on the first hit
-	sets.precast.WS['Black Halo']['Maxentius Acc'] = set_combine(sets.precast.WS['Black Halo'], {head="Viti. Chapeau +4",neck="Fotia Gorget",waist="Sailfi Belt +1"})
-
-	-- Macc 432, WSD 12, MAB 284, Magic Damage 180
 	sets.precast.WS['Sanguine Blade'] = {range=empty,ammo="Pemphredo Tathlum",
-		head="Leth. Chappel +3",neck="Dls. Torque +1",ear1="Alabaster Earring",ear2="Leth. Earring +1",
+		head="Leth. Chappel +3",neck="Dls. Torque +2",ear1="Alabaster Earring",ear2="Leth. Earring +1",
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Stikini Ring",ring2="Murky Ring",
 		back=gear.int_enfeebling_jse_back,waist="Obstin. Sash",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 
@@ -191,7 +162,7 @@ function init_gear_sets()
 
 	-- Atrophy set (4 pieces): Macc +45
 	sets.precast.WS['Sanguine Blade'].Acc = {range=empty,ammo="Pemphredo Tathlum",
-		head="Atro. Chapeau +4",neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
+		head="Atro. Chapeau +4",neck="Dls. Torque +2",ear1="Snotra Earring",ear2="Leth. Earring +1",
 		body="Atrophy Tabard +4",hands="Atro. Gloves +4",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.int_enfeebling_jse_back,waist="Obstin. Sash",legs="Atro. Tights +4",feet="Leth. Houseaux +3"}
 	sets.precast.WS['Seraph Blade'].Acc = set_combine(sets.precast.WS['Sanguine Blade'].Acc, {})
@@ -231,7 +202,7 @@ function init_gear_sets()
 
 	-- Enhancing skill 545, duration x3.25, Haste 26 (cap 26), FC 30 (50 with Crocea Mors)
 	sets.midcast['Enhancing Magic'] = {main="Crocea Mors",sub="Ammurapi Shield",ammo="Hasty Pinion",
-		head="Telchine Cap",neck="Dls. Torque +1",ear1="Alabaster Earring",ear2="Leth. Earring +1",
+		head="Telchine Cap",neck="Dls. Torque +2",ear1="Alabaster Earring",ear2="Leth. Earring +1",
 		body="Viti. Tabard +4",hands="Atro. Gloves +4",ring1="Murky Ring",ring2="Prolix Ring",
 		back="Ghostfyre Cape",waist="Embla Sash",legs="Telchine Braconi",feet="Leth. Houseaux +3"}
 
@@ -270,12 +241,12 @@ function init_gear_sets()
 	sets.Self_Phalanx.DW = {}
 
 	sets.midcast['Enfeebling Magic'] = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Ullr",ammo=empty,
-		head="Viti. Chapeau +4",neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
+		head="Viti. Chapeau +4",neck="Dls. Torque +2",ear1="Snotra Earring",ear2="Leth. Earring +1",
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.mnd_enfeebling_jse_back,waist="Obstin. Sash",legs="Leth. Fuseau +3",feet="Viti. Boots +4"}
 
 	sets.midcast['Enfeebling Magic'].Resistant = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Ullr",ammo=empty,
-		head="Viti. Chapeau +4",neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
+		head="Viti. Chapeau +4",neck="Dls. Torque +2",ear1="Snotra Earring",ear2="Leth. Earring +1",
 		body="Atrophy Tabard +4",hands="Leth. Ganth. +3",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.mnd_enfeebling_jse_back,waist="Obstin. Sash",legs="Atro. Tights +4",feet="Viti. Boots +4"}
 
@@ -283,7 +254,7 @@ function init_gear_sets()
 
 	-- Lethargy set (5 pieces): duration +50% with Composure
 	sets.midcast.Sleep = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Ullr",ammo=empty,
-		head="Leth. Chappel +3",neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
+		head="Leth. Chappel +3",neck="Dls. Torque +2",ear1="Snotra Earring",ear2="Leth. Earring +1",
 		body="Lethargy Sayon +3",hands="Leth. Ganth. +3",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.int_enfeebling_jse_back,waist="Obstin. Sash",legs="Leth. Fuseau +3",feet="Leth. Houseaux +3"}
 
@@ -296,7 +267,7 @@ function init_gear_sets()
 	sets.midcast.Diaga = set_combine(sets.midcast.Sleep, sets.TreasureHunter)
 
 	sets.midcast.Sleep.Resistant = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Ullr",ammo=empty,
-		head="Viti. Chapeau +4",neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
+		head="Viti. Chapeau +4",neck="Dls. Torque +2",ear1="Snotra Earring",ear2="Leth. Earring +1",
 		body="Atrophy Tabard +4",hands="Leth. Ganth. +3",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.int_enfeebling_jse_back,waist="Obstin. Sash",legs="Atro. Tights +4",feet="Viti. Boots +4"}
 
@@ -341,7 +312,7 @@ function init_gear_sets()
 	sets.midcast.Paralyze.DW = sets.midcast.Addle.DW
 	sets.midcast.Slow.DW = sets.midcast.Addle.DW
 
-	sets.midcast.Gravity = set_combine(sets.midcast['Enfeebling Magic'], {back=gear.int_enfeebling_jse_back})
+	sets.midcast.Gravity = set_combine(sets.midcast['Enfeebling Magic'], {neck="Dls. Torque +2", back=gear.int_enfeebling_jse_back})
 
 	sets.midcast.Gravity.Resistant = set_combine(sets.midcast.Sleep.Resistant, {})
 
@@ -369,10 +340,10 @@ function init_gear_sets()
 	-- DT 53 (cap 50)
 	sets.midcast['Elemental Magic'].DT = set_combine(sets.midcast['Elemental Magic'], {ear1="Alabaster Earring",ring1="Murky Ring",ring2="Ayanmo Ring"})
 
-	sets.midcast['Elemental Magic'].Resistant = set_combine(sets.midcast['Elemental Magic'], {range="Ullr",ammo=empty,neck="Dls. Torque +1",waist="Obstin. Sash"})
+	sets.midcast['Elemental Magic'].Resistant = set_combine(sets.midcast['Elemental Magic'], {range="Ullr",ammo=empty,neck="Dls. Torque +2",waist="Obstin. Sash"})
 
 	sets.midcast['Elemental Magic'].Proc = {main="Gleti's Knife",sub="Forfend +1",range=empty,ammo="Hasty Pinion",
-		head="Atro. Chapeau +4",neck="Dls. Torque +1",ear1="Alabaster Earring",ear2="Leth. Earring +1",
+		head="Atro. Chapeau +4",neck="Dls. Torque +2",ear1="Alabaster Earring",ear2="Leth. Earring +1",
 		body="Viti. Tabard +4",hands="Atro. Gloves +4",ring1="Murky Ring",ring2="Stikini Ring",
 		back=gear.mnd_enfeebling_jse_back,waist="Obstin. Sash",legs="Atro. Tights +4",feet="Chelona Boots"}
 
@@ -390,13 +361,13 @@ function init_gear_sets()
 
 	-- Atrophy set (2 pieces): Macc +15
 	sets.midcast.Impact = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Ullr",ammo=empty,
-		head=empty,neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
+		head=empty,neck="Dls. Torque +2",ear1="Snotra Earring",ear2="Leth. Earring +1",
 		hands="Atro. Gloves +4",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.int_enfeebling_jse_back,waist="Obstin. Sash",legs="Atro. Tights +4",feet="Leth. Houseaux +3"}
 
 	-- Atrophy set (4 pieces): Macc +45
 	sets.midcast['Dark Magic'] = {main="Bunzi's Rod",sub="Ammurapi Shield",range="Ullr",ammo=empty,
-		head="Atro. Chapeau +4",neck="Dls. Torque +1",ear1="Snotra Earring",ear2="Leth. Earring +1",
+		head="Atro. Chapeau +4",neck="Dls. Torque +2",ear1="Snotra Earring",ear2="Leth. Earring +1",
 		body="Atrophy Tabard +4",hands="Atro. Gloves +4",ring1="Stikini Ring",ring2="Stikini Ring",
 		back=gear.int_enfeebling_jse_back,waist="Obstin. Sash",legs="Atro. Tights +4",feet="Leth. Houseaux +3"}
 
