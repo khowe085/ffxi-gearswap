@@ -165,6 +165,11 @@ function user_precast(spell, spellMap, eventArgs)
 end
 
 function user_aftercast(spell, spellMap, eventArgs)
+	--The server refuses an ability for a moment after an engage, a weapon skill or another ability, and an ability
+	--the tick sends would go again within a second, over and over until one got through. Two seconds between tries.
+	if spell.interrupted and (spell.prefix == '/jobability' or spell.prefix == '/pet') then
+		add_tick_delay(2)
+	end
 	if spell.type == 'WeaponSkill' then
 		ws_buff_lock = 0
 		ws_buff_refire = nil
