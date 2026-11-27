@@ -7,7 +7,7 @@ function character_user_job_setup()
 	state.MagicalDefenseMode:options('MDT', 'MDTReraise')
 	state.ResistDefenseMode:options('MEVA')
 	state.IdleMode:options('Normal', 'PDT','Refresh','Reraise')
-	state.Weapons:options('Foenaria','Deathbane','Naegling')
+	state.Weapons:options('Foenaria','Montante','Naegling')
 	state.ExtraMeleeMode = M{['description']='Extra Melee Mode','None'}
 	state.Passive = M{['description'] = 'Passive Mode','None','MP','Twilight'}
 
@@ -15,6 +15,10 @@ function character_user_job_setup()
 	send_command('bind ^` input /ja "Hasso" <me>')
 	send_command('bind !` input /ja "Seigan" <me>')
 	send_command('bind @` gs c cycle SkillchainMode')
+
+	gear.stp_jse_back = {name="Ankou's Mantle",augments={'DEX+20','Accuracy+20 Attack+20','Accuracy+10','"Store TP"+10','Damage taken-5%',}}
+	gear.fc_jse_back = {name="Ankou's Mantle",augments={'INT+20','Mag. Acc+20 /Mag. Dmg.+20','Mag. Acc.+10','"Fast Cast "+10',}}
+	gear.str_wsd_jse_back = {name="Ankou's Mantle",augments={'STR+20','Accuracy+20 Attack+20','STR+10','Weapon skill damage +10%','Damage taken-5%',}}
 
 	select_default_macro_book()
 end
@@ -47,38 +51,38 @@ function init_gear_sets()
 
 	-- Fast cast sets for spells
 
-	sets.precast.FC = {ammo="Impatiens",
-		head="Haruspex Hat",neck="Loricate Torque",ear1="Loquac. Earring",ear2="Etiolation Earring",
+	sets.precast.FC = {
+		ear1="Loquac. Earring",ear2="Etiolation Earring",
 		body="Nyame Mail",hands="Nyame Gauntlets",ring1="Prolix Ring",ring2="Murky Ring",
-		back="Solemnity Cape",waist="Flume Belt",legs="Enif Cosciales",feet="Odyssean Greaves"}
+		back=gear.fc_jse_back, waist="Flume Belt",legs="Enif Cosciales"}
 
-	sets.precast.FC.Impact = set_combine(sets.precast.FC, {head=empty,body="Twilight Cloak"})
+	--sets.precast.FC.Impact = set_combine(sets.precast.FC, {head=empty,body="Twilight Cloak"})
 
 	-- Midcast Sets
-	sets.midcast.FastRecast = {ammo="Impatiens",
-		head="Haruspex Hat",neck="Loricate Torque",ear1="Loquac. Earring",ear2="Etiolation Earring",
+	sets.midcast.FastRecast = {
+		ear1="Loquac. Earring",ear2="Etiolation Earring",
 		body="Nyame Mail",hands="Nyame Gauntlets",ring1="Prolix Ring",ring2="Murky Ring",
-		back="Solemnity Cape",waist="Phasmida Belt",legs="Enif Cosciales",feet="Odyssean Greaves"}
+		back=gear.fc_jse_back,legs="Enif Cosciales"}
 
 	-- Specific spells
 
 	sets.midcast['Dark Magic'] = {ammo="Pemphredo Tathlum",
-		head="Ig. Burgeonet +3",neck="Aesir Torque",ear1="Lifestorm Earring",ear2="Psystorm Earring",
+		head="Ig. Burgeonet +3",neck="Aesir Torque",
 		body="Ignominy Cuirass +3",hands="Ig. Gauntlets +3",ring1="Stikini Ring",ring2="Stikini Ring",
-		back="Merciful Cape",waist="Casso Sash",legs="Ig. Flanchard +3",feet="Ig. Sollerets +3"}
+		back=gear.fc_jse_back,waist="Casso Sash",legs="Ig. Flanchard +3",feet="Ig. Sollerets +3"}
 
 	sets.midcast['Enfeebling Magic'] = {ammo="Pemphredo Tathlum",
-		head="Ig. Burgeonet +3",neck="Sanctity Necklace",ear1="Lifestorm Earring",ear2="Psystorm Earring",
+		head="Ig. Burgeonet +3",neck="Sanctity Necklace",
 		body="Ignominy Cuirass +3",hands="Ig. Gauntlets +3",ring1="Stikini Ring",ring2="Stikini Ring",
-		back="Izdubar Mantle",waist="Eschan Stone",legs="Ig. Flanchard +3",feet="Ig. Sollerets +3"}
+		back=gear.fc_jse_back,waist="Eschan Stone",legs="Ig. Flanchard +3",feet="Ig. Sollerets +3"}
 
 	sets.midcast['Dread Spikes'] = set_combine(sets.midcast['Dark Magic'], {})
 	sets.midcast.Absorb = set_combine(sets.midcast['Dark Magic'], {})
 
 	sets.midcast.Stun = {ammo="Pemphredo Tathlum",
-		head="Ig. Burgeonet +3",neck="Aesir Torque",ear1="Lifestorm Earring",ear2="Psystorm Earring",
+		head="Ig. Burgeonet +3",neck="Aesir Torque",
 		body="Ignominy Cuirass +3",hands="Ig. Gauntlets +3",ring1="Stikini Ring",ring2="Stikini Ring",
-		back="Merciful Cape",waist="Casso Sash",legs="Ig. Flanchard +3",feet="Ig. Sollerets +3"}
+		back=gear.fc_jse_back,legs="Ig. Flanchard +3",feet="Ig. Sollerets +3"}
 
 	sets.midcast.Drain = set_combine(sets.midcast['Dark Magic'], {})
 
@@ -88,7 +92,7 @@ function init_gear_sets()
 
 	sets.midcast.Aspir = sets.midcast.Drain
 
-	sets.midcast.Impact = set_combine(sets.midcast['Dark Magic'], {head=empty,body="Twilight Cloak"})
+	--sets.midcast.Impact = set_combine(sets.midcast['Dark Magic'], {head=empty,body="Twilight Cloak"})
 
 	sets.midcast.Cure = {}
 
@@ -98,35 +102,30 @@ function init_gear_sets()
 
 	-- Weaponskill sets
 	-- Default set for any weaponskill that isn't any more specifically defined
-	sets.precast.WS = {ammo="Oshasha's Treatise",
-		head="Nyame Helm",neck="Fotia Gorget",ear1="Bale Earring",ear2="Moonshade Earring",
-		body="Ignominy Cuirass +3",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
-		back="Atheling Mantle",waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
-
+	sets.precast.WS = {ammo="Coiste Bodhar",
+			head="Nyame Helm",neck="Rep. Plat. Medal",ear1="Moonshade Earring",ear2="Alabaster Earring",
+			body="Ignominy Cuirass +3",hands="Nyame Gauntlets",ring1="Epaminondas's Ring",ring2="Karieyh Ring",
+			back=gear.str_wsd_jse_back,waist="Sailfi Belt +1",legs="Nyame Flanchard",feet="Nyame Sollerets"}
+	
+	
 	sets.precast.WS.SomeAcc = set_combine(sets.precast.WS, {})
 	sets.precast.WS.Acc = set_combine(sets.precast.WS, {})
-	sets.precast.WS.FullAcc = set_combine(sets.precast.WS, {neck="Subtlety Spec."})
+	sets.precast.WS.FullAcc = set_combine(sets.precast.WS, {})
 	sets.precast.WS.Fodder = set_combine(sets.precast.WS, {})
 
-	local multi_hit_ws = {ammo="Coiste Bodhar",
-		head="Flam. Zucchetto +1",neck="Fotia Gorget",ear1="Brutal Earring",ear2="Moonshade Earring",
-		body="Sulevia's Plate. +2",hands="Sulev. Gauntlets +2",ring1="Apate Ring",ring2="Beithir Ring",
-		back="Atheling Mantle",waist="Fotia Belt",legs="Ig. Flanchard +3",feet="Flam. Gambieras +2"}
-	local nyame_body_ws = {body="Nyame Mail"}
-	local insurgency_ws = {body="Nyame Mail",hands="Sulev. Gauntlets +2",waist="Kentarch Belt +1",legs="Ig. Flanchard +3"}
 
 	-- Specific weaponskill sets.  Uses the base set if an appropriate WSMod version isn't found.
-	sets.precast.WS['Catastrophe'] = set_combine(sets.precast.WS, nyame_body_ws)
-	sets.precast.WS['Catastrophe'].SomeAcc = set_combine(sets.precast.WS.SomeAcc, nyame_body_ws)
-	sets.precast.WS['Catastrophe'].Acc = set_combine(sets.precast.WS.Acc, nyame_body_ws)
-	sets.precast.WS['Catastrophe'].FullAcc = set_combine(sets.precast.WS.FullAcc, nyame_body_ws)
-	sets.precast.WS['Catastrophe'].Fodder = set_combine(sets.precast.WS.Fodder, nyame_body_ws)
+	sets.precast.WS['Catastrophe'] = set_combine(sets.precast.WS, {})
+	sets.precast.WS['Catastrophe'].SomeAcc = set_combine(sets.precast.WS.SomeAcc, {})
+	sets.precast.WS['Catastrophe'].Acc = set_combine(sets.precast.WS.Acc, {})
+	sets.precast.WS['Catastrophe'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
+	sets.precast.WS['Catastrophe'].Fodder = set_combine(sets.precast.WS.Fodder, {})
 
-	sets.precast.WS['Origin'] = set_combine(sets.precast.WS, nyame_body_ws)
-	sets.precast.WS['Origin'].SomeAcc = set_combine(sets.precast.WS.SomeAcc, nyame_body_ws)
-	sets.precast.WS['Origin'].Acc = set_combine(sets.precast.WS.Acc, nyame_body_ws)
-	sets.precast.WS['Origin'].FullAcc = set_combine(sets.precast.WS.FullAcc, nyame_body_ws)
-	sets.precast.WS['Origin'].Fodder = set_combine(sets.precast.WS.Fodder, nyame_body_ws)
+	sets.precast.WS['Origin'] = set_combine(sets.precast.WS, {})
+	sets.precast.WS['Origin'].SomeAcc = set_combine(sets.precast.WS.SomeAcc, {})
+	sets.precast.WS['Origin'].Acc = set_combine(sets.precast.WS.Acc, {})
+	sets.precast.WS['Origin'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
+	sets.precast.WS['Origin'].Fodder = set_combine(sets.precast.WS.Fodder, {})
 
 	sets.precast.WS['Torcleaver'] = set_combine(sets.precast.WS, {})
 	sets.precast.WS['Torcleaver'].SomeAcc = set_combine(sets.precast.WS.SomeAcc, {})
@@ -146,23 +145,23 @@ function init_gear_sets()
 	sets.precast.WS['Savage Blade'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
 	sets.precast.WS['Savage Blade'].Fodder = set_combine(sets.precast.WS.Fodder, {})
 
-	sets.precast.WS['Insurgency'] = set_combine(sets.precast.WS, insurgency_ws)
-	sets.precast.WS['Insurgency'].SomeAcc = set_combine(sets.precast.WS.SomeAcc, insurgency_ws)
-	sets.precast.WS['Insurgency'].Acc = set_combine(sets.precast.WS.Acc, insurgency_ws)
-	sets.precast.WS['Insurgency'].FullAcc = set_combine(sets.precast.WS.FullAcc, insurgency_ws)
-	sets.precast.WS['Insurgency'].Fodder = set_combine(sets.precast.WS.Fodder, insurgency_ws)
+	sets.precast.WS['Insurgency'] = set_combine(sets.precast.WS, {})
+	sets.precast.WS['Insurgency'].SomeAcc = set_combine(sets.precast.WS.SomeAcc, {})
+	sets.precast.WS['Insurgency'].Acc = set_combine(sets.precast.WS.Acc, {})
+	sets.precast.WS['Insurgency'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
+	sets.precast.WS['Insurgency'].Fodder = set_combine(sets.precast.WS.Fodder, {})
 
-	sets.precast.WS['Entropy'] = set_combine(multi_hit_ws, {})
-	sets.precast.WS['Entropy'].SomeAcc = set_combine(multi_hit_ws, {})
-	sets.precast.WS['Entropy'].Acc = set_combine(multi_hit_ws, {})
-	sets.precast.WS['Entropy'].FullAcc = set_combine(multi_hit_ws, {neck="Subtlety Spec."})
-	sets.precast.WS['Entropy'].Fodder = set_combine(multi_hit_ws, {})
+	sets.precast.WS['Entropy'] = set_combine(sets.precast.WS, {})
+	sets.precast.WS['Entropy'].SomeAcc = set_combine(sets.precast.WS.SomeAcc, {})
+	sets.precast.WS['Entropy'].Acc = set_combine(sets.precast.WS.Acc, {})
+	sets.precast.WS['Entropy'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
+	sets.precast.WS['Entropy'].Fodder = set_combine(sets.precast.WS.Fodder, {})
 
-	sets.precast.WS['Resolution'] = set_combine(multi_hit_ws, {})
-	sets.precast.WS['Resolution'].SomeAcc = set_combine(multi_hit_ws, {})
-	sets.precast.WS['Resolution'].Acc = set_combine(multi_hit_ws, {})
-	sets.precast.WS['Resolution'].FullAcc = set_combine(multi_hit_ws, {neck="Subtlety Spec."})
-	sets.precast.WS['Resolution'].Fodder = set_combine(multi_hit_ws, {})
+	sets.precast.WS['Resolution'] = set_combine(sets.precast.WS, {})
+	sets.precast.WS['Resolution'].SomeAcc = set_combine(sets.precast.WS.SomeAcc, {})
+	sets.precast.WS['Resolution'].Acc = set_combine(sets.precast.WS.Acc, {})
+	sets.precast.WS['Resolution'].FullAcc = set_combine(sets.precast.WS.FullAcc, {})
+	sets.precast.WS['Resolution'].Fodder = set_combine(sets.precast.WS.Fodder, {})
 
 	-- Sets to return to when not performing an action.
 
@@ -170,73 +169,59 @@ function init_gear_sets()
 	sets.resting = {}
 
 	-- Swap to these on Moonshade using WS if at 3000 TP
-	sets.MaxTP = {ear1="Bale Earring",ear2="Grit Earring",}
-	sets.AccMaxTP = {ear1="Heartseeker Earring",ear2="Steelflash Earring"}
-	sets.AccDayMaxTPWSEars = {ear1="Heartseeker Earring",ear2="Steelflash Earring"}
-	sets.DayMaxTPWSEars = {ear1="Bale Earring",ear2="Brutal Earring",}
-	sets.AccDayWSEars = {ear1="Heartseeker Earring",ear2="Steelflash Earring"}
-	sets.DayWSEars = {ear1="Brutal Earring",ear2="Moonshade Earring",}
+	-- sets.MaxTP = {ear1="Bale Earring",ear2="Grit Earring",}
+	-- sets.AccMaxTP = {ear1="Heartseeker Earring",ear2="Steelflash Earring"}
+	-- sets.AccDayMaxTPWSEars = {ear1="Heartseeker Earring",ear2="Steelflash Earring"}
+	-- sets.DayMaxTPWSEars = {ear1="Bale Earring",ear2="Brutal Earring",}
+	-- sets.AccDayWSEars = {ear1="Heartseeker Earring",ear2="Steelflash Earring"}
+	-- sets.DayWSEars = {ear1="Brutal Earring",ear2="Moonshade Earring",}
 
-	-- Idle sets
-
-	sets.idle = {ammo="Amar Cluster",
-		head="Crepuscular Helm",neck="Loricate Torque",ear1="Alabaster Earring",ear2="Etiolation Earring",
-		body="Crepuscular Mail",hands="Sulev. Gauntlets +2",ring1="Stikini Ring",ring2="Murky Ring",
-		back="Shadow Mantle",waist="Flume Belt",legs="Carmine Cuisses +1",feet="Nyame Sollerets"}
-
-	sets.idle.PDT = {ammo="Amar Cluster",
-		head="Nyame Helm",neck="Loricate Torque",ear1="Alabaster Earring",ear2="Etiolation Earring",
-		body="Nyame Mail",hands="Sulev. Gauntlets +2",ring1="Murky Ring",ring2="Dark Ring",
-		back="Shadow Mantle",waist="Flume Belt",legs="Carmine Cuisses +1",feet="Nyame Sollerets"}
 
 	sets.idle.Weak = set_combine(sets.idle, {head="Crepuscular Helm",body="Crepuscular Mail"})
 
 	sets.idle.Reraise = set_combine(sets.idle, {head="Crepuscular Helm",body="Crepuscular Mail"})
 
 	-- Defense sets
-	sets.defense.PDT = {ammo="Amar Cluster",
-		head="Nyame Helm",neck="Loricate Torque",ear1="Alabaster Earring",ear2="Etiolation Earring",
-		body="Nyame Mail",hands="Sulev. Gauntlets +2",ring1="Murky Ring",ring2="Dark Ring",
-		back="Shadow Mantle",waist="Flume Belt",legs="Sulev. Cuisses +2",feet="Nyame Sollerets"}
+	sets.defense.PDT = {
+		head="Nyame Helm",
+		body="Volte Haubert",
+		hands="Nyame Gauntlets",
+		legs="Nyame Flanchard",
+		feet="Nyame Sollerets",
+		waist="Flume Belt",
+		left_ear="Alabaster Earring",
+		left_ring="Murky Ring",
+	}
 
 	sets.defense.PDTReraise = set_combine(sets.defense.PDT, {head="Crepuscular Helm",body="Crepuscular Mail"})
 
-	sets.defense.MDT = {ammo="Amar Cluster",
-		head="Nyame Helm",neck="Twilight Torque",ear1="Alabaster Earring",ear2="Etiolation Earring",
-		body="Nyame Mail",hands="Sulev. Gauntlets +2",ring1="Murky Ring",ring2="Fortified Ring",
-		back="Solemnity Cape",waist="Flume Belt",legs="Sulev. Cuisses +2",feet="Nyame Sollerets"}
+	sets.defense.MDT = {}
 
 	sets.defense.MDTReraise = set_combine(sets.defense.MDT, {head="Crepuscular Helm",body="Crepuscular Mail"})
 
-	sets.defense.MEVA = {ammo="Amar Cluster",
-		head="Nyame Helm",neck="Twilight Torque",ear1="Alabaster Earring",ear2="Etiolation Earring",
-		body="Nyame Mail",hands="Sulev. Gauntlets +2",ring1="Murky Ring",ring2="Fortified Ring",
-		back="Solemnity Cape",waist="Flume Belt",legs="Sulev. Cuisses +2",feet="Nyame Sollerets"}
+	sets.defense.MEVA = {}
+
+	-- Idle sets
+
+	sets.idle = {ammo="Coiste Bodhar", neck="Sibyl Scarf",
+		head="Crepuscular Helm",ear1="Alabaster Earring",ear2="Etiolation Earring",
+		body="Crepuscular Mail",hands="Sulev. Gauntlets +2",ring1="Karieyh Ring",ring2="Murky Ring",
+		back=gear.stp_jse_back,waist="Sailfi Belt +1",feet="Nyame Sollerets"}
+
+	sets.idle.PDT = set_combine(sets.idle, sets.defense.PDT)
 
 	sets.Kiting = {legs="Carmine Cuisses +1"}
 	sets.passive.Reraise = {head="Crepuscular Helm",body="Crepuscular Mail"}
 
 	-- Engaged sets
 	sets.engaged = {ammo="Coiste Bodhar",
-		head="Flam. Zucchetto +1",neck="Asperity Necklace",ear1="Brutal Earring",ear2="Steelflash Earring",
-		body="Crepuscular Mail",hands="Sulev. Gauntlets +2",ring1="Lehko's Ring",ring2="K'ayres Ring",
-		back="Atheling Mantle",waist="Sailfi Belt +1",legs="Ig. Flanchard +3",feet="Flam. Gambieras +2"}
-	sets.engaged.SomeAcc = {ammo="Coiste Bodhar",
-		head="Flam. Zucchetto +1",neck="Subtlety Spec.",ear1="Brutal Earring",ear2="Steelflash Earring",
-		body="Crepuscular Mail",hands="Sulev. Gauntlets +2",ring1="Enlivened Ring",ring2="Lehko's Ring",
-		back="Atheling Mantle",waist="Sailfi Belt +1",legs="Ig. Flanchard +3",feet="Flam. Gambieras +2"}
-	sets.engaged.Acc = {ammo="Coiste Bodhar",
-		head="Flam. Zucchetto +1",neck="Subtlety Spec.",ear1="Heartseeker Earring",ear2="Steelflash Earring",
-		body="Crepuscular Mail",hands="Sulev. Gauntlets +2",ring1="Enlivened Ring",ring2="Lehko's Ring",
-		back="Atheling Mantle",waist="Sailfi Belt +1",legs="Ig. Flanchard +3",feet="Flam. Gambieras +2"}
-	sets.engaged.FullAcc = {ammo="Coiste Bodhar",
-		head="Flam. Zucchetto +1",neck="Subtlety Spec.",ear1="Heartseeker Earring",ear2="Steelflash Earring",
-		body="Crepuscular Mail",hands="Sulev. Gauntlets +2",ring1="Enlivened Ring",ring2="Fortified Ring",
-		back="Atheling Mantle",waist="Sailfi Belt +1",legs="Ig. Flanchard +3",feet="Flam. Gambieras +2"}
-	sets.engaged.Fodder = {ammo="Coiste Bodhar",
-		head="Flam. Zucchetto +1",neck="Asperity Necklace",ear1="Brutal Earring",ear2="Bladeborn Earring",
-		body="Crepuscular Mail",hands="Sulev. Gauntlets +2",ring1="Lehko's Ring",ring2="K'ayres Ring",
-		back="Atheling Mantle",waist="Sailfi Belt +1",legs="Ig. Flanchard +3",feet="Flam. Gambieras +2"}
+		head="Flam. Zucchetto +2",neck="Asperity Necklace",ear1="Brutal Earring",ear2="Alabaster Earring",
+		body="Crepuscular Mail",hands="Sulev. Gauntlets +2",ring1="Lehko's Ring",ring2="Murky Ring",
+		back=gear.stp_jse_back,waist="Sailfi Belt +1",legs="Ig. Flanchard +3",feet="Flam. Gambieras +2"}
+	sets.engaged.SomeAcc = {}
+	sets.engaged.Acc = {}
+	sets.engaged.FullAcc = {}
+	sets.engaged.Fodder = {}
 
 	--Extra Special Sets
 
@@ -246,13 +231,18 @@ function init_gear_sets()
 	sets.TreasureHunter = set_combine(sets.TreasureHunter, {})
 
 	-- Weapons sets
-	sets.weapons.Foenaria = {main="Foenaria",sub="Niobid Strap"}
-	sets.weapons.Deathbane = {main="Deathbane",sub="Niobid Strap"}
-	sets.weapons.Naegling = {main="Naegling",sub="Majorelle Shield"}
+	sets.weapons.Foenaria = {main="Foenaria",sub="Dilet.'s Grip +1"}
+	sets.weapons.Montante = {main="Montante +1",sub="Dilet.'s Grip +1"}
+	sets.weapons.Naegling = {main="Naegling"}
 
 	end
 
 -- Select default macro book on initial load or subjob change.
+
+function user_job_lockstyle()
+	windower.chat.input('/lockstyleset 003')
+end
+
 function select_default_macro_book()
 	-- Default macro set/book
 	if player.sub_job == 'WAR' then
