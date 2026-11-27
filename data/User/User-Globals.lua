@@ -165,6 +165,11 @@ function user_precast(spell, spellMap, eventArgs)
 end
 
 function user_aftercast(spell, spellMap, eventArgs)
+	--The server refuses an ability for a moment after an engage, a weapon skill or another ability, and an ability
+	--the tick sends would go again within a second, over and over until one got through. Two seconds between tries.
+	if spell.interrupted and (spell.prefix == '/jobability' or spell.prefix == '/pet') then
+		add_tick_delay(2)
+	end
 	if spell.type == 'WeaponSkill' then
 		ws_buff_lock = 0
 		ws_buff_refire = nil
@@ -210,11 +215,12 @@ function equip_weaponset()
 	hold_engaged_weapons()
 end
 --The job files' check_arts (Composure, Light Arts and the like) also fires under AutoBuffMode and gs c buffup,
---so AutoArts alone doesn't stop it. Off means never.
+--so AutoArts alone doesn't stop it. Off means never. Under Amnesia the ability would be refused, and the tick would
+--try it again and again in place of the spells after it.
 if check_arts then
 	local job_check_arts = check_arts
 	function check_arts()
-		if not state.AutoArts.value then return false end
+		if not state.AutoArts.value or silent_check_amnesia() then return false end
 		return job_check_arts()
 	end
 end
@@ -347,6 +353,8 @@ local function wrap_job_check_buff()
 	if not job_check_buff or job_check_buff_wrapped == job_check_buff then return end
 	local sel_job_check_buff = job_check_buff
 	job_check_buff = function(...)
+		--Every job's job_check_buff uses abilities only, which Amnesia refuses.
+		if silent_check_amnesia() then return false end
 		if not state.AutoWSBuff.value or not ws_buff_list or (player.main_job == 'WAR' and state.AutoBuffMode.value ~= 'Off') then
 			return sel_job_check_buff(...)
 		end
@@ -362,6 +370,15 @@ local function wrap_job_check_buff()
 		return result
 	end
 	job_check_buff_wrapped = job_check_buff
+end
+
+--A refused action sets no next_cast, and with latency at .5 add_tick_delay() adds nothing, so a tick that sent the
+--ability would send it again the next frame, every frame, until the game stalls. Two seconds between tries instead.
+local sel_check_amnesia = check_amnesia
+function check_amnesia(spell, spellMap, eventArgs)
+	if not sel_check_amnesia(spell, spellMap, eventArgs) then return false end
+	add_tick_delay(2)
+	return true
 end
 
 --Sel's AutoBuffMode buffing with two more checks: enough MP for the spell, and, for a BLU spell that needs

@@ -205,6 +205,16 @@ describe('a spell that needs Unbridled Learning', function()
         assert.same({'Abort: Unbridled Learning not active.'}, gs:chat())
     end)
 
+    it('is cancelled, not held back, under Amnesia, which would refuse Unbridled Learning', function()
+        local gs = boot({'Cesspool'}, {buffs = {'amnesia'}})
+        gs:console('gs c set AutoUnbridled true')
+        gs:chat()
+        gs:type('/ma "Cesspool" <t>')
+        assert.same({}, gs:traffic())
+        gs:advance(3)
+        assert.same({'Abort: Unbridled Learning not active.'}, gs:chat())
+    end)
+
     -- A minute is over spell_latency, which a boot sets to the 48 sixtieths of a second Sel's latency of half a second
     -- gives.
     it('is cancelled, not held back, with a minute of its own recast left, with the word that Unbridled Learning is '
@@ -544,6 +554,14 @@ describe('the tick of a blue mage', function()
             assert.same({}, first_actions(gs))
         end)
 
+        it('leaves Light Arts alone under Amnesia, and casts the buff its spells keep up instead', function()
+            local gs = boot({'Erratic Flutter'}, {sub_job = 'SCH', buffs = {'amnesia'}})
+            gs:console('gs c set AutoBuffMode Auto')
+            gs:console('gs c toggle AutoArts')
+            assert.same({'Erratic Flutter'}, first_actions(gs))
+            assert.same({}, jobby.said(gs, '^Abort'))
+        end)
+
         it('leaves Light Arts alone while it is on recast', function()
             local gs = scholar()
             gs:console('gs c toggle AutoArts')
@@ -613,6 +631,23 @@ describe('the tick of a blue mage', function()
             assert.same({'Unbridled Learning'}, first_actions(gs))
         end)
 
+        it('leaves Mighty Guard alone in combat under Amnesia, which would refuse Unbridled Learning', function()
+            local gs = buffer({'Mighty Guard'},
+                {sub_job = 'RDM', buffs = {'Haste', 'Refresh', 'Attack Boost', 'amnesia'}})
+            gs.user.in_combat = true
+            gs:chat()
+            assert.same({}, first_actions(gs))
+            gs:play(3)
+            assert.same({}, jobby.said(gs, '^Abort'))
+        end)
+
+        it('casts Mighty Guard in combat under Amnesia with Unbridled Learning already up', function()
+            local gs = buffer({'Mighty Guard'},
+                {sub_job = 'RDM', buffs = {'Haste', 'Refresh', 'Attack Boost', 'Unbridled Learning', 'amnesia'}})
+            gs.user.in_combat = true
+            assert.same({'Mighty Guard'}, first_actions(gs))
+        end)
+
         it('leaves Mighty Guard alone in combat when Unbridled Learning is not ready', function()
             local gs = buffer({'Mighty Guard'}, {sub_job = 'RDM', buffs = {'Haste', 'Refresh', 'Attack Boost'}})
             gs.game:start_ability_recast('Unbridled Learning', 100)
@@ -648,6 +683,53 @@ describe('the tick of a blue mage', function()
             gs.user.in_combat = false
             assert.same({}, first_actions(gs))
         end)
+
+        local function aborts(gs)
+            local found = {}
+            for _, line in ipairs(gs:chat()) do
+                if line:match('^Abort') then found[#found + 1] = line end
+            end
+            return found
+        end
+
+        it('tries neither under Amnesia', function()
+            local gs = warrior({'Haste', 'Refresh', 'Attack Boost', 'amnesia'})
+            first_actions(gs)
+            gs:play(2)
+            assert.same({}, aborts(gs))
+        end)
+
+        it('tries neither while its abilities are impaired', function()
+            local gs = warrior({'Haste', 'Refresh', 'Attack Boost', 'impairment'})
+            first_actions(gs)
+            gs:play(2)
+            assert.same({}, aborts(gs))
+        end)
+    end)
+
+    describe('once an ability is refused for Amnesia', function()
+        local function refused(gs)
+            gs:console('gs c set AutoBuffMode Auto')
+            gs:chat()
+            gs:type('/ja "Berserk" <me>')
+            gs:lose_buff('Haste')
+            gs:traffic()
+        end
+
+        it('acts on nothing for two seconds, so a tick that sends it again sends it once in two seconds, not every frame', function()
+            local gs = boot_ticking({'Erratic Flutter'}, {sub_job = 'WAR', buffs = {'Haste', 'Refresh', 'amnesia'}})
+            refused(gs)
+            assert.same({'Abort: You have Amnesia.'}, gs:chat())
+            gs:play(1.4)
+            assert.same({}, gs:actions())
+        end)
+
+        it('then casts as before', function()
+            local gs = boot_ticking({'Erratic Flutter'}, {sub_job = 'WAR', buffs = {'Haste', 'Refresh', 'amnesia'}})
+            refused(gs)
+            gs:play(2.1)
+            assert.same({'Erratic Flutter'}, gs:actions())
+        end)
     end)
 
     describe('during a buffup', function()
@@ -663,6 +745,14 @@ describe('the tick of a blue mage', function()
             gs:gain_buff('Unbridled Learning')
             gs:traffic()
             assert.same({'Carcharian Verve'}, first_actions(gs))
+        end)
+
+        it('tries Mighty Guard once in two seconds under Amnesia, not every frame', function()
+            local gs = boot_ticking({'Mighty Guard'}, {buffs = {'amnesia'}})
+            gs:console('gs c buffup')
+            gs:play(3)
+            assert.same({'Abort: Unbridled Learning not active.', 'Abort: Unbridled Learning not active.'},
+                jobby.said(gs, '^Abort'))
         end)
 
         it('says so and stops when each spell of the list it can cast has its buff up', function()

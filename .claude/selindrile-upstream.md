@@ -21,6 +21,7 @@ Branch `selindrile` holds a copy of https://github.com/Selindrile/GearSwap laid 
 Re-apply these after copying in an upstream version of the file, unless upstream has made the same fix.
 
 - `data/BLU.lua`: `'Orcish Counterstance'` → `'O. Counterstance'` in `blue_magic_maps.Buff` (Windower's resources name for spell 696).
+- `data/BLU.lua`: `unbridled_ready()` is false under Amnesia or Impairment unless Unbridled Learning or Wisdom is already up, and `job_filter_precast` asks it instead of reading Unbridled Learning's recast itself, so an Unbridled spell under Amnesia is cancelled rather than sending the refused ability and re-sending the spell a second later, forever. Its "Unbridled Learning not active" abort also calls `add_tick_delay(2)`. Upstream re-sent the spell every frame during a buffup while Unbridled Learning couldn't be used.
 - `libs/Sel-Display.lua`: in `update_job_states`:
   - The two loop bodies are the local functions `append_bool` and `append_mode`, so the line can be built in a fixed order for every job: Auto Trust, Auto Buff, Offense and Weapons (each only if the job lists it), then Auto WS, then the job's booleans and its other modes in its `init_job_states` order. Upstream prints all the booleans, then all the modes, in the job's order.
   - Auto WS is `state.AutoWS`, the melee auto-ws mode from `data/User/User-Globals.lua`, drawn whenever it exists: `Auto WS: <choice>`, white at OFF and yellow otherwise. Upstream has no such mode.

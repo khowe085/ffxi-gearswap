@@ -275,7 +275,7 @@ end
 
 function job_filter_precast(spell, spellMap, eventArgs)
 	if spell.skill == 'Blue Magic' and unbridled_spells:contains(spell.english) and not (state.Buff['Unbridled Learning'] or state.Buff['Unbridled Wisdom']) then
-		if (state.AutoUnbridled.value or buffup ~= '' or state.AutoBuffMode.value ~= 'Off') and (windower.ffxi.get_ability_recasts()[81] < latency and (windower.ffxi.get_spell_recasts()[spell.recast_id]/60) < spell_latency) then
+		if (state.AutoUnbridled.value or buffup ~= '' or state.AutoBuffMode.value ~= 'Off') and unbridled_ready() and (windower.ffxi.get_spell_recasts()[spell.recast_id]/60) < spell_latency then
 			eventArgs.cancel = true
 			windower.chat.input('/ja "Unbridled Learning" <me>')
 			windower.chat.input:schedule(1,'/ma "'..spell.english..'" '..spell.target.raw..'')
@@ -283,6 +283,8 @@ function job_filter_precast(spell, spellMap, eventArgs)
 		else
 			eventArgs.cancel = true
 			add_to_chat(123,'Abort: Unbridled Learning not active.')
+			--A buffup would send the spell again the next frame, as add_tick_delay() adds nothing at latency .5.
+			add_tick_delay(2)
 		end
 	end
 end
@@ -424,7 +426,9 @@ function job_self_command(commandArgs, eventArgs)
 end
 
 function unbridled_ready()
-	if state.Buff['Unbridled Learning'] or state.Buff['Unbridled Wisdom'] or windower.ffxi.get_ability_recasts()[81] < latency then
+	if state.Buff['Unbridled Learning'] or state.Buff['Unbridled Wisdom'] then
+		return true
+	elseif not silent_check_amnesia() and windower.ffxi.get_ability_recasts()[81] < latency then
 		return true
 	else
 		return false
